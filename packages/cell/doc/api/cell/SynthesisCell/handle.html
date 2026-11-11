@@ -95,10 +95,25 @@
       synapses: synapses,
       forceLock: forceLock);
 
-  &#47;&#47; 3. Define the manipulation logic
+  &#47;&#47; 3. Define the manipulation logic. `sourceSet` is the single source of
+  &#47;&#47; truth for `toList()`&#47;`start()`, so it must only ever contain cells
+  &#47;&#47; whose link to the synthesis cell was actually accepted by governance.
   bool add(Cell c) {
     if (sourceSet.add(c)) {
-      c._nucleus.synapses.link(c, downstreamCell: cel);
+      final linked = c._nucleus.synapses.link(c, downstreamCell: cel);
+      if (linked is Future&lt;bool&gt;) {
+        &#47;&#47; The handle API is synchronous; revert optimistically-late when
+        &#47;&#47; async governance rejects the link.
+        linked.then((ok) {
+          if (!ok) sourceSet.remove(c);
+        });
+        return true;
+      }
+      if (!linked) {
+        &#47;&#47; Governance rejected the link: keep the handle truthful.
+        sourceSet.remove(c);
+        return false;
+      }
       return true;
     }
     return false;
@@ -106,7 +121,12 @@
 
   bool remove(Cell c) {
     if (sourceSet.remove(c)) {
-      c._nucleus.synapses.unlink(c, downstreamCell: cel);
+      final unlinked = c._nucleus.synapses.unlink(c, downstreamCell: cel);
+      if (!unlinked) {
+        &#47;&#47; The link is still live: keep the handle truthful.
+        sourceSet.add(c);
+        return false;
+      }
       return true;
     }
     return false;
@@ -117,11 +137,16 @@
   List&lt;Cell&gt; toList() =&gt; sourceSet.toList(growable: false);
 
   bool clear() {
-    for (var c in sourceSet) {
-      c._nucleus.synapses.unlink(c, downstreamCell: cel);
+    final snapshot = sourceSet.toList(growable: false);
+    var allUnlinked = true;
+    for (var c in snapshot) {
+      if (c._nucleus.synapses.unlink(c, downstreamCell: cel)) {
+        sourceSet.remove(c);
+      } else {
+        allUnlinked = false;
+      }
     }
-    sourceSet.clear();
-    return true;
+    return allUnlinked;
   }
 
   &#47;&#47; Stop&#47;Start controls the propagation by unlinking&#47;re-linking the entire set
@@ -178,7 +203,7 @@
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

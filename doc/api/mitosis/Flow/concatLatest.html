@@ -82,13 +82,6 @@ sequence.</p>
 <li>The inner is fully drained and collected.</li>
 <li>The last typed value of type <code>T</code> is emitted.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Last Only</strong>: Only the last item of each inner is emitted.</li>
-<li><strong>Full Drain</strong>: The entire inner is drained to find the last.</li>
-<li><strong>Type Filtering</strong>: Only values of type <code>T</code> are considered.</li>
-<li><strong>Memory Usage</strong>: Drains the full inner into memory.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -147,7 +140,7 @@ lists.emit(['d', 'e']);      // -&gt; e
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

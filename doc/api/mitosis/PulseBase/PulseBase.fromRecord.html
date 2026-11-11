@@ -75,10 +75,6 @@ call it directly.</li>
 <h3 id="how-it-works">How it works</h3>
 <p>Directly assigns the provided record to <code>_record</code>. The record is
 assumed to be correctly shaped — no validation is performed.</p>
-<h3 id="nonobvious-this-bypasses-the-bitmask-optimization">Non‑obvious: this bypasses the bitmask optimization</h3>
-<p>Unlike the primary constructor, this does not call <code>mask</code>. It assumes
-the record is already correctly formed. This is why it's only used
-internally — to avoid the overhead of re‑masking when cloning.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>record</code>: The record containing the pulse's metadata.</li>
@@ -119,7 +115,7 @@ internally — to avoid the overhead of re‑masking when cloning.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

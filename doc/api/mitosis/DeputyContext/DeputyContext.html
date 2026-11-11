@@ -74,12 +74,6 @@ mandate dimensions. For common use cases, prefer the named factories.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>It assembles the mandate dimensions from the provided parameters and
 links them to the <code>baseContext</code> via prototype‑based inheritance.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>authority</code> is required – there's no default.</li>
-<li>The <code>role</code> is optional; if omitted, the deputy has no semantic identity.</li>
-<li>The <code>clearance</code> defaults to <code>standard</code>, but you can override.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>baseContext</code>: The parent <a href="../../mitosis/Context-class.html">Context</a> providing the baseline lineage.</li>
@@ -142,7 +136,7 @@ links them to the <code>baseContext</code> via prototype‑based inheritance.</p
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

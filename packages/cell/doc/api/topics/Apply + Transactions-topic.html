@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Apply + Transactions topic docs, for the Dart programming language.">
+  <title>Apply + Transactions topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Apply + Transactions topic</li>
+  </ol>
+  <div class="self-name">Apply + Transactions</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Apply + Transactions</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="howto-cellapplymd"><code>HowTo-Cell.apply.md</code></h1>
+<p><em>A complete guide to <code>Cell.apply</code>, <code>ApplyCommand</code>, and <code>ApplyOutcome</code> — for humans and AI agents.</em></p>
+<hr>
+<h2 id="0-tldr">0. TL;DR</h2>
+<pre class="language-dart"><code class="language-dart">final outcome = await cell.apply&lt;int&gt;((
+  function: someWhitelistedFn,
+  arguments: (positionalArguments: [arg1, arg2], namedArguments: null),
+  compensation: null, // only used by txApply
+));
+
+switch (outcome) {
+  case ApplyAccepted&lt;int&gt;(:final result, :final receipt):
+    // Gate approved (or didn't need to run — check receipt.vetted).
+  case ApplyRejected&lt;int&gt;(:final reason, :final receipt):
+    // Gate denied.
+  case ApplyStaged(:final receipt):
+    // Queued inside a transaction — call tx.commit().
+}
+</code></pre>
+<p><code>Cell.apply</code> is a <strong>command gateway</strong>, not a <strong>security boundary</strong>. Read §4 before you trust it for access control.</p>
+<hr>
+<h2 id="1-what-cellapply-actually-is">1. What <code>Cell.apply</code> actually is</h2>
+<p><code>Cell.apply</code> is the framework's <strong>Command Pattern entry point</strong>. It takes a single <code>ApplyCommand</code> record — function + arguments + optional compensation — and returns an <code>ApplyOutcome</code>.</p>
+<p>It does four things, and only four:</p>
+<ol>
+<li><strong>Records a receipt</strong> — an immutable, timestamped audit trail for every attempt (<code>ApplyLedger.receipt</code>).</li>
+<li><strong>Checks the whitelist</strong> — if <code>command.function</code> is in <code>cell.modifiable</code>, the call is <em>vetted</em> and routed through <code>TestCell.action</code>.</li>
+<li><strong>Stages into a transaction</strong> — if <code>tx</code> is provided, the command is enqueued instead of executed (<code>ApplyStaged</code>).</li>
+<li><strong>Returns a typed outcome</strong> — one of <code>ApplyAccepted&lt;R&gt;</code>, <code>ApplyRejected&lt;R&gt;</code>, or <code>ApplyStaged</code>.</li>
+</ol>
+<p>It does <strong>not</strong> invoke compensation. That's <code>txApply</code>'s job (§9).
+It does <strong>not</strong> fire veto conversion. That's also <code>txApply</code>'s job (§8).
+It is <strong>not</strong> a sandbox. See §4.</p>
+<hr>
+<h2 id="2-when-to-use-apply--and-when-not-to">2. When to use <code>apply</code> — and when not to</h2>
+<h3 id="use-apply-when">Use <code>apply</code> when</h3>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Why <code>apply</code> helps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>You need an <strong>audit trail</strong> for a mutation</td>
+<td>Every call produces an <code>ApplyReceipt</code> with a unique <code>id</code> and <code>timestamp</code></td>
+</tr>
+<tr>
+<td>You want <strong>policy-gated mutations</strong> (<code>TestCell.action</code>)</td>
+<td>Vetted functions go through the integrity gate</td>
+</tr>
+<tr>
+<td>You need to <strong>stage commands</strong> for atomic execution</td>
+<td>Pass <code>tx: someTxApplyScope</code></td>
+</tr>
+<tr>
+<td>You want to <strong>declare compensation</strong></td>
+<td>Package the reversal alongside the action (§10)</td>
+</tr>
+<tr>
+<td>You want a <strong>uniform call surface</strong> for heterogeneous cells</td>
+<td>A generic controller doesn't need to know concrete types</td>
+</tr>
+</tbody>
+</table>
+<h3 id="do-not-use-apply-when">Do <strong>not</strong> use <code>apply</code> when</h3>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Use instead</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mutating a <code>ValueCell</code>'s value</td>
+<td><code>handle.update(v)</code> or <code>handle.updateAsync(v)</code> — <code>apply</code> is for <em>commands</em>, not <em>values</em></td>
+</tr>
+<tr>
+<td>You need <strong>atomic multi-cell value updates</strong></td>
+<td><code>Cell.transaction()</code> + <code>tx.update(cell, value)</code></td>
+</tr>
+<tr>
+<td>Your logic is a direct method call on a known-typed cell</td>
+<td>Just call the method — <code>apply</code> is overhead</td>
+</tr>
+<tr>
+<td>You're trying to <strong>prevent</strong> a caller from invoking a function</td>
+<td><strong><code>apply</code> alone won't stop it.</strong> See §4.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="3-the-api-at-a-glance">3. The API at a glance</h2>
+<h3 id="31-applycommand">3.1 <code>ApplyCommand</code></h3>
+<pre class="language-dart"><code class="language-dart">typedef ApplyCommand = ({
+  Function function,
+  ApplyArguments arguments,
+  ApplyCompensation? compensation,
+});
+
+typedef ApplyArguments = ({
+  List&lt;Object?&gt;? positionalArguments,
+  Map&lt;Symbol, Object?&gt;? namedArguments,
+});
+
+typedef ApplyCompensation = ({
+  Function function,
+  ApplyArguments arguments,
+  Cell? cell, // null = compensate on the same cell
+});
+</code></pre>
+<p>All three are plain Dart records. Nullability is permissive: arguments and compensation are optional.</p>
+<h3 id="32-applyoutcomer-sealed">3.2 <code>ApplyOutcome&lt;R&gt;</code> (sealed)</h3>
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>Meaning</th>
+<th>Fields</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ApplyAccepted&lt;R&gt;</code></td>
+<td>Function executed, result available</td>
+<td><code>result: R</code>, <code>receipt</code></td>
+</tr>
+<tr>
+<td><code>ApplyRejected&lt;R&gt;</code></td>
+<td>Gate refused; <strong>nothing executed</strong></td>
+<td><code>reason: Object?</code>, <code>receipt</code></td>
+</tr>
+<tr>
+<td><code>ApplyStaged</code> (extends <code>ApplyOutcome&lt;Never&gt;</code>)</td>
+<td>Queued in a transaction, <strong>not yet executed</strong></td>
+<td><code>receipt</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>ApplyStaged</code> deliberately carries <code>Never</code> as the result type — there is no result until the transaction commits.</p>
+<h3 id="33-applyreceipt">3.3 <code>ApplyReceipt</code></h3>
+<pre class="language-dart"><code class="language-dart">typedef ApplyReceipt = ({
+  String id,             // unique correlation id
+  Cell cell,             // the cell that received the command
+  Function function,     // the function that was requested
+  ApplyArguments arguments,
+  DateTime timestamp,    // submission time
+  int? txSequence,       // position in the transaction, if staged
+  bool vetted,           // did the gate participate?
+});
+</code></pre>
+<p><code>vetted</code> is the single most important field on the receipt. See §4.</p>
+<h3 id="34-applycommandrunner-the-dsl">3.4 <code>ApplyCommandRunner</code> (the DSL)</h3>
+<p>Fluent builder that produces an <code>ApplyCommand</code>. See §11.</p>
+<pre class="language-dart"><code class="language-dart">await cell.command(fn).args([1]).named({#k: v}).undo(undoFn).run&lt;int&gt;();
+</code></pre>
+<hr>
+<h2 id="4-the-critical-concept-vetted-vs-unvetted">4. The critical concept: <strong>vetted vs. unvetted</strong></h2>
+<p>This is the one thing you must understand or <code>apply</code> will bite you.</p>
+<p><code>CellBase.apply</code> starts with:</p>
+<pre class="language-dart"><code class="language-dart">final vetted = modifiable.contains(command.function);
+</code></pre>
+<p>From there, two completely different paths diverge:</p>
+<pre class="language-dart"><code>                    ┌─────────────────────────────────┐
+  apply(command) ──▶│  modifiable.contains(function)? │
+                    └────────────────┬────────────────┘
+                             yes ────┴──── no
+                              │            │
+                  ┌───────────▼──┐     ┌───▼──────────────┐
+                  │ VETTED path  │     │ UNVETTED path    │
+                  │ gate runs    │     │ gate skipped     │
+                  │ TestCell     │     │ function         │
+                  │  .action()   │     │ executes         │
+                  │              │     │ receipt.vetted   │
+                  │ if approved: │     │  = false         │
+                  │   execute    │     │                  │
+                  │ if rejected: │     │                  │
+                  │   ApplyRejected                    │
+                  └──────────────┘     └──────────────────┘
+</code></pre>
+<h3 id="what-this-means-in-practice">What this means in practice</h3>
+<ul>
+<li><strong><code>modifiable</code> is a gate-list, not an allow-list.</strong> A function <em>in</em> <code>modifiable</code> must pass <code>TestCell.action</code> to execute. A function <em>not in</em> <code>modifiable</code> executes without any gate check at all.</li>
+<li><strong>The default <code>modifiable</code> is <code>{apply}</code>.</strong> For every built-in cell type (<code>ValueCell</code>, <code>_Cell</code>, <code>_OpenCell</code>), the only "vetted" function is <code>apply</code> itself — a circular no-op. In practice, <strong>every domain command you pass through <code>apply</code> on a stock cell is unvetted.</strong></li>
+<li><strong>The docstring on <code>Cell.modifiable</code> says "whitelist of functions authorized for execution."</strong> The implementation is the opposite: functions <em>not</em> in the manifest are authorized unconditionally. Trust the code, not the docstring.</li>
+</ul>
+<h3 id="so-how-do-you-get-real-gating">So how do you get real gating?</h3>
+<p>Override <code>modifiable</code> on your cell subclass and attach a <code>TestCell.action</code> that inspects function identity:</p>
+<pre class="language-dart"><code class="language-dart">class AccountCell extends CellBase {
+  AccountCell()
+      : super(
+          context: Context.module('Accounts'),
+          testRule: TestCell&lt;Cell&gt;((obj, {host, arguments, user}) {
+            // Runs for pulses AND vetted commands.
+            if (obj is Function) {
+              // Command path — inspect the function.
+              final allowed = (host as AccountCell).modifiable.contains(obj);
+              return allowed;
+            }
+            // Pulse path (ValueCell updates, etc.) — see other TestRules.
+            return true;
+          }),
+        );
+
+  int _balance = 100;
+
+  void deposit(int amount) { _balance += amount; }
+  void withdraw(int amount) { _balance -= amount; }
+
+  @override
+  Iterable&lt;Function&gt; get modifiable =&gt; {deposit, withdraw, ...super.modifiable};
+}
+</code></pre>
+<p>Now:</p>
+<pre class="language-dart"><code class="language-dart">final acc = AccountCell();
+await acc.apply&lt;void&gt;((function: acc.deposit, arguments: (positionalArguments: [50], namedArguments: null), compensation: null));
+// → vetted = true, gate runs, then deposit(50) executes
+// → receipt.vetted == true
+
+await acc.apply&lt;void&gt;((function: () =&gt; print('sneaky'), arguments: (positionalArguments: null, namedArguments: null), compensation: null));
+// → vetted = false, executes anyway, receipt.vetted == false
+</code></pre>
+<p>If you need to <strong>prevent</strong> the second call, the cell cannot — the caller has the cell reference and <code>apply</code> runs unvetted functions by design. Prevention requires <em>not</em> exposing <code>apply</code> to that caller, or wrapping your cell so <code>apply</code> itself is not a public method.</p>
+<h3 id="deputies-and-gating">Deputies and gating</h3>
+<p>A <code>deputy(testRule: TestCell.readOnly)</code> (with the §3 fix applied) <em>will</em> reject vetted commands. But because the default <code>modifiable</code> doesn't contain user functions, even a read-only deputy permits unvetted commands — unless the deputy's cell subclass overrides <code>modifiable</code> to include them.</p>
+<p><strong>Bottom line:</strong> if you want <code>apply</code> to be a security boundary, you must (a) override <code>modifiable</code> to include every function callers might invoke, and (b) attach a <code>TestCell.action</code> that decides which of those are permitted. Otherwise <code>apply</code> is an audit tool, not a gate.</p>
+<hr>
+<h2 id="5-sync-vs-async">5. Sync vs. async</h2>
+<p><code>apply</code> returns <code>FutureOr&lt;ApplyOutcome&lt;R&gt;&gt;</code>.</p>
+<p>The synchronous path holds when the gate's <code>TestCell.action</code> returns <code>bool</code>. If it returns <code>Future&lt;bool&gt;</code>, <code>apply</code> returns a <code>Future&lt;ApplyOutcome&lt;R&gt;&gt;</code>:</p>
+<pre class="language-dart"><code class="language-dart">// Gate rule:
+final remoteAuthRule = TestActionRule&lt;Cell&gt;((action, {required host, arguments, user}) async {
+  return await authService.canInvoke(host.context, action);
+});
+
+// Caller: always await. Works either way.
+final outcome = await cell.apply&lt;int&gt;(cmd);
+</code></pre>
+<p><strong>Rule of thumb:</strong> always <code>await</code> the result. The <code>FutureOr</code> distinction is invisible to correct callers; only code that manually branches on <code>is Future</code> can mishandle it.</p>
+<hr>
+<h2 id="6-handling-outcomes">6. Handling outcomes</h2>
+<p><code>ApplyOutcome</code> is <code>sealed</code> — exhaustive <code>switch</code> gives compile-time guarantees.</p>
+<pre class="language-dart"><code class="language-dart">final outcome = await cell.apply&lt;int&gt;(cmd);
+
+switch (outcome) {
+  case ApplyAccepted&lt;int&gt;(:final result, :final receipt):
+    log('ok id=${receipt.id} vetted=${receipt.vetted}');
+    use(result);
+
+  case ApplyRejected&lt;int&gt;(:final reason, :final receipt):
+    log('rejected: $reason');
+    // Nothing executed — safe to retry, fix args, or escalate.
+
+  case ApplyStaged(:final receipt):
+    // You passed a tx. Call tx.commit() somewhere upstream.
+    assert(receipt.txSequence != null);
+    await tx!.commit();
+}
+</code></pre>
+<h3 id="what-applyaccepted-does-not-mean">What <code>ApplyAccepted</code> does <em>not</em> mean</h3>
+<ul>
+<li><strong>It does not mean the state is committed.</strong> The function returned. Whether it left the world consistent is up to the function.</li>
+<li><strong>It does not mean the gate approved.</strong> If <code>receipt.vetted</code> is <code>false</code>, the gate never ran.</li>
+<li><strong>It does not mean the result is not a veto.</strong> See §8 — <code>apply</code> outside <code>txApply</code> does not auto-convert <code>ApplyVeto</code>.</li>
+</ul>
+<h3 id="what-applyrejected-guarantees">What <code>ApplyRejected</code> guarantees</h3>
+<p>Nothing executed. The gate refused the call. State is unchanged by this command.</p>
+<h3 id="what-applystaged-guarantees">What <code>ApplyStaged</code> guarantees</h3>
+<p>The command is enqueued. It will execute on <code>tx.commit()</code>, or be discarded on <code>tx.rollback()</code>. The receipt's <code>txSequence</code> is its position in the queue.</p>
+<hr>
+<h2 id="7-the-dsl--applycommandrunner">7. The DSL — <code>ApplyCommandRunner</code></h2>
+<p>For readability when building non-trivial commands.</p>
+<pre class="language-dart"><code class="language-dart">final runner = cell.command(account.withdraw);   // picks the function
+
+final cmd = runner
+    .args([50])                                   // positional
+    .named({#reason: 'ATM'})                      // named
+    .undo(account.deposit, args: [50])            // compensation
+    .build();                                     // → ApplyCommand
+
+// Or run it directly:
+final outcome = await runner.run&lt;int&gt;();
+</code></pre>
+<p>Notes:</p>
+<ul>
+<li><code>runner</code> is mutable during construction (<code>args</code>, <code>named</code>, <code>undo</code> mutate fields) and short-lived. Reuse across calls is legal but confusing; construct a fresh one.</li>
+<li><code>.arg(x)</code> is a single-arg shorthand for <code>.args([x])</code>.</li>
+<li><code>.undo(fn, args: [...], named: {...}, cell: maybeAnotherCell)</code> — <code>cell: null</code> means "the same cell that received the command".</li>
+<li><code>.run&lt;R&gt;({tx})</code> is literally <code>cell.apply&lt;R&gt;(build(), tx: tx)</code>. There is no other behavior.</li>
+</ul>
+<p>The DSL is pure syntax sugar. Every example in the rest of this document can be written either way.</p>
+<hr>
+<h2 id="8-applyveto--soft-rejection-from-inside-the-function">8. <code>ApplyVeto</code> — soft rejection from inside the function</h2>
+<p>Sometimes the function itself discovers, mid-execution, that it should not complete. It can return <code>ApplyVeto.instance</code>:</p>
+<pre class="language-dart"><code class="language-dart">Object? transfer(Account to, int amount) {
+  if (balance &lt; amount) {
+    return ApplyVeto.instance;   // soft rejection
+  }
+  balance -= amount;
+  return null;                   // success
+}
+</code></pre>
+<h3 id="behavior-depends-on-the-transaction">Behavior depends on the transaction</h3>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>What happens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Plain <code>apply</code> (no <code>tx</code>)</strong></td>
+<td>Returns <code>ApplyAccepted(ApplyVeto.instance, receipt)</code>. <strong>You must inspect the result.</strong> The framework does <em>not</em> auto-convert.</td>
+</tr>
+<tr>
+<td><strong><code>apply</code> inside <code>txApply</code> (<code>tx:</code>)</strong>, at commit</td>
+<td><code>txApply</code> detects the veto via <code>_isApplyRejected</code> and treats it as a <strong>rejection</strong>, triggering compensation for earlier commands.</td>
+</tr>
+</tbody>
+</table>
+<p>So in a plain <code>apply</code>:</p>
+<pre class="language-dart"><code class="language-dart">final outcome = await cell.apply&lt;Object?&gt;(cmd);
+if (outcome case ApplyAccepted&lt;Object?&gt;(:final result)) {
+  if (result is ApplyVeto) {
+    // soft rejection — do not treat as success
+  }
+}
+</code></pre>
+<p>Or use <code>txApply</code> when you need the framework to handle veto for you.</p>
+<h3 id="when-to-prefer-applyveto-over-throw">When to prefer <code>ApplyVeto</code> over <code>throw</code></h3>
+<ul>
+<li><strong><code>ApplyVeto</code></strong> — expected, domain-level rejection. The caller should treat it as "not accepted" and proceed.</li>
+<li><strong><code>throw</code></strong> — unexpected error. The call fails; <code>txApply</code> compensates.</li>
+</ul>
+<p>Returning <code>ApplyVeto</code> is cheap; throwing builds a stack trace.</p>
+<hr>
+<h2 id="9-transactions-apply-with-a-tx">9. Transactions: <code>apply</code> with a <code>tx</code></h2>
+<p><code>Cell.apply</code> accepts an <code>ApplyTransactionScope</code> (created via <code>Cell.txApply()</code>).</p>
+<pre class="language-dart"><code class="language-dart">final tx = Cell.txApply();
+
+await tx.begin([accountA, accountB]);
+
+final stagedA = await accountA.apply&lt;void&gt;((
+  function: accountA.deposit,
+  arguments: (positionalArguments: [100], namedArguments: null),
+  compensation: (function: accountA.withdraw, arguments: (positionalArguments: [100], namedArguments: null), cell: null),
+), tx: tx);
+// stagedA is ApplyStaged — nothing has executed yet
+
+final stagedB = await accountB.apply&lt;void&gt;((
+  function: accountB.withdraw,
+  arguments: (positionalArguments: [100], namedArguments: null),
+  compensation: null,
+), tx: tx);
+
+await tx.commit();   // both commands execute atomically (with compensation on failure)
+</code></pre>
+<h3 id="what-txapply-guarantees">What <code>txApply</code> guarantees</h3>
+<ul>
+<li><strong>Atomic attempt.</strong> All staged commands are attempted; the first failure triggers compensation for previously-<em>executed</em> commands (§10).</li>
+<li><strong>Gate is re-checked at commit.</strong> A function removed from <code>modifiable</code> between staging and commit will be rejected.</li>
+<li><strong>Compensation is invoked on failure</strong> for commands that actually ran.</li>
+<li><strong>Ordering is preserved</strong> — commands execute in staging order. <code>receipt.txSequence</code> is the position.</li>
+</ul>
+<h3 id="what-txapply-does-not-do">What <code>txApply</code> does <strong>not</strong> do</h3>
+<ul>
+<li><strong>No isolation levels.</strong> Unlike <code>Cell.transaction</code> (repeatable-read etc.), <code>txApply</code> is a strict serial executor. It doesn't snapshot values.</li>
+<li><strong>No value buffering.</strong> You can't <code>tx.update(cell, value)</code> — that's <code>Cell.transaction</code>. <code>txApply</code> only executes commands.</li>
+<li><strong>No re-entrancy.</strong> You can't call <code>begin</code> while a scope is open.</li>
+</ul>
+<h3 id="txapply-vs-celltransaction--pick-one"><code>txApply</code> vs. <code>Cell.transaction</code> — pick one</h3>
+<table>
+<thead>
+<tr>
+<th>You want to…</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Buffer <code>ValueCell</code> updates and commit atomically</td>
+<td><strong><code>Cell.transaction()</code></strong> + <code>tx.update(cell, value)</code></td>
+</tr>
+<tr>
+<td>Read with a snapshot (repeatable-read, serializable)</td>
+<td><strong><code>Cell.transaction()</code></strong> + <code>tx.read(cell)</code></td>
+</tr>
+<tr>
+<td>Stage <strong>commands</strong> with compensation</td>
+<td><strong><code>Cell.txApply()</code></strong> + <code>cell.apply(cmd, tx: tx)</code></td>
+</tr>
+<tr>
+<td>Rollback via compensation functions</td>
+<td><strong><code>Cell.txApply()</code></strong></td>
+</tr>
+<tr>
+<td>Rollback via value discard</td>
+<td><strong><code>Cell.transaction()</code></strong></td>
+</tr>
+</tbody>
+</table>
+<p><code>apply</code> only accepts <code>ApplyTransactionScope</code> (from <code>txApply</code>). It does <strong>not</strong> accept <code>TransactionScope</code> (from <code>Cell.transaction</code>).</p>
+<h3 id="convenience-execute">Convenience: <code>execute</code></h3>
+<pre class="language-dart"><code class="language-dart">await tx.execute(
+  participants: [accountA, accountB],
+  body: (tx) {
+    accountA.apply(cmdA, tx: tx);  // ApplyStaged
+    accountB.apply(cmdB, tx: tx);
+  },
+);
+// begin / commit are handled; rollback happens if body throws
+</code></pre>
+<p><code>execute</code> is <code>begin</code> → <code>body</code> → <code>commit</code>, with automatic rollback on <code>body</code> throwing. The <code>body</code> is synchronous (its commands are staged) — awaiting individual <code>apply</code> calls inside <code>body</code> is legal but wasteful.</p>
+<hr>
+<h2 id="10-compensation">10. Compensation</h2>
+<p><code>ApplyCommand.compensation</code> is <strong>only consumed by <code>txApply</code></strong>. Plain <code>apply</code> ignores it entirely.</p>
+<h3 id="shape">Shape</h3>
+<pre class="language-dart"><code class="language-dart">compensation: (
+  function: account.deposit,          // what to run to reverse the change
+  arguments: (positionalArguments: [100], namedArguments: null),
+  cell: null,                          // null = same cell that received the command
+)
+</code></pre>
+<p>The <code>cell</code> field lets a command on cell A be reversed by logic on cell B:</p>
+<pre class="language-dart"><code class="language-dart">compensation: (
+  function: ledger.recordRefund,
+  arguments: (positionalArguments: [txId], namedArguments: null),
+  cell: ledger,   // compensate on a different cell
+)
+</code></pre>
+<h3 id="when-compensation-runs">When compensation runs</h3>
+<ul>
+<li><strong><code>tx.commit()</code></strong> — if any staged command fails or vetoes, previously-executed commands are compensated in reverse order.</li>
+<li><strong><code>tx.rollback()</code></strong> — all executed commands are compensated in reverse order.</li>
+<li><strong><code>tx.rollback(savepoint: sp)</code></strong> — commands staged <em>after</em> the savepoint are compensated and discarded.</li>
+</ul>
+<h3 id="what-compensation-does-not-do">What compensation does <strong>not</strong> do</h3>
+<ul>
+<li><strong>It does not run on plain <code>apply</code> failures.</strong> Plain <code>apply</code> doesn't fail — it returns <code>ApplyAccepted</code>, <code>ApplyRejected</code>, or <code>ApplyStaged</code>. Only <code>txApply</code> invokes compensation.</li>
+<li><strong>It does not run for commands that never executed.</strong> Unless <code>compensateIfNotExecuted: true</code> is set in <code>TxApplyOptions</code>.</li>
+<li><strong>It is not automatic retry.</strong> Compensation runs once per executed command; retry policy for <em>compensation itself</em> is configured via <code>compensationMaxAttempts</code>.</li>
+</ul>
+<h3 id="failure-handling">Failure handling</h3>
+<p>Configure via <code>TxApplyOptions</code>:</p>
+<pre class="language-dart"><code class="language-dart">final tx = Cell.txApply(TxApplyOptions(
+  stopOnFirstFailure: true,
+  compensateIfNotExecuted: false,
+  compensationErrorPolicy: CompensationErrorPolicy.collectThenThrow,
+  compensationMaxAttempts: 3,
+  compensationBackoff: (attempt) =&gt; Duration(milliseconds: 50 * attempt),
+));
+</code></pre>
+<p>If compensation itself fails and <code>collectThenThrow</code> is set, <code>commit</code> throws <code>TxApplyCompensationException</code> carrying a list of <code>CompensationFailure</code>.</p>
+<hr>
+<h2 id="11-common-patterns">11. Common patterns</h2>
+<h3 id="pattern-1--one-off-audited-mutation">Pattern 1 — One-off audited mutation</h3>
+<pre class="language-dart"><code class="language-dart">final outcome = await user.apply&lt;void&gt;((
+  function: user.setName,
+  arguments: (positionalArguments: ['Alice'], namedArguments: null),
+  compensation: null,
+));
+if (outcome is ApplyRejected) throw StateError('refused: ${outcome.reason}');
+</code></pre>
+<h3 id="pattern-2--domain-cell-with-real-gating">Pattern 2 — Domain cell with real gating</h3>
+<pre class="language-dart"><code class="language-dart">class UserCell extends CellBase {
+  String _name = '';
+  void setName(String n) { _name = n; }
+
+  @override
+  Iterable&lt;Function&gt; get modifiable =&gt; {setName, ...super.modifiable};
+
+  @override
+  TestCell get validate =&gt; TestCell.chain([
+    // Original rule
+    _nucleus.testRule,
+    // Only Alice can call setName
+    TestActionRule&lt;Cell&gt;((fn, {required host, arguments, user}) {
+      if (fn != setName) return true;
+      return (host.context as ModuleContext).identity == 'Alice';
+    }),
+  ]);
+}
+
+await user.apply&lt;void&gt;((function: user.setName, arguments: (positionalArguments: ['Alice'], namedArguments: null), compensation: null));
+// → vetted=true, gate runs, approved, setName('Alice') executes
+</code></pre>
+<h3 id="pattern-3--transfer-with-compensation-saga">Pattern 3 — Transfer with compensation (Saga)</h3>
+<pre class="language-dart"><code class="language-dart">final tx = Cell.txApply();
+
+await tx.execute(
+  participants: [from, to],
+  body: (tx) {
+    from.apply&lt;void&gt;((
+      function: from.debit,
+      arguments: (positionalArguments: [100], namedArguments: null),
+      compensation: (
+        function: from.credit,
+        arguments: (positionalArguments: [100], namedArguments: null),
+        cell: null,
+      ),
+    ), tx: tx);
+
+    to.apply&lt;void&gt;((
+      function: to.credit,
+      arguments: (positionalArguments: [100], namedArguments: null),
+      compensation: (
+        function: to.debit,
+        arguments: (positionalArguments: [100], namedArguments: null),
+        cell: null,
+      ),
+    ), tx: tx);
+  },
+);
+// If to.credit throws, from.credit (compensation) runs.
+</code></pre>
+<h3 id="pattern-4--remote-authorization-gate">Pattern 4 — Remote authorization gate</h3>
+<pre class="language-dart"><code class="language-dart">final remoteAuth = TestActionRule&lt;Cell&gt;((fn, {required host, arguments, user}) async {
+  return await authService.canInvoke(host.context, fn);
+});
+
+final cell = Cell.governed(
+  context: Context.module('Payments'),
+  testRule: TestCell.chain([remoteAuth]),
+);
+
+// apply now returns a Future
+final outcome = await cell.apply&lt;void&gt;(cmd);
+</code></pre>
+<h3 id="pattern-5--veto-driven-conditional">Pattern 5 — Veto-driven conditional</h3>
+<pre class="language-dart"><code class="language-dart">Object? tryPurchase(Item item, int amount) {
+  if (balance &lt; amount) return ApplyVeto.instance;
+  if (!item.inStock)     return ApplyVeto.instance;
+  balance -= amount;
+  return null;
+}
+
+// In txApply:
+await tx.commit();   // veto → ApplyRejected path → compensation runs
+</code></pre>
+<h3 id="pattern-6--fluent-builder">Pattern 6 — Fluent builder</h3>
+<pre class="language-dart"><code class="language-dart">final outcome = await cell
+    .command(account.withdraw)
+    .args([50])
+    .named({#reference: 'ATM-991'})
+    .undo(account.deposit, args: [50])
+    .run&lt;void&gt;(tx: tx);
+</code></pre>
+<hr>
+<h2 id="12-anti-patterns-and-gotchas">12. Anti-patterns and gotchas</h2>
+<h3 id="-trusting-apply-as-a-security-boundary">✗ Trusting <code>apply</code> as a security boundary</h3>
+<p><code>apply</code> does not gate unvetted functions. If you pass an arbitrary function reference and it isn't in <code>modifiable</code>, it runs. <code>apply</code> audits; it does not sandbox.</p>
+<h3 id="-mutating-a-valuecell-via-apply">✗ Mutating a <code>ValueCell</code> via <code>apply</code></h3>
+<pre class="language-dart"><code class="language-dart">// WRONG: circumvents the standard update path; state may not propagate.
+await cell.apply&lt;void&gt;((
+  function: (int v) =&gt; (cell as ValueCell&lt;int&gt;).value = v,  // also, `value` setter is _emit
+  ...
+));
+
+// RIGHT: use the handle
+handle.update(42);
+await handle.updateAsync(43);
+</code></pre>
+<h3 id="-forgetting-to-commit-a-staged-command">✗ Forgetting to commit a staged command</h3>
+<pre class="language-dart"><code class="language-dart">await cell.apply&lt;void&gt;(cmd, tx: tx);
+// Nothing happened. You got ApplyStaged. Call tx.commit().
+</code></pre>
+<h3 id="-assuming-applyaccepted-means-state-is-now-consistent">✗ Assuming <code>ApplyAccepted</code> means "state is now consistent"</h3>
+<p><code>ApplyAccepted</code> means "the function returned." If the function throws internally without re-throwing, or leaves partial work in place, <code>apply</code> cannot know.</p>
+<h3 id="-expecting-compensation-to-fire-on-a-plain-apply">✗ Expecting compensation to fire on a plain <code>apply</code></h3>
+<pre class="language-dart"><code class="language-dart">await cell.apply&lt;void&gt;(cmd); // command.compensation is IGNORED
+</code></pre>
+<p>Compensation is a <code>txApply</code> concept.</p>
+<h3 id="-expecting-applyveto-to-be-auto-converted">✗ Expecting <code>ApplyVeto</code> to be auto-converted</h3>
+<p>Plain <code>apply</code> returns <code>ApplyAccepted(ApplyVeto.instance)</code>. Only <code>txApply</code> treats veto as rejection.</p>
+<h3 id="-assuming-applystaged-has-a-result">✗ Assuming <code>ApplyStaged</code> has a result</h3>
+<p><code>ApplyStaged</code> extends <code>ApplyOutcome&lt;Never&gt;</code>. There is no <code>result</code> field. Read <code>receipt.txSequence</code> for ordering, and the actual result — if you need it — becomes available only after commit through the function's side effects (there is no return-value channel back through <code>tx.commit()</code>).</p>
+<h3 id="-expecting-receiptvetted--true-without-overriding-modifiable">✗ Expecting <code>receipt.vetted == true</code> without overriding <code>modifiable</code></h3>
+<p>Stock cells have <code>modifiable == {apply}</code>. <code>receipt.vetted</code> will be <code>false</code> for every non-<code>apply</code> command you send. If you need audit of gate participation, override <code>modifiable</code> on your cell subclass.</p>
+<h3 id="-passing-a-transactionscope-as-tx">✗ Passing a <code>TransactionScope</code> as <code>tx</code></h3>
+<pre class="language-dart"><code class="language-dart">final tx = Cell.transaction(); // TransactionScope
+cell.apply(cmd, tx: tx);       // TYPE ERROR: apply expects ApplyTransactionScope
+</code></pre>
+<p><code>Cell.transaction</code> and <code>Cell.txApply</code> are distinct mechanisms.</p>
+<h3 id="-relying-on-late-final-adjacent-behavior">✗ Relying on <code>late final</code>-adjacent behavior</h3>
+<p><code>apply</code> returns whatever the gate returns. If the gate is synchronous, the call is synchronous. Don't write:</p>
+<pre class="language-dart"><code class="language-dart">final outcome = cell.apply&lt;int&gt;(cmd);
+if (outcome is Future) { ... } // fragile
+</code></pre>
+<p>Just <code>await</code>.</p>
+<hr>
+<h2 id="13-for-ai-agents">13. For AI agents</h2>
+<h3 id="131-decision-tree">13.1 Decision tree</h3>
+<ol>
+<li>
+<p><strong>Are you mutating a <code>ValueCell</code>'s scalar value?</strong>
+→ No. Stop. Use <code>handle.update(v)</code> / <code>handle.updateAsync(v)</code>. Do not use <code>apply</code>.
+→ Yes → continue.</p>
+</li>
+<li>
+<p><strong>Is the operation a <em>command</em> that needs audit, policy gating, or transaction staging?</strong>
+→ No → call the method directly.
+→ Yes → continue.</p>
+</li>
+<li>
+<p><strong>Does it need to be atomic with other commands?</strong>
+→ Yes → create <code>Cell.txApply()</code>, pass <code>tx:</code> to every <code>apply</code>, then <code>tx.commit()</code>.
+→ No → plain <code>apply</code>.</p>
+</li>
+<li>
+<p><strong>Does the command have a reversible side effect?</strong>
+→ Yes → declare <code>compensation:</code> in the command.
+→ No → <code>compensation: null</code>.</p>
+</li>
+<li>
+<p><strong>Does the gate need async approval?</strong>
+→ Yes → the <code>TestCell.action</code> returns <code>Future&lt;bool&gt;</code>; <code>await</code> the outcome.
+→ No → sync gate.</p>
+</li>
+</ol>
+<h3 id="132-checklist--before-calling-apply">13.2 Checklist — before calling <code>apply</code></h3>
+<ul>
+<li>You're using the <strong>principal</strong> cell, or a deputy whose <code>testRule</code> you actually want applied.</li>
+<li>The <code>function</code> either is in <code>cell.modifiable</code> (the receipt records <code>vetted: true</code>) or is a caller function the integrity gate must authorize — the gate runs <strong>either way</strong>.</li>
+<li><code>arguments.positionalArguments</code> matches the function's positional arity exactly.</li>
+<li><code>arguments.namedArguments</code> uses <code>#symbol</code> keys (e.g. <code>{#name: 'x'}</code>, not <code>{'name': 'x'}</code>).</li>
+<li>If you passed <code>tx:</code>, you will call <code>tx.commit()</code> (or <code>tx.rollback()</code>) afterwards.</li>
+<li>You will inspect <strong>all three</strong> outcome variants — not just <code>ApplyAccepted</code>.</li>
+<li>If the function might veto, you check for <code>ApplyRejected</code> — a returned <code>ApplyVeto</code> is reported as <code>ApplyRejected</code>, not as a successful outcome.</li>
+</ul>
+<h3 id="133-required-outcome-handling">13.3 Required outcome handling</h3>
+<pre class="language-dart"><code class="language-dart">final outcome = await cell.apply&lt;int&gt;(cmd);
+
+switch (outcome) {
+  case ApplyAccepted&lt;int&gt;(:final result, :final receipt):
+    if (result is ApplyVeto) {
+      return Err('vetoed by function (id=${receipt.id})');
+    }
+    return Ok(result);
+
+  case ApplyRejected&lt;int&gt;(:final reason, :final receipt):
+    return Err('rejected by gate: $reason (id=${receipt.id})');
+
+  case ApplyStaged(:final receipt):
+    // You passed a tx — commit it now.
+    assert(receipt.txSequence != null);
+    await tx!.commit();
+    return Ok(null);
+}
+</code></pre>
+<p>Do not omit any branch. <code>ApplyStaged</code> falling through means the caller's transaction never commits and the command is silently lost.</p>
+<h3 id="134-logging-discipline">13.4 Logging discipline</h3>
+<p>Always record at minimum:</p>
+<pre class="language-dart"><code class="language-dart">log([
+  'apply', receipt.id,
+  'fn=${receipt.function}',
+  'vetted=${receipt.vetted}',
+  'txSeq=${receipt.txSequence}',
+  'at=${receipt.timestamp.toIso8601String()}',
+].join(' '));
+</code></pre>
+<p>Without <code>vetted</code>, you cannot tell from logs whether the gate even participated.</p>
+<h3 id="135-compact-rules-system-prompt-snippet">13.5 Compact rules (system-prompt snippet)</h3>
+<pre class="language-dart"><code>- apply(command) is a Command gateway, not a security sandbox.
+- If command.function ∈ cell.modifiable → gate runs (TestCell.action).
+  Else → function executes ungated, receipt.vetted = false.
+- Default modifiable = {apply}. Real gating requires overriding modifiable.
+- Outcomes are sealed: ApplyAccepted&lt;R&gt; | ApplyRejected&lt;R&gt; | ApplyStaged.
+  ApplyStaged ⇒ tx was passed; you must tx.commit() afterwards.
+- ApplyVeto.instance is only auto-converted to ApplyRejected inside txApply.
+  Plain apply returns ApplyAccepted(ApplyVeto.instance) — inspect the result.
+- compensation: on a command is IGNORED unless tx is passed (txApply).
+- For ValueCell value mutation, use handle.update/updateAsync — not apply.
+- Cell.transaction (value buffering) ≠ Cell.txApply (command staging).
+  apply only accepts ApplyTransactionScope (from txApply).
+- Always await the outcome. Always exhaust the switch.
+</code></pre>
+<hr>
+<h2 id="14-cheat-sheet">14. Cheat sheet</h2>
+<h3 id="command">Command</h3>
+<pre class="language-dart"><code class="language-dart">(
+  function: someFn,
+  arguments: (positionalArguments: [a, b], namedArguments: {#k: v}),
+  compensation: (
+    function: undoFn,
+    arguments: (positionalArguments: [a, b], namedArguments: null),
+    cell: maybeAnotherCell, // null = same cell
+  ),
+)
+</code></pre>
+<h3 id="outcome-table">Outcome table</h3>
+<table>
+<thead>
+<tr>
+<th>Outcome</th>
+<th>Meaning</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ApplyAccepted&lt;R&gt;</code></td>
+<td>Function returned <code>R</code> (possibly <code>ApplyVeto.instance</code>)</td>
+<td>Use <code>result</code>, log <code>receipt.id</code></td>
+</tr>
+<tr>
+<td><code>ApplyRejected&lt;R&gt;</code></td>
+<td>Gate refused, nothing executed</td>
+<td>Inspect <code>reason</code>, retry or escalate</td>
+</tr>
+<tr>
+<td><code>ApplyStaged</code></td>
+<td>Enqueued in a transaction</td>
+<td>Call <code>tx.commit()</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="path-selection">Path selection</h3>
+<table>
+<thead>
+<tr>
+<th><code>modifiable.contains(fn)</code></th>
+<th>Gate runs?</th>
+<th><code>receipt.vetted</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>true</code></td>
+<td><code>TestCell.action</code></td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>false</code></td>
+<td><em>(skipped)</em></td>
+<td><code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="transaction-type-compatibility">Transaction type compatibility</h3>
+<table>
+<thead>
+<tr>
+<th>Mechanism</th>
+<th>Returned by</th>
+<th><code>apply(tx:)</code> accepts?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TransactionScope</code></td>
+<td><code>Cell.transaction()</code></td>
+<td>✗</td>
+</tr>
+<tr>
+<td><code>ApplyTransactionScope</code></td>
+<td><code>Cell.txApply()</code></td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+<h3 id="compensation">Compensation</h3>
+<table>
+<thead>
+<tr>
+<th>Context</th>
+<th>Compensation fires?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Plain <code>apply</code></td>
+<td>Never</td>
+</tr>
+<tr>
+<td><code>txApply.commit()</code> (success)</td>
+<td>Never</td>
+</tr>
+<tr>
+<td><code>txApply.commit()</code> (any failure)</td>
+<td>Yes, reverse order, for executed commands only</td>
+</tr>
+<tr>
+<td><code>txApply.rollback()</code></td>
+<td>Yes, reverse order</td>
+</tr>
+<tr>
+<td><code>txApply.rollback(savepoint)</code></td>
+<td>Yes, for commands after savepoint</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="15-see-also">15. See also</h2>
+<ul>
+<li><strong><code>Cell.transaction</code></strong> — atomic multi-<code>ValueCell</code> value updates with isolation levels.</li>
+<li><strong><code>Cell.txApply</code></strong> — atomic command staging with compensation (the transaction model that <code>apply</code> uses).</li>
+<li><strong><code>TestCell</code></strong> — the integrity gate that vetted <code>apply</code> calls route through.</li>
+<li><strong><code>TestActionRule</code></strong> — the rule class used by <code>TestCell.action</code> for command gating.</li>
+<li><strong><code>ApplyCommandDSL</code></strong> — the fluent builder.</li>
+<li><strong><code>ApplyLedger</code></strong> — receipt minting.</li>
+<li><code>guide/HowTo-Start.md</code> — getting started with cells.</li>
+<li><code>guide/HowTo-Transaction.md</code> — deeper transaction walkthrough.</li>
+<li><code>guide/HowTo-TestCell.md</code> — writing integrity gates.</li>
+</ul>
+<hr>
+<p><em>End of guide.</em></p>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="Cell">
+  <span class="name "><a href="../cell/Cell-class.html">Cell</a></span> 
+    <span class="category getting-started cp-1 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
+    <span class="category core-16-operators cp-2 linked" title="This is part of the Core 16 Operators topic."><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></span>
+    <span class="category transactions cp-3 linked" title="This is part of the Transactions topic."><a href="../topics/Transactions-topic.html">Transactions</a></span>
+    <span class="category apply-+-transactions cp-4 linked" title="This is part of the Apply + Transactions topic."><a href="../topics/Apply + Transactions-topic.html">Apply&nbsp;+&nbsp;Transactions</a></span>
+    <span class="category demo:aircraft cp-5 linked" title="This is part of the Demo:aircraft topic."><a href="../topics/Demo: aircraft-topic.html">Demo:aircraft</a></span>
+
+</dt>
+<dd>
+  A reactive node: holds state (or relays signals), validates every
+incoming change against a policy, and broadcasts accepted changes to
+whatever else is listening.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Apply + Transactions topic</li>
+</ol>
+
+  <h5><span class="package-name">cell</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
+        <li><a href="../topics/Transactions-topic.html">Transactions</a></li>
+        <li><a href="../topics/Apply + Transactions-topic.html">Apply&nbsp;+&nbsp;Transactions</a></li>
+        <li><a href="../topics/Pulse-topic.html">Pulse</a></li>
+        <li><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
+        <li><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
+        <li><a href="../topics/Instructions-topic.html">Instructions</a></li>
+        <li><a href="../topics/Advanced-topic.html">Advanced</a></li>
+        <li><a href="../topics/Demo: aircraft-topic.html">Demo:aircraft</a></li>
+        <li><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></li>
+        <li><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></li>
+        <li><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></li>
+        <li><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></li>
+        <li><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></li>
+        <li><a href="../topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
+      <li><a href="../cell_api_chooser/">doc\api_chooser</a></li>
+      <li class="section-subtitle">Features</li>
+        <li class="section-subitem"><a href="../cell/">cell</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Apply + Transactions topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Apply + Transactions-topic.html#classes">Classes</a></li>
+      <li><a href="../cell/Cell-class.html">Cell</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

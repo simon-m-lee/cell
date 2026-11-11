@@ -88,18 +88,6 @@ instructions operate within a <a href="../../cell_flow/Cell-class.html">Cell</a>
 automatically broadcast to all downstream <a href="../../cell_flow/Synapses-class.html">Synapses</a>. To act on the
 final result, developers should attach observers to the host cell
 rather than attempting to await the instruction's completion.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Token Integrity</strong>: The <code>token</code> is a unique identifier for the
-instruction's position in a chain. Passing it back to the <code>future</code>
-callback ensures the graph sequencer knows exactly where to resume.</li>
-<li><strong>Suspension</strong>: Returning <code>null</code> is mandatory to suspend propagation;
-returning a <a href="../../cell_flow/Pulse-class.html">Pulse</a> will cause immediate synchronous propagation,
-likely leading to double-emissions if <code>future</code> is also called.</li>
-<li><strong>Memory Safety</strong>: If the host <a href="../../cell_flow/Cell-class.html">Cell</a> is disposed before the
-asynchronous operation finishes, the <a href="../../cell_flow/Instruction/Instruction.future.html">future</a> callback becomes a
-no-op to prevent memory leaks and ghost updates.</li>
-</ul>
 <h3 id="example">Example:</h3>
 <pre class="language-dart"><code class="language-dart">final futureInstruction = Instruction&lt;Cell, Pulse, Pulse&gt;.future(
   (pulse, {cell, future, token, user}) {
@@ -136,13 +124,9 @@ custom asynchronous instructions and scheduling logic.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">const factory Instruction.future(
-    O? Function(I pulse,
-            {C? cell,
-            dynamic user,
-            void Function({required Pulse? result, required dynamic token})?
-                future,
-            dynamic token})
-        instruction,
+    O? Function(I pulse, {C? cell, dynamic user,
+    void Function({required Pulse? result, required dynamic token})? future,
+    dynamic token}) instruction,
     {dynamic user}) = _Instruction&lt;C, I, O&gt;.future;</code></pre>
 </section>
 
@@ -171,7 +155,7 @@ custom asynchronous instructions and scheduling logic.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -146,9 +146,13 @@ class _AsyncMapState<S, T> {
           // Swallow by default (same policy as fromFuture).
         } finally {
           _inFlight--;
-          if (!latestOnly || gen == _generation) {
-            _pump(onResult, generation: _generation);
-          }
+          // Always drain. In `latestOnly` mode `enqueue` has already cleared
+          // stale entries, so the remaining head is the latest generation.
+          // Without this unconditional pump, a `latestOnly + concurrency > 0`
+          // configuration leaves the queued latest value stranded when the
+          // superseded future finishes (its `gen` no longer matches
+          // `_generation`).
+          _pump(onResult, generation: _generation);
         }
       });
     }

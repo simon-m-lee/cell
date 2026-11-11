@@ -78,22 +78,6 @@ together through the reactive graph.</li>
 <li>The collective's own metadata (type, context, source) can be overridden
 via the <code>.governed</code> constructor.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>A collective is <strong>not</strong> a chain – it does <strong>not</strong> create a causal
-relationship between its members. Each event's <code>parent</code> remains unchanged.</li>
-<li>The collective's <a href="../cell_tissue/TissuePulse/root.html">root</a> is itself (it's a root collective), but each
-sub‑event's <a href="../cell_tissue/TissuePulse/root.html">root</a> remains its own root.</li>
-<li>The <code>onComplete</code> and <code>onError</code> callbacks are taken from the <strong>first</strong>
-event in the iterable (or overridden). They are <strong>not</strong> applied to each
-individual event – they fire once for the whole batch.</li>
-<li>If the iterable is empty, the collective still exists (with <code>null</code> payload
-and <code>isComposite</code> <code>true</code>).</li>
-<li>The <code>+</code> operator on a collective creates a new collective that combines
-both batches (flattened).</li>
-<li>When you <a href="../cell_tissue/TissuePulse/evolve.html">evolve</a> a collective, it transforms into an <a href="../cell_tissue/EvolvedTissuePulse-class.html">EvolvedTissuePulse</a>
-(a chain), not another collective – because evolution adds a causal step.</li>
-</ul>
 <h3 id="example-batching-two-events">Example: Batching two events</h3>
 <pre class="language-dart"><code class="language-dart">final list = TissueList.of([1, 2]);
 final added = list.apply(list.add, positionalArguments: [3]);
@@ -1020,7 +1004,7 @@ collective that contains all events from both.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

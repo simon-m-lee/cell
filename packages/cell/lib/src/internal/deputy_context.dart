@@ -21,13 +21,6 @@ part of '../../cell.dart';
 /// its autonomy (sovereignty), its structural rank (clearance), its temporal
 /// validity (lease), and its operational guardrails (constraints).
 ///
-/// ### Non‑obvious
-/// - Some dimensions are static (immutable) while others are evolvable.
-/// - The [evolvable] flag controls whether a dimension can be refined when
-///   you call `evolve()` on a [DeputyContext].
-/// - Static pillars (like `role`) prevent identity drift.
-///
-/// See also: [DeputyContext], [Clearance], [Isolation], [Sovereignty].
 enum Mandate<V> with GovernanceMixin<Mandate<V>, V> implements Governance<V> {
   /// The specific **Functional Permission** or operational "Verb" authorized
   /// for this [Deputy].
@@ -44,11 +37,6 @@ enum Mandate<V> with GovernanceMixin<Mandate<V>, V> implements Governance<V> {
   /// During the mutual authorization handshake, the framework compares the
   /// deputy's authority string against the receptor's requirements. If the
   /// required verb isn't present, the pulse is neutralised.
-  ///
-  /// ### Non‑obvious
-  /// - This is an evolvable dimension – a deputy can further restrict its own
-  ///   authority when spawning child deputies.
-  /// - Multiple verbs can be comma-separated (e.g., `'READ, WRITE'`).
   ///
   /// ### Examples
   /// * `'PRUNE_EXPIRED_RECORDS'` – only allowed to delete stale data.
@@ -75,12 +63,6 @@ enum Mandate<V> with GovernanceMixin<Mandate<V>, V> implements Governance<V> {
   /// group‑based policies or filter logs. It is scrutinised during the mutual
   /// handshake.
   ///
-  /// ### Non‑obvious
-  /// - This is a static pillar – once set, it cannot be changed. This prevents
-  ///   "role creep".
-  /// - A role like `'Auditor'` signals diagnostic intent, even if the deputy
-  ///   has write authority.
-  ///
   /// ### Examples
   /// * `'Auditor'` – diagnostic, even with write permissions.
   /// * `'PolicyEnforcer'` – applies encryption to pulses.
@@ -103,10 +85,6 @@ enum Mandate<V> with GovernanceMixin<Mandate<V>, V> implements Governance<V> {
   /// - `restricted`: zero‑trust filtering.
   /// - `sandboxed`: virtualized, no side‑effects.
   /// - `total`: air‑gapped, only ingests.
-  ///
-  /// ### Non‑obvious
-  /// - This is evolvable – a deputy can tighten isolation for child tasks.
-  /// - `sandboxed` mutations are not committed to the principal state.
   ///
   /// ### Examples
   /// * `Isolation.sandboxed` – safe for speculative logic.
@@ -131,11 +109,6 @@ enum Mandate<V> with GovernanceMixin<Mandate<V>, V> implements Governance<V> {
   /// - `sovereign`: fully autonomous.
   /// - `preemptive`: can override others for system safety.
   ///
-  /// ### Non‑obvious
-  /// - This is evolvable – a deputy can be promoted (e.g., from supervised to
-  ///   sovereign) based on trust.
-  /// - High‑sensitivity operations are blocked if sovereignty is insufficient.
-  ///
   /// ### Examples
   /// * `Sovereignty.supervised` – suggests changes, waits for principal.
   /// * `Sovereignty.preemptive` – overrides for emergency shutdown.
@@ -156,11 +129,6 @@ enum Mandate<V> with GovernanceMixin<Mandate<V>, V> implements Governance<V> {
   /// clearance against the required level for an operation. If it's lower,
   /// the pulse is neutralised.
   ///
-  /// ### Non‑obvious
-  /// - This is evolvable – a deputy can downgrade clearance for child tasks.
-  /// - `observational` blocks all state mutations.
-  /// - `administrative` allows structural refactoring.
-  ///
   /// ### Examples
   /// * `Clearance.observational` – read‑only.
   /// * `Clearance.standard` – mutate values.
@@ -179,11 +147,6 @@ enum Mandate<V> with GovernanceMixin<Mandate<V>, V> implements Governance<V> {
   /// ### How it works
   /// The audit level determines how much trace data is preserved. Higher levels
   /// capture more metadata but cost more performance.
-  ///
-  /// ### Non‑obvious
-  /// - This is evolvable – a supervisor can increase audit rigour for risky
-  ///   tasks.
-  /// - Some high‑integrity cells reject pulses with low audit levels.
   ///
   /// ### Examples
   /// * `AuditLevel.full` – forensics.
@@ -204,11 +167,6 @@ enum Mandate<V> with GovernanceMixin<Mandate<V>, V> implements Governance<V> {
   /// ### How it works
   /// The framework checks the lease against the creation timestamp. If the
   /// duration has elapsed, any pulse from the deputy is neutralised.
-  ///
-  /// ### Non‑obvious
-  /// - This is evolvable – a deputy can shorten its own lease for child tasks.
-  /// - The lease is checked at each hop; expired deputies are automatically
-  ///   disconnected.
   ///
   /// ### Examples
   /// * `Duration(minutes: 5)` – short‑lived maintenance task.
@@ -231,10 +189,6 @@ enum Mandate<V> with GovernanceMixin<Mandate<V>, V> implements Governance<V> {
   /// Receptors can use it to verify that the action aligns with the stated
   /// mission.
   ///
-  /// ### Non‑obvious
-  /// - This is evolvable – a deputy can refine the justification for sub‑tasks.
-  /// - It provides the "why" for forensic analysis.
-  ///
   /// ### Examples
   /// * `'Optimizing database indices due to high latency.'`
   /// * `'Suspected PII leak; masking outbound telemetry.'`
@@ -253,10 +207,6 @@ enum Mandate<V> with GovernanceMixin<Mandate<V>, V> implements Governance<V> {
   /// ### How it works
   /// The framework checks these constraints in real time during the validation
   /// phase. If a pulse would exceed a limit, it's neutralised.
-  ///
-  /// ### Non‑obvious
-  /// - This is evolvable – a deputy can tighten constraints for child tasks.
-  /// - Constraints are enforced at the integrity gate level.
   ///
   /// ### Examples
   /// * `{ 'max_hop_count': 5, 'timeout_ms': 500 }`
@@ -284,17 +234,6 @@ enum Mandate<V> with GovernanceMixin<Mandate<V>, V> implements Governance<V> {
   ///   uniquely redefined or specialized within a downstream sub-mission.
   ///   These reflect the **Current Operational Scope** (e.g., [Mandate.constraints],
   ///   [Mandate.justification]).
-  ///
-  /// ### Non‑obvious
-  /// - **Power Capping**: The [evolve] mechanism filters the ontology using
-  ///   this flag to ensure that core power (Static Pillars) cannot be
-  ///   expanded or "evolved away" by a delegate.
-  /// - **Ontological Purity**: Human developers typically interact with
-  ///   pre-configured [Mandate] enum values where this flag is hard-coded
-  ///   to maintain a consistent and secure governance model.
-  /// - **Integrity Enforcement**: During mission synthesis, the framework
-  ///   ignores any evolution requests targeting a non-evolvable dimension,
-  ///   preserving the integrity of the original mandate.
   ///
   /// ### See Also:
   /// * [DeputyContext.evolve]: For the primary mechanism that utilizes this flag.
@@ -397,8 +336,13 @@ class _DeputyContextSystem implements DeputyContext {
   DeputyContext evolve(GovernanceEntry? Function(Governance evolvable) resolver,
       {Map<String, dynamic>? others}) {
     final entries = [...Ontology.evolve(resolver), ...Mandate.evolve(resolver)];
+    // The system context is the root of all mandates: there is no parent
+    // authority to attenuate from, so any authority may be granted here.
     return DeputyContext.fromEntries(entries, others: others);
   }
+
+  @override
+  String? _resolvedAuthority() => null;
 
   @override
   operator [](Governance<dynamic> governance) => null;
@@ -495,15 +439,6 @@ class _DeputyContextSystem implements DeputyContext {
 /// etc.) and is passed to [Cell.deputy] to create a restricted proxy. The deputy
 /// shares the same state as the principal but applies these governance rules.
 ///
-/// ### Non‑obvious
-/// - Some dimensions are static (immutable) while others are evolvable – see
-///   [Mandate] for details.
-/// - The context supports prototype-based inheritance: if a dimension isn't set,
-///   it's resolved from the parent context.
-///
-/// See also: [Mandate], [Cell.deputy], [DeputyContext.system].
-/// {@category Advanced}
-/// {@category Deputy Context}
 class DeputyContext extends ContextBase {
   /// The canonical system context for deputies, providing safe defaults.
   static const system = _DeputyContextSystem();
@@ -518,11 +453,6 @@ class DeputyContext extends ContextBase {
   /// ### How it works
   /// It assembles the mandate dimensions from the provided parameters and
   /// links them to the [baseContext] via prototype‑based inheritance.
-  ///
-  /// ### Non‑obvious
-  /// - The [authority] is required – there's no default.
-  /// - The [role] is optional; if omitted, the deputy has no semantic identity.
-  /// - The [clearance] defaults to `standard`, but you can override.
   ///
   /// ### Parameters:
   /// - [baseContext]: The parent [Context] providing the baseline lineage.
@@ -576,10 +506,6 @@ class DeputyContext extends ContextBase {
   /// `'Observer'`. You can optionally set a [clearance] – use
   /// [Clearance.observational] for strict read‑only.
   ///
-  /// ### Non‑obvious
-  /// - The deputy is still reactive – changes to the principal are reflected.
-  /// - Mutations are blocked at the integrity gate level.
-  ///
   /// ### Example
   /// ```dart
   /// final uiObserver = DeputyContext.observer(
@@ -621,11 +547,6 @@ class DeputyContext extends ContextBase {
   /// `'Delegate'`. You provide a [task] description and optionally a
   /// [clearance] level.
   ///
-  /// ### Non‑obvious
-  /// - This is the standard mandate for most active deputies.
-  /// - The [clearance] defaults to `standard` – raise to `administrative` for
-  ///   structural changes.
-  ///
   /// ### Example
   /// ```dart
   /// final janitor = DeputyContext.delegate(
@@ -665,10 +586,6 @@ class DeputyContext extends ContextBase {
   /// The factory sets [Isolation.sandboxed] to virtualize all mutations.
   /// Pulses from this deputy are never committed to the principal state.
   ///
-  /// ### Non‑obvious
-  /// - Even with high sovereignty, the sandbox prevents live mutation.
-  /// - The clearance is set to `minimal` – only safe, idempotent operations.
-  ///
   /// ### Example
   /// ```dart
   /// final strategist = DeputyContext.sandbox(
@@ -706,10 +623,6 @@ class DeputyContext extends ContextBase {
   /// The factory sets [Clearance.administrative] and the role to `'Sentinel'`.
   /// The deputy can bypass standard constraints and perform structural changes.
   ///
-  /// ### Non‑obvious
-  /// - The mandate is reflexive – it's designed for immediate action.
-  /// - The [reason] is mandatory and anchors the intervention in the causal trace.
-  ///
   /// ### Example
   /// ```dart
   /// final sentinel = DeputyContext.intervention(
@@ -746,11 +659,6 @@ class DeputyContext extends ContextBase {
   /// The factory sets the authority to `'RESOURCE_MANAGEMENT'` and the role to
   /// `'Janitor'`. It grants [Clearance.administrative] by default to allow
   /// unlinking and deletion.
-  ///
-  /// ### Non‑obvious
-  /// - The clearance is high to permit structural changes, but the scope is
-  ///   limited to ephemeral targets.
-  /// - The [target] helps identify the resource pool being cleaned.
   ///
   /// ### Example
   /// ```dart
@@ -795,11 +703,6 @@ class DeputyContext extends ContextBase {
   /// role to `'Architect'`. You provide a [mission] description and optional
   /// [clearance].
   ///
-  /// ### Non‑obvious
-  /// - The deputy can mutate the graph topology, but it's still governed by
-  ///   the test rules.
-  /// - The [mission] is recorded in the causal trace for auditing.
-  ///
   /// ### Example
   /// ```dart
   /// final refactor = DeputyContext.architect(
@@ -839,10 +742,6 @@ class DeputyContext extends ContextBase {
   /// ### How it works
   /// The factory sets [Clearance.observational] and the role to `'Witness'`.
   /// The authority is `'REGULATORY_AUDIT'`. It forces full audit logging.
-  ///
-  /// ### Non‑obvious
-  /// - The deputy is read‑only – it cannot mutate state.
-  /// - The audit level is forced to `full` for non‑repudiation.
   ///
   /// ### Example
   /// ```dart
@@ -884,10 +783,6 @@ class DeputyContext extends ContextBase {
   /// the role to `'Ambassador'`. The clearance is `minimal` to prevent
   /// unwanted mutations across boundaries.
   ///
-  /// ### Non‑obvious
-  /// - The deputy can translate internal state to external formats.
-  /// - It cannot emit structural changes in the foreign system.
-  ///
   /// ### Example
   /// ```dart
   /// final gateway = DeputyContext.ambassador(
@@ -927,10 +822,6 @@ class DeputyContext extends ContextBase {
   /// ### How it works
   /// The factory sets [Clearance.administrative] and the role to `'Sentinel'`.
   /// The deputy operates in a secure enclave with strict isolation.
-  ///
-  /// ### Non‑obvious
-  /// - The deputy is isolated from the main reactive graph.
-  /// - It can perform privileged mutations but is limited to the enclave.
   ///
   /// ### Example
   /// ```dart
@@ -973,10 +864,6 @@ class DeputyContext extends ContextBase {
   /// role to `'Gatekeeper'`. It uses [Clearance.observational] to ensure it
   /// can block signals but not mutate state.
   ///
-  /// ### Non‑obvious
-  /// - The deputy can intercept and block pulses.
-  /// - It cannot change the underlying state – it's strictly a firewall.
-  ///
   /// ### Example
   /// ```dart
   /// final gate = DeputyContext.gatekeeper(
@@ -1014,10 +901,6 @@ class DeputyContext extends ContextBase {
   /// The factory sets the authority to `'SYSTEM_MAINTENANCE'` and the role to
   /// `'Service_Daemon'`. The clearance is `standard` – it can perform routine
   /// maintenance but not structural refactoring.
-  ///
-  /// ### Non‑obvious
-  /// - This is a background task with low priority.
-  /// - It can prune ephemeral nodes but not static pillars.
   ///
   /// ### Example
   /// ```dart
@@ -1063,10 +946,6 @@ class DeputyContext extends ContextBase {
   /// dimensions. Static pillars are inherited unchanged. The new context
   /// links back to `this` as its parent.
   ///
-  /// ### Non‑obvious
-  /// - You cannot change static pillars (like [role]) – they're immutable.
-  /// - The new context is a separate record; the original remains unchanged.
-  ///
   /// ### Example
   /// ```dart
   /// final janitorMission = currentDeputy.evolve((evolvable) {
@@ -1087,6 +966,10 @@ class DeputyContext extends ContextBase {
   /// ### Returns:
   /// A new [DeputyContext] with refined fluid boundaries.
   ///
+  /// ### Throws
+  /// - [ArgumentError] if the resolver tries to widen [Mandate.authority]
+  ///   beyond the current mandate — authority is attenuation-only.
+  ///
   /// See also: [Mandate.evolve].
   @override
   DeputyContext evolve(
@@ -1096,7 +979,83 @@ class DeputyContext extends ContextBase {
       ...Ontology.evolve(resolver),
       ...Mandate.evolve(resolver)
     ];
+
+    // Attenuation enforcement: a child mandate may only narrow the current
+    // authority, never widen it. This is the runtime half of the
+    // "downward-only" contract — the lineage assert in `Cell.deputy` only
+    // checks the context chain, not the authority contents.
+    final currentAuthority = _resolvedAuthority();
+    if (currentAuthority != null) {
+      for (final entry in entries) {
+        if (entry.key == Mandate.authority && entry.value is String) {
+          final requested = entry.value as String;
+          if (!_isAuthoritySubset(currentAuthority, requested)) {
+            throw ArgumentError(
+              'DeputyContext.evolve: authority "$requested" is not a subset '
+              'of the current mandate authority "$currentAuthority". '
+              'Authority is attenuation-only.',
+            );
+          }
+        }
+      }
+    }
+
+    // Downward-only enforcement for the remaining safety dimensions: a
+    // child context may keep or tighten every dimension, never loosen it.
+    // Index directions follow the enum level orderings:
+    //   Isolation:   shared(0) < scoped(1) < sandboxed(2) — tighten = higher
+    //   Sovereignty: supervised(0) < collaborative(1) < sovereign(2)
+    //                — tighten = lower
+    //   Clearance:   observational(0) < minimal(1) < standard(2) < ...
+    //                — tighten = lower
+    //   AuditLevel:  none(0) < minimal(1) < standard(2) < ...
+    //                — tighten = higher
+    for (final entry in entries) {
+      final value = entry.value;
+      if (entry.key == Mandate.isolation && value is Isolation) {
+        if (value.index < isolation.index) {
+          throw ArgumentError(
+            'DeputyContext.evolve: isolation ${value.name} is weaker than '
+            'the current ${isolation.name}. Isolation is attenuation-only.',
+          );
+        }
+      } else if (entry.key == Mandate.sovereignty && value is Sovereignty) {
+        if (value.index > sovereignty.index) {
+          throw ArgumentError(
+            'DeputyContext.evolve: sovereignty ${value.name} is stronger '
+            'than the current ${sovereignty.name}. Sovereignty is '
+            'attenuation-only.',
+          );
+        }
+      } else if (entry.key == Mandate.clearance && value is Clearance) {
+        if (value.index > clearance.index) {
+          throw ArgumentError(
+            'DeputyContext.evolve: clearance ${value.name} is higher than '
+            'the current ${clearance.name}. Clearance is attenuation-only.',
+          );
+        }
+      } else if (entry.key == Mandate.auditLevel && value is AuditLevel) {
+        if (value.index < auditLevel.index) {
+          throw ArgumentError(
+            'DeputyContext.evolve: auditLevel ${value.name} is lower than '
+            'the current ${auditLevel.name}. Audit level is '
+            'attenuation-only.',
+          );
+        }
+      }
+    }
+
     return DeputyContext.fromEntries(entries, others: others, parent: this);
+  }
+
+  /// Resolves the authority verb string recorded on this context, falling
+  /// back through the parent chain.
+  String? _resolvedAuthority() {
+    final direct = _record.map[Mandate.authority];
+    if (direct is String) return direct;
+    final parent = _parent;
+    if (parent is DeputyContext) return parent._resolvedAuthority();
+    return null;
   }
 
   String? get role => get<String?>(
@@ -1106,41 +1065,49 @@ class DeputyContext extends ContextBase {
         orElse: null,
       );
 
-  Isolation get isolation => get<Isolation>(
+  Isolation get isolation =>
+      get<Isolation?>(
         () =>
             _record.map[Mandate.isolation] ??
             (_parent is DeputyContext
                 ? (_parent as DeputyContext).isolation
                 : null),
-        orElse: Isolation.scoped,
-      );
+        orElse: null,
+      ) ??
+      Isolation.scoped;
 
-  Sovereignty get sovereignty => get<Sovereignty>(
+  Sovereignty get sovereignty =>
+      get<Sovereignty?>(
         () =>
             _record.map[Mandate.sovereignty] ??
             (_parent is DeputyContext
                 ? (_parent as DeputyContext).sovereignty
                 : null),
-        orElse: Sovereignty.sovereign,
-      );
+        orElse: null,
+      ) ??
+      Sovereignty.sovereign;
 
-  Clearance get clearance => get<Clearance>(
+  Clearance get clearance =>
+      get<Clearance?>(
         () =>
             _record.map[Mandate.clearance] ??
             (_parent is DeputyContext
                 ? (_parent as DeputyContext).clearance
                 : null),
-        orElse: Clearance.standard,
-      );
+        orElse: null,
+      ) ??
+      Clearance.standard;
 
-  AuditLevel get auditLevel => get<AuditLevel>(
+  AuditLevel get auditLevel =>
+      get<AuditLevel?>(
         () =>
             _record.map[Mandate.auditLevel] ??
             (_parent is DeputyContext
                 ? (_parent as DeputyContext).auditLevel
                 : null),
-        orElse: AuditLevel.standard,
-      );
+        orElse: null,
+      ) ??
+      AuditLevel.standard;
 
   String? get justification => get<String?>(
         () =>
@@ -1179,12 +1146,6 @@ class DeputyContext extends ContextBase {
 /// Clearance is a ranked integer. The framework compares the deputy's
 /// clearance against the required level for an operation. If it's lower,
 /// the pulse is neutralised.
-///
-/// ### Non‑obvious
-/// - The comparison is `incoming.level >= required.level`.
-/// - `observational` is the lowest, `unrestricted` is the highest.
-/// - This is an evolvable dimension – a deputy can downgrade clearance for
-///   child tasks.
 ///
 /// ### Levels
 /// - `observational (0)`: read‑only.
@@ -1266,12 +1227,6 @@ enum Clearance {
 /// The isolation level determines where pulses are executed and whether
 /// they affect the principal state.
 ///
-/// ### Non‑obvious
-/// - `sandboxed` mutations are not committed to the principal state.
-/// - `restricted` pulses go through extra governance filtering.
-/// - This is an evolvable dimension – a deputy can tighten isolation.
-///
-/// See also: [Mandate.isolation].
 enum Isolation {
   /// **Level 0: Direct Execution (Shared)**
   /// The deputy operates directly on the principal's state context.
@@ -1339,12 +1294,6 @@ enum Isolation {
 /// immediately. High‑impact actions may be blocked even if the deputy is
 /// sovereign, depending on cell rules.
 ///
-/// ### Non‑obvious
-/// - `supervised` pulses are held in a pending state until approval.
-/// - `preemptive` can cancel other pulses.
-/// - This is evolvable – a deputy can be promoted or demoted.
-///
-/// See also: [Mandate.sovereignty].
 enum Sovereignty {
   /// **Level 0: Supervised.**
   /// The Deputy acts as a "Proposal Engine." Every generated [Pulse] is
@@ -1410,11 +1359,6 @@ enum Sovereignty {
 /// The audit level controls how much trace data is preserved. Higher levels
 /// capture more metadata, which can impact performance.
 ///
-/// ### Non‑obvious
-/// - Some high‑integrity cells reject pulses with low audit levels.
-/// - This is evolvable – a supervisor can increase audit rigour.
-///
-/// See also: [Mandate.auditLevel].
 enum AuditLevel {
   /// **Level 0: None.**
   /// No logs or traces are generated. Used for high-frequency, non-critical
@@ -1476,11 +1420,6 @@ enum AuditLevel {
 /// The framework uses the strategy to determine trust levels. For example,
 /// `probabilistic` signals may require confidence checks.
 ///
-/// ### Non‑obvious
-/// - `stochastic` signals are treated as hypothetical – they don't commit.
-/// - `deterministic` and `reflexive` are considered system‑mandated.
-///
-/// See also: [PulseContext.strategy].
 enum ReasoningStrategy {
   /// **Manual Intervention.**
   /// The pulse was initiated by a human actor via direct interaction. These
@@ -1576,11 +1515,6 @@ enum ReasoningStrategy {
 /// The dispatcher uses the numeric priority to order pulses. The default is
 /// `routine` (21‑50).
 ///
-/// ### Non‑obvious
-/// - Emergency pulses (96‑100) are processed before anything else.
-/// - Background pulses (0‑20) are only processed when resources are available.
-///
-/// See also: [Provenance.priority].
 enum PriorityTier {
   /// **0 - 20: Background.**
   /// Low-priority maintenance, non-critical telemetry, or deferred
@@ -1651,11 +1585,6 @@ enum PriorityTier {
 /// The framework uses sensitivity to determine redaction, encryption, and
 /// access control. Higher sensitivity requires higher clearance.
 ///
-/// ### Non‑obvious
-/// - `restricted` and `secret` emit automatic redaction in logs.
-/// - Some cells reject pulses with insufficient sensitivity clearance.
-///
-/// See also: [PulseContext.sensitivity].
 enum Sensitivity {
   /// **Level 0: Public.**
   /// Non-sensitive data that can be safely logged, cached, and transmitted
@@ -1706,4 +1635,24 @@ enum Sensitivity {
   /// Returns `true` if the data carries significant legal or security risk,
   /// requiring elevated [Clearance] for any mutation.
   bool get isHighRisk => index >= Sensitivity.restricted.index;
+}
+
+/// Returns `true` when every comma-separated authority verb in [requested]
+/// also appears in [parent] — authority may only attenuate, never widen.
+///
+/// Comparison is case-insensitive and ignores blank segments, so
+/// `'READ, WRITE'` is a subset of `'read, write, delete'` while `'DELETE'`
+/// is not a subset of `'READ'`.
+bool _isAuthoritySubset(String parent, String requested) {
+  final allowed = parent
+      .split(',')
+      .map((verb) => verb.trim().toUpperCase())
+      .where((verb) => verb.isNotEmpty)
+      .toSet();
+  final wants = requested
+      .split(',')
+      .map((verb) => verb.trim().toUpperCase())
+      .where((verb) => verb.isNotEmpty)
+      .toSet();
+  return allowed.containsAll(wants);
 }

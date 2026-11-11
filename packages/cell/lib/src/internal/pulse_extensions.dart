@@ -36,13 +36,6 @@ extension PulseExtension<P> on Pulse<P> {
   /// print(displayPulse.trace);   // Shows the path from countPulse
   /// ```
   ///
-  /// ### Non‑obvious
-  /// [Pulse] is an [Iterable], so `pulse.map(...)` resolves to [Iterable.map].
-  /// Call this as `PulseExtension(pulse).map(...)` (as [mapEach] does).
-  /// The result is an [EvolvedPulse] whose [EvolvedPulse.parent] is `this`.
-  /// Mixed-type mapping (`int` → `String`) cannot walk [Pulse.root]: `root`
-  /// casts the ancestor as `PulseBase<P>` of the child type. Use
-  /// [EvolvedPulse.parent] instead. Same-type mapping keeps `root`.
   Pulse<T> map<T>(T Function(P payload) mapper) {
     // 1. Transform the payload.
     // We cast 'payload' to P to satisfy non-nullable type expectations if necessary.
@@ -144,11 +137,6 @@ extension PulseExtension<P> on Pulse<P> {
   /// print(intPulse.trace);          // Causal history is preserved
   /// ```
   ///
-  /// ### Non‑obvious
-  /// [Pulse] is an [Iterable], so `pulse.cast<T>()` resolves to [Iterable.cast].
-  /// Call this as `PulseExtension(pulse).cast<T>()`. The result is an
-  /// [EvolvedPulse] whose [EvolvedPulse.parent] is `this`. If `P` is not a
-  /// subtype of `T`, [Pulse.root] throws (same mixed-type `PulseBase<P>` cast).
   Pulse<T> cast<T>() {
     return evolve(pulse: Pulse<T>(payload as T)) as Pulse<T>;
   }

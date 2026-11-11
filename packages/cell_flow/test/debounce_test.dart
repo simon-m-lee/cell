@@ -33,7 +33,7 @@ class _Probe {
   }
 }
 
-({IngressHandle<T> gate, FlowHandle<T> out, _Probe probe}) bind<T>(
+({IngressHandle<T> gate, FlowHandle out, _Probe probe}) bind<T>(
   FlowInstructionBase<Cell, Pulse, Pulse> op,
 ) {
   final gate = Cell.ingress<T>();
@@ -54,6 +54,30 @@ void main() {
       await b.gate.emitAsync('hello');
       await Future<void>.delayed(const Duration(milliseconds: 80));
       expect(b.probe.payloads, ['hello']);
+    });
+
+    test('two handles from one instruction never share state', () async {
+      // Architectural contract (per-activation state factories): the same
+      // Debounce blueprint materialized twice owns two independent timers
+      // and pending slots. A pulse on handle A must not cancel a pending
+      // pulse on handle B.
+      final op = Debounce<int>(const Duration(milliseconds: 300));
+      final gateA = Cell.ingress<int>();
+      final gateB = Cell.ingress<int>();
+      final hA = op.toHandle(source: gateA.cell);
+      final hB = op.toHandle(source: gateB.cell);
+      final probeA = _Probe(hA.cell);
+      final probeB = _Probe(hB.cell);
+      addTearDown(probeA.stop);
+      addTearDown(probeB.stop);
+
+      await gateA.emitAsync(1);
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      await gateB.emitAsync(2);
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+
+      expect(probeA.payloads, [1]);
+      expect(probeB.payloads, [2]);
     });
 
     test('separate bursts each emit', () async {

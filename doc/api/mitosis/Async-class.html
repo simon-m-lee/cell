@@ -83,17 +83,6 @@ requires immediate availability, the <a href="../mitosis/Async-class.html">Async
 semantics to <code>await</code> authority, providing a resilient developer experience
 under high contention.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Principal Dominance</strong>: The synchronous component <code>C</code> remains the "Source
-of Truth." The <a href="../mitosis/Async-class.html">Async</a> handle is purely an <strong>Access Coordinator</strong>.</li>
-<li><strong>Event Loop Integration</strong>: By returning <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>s, it allows the Dart VM
-to perform other tasks while the reactive graph processes a wave, preventing
-UI jank or thread blocking.</li>
-<li><strong>Locking Latency</strong>: While providing safety, using the <a href="../mitosis/Async-class.html">Async</a> proxy
-introduces the minor overhead of lock acquisition and asynchronous
-scheduling compared to direct synchronous access.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// A synchronous ValueCell (The Principal)
 final count = ValueCell&lt;int&gt;(state: 0);
@@ -250,7 +239,7 @@ this proxy.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

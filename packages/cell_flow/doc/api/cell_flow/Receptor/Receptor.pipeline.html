@@ -92,16 +92,6 @@ short-circuits immediately and the pulse is dropped.</li>
 stage is logged, and the pipeline recovers to the last valid state.</li>
 <li><strong>Synchronous Pipeline</strong>: All stages execute synchronously.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Optionality</strong>: All stages are optional. If a stage is omitted, the
-pulse passes through that layer unchanged.</li>
-<li><strong>Identity Logic</strong>: If no parameters are provided, this factory
-effectively creates a <a href="../../cell_flow/Receptor/passThrough-constant.html">passThrough</a> receptor.</li>
-<li><strong>Synchronous Execution</strong>: The pipeline executes synchronously. For
-asynchronous processing, use <a href="../../cell_flow/Instruction/Instruction.future.html">Instruction.future</a> within stages or
-use <a href="../../cell_flow/Receptor/async.html">Receptor.async</a> for the overall execution.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>instruction</code>: The core transformation logic (the "Reasoning" phase).</li>
@@ -166,7 +156,7 @@ use <a href="../../cell_flow/Receptor/async.html">Receptor.async</a> for the ove
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

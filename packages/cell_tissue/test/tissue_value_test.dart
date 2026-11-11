@@ -7,6 +7,35 @@ import 'dart:async';
 import 'package:cell_tissue/cell_tissue.dart';
 import 'package:test/test.dart';
 
+// Local builders for the forensic command model.
+ApplyCommand cmd(
+  Function function, [
+  List<Object?>? positionalArguments,
+  ApplyCompensation? compensation,
+]) =>
+    (
+      function: function,
+      arguments: (
+        positionalArguments: positionalArguments,
+        namedArguments: null
+      ),
+      compensation: compensation,
+    );
+
+ApplyCompensation undo(
+  Function function, [
+  List<Object?>? positionalArguments,
+  Cell? cell,
+]) =>
+    (
+      function: function,
+      arguments: (
+        positionalArguments: positionalArguments,
+        namedArguments: null
+      ),
+      cell: cell,
+    );
+
 Future<TissueValue<T>> resolveDeputy<T>(TissueValue<T> source) async {
   final result = source.deputy();
   return result is Future<TissueValue<T>> ? await result : result;
@@ -114,7 +143,9 @@ void main() {
       expect(value.validate, same(TestTissue.allowAll));
       expect(value.modifiable, contains(value.set));
 
-      final event = value.apply(value.set, positionalArguments: [9]);
+      final event =
+          (value.apply<Object?>(cmd(value.set, [9])) as ApplyAccepted<Object?>)
+              .result;
       expect(event, isNotNull);
       expect(value.value, 9);
     });
@@ -139,7 +170,7 @@ void main() {
     test('evolve produces a deputy nucleus', () {
       final principal = TissueValueNucleus.create<int, TissueValue<int>>();
       final evolved = TissueValueNucleus<int>.evolve(
-        principal: principal,
+        principal,
         testRule: TestTissue<int, TissueValue<int>>(
           (object, {host, arguments, user}) => (object as int) > 0,
         ),
@@ -253,8 +284,8 @@ void main() {
 
       await expectLater(async.set(9), throwsUnsupportedError);
       expect(await async.value, 1);
-      await expectLater(() => async.apply(view.set, positionalArguments: [9]),
-          throwsA(isA<UnimplementedError>()));
+      await expectLater(
+          () => async.apply<void>(cmd(view.set, [9])), throwsUnsupportedError);
       await expectLater(() => async.state, throwsA(isA<UnimplementedError>()));
     });
   });
@@ -289,7 +320,13 @@ void main() {
       final value = TissueValue<int>(
         1,
         testRule: TestTissue<int, TissueValue<int>>(
-          (v, {host, arguments, user}) => v != null && v >= 0,
+          // Shape-tolerant, matching the cell package's transaction rules:
+          // commits validate the same Pulse shape that direct updates
+          // validate through the receptor.
+          (v, {host, arguments, user}) {
+            final candidate = v is Pulse ? v.payload : v;
+            return candidate is int && candidate >= 0;
+          },
         ),
       );
 

@@ -88,10 +88,6 @@ Pulse<A> _acc<A>(A value, Pulse trigger, Cell? cell, String step) {
 /// - [acc]: The current accumulator value.
 /// - [hasAcc]: Whether the accumulator has been initialized.
 ///
-/// ### Non‑obvious
-/// - **Stateful**: The state is maintained across pulses.
-/// - **Type Safety**: Generic over the accumulator type [A].
-/// - **Mutable**: The state is mutable and updated on each pulse.
 class _ScanState<A> {
   A? acc;
   bool hasAcc = false;
@@ -145,18 +141,6 @@ class _ScanState<A> {
 /// 4. The result becomes the new accumulator and is emitted.
 /// 5. Each emitted value gets the step `'Scan'` for provenance.
 /// 6. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **No Seed**: The first value is used as the seed and not emitted.
-/// - **Silent First**: The instruction is silent on the first pulse.
-/// - **State Persistence**: The accumulator is maintained across pulses.
-/// - **Order Preservation**: Results are emitted in input order.
-/// - **Error Handling**: Errors in [accumulate] are reported via [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Type Safety**: The instruction is generic over [S] (input) and
-///   [A] (accumulator), ensuring compile-time type safety.
-/// - **Memory Efficiency**: Only the accumulator state is stored.
-/// - **Type Casting**: The first value is cast to [A] when used as seed.
 ///
 /// ### Example: Running Sum (No Seed)
 /// ```dart
@@ -238,8 +222,8 @@ class Scan<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     A Function(A acc, S value) accumulate, {
     ScanErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             final state = _ScanState<A>();
             return (pulse, {cell, user}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -258,7 +242,7 @@ class Scan<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return _acc(state.acc as A, typed, cell, 'Scan');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -300,18 +284,6 @@ class Scan<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. The result becomes the new accumulator and is emitted.
 /// 4. Each emitted value gets the step `'ScanSeeded'` for provenance.
 /// 5. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **Explicit Seed**: The seed is provided as a parameter.
-/// - **First Pulse Emits**: The first pulse always emits a result.
-/// - **State Persistence**: The accumulator is maintained across pulses.
-/// - **Order Preservation**: Results are emitted in input order.
-/// - **Error Handling**: Errors in [accumulate] are reported via [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Type Safety**: The instruction is generic over [S] (input) and
-///   [A] (accumulator), ensuring compile-time type safety.
-/// - **Memory Efficiency**: Only the accumulator state is stored.
-/// - **Seed as Initial State**: The seed is used as the initial state.
 ///
 /// ### Example: Running Sum with Seed
 /// ```dart
@@ -403,8 +375,8 @@ class ScanSeeded<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     A Function(A acc, S value) accumulate, {
     ScanErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             final state = _ScanState<A>()..acc = seed;
             return (pulse, {cell, user}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -417,7 +389,7 @@ class ScanSeeded<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return _acc(state.acc as A, typed, cell, 'ScanSeeded');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -454,18 +426,6 @@ class ScanSeeded<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 5. The result becomes the new accumulator and is emitted.
 /// 6. Each emitted value gets the step `'ScanIndexed'` for provenance.
 /// 7. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **Index Provided**: The index is passed to the accumulation function.
-/// - **Zero-Based**: The index starts at 0 for the first pulse.
-/// - **State Persistence**: Both the accumulator and index are maintained.
-/// - **Order Preservation**: Results are emitted in input order.
-/// - **Error Handling**: Errors in [accumulate] are reported via [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Type Safety**: The instruction is generic over [S] (input) and
-///   [A] (accumulator), ensuring compile-time type safety.
-/// - **Index Increments**: The index increments after each successful
-///   accumulation.
 ///
 /// ### Example: Building a List with Index
 /// ```dart
@@ -555,8 +515,8 @@ class ScanIndexed<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     A Function(A acc, S value, int index) accumulate, {
     ScanErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             final state = _ScanState<A>()..acc = seed;
             var index = 0;
             return (pulse, {cell, user}) {
@@ -574,7 +534,7 @@ class ScanIndexed<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return _acc(state.acc as A, typed, cell, 'ScanIndexed');
             };
-          })(),
+          },
           user: user,
         );
 }

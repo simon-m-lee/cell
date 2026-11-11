@@ -27,7 +27,7 @@
     <li><a href="../../index.html">cell_tissue</a></li>
     <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueMapMixin-mixin.html">TissueMapMixin<span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">C extends TissueMap&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span>&gt;</span></a></li>
-    <li class="self-crumb">apply method</li>
+    <li class="self-crumb">apply&lt;<wbr><span class="type-parameter">R</span>&gt; method</li>
   </ol>
   <div class="self-name">apply</div>
   <form class="search navbar-right" role="search">
@@ -49,7 +49,7 @@
     data-above-sidebar="cell_tissue&#47;TissueMapMixin-mixin-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">apply</span> method 
+<h1><span class="kind-method">apply&lt;<wbr><span class="type-parameter">R</span>&gt;</span> method 
 </h1></div>
 
     <section class="multi-line-signature">
@@ -59,24 +59,24 @@
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-<span class="returntype">dynamic</span>
-<span class="name ">apply</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span></li>
-<li><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span></li>
-<li><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span></li>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span>
+<span class="name ">apply</span>&lt;<wbr><span class="type-parameter">R</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="apply-param-command"><span class="type-annotation"><a href="../../cell_tissue/ApplyCommand.html">ApplyCommand</a></span> <span class="parameter-name">command</span>, {</span></li>
 <li><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span></li>
-<li><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span></li>
-<li><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span></li>
-<li><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span></li>
-<li><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span>, </span></li>
 </ol>})
 
-      <div class="features"><span class="feature">override</span></div>
+      <div class="features"><span class="feature">inherited</span></div>
 
     </section>
     
 <section class="desc markdown">
-  <p>Routes whitelisted mutation functions through validation and the
-private reactive helpers; rejects anything else.</p>
+  <p>Submits a first-class <a href="../../cell_tissue/ApplyCommand.html">ApplyCommand</a> through the tissue dispatch engine.</p>
+<p>Collection mutations (<code>add</code>, <code>remove</code>, <code>put</code>, ...) route through the
+specialized dispatch logic of the individual tissue mixins, so the
+command model bridges into that engine and wraps its result in an
+auditable <a href="../../cell_tissue/ApplyOutcome-class.html">ApplyOutcome</a>.</p>
+<p>The dispatch engine reports a rejected mutation with a <code>null</code> result,
+which this bridge maps to <a href="../../cell_tissue/ApplyRejected-class.html">ApplyRejected</a>; non-null results map to
+<a href="../../cell_tissue/ApplyAccepted-class.html">ApplyAccepted</a>.</p>
 </section>
 
 
@@ -84,76 +84,40 @@ private reactive helpers; rejects anything else.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-dynamic apply(
-  Function function, {
-  List? positionalArguments,
-  Map&lt;Symbol, dynamic&gt;? namedArguments,
+FutureOr&lt;ApplyOutcome&lt;R&gt;&gt; apply&lt;R&gt;(
+  ApplyCommand command, {
   ApplyTransactionScope? tx,
-  Function? compensate,
-  List? compensatePositional,
-  Map&lt;Symbol, dynamic&gt;? compensateNamed,
-  Cell? compensateCell,
 }) {
   if (tx != null) {
-    return super.apply(function,
-        positionalArguments: positionalArguments,
-        namedArguments: namedArguments,
-        tx: tx,
-        compensate: compensate,
-        compensatePositional: compensatePositional,
-        compensateNamed: compensateNamed,
-        compensateCell: compensateCell);
+    final sequence = tx.enqueueCommand(this, command);
+    return ApplyStaged(ApplyLedger.receipt(
+      cell: this,
+      command: command,
+      txSequence: sequence,
+      vetted: modifiable.contains(command.function),
+    ));
   }
 
-  try {
-    if (validate.action(function, host: this as C, arguments: (
-          positionalArguments: positionalArguments,
-          namedArguments: namedArguments
-        )) ==
-        true) {
-      final notification = namedArguments?[#$notification] ?? true;
-      final deputy = namedArguments?[#deputy];
+  final result = dispatch(
+    command.function,
+    positionalArguments: command.arguments.positionalArguments,
+    namedArguments: command.arguments.namedArguments,
+  );
 
-      if (function == add) {
-        return Function.apply(_add, positionalArguments,
-            {#notification: notification, #deputy: deputy});
-      } else if (function == addAll) {
-        return Function.apply(_addAll, positionalArguments,
-            {#notification: notification, #deputy: deputy});
-      } else if (function == addEntries) {
-        return Function.apply(_addEntries, positionalArguments,
-            {#notification: notification, #deputy: deputy});
-      } else if (function == put) {
-        return Function.apply(_put, positionalArguments,
-            {#notification: notification, #deputy: deputy});
-      } else if (function == clear) {
-        return Function.apply(
-            _clear, null, {#notification: notification, #deputy: deputy});
-      } else if (function == putIfAbsent) {
-        return Function.apply(_putIfAbsent, positionalArguments,
-            {#notification: notification, #deputy: deputy});
-      } else if (function == remove) {
-        return Function.apply(_remove, positionalArguments,
-            {#notification: notification, #deputy: deputy});
-      } else if (function == removeWhere) {
-        return Function.apply(_removeWhere, positionalArguments,
-            {#notification: notification, #deputy: deputy});
-      } else if (function == update) {
-        return Function.apply(_update, positionalArguments, {
-          #notification: notification,
-          #deputy: deputy,
-          #ifAbsent: namedArguments?[#ifAbsent]
-        });
-      } else if (function == updateAll) {
-        return Function.apply(_updateAll, positionalArguments,
-            {#notification: notification, #deputy: deputy});
-      }
-    }
-  } catch (e) {
-    if (e is StateError) {
-      rethrow;
-    }
+  final receipt = ApplyLedger.receipt(
+    cell: this,
+    command: command,
+    vetted: modifiable.contains(command.function),
+  );
+
+  if (result is Future) {
+    return result.then((value) =&gt; value == null
+        ? ApplyRejected&lt;R&gt;(receipt)
+        : ApplyAccepted&lt;R&gt;(value as R, receipt));
   }
+  return result == null
+      ? ApplyRejected&lt;R&gt;(receipt)
+      : ApplyAccepted&lt;R&gt;(result as R, receipt);
 }</code></pre>
 </section>
 
@@ -170,7 +134,7 @@ dynamic apply(
     <li><a href="../../index.html">cell_tissue</a></li>
     <li><a href="../../cell_tissue/">cell_tissue</a></li>
     <li><a href="../../cell_tissue/TissueMapMixin-mixin.html">TissueMapMixin<span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">C extends TissueMap&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span>&gt;</span></a></li>
-    <li class="self-crumb">apply method</li>
+    <li class="self-crumb">apply&lt;<wbr><span class="type-parameter">R</span>&gt; method</li>
 </ol>
 
     <h5>TissueMapMixin mixin</h5>
@@ -182,7 +146,7 @@ dynamic apply(
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

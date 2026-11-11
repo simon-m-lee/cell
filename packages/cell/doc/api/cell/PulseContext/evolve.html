@@ -83,13 +83,6 @@ a specific mandate or derivative pulse for downstream processing.</p>
 <p>You provide a resolver function that returns a new <a href="../../cell/GovernanceEntry-class.html">GovernanceEntry</a>
 for any evolvable dimension you want to change. Dimensions you don't
 touch are inherited from the current context.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>Only dimensions marked <code>evolvable</code> in <a href="../../cell/Provenance.html">Provenance</a> can be changed.</li>
-<li>Static pillars (e.g., <code>actor</code>, <code>traceId</code>) are preserved.</li>
-<li>The new context links back to <code>this</code> as its parent, preserving the
-causal chain.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final evolvedContext = incomingPulse.context.evolve((evolvable) {
   return switch (evolvable) {
@@ -151,7 +144,7 @@ PulseContext evolve(
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

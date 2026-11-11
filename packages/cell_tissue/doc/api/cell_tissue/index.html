@@ -108,28 +108,6 @@ downstream observers.</li>
 </ol>
 <p>This is the same reactive pipeline you know from <a href="../cell_tissue/Cell-class.html">Cell</a>, extended to
 collections.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Deputies are zero‑copy</strong>: Calling <code>.deputy()</code> or <code>.unmodifiable</code> on a
-tissue creates a new view that shares the <strong>same</strong> physical storage.
-No data is duplicated – changes to the source are immediately visible
-through the view.</li>
-<li><strong>Unmodifiable is live</strong>: Unlike <code>List.unmodifiable()</code> in Dart, the view
-returned by <code>.unmodifiable</code> is <strong>not a snapshot</strong>. It stays in sync with
-the source indefinitely.</li>
-<li><strong>Deep immutability</strong>: If you set <code>unmodifiableElement: true</code> (the
-default), any child <a href="../cell_tissue/Cell-class.html">Cell</a> elements are automatically projected as their
-<code>.unmodifiable</code> deputies, preventing “side‑door” mutations.</li>
-<li><strong>Validation per element</strong>: When you add multiple elements (e.g., via
-<code>addAll</code>), each element is validated individually. Invalid elements are
-silently skipped – they do <strong>not</strong> cause the entire operation to fail.</li>
-<li><strong>Initial population is silent</strong>: When you create a tissue with initial
-elements (e.g., <code>TissueList([1, 2, 3])</code>), no <a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a> is emitted.
-Observers only see events for mutations that happen <em>after</em> creation.</li>
-<li><strong>Bounded queues</strong>: For <a href="../cell_tissue/TissueQueue-class.html">TissueQueue</a>, setting a <code>capacity</code> creates a
-circular buffer – when the queue is full, adding a new element drops the
-oldest one silently.</li>
-</ul>
 <h3 id="example-a-validated-task-list">Example: A validated task list</h3>
 <pre class="language-dart"><code class="language-dart">final tasks = TissueList&lt;Task&gt;(
   testRule: TestTissue&lt;Task, TissueList&lt;Task&gt;&gt;(
@@ -163,6 +141,51 @@ print(readOnly.length); // 4 – the view is live!
 <li>To customise mutation processing, explore <a href="../cell_tissue/TissueReceptor-class.html">TissueReceptor</a>.</li>
 <li>For propagation control (debounce, throttle, batching), see <a href="../cell_tissue/Synapses-class.html">Synapses</a>.</li>
 </ul>
+<h2 id="cell_tissue--the-tissue-layer"><code>cell_tissue</code> — the Tissue layer</h2>
+<p><strong>Layer contract</strong> (the seam sentence): the instruction decides, the chain
+assembles, the observer glues. Tissue <strong>records</strong>; Flow decides;
+<code>Cell.observe</code> is the only glue.</p>
+<p><strong>Public surface (five entry points)</strong> — the full catalog is in
+<code>HowTo-Mitose-Tissue.md</code> §2 and <code>lib/doc/api_chooser.dart</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>When to use</th>
+<th>Typical Demo name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TissueList&lt;E&gt;</code></td>
+<td>Ordered history; "record of every alert and action"</td>
+<td><code>events</code></td>
+</tr>
+<tr>
+<td><code>TissueSet&lt;E&gt;</code></td>
+<td>Unique membership; guard / block / protected register</td>
+<td><code>protectedStreams</code></td>
+</tr>
+<tr>
+<td><code>TissueMap&lt;K, V&gt;</code></td>
+<td>Open incidents / holds keyed by location, belt, stream</td>
+<td><code>incidentMap</code></td>
+</tr>
+<tr>
+<td><code>TissueQueue&lt;E&gt;</code></td>
+<td>Outbound jobs, FIFO/LIFO, optional capacity / backpressure</td>
+<td><code>alertQ</code> / <code>rtuQ</code></td>
+</tr>
+<tr>
+<td><code>TissueValue&lt;V&gt;</code></td>
+<td>One governed number: reserve, balance, occupancy pool</td>
+<td><code>reserveMw</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Do NOT</strong> use this package for: the decision (that is <code>cell_flow</code>), entry
+(that is <code>Cell.ingress</code>), the glue (that is <code>Cell.observe</code>), or a sixth
+invented collection type. See <code>HowTo-Mitose-Tissue.md</code> §1 and §9.</p>
 </section>
 
 
@@ -207,12 +230,52 @@ a <a href="../cell_tissue/TissueCommand-class.html">TissueCommand</a>, retrying 
 times on failure.
 </dd>
 
-          <dt id="ApplyRejected">
-  <span class="name "><a href="../cell_tissue/ApplyRejected-class.html">ApplyRejected</a></span> 
+          <dt id="ApplyAccepted">
+  <span class="name "><a href="../cell_tissue/ApplyAccepted-class.html">ApplyAccepted</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span> 
 
 </dt>
 <dd>
-  Explicit soft-reject from <a href="../cell_tissue/Cell/apply.html">Cell.apply</a> (not the same as void → null).
+  The command was authorized, safety-checked, and successfully executed.
+</dd>
+
+          <dt id="ApplyCommandRunner">
+  <span class="name "><a href="../cell_tissue/ApplyCommandRunner-class.html">ApplyCommandRunner</a></span> 
+
+</dt>
+<dd>
+  A helper class used to set up and execute an action on a cell.
+</dd>
+
+          <dt id="ApplyLedger">
+  <span class="name "><a href="../cell_tissue/ApplyLedger-class.html">ApplyLedger</a></span> 
+
+</dt>
+<dd>
+  The framework's internal <strong>Record Keeper</strong> and receipt generator.
+</dd>
+
+          <dt id="ApplyOutcome">
+  <span class="name "><a href="../cell_tissue/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The official, auditable result of submitting an <a href="../cell_tissue/ApplyCommand.html">ApplyCommand</a>.
+</dd>
+
+          <dt id="ApplyRejected">
+  <span class="name "><a href="../cell_tissue/ApplyRejected-class.html">ApplyRejected</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The command was denied by the framework's safety rules (the Integrity Gate).
+</dd>
+
+          <dt id="ApplyStaged">
+  <span class="name "><a href="../cell_tissue/ApplyStaged-class.html">ApplyStaged</a></span> 
+
+</dt>
+<dd>
+  The command was accepted and placed into a transaction to be run later.
 </dd>
 
           <dt id="ApplyTransactionScope">
@@ -220,7 +283,16 @@ times on failure.
 
 </dt>
 <dd>
-  
+  Handle for a <strong>staged command transaction</strong> — the mechanism behind
+<a href="../cell_tissue/Cell/txApply.html">Cell.txApply</a>.
+</dd>
+
+          <dt id="ApplyVeto">
+  <span class="name "><a href="../cell_tissue/ApplyVeto-class.html">ApplyVeto</a></span> 
+
+</dt>
+<dd>
+  A special signal used by a function to cancel its own operation.
 </dd>
 
           <dt id="Async">
@@ -324,7 +396,7 @@ single atomic wave.
 
 </dt>
 <dd>
-  
+  Describes a single failed compensation attempt.
 </dd>
 
           <dt id="CompositeTissueEvent">
@@ -735,7 +807,7 @@ serving as a specialized <strong>Ranked Execution Buffer</strong> for the reacti
 
 </dt>
 <dd>
-  
+  The foundational blueprint for all nervous signals within the reactive graph.
 </dd>
 
           <dt id="PulseContext">
@@ -1347,7 +1419,7 @@ and governance of a reactive single‑value cell.
 
 </dt>
 <dd>
-  
+  Emitted once, immediately after <a href="../cell_tissue/ApplyTransactionScope/begin.html">ApplyTransactionScope.begin</a> succeeds.
 </dd>
 
           <dt id="TxApplyCommitted">
@@ -1355,7 +1427,7 @@ and governance of a reactive single‑value cell.
 
 </dt>
 <dd>
-  
+  Emitted after a successful <a href="../cell_tissue/ApplyTransactionScope/commit.html">ApplyTransactionScope.commit</a>.
 </dd>
 
           <dt id="TxApplyCompensationFailed">
@@ -1363,7 +1435,7 @@ and governance of a reactive single‑value cell.
 
 </dt>
 <dd>
-  
+  Emitted each time a compensation attempt fails.
 </dd>
 
           <dt id="TxApplyCompensationRetry">
@@ -1371,7 +1443,7 @@ and governance of a reactive single‑value cell.
 
 </dt>
 <dd>
-  
+  Emitted before each retry of a compensation function.
 </dd>
 
           <dt id="TxApplyEvent">
@@ -1379,7 +1451,7 @@ and governance of a reactive single‑value cell.
 
 </dt>
 <dd>
-  
+  Base class for all lifecycle events emitted by an <a href="../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>.
 </dd>
 
           <dt id="TxApplyOptions">
@@ -1387,7 +1459,7 @@ and governance of a reactive single‑value cell.
 
 </dt>
 <dd>
-  
+  Configuration for <a href="../cell_tissue/Cell/txApply.html">Cell.txApply</a>.
 </dd>
 
           <dt id="TxApplyRejected">
@@ -1395,7 +1467,7 @@ and governance of a reactive single‑value cell.
 
 </dt>
 <dd>
-  
+  Emitted when a staged command is refused.
 </dd>
 
           <dt id="TxApplyRolledBack">
@@ -1403,7 +1475,7 @@ and governance of a reactive single‑value cell.
 
 </dt>
 <dd>
-  
+  Emitted after a rollback (full or savepoint-scoped).
 </dd>
 
           <dt id="TxApplyStaged">
@@ -1411,7 +1483,7 @@ and governance of a reactive single‑value cell.
 
 </dt>
 <dd>
-  
+  Emitted once per successful <a href="../cell_tissue/ApplyTransactionScope/enqueueCommand.html">ApplyTransactionScope.enqueueCommand</a>.
 </dd>
 
           <dt id="TypeObject">
@@ -1696,7 +1768,8 @@ reactive operations within the framework.
 
 </dt>
 <dd>
-  
+  Determines how the transaction scope behaves when a compensation attempt
+fails.
 </dd>
 
           <dt id="HubRouting">
@@ -1887,7 +1960,9 @@ reactive maps.
 
 </dt>
 <dd>
-  
+  A reusable <strong>Architectural Segment</strong> (Genetic Sequence) providing the
+standardized operational logic and structural equality for all
+<a href="../cell_tissue/Tissue-class.html">Tissue</a> implementations.
 </dd>
 
           <dt id="TissueQueueMixin">
@@ -1923,6 +1998,16 @@ particularly for accessing and modifying the single value it holds.
     <section class="summary offset-anchor" id="extensions">
       <h2>Extensions</h2>
       <dl>
+          <dt id="ApplyCommandDSL">
+  <span class="name "><a href="../cell_tissue/ApplyCommandDSL.html">ApplyCommandDSL</a></span>
+  on <a href="../cell_tissue/Cell-class.html">Cell</a>
+  
+
+</dt>
+<dd>
+  A "fluent" shortcut that makes it easier to create and run commands on a cell.
+</dd>
+
           <dt id="PulseExtension">
   <span class="name "><a href="../cell_tissue/PulseExtension.html">PulseExtension</a></span>
   on <a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span>
@@ -2078,6 +2163,66 @@ in reverse order (LIFO unwind of nested <code>synchronized</code> sections).
     
 
   </dd>
+
+          
+  <dt id="ApplyArguments" class="">
+  <span class="name"><a href="../cell_tissue/ApplyArguments.html">ApplyArguments</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="field-name">namedArguments</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="field-name">positionalArguments</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A structured container for function arguments that allows for auditing and reversals.
+  
+
+</dd>
+
+
+          
+  <dt id="ApplyCommand" class="">
+  <span class="name"><a href="../cell_tissue/ApplyCommand.html">ApplyCommand</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_tissue/ApplyArguments.html">ApplyArguments</a></span> <span class="field-name">arguments</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_tissue/ApplyCompensation.html">ApplyCompensation</a>?</span> <span class="field-name">compensation</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="field-name">function</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A complete request to perform an action or change state within a cell.
+  
+
+</dd>
+
+
+          
+  <dt id="ApplyCompensation" class="">
+  <span class="name"><a href="../cell_tissue/ApplyCompensation.html">ApplyCompensation</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_tissue/ApplyArguments.html">ApplyArguments</a></span> <span class="field-name">arguments</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="field-name">function</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A set of instructions used to undo or "roll back" a change if it fails.
+  
+
+</dd>
+
+
+          
+  <dt id="ApplyReceipt" class="">
+  <span class="name"><a href="../cell_tissue/ApplyReceipt.html">ApplyReceipt</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_tissue/ApplyArguments.html">ApplyArguments</a></span> <span class="field-name">arguments</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="field-name">function</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="field-name">id</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a></span> <span class="field-name">timestamp</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="field-name">txSequence</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="field-name">vetted</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  The permanent, official record of a specific action taken by a cell.
+  
+
+</dd>
+
 
           
   <dt id="Arguments" class="">
@@ -2365,7 +2510,9 @@ functions — the standard way to create and interact with a state atom.
 
 </dt>
 <dd>
-  
+  Raised when one or more compensations fail under
+<a href="../cell_tissue/CompensationErrorPolicy.html">CompensationErrorPolicy.collectThenThrow</a> or
+<a href="../cell_tissue/CompensationErrorPolicy.html">CompensationErrorPolicy.failFast</a>.
 </dd>
 
           <dt id="TxApplyException">
@@ -2373,7 +2520,9 @@ functions — the standard way to create and interact with a state atom.
 
 </dt>
 <dd>
-  
+  Raised for <strong>control-flow</strong> problems in a <a href="../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>: wrong
+phase (e.g. <code>commit</code> before <code>begin</code>), non-modifiable function, non-
+participant cell, or a rejected command at commit time.
 </dd>
 
       </dl>
@@ -2404,6 +2553,8 @@ functions — the standard way to create and interact with a state atom.
         <li><a href="../topics/Ride Hail-topic.html">Demo&nbsp;·&nbsp;Ride&nbsp;Hail</a></li>
         <li><a href="../topics/Examples-topic.html">Quick&nbsp;Start&nbsp;&&nbsp;Examples</a></li>
       <li class="section-title">Libraries</li>
+      <li><a href="../cell_tissue_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
+      <li><a href="../cell_tissue_api_chooser/">doc\api_chooser</a></li>
       <li class="section-subtitle">Core</li>
         <li class="section-subitem"><a href="../cell_tissue/">cell_tissue</a></li>
 </ol>
@@ -2416,7 +2567,7 @@ functions — the standard way to create and interact with a state atom.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

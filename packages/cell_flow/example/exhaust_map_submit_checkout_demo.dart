@@ -4,6 +4,15 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+/// # `example/exhaust_map_submit_checkout_demo.dart`
+///
+/// **What it demonstrates:** `Flow.exhaustMap` drops triggers while an inner operation is busy.
+/// **Which BRD sentence picks it:** "Prevent double checkout / double ACK."
+/// **Layer:** Flow (§3.4 `Flow.exhaustMap` — outbound pump, never inside `riskOf`)
+/// **API signatures used:** `Cell.ingress`, `Flow.exhaustMap`, `FlowHandle`
+/// **Run:** `dart run example/exhaust_map_submit_checkout_demo.dart`
+/// **Verify first:** `dart run tool/ai_preflight.dart` exits 0.
+
 /// A real-life practical executable walkthrough demonstrating the use of
 /// Flow.exhaustMap for preventing double-taps during submit, checkout,
 /// and refresh operations.

@@ -54,19 +54,6 @@ typedef Arguments = ({
 ///    execute with zero-latency, while asynchronous rules suspend the reactive
 ///    wave until I/O or remote validation completes.
 ///
-/// ### Non‑obvious
-/// - **Fail-Safe Execution**: To maintain graph resilience, unhandled
-///   exceptions within a rule are treated as a **Pass** (`true`). This
-///   prevents a single faulty validator from paralyzing the entire system.
-/// - **Memory Optimization**: Employs the **Flyweight Pattern** by storing
-///   configuration in memory-optimized records, minimizing the heap footprint
-///   of validation chains even at massive scale.
-/// - **Zero-State**: Rules are stateless and can be safely cached, shared
-///   across domains, or reused across multiple [Cell] instances.
-/// - **Causal Integrity**: Rules evaluated asynchronously maintain their
-///   position in the reactive timeline, ensuring state transitions occur in
-///   the correct order relative to other pulses.
-///
 /// ### Example
 /// ```dart
 /// // 1. Define atomic rules
@@ -291,10 +278,16 @@ class TestRule<C> {
                 ? user != null
                     ? (rule: strategy, parent: parent, user: user)
                     : (rule: strategy, parent: parent)
-                : (rule: strategy)
+                : user != null
+                    ? (rule: strategy, user: user)
+                    : (rule: strategy)
             : parent != null
-                ? (rules: rules, parent: parent)
-                : (rules: rules);
+                ? user != null
+                    ? (rules: rules, parent: parent, user: user)
+                    : (rules: rules, parent: parent)
+                : user != null
+                    ? (rules: rules, user: user)
+                    : (rules: rules);
 
   /// Reconstitutes a [TestRule] from a raw **Flyweight Record**, facilitating
   /// the restoration of validation logic from a compressed state.
@@ -323,17 +316,6 @@ class TestRule<C> {
   /// 3. **Flyweight Efficiency**: By utilizing the record directly, it
   ///    supports the framework's goal of sharing memory for identical
   ///    validation logic across different nodes.
-  ///
-  /// ### Non‑obvious
-  /// - **Developer Guidance**: Most developers should use the primary
-  ///   [TestRule] or [TestRule.chain] constructors. This constructor is
-  ///   reserved for **Advanced Framework Scenarios**.
-  /// - **Zero-Cost Path**: It provides a zero-latency path for restoring
-  ///   rules within performance-critical reactive waves.
-  /// - **Data Integrity**: Assumes the provided record is valid and was
-  ///   properly synthesized by the framework.
-  /// - **Isolation**: Rules restored this way are immediately ready for use in
-  ///   a **Reciprocal Handshake** without further configuration.
   ///
   /// ### Example
   /// ```dart
@@ -380,17 +362,6 @@ class TestRule<C> {
   /// 3. **Stateless Logic**: Subclasses typically provide concrete validation
   ///    logic by overriding the [call] method, while relying on `base` for
   ///    type safety within the governance system.
-  ///
-  /// ### Non‑obvious
-  /// - **Statelessness**: Rules extending `base` should remain strictly
-  ///   stateless. They rely purely on the input value and metadata,
-  ///   making them safe for global caching and concurrent access.
-  /// - **Zero-Cost Metadata**: Because it is a `const` constructor,
-  ///   annotation-based rules do not incur runtime overhead unless they are
-  ///   explicitly evaluated.
-  /// - **Visibility**: Annotations are visible to external tools (like code
-  ///   generators or documentation engines) that might not have access to
-  ///   the runtime reactive graph.
   ///
   /// ### Example
   /// ```dart
@@ -451,16 +422,6 @@ class TestRule<C> {
   ///    complete at native speed, while asynchronous checks (e.g., DB lookups)
   ///    safely suspend the reactive wave until completion.
   ///
-  /// ### Non‑obvious
-  /// - **Fail-Safe Resilience**: Unhandled exceptions within a validator are
-  ///   caught by the framework and treated as a **Pass** (`true`) to prevent
-  ///   a single faulty rule from paralyzing the reactive system.
-  /// - **Execution Context**: The `host` and `arguments` parameters provide
-  ///   causal metadata, allowing rules to make decisions based on *who* or
-  ///   *what* triggered the update.
-  /// - **Atomicity**: When called via a [Cell], this method is automatically
-  ///   protected by the node's conactive lock.
-  ///
   /// ### Example
   /// ```dart
   /// final ageRule = TestRule<int>((val, {host, arguments, user}) => val >= 18);
@@ -518,7 +479,13 @@ class TestRule<C> {
           return parent.call(object, host: host, arguments: arguments);
         });
       }
-      return result.catchError((e) => e);
+      // Re-throw the original error so `TestCell.call`'s exception handler
+      // treats async failures uniformly with the sync path. Returning the
+      // caught error here (`catchError((e) => e)`) resolves the future with
+      // an Object instead of a bool, producing a TypeError in the caller.
+      return result.then((value) => value,
+          onError: (Object e, StackTrace st) =>
+              Error.throwWithStackTrace(e, st));
     } else if (!result) {
       return false;
     }
@@ -549,8 +516,11 @@ class TestRule<C> {
       }
     }
 
-    // Chain finished, check parent
-    return _parent?.call(object, host: host, arguments: arguments) ?? true;
+    // Chain finished. Do NOT delegate to the parent here: `call` already
+    // delegates after the local rules pass (both in the synchronous and
+    // asynchronous paths). Delegating here as well would invoke the parent
+    // twice for every strategy-less chain.
+    return true;
   }
 
   /// Composes two [TestRule] instances into a sequential **Validation Pipeline**.
@@ -579,17 +549,6 @@ class TestRule<C> {
   /// 4. **Hybrid Convergence**: The operator preserves `FutureOr` semantics.
   ///    If either rule is asynchronous, the execution engine ensures the
   ///    reactive wave is correctly awaited, maintaining **Causal Integrity**.
-  ///
-  /// ### Non‑obvious
-  /// - **Evaluation Order**: Execution is strictly left-to-right. This is
-  ///   critical when a downstream rule depends on a type-check or null-check
-  ///   performed by an upstream rule.
-  /// - **Structural Efficiency**: Under the hood, this operator delegates to
-  ///   [TestRule.chain], which utilizes the framework's **Flyweight Strategy**
-  ///   to minimize memory overhead for long validation chains.
-  /// - **Short-Circuit Performance**: By failing early, the pipeline avoids
-  ///   expensive validation logic (like database lookups) if a basic
-  ///   structural invariant has already failed.
   ///
   /// ### Example
   /// ```dart

@@ -49,13 +49,6 @@ abstract interface class Nucleus {
   /// The constructor uses bitmasking to store only non‑default values,
   /// making it memory‑efficient.
   ///
-  /// ### Non‑obvious
-  /// - The [forceLock] parameter controls whether a new synchronization
-  ///   lock is created. If `true`, the nucleus gets its own lock; if `false`,
-  ///   it inherits from its principal (if any) or uses a shared default.
-  /// - The [synapses] default is [Synapses.enabled], but you can pass
-  ///   [Synapses.disabled] to make the cell a terminal node.
-  ///
   /// ### Parameters:
   /// - [ephemeralPolicy]: **Lifecycle Governance.** Defines when the node
   ///   should be automatically neutralized and purged.
@@ -88,52 +81,48 @@ abstract interface class Nucleus {
   /// support hierarchical property inheritance and contextual overrides.
   ///
   /// This factory constructor is the primary implementation of the **Prototype-based
-  /// Inheritance** pattern (specifically the **Proxy/Deputy Pattern**) within the
-  /// framework. It allows a derived **Blueprint** to inherit its core configuration
-  /// and behavioral logic from a [principal] while layering on its own specific
-  /// overrides, execution contexts, or ad-hoc metadata.
+  /// Inheritance** pattern (specifically the **Deputy-Principal Relationship**) within
+  /// the framework. In its biological meta-language, [evolve] performs a directed
+  /// **Genetic Mutation**, creating a descendant (Deputy) that inherits the
+  /// foundational "DNA" of this nucleus (Principal) while layering on its own
+  /// specific operational traits.
   ///
   /// ### When to use
-  /// Only if you are building framework extensions. For deputies, use
-  /// [Cell.deputy] instead.
+  /// - **Specialization**: Creating a cell that shares the same [Context] and
+  ///   [Receptor] but requires a stricter [TestCell] integrity gate.
+  /// - **Contextual Shifting**: Moving a node to a different [Context] (e.g.,
+  ///   from `module` to `system`) without redefining its transformation logic.
+  /// - **Lifecycle Tuning**: Overriding an [EphemeralPolicy] to change the
+  ///   TTL of a specific branch in the reactive graph.
   ///
   /// ### How it works
-  /// You provide a [principal] (the parent nucleus) and override specific
-  /// properties (e.g., [context], [testRule]). Missing properties are
-  /// resolved by walking up the principal chain.
-  ///
-  /// ### Non‑obvious
-  /// - The [override] parameter, if provided, replaces all local overrides.
-  /// - Bindings ([bind]) are not inherited – they are instance‑specific.
-  /// - The lock is inherited from the principal unless [override] provides
-  ///   its own lock.
+  /// The constructor utilizes a **Tiered Resolution Hierarchy** to determine the
+  /// final state of any property:
+  /// 1. **Local Override**: Values explicitly passed to this method.
+  /// 2. **Prototype Inheritance**: Values inherited from the [principal].
+  /// 3. **Causal Binding**: Values derived from the upstream [bind] dependency.
+  /// 4. **Global Default**: Framework-level constants (e.g., [Context.system]).
   ///
   /// ### Parameters:
-  /// - [ephemeralPolicy]: **Lifecycle Governance.** Defines when the node
-  ///   should be automatically neutralized and purged. If null, resolves
-  ///   from the [principal]. *(Ignored if [override] is set)*.
-  /// - [bind]: Optional. A [Cell] dependency. Note: bindings are
-  ///   instance-specific and are **not** inherited from the [principal].
-  ///   *(Ignored if [override] is set)*.
-  /// - [context]: **Execution Environment.** Defines the security tier and
-  ///   priority of the node. If null, resolves from the [principal].
-  ///   *(Ignored if [override] is set)*.
-  /// - [receptor]: **Transformation Pipeline.** The logic used to process
-  ///   incoming signals. If null, resolves from the [principal].
-  ///   *(Ignored if [override] is set)*.
-  /// - [testRule]: **Integrity Gate.** Validation rules that act as a guard
-  ///   for all state modifications. If null, resolves from the [principal].
-  ///   *(Ignored if [override] is set)*.
-  /// - [synapses]: **Signal Manifest.** Manages connectivity and distribution
-  ///   via the `SignalDistributionHub`. If null, resolves from the [principal].
-  ///   *(Ignored if [override] is set)*.
-  /// - [user]: **Extension Metadata.** An optional record for domain-specific
-  ///   properties kept separate from framework logic.
-  /// - [override]: Optional. A pre-compiled [Nucleus] whose record will be
-  ///   directly adopted as the property base.
   /// - [principal]: **Required**. The source [Nucleus] from which this instance
   ///   derives its structural and logic inheritance.
-  factory Nucleus.evolve(
+  /// - [ephemeralPolicy]: **Lifecycle Governance.** Defines when the node
+  ///   should be automatically neutralized. Resolves from [principal] if null.
+  /// - [bind]: **Ingress Link.** A [Cell] dependency. Note: bindings are
+  ///   instance-specific and are **not** inherited from the [principal].
+  /// - [context]: **Execution Environment.** Defines the security tier and
+  ///   priority. Resolves from [principal] if null.
+  /// - [receptor]: **Transformation Pipeline.** The logic used to process
+  ///   incoming signals. Resolves from [principal] if null.
+  /// - [testRule]: **Integrity Gate.** Validation rules that guard state
+  ///   modifications. Resolves from [principal] if null.
+  /// - [synapses]: **Signal Distribution.** Manages egress connectivity.
+  ///   Resolves from [principal] if null.
+  /// - [user]: **Extension Metadata.** An optional record for domain-specific
+  ///   properties kept separate from framework logic.
+  /// - [override]: Optional. A pre-compiled [Nucleus] whose internal record
+  ///   will be adopted directly.
+  factory Nucleus.evolve(Nucleus principal,
       {EphemeralPolicy? ephemeralPolicy,
       Cell? bind,
       Context? context,
@@ -141,8 +130,22 @@ abstract interface class Nucleus {
       TestCell? testRule,
       Synapses? synapses,
       Record? user,
-      Nucleus? override,
-      required Nucleus principal}) = _Nucleus.evolve;
+      Nucleus? override}) {
+    return _Nucleus.fromRecord((
+      local: override != null
+          ? (override as NucleusBase).record.local
+          : NucleusBase.mask(
+              bind: bind,
+              context: context,
+              receptor: receptor,
+              testRule: testRule,
+              synapses: synapses,
+              user: user,
+              ephemeralPolicy: ephemeralPolicy,
+            ),
+      principal: principal,
+    ));
+  }
 
   /// Creates a primary, immutable, and completely empty [Nucleus] instance.
   ///
@@ -174,14 +177,6 @@ abstract interface class Nucleus {
   /// You provide a set of parameters; the method creates a nucleus record.
   /// If [principal] is provided, the new nucleus inherits from it.
   ///
-  /// ### Non‑obvious
-  /// - The [forceLock] semantics differ from the primary constructor:
-  ///   if `true`, the nucleus shares the principal's lock (i.e., does not
-  ///   create a new one). This is the opposite of the primary constructor
-  ///   where `true` means *create* a lock.
-  /// - The [receptor] and [testRule] are type‑bound to [C], ensuring
-  ///   compile‑time safety.
-  ///
   /// ### Parameters:
   /// * [ephemeralPolicy]: Optional. The **Lifecycle Governance Policy** (TTL/Hops).
   ///   If null and a [principal] is provided, it is inherited from the principal.
@@ -194,8 +189,9 @@ abstract interface class Nucleus {
   /// * [testRule]: Optional. The **Policy Guard** validator used to authorize
   ///   and validate state changes.
   /// * [synapses]: Optional. Configuration for the **Signal Distribution Network**.
-  /// * [forceLock]: Optimization flag. If `true`, the nucleus will share the
-  ///   synchronization domain of its [principal].
+  /// * [forceLock]: **Atomic Isolation.** If `true`, allocates a fresh,
+  ///   private synchronization [Lock] for this nucleus. If `false` and a
+  ///   [principal] is provided, the principal's lock is inherited instead.
   /// * [user]: Optional [Record] for developer-defined ad-hoc metadata
   ///   kept separate from core framework logic.
   /// * [principal]: Optional. An ancestor [Nucleus] to extend via the
@@ -257,9 +253,6 @@ abstract interface class Nucleus {
   /// ### When to use
   /// Mostly for internal framework code. You rarely need this directly.
   ///
-  /// ### Non‑obvious
-  /// This getter is only valid when [isActivated] is `true`. Accessing it
-  /// on an unactivated nucleus throws a [StateError].
   Cell get cell;
 
   /// Indicates whether this nucleus has been bound to a live [Cell].
@@ -297,17 +290,6 @@ abstract interface class Nucleus {
   /// 3. **Terminal Living**: If neither a local policy nor an upstream binding
   ///    is present, the node is considered permanent (`false`).
   ///
-  /// ### Non‑obvious
-  /// - **One-Way Transition**: Invalidation is terminal. A node that returns
-  ///   `true` for [isInvalidated] can never return to a living state; its
-  ///   provenance is effectively closed.
-  /// - **Binding Contagion**: If a root cell in a complex graph is invalidated,
-  ///   the status propagates instantly down the entire binding chain, ensuring
-  ///   no "zombie" nodes continue to broadcast stale pulses.
-  /// - **Active vs. Valid**: A node can be [isInvalidated] but still
-  ///   [isActivated] if the garbage collector has not yet reclaimed the
-  ///   instance. This getter should be used to gate operational logic.
-  ///
   /// ### Returns:
   /// `true` if the node has expired or its causal source has been invalidated.
   bool get isInvalidated;
@@ -339,17 +321,6 @@ abstract interface class Nucleus {
   ///    themselves considered governed.
   /// 3. **Passive Default**: If no local overrides exist and there is no
   ///    upstream binding, the node is considered un-governed (standard system state).
-  ///
-  /// ### Non‑obvious
-  /// - **Recursive Integrity**: Governance is contagious. A chain of bindings
-  ///   will propagate the governance flag downward. If the root data source
-  ///   is governed, the entire reactive lineage is flagged as governed.
-  /// - **Authority vs. Governance**: A node can have a strict [testRule] (gate)
-  ///   but remain un-governed if its [context] is still [Context.system] and
-  ///   it lacks a lifecycle policy.
-  /// - **Identity vs. State**: This getter reflects the *structural*
-  ///   governance of the node (its "DNA"), not the current *activation*
-  ///   state of the resulting [Cell].
   ///
   /// ### Returns:
   /// `true` if the node is under specialized administrative or lifecycle control.
@@ -455,18 +426,6 @@ abstract interface class Nucleus {
   /// 4. **Global Default**: If no rule is found in the lineage or bindings,
   ///    it defaults to [TestCell.allowAll].
   ///
-  /// ### Non‑obvious
-  /// - **Forensic Rejection**: When a [testRule] rejects a stimulus, the
-  ///   mutation is aborted. The framework records a **Rejection Milestone** in
-  ///   the forensic [Pulse.trace] and returns `null` rather than throwing a
-  ///   runtime exception, allowing for graceful self-healing logic.
-  /// - **Causal Consistency**: The automatic inheritance from the [bind]
-  ///   target ensures that derived cells (projections) respect the same
-  ///   integrity constraints as their data sources by default.
-  /// - **Short-circuiting**: The rule is evaluated synchronously *before* the
-  ///   [Receptor] processes the pulse, preventing unnecessary computation or
-  ///   side-effects from invalid stimuli.
-  ///
   /// ### See also:
   /// * [TestCell] – The functional interface for defining integrity gates.
   /// * [Context] – The operational anchor used within rules to verify authority.
@@ -509,15 +468,6 @@ abstract interface class Nucleus {
   ///    adopts the context of the bound cell.
   /// 4. **Global Default**: If no context is found in the lineage or bindings,
   ///    it defaults to [Context.system].
-  ///
-  /// ### Non‑obvious
-  /// - **Immutability**: The context is established during the **Reciprocal
-  ///   Handshake** at the node's synthesis and cannot be changed.
-  /// - **Deputy Restrictions**: While a principal cell and its deputies share
-  ///   the same internal state, they each possess a unique [context], allowing
-  ///   for authority attenuation (e.g., a "Guest" deputy of a "System" cell).
-  /// - **Trace Stamping**: Every [Pulse] emitted by this cell is stamped with
-  ///   this context in the forensic [Pulse.trace].
   ///
   /// ### Returns:
   /// The [Context] instance representing the forensic anchor and authority

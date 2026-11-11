@@ -2,6 +2,15 @@
 // for details. Use of this source code is governed by a MIT or
 // Apache-2.0 license that can be found in the LICENSE file.
 
+// # `example/cell_flow_example.dart`
+//
+// **What it demonstrates:** A stock Flow pipeline (ingress → map/filter → handle).
+// **Which BRD sentence picks it:** "Shape the feed before the decision."
+// **Layer:** Flow (§2 ways, §3 catalog)
+// **API signatures used:** `Cell.ingress`, `Flow.map`, `Flow.filter`, `FlowHandle.emit`
+// **Run:** `dart run example/cell_flow_example.dart`
+// **Verify first:** `dart run tool/ai_preflight.dart` exits 0.
+
 import 'package:cell_flow/cell_flow.dart';
 
 /// Minimal, runnable quick start for `cell_flow`.

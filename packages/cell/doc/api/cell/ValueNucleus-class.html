@@ -66,15 +66,6 @@ application code, use <a href="../cell/Cell/state.html">Cell.state</a>.</p>
 transformation logic (<code>transform</code>) with the commitment pipeline
 (<a href="../cell/ValueCell/postProcessRule.html">ValueCell.postProcessRule</a>). The <a href="../cell/Box-class.html">Box</a> is resolved by walking up the
 principal chain, so deputies share the same storage.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>forceLock</code> parameter in the primary constructor is <code>true</code> by
-default (unlike the generic <code>Nucleus</code>), because state cells need their
-own lock to prevent race conditions.</li>
-<li>When you <code>evolve</code> a <code>ValueNucleus</code>, the new nucleus shares the same
-<code>Box</code> as its principal – no state duplication.</li>
-</ul>
-<p>See also: <a href="../cell/ValueCell-class.html">ValueCell</a>, <a href="../cell/Box-class.html">Box</a>, <a href="../cell/Cell/state.html">Cell.state</a>.</p>
 </section>
 
 
@@ -325,16 +316,16 @@ state.
 
 </dd>
 
-        <dt id="synapses" class="property inherited">
-  <span class="name"><a href="../cell/NucleusBase/synapses.html">synapses</a></span>
+        <dt id="synapses" class="property">
+  <span class="name"><a href="../cell/ValueNucleus/synapses.html">synapses</a></span>
   <span class="signature">&#8594; <a href="../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span>
   
 
 </dt>
-<dd class="inherited">
-  The connectivity manager responsible for tracking and notifying downstream
-observers of this <code>Cell</code>.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+<dd>
+  Default-enabled records store the <a href="../cell/Synapses/enabled-constant.html">Synapses.enabled</a> flyweight; the
+real set is materialized once on first access.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
 
@@ -381,7 +372,7 @@ custom property extensions for the associated <a href="../cell/Cell-class.html">
 
     
   <section
-      class="summary offset-anchor inherited"
+      class="summary offset-anchor"
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
@@ -474,7 +465,7 @@ custom property extensions for the associated <a href="../cell/Cell-class.html">
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

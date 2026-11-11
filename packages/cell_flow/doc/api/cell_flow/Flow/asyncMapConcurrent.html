@@ -87,13 +87,6 @@ order doesn't matter.</p>
 <li>Order is not preserved.</li>
 <li>If <code>mapper</code> throws an error, it's reported independently.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Unordered</strong>: Results are emitted in completion order.</li>
-<li><strong>Unlimited Concurrency</strong>: All operations start immediately.</li>
-<li><strong>No Queuing</strong>: No queuing; operations start immediately.</li>
-<li><strong>Error Isolation</strong>: Errors are reported independently.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -166,7 +159,7 @@ ids.emit(2); // Starts fetching (parallel)
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

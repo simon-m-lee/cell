@@ -76,14 +76,6 @@ a cell's behavior from scratch. For most cases, use the higher‑level
 <p>All parameters are optional and default to framework standards.
 The constructor uses bitmasking to store only non‑default values,
 making it memory‑efficient.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>forceLock</code> parameter controls whether a new synchronization
-lock is created. If <code>true</code>, the nucleus gets its own lock; if <code>false</code>,
-it inherits from its principal (if any) or uses a shared default.</li>
-<li>The <code>synapses</code> default is <a href="../../cell_tissue/Synapses/enabled-constant.html">Synapses.enabled</a>, but you can pass
-<a href="../../cell_tissue/Synapses/disabled-constant.html">Synapses.disabled</a> to make the cell a terminal node.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>ephemeralPolicy</code>: <strong>Lifecycle Governance.</strong> Defines when the node
@@ -146,7 +138,7 @@ properties kept separate from framework logic.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

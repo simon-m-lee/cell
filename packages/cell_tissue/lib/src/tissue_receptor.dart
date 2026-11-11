@@ -54,24 +54,6 @@ part of '../cell_tissue.dart';
 /// - The final (possibly transformed) pulse is dispatched to downstream
 ///   observers via the tissue's [Synapses].
 ///
-/// ### Non‑obvious
-/// - **Auto‑synchronisation**: If the tissue is `bind`ed to a principal, the
-///   receptor automatically syncs structural changes (adds, removes, updates)
-///   from that principal into the local container, even before your custom
-///   rule runs. This is the foundation of the **Deputy Pattern**.
-/// - **Activation**: A receptor is a stateless template until it is activated
-///   (bound to a tissue). Once activated, it holds a reference to that tissue
-///   and cannot be safely reused on another one – use [clone] for that.
-/// - **Pass‑through**: The `passThrough` constant is a singleton; it's the
-///   default for all tissues, and it's extremely lightweight.
-/// - **Async support**: All pipeline stages can be synchronous or asynchronous
-///   (`FutureOr`). If any stage returns a `Future`, the propagation wave
-///   suspends until it completes.
-/// - **Cloning**: If you need the same logic on multiple tissues, call `clone`
-///   on an activated receptor to get a fresh, unactivated copy.
-/// - **Returning `null`** is the standard way to filter a pulse – it's not an
-///   error path.
-///
 /// ### Example: Simple transformation
 /// ```dart
 /// final doubleReceptor = TissueReceptor<int, TissueList<int>>(
@@ -142,13 +124,6 @@ abstract interface class TissueReceptor<E, C extends Tissue<E>>
   /// - If the pulse is from any other source, it simply relays it without
   ///   modifying the local state.
   ///
-  /// ### Non‑obvious
-  /// - This is a singleton; millions of tissues can share it without memory
-  ///   overhead.
-  /// - It is the foundation of the **Deputy Pattern**: a deputy with a pass‑
-  ///   through receptor stays perfectly in sync with its principal.
-  /// - It does **not** perform any validation – that is the job of the
-  ///   [TestTissue] gatekeeper.
   static const passThrough = _PassThroughTissueReceptor();
 
   /// The primary factory constructor for creating a [TissueReceptor] with a
@@ -167,13 +142,6 @@ abstract interface class TissueReceptor<E, C extends Tissue<E>>
   /// - The function can return a modified pulse (to propagate) or `null` (to
   ///   drop it).
   /// - The framework wraps this function into a [Instruction] internally.
-  ///
-  /// ### Non‑obvious
-  /// - If the function throws an exception, the error is caught and logged,
-  ///   and the receptor returns `null` (drops the pulse).
-  /// - The receptor is stateless until activated (bound to a tissue).
-  /// - The `user` parameter is a convenient way to pass configuration
-  ///   (e.g., a multiplier, a threshold) without creating a custom class.
   ///
   /// ### Example
   /// ```dart
@@ -254,13 +222,6 @@ abstract interface class TissueReceptor<E, C extends Tissue<E>>
   /// - Each stage is independently shielded; an error in one stage is logged,
   ///   and the pipeline recovers to the last valid state.
   ///
-  /// ### Non‑obvious
-  /// - All stages are optional. If a stage is omitted, the pulse passes
-  ///   through that layer unchanged.
-  /// - The [reaction] parameter is a simplified functional alternative to
-  ///   [instruction].
-  /// - The [init] parameter runs once when the receptor is first activated.
-  ///
   /// ### Parameters:
   /// - [instruction]: The core transformation logic (the "Reasoning" phase).
   /// - [preProcess]: Logic executed before the core (e.g., sanitization).
@@ -307,11 +268,6 @@ abstract interface class TissueReceptor<E, C extends Tissue<E>>
   /// ### How it works
   /// - The clone copies the rules and metadata but clears any cell binding.
   /// - The clone is in the template state ([isActivated] is `false`).
-  ///
-  /// ### Non‑obvious
-  /// - The clone is a new object, so activating it won't affect the original.
-  /// - This is essential for sharing a receptor definition across many tissues
-  ///   without cross‑contamination.
   ///
   /// ### Returns:
   /// A new [TissueReceptor<E, C>] instance that is functionally

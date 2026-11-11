@@ -58,7 +58,7 @@
 <span class="name ">distinct</span>&lt;<wbr><span class="type-parameter">S</span>&gt;(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="distinct-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span></span></li>
 </ol>)
 
-      <div class="features"><span class="feature">override</span></div>
+      
 
     </section>
     
@@ -91,15 +91,6 @@ before, regardless of position.</p>
 <li><strong>Use <a href="../../mitosis/Flow/skipRepeated.html">skipRepeated</a></strong> when only consecutive repeats matter to avoid
 unbounded memory growth.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Global Scope</strong>: Any previously seen value is dropped, even if it
-appeared long ago.</li>
-<li><strong>Memory Growth</strong>: The instruction stores all seen values, so memory
-grows with the number of unique values.</li>
-<li><strong>Custom Comparator</strong>: Providing an <code>equals</code> function allows for
-custom comparison logic.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -127,6 +118,22 @@ nums.emit(2); // dropped
 <li><a href="../../mitosis/Flow/skipRepeated.html">skipRepeated</a>: For consecutive-only deduplication.</li>
 <li><a href="../../mitosis/Flow/filter.html">filter</a>: For general filtering.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Flow — global dedupe operator. Not a Cell factory, not a Tissue book.
+<strong>When to use:</strong> "do not flood the log" on a 15 s feed — drop any payload seen before.
+<strong>When NOT to use:</strong> an ACK-resettable latch (stock <code>Distinct</code> has no <code>reset()</code> — use a custom instruction).
+<strong>Live signature:</strong> <code>Flow.distinct&lt;S&gt;(Cell source)</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Flow.skipRepeated</code> (consecutive-only) and <code>DistinctUntilChanged</code> (Flow class, consecutive).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)
+<strong>Example:</strong> <code>example/distinct_noise_reduction_demo.dart</code>
+<strong>Cross-layer:</strong> a guarded register of seen keys is a <code>TissueSet</code>; the reset latch is a custom instruction.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final h = Flow.distinct&lt;int&gt;(src.cell);
+final o = Cell.observe(source: h.cell, effect: (Pulse p) =&gt; print(p.payload));
+src.emit(1);
+o.stop();
+</code></pre>
 </section>
 
 
@@ -163,7 +170,7 @@ nums.emit(2); // dropped
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

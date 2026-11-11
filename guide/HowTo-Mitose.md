@@ -11,7 +11,6 @@ All Mitose scripts in this set live in **one directory** (this file's directory)
 | `HowTo-Mitose.md` | Orchestration 2.0. Optional for layer HowTos and for ARCHITECTURE / FEATURES extraction. Required to start a full Mitose run. |
 | `Business_Requirements_Document.md` | BRD template 2.0. Shape of `<stem>-BRD.md`. |
 | `BRD-AI-Interview.md` | Interview that writes `<stem>-BRD.md` in that template shape. |
-| `Document_AI_MasterGenerator.md` | Master entry point. Consulted before any individual generator. |
 | `WalkThrough-AI-Generator.md` | Writes `<stem>-WalkThrough.md`. |
 | `HowTo-Mitose-Cell.md` | Cell factory choices. |
 | `HowTo-Mitose-Flow.md` | Flow operator and custom-instruction choices. |
@@ -222,10 +221,7 @@ The agent must follow the generator exactly and must not write the document ad-h
 
 This rule applies in both step-by-step and autonomous mode. Autonomous mode does not relax it. A document written without following its generator is invalid and must be regenerated.
 
-23. **Consult `Document_AI_MasterGenerator.md` before any individual generator.**  
-Before generating any document, the agent must first open `Document_AI_MasterGenerator.md`. It then follows the map in that file to the correct individual generator and follows that generator exactly. The run log records that the master script was consulted. Autonomous mode does not skip this step.
-
-24. **Every BRD test must compare actual results against expected values before confirming the test.**  
+23. **Every BRD test must compare actual results against expected values before confirming the test.**  
 In both step-by-step and autonomous mode, each test in the `BRD` group of `<stem>-test.dart` must:
 - Capture the actual result produced by the Demo.
 - Compare it with an expected value taken from the BRD (or the WalkThrough coverage matrix).
@@ -234,7 +230,7 @@ In both step-by-step and autonomous mode, each test in the `BRD` group of `<stem
 
 A `LEDGER PASS` line printed without a preceding assertion that compared actual against expected is invalid. This rule applies in both modes.
 
-25. **All documents must be generated in full.**  
+24. **All documents must be generated in full.**  
 In both step-by-step and autonomous mode, every document listed below must be produced by following its generator script completely. A stub, placeholder, or empty document is invalid and must be regenerated:
 
 | Document | Generator | Required content |
@@ -248,10 +244,19 @@ In both step-by-step and autonomous mode, every document listed below must be pr
 A document that contains only a title and a one-line summary is a stub and does not satisfy this rule.  
 A WalkThrough that omits detailed tables, chain shape, scenarios, or a fully filled §5.12 is a slim document and is invalid. The agent must follow `WalkThrough-AI-Generator.md` §5 and §6 completely, producing a document comparable in structure and depth to a manual-mode generation.
 
-26. **The Demo must implement the WalkThrough in full.**  
+25. **The Demo must implement the WalkThrough in full, adapting to live signatures.**  
 In both step-by-step and autonomous mode, `<stem>-Demo.dart` must contain:
 - Domain types matching the WalkThrough — use the BRD's own shapes (for example, a payment desk's tick, decision, order, payment, outcome), never a fixed list.
-- A custom `FlowInstructionBase` subclass with an importable `riskOf` (or equivalent pure decision method).
+- A custom `FlowInstructionBase` subclass with an importable `riskOf` (or equivalent pure decision method) where the resolved package APIs permit it.
+- Chain assembly (`+`, `MapValue`, `toHandle` once per product) where the resolved package APIs permit it.
+- `Cell.observe` as the **only** glue that writes Tissue books.
+- Tissue books for every collection the WalkThrough named.
+- Behaviour that satisfies every FR / DR / BR / AR / NFR criterion that can be expressed as a check.
+
+**Live signatures rule:** Resolve constructors, method signatures, and exports from the installed packages (pub.dev / local sources). Never invent an API from memory. If a live signature prevents the idealized shape (custom instruction constructor, staged `Cell.txApply` with compensate, separate ingresses, etc.), adapt to the working form, record the deviation in the Demo header and in WalkThrough §5.12, and list the intended shape as a Recommendation. A slim pure-function Demo that ignores the WalkThrough is invalid; an adapted Demo that still meets the seam (instruction decides, observer glues) and produces executed evidence is valid when the deviation is recorded.
+
+26. **Post-Demo reconciliation is mandatory.**  
+After `<stem>-Demo.dart` exists and has been executed, the agent must update the WalkThrough so that §5.2–§5.5, §5.7, §5.10 and the coverage matrix describe either (a) what the executed Demo actually does, with the intended full shape recorded as Recommendations / Real-desk rows, or (b) clearly mark “intended vs executed” at the top of §5.12 and in the affected sections. Leaving the contract sections describing a shape the Demo does not implement, while §5.12 describes a different implementation, is invalid. ARCHITECTURE and FEATURES must not be offered until this reconciliation is done.
 - Chain assembly: the products named by the WalkThrough (for a two-product desk, `proceed` / `reject`), `MapValue`, and `toHandle` once each.
 - `Cell.observe` as the only glue that writes Tissue books.
 - `Cell.txApply` (or the equivalent multi-value commit) for the all-or-nothing paths.
@@ -263,7 +268,7 @@ A Demo that uses only a pure function and a synchronous `process` method, withou
 
 ### Opening line
 
-> I have HowTo-Mitose.md 2.2. I will run the Mitose pipeline: BRD gate → once the BRD exists, I will offer you a choice between step by step and autonomous mode → readiness check → WalkThrough (with a short prediction check, unless you choose autonomous) → Demo (on your OK; in autonomous mode, after the BRD, I run the rest of the pipeline without interruption or further input: decide all open items, skip the comprehension check, install a Dart SDK if needed, add package:cell / cell_flow / cell_tissue, implement the WalkThrough in full (all subsections 5.1–5.14 with detailed tables, chain shape, scenarios and filled §5.12) covering all BRD requirement IDs, write and test the Demo implementing the WalkThrough in full (instruction, chain, observe, txApply — a slim pure-function Demo is invalid; each BRD test compares actual vs expected and calls expect() before printing LEDGER PASS), update the WalkThrough §5.12 Demo Assessment from the results using WalkThrough-AI-Generator.md §6 with the same detail as manual mode, write the ledger using LEDGER-AI-Generator.md, ARCHITECTURE using ARCHITECTURE-AI-Generator.md and FEATURES using FEATURES-AI-Generator.md (all documents MUST be produced in full by first consulting Document_AI_MasterGenerator.md and then following their corresponding generator script exactly — ad-hoc writing and stubs are invalid), and produce the remaining documents until the end) → WalkThrough assessment against the Dart file → residual ledger → decision log → ARCHITECTURE and FEATURES. For an existing solution I will run change mode instead. Cell / Flow / Tissue HowTos stay in force whether or not this file is present. First I will look for a BRD.
+> I have HowTo-Mitose.md 2.2. I will run the Mitose pipeline: BRD gate → once the BRD exists, I will offer you a choice between step by step and autonomous mode → readiness check → WalkThrough (with a short prediction check, unless you choose autonomous) → Demo (on your OK; in autonomous mode, after the BRD, I run the rest of the pipeline without interruption or further input: decide all open items, skip the comprehension check, install a Dart SDK if needed, add package:cell / cell_flow / cell_tissue, implement the WalkThrough in full (all subsections 5.1–5.14 with detailed tables, chain shape, scenarios and filled §5.12) covering all BRD requirement IDs, write and test the Demo implementing the WalkThrough in full (instruction decides, chain assembles, observer glues, adapting to live package signatures and recording deviations — a slim pure-function Demo that ignores the WalkThrough is invalid; each BRD test compares actual vs expected and calls expect() before printing LEDGER PASS), update the WalkThrough §5.12 Demo Assessment and reconcile contract sections from the results using WalkThrough-AI-Generator.md §6 with the same detail as manual mode, write the ledger using LEDGER-AI-Generator.md, ARCHITECTURE using ARCHITECTURE-AI-Generator.md and FEATURES using FEATURES-AI-Generator.md (all documents MUST be produced in full by following their corresponding generator script exactly — ad-hoc writing and stubs are invalid), and produce the remaining documents until the end) → WalkThrough assessment against the Dart file → residual ledger → decision log → ARCHITECTURE and FEATURES. For an existing solution I will run change mode instead. Cell / Flow / Tissue HowTos stay in force whether or not this file is present. First I will look for a BRD.
 
 Then run §2.
 
@@ -591,7 +596,7 @@ For an `upgrade`, record the Dart SDK and package versions before and after in t
 [ ] In autonomous mode: WalkThrough §5.12 Demo Assessment is filled from the executed Demo and test results using WalkThrough-AI-Generator.md §6 with the same detail as manual mode
 [ ] In autonomous mode: LEDGER, ARCHITECTURE and FEATURES are generated by following their respective AI-Generator scripts exactly
 [ ] All document generations (both modes) use their corresponding generator script; ad-hoc writing is invalid (Rule 22)
-[ ] Document_AI_MasterGenerator.md is consulted before any individual generator (Rule 23)
+[ ] All document generations follow their corresponding generator script exactly (Rule 22). Ad-hoc writing is invalid.
 [ ] Every BRD test compares actual vs expected and calls expect() before printing LEDGER PASS (Rule 24)
 [ ] All documents (WalkThrough, LEDGER, ARCHITECTURE, FEATURES, COMPREHENSION) are generated in full by following their generators; stubs are invalid (Rule 25)
 [ ] Demo implements the WalkThrough in full (instruction, chain, observe, txApply); slim pure-function Demo is invalid (Rule 26)
@@ -706,7 +711,9 @@ One human decision at each gate. Do not chain them. In autonomous mode only A1 i
 | Pipeline continuity | Gates may pause | After A1 the pipeline runs to the end with no further user input; open items decided by AI; comprehension skipped |
 | WalkThrough §5.12 | Filled only after user accepts Demo Assessment | In autonomous mode filled automatically from the executed Demo and test results, using WalkThrough-AI-Generator.md §6 with the same detail as manual mode |
 | Document generators | Used in step-by-step mode | MUST be used in both modes. Autonomous mode does not permit ad-hoc writing. A document not produced by its generator is invalid (Rule 22). |
-| Master generator | — | `Document_AI_MasterGenerator.md` is consulted before any individual generator (Rule 23). |
+| Master generator | Consulted before generators | Removed. Individual generators are named directly by HowTo-Mitose. |
+| Live signatures | Idealized patterns assumed | Resolve from installed packages. Record deviations when live APIs prevent the idealized shape (Rule 25). |
+| Post-Demo reconciliation | §5.12 filled | Contract sections (§5.2–§5.5, §5.7, §5.10, coverage) must match executed Demo or clearly mark intended vs executed before ARCHITECTURE/FEATURES/LEDGER (Rule 26). |
 | Test assertions | LEDGER lines printed | Every BRD test must compare actual vs expected and call expect() before printing LEDGER PASS (Rule 24). Applies in both modes. |
 | Document completeness | Stubs accepted | All documents must be generated in full by following their generators completely. Stubs and slim WalkThroughs are invalid (Rule 25). Applies in both modes. |
 | Demo completeness | Simplified stand-in accepted | Demo must implement the WalkThrough in full (instruction, chain, observe, txApply). A slim pure-function Demo is invalid (Rule 26). Applies in both modes. |

@@ -91,14 +91,6 @@ the fastest one:</p>
 <li><code>null</code>: The competitor is ignored (no emission).</li>
 <li><strong>Nested combinations</strong>: Recursively expanded.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>One-Shot</strong>: The race is started on the first trigger only.</li>
-<li><strong>Concurrent</strong>: All competitors are started concurrently.</li>
-<li><strong>First Value Wins</strong>: Only the first value from any competitor is emitted.</li>
-<li><strong>Streams are Cancelled</strong>: Streams that lose are cancelled.</li>
-<li><strong>Error Handling</strong>: Errors are reported via <code>onError</code>.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the trigger.</li>
@@ -122,6 +114,22 @@ final handle = Flow.race&lt;String&gt;(
 );
 
 start.emit(null); // Emits 'fast'
+</code></pre>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Flow — combine operator. Not a Cell factory, not a Tissue book.
+<strong>When to use:</strong> first feed that answers wins (two lookups, keep the faster).
+<strong>When NOT to use:</strong> deterministic pairing (<code>zipWith</code>) or all-sources screens (<code>combineLatestWith</code>).
+<strong>Live signature:</strong> <code>Flow.race&lt;T&gt;(Cell source, {required List&lt;Object?&gt; competitors})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Flow.mergeWith</code> (interleaves all; race takes one winner).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.5 "Combine" (#flow-combine)
+<strong>Example:</strong> <code>example/retry_timeout_flaky_network_demo.dart</code>
+<strong>Cross-layer:</strong> a harness <code>_driveAlert</code> retry-once is often the v1 alternative.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final h = Flow.race&lt;int&gt;(src.cell, competitors: [1, 2]);
+final o = Cell.observe(source: h.cell, effect: (Pulse p) =&gt; print(p.payload));
+src.emit(1);
+o.stop();
 </code></pre>
 </section>
 
@@ -162,7 +170,7 @@ start.emit(null); // Emits 'fast'
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

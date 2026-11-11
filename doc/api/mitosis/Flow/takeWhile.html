@@ -86,14 +86,6 @@ forwarding when the condition fails.</p>
 <li>If the predicate returns <code>false</code>, the stream closes.</li>
 <li>The failing value is not emitted (unless <code>inclusive</code>).</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Terminal State</strong>: Once the predicate returns <code>false</code>, the stream
-closes and no further values are emitted.</li>
-<li><strong>State Persistence</strong>: The instruction maintains an <code>open</code> flag.</li>
-<li><strong>Order Preservation</strong>: Results are emitted in the same order as inputs.</li>
-<li><strong>Error Handling</strong>: Errors in the predicate close the stream.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -165,7 +157,7 @@ numbers.emit(5); // closes the stream (not emitted)
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

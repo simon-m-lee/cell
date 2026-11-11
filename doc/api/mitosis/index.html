@@ -183,12 +183,52 @@ a <a href="../mitosis/TissueCommand-class.html">TissueCommand</a>, retrying the 
 times on failure.
 </dd>
 
-          <dt id="ApplyRejected">
-  <span class="name "><a href="../mitosis/ApplyRejected-class.html">ApplyRejected</a></span> 
+          <dt id="ApplyAccepted">
+  <span class="name "><a href="../mitosis/ApplyAccepted-class.html">ApplyAccepted</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span> 
 
 </dt>
 <dd>
-  Explicit soft-reject from <a href="../mitosis/Cell/apply.html">Cell.apply</a> (not the same as void → null).
+  The command was authorized, safety-checked, and successfully executed.
+</dd>
+
+          <dt id="ApplyCommandRunner">
+  <span class="name "><a href="../mitosis/ApplyCommandRunner-class.html">ApplyCommandRunner</a></span> 
+
+</dt>
+<dd>
+  A helper class used to set up and execute an action on a cell.
+</dd>
+
+          <dt id="ApplyLedger">
+  <span class="name "><a href="../mitosis/ApplyLedger-class.html">ApplyLedger</a></span> 
+
+</dt>
+<dd>
+  The framework's internal <strong>Record Keeper</strong> and receipt generator.
+</dd>
+
+          <dt id="ApplyOutcome">
+  <span class="name "><a href="../mitosis/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The official, auditable result of submitting an <a href="../mitosis/ApplyCommand.html">ApplyCommand</a>.
+</dd>
+
+          <dt id="ApplyRejected">
+  <span class="name "><a href="../mitosis/ApplyRejected-class.html">ApplyRejected</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The command was denied by the framework's safety rules (the Integrity Gate).
+</dd>
+
+          <dt id="ApplyStaged">
+  <span class="name "><a href="../mitosis/ApplyStaged-class.html">ApplyStaged</a></span> 
+
+</dt>
+<dd>
+  The command was accepted and placed into a transaction to be run later.
 </dd>
 
           <dt id="ApplyTransactionScope">
@@ -196,7 +236,16 @@ times on failure.
 
 </dt>
 <dd>
-  
+  Handle for a <strong>staged command transaction</strong> — the mechanism behind
+<a href="../mitosis/Cell/txApply.html">Cell.txApply</a>.
+</dd>
+
+          <dt id="ApplyVeto">
+  <span class="name "><a href="../mitosis/ApplyVeto-class.html">ApplyVeto</a></span> 
+
+</dt>
+<dd>
+  A special signal used by a function to cancel its own operation.
 </dd>
 
           <dt id="Async">
@@ -300,7 +349,7 @@ single atomic wave.
 
 </dt>
 <dd>
-  
+  Describes a single failed compensation attempt.
 </dd>
 
           <dt id="CompositeTissueEvent">
@@ -739,7 +788,7 @@ serving as a specialized <strong>Ranked Execution Buffer</strong> for the reacti
 
 </dt>
 <dd>
-  
+  The foundational blueprint for all nervous signals within the reactive graph.
 </dd>
 
           <dt id="PulseContext">
@@ -1342,7 +1391,7 @@ and governance of a reactive single‑value cell.
 
 </dt>
 <dd>
-  
+  Emitted once, immediately after <a href="../mitosis/ApplyTransactionScope/begin.html">ApplyTransactionScope.begin</a> succeeds.
 </dd>
 
           <dt id="TxApplyCommitted">
@@ -1350,7 +1399,7 @@ and governance of a reactive single‑value cell.
 
 </dt>
 <dd>
-  
+  Emitted after a successful <a href="../mitosis/ApplyTransactionScope/commit.html">ApplyTransactionScope.commit</a>.
 </dd>
 
           <dt id="TxApplyCompensationFailed">
@@ -1358,7 +1407,7 @@ and governance of a reactive single‑value cell.
 
 </dt>
 <dd>
-  
+  Emitted each time a compensation attempt fails.
 </dd>
 
           <dt id="TxApplyCompensationRetry">
@@ -1366,7 +1415,7 @@ and governance of a reactive single‑value cell.
 
 </dt>
 <dd>
-  
+  Emitted before each retry of a compensation function.
 </dd>
 
           <dt id="TxApplyEvent">
@@ -1374,7 +1423,7 @@ and governance of a reactive single‑value cell.
 
 </dt>
 <dd>
-  
+  Base class for all lifecycle events emitted by an <a href="../mitosis/ApplyTransactionScope-class.html">ApplyTransactionScope</a>.
 </dd>
 
           <dt id="TxApplyOptions">
@@ -1382,7 +1431,7 @@ and governance of a reactive single‑value cell.
 
 </dt>
 <dd>
-  
+  Configuration for <a href="../mitosis/Cell/txApply.html">Cell.txApply</a>.
 </dd>
 
           <dt id="TxApplyRejected">
@@ -1390,7 +1439,7 @@ and governance of a reactive single‑value cell.
 
 </dt>
 <dd>
-  
+  Emitted when a staged command is refused.
 </dd>
 
           <dt id="TxApplyRolledBack">
@@ -1398,7 +1447,7 @@ and governance of a reactive single‑value cell.
 
 </dt>
 <dd>
-  
+  Emitted after a rollback (full or savepoint-scoped).
 </dd>
 
           <dt id="TxApplyStaged">
@@ -1406,7 +1455,7 @@ and governance of a reactive single‑value cell.
 
 </dt>
 <dd>
-  
+  Emitted once per successful <a href="../mitosis/ApplyTransactionScope/enqueueCommand.html">ApplyTransactionScope.enqueueCommand</a>.
 </dd>
 
           <dt id="TypeObject">
@@ -1691,7 +1740,8 @@ reactive operations within the framework.
 
 </dt>
 <dd>
-  
+  Determines how the transaction scope behaves when a compensation attempt
+fails.
 </dd>
 
           <dt id="HubRouting">
@@ -1891,7 +1941,9 @@ reactive maps.
 
 </dt>
 <dd>
-  
+  A reusable <strong>Architectural Segment</strong> (Genetic Sequence) providing the
+standardized operational logic and structural equality for all
+<a href="../mitosis/Tissue-class.html">Tissue</a> implementations.
 </dd>
 
           <dt id="TissueQueueMixin">
@@ -1927,6 +1979,16 @@ particularly for accessing and modifying the single value it holds.
     <section class="summary offset-anchor" id="extensions">
       <h2>Extensions</h2>
       <dl>
+          <dt id="ApplyCommandDSL">
+  <span class="name "><a href="../mitosis/ApplyCommandDSL.html">ApplyCommandDSL</a></span>
+  on <a href="../mitosis/Cell-class.html">Cell</a>
+  
+
+</dt>
+<dd>
+  A "fluent" shortcut that makes it easier to create and run commands on a cell.
+</dd>
+
           <dt id="CellFlowOperators">
   <span class="name "><a href="../mitosis/CellFlowOperators.html">CellFlowOperators</a></span>
   on <a href="../mitosis/Cell-class.html">Cell</a>
@@ -2106,6 +2168,66 @@ in reverse order (LIFO unwind of nested <code>synchronized</code> sections).
   </dd>
 
           
+  <dt id="ApplyArguments" class="">
+  <span class="name"><a href="../mitosis/ApplyArguments.html">ApplyArguments</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="field-name">namedArguments</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="field-name">positionalArguments</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A structured container for function arguments that allows for auditing and reversals.
+  
+
+</dd>
+
+
+          
+  <dt id="ApplyCommand" class="">
+  <span class="name"><a href="../mitosis/ApplyCommand.html">ApplyCommand</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../mitosis/ApplyArguments.html">ApplyArguments</a></span> <span class="field-name">arguments</span>, </span><span class="field"><span class="type-annotation"><a href="../mitosis/ApplyCompensation.html">ApplyCompensation</a>?</span> <span class="field-name">compensation</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="field-name">function</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A complete request to perform an action or change state within a cell.
+  
+
+</dd>
+
+
+          
+  <dt id="ApplyCompensation" class="">
+  <span class="name"><a href="../mitosis/ApplyCompensation.html">ApplyCompensation</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../mitosis/ApplyArguments.html">ApplyArguments</a></span> <span class="field-name">arguments</span>, </span><span class="field"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a>?</span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="field-name">function</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A set of instructions used to undo or "roll back" a change if it fails.
+  
+
+</dd>
+
+
+          
+  <dt id="ApplyReceipt" class="">
+  <span class="name"><a href="../mitosis/ApplyReceipt.html">ApplyReceipt</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../mitosis/ApplyArguments.html">ApplyArguments</a></span> <span class="field-name">arguments</span>, </span><span class="field"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="field-name">function</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="field-name">id</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a></span> <span class="field-name">timestamp</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="field-name">txSequence</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="field-name">vetted</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  The permanent, official record of a specific action taken by a cell.
+  
+
+</dd>
+
+
+          
   <dt id="Arguments" class="">
   <span class="name"><a href="../mitosis/Arguments.html">Arguments</a></span>
     = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="field-name">namedArguments</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="field-name">positionalArguments</span>}</span>)
@@ -2171,8 +2293,8 @@ change, delivered as the payload of an <a href="../mitosis/Tissue/entryUpdated-c
 
           
   <dt id="FlowHandle" class="">
-  <span class="name"><a href="../mitosis/FlowHandle.html">FlowHandle</a></span>&lt;<wbr><span class="type-parameter">I</span>&gt;
-    = (<span class="field">{<span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emit</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emitAsync</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../mitosis/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">I</span>&gt;</span></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>}</span>)
+  <span class="name"><a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">dynamic</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emit</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">dynamic</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emitAsync</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../mitosis/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>}</span>)
   </span>
   
 
@@ -2406,7 +2528,9 @@ functions — the standard way to create and interact with a state atom.
 
 </dt>
 <dd>
-  
+  Raised when one or more compensations fail under
+<a href="../mitosis/CompensationErrorPolicy.html">CompensationErrorPolicy.collectThenThrow</a> or
+<a href="../mitosis/CompensationErrorPolicy.html">CompensationErrorPolicy.failFast</a>.
 </dd>
 
           <dt id="TxApplyException">
@@ -2414,7 +2538,9 @@ functions — the standard way to create and interact with a state atom.
 
 </dt>
 <dd>
-  
+  Raised for <strong>control-flow</strong> problems in a <a href="../mitosis/ApplyTransactionScope-class.html">ApplyTransactionScope</a>: wrong
+phase (e.g. <code>commit</code> before <code>begin</code>), non-modifiable function, non-
+participant cell, or a rejected command at commit time.
 </dd>
 
       </dl>
@@ -2449,7 +2575,7 @@ functions — the standard way to create and interact with a state atom.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

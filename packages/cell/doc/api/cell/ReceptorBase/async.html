@@ -53,24 +53,19 @@
 </h1></div>
 
     
-
-    
+      <section class="multi-line-signature">
         
-  <section id="getter">
-    <section class="multi-line-signature">
-      
   <div>
     <ol class="annotation-list">
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-      <span class="returntype"><a href="../../cell/ReceptorAsync-class.html">ReceptorAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></span>
-      get
-      <span class="name ">async</span>
-      <div class="features"><span class="feature">override</span></div>
+        <a href="../../cell/ReceptorAsync-class.html">ReceptorAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span>
+        <span class="name ">async</span>
+        <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
-    </section>
-    
+      </section>
+      
 <section class="desc markdown">
   <p>Returns an asynchronous adapter for this receptor.</p>
 <p>This implementation wraps the current <a href="../../cell/ReceptorBase-class.html">ReceptorBase</a> instance in a <a href="../../cell/ReceptorAsync-class.html">ReceptorAsync</a>.
@@ -80,16 +75,15 @@ synchronous logic within a <a href="https://api.flutter.dev/flutter/dart-core/Fu
 <p>A <a href="../../cell/ReceptorAsync-class.html">ReceptorAsync</a> handle for asynchronous pulse injection.</p>
 </section>
 
-    
+      
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-ReceptorAsync&lt;C&gt; get async =&gt; ReceptorAsync&lt;C&gt;(this);</code></pre>
+late final ReceptorAsync&lt;C&gt; async = ReceptorAsync&lt;C&gt;(this);</code></pre>
 </section>
 
-  </section>
 
-
+    
 </div> <!-- /.main-content -->
 <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
   <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
@@ -114,7 +108,7 @@ ReceptorAsync&lt;C&gt; get async =&gt; ReceptorAsync&lt;C&gt;(this);</code></pre
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

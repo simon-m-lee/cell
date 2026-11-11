@@ -89,20 +89,6 @@ a pulse; invalidated pulses are silently dropped.</li>
 <li>The policy is <strong>stateless</strong> except for the hop counter and invalidation flag,
 which are stored in a lightweight record.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The TTL timer starts <strong>lazily</strong> – only when the pulse first interacts
-with a cell, not at creation time. This avoids unnecessary timers for
-pulses that are never propagated.</li>
-<li>If both <code>duration</code> and <code>hopLimit</code> are set, the policy invalidates as soon
-as <strong>either</strong> condition is met.</li>
-<li>The <code>onEvent</code> callback must return a <code>({int? hops})</code> record. Returning
-<code>null</code> for <code>hops</code> means no hop increment (useful for resetting counters).</li>
-<li>The policy is attached to a <strong>specific pulse instance</strong>; it does not
-affect the cell's lifecycle policy.</li>
-<li>The <code>onInvalidate</code> callback receives the invalidated pulse – you can use
-this for logging, cleanup, or triggering compensatory actions.</li>
-</ul>
 <h3 id="example-timesensitive-authentication-token">Example: Time‑Sensitive Authentication Token</h3>
 <pre class="language-dart"><code class="language-dart">final authPolicy = PulseEphemeralPolicy(
   duration: Duration(minutes: 5),
@@ -326,7 +312,7 @@ final tokenPulse = Pulse.governed&lt;String&gt;(
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

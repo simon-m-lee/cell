@@ -76,17 +76,6 @@ so it can participate in the collection‑based reactive graph.</p>
 <li>When the value is swapped, the owning <a href="../cell_tissue/TissueValue-class.html">TissueValue</a> detects the change
 and broadcasts the appropriate reactive signals.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>Unlike a <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a> with a single element, <a href="../cell_tissue/ValueContainer-class.html">ValueContainer</a> avoids the
-overhead of an underlying array allocation. It stores the reference
-directly, making it memory‑efficient.</li>
-<li>The container is mutable – you can change <code>value</code> directly. However,
-in a <a href="../cell_tissue/Tissue-class.html">Tissue</a> context, you should use the tissue's <code>set</code> method to
-ensure validation and pulse propagation.</li>
-<li>The container itself is not reactive; it's just a dumb storage cell.
-Reactivity is added by the <a href="../cell_tissue/TissueValue-class.html">TissueValue</a> that wraps it.</li>
-</ul>
 <h3 id="example-internal-usage">Example (internal usage)</h3>
 <pre class="language-dart"><code class="language-dart">final container = ValueContainer&lt;int&gt;(42);
 print(container.length); // 1
@@ -893,7 +882,7 @@ collection.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

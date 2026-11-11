@@ -1,3 +1,11 @@
+// # `example/observe_demo.dart`
+//
+// **What it demonstrates:** A decided pulse exits the graph through Cell.observe.
+// **Which BRD sentence picks it:** "Record every alert and action."
+// **Layer:** Cell (§3.2 `Cell.observe` — the only Flow → Tissue glue)
+// **API signatures used:** `Cell.ingress`, `Cell.observe`, `EgressHandle.stop`
+// **Run:** `dart run example/observe_demo.dart`
+// **Verify first:** `dart run tool/ai_preflight.dart` exits 0.
 // =============================================================================
 // Practical executable walkthrough – Cell.observe
 // UI side-effects · Terminal lifecycle · Forensic logging

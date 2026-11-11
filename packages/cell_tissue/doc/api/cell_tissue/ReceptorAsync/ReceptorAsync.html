@@ -68,13 +68,6 @@ getter.</p>
 <p>It establishes a proxy relationship with the source receptor, gaining
 access to its transformation pipeline and cell context while
 initializing the internal asynchronous coordination engine.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Lazy Initialization</strong>: The internal processing worker is not
-started until the first pulse is injected via the <a href="../../cell_tissue/ReceptorAsync/call.html">call</a> method.</li>
-<li><strong>Reference Stability</strong>: The adapter maintains a stable reference
-to its source, ensuring that activation status is always synchronized.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>receptor</code>: The underlying receptor to adapt for asynchronous
@@ -114,7 +107,7 @@ execution.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

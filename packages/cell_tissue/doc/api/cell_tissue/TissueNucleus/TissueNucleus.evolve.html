@@ -54,93 +54,94 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">TissueNucleus&lt;<wbr><span class="type-parameter">E</span>&gt;.evolve</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="evolve-param-bind"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
+      <span class="name ">TissueNucleus&lt;<wbr><span class="type-parameter">E</span>&gt;.evolve</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="evolve-param-principal"><span class="type-annotation"><a href="../../cell_tissue/TissueNucleus-class.html">TissueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">principal</span>, {</span></li>
+<li><span class="parameter" id="evolve-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
+<li><span class="parameter" id="evolve-param-bind"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
 <li><span class="parameter" id="evolve-param-context"><span class="type-annotation"><a href="../../cell_tissue/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span></li>
 <li><span class="parameter" id="evolve-param-receptor"><span class="type-annotation"><a href="../../cell_tissue/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter"><a href="../../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span></li>
 <li><span class="parameter" id="evolve-param-testRule"><span class="type-annotation"><a href="../../cell_tissue/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter"><a href="../../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">testRule</span>, </span></li>
 <li><span class="parameter" id="evolve-param-synapses"><span class="type-annotation"><a href="../../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span></li>
-<li><span class="parameter" id="evolve-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
 <li><span class="parameter" id="evolve-param-override"><span class="type-annotation"><a href="../../cell_tissue/TissueNucleus-class.html">TissueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>?</span> <span class="parameter-name">override</span>, </span></li>
-<li><span class="parameter" id="evolve-param-principal"><span>required</span> <span class="type-annotation"><a href="../../cell_tissue/TissueNucleus-class.html">TissueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">principal</span>, </span></li>
 </ol>})
     </section>
     
 <section class="desc markdown">
-  <p>Creates a derived <a href="../../cell_tissue/TissueNucleus-class.html">TissueNucleus</a> by mutating or extending
-an existing <code>principal</code> configuration.</p>
+  <p>Creates a specialized <strong>Architectural Extension</strong> of an existing <a href="../../cell_tissue/TissueNucleus-class.html">TissueNucleus</a>
+to support hierarchical property inheritance and contextual overrides for collections.</p>
 <p>This factory is the primary architectural implementation of <strong>Prototypal
 Inheritance</strong> and <strong>Behavioural Shadowing</strong> within the collection ecosystem.
-It allows for the creation of specialised "Deputy" configurations that
-logically inherit the structural DNA and baseline rules of a <code>principal</code>
-while selectively overriding specific operational traits.</p>
+In the framework's biological meta-language, it creates a <strong>Deputy</strong>
+configuration that inherits the structural "DNA" and baseline rules of a
+<code>principal</code> while selectively applying directed <strong>Genetic Mutations</strong>.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>This is the engine behind the <code>deputy()</code> method on <a href="../../cell_tissue/Tissue-class.html">Tissue</a>. You
-rarely call it directly. Use it when you need a restricted view of a
-collection that shares the same storage but applies different validation
-or context.</p>
+<ul>
+<li><strong>Access Control</strong>: Creating a restricted "Read-Only" view of a shared
+storage pool by overriding the <code>testRule</code>.</li>
+<li><strong>Contextual Isolation</strong>: Moving a collection into a different <a href="../../cell_tissue/Context-class.html">Context</a>
+(e.g., from <code>background</code> to <code>ui</code>) to change its processing priority.</li>
+<li><strong>Transformation Overrides</strong>: Swapping a <code>receptor</code> to apply different
+mutation logic to the same underlying data.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<ul>
-<li>The new nucleus inherits all properties from <code>principal</code> unless
-explicitly overridden.</li>
-<li>You can override the <code>testRule</code> (to narrow permissions), <code>context</code> (to
-change authority), <code>receptor</code> (to transform mutations), or <code>synapses</code>.</li>
-<li>The <a href="../../cell_tissue/TissueNucleus/container.html">container</a> strategy is always inherited and cannot be changed.</li>
-<li>The new nucleus shares the same <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> and physical storage as the
-principal (unless you provide an <code>override</code> that introduces a new lock).</li>
-</ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>override</code> parameter allows you to layer a complete pre‑configured
-nucleus on top of the principal. This is useful for composing complex
-deputies.</li>
-<li>The resulting nucleus does <strong>not</strong> copy the principal's data – it shares
-it via the inheritance chain.</li>
-<li>If you override the <code>synapses</code>, the deputy gets its own observer
-registry, so listeners attached to the deputy are separate from those
-attached to the principal.</li>
-<li>The <a href="../../cell_tissue/TissueNucleus/container.html">container</a> strategy is structural and cannot be overridden – a
-deputy cannot change a List into a Set.</li>
-</ul>
-<h3 id="example">Example</h3>
-<pre class="language-dart"><code class="language-dart">final principal = TissueNucleus.create&lt;int, List&lt;int&gt;, TissueList&lt;int&gt;&gt;(
-  container: Container.list,
-);
-final readOnlyNucleus = TissueNucleus.evolve(
-  principal: principal,
-  testRule: TestTissue.readOnly,
-);
-final readOnlyList = Tissue.fromNucleus(readOnlyNucleus);
-</code></pre>
+<p>The constructor utilizes a <strong>Tiered Resolution Hierarchy</strong> to determine the
+final state of any collection property:</p>
+<ol>
+<li><strong>Local Override</strong>: Values explicitly passed to this factory.</li>
+<li><strong>Prototype Inheritance</strong>: Values inherited from the <code>principal</code>.</li>
+<li><strong>Causal Binding</strong>: Values derived from the upstream <code>bind</code> dependency.</li>
+<li><strong>Global Default</strong>: Framework-level constants (e.g., <a href="../../cell_tissue/Context/system-constant.html">Context.system</a>).</li>
+</ol>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>principal</code>: <strong>Required</strong>. The base nucleus to extend.</li>
-<li><code>override</code>: Optional. A complete nucleus whose properties are layered
-on top of the principal.</li>
-<li><code>bind</code>: Optional override for the upstream cell.</li>
-<li><code>context</code>: Optional override for the execution context.</li>
-<li><code>receptor</code>: Optional override for the mutation processor.</li>
-<li><code>testRule</code>: Optional override for the validation rule.</li>
-<li><code>synapses</code>: Optional override for propagation behaviour.</li>
+<li><code>principal</code>: <strong>Required</strong>. The source nucleus from which this instance
+derives its structural DNA and inheritance chain.</li>
+<li><code>ephemeralPolicy</code>: <strong>Lifecycle Governance.</strong> Defines the TTL for the
+collection state.</li>
+<li><code>bind</code>: <strong>Ingress Link.</strong> An optional upstream <a href="../../cell_tissue/Cell-class.html">Cell</a> to observe.</li>
+<li><code>context</code>: <strong>Operational Authority.</strong> Defines the execution tier
+(default: inherits from <code>principal</code>).</li>
+<li><code>receptor</code>: <strong>Command Engine.</strong> The logic used to process mutations
+(default: inherits from <code>principal</code>).</li>
+<li><code>testRule</code>: <strong>Integrity Gate.</strong> Validation rules that guard the
+collection (default: inherits from <code>principal</code>).</li>
+<li><code>synapses</code>: <strong>Signal Distribution.</strong> Manages egress connectivity
+(default: inherits from <code>principal</code>).</li>
+<li><code>override</code>: <strong>Composite Shadowing.</strong> An optional, complete nucleus
+whose internal record is adopted directly as the <code>local</code> tier.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
-<p>A new <a href="../../cell_tissue/TissueNucleus-class.html">TissueNucleus&lt;E&gt;</a> instance that acts as a specialised
-behavioral layer over the <code>principal</code>.</p>
+<p>A new <a href="../../cell_tissue/TissueNucleus-class.html">TissueNucleus&lt;E&gt;</a> instance acting as a specialized behavioral
+layer over the <code>principal</code>.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory TissueNucleus.evolve(
-        {Cell? bind,
-        Context? context,
-        TissueReceptor&lt;E, Tissue&lt;E&gt;&gt;? receptor,
-        TestTissue&lt;E, Tissue&lt;E&gt;&gt;? testRule,
-        Synapses? synapses,
-        EphemeralPolicy? ephemeralPolicy,
-        TissueNucleus&lt;E&gt;? override,
-        required TissueNucleus&lt;E&gt; principal}) =
-    _TissueNucleus&lt;E, Iterable&lt;E&gt;, Tissue&lt;E&gt;&gt;.evolve;</code></pre>
+  <pre class="language-dart"><code class="language-dart">factory TissueNucleus.evolve(TissueNucleus&lt;E&gt; principal, {
+  EphemeralPolicy? ephemeralPolicy,
+  Cell? bind,
+  Context? context,
+  TissueReceptor&lt;E, Tissue&lt;E&gt;&gt;? receptor,
+  TestTissue&lt;E, Tissue&lt;E&gt;&gt;? testRule,
+  Synapses? synapses,
+  TissueNucleus&lt;E&gt;? override
+}) {
+  return _TissueNucleus.fromRecord((
+    local: override != null
+        ? (override as NucleusBase).record.local
+        : TissueNucleusBase.mask&lt;E, Iterable&lt;E&gt;, Tissue&lt;E&gt;&gt;(
+            bind: bind,
+            context: context,
+            receptor: receptor,
+            testRule: testRule,
+            synapses: synapses,
+            forceLock: true,
+            ephemeralPolicy: ephemeralPolicy,
+          ),
+    principal: principal,
+  ));
+}</code></pre>
 </section>
 
 
@@ -168,7 +169,7 @@ behavioral layer over the <code>principal</code>.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

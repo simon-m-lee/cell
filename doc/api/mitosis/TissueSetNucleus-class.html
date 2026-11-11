@@ -91,20 +91,6 @@ rules or context.</li>
 <li>The nucleus is immutable; once created, it cannot be changed. Any
 variation requires creating a new nucleus (or deputy).</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>identitySet</code> flag is <strong>structural</strong>: it is fixed at creation and
-inherited by all deputies. You cannot change a value‑based set into an
-identity‑based set through a deputy.</li>
-<li>The nucleus is a <strong>flyweight</strong> – many sets can share the same nucleus
-without duplicating memory.</li>
-<li>The <a href="../mitosis/TissueSetNucleus/clone.html">clone</a> getter creates a fresh copy of the nucleus with its own
-<a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> and <a href="../mitosis/Synapses-class.html">Synapses</a>. This is used internally when you create a new set
-from an already‑activated nucleus to avoid sharing locks.</li>
-<li>The <code>principal</code> chain allows hierarchical inheritance – a deputy nucleus
-can override only specific properties (like <code>testRule</code>) while inheriting
-the rest from its principal.</li>
-</ul>
 <h3 id="example-reusing-a-validated-nucleus">Example: Reusing a validated nucleus</h3>
 <pre class="language-dart"><code class="language-dart">final validNucleus = TissueSetNucleus.create&lt;int&gt;(
   testRule: TestTissue&lt;int&gt;((v) =&gt; v &gt;= 0),
@@ -160,11 +146,11 @@ defining the "DNA" and governance protocols for a reactive set.
             <div class="constructor-modifier features">factory</div>
         </dd>
         <dt id="TissueSetNucleus.evolve" class="callable">
-          <span class="name"><a href="../mitosis/TissueSetNucleus/TissueSetNucleus.evolve.html">TissueSetNucleus.evolve</a></span><span class="signature">({<span class="parameter" id="evolve-param-bind"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="evolve-param-context"><span class="type-annotation"><a href="../mitosis/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="evolve-param-receptor"><span class="type-annotation"><a href="../mitosis/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter"><a href="../mitosis/TissueSet-class.html">TissueSet</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span><span class="parameter" id="evolve-param-testRule"><span class="type-annotation"><a href="../mitosis/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter"><a href="../mitosis/TissueSet-class.html">TissueSet</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">testRule</span>, </span><span class="parameter" id="evolve-param-synapses"><span class="type-annotation"><a href="../mitosis/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span><span class="parameter" id="evolve-param-ephemeralPolicy"><span class="type-annotation"><a href="../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="evolve-param-override"><span class="type-annotation"><a href="../mitosis/TissueSetNucleus-class.html">TissueSetNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>?</span> <span class="parameter-name">override</span>, </span><span class="parameter" id="evolve-param-principal"><span>required</span> <span class="type-annotation"><a href="../mitosis/TissueSetNucleus-class.html">TissueSetNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">principal</span></span>})</span>
+          <span class="name"><a href="../mitosis/TissueSetNucleus/TissueSetNucleus.evolve.html">TissueSetNucleus.evolve</a></span><span class="signature">(<span class="parameter" id="evolve-param-principal"><span class="type-annotation"><a href="../mitosis/TissueSetNucleus-class.html">TissueSetNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">principal</span>, {</span><span class="parameter" id="evolve-param-bind"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="evolve-param-context"><span class="type-annotation"><a href="../mitosis/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="evolve-param-receptor"><span class="type-annotation"><a href="../mitosis/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter"><a href="../mitosis/TissueSet-class.html">TissueSet</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span><span class="parameter" id="evolve-param-testRule"><span class="type-annotation"><a href="../mitosis/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter"><a href="../mitosis/TissueSet-class.html">TissueSet</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">testRule</span>, </span><span class="parameter" id="evolve-param-synapses"><span class="type-annotation"><a href="../mitosis/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span><span class="parameter" id="evolve-param-ephemeralPolicy"><span class="type-annotation"><a href="../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="evolve-param-override"><span class="type-annotation"><a href="../mitosis/TissueSetNucleus-class.html">TissueSetNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>?</span> <span class="parameter-name">override</span></span>})</span>
         </dt>
         <dd>
-          Creates a derived <a href="../mitosis/TissueSetNucleus-class.html">TissueSetNucleus</a> by mutating or extending
-an existing <code>principal</code> configuration.
+          Creates a specialized <strong>Architectural Extension</strong> of an existing <a href="../mitosis/TissueSetNucleus-class.html">TissueSetNucleus</a>
+to support hierarchical property inheritance and contextual overrides for sets.
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
@@ -533,7 +519,7 @@ for a specific element type <code>E</code> and a specialised <a href="../mitosis
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -95,20 +95,6 @@ found, it "walks up" to the <code>principal</code> and asks for the property the
 <li>This is the engine behind zero‑copy deputies: they reuse the principal's
 logic and storage without duplicating anything.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The type is overridden to <code>TissueMapNucleusBase&lt;K, V, C&gt;?</code> instead of the
-generic <code>Nucleus?</code>. This is a covariant override that ensures you get a
-properly typed principal when you need to access map‑specific methods
-(like <code>containerType</code> or <code>identityMap</code>).</li>
-<li>The chain ends when this getter returns <code>null</code> – that's the "root" nucleus.</li>
-<li>Even though the getter is <code>public</code>, it's intended for internal framework
-use. Mutating or replacing the principal after construction is not
-supported – the nucleus is immutable.</li>
-<li>The principal chain determines the <code>containerType</code> (identityMap) and
-all other structural properties; deputies cannot change the key‑comparison
-strategy.</li>
-</ul>
 <h3 id="example-internal">Example (Internal)</h3>
 <pre class="language-dart"><code class="language-dart">final map = TissueMap&lt;String, int&gt;();
 final deputy = map.deputy(testRule: TestTissue.readOnly);
@@ -155,7 +141,7 @@ TissueMapNucleusBase&lt;K, V, C&gt;? get principal =&gt;
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

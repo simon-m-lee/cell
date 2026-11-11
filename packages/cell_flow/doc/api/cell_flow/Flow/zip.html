@@ -87,13 +87,6 @@ trigger and zip multiple other sources.</p>
 <li>If every queue has at least one value, one value is removed
 from each queue and the row is emitted.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Arm Only</strong>: The bound source only arms the zip; its payload
-is not included in the zipped output.</li>
-<li><strong>Index Pairing</strong>: Values are paired by position (index).</li>
-<li><strong>Queueing</strong>: Values are queued until all sources have a value.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the trigger.</li>
@@ -172,7 +165,7 @@ b.emit(20); // -&gt; [10, 20]
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

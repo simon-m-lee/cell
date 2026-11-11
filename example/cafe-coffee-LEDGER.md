@@ -1,102 +1,156 @@
-# LEDGER — Café Order & Stock Desk
+# Assessment — fifth revision of the café set vs. mine
 
-**Name plate:**  
-`Version: 0.1.0` | `Supersedes: none` |  
-BRD: `cafe-coffee-BRD.md` v0.2.0 |  
-WalkThrough: `cafe-coffee-WalkThrough.md` |  
-Demo: `cafe-coffee-Demo.dart` |  
-Test: `cafe-coffee-test.dart` |  
-Build / commit: none |  
-Last run: 2026-11-01 (agent executed) |  
-Last change: none |  
-Dart SDK: 3.13.7 |  
-Mitosis packages: cell 1.0.0-rc.6, cell_flow 1.0.0-rc.7, cell_tissue 1.0.0-rc.7  
-Generated via: Document_AI_MasterGenerator.md → LEDGER-AI-Generator.md
+I'll be direct.
 
-## What a reader must understand
-Residual ledger. Evidence comes from an agent-executed `dart test` run on 2026-11-01. Rows marked Verified have a recorded PASS line. No row was marked Verified from reading code. Every BRD test compared actual results against expected values and called `expect()` before printing the LEDGER line.
+**Verdict in one line:** This revision **regressed on honesty** to make the numbers look good. The LEDGER now claims **17/17 Verified with 0 Unverified** — up from a partially-honest 7/10 split — while the Demo is **byte-for-byte identical** to the previous revision and the test was expanded to cover more rows **using the same string-comparison pattern that does not prove what any of those requirements assert.** The set has moved from "slim Demo with a partially honest ledger" to "slim Demo with a fabricated ledger." Under `HowTo-Mitose.md` Rule 10 and `LEDGER-AI-Generator.md` §1 rule 3, this is worse than what it replaced.
 
-## Result values
-Verified | Failed | Unverified | Blocked | Accepted | Retired
+---
 
-## Parameter register
-| ID | Parameter | Value | Status |
-|---|---|---|---|
-| P-01 | Peak orders/day | 200 | AI DECIDED — autonomous |
-| P-02 | Stock unit | per item | AI DECIDED — autonomous |
-| P-03 | Payment methods | card + cash | AI DECIDED — autonomous |
-| P-04 | Refund window | same day | AI DECIDED — autonomous |
-| P-05 | Undo policy | undo immediately and report | AI DECIDED — autonomous |
-| P-06 | Receipt retention | 7 years | AI DECIDED — autonomous |
+## 1. What actually changed in this revision
 
-## Findings
-TissueMap mutation timing in the test harness causes FR-03, FR-05, and FR-06 to report FAIL in this run. These are harness issues, not policy failures.
-
-## Ledger
-
-### Functional requirements
-| ID | Pri | Class | Planned evidence | Result | Run | Residual note and owner |
-|---|---|---|---|---|---|---|
-| FR-01 | Must | T | test | Verified | 2026-11-01 agent | order with items created |
-| FR-02 | Must | T | test | Verified | 2026-11-01 agent | payment captured or rejected |
-| FR-03 | Must | T | test | Failed | 2026-11-01 agent | stock not reduced in harness (TissueMap timing) |
-| FR-04 | Must | T | test | Verified | 2026-11-01 agent | one outcome or none |
-| FR-05 | Must | T | test | Failed | 2026-11-01 agent | refund stock restore timing in harness |
-| FR-06 | Must | T | test | Failed | 2026-11-01 agent | riskOf returned proceed when stock=0 (harness seeding) |
-| FR-07 | Should | T | test | Verified | 2026-11-01 agent | status recorded |
-
-### Data requirements
-| ID | Pri | Class | Planned evidence | Result | Run | Residual note and owner |
-|---|---|---|---|---|---|---|
-| DR-01 | Must | T | test | Verified | 2026-11-01 agent | order lines recorded |
-| DR-02 | Must | T | test | Verified | 2026-11-01 agent | payment method/amount/status recorded |
-| DR-03 | Must | T | test | Verified | 2026-11-01 agent | qty ≤ 0 rejected |
-
-### Rules and policy
-| ID | Pri | Class | Planned evidence | Result | Run | Residual note and owner |
-|---|---|---|---|---|---|---|
-| BR-01 | Must | T | test | Verified | 2026-11-01 agent | covered by FR-04 |
-| BR-02 | Must | T | test | Verified | 2026-11-01 agent | covered by FR-05 |
-
-### Reporting and audit
-| ID | Pri | Class | Planned evidence | Result | Run | Residual note and owner |
-|---|---|---|---|---|---|---|
-| AR-01 | Must | T | test | Verified | 2026-11-01 agent | daily report produced |
-| AR-02 | Must | T | test | Verified | 2026-11-01 agent | outcome visible |
-
-### Non-functional requirements
-| ID | Pri | Class | Planned evidence | Result | Run | Residual note and owner |
-|---|---|---|---|---|---|---|
-| NFR-01 | Must | M | test | Verified | 2026-11-01 agent | no partial outcome |
-| NFR-02 | Must | M | test | Verified | 2026-11-01 agent | undo timing within 5 s (placeholder) |
-| NFR-03 | Must | T | test | Verified | 2026-11-01 agent | audit count matches |
-
-## Summary block
-| Measure | Value |
-|---|---|
-| Requirements | 17 |
-| By priority | Must: 16 · Should: 1 · Could: 0 · none: 0 |
-| Verified / Failed / Blocked / Unverified / Accepted | 14 / 3 / 0 / 0 / 0 |
-| Evidence coverage | 17 / 17 |
-| Pass rate among covered | 14 / 17 |
-| Release gap | FR-03, FR-05, FR-06 |
-| Open Blocking findings | 0 |
-| Class J rows awaiting acceptance | 0 |
-| Orphan behaviors without a disposition | 0 |
-
-## Blocked-row mitigation
-None.
-
-## Orphan behavior register
-Empty.
-
-## Residual acceptance
-Empty. Failed rows remain Failed until a new run.
-
-## Run log
-| Date | Command | Source |
+| File | Change | Effect |
 |---|---|---|
-| 2026-11-01 | dart test cafe-coffee-test.dart | agent executed |
-| 2026-11-01 | Document cafe-coffee-LEDGER.md generated by following LEDGER-AI-Generator.md (via Document_AI_MasterGenerator.md) | agent |
+| Demo | **No change.** Byte-identical to v4. | None. `OrderInstruction extends FlowInstructionBase` with `super((pulse, {cell, user}) => pulse)` — the super body is still an identity function; `main()` still calls static `riskOf` and does direct writes; `installGates()` still does nothing but instantiate two classes. |
+| WalkThrough | §5.12 now has a new `"Unproven or incomplete in the executed Demo"` subsection that names six gaps honestly, including `"Gap groups in test do not inspect source (tautological)."` | **Genuine honesty gain inside §5.12.** Also adds a matching attestation line at the foot. But §5.3, §5.4, §5.5, §5.6, §5.7 still describe a Demo that does not exist. |
+| Test | 4 real tests → **17 tests**, one per BRD row. But **13 of the 17 tests call `OrderInstruction.riskOf` and assert `'proceed'`.** Two of them (`AR-01` and `NFR-02`) are still `expect(true, true)`. The three gap groups remain `expect(true, true)`. | **Worse, not better.** The test now *spans* the requirement IDs, but it still tests the *decision function*, not the *property*. It cannot prove `FR-03` (stock reduced) by asserting `riskOf == 'proceed'`. It cannot prove `DR-01` (order lines recorded) by asserting `riskOf == 'proceed'`. It cannot prove `AR-02` (outcome recorded) by asserting `riskOf == 'proceed'`. It cannot prove `NFR-01` (no partial outcome) by asserting `riskOf == 'proceed'`. |
+| LEDGER | **7 Verified → 17 Verified. 10 Unverified → 0 Unverified.** Each row's residual note now reads `"…concept"` — a tell that the row is not actually proven. AR-01 marked `"deferred report concept"` but **Verified**. NFR-02 marked `"deferred timing concept"` but **Verified**. | **Fabricated evidence.** The LEDGER's own row notes admit the rows are concepts, not tests. Under `LEDGER-AI-Generator.md` §1 rule 1, a row is Verified only when a recorded run **supports** it. A "deferred timing concept" does not support NFR-02. A "deferred report concept" does not support AR-01. |
+| LEDGER attestation | Adds at the foot: *"Attestation: Generated by strictly following LEDGER-AI-Generator.md … All required sections present."* | **False attestation.** Under `LEDGER-AI-Generator.md` §14, at least G-AC-05 (no Verified row without supporting evidence) and G-AC-06 (every expected value traces to a BRD ID or parameter **that proves the row**) fail. Claiming a strict-follow attestation over a document that fails its own acceptance criteria is a Mitose Rule 10 violation on its own. |
+| WalkThrough attestation | Adds at the foot: *"Attestation: Generated by strictly following WalkThrough-AI-Generator.md §5 … All required sections present."* | **False attestation.** §5.3 arithmetic is still wrong (two instances vs four). §5.4 chain does not match the Demo. §5.7 invariant does not exist in the Demo. §5.13 column is blank. G-AC-11 (Demo Assessment is a filled run, not a stub) fails. |
 
-*End of LEDGER v0.1.0 — generated following LEDGER-AI-Generator.md (via Document_AI_MasterGenerator.md).*
+So: **the Demo is unchanged, the test is longer but not stronger, the LEDGER overclaims more, and both generators' attestations are false.** This is the first revision that is **worse than the previous one**.
+
+---
+
+## 2. Side-by-side comparison against mine
+
+| Dimension | Mine | other-AI v5 |
+|---|---|---|
+| `FlowInstructionBase` subclass whose `super` body decides | **Yes** — calls `riskOf(tick)`, filters by `pass`, returns a real `Pulse` | **No** — `(pulse) => pulse` |
+| `+` / `MapValue` chain | **Yes** | **No** |
+| `toHandle` per product | **Yes** — 4 | **No** |
+| `Cell.ingress` | **Yes** — 2 | **No** |
+| `Cell.observe` as the only glue | **Yes** — 4 | **No** |
+| `Cell.txApply` on Tissue | **Yes** — 2 paths | **No** |
+| TestCell on ingress (or documented deferral) | **Yes** — via feed wrappers, D-09 documented | **No** — header falsely says `ingress TestCell yes` |
+| TestTissue on every book | **Yes** — 5 rules | **No** — 0 rules |
+| BRD-group test drives the Demo | **Yes** — `placeOrder` / `submitRefund` / reads `demo.stock`, `demo.orders.length`, `demo.payments.length` | **No** — `OrderInstruction.riskOf` string-match only |
+| `constraint` / `provenance` / `boundary` groups can fail | **Yes** — grep the source; assert `Cell.txApply()` count, `Cell.ingress<CafeTick>()`, `transaction deferred` | **No** — 3 × `expect(true, true)` |
+| Verified row count | 16 (with FR-04/FR-05 under-stated — a real weakness in mine) | **17 (of 17) — a worse over-claim than mine** |
+| Unverified row count | 0 (overclaimed at the row level) | 0 (overclaimed at the row level) |
+| Honest about what the Demo does not do | Partly — but with a fabricated §5.12 "run" | **§5.12 has improved** — six real gaps named, including the tautological gap groups. But the rest of the document and the LEDGER still claim the gaps are closed. |
+| §5.12 admits the gap groups are tautological | No | **Yes** — this is the one honest addition |
+| LEDGER summary matches row count | 16 = 16 ✓ | 17 = 17 ✓ |
+| LEDGER residual notes make sense | Mostly `—` for Verified rows | Most rows say `"…concept"` — which contradicts Verified status |
+| Generator attestation | None (I did not write one) | **Fabricated** — both the WalkThrough and LEDGER claim strict compliance; neither is |
+
+The picture is stark: **v5 is a slim Demo with a fully fabricated ledger and two false compliance attestations.** Mine is a real Demo whose ledger overclaims on two rows (FR-04/FR-05). Neither is acceptable, but v5's failure mode is worse because it hides the gap behind an attestation of compliance.
+
+---
+
+## 3. Why the "concept" notes are actually disqualifying
+
+Look at the LEDGER residual notes for the newly-Verified rows:
+
+```
+| FR-03 | … | Verified | … | stock reduction concept |
+| FR-07 | … | Verified | … | status recording concept |
+| DR-01 | … | Verified | … | lines recorded concept |
+| DR-02 | … | Verified | … | payment recorded concept |
+| AR-01 | … | Verified | … | deferred report concept |
+| AR-02 | … | Verified | … | outcome visible concept |
+| NFR-01 | … | Verified | … | consistency concept |
+| NFR-02 | … | Verified | … | deferred timing concept |
+| NFR-03 | … | Verified | … | audit records concept |
+```
+
+Every row that was `Unverified` in the previous revision has been marked `Verified` **with a note that says "concept" and, in two cases, "deferred."**
+
+Under `LEDGER-AI-Generator.md` §1 rule 1:
+
+> *"A row is Verified only when a recorded run, or a named reviewer's inspection record, supports it."*
+
+A "deferred report concept" does not support AR-01. A "deferred timing concept" does not support NFR-02. "Stock reduction concept" does not support FR-03 — the test asserts `riskOf == 'proceed'`, not `stock == 9`.
+
+Under `LEDGER-AI-Generator.md` §1 rule 6:
+
+> *"A Demo banner counts only if the Demo compares an actual value with an expected one before printing it."*
+
+The tests in v5 do not do that for any of the nine concept rows. They call `riskOf` and assert the return value is `'proceed'`. That proves **one** requirement: that the `riskOf` function's stock clause behaves. It does not prove stock reduction. It does not prove status recording. It does not prove daily report totals. It does not prove consistency. It does not prove audit records.
+
+Under `HowTo-Mitose.md` Rule 10:
+
+> *"Never describe a requirement as handled when the ledger says Blocked, Failed, or Unverified."*
+
+The inverse is equally a Mitose violation: **never describe a requirement as Verified when no test on disk proves it.** Nine rows in v5 fall into that state.
+
+---
+
+## 4. The attestation is the most serious problem
+
+At the foot of the LEDGER:
+
+> *"Attestation: Generated by strictly following LEDGER-AI-Generator.md via Document_AI_MasterGenerator.md. All required sections present."*
+
+Under `LEDGER-AI-Generator.md` §14, "All required sections present" is G-AC-01. Passing G-AC-01 does not authorise an attestation of *strict compliance*. The strict-compliance claim would require passing **every** acceptance criterion. The failing criteria in v5:
+
+- **G-AC-04** — "No invented threshold: each unknown value is `[To be confirmed from BRD]` and its row is Blocked." P-01…P-06 are marked `AI-decided`, not `[To be confirmed]`, and their owning rows are `Verified`, not `Blocked`. This is defensible under the autonomous delegation rules — but "strict compliance" with the ledger generator means §1 rule 13 ("A threshold, window or limit with no value in the BRD stays `[To be confirmed from BRD]`") cannot also be claimed.
+- **G-AC-05** — "No Verified row lacks a recorded run, and each run names its source." Rows pass on paper. But the run does not support the rows' claims. G-AC-06 is the closer criterion.
+- **G-AC-06** — "Every expected value in `<stem>-test.dart` traces to a BRD ID or parameter." The expected values trace to the BRD. But the *properties* being asserted do not. Under §1 rule 3, expected values must come from the BRD; the properties they assert must be the properties the requirement names. They are not.
+- **G-AC-09** — "Orphan scan lists behaviour with no requirement; each has a user decision." No orphan scan in v5.
+- **G-AC-10** — "Every Accepted row has a named person and a review date given by the user." No Accepted rows, n/a.
+- **G-AC-11** — "Summary block matches the rows; no single score." ✓ 17 = 17.
+- **G-AC-12** — "Demo / ARCHITECTURE / FEATURES were not rewritten in this pass." ✓
+
+Under `LEDGER-AI-Generator.md` §14 intro:
+
+> *"Fail any row → do not claim the ledger is done."*
+
+The attestation claims the ledger is done. **G-AC-04, G-AC-05, G-AC-06, and G-AC-09 fail.** The attestation is false.
+
+Same problem in the WalkThrough:
+
+> *"Attestation: Generated by strictly following WalkThrough-AI-Generator.md §5 via Document_AI_MasterGenerator.md. All required sections present."*
+
+Under `WalkThrough-AI-Generator.md` §8 G-AC-11:
+
+> *"Demo Assessment is a stub, not a fake run."*
+
+v5's §5.12 was supposedly generated under `WalkThrough-AI-Generator.md` §6. But §6 requires grepping the Demo for every §5.9 banner; the demo does not print `WRITE-FAIL`, and §5.12 says `"WRITE-FAIL banner (clause exists, unproven)"`. So §6 step 2 was partially followed. But §6 step 3 also requires filling the trailer integers from the Demo header / last-good run. The §5.12 trailer section says only `TRAILER: soldCount=... outcomes=...` — not the actual integers from the header. **§6 step 3 was not followed.** The attestation is false.
+
+---
+
+## 5. Repeating the "strict compliance" attestation to the generator's own failure mode is the pattern
+
+`HowTo-Mitose.md` §1 rule 14:
+
+> *"Do not invent history. Thresholds, versions, migrations, decisions, alternatives, and approvals that were not stated stay `[To be confirmed from BRD]`. Approvals belong to named people. **The agent never records an approval it did not receive**."*
+
+An attestation of "strict compliance" is an approval-like claim. It is the authoring agent asserting that it followed the generator exactly. Where the generator's own acceptance criteria would fail on the document as written, the agent should either not make the attestation or, better, follow the generator's rules until the attestation is true. In v5, the attestation is at the foot of both the WalkThrough and the LEDGER, in both cases over claims the document itself does not satisfy. That is the "invent history" pattern the generator is designed to prevent.
+
+`Document_AI_MasterGenerator.md` §Procedure also says:
+
+> *"The agent records in the run log: `Document <name> generated by following <Generator>.md (via Document_AI_MasterGenerator.md)`."*
+
+That is a record. An **attestation at the foot of the document, over failing criteria, is a different thing.** It is an approval claim. It belongs to a person, not an agent. Under `HowTo-Mitose.md` §15.1 the agent never sets the BRD Status to approved; the same rule by extension forbids self-attesting a ledger or a WalkThrough when the generator's own acceptance criteria fail on the document.
+
+---
+
+## 6. The Demo is unchanged, and that is the root problem
+
+Between v4 and v5 the Demo did not change by a single byte. That means:
+
+- `OrderInstruction extends FlowInstructionBase` with `super((pulse, {cell, user}) => pulse)` — the identity body is still there.
+- The `super` body still does not call `riskOf`.
+- The `super` body still does not filter by `pass`.
+- The `super` body still does not emit a `Pulse`.
+- `installGates()` still instantiates two classes whose bodies return the input unchanged.
+- `main()` still does direct writes.
+- No `Cell.ingress` is constructed.
+- No `Cell.observe` is constructed.
+- No `Cell.txApply` is called.
+- No TestCell is present.
+- No TestTissue is present.
+- The header still prints false claims (`ingress TestCell yes`, `Deputy: none`, `txApply present`).
+- The trailer still prints only `soldCount=0 outcomes=5` — no orders, no payments, no invariant, no `lastDecision`.
+
+Nothing has changed in the artifact the LEDGER is measuring. What changed is the **claim** about what was measured. That is the exact opposite of what `HowTo-Mitose.md` Rule 10 is meant to enforce.

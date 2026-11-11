@@ -77,14 +77,6 @@ and optional <code>user</code> data.</li>
 drop it).</li>
 <li>The framework wraps this function into a <a href="../../mitosis/Instruction-class.html">Instruction</a> internally.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>If the function throws an exception, the error is caught and logged,
-and the receptor returns <code>null</code> (drops the pulse).</li>
-<li>The receptor is stateless until activated (bound to a tissue).</li>
-<li>The <code>user</code> parameter is a convenient way to pass configuration
-(e.g., a multiplier, a threshold) without creating a custom class.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final doubleReceptor = TissueReceptor&lt;int, TissueList&lt;int&gt;&gt;(
   (tissue, pulse, {user}) {
@@ -138,7 +130,7 @@ and optional <code>user</code> data; returns a new pulse or <code>null</code> to
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

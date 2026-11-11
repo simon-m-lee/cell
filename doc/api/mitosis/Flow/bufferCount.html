@@ -115,15 +115,6 @@ fixed-size lists. It supports both tumbling (non-overlapping) and sliding
 <li>If <code>skip</code> == <code>size</code>, the buffer is cleared completely (tumbling).</li>
 <li>If <code>skip</code> &lt; <code>size</code>, the last <code>size - skip</code> elements are kept (sliding).</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Lazy Emission</strong>: No pulse is emitted until at least <code>size</code> pulses have arrived.</li>
-<li><strong>Memory Usage</strong>: The operator holds a maximum of <code>size</code> elements in memory.</li>
-<li><strong>Overlapping Windows</strong>: If <code>skip</code> is less than <code>size</code>, elements will appear in
-multiple output lists.</li>
-<li><strong>Gaps</strong>: If <code>skip</code> is greater than <code>size</code>, some incoming elements will be
-discarded between buffers.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -201,7 +192,7 @@ input.emit(6); // -&gt; [4, 5, 6]
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

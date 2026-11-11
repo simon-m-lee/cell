@@ -84,13 +84,6 @@ a multi-step update.</p>
 <li>The returned object is a <a href="../../cell_tissue/TissuePulse-class.html">TissuePulse</a>, preserving the structural
 context of the collection.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This property creates a "linked list" of history, allowing you
-to traverse back to the root of the interaction.</li>
-<li>Evolution ensures that even though the event is new, its
-origin is never lost.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final previous = evolved.parent;
 print('Previous event type: ${previous.runtimeType}');
@@ -131,7 +124,7 @@ TissuePulse&lt;E&gt; get parent;</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

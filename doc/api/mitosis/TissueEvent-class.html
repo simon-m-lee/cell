@@ -79,13 +79,6 @@ composite mutation channels.</li>
 <li>The class implements <a href="https://api.flutter.dev/flutter/dart-collection/IterableMixin.html">IterableMixin</a>, allowing you to iterate over
 unpacked individual events directly from a composite instance.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Bitwise Composition</strong>: The <code>+</code> operator performs a bitwise OR (<code>|</code>)
-rather than arithmetic addition, allowing clean combination of event flags.</li>
-<li><strong>Dynamic Unpacking</strong>: Iterating over a composite <a href="../mitosis/TissueEvent-class.html">TissueEvent</a> automatically
-unpacks the bitmask into individual, discrete event constants.</li>
-</ul>
 <h3 id="example-bitwise-combination-and-iteration">Example: Bitwise combination and iteration</h3>
 <pre class="language-dart"><code class="language-dart">final compositeEvent = Tissue.elementAdded + Tissue.elementRemoved;
 
@@ -142,15 +135,15 @@ for (final event in compositeEvent) {
 
 </dd>
 
-        <dt id="hashCode" class="property inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+        <dt id="hashCode" class="property">
+  <span class="name"><a href="../mitosis/TissueEvent/hashCode.html">hashCode</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
   
 
 </dt>
-<dd class="inherited">
+<dd>
   The hash code for this object.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
 
@@ -608,16 +601,17 @@ predicate <code>test</code>.
 
 </dd>
 
-        <dt id="operator ==" class="callable inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+        <dt id="operator ==" class="callable">
+  <span class="name"><a href="../mitosis/TissueEvent/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
   </span>
   
 
 </dt>
-<dd class="inherited">
-  The equality operator.
-  <div class="features"><span class="feature">inherited</span></div>
+<dd>
+  Structural equality: composites compare equal whenever their event
+bitmasks match, so <code>(a + b) == (a + b)</code> holds.
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
@@ -667,7 +661,7 @@ predicate <code>test</code>.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

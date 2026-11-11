@@ -61,7 +61,7 @@
 <li><span class="parameter" id="asyncMap-param-onError"><span class="type-annotation">AsyncMapErrorHandler?</span> <span class="parameter-name">onError</span>, </span></li>
 </ol>})
 
-      <div class="features"><span class="feature">override</span></div>
+      
 
     </section>
     
@@ -83,15 +83,6 @@ order must be strictly preserved.</p>
 <li>The instruction waits for the resulting <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> to resolve.</li>
 <li>Once resolved, the next item in the queue is processed.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Backpressure</strong>: Rapid inputs will cause the queue to grow.</li>
-<li><strong>Serialization</strong>: Guaranteed to process only one future at a time.</li>
-<li><strong>Error Isolation</strong>: A failure in one mapper does not stop the queue.</li>
-</ul>
-<p><a href="../../cell_flow/Flow/asyncMap.html">asyncMap</a> is the foundational asynchronous mapping operator. It
-processes inputs one at a time, waiting for each async operation
-to complete before starting the next.</p>
 <h3 id="when-to-use-2">When to use</h3>
 <p>Use <a href="../../cell_flow/Flow/asyncMap.html">asyncMap</a> when you need to perform async operations on each
 value and order matters.</p>
@@ -113,13 +104,6 @@ value and order matters.</p>
 continues with the next input.</li>
 <li>Each emitted value gets the step <code>'AsyncMap'</code> for provenance.</li>
 </ol>
-<h3 id="nonobvious-2">Non‑obvious</h3>
-<ul>
-<li><strong>Sequential Processing</strong>: Operations run one after another.</li>
-<li><strong>Queueing</strong>: Inputs are queued while processing.</li>
-<li><strong>No Cancellation</strong>: Previous operations are not cancelled.</li>
-<li><strong>Error Isolation</strong>: Errors don't stop the queue.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -190,7 +174,7 @@ ids.emit(2); // -&gt; User 2 (after User 1 completes)
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

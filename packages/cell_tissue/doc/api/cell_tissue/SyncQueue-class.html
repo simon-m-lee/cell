@@ -82,17 +82,6 @@ framework's non-blocking concurrency model.</li>
 <li><strong>Metabolic Gating</strong>: Enforces the <a href="../cell_tissue/SyncQueue/capacity.html">capacity</a> limit during <a href="../cell_tissue/SyncQueue/add.html">add</a> and
 <a href="../cell_tissue/SyncQueue/addAll.html">addAll</a> operations, throwing a <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a> if exceeded.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Snapshot Isolation</strong>: Use <a href="../cell_tissue/SyncQueue/replicate.html">replicate</a> for long-running iterations or
-mappings to avoid holding the genotypic lock and blocking other actors.</li>
-<li><strong>Traversal Order</strong>: The internal iterator does not guarantee priority
-order. Use sequential <a href="../cell_tissue/SyncQueue/removeFirst.html">removeFirst</a> calls for ranked extraction.</li>
-<li><strong>Bubble Penalty</strong>: Structural repairs after arbitrary removals are O(n);
-prefer <a href="../cell_tissue/SyncQueue/removeFirst.html">removeFirst</a> (O(log n)) for optimal throughput.</li>
-<li><strong>Zero-Blocking</strong>: The underlying lock ensures the calling thread remains
-available for other tasks while waiting for queue access.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// Higher number = Higher priority
 final buffer = SyncQueue&lt;int&gt;(
@@ -522,7 +511,7 @@ unlimited metabolic capacity.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

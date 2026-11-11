@@ -79,13 +79,6 @@ testing.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>It delegates to the base <code>call</code> method, which handles the actual rule
 evaluation and parent delegation.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The method returns <code>FutureOr&lt;bool&gt;</code>, so it can be synchronous or
-asynchronous depending on the rule implementation.</li>
-<li>The <code>host</code> is required; if it's <code>null</code>, the validation passes
-(safety default).</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>pulse</code>: The <a href="../../cell_tissue/Pulse-class.html">Pulse</a> instance being validated.</li>
@@ -129,7 +122,7 @@ asynchronous depending on the rule implementation.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

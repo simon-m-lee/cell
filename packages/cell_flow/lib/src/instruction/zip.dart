@@ -157,15 +157,6 @@ void _tryZip({
 /// 4. If [project] is not provided, the row is emitted as-is.
 /// 5. Each emitted value gets the step `'ZipWith'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Index Pairing**: Values are paired by position (index).
-/// - **Queueing**: Values are queued until all sources have a value.
-/// - **Synchronization**: The slowest source determines the emission rate.
-/// - **Projection**: [project] can transform the row into any type.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Memory Usage**: Queues hold values until all sources have one.
-///
 /// ### Example: Zipping Two Sources
 /// ```dart
 /// final left = Cell.ingress<int>();
@@ -232,8 +223,8 @@ class ZipWith<R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     R Function(List<Object?> row)? project,
     ZipErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final emit = _Emit();
             final queues =
                 List<_Queue>.generate(others.length + 1, (_) => _Queue());
@@ -241,9 +232,16 @@ class ZipWith<R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
             Pulse? last;
 
             void listen(int index, Cell source) {
-              Cell.observe(
+              late final dynamic obs;
+              obs = Cell.observe(
                 source: source,
                 effect: (Pulse p) {
+                  // Lifecycle: stop the observer once the handle is dead.
+                  if ((emit.cell != null && emit.cell!.isInvalidated) ||
+                      source.isInvalidated) {
+                    obs.stop();
+                    return;
+                  }
                   queues[index].values.add(p.payload);
                   last = p;
                   _tryZip(
@@ -280,7 +278,7 @@ class ZipWith<R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               );
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -329,15 +327,6 @@ class ZipWith<R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///    c. The result is emitted.
 /// 5. Each emitted value gets the step `'Zip'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Arm Only**: The bound source only arms the zip; its payload
-///   is not included in the zipped output.
-/// - **Index Pairing**: Values are paired by position (index).
-/// - **Queueing**: Values are queued until all sources have a value.
-/// - **Synchronization**: The slowest source determines the emission rate.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-///
 /// ### Parameters:
 /// - [sources]: **Sources to Zip.** The cells to zip together.
 /// - [project]: **Projection Function.** Optional. Combines the row
@@ -374,8 +363,8 @@ class Zip<R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     R Function(List<Object?> row)? project,
     ZipErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final emit = _Emit();
             final queues =
                 List<_Queue>.generate(sources.length, (_) => _Queue());
@@ -410,7 +399,7 @@ class Zip<R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -455,14 +444,6 @@ class Zip<R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. The row is cleared.
 /// 5. Each emitted value gets the step `'ZipAll'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Batching**: Values are batched by count.
-/// - **Single Source**: Only one source is used.
-/// - **No Overlap**: Each value appears in exactly one batch.
-/// - **Provenance Preservation**: Each batch preserves the source
-///   cell, type, and priority from the trigger pulse.
-/// - **Memory Usage**: Only holds up to [width] values at a time.
-///
 /// ### Parameters:
 /// - [width]: **Batch Size.** The number of values in each batch.
 /// - [onError]: **Error Handler.** Optional callback for handling errors.
@@ -494,8 +475,8 @@ class ZipAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     int width, {
     ZipErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             final row = <T>[];
             return (pulse, {cell, user}) {
               final payload = pulse.payload;
@@ -520,7 +501,7 @@ class ZipAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 step: 'ZipAll',
               );
             };
-          })(),
+          },
           user: user,
         );
 }

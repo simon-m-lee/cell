@@ -90,13 +90,6 @@ needs to be cloned to avoid sharing locks between independent lists.</p>
 <li>The clone is initially <strong>inactive</strong> – it must be activated by being
 bound to a list instance.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The clone does <strong>not</strong> share the same <code>principal</code> – it is a root nucleus
-(no parent). This means it does not inherit from the original.</li>
-<li>Cloning is a zero‑copy operation for the logic – the logic is shared
-via the flyweight record, but the state (lock, synapses) is new.</li>
-</ul>
 <h3 id="returns">Returns:</h3>
 <p>A new <a href="../../mitosis/TissueListNucleus-class.html">TissueListNucleus&lt;E&gt;</a> instance with identical behavioural
 logic and storage strategy, but an isolated lifecycle and an
@@ -137,7 +130,7 @@ TissueListNucleus&lt;E&gt; get clone;</code></pre>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

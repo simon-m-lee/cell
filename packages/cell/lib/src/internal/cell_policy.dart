@@ -45,19 +45,6 @@ part of '../../cell.dart';
 /// - `onInvalidate`: invoked when the policy reaches its terminal condition.
 ///   Perform any cleanup and return `true` to confirm the node was reclaimed.
 ///
-/// ### Non-obvious
-///
-/// - The TTL timer starts lazily on the **first interaction**, not at policy
-///   creation.
-/// - If both [duration] and [eventLimit] are set, whichever condition fires
-///   first triggers invalidation.
-/// - A shared policy is ticked **once per pulse** regardless of how many
-///   governed cells that pulse visits. Without this per-policy, per-pulse
-///   guard, a pulse emitted by the head of a bound chain would be counted
-///   again at every governed downstream cell that inherits the same policy.
-/// - A body that hosts its own policy is governed exclusively by it: its
-///   `isInvalidated` reflects only the body's policy, not the head's.
-///
 /// ### Example: cache with a 5-minute TTL
 ///
 /// ```dart
@@ -121,12 +108,6 @@ class EphemeralPolicy<C extends Cell> {
   /// - `onInvalidate` is called when the cell should be destroyed; perform
   ///   cleanup and return `true` to confirm.
   /// - The [duration] and [eventLimit] are optional; you can use one or both.
-  ///
-  /// ### Non‑obvious
-  /// - Returning a negative `events` count from `onEvent` will ignore the event.
-  /// - The TTL timer starts only on the first interaction, not at creation.
-  /// - A hosted policy wins over an upstream one; a body can therefore
-  ///   override the lifecycle policy of the head of its reactive graph.
   ///
   /// ### Parameters:
   /// * `onEvent`: A user-defined logic function called on every pulse to
@@ -224,7 +205,7 @@ class EphemeralPolicy<C extends Cell> {
   ///   // ... onInvalidate
   /// );
   /// ```
-  int get events => get<int>(() => _record.events.value, orElse: 0);
+  int get events => _record.events.value ?? 0;
 
   /// Returns `true` if the [Cell] has reached its terminal state and has
   /// been reclaimed.
@@ -243,8 +224,7 @@ class EphemeralPolicy<C extends Cell> {
   /// }
   /// // Use the cell safely
   /// ```
-  bool get isInvalidated =>
-      get<bool>(() => _record.invalidated.value, orElse: false);
+  bool get isInvalidated => _record.invalidated.value ?? false;
 
   /// An optional, user-defined metadata object for tracking custom parameters.
   ///
@@ -305,17 +285,28 @@ class EphemeralPolicy<C extends Cell> {
   /// ### Human Developer Usage
   /// This method is called automatically by the framework. Developers
   /// should not call it directly.
+  ///
   void call(dynamic object, {required C cell, dynamic arguments}) {
     if (isInvalidated) return;
 
-// Initialize TTL timer on the first interaction if configured
-    if (duration != null && _ttlTimer == null) {
+    // TTL is an INACTIVITY window: every interaction restarts the timer.
+    // A one-shot timer armed only on the first event would expire a hot
+    // cell `duration` after its first use, contradicting the documented
+    // "N minutes of inactivity" semantics.
+    if (duration != null) {
+      _ttlTimer?.cancel();
       _ttlTimer = Timer(duration!, () => _triggerReclamation(cell));
     }
 
     final onEvent = get<Function>(() => _record.onEvent);
-    final handle = onEvent(object,
-        cell: cell, policy: this, user: _user, arguments: arguments);
+    final dynamic handle;
+    try {
+      handle = onEvent(object,
+          cell: cell, policy: this, user: _user, arguments: arguments);
+    } catch (_) {
+      // Policy bookkeeping must not crash the pulse wave.
+      return;
+    }
 
     if (handle.events >= 0) {
       _record.events.value = handle.events;
@@ -324,7 +315,10 @@ class EphemeralPolicy<C extends Cell> {
       final limit = eventLimit;
       if (limit != null && handle.events >= limit) {
         _triggerReclamation(cell);
-        dispose();
+        // The invalidation hook may decline the reclamation (it can return
+        // false). The node then stays live and must keep its TTL timer —
+        // disposing unconditionally would silently drop the TTL guarantee.
+        if (isInvalidated) dispose();
       }
     }
   }
@@ -334,13 +328,38 @@ class EphemeralPolicy<C extends Cell> {
     if (isInvalidated) return;
 
     final onInvalidate = get<Function>(() => _record.onInvalidate);
-    final success = onInvalidate(cell._nucleus);
+    final bool success;
+    try {
+      success = onInvalidate(cell._nucleus);
+    } catch (_) {
+      // A throwing hook must not leave the cell alive forever: re-arm the
+      // inactivity timer so a later expiry can retry the reclamation.
+      if (duration != null) {
+        _ttlTimer?.cancel();
+        _ttlTimer = Timer(duration!, () => _triggerReclamation(cell));
+      }
+      return;
+    }
 
     if (success) {
       _record.invalidated.value = true;
       _ttlTimer?.cancel();
       _ttlTimer = null;
     }
+  }
+
+  /// Manually runs the invalidation sequence of this policy.
+  ///
+  /// Used by wrappers (e.g. `_fromStream`'s derived lifecycle policy) so the
+  /// wrapped policy's own `onInvalidate` hook still runs when the wrapper
+  /// reclaims the host cell.
+  ///
+  /// ### Returns
+  /// `true` if the policy transitioned to invalidated.
+  bool invalidate(C cell) {
+    if (isInvalidated) return false;
+    _triggerReclamation(cell);
+    return isInvalidated;
   }
 
   /// Disposes of active timers to prevent memory leaks.
@@ -365,16 +384,72 @@ class EphemeralPolicy<C extends Cell> {
         (user != null ? 4 : 0));
 
     return switch (mask) {
-      0 => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), events: Box<int>()),
-      1 => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), events: Box<int>(), eventLimit: eventLimit),
-      2 => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), events: Box<int>(), duration: duration),
-      3 => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), events: Box<int>(), eventLimit: eventLimit, duration: duration),
-      4 => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), events: Box<int>(), user: user),
-      5 => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), events: Box<int>(), eventLimit: eventLimit, user: user),
-      6 => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), events: Box<int>(), duration: duration, user: user),
-      7 => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), events: Box<int>(), eventLimit: eventLimit, duration: duration, user: user),
-      _ => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), events: Box<int>())
+      0 => (
+          onEvent: onEvent,
+          onInvalidate: onInvalidate,
+          invalidated: FinalBox<bool>(),
+          events: Box<int>()
+        ),
+      1 => (
+          onEvent: onEvent,
+          onInvalidate: onInvalidate,
+          invalidated: FinalBox<bool>(),
+          events: Box<int>(),
+          eventLimit: eventLimit
+        ),
+      2 => (
+          onEvent: onEvent,
+          onInvalidate: onInvalidate,
+          invalidated: FinalBox<bool>(),
+          events: Box<int>(),
+          duration: duration
+        ),
+      3 => (
+          onEvent: onEvent,
+          onInvalidate: onInvalidate,
+          invalidated: FinalBox<bool>(),
+          events: Box<int>(),
+          eventLimit: eventLimit,
+          duration: duration
+        ),
+      4 => (
+          onEvent: onEvent,
+          onInvalidate: onInvalidate,
+          invalidated: FinalBox<bool>(),
+          events: Box<int>(),
+          user: user
+        ),
+      5 => (
+          onEvent: onEvent,
+          onInvalidate: onInvalidate,
+          invalidated: FinalBox<bool>(),
+          events: Box<int>(),
+          eventLimit: eventLimit,
+          user: user
+        ),
+      6 => (
+          onEvent: onEvent,
+          onInvalidate: onInvalidate,
+          invalidated: FinalBox<bool>(),
+          events: Box<int>(),
+          duration: duration,
+          user: user
+        ),
+      7 => (
+          onEvent: onEvent,
+          onInvalidate: onInvalidate,
+          invalidated: FinalBox<bool>(),
+          events: Box<int>(),
+          eventLimit: eventLimit,
+          duration: duration,
+          user: user
+        ),
+      _ => (
+          onEvent: onEvent,
+          onInvalidate: onInvalidate,
+          invalidated: FinalBox<bool>(),
+          events: Box<int>()
+        )
     };
   }
-
 }

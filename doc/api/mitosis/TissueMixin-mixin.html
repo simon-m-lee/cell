@@ -53,6 +53,45 @@
 </h1></div>
 
     
+<section class="desc markdown">
+  <p>A reusable <strong>Architectural Segment</strong> (Genetic Sequence) providing the
+standardized operational logic and structural equality for all
+<a href="../mitosis/Tissue-class.html">Tissue</a> implementations.</p>
+<p>In the framework's biological metaphor, <a href="../mitosis/TissueMixin-mixin.html">TissueMixin</a> acts as a
+<strong>Common Genetic Trait</strong>. It ensures that diverse collection types
+(Lists, Sets, Maps) exhibit identical behaviors for core operations
+like identity, hashing, and forensic comparison.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Custom Tissues</strong>: Apply this mixin when implementing specialized
+collection types that must adhere to the standard <a href="../mitosis/Tissue-class.html">Tissue</a> contract.</li>
+<li><strong>Behavioral Shadowing</strong>: Use it to ensure that specialized decorators
+or proxies maintain the same forensic identity as their underlying source.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li><strong>Identity Logic</strong>: Overrides <a href="../mitosis/TissueMixin/operator_equals.html">operator ==</a> to implement the framework's
+<strong>Forensic Equality</strong>. A tissue is equal to another if they share the
+same instance, if one is an <a href="../mitosis/Unmodifiable-class.html">Unmodifiable</a> view of the other, or if
+their underlying <a href="../mitosis/Container-class.html">Container</a> data matches.</li>
+<li><strong>Storage Delegation</strong>: Forwards core <code>Iterable</code> methods (iterator,
+toString, hashCode) directly to the <a href="../mitosis/TissueNucleusBase/container.html">TissueNucleusBase.container</a>,
+ensuring that the behavior reflects the physical storage defined in the DNA.</li>
+<li><strong>Nucleus Binding</strong>: Requires an implementation of <code>_nucleus</code> to access
+the governing configuration and principal chain.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>E</code>: The type of elements held within the collection.</li>
+<li><code>I</code>: The internal <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> implementation (e.g., <code>List&lt;E&gt;</code>).</li>
+<li><code>C</code>: The target <a href="../mitosis/Tissue-class.html">Tissue</a> interface.</li>
+</ul>
+<p>See also:</p>
+<ul>
+<li><a href="../mitosis/TissueBase-class.html">TissueBase</a> – The primary class where this mixin's traits are applied.</li>
+<li><a href="../mitosis/UnmodifiableTissueBase-class.html">UnmodifiableTissueBase</a> – A consumer of this mixin for read-only projections.</li>
+</ul>
+</section>
 
 
       <section>
@@ -69,6 +108,7 @@
           
   <dt>Available extensions</dt>
   <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="../mitosis/ApplyCommandDSL.html">ApplyCommandDSL</a></li>
       <li><a href="../mitosis/CellFlowOperators.html">CellFlowOperators</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/EnumByName.html">EnumByName</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/FutureIterable.html">FutureIterable</a></li>
@@ -414,8 +454,8 @@ downstream observers and does not broadcast pulses.
 </dd>
 
         <dt id="apply" class="callable inherited">
-  <span class="name"><a href="../mitosis/TissueMixin/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../mitosis/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
-    <span class="returntype parameter">&#8594; dynamic</span>
+  <span class="name"><a href="../mitosis/TissueMixin/apply.html">apply</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="apply-param-command"><span class="type-annotation"><a href="../mitosis/ApplyCommand.html">ApplyCommand</a></span> <span class="parameter-name">command</span>, {</span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../mitosis/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span>
   </span>
   
 
@@ -505,6 +545,23 @@ metadata attached.
 <dd class="inherited">
   A view of this iterable as an iterable of <code>R</code> instances.
   <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="command" class="callable">
+  <span class="name"><a href="../mitosis/ApplyCommandDSL/command.html">command</a></span><span class="signature">(<wbr><span class="parameter" id="command-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../mitosis/ApplyCommandRunner-class.html">ApplyCommandRunner</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/Cell-class.html">Cell</a>,
+        provided by the <a href="../mitosis/ApplyCommandDSL.html">ApplyCommandDSL</a> extension</span>
+      </p>
+  Begins assembling a command that invokes <code>function</code> on this cell.
+  
 
 </dd>
 
@@ -1103,7 +1160,7 @@ collection.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

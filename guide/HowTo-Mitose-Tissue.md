@@ -1,5 +1,12 @@
 # HowTo-Mitose-Tissue.md
 
+**Verified against (version pin):**
+- `package:cell` — `1.1.0`
+- `package:cell_flow` — `1.0.0`
+- `package:cell_tissue` — `1.0.0`
+- Checked on: 2026-11-10
+- Next review: on any MAJOR/MINOR bump of the above.
+
 
 
 ## Same-directory dependencies
@@ -88,6 +95,7 @@ Do not import `package:cell_tissue/src/...`. Confirm factories on the resolved v
 
 ---
 
+<a id="tissue-owns"></a>
 ## 1. What Tissue owns in a Demo
 
 | Layer | Owns | Does not own |
@@ -104,6 +112,7 @@ Grep rule:
 
 ---
 
+<a id="tissue-catalog"></a>
 ## 2. Examine all five collections against the BRD
 
 Do not default everything to a `List`. Walk this table for every audit / reserve / queue / register the BRD names.
@@ -116,6 +125,7 @@ Do not default everything to a `List`. Walk this table for every audit / reserve
 | **`TissueQueue<E>`** | `Queue<E>` | Outbound jobs, FIFO/LIFO, optional **capacity** / backpressure | `alertQ`, `rtuQ` | Accept-all unless the BRD rate-limits |
 | **`TissueValue<V>`** | scalar | One governed number: reserve, available balance, occupancy pool | `trolleyCount`, `bagCount`, `reserveMw` | `value >= 0` |
 
+<a id="tissue-list"></a>
 ### 2.1 `TissueList` — the audit book
 
 **BRD triggers:** AR “incident log”, FR “record every alert and action”, retention “24 months” (v1 = append-only list, not a purge job).
@@ -135,6 +145,7 @@ Considering factors:
 | Daily report columns? | List is the source; roll-up is a harness **read**, not a second write path |
 | Populate at boot? | `TissueList.of([...])` if you seed; else empty factory |
 
+<a id="tissue-set"></a>
 ### 2.2 `TissueSet` — the guard register
 
 **BRD triggers:** BR “diplomatic / hazardous never re-routed”, “resus never counted as spare”.
@@ -148,6 +159,7 @@ The live set is passed **into** the Flow instruction (`riskOf(tick, protected)`)
 
 Considering factors: uniqueness, key shape, who is allowed to `add` (ops vs deputy).
 
+<a id="tissue-map"></a>
 ### 2.3 `TissueMap` — open work keyed by location
 
 **BRD triggers:** FR “open incidents across terminals / streams”, “group by belt”.
@@ -165,6 +177,7 @@ Considering factors:
 | Many bags, one cause? | Payload on `V`, not a new Map per bag (FR-08 often deferred) |
 | Qty must stay positive? | TestTissue on `V` |
 
+<a id="tissue-queue"></a>
 ### 2.4 `TissueQueue` — outbound work
 
 **BRD triggers:** FR “raise an alert to the supervisor”, RTU / issuer / radio jobs.
@@ -178,6 +191,7 @@ WalkThrough convention: TissueQueue is the **audit enqueue**; a Dart list + `_dr
 
 Considering factors: `capacity` when NFR names backpressure; `addFirst` vs `addLast`; accept-all TestTissue unless the BRD says drop-when-full.
 
+<a id="tissue-value"></a>
 ### 2.5 `TissueValue` — the reserve scalar
 
 **BRD triggers:** “45,000 departing bags”, “42 majors spaces”, “800 MW spinning reserve”, ledger cents.
@@ -197,6 +211,7 @@ Considering factors:
 
 ---
 
+<a id="tissue-testtissue"></a>
 ## 3. `TestTissue` — considering factors
 
 ```dart
@@ -220,6 +235,7 @@ Returning `false` rejects the mutation. The Demo must print that failure (`ok=fa
 
 ---
 
+<a id="tissue-deputies"></a>
 ## 4. Deputies and `.unmodifiable`
 
 **BRD triggers:** Safety & Compliance, Caldicott, CAA, reliability council, ICB liaison who must **read** and must **not** delete.
@@ -243,6 +259,7 @@ Considering factors:
 
 ---
 
+<a id="tissue-reserve"></a>
 ## 5. Reserve protocol (Value + Map) — harness, not instruction
 
 When the BRD has a countable pool:
@@ -265,6 +282,7 @@ If the BRD has **no** pool, still keep a small Value + Map so raise/close and ov
 
 ---
 
+<a id="tissue-brd-map"></a>
 ## 6. BRD sentence → Tissue choice
 
 | BRD phrase | Tissue |

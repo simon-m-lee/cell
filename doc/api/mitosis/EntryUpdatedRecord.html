@@ -94,13 +94,6 @@ May be <code>null</code> if the key was removed or cleared.</li>
   }
 });
 </code></pre>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Insertions vs. Deletions</strong>: If <code>before</code> is <code>null</code> and <code>after</code> is present,
-it represents an insertion. If <code>after</code> is <code>null</code>, it represents a removal.</li>
-<li><strong>Equality</strong>: Because this is a record, equality is value‑based. Two
-records with identical <code>key</code>, <code>before</code>, and <code>after</code> values are equal.</li>
-</ul>
 <h3 id="type-parameters">Type Parameters:</h3>
 <ul>
 <li><code>K</code> – The type of the map keys (e.g., <code>String</code>, <code>int</code>).</li>
@@ -117,9 +110,9 @@ records with identical <code>key</code>, <code>before</code>, and <code>after</c
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">typedef EntryUpdatedRecord&lt;K, V&gt; = ({
-K key,
-V? before,
-V? after,
+  K key,
+  V? before,
+  V? after,
 });</code></pre>
 </section>
 
@@ -146,7 +139,7 @@ V? after,
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

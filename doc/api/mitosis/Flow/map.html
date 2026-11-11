@@ -84,14 +84,6 @@ function for every incoming pulse and forwards the transformed result.</p>
 <li>The return value is wrapped in a new <a href="../../mitosis/Pulse-class.html">Pulse</a> and propagated downstream.</li>
 <li>Forensic metadata, including the source cell and trace history, is preserved.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Atomic Transformation</strong>: The mapping happens within the reactive wave, ensuring
-downstream observers see the transformed value immediately.</li>
-<li><strong>Error Suppression</strong>: If <code>project</code> throws an exception, the pulse is dropped
-to prevent graph corruption, and the error is reported via <code>onError</code>.</li>
-<li><strong>Stateless</strong>: The operator maintains no internal state between pulses.</li>
-</ul>
 <h3 id="when-to-use-2">When to use</h3>
 <p>Use <a href="../../mitosis/Flow/map.html">map</a> when you need to transform each value in a stream.</p>
 <ul>
@@ -111,14 +103,6 @@ to prevent graph corruption, and the error is reported via <code>onError</code>.
 <li>If <code>project</code> throws an error, the pulse is dropped.</li>
 <li>The emitted pulse gets the step <code>'MapValue'</code> for provenance.</li>
 </ol>
-<h3 id="nonobvious-2">Non‑obvious</h3>
-<ul>
-<li><strong>Type Safety</strong>: Input type <code>S</code> and output type <code>T</code> are separate.</li>
-<li><strong>Error Handling</strong>: If <code>project</code> throws, the pulse is dropped.</li>
-<li><strong>Provenance Preservation</strong>: The emitted pulse preserves the
-source cell, type, and priority from the trigger pulse.</li>
-<li><strong>Synchronous Transformation</strong>: <code>project</code> is synchronous.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -151,6 +135,22 @@ input.emit(7);  // -&gt; 14
 <li><a href="../../mitosis/Flow/mapNotNull.html">mapNotNull</a>: For dropping null results.</li>
 <li><a href="../../mitosis/Flow/mapWhen.html">mapWhen</a>: For conditional mapping.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Flow — projection operator (Rx <code>map</code>). Not a Cell factory, not a Tissue book.
+<strong>When to use:</strong> project a payload on a stock chain; the facade over <code>MapValue</code>.
+<strong>When NOT to use:</strong> the rich-<code>*Decision</code> → seam-enum projection on a Cell-variant chain — use the <code>MapValue</code> class so it can join <code>+</code> chains.
+<strong>Live signature:</strong> <code>Flow.map&lt;S, T&gt;(Cell source, {required T Function(S value) project, MapErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>MapValue</code> (the chain class) and <code>Map</code> (dart:core data structure).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.2 "Transform" (#flow-transform)
+<strong>Example:</strong> <code>example/cell_flow_example.dart</code>
+<strong>Cross-layer:</strong> the projected gate Cell is consumed by <code>Cell.observe</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final h = Flow.map&lt;int, int&gt;(src.cell, project: (v) =&gt; v * 2);
+final o = Cell.observe(source: h.cell, effect: (Pulse p) =&gt; print(p.payload));
+src.emit(1);
+o.stop();
+</code></pre>
 </section>
 
 
@@ -191,7 +191,7 @@ input.emit(7);  // -&gt; 14
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

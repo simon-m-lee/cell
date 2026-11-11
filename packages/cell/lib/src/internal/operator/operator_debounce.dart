@@ -12,7 +12,10 @@ part of '../../../cell.dart';
 
 /// Emits only after [source] has been quiet for [duration].
 ///
-/// Classic Rx `debounceTime`.
+/// Modeled on Rx `debounceTime`, with one deliberate deviation in
+/// `leading` mode: a lone pulse is emitted immediately **and** again by the
+/// trailing timer, whereas classic Rx would suppress the trailing emit when
+/// nothing new has arrived.
 ///
 /// * Each pulse resets the timer; only the latest pulse is kept.
 /// * [leading] – when `true`, also emit the first pulse of a burst immediately.
@@ -45,11 +48,17 @@ Cell _debounce(
 
   void emitOut(Pulse pulse) {
     if (outputCell.isInvalidated) return;
+    // Preserve the originating pulse's provenance: regulated pulses keep
+    // their compliance context and priority across the timing operator.
+    // `pulse.type` is dynamic — an enum-typed pulse must not throw a
+    // TypeError at the `type:` boundary, so only string types are kept.
     outputCell._nucleus.receptor.call(
       Pulse.governed(
+        context: (pulse as PulseBase).context,
         payload: pulse.payload,
-        type: pulse.type,
+        type: pulse.type is String ? pulse.type : null,
         source: outputCell,
+        priority: pulse.priority,
       ),
     );
   }
@@ -65,7 +74,10 @@ Cell _debounce(
           state.cancel();
           return null;
         }
-        if (pulse.source != source) return null;
+        // This bridge is bound to exactly one source, so every pulse that
+        // arrives here came from it. A `pulse.source == source` guard is
+        // wrong: state cells and derived cells emit pulses without a source
+        // stamp, which the guard silently dropped.
 
         final wasIdle = state.timer == null;
 
@@ -88,7 +100,13 @@ Cell _debounce(
           // If leading already emitted this pulse as the start of the burst,
           // still emit trailing latest (may be same or newer).
           if (pending != null) {
-            emitOut(pending);
+            try {
+              emitOut(pending);
+            } catch (e, st) {
+              // A throwing downstream receptor must not become an
+              // unhandled zone error: fail the originating pulse cleanly.
+              (pending as PulseBase)._fail(e, stackTrace: st);
+            }
           }
         });
 

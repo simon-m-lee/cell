@@ -89,18 +89,6 @@ This aligns with <code>Pulse.type</code> for routing and filtering.</li>
 <li><code>priority</code>: set to <code>0</code> – maximum precedence for infrastructure
 orchestration, ensuring these cells are processed before any others.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>type</code> parameter is not optional – it provides the semantic category
-of the infrastructure component, which is critical for routing and
-policy enforcement.</li>
-<li>The <code>priority</code> of <code>0</code> means these cells execute before any module‑level
-or user‑level cells, making them suitable for security checks,
-authentication, and routing.</li>
-<li>The <code>taxonomy</code> and <code>domains</code> are static pillars – they cannot be evolved.</li>
-<li>If you need to add custom metadata (e.g., cluster tags, hardware IDs),
-use the <code>others</code> map.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final gatewayContext = Context.core(
   type: 'Gateway',
@@ -178,7 +166,7 @@ cluster tags, hardware IDs, or version flags).</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

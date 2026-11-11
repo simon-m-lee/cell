@@ -60,7 +60,7 @@
 </ol>), </span></li>
 </ol>})
 
-      <div class="features"><span class="feature">override</span></div>
+      
 
     </section>
     
@@ -82,14 +82,6 @@ inner sequence whenever a new source pulse arrives.</p>
 <li>Any previous active inner sequence is immediately abandoned/cancelled.</li>
 <li>Only values from the current (latest) inner are emitted.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Generation ID</strong>: Internally uses incrementing IDs to ignore stale results.</li>
-<li><strong>Cancellation</strong>: For Streams, it cancels the subscription. For Futures,
-it ignores the result.</li>
-</ul>
-<p><a href="../../mitosis/Flow/switchMap.html">switchMap</a> acts as a <strong>Latest-Only Flattener</strong>. A new trigger
-cancels emission from the previous inner sequence.</p>
 <h3 id="when-to-use-2">When to use</h3>
 <p>Use <a href="../../mitosis/Flow/switchMap.html">switchMap</a> when you only care about the most recent operation:</p>
 <ul>
@@ -109,15 +101,6 @@ sequence's ID is marked as stale.</li>
 <li>Only the sequence with the current ID can emit results.</li>
 <li>Stale sequences' items are silently dropped.</li>
 </ol>
-<h3 id="nonobvious-2">Non‑obvious</h3>
-<ul>
-<li><strong>Silent Cancellation</strong>: Cancelled sequences do not throw exceptions.
-They simply don't emit results.</li>
-<li><strong>Generation ID Tracking</strong>: Each sequence gets a unique ID. Only the
-sequence with the current ID can emit.</li>
-<li><strong>Memory Safety</strong>: The state only holds the current generation ID.</li>
-<li><strong>Error Handling</strong>: Only errors from the latest sequence are reported.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -149,6 +132,22 @@ searchInput.emit('flutter'); // Cancels previous, starts new
 <li><a href="../../mitosis/Flow/mergeMap.html">mergeMap</a>: For concurrent flattening.</li>
 <li><a href="../../mitosis/Flow/exhaustMap.html">exhaustMap</a>: For exhaust flattening.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Flow — latest-only flattener. Not a Cell factory, not a Tissue book.
+<strong>When to use:</strong> "latest reservation / flight / search only" — a new trigger cancels the previous inner sequence.
+<strong>When NOT to use:</strong> parallel CAD lookups (mergeMap) or ordered calls (concatMap).
+<strong>Live signature:</strong> <code>Flow.switchMap&lt;S, T&gt;(Cell source, {required FutureOr&lt;Object?&gt; Function(S value) project})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.switchMap</code> (Cell-layer variant whose mapper returns a <code>Cell</code>).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)
+<strong>Example:</strong> <code>example/switch_map_dynamic_dependency_demo.dart</code>
+<strong>Cross-layer:</strong> flatten wraps I/O beside the decision, never inside <code>riskOf</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final h = Flow.switchMap&lt;int, int&gt;(src.cell, project: (v) async =&gt; v * 2);
+final o = Cell.observe(source: h.cell, effect: (Pulse p) =&gt; print(p.payload));
+src.emit(1);
+o.stop();
+</code></pre>
 </section>
 
 
@@ -188,7 +187,7 @@ searchInput.emit('flutter'); // Cancels previous, starts new
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

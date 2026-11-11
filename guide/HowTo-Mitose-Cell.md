@@ -1,5 +1,12 @@
 # HowTo-Mitose-Cell.md
 
+**Verified against (version pin):**
+- `package:cell` — `1.1.0`
+- `package:cell_flow` — `1.0.0`
+- `package:cell_tissue` — `1.0.0`
+- Checked on: 2026-11-10
+- Next review: on any MAJOR/MINOR bump of the above.
+
 
 
 ## Same-directory dependencies
@@ -118,6 +125,7 @@ The Cell-variant WalkThrough seam still holds:
 
 ---
 
+<a id="cell-factories"></a>
 ## 2. `Cell.*` factories this HowTo covers
 
 Stream-shaped operators (`asyncMap`, `switchMap`, `debounce`, `distinct`, `fromFuture`, `fromStream`, and the rest of the Rx vocabulary) belong to **`package:cell_flow`**. Do not design a Demo from the Cell Core-16 list. Design it from ingress / observe / transaction / txApply, then compose the decision in Flow.
@@ -143,6 +151,7 @@ Stream-shaped operators (`asyncMap`, `switchMap`, `debounce`, `distinct`, `fromF
 
 Even if a given Demo does not call all four, you must **decide** each one against the BRD.
 
+<a id="cell-ingress"></a>
 ### 3.1 `Cell.ingress` — how the desk enters the graph
 
 ```dart
@@ -177,6 +186,7 @@ Emit with `handle.emit(value)` (or the current IngressHandle API — confirm on 
 
 **Do not** put `testRule: TestCell` on a Tissue constructor. That is the grep rule.
 
+<a id="cell-observe"></a>
 ### 3.2 `Cell.observe` — the only Flow → Tissue glue
 
 Docs show both `source:` and older `bind:` names. **Confirm the live signature** on the Cell class page. Industry Demos in the monorepo use:
@@ -201,6 +211,7 @@ Cell.observe(
 
 One observer per product lane plus one ACK observer is the Cell-variant default. Do not observe `tickIn` to make the decision — that bypasses the instruction.
 
+<a id="cell-transaction"></a>
 ### 3.3 `Cell.transaction` — not the Mitose commit
 
 Do not call `Cell.transaction` in a Mitose 2.0 Demo. It coordinates `ValueCell` state. Mitose books are Tissue. A Tissue value is not a transaction participant.
@@ -213,6 +224,7 @@ transaction deferred txApply on Tissue
 
 A present `Cell.transaction` is a deviation. Say so in Real desk.
 
+<a id="cell-txapply"></a>
 ### 3.4 `Cell.txApply` — the only atomic commit, on Tissue
 
 ```dart
@@ -250,6 +262,7 @@ Do not wrap `riskOf` in `txApply`. Policy is pure.
 
 ---
 
+<a id="cell-types"></a>
 ## 4. Types the agent must name correctly
 
 Look these up on pub.dev; do not invent parallel types.
@@ -273,6 +286,7 @@ Look these up on pub.dev; do not invent parallel types.
 
 ---
 
+<a id="cell-brd-map"></a>
 ## 5. From BRD sentence → `Cell.*` choice
 
 | BRD phrase | First Cell factory | Then |

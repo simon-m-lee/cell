@@ -81,18 +81,6 @@ validation rule that rejects all mutations.</li>
 <li>Iteration yields no elements.</li>
 <li>It is thread‑safe and deeply immutable.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is a <strong>null object</strong>, not a placeholder. It is a fully functional
-reactive node that just happens to be empty and immutable. Observers can
-still listen to it, but they will never receive events.</li>
-<li>It is <strong>not</strong> a deputy of another tissue – it is a root node with no
-principal. Calling <code>deputy()</code> on it returns <code>this</code>, not a new proxy.</li>
-<li>The <a href="../mitosis/TissueNever/isInvalidated.html">isInvalidated</a> getter returns <code>true</code> because the node is considered
-"already invalidated" – this prevents any attempt to mutate it.</li>
-<li>It is the most memory‑efficient tissue possible, making it ideal for
-default values or fallback collections.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final empty = const TissueNever&lt;int&gt;();
 print(empty.length); // 0
@@ -127,6 +115,7 @@ empty.add(1); // no effect, returns false silently
         
   <dt>Available extensions</dt>
   <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="../mitosis/ApplyCommandDSL.html">ApplyCommandDSL</a></li>
       <li><a href="../mitosis/CellFlowOperators.html">CellFlowOperators</a></li>
   </ul></dd>
         
@@ -397,14 +386,15 @@ sequence and is currently in the process of being neutralized.
 </dd>
 
         <dt id="apply" class="callable">
-  <span class="name"><a href="../mitosis/TissueNever/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../mitosis/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
-    <span class="returntype parameter">&#8594; dynamic</span>
+  <span class="name"><a href="../mitosis/TissueNever/apply.html">apply</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="apply-param-command"><span class="type-annotation"><a href="../mitosis/ApplyCommand.html">ApplyCommand</a></span> <span class="parameter-name">command</span>, {</span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../mitosis/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd>
-  A no‑op implementation of the <a href="../mitosis/Cell/apply.html">Cell.apply</a> method.
+  The empty tissue has no mutation surface, so every command is
+forensically rejected.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -419,6 +409,23 @@ sequence and is currently in the process of being neutralized.
 <dd class="inherited">
   A view of this iterable as an iterable of <code>R</code> instances.
   <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="command" class="callable">
+  <span class="name"><a href="../mitosis/ApplyCommandDSL/command.html">command</a></span><span class="signature">(<wbr><span class="parameter" id="command-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../mitosis/ApplyCommandRunner-class.html">ApplyCommandRunner</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/Cell-class.html">Cell</a>,
+        provided by the <a href="../mitosis/ApplyCommandDSL.html">ApplyCommandDSL</a> extension</span>
+      </p>
+  Begins assembling a command that invokes <code>function</code> on this cell.
+  
 
 </dd>
 
@@ -444,6 +451,19 @@ sequence and is currently in the process of being neutralized.
 </dt>
 <dd>
   Returns itself when a deputy is requested.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="dispatch" class="callable">
+  <span class="name"><a href="../mitosis/TissueNever/dispatch.html">dispatch</a></span><span class="signature">(<wbr><span class="parameter" id="dispatch-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="dispatch-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="dispatch-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span></span>})
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd>
+  A no‑op implementation of the internal mutation dispatch engine.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -958,7 +978,7 @@ predicate <code>test</code>.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

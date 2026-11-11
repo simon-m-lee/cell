@@ -81,19 +81,6 @@ a guaranteed <a href="https://api.flutter.dev/flutter/dart-core/Future-class.htm
 <li><strong>Synchronized Completion</strong>: It can optionally wait for every
 downstream synapse to finish propagation before resolving.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Memory Awareness</strong>: The internal buffer is unbounded; high-frequency
-bursts without proper awaiting can lead to memory pressure.</li>
-<li><strong>Causal Consistency</strong>: By default, it preserves the order of signals
-even if the underlying transformations are asynchronous.</li>
-<li><strong>Atomicity</strong>: Even when called asynchronously, the actual state transition
-is protected by the cell's lock, preventing race conditions.</li>
-<li><strong>Identity Integrity</strong>: The async handle is a stateless proxy; it
-shares the same operational context and metadata as the primary receptor.</li>
-<li><strong>Synchronous Pipeline</strong>: The underlying pipeline executes synchronously.
-The async adapter only manages the execution timing and completion.</li>
-</ul>
 <h3 id="type-parameters">Type Parameters:</h3>
 <ul>
 <li><code>C</code>: The type of the host <a href="../cell_flow/Cell-class.html">Cell</a>.</li>
@@ -274,7 +261,7 @@ asynchronously.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

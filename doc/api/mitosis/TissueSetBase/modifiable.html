@@ -75,13 +75,6 @@
   <p>The set of modifiable functions that can be invoked via <code>apply</code>.</p>
 <p>This includes all standard Dart <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a> mutation methods. It is used
 by the <code>apply</code> gateway to determine which operations are permitted.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>For an <a href="../../mitosis/UnmodifiableTissueSet-class.html">UnmodifiableTissueSet</a> (or any class implementing
-<a href="../../mitosis/Unmodifiable-class.html">Unmodifiable</a>), this getter is overridden to return an empty set,
-effectively blocking all mutations.</li>
-<li>The <code>apply</code> method checks this list before executing any function.</li>
-</ul>
 </section>
 
     
@@ -128,7 +121,7 @@ Iterable&lt;Function&gt; get modifiable =&gt; &lt;Function&gt;{
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

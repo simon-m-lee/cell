@@ -118,13 +118,38 @@ for this cell.</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">CellBase.fromNucleus(Nucleus nucleus)
     : _nucleus = nucleus.isActivated ? nucleus.clone : nucleus {
+  &#47;&#47; Link failures are LOUD: a declined link gate must not return a
+  &#47;&#47; silent graph island. Everything else stays tolerant, because
+  &#47;&#47; cross-package subclasses (cell_tissue) shadow the virtual `_nucleus`
+  &#47;&#47; getter with one that is only usable after their own constructors
+  &#47;&#47; have run — reading it during this super constructor legitimately
+  &#47;&#47; fails and is not a caller error.
   try {
     _nucleus.activate(this);
     final bind = _nucleus.bind;
     if (bind != null) {
       final synapses = bind._nucleus.synapses;
-      synapses.link(bind, downstreamCell: this);
+      final linkResult = synapses.link(bind, downstreamCell: this);
+      if (linkResult is Future&lt;bool&gt;) {
+        &#47;&#47; `bind` construction assumes synchronous TestCell.link rules. An
+        &#47;&#47; explicitly async gate is still driven to completion; a rejection
+        &#47;&#47; is contained here (there is no pulse to fail during
+        &#47;&#47; construction) so it does not become an unhandled zone error.
+        unawaited(
+            linkResult.then((_) {}, onError: (Object e, StackTrace st) {}));
+      } else if (linkResult == false &amp;&amp;
+          !identical(synapses, Synapses.disabled)) {
+        &#47;&#47; A disabled egress registry legitimately refuses every link
+        &#47;&#47; (terminal cells). An ENABLED one declining the link means the
+        &#47;&#47; link gate rejected construction.
+        throw StateError(
+          &#39;Cell construction failed: the upstream link was rejected by &#39;
+          &#39;the link gate.&#39;,
+        );
+      }
     }
+  } on StateError {
+    rethrow;
   } catch (_) {}
 }</code></pre>
 </section>
@@ -154,7 +179,7 @@ for this cell.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

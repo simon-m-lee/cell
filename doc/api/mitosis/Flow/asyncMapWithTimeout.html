@@ -85,13 +85,6 @@ a specified time limit, throwing an error if they exceed it.</p>
 <li>The error is reported via <code>onError</code>.</li>
 <li>The instruction continues with the next input.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Timer Precision</strong>: Timers are based on the event loop.</li>
-<li><strong>Cancellation</strong>: Timed-out operations are cancelled.</li>
-<li><strong>Error Reporting</strong>: Timeouts are reported via <code>onError</code>.</li>
-<li><strong>Sequential</strong>: Operations run one after another.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -167,7 +160,7 @@ final handle = Flow.asyncMapWithTimeout&lt;String, String&gt;(
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

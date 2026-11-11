@@ -74,11 +74,6 @@ traversing more than a certain number of nodes.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>Each call to <code>onEvent</code> can increment the hop counter (or not). When the
 counter reaches or exceeds this limit, the pulse is invalidated.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The hop counter starts at 0 and is updated by <code>onEvent</code>.</li>
-<li>You can reset the counter by returning <code>(hops: 0)</code> from <code>onEvent</code>.</li>
-</ul>
 <h3 id="returns">Returns:</h3>
 <p>The maximum allowed hop count, or <code>null</code> if no hop limit.</p>
 </section>
@@ -118,7 +113,7 @@ counter reaches or exceeds this limit, the pulse is invalidated.</p>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

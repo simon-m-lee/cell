@@ -90,14 +90,6 @@ to the authoritative <a href="../mitosis/Flow-class.html">Flow</a> static factor
 which provides both the <strong>Anchor Node</strong> (via the <code>cell</code> field) and
 the <strong>Signal Ingress</strong> controls (<code>emit</code>, <code>emitAsync</code>, and <code>ingest</code>).</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Stateless Blueprinting</strong>: The operators themselves do not store
-state; they merely define the blueprint for how pulses should
-traverse the newly created topographical branch.</li>
-<li><strong>Chain Continuation</strong>: Once a <a href="../mitosis/FlowHandle.html">FlowHandle</a> is returned, further
-evolution is managed by the sibling <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension.</li>
-</ul>
 <h3 id="see-also">See Also</h3>
 <ul>
 <li><a href="../mitosis/Flow-class.html">Flow</a>: The authoritative registry of orchestration factories.</li>
@@ -315,7 +307,7 @@ instruction designed to perform side-effects without altering pulse evolution.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

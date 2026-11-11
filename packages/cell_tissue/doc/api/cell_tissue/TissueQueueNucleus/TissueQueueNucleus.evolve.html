@@ -54,7 +54,8 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">TissueQueueNucleus&lt;<wbr><span class="type-parameter">E</span>&gt;.evolve</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="evolve-param-capacity"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">capacity</span>, </span></li>
+      <span class="name ">TissueQueueNucleus&lt;<wbr><span class="type-parameter">E</span>&gt;.evolve</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="evolve-param-principal"><span class="type-annotation"><a href="../../cell_tissue/TissueQueueNucleus-class.html">TissueQueueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">principal</span>, {</span></li>
+<li><span class="parameter" id="evolve-param-capacity"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">capacity</span>, </span></li>
 <li><span class="parameter" id="evolve-param-bind"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
 <li><span class="parameter" id="evolve-param-context"><span class="type-annotation"><a href="../../cell_tissue/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span></li>
 <li><span class="parameter" id="evolve-param-receptor"><span class="type-annotation"><a href="../../cell_tissue/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter"><a href="../../cell_tissue/TissueQueue-class.html">TissueQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span></li>
@@ -62,7 +63,6 @@
 <li><span class="parameter" id="evolve-param-synapses"><span class="type-annotation"><a href="../../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span></li>
 <li><span class="parameter" id="evolve-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
 <li><span class="parameter" id="evolve-param-override"><span class="type-annotation"><a href="../../cell_tissue/TissueQueueNucleus-class.html">TissueQueueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>?</span> <span class="parameter-name">override</span>, </span></li>
-<li><span class="parameter" id="evolve-param-principal"><span>required</span> <span class="type-annotation"><a href="../../cell_tissue/TissueQueueNucleus-class.html">TissueQueueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">principal</span>, </span></li>
 </ol>})
     </section>
     
@@ -89,16 +89,6 @@ or <code>synapses</code>.</li>
 <li>The <a href="../../cell_tissue/TissueNucleus/container.html">container</a> strategy is always inherited (it remains a <a href="https://api.flutter.dev/flutter/dart-collection/Queue-class.html">Queue</a>).</li>
 <li>The new nucleus shares the same <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> and physical storage as the
 principal (unless you provide an <code>override</code> that introduces a new lock).</li>
-</ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>capacity</code> override allows you to create a "Sub‑Queue" deputy that
-has a stricter resource limit than its principal, useful for partitioning
-a shared system‑wide buffer into smaller, scoped consumer pools.</li>
-<li>The <code>override</code> parameter allows you to layer a complete pre‑configured
-nucleus on top of the principal.</li>
-<li>The resulting nucleus does <strong>not</strong> copy the principal's data – it shares
-it via the inheritance chain.</li>
 </ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final principal = TissueQueueNucleus.create&lt;String&gt;(capacity: 10);
@@ -130,17 +120,32 @@ behavioral layer over the <code>principal</code>.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory TissueQueueNucleus.evolve(
-        {int? capacity,
-        Cell? bind,
-        Context? context,
-        TissueReceptor&lt;E, TissueQueue&lt;E&gt;&gt;? receptor,
-        TestTissue&lt;E, TissueQueue&lt;E&gt;&gt;? testRule,
-        Synapses? synapses,
-        EphemeralPolicy? ephemeralPolicy,
-        TissueQueueNucleus&lt;E&gt;? override,
-        required TissueQueueNucleus&lt;E&gt; principal}) =
-    _TissueQueueNucleus&lt;E, TissueQueue&lt;E&gt;&gt;.evolve;</code></pre>
+  <pre class="language-dart"><code class="language-dart">factory TissueQueueNucleus.evolve(TissueQueueNucleus&lt;E&gt; principal, {
+  int? capacity,
+  Cell? bind,
+  Context? context,
+  TissueReceptor&lt;E, TissueQueue&lt;E&gt;&gt;? receptor,
+  TestTissue&lt;E, TissueQueue&lt;E&gt;&gt;? testRule,
+  Synapses? synapses,
+  EphemeralPolicy? ephemeralPolicy,
+  TissueQueueNucleus&lt;E&gt;? override
+}) {
+  return _TissueQueueNucleus&lt;E, TissueQueue&lt;E&gt;&gt;.fromRecord((
+    local: override != null
+        ? (override as NucleusBase).record.local
+        : TissueNucleusBase.mask&lt;E, Queue&lt;E&gt;, TissueQueue&lt;E&gt;&gt;(
+            bind: bind,
+            context: context,
+            receptor: receptor,
+            testRule: testRule,
+            synapses: synapses,
+            forceLock: true,
+            ephemeralPolicy: ephemeralPolicy,
+            others: capacity != null ? (capacity: capacity) : null,
+          ),
+    principal: principal,
+  ));
+}</code></pre>
 </section>
 
 
@@ -168,7 +173,7 @@ behavioral layer over the <code>principal</code>.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

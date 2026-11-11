@@ -73,15 +73,6 @@ rate limiting.</p>
 the arguments (positional and named), and optional user data.</li>
 <li>Return <code>true</code> to allow the action, <code>false</code> to block it.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The rule is only evaluated for <a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a> objects; other objects are
-automatically allowed.</li>
-<li>The rule can inspect the arguments to enforce parameter constraints.</li>
-<li>The rule can be asynchronous; if it returns a <code>Future&lt;bool&gt;</code>, the
-action is delayed until the rule completes.</li>
-<li>This rule is composable with other <a href="../cell_flow/TestRule-class.html">TestRule</a>s via <code>+</code>.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// Complete Action Validation Pipeline
 // 1. Authorize action type
@@ -205,7 +196,7 @@ final result = cell.apply((int x) =&gt; x * 2, [5]);
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="action" class="callable">
-  <span class="name"><a href="../cell_flow/TestActionRule/action.html">action</a></span><span class="signature">(<wbr><span class="parameter" id="action-param-action"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">action</span>, {</span><span class="parameter" id="action-param-host"><span>required</span> <span class="type-annotation">C</span> <span class="parameter-name">host</span>, </span><span class="parameter" id="action-param-arguments"><span class="type-annotation"><a href="../cell_flow/Arguments.html">Arguments</a>?</span> <span class="parameter-name">arguments</span></span>})
+  <span class="name"><a href="../cell_flow/TestActionRule/action.html">action</a></span><span class="signature">(<wbr><span class="parameter" id="action-param-action"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">action</span>, {</span><span class="parameter" id="action-param-host"><span>required</span> <span class="type-annotation">C</span> <span class="parameter-name">host</span>, </span><span class="parameter" id="action-param-arguments"><span class="type-annotation"><a href="../cell_flow/Arguments.html">Arguments</a>?</span> <span class="parameter-name">arguments</span>, </span><span class="parameter" id="action-param-command"><span class="type-annotation"><a href="../cell_flow/ApplyCommand.html">ApplyCommand</a>?</span> <span class="parameter-name">command</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span>
   </span>
   
@@ -321,7 +312,7 @@ final result = cell.apply((int x) =&gt; x * 2, [5]);
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

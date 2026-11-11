@@ -82,8 +82,10 @@ an enum) may be used as a classifier.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 dynamic get type {
-  return get&lt;dynamic&gt;(() =&gt; _record.root.secondary.type,
-      fallback: () =&gt; _pulse?.type ?? _parent?.type, orElse: null);
+  if ((_shape &amp; _kType) != 0) {
+    return _record.root.secondary.type;
+  }
+  return _pulse?.type ?? _parent?.type;
 }</code></pre>
 </section>
 
@@ -114,7 +116,7 @@ dynamic get type {
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

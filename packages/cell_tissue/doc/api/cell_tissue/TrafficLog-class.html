@@ -76,22 +76,6 @@ body).</li>
 <li><a href="../cell_tissue/TrafficLog/parsed.html">parsed</a> <strong>or</strong> <a href="../cell_tissue/TrafficLog/refused.html">refused</a> — the classified reply.</li>
 </ol>
 <p>If the port throws, <a href="../cell_tissue/TrafficLog/error.html">error</a> is called instead of steps 3–4.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<ul>
-<li><strong>The logger writes to <code>stdout</code> directly.</strong> It has no buffer,
-no flush, no file target. For a demo, that is what we want.
-For a production system, replace <code>_out</code> with a structured
-logger call.</li>
-<li><strong>The prompt is printed in full the first time, then
-truncated.</strong> The first call prints all lines. Every
-subsequent call prints the first 12 lines and appends
-<code>... (N more lines — same prompt as scenario 1)</code>. That keeps
-the console readable while guaranteeing the reader sees the
-full security contract at least once.</li>
-<li><strong><code>silent: true</code> suppresses all output.</strong> Useful for tests.
-The logger still runs its truncation logic so the first
-non-silent call behaves correctly.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final log = TrafficLog();
 log.systemPrompt(systemPrompt({'add', 'remove', 'clear'}));
@@ -325,7 +309,7 @@ result.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

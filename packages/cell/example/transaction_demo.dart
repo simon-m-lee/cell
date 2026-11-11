@@ -1,3 +1,11 @@
+// # `example/transaction_demo.dart`
+//
+// **What it demonstrates:** Multi-`ValueCell` atomic commit with isolation and rollback.
+// **Which BRD sentence picks it:** "Transfer funds atomically" (outside a Mitose Demo).
+// **Layer:** Cell (§3.3 `Cell.transaction` — not the Mitose commit)
+// **API signatures used:** `Cell.transaction`, `TransactionScope.begin/update/commit/rollback`
+// **Run:** `dart run example/transaction_demo.dart`
+// **Verify first:** `dart run tool/ai_preflight.dart` exits 0.
 // =============================================================================
 // Practical executable walkthrough – Cell.transaction
 // Atomic multi-cell updates · Isolation · Savepoints · Rollback

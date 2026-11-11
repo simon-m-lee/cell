@@ -128,10 +128,10 @@ authentication challenge to the event.</p>
         policy: policy,
         context: context,
         payload: payload,
-        &#47;&#47; [PulseBase.mask] only accepts a String? type tag, so a
-        &#47;&#47; [TissueEvent] classification is carried in the dynamic `user`
-        &#47;&#47; slot and surfaced through the overridden [type] getter below.
-        type: type is TissueEvent ? null : type,
+        &#47;&#47; PulseBase.mask stores `type` as dynamic — a TissueEvent is a
+        &#47;&#47; legitimate classifier, so it goes in the type slot directly and
+        &#47;&#47; `user` stays user metadata.
+        type: type,
         timestamp: timestamp,
         source: source,
         step: step,
@@ -142,7 +142,7 @@ authentication challenge to the event.</p>
         pulse: pulse,
         parent: parent,
         scrutinize: scrutinize,
-        user: type is TissueEvent ? type : user,
+        user: user,
       ));</code></pre>
 </section>
 
@@ -171,7 +171,7 @@ authentication challenge to the event.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

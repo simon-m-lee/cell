@@ -95,10 +95,12 @@ observer registry (<code>synapses</code>), and its upstream <code>bind</code> de
 <code>mask</code> utility, which evaluates each argument against framework defaults.
 If a property matches the default (e.g., <a href="../../cell_flow/Context/system-constant.html">Context.system</a>), it is
 omitted from the record entirely, eliminating the "Nullable Field Tax."</li>
-<li><strong>Concurrency Governance</strong>: Unless <code>forceLock</code> is explicitly set to
-<code>true</code>, the constructor ensures the nucleus is equipped with a fresh
-atomic <code>Lock</code>. This lock is the primary synchronization mechanism
-guaranteeing that <a href="../../cell_flow/Pulse-class.html">Pulse</a> processing is atomic and thread-safe.</li>
+<li><strong>Concurrency Governance</strong>: When <code>forceLock</code> is <code>true</code>, the
+nucleus is equipped with a fresh reentrant <code>Lock</code> and the cell
+serializes its mutating operations through it. The default
+(<code>false</code>) leaves the node lock-free: the runtime is a single
+Dart isolate, so the lock is a re-entrancy/ordering guard, not a
+cross-thread memory fence.</li>
 <li><strong>Logic Purity</strong>: If the provided <code>receptor</code> is already "activated"
 (bound to a live cell), the constructor automatically emits
 <code>receptor.copy</code>. This prevents logic leakage and ensures each blueprint
@@ -122,8 +124,8 @@ for the node.</li>
 <li><code>receptor</code>: The <strong>Transformation Pipeline</strong> gatekeeper.</li>
 <li><code>testRule</code>: The <strong>Policy Guard</strong> for state validation.</li>
 <li><code>synapses</code>: Manages the <strong>Signal Distribution Network</strong>.</li>
-<li><code>forceLock</code>: If <code>true</code>, prevents the creation of a new synchronization
-primitive (used when sharing a lock with a <code>principal</code>).</li>
+<li><code>forceLock</code>: If <code>true</code>, creates a fresh reentrant synchronization
+lock for this nucleus. Default <code>false</code> = lock-free (single isolate).</li>
 <li><code>user</code>: Optional record for extension-specific metadata.</li>
 <li><code>principal</code>: Optional ancestor <a href="../../cell_flow/Nucleus-class.html">Nucleus</a> for <strong>Prototype Inheritance</strong>.</li>
 </ul>
@@ -194,7 +196,7 @@ primitive (used when sharing a lock with a <code>principal</code>).</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

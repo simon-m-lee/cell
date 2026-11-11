@@ -81,16 +81,6 @@ based on the <code>growable</code> flag.</li>
 nucleus with a fresh lock and synapses, essential for creating new
 list instances from a template.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>growable</code> flag is <strong>structural</strong> – it is fixed at creation and
-cannot be changed via a deputy. All deputies of a list share the
-same growability status.</li>
-<li>The nucleus is a <strong>flyweight</strong> – many lists can share the same nucleus
-without duplicating memory.</li>
-<li>The <a href="../cell_tissue/TissueListNucleus/clone.html">clone</a> getter creates a root nucleus (no principal) with its own
-lock, making it safe to use for independent list instances.</li>
-</ul>
 <h3 id="parameters-constructor">Parameters (constructor):</h3>
 <ul>
 <li><a href="../cell_tissue/NucleusBase/bind.html">bind</a>: Optional upstream cell.</li>
@@ -142,17 +132,11 @@ lock, making it safe to use for independent list instances.</li>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="TissueListNucleusBase.new" class="callable">
-          <span class="name"><a href="../cell_tissue/TissueListNucleusBase/TissueListNucleusBase.html">TissueListNucleusBase</a></span><span class="signature">({<span class="parameter" id="-param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span><span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../cell_tissue/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">TissueReceptor.passThrough</span>, </span><span class="parameter" id="-param-testRule"><span class="type-annotation"><a href="../cell_tissue/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestTissue.allowAll</span>, </span><span class="parameter" id="-param-synapses"><span class="type-annotation"><a href="../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span><span class="parameter" id="-param-growable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">growable</span> = <span class="default-value">true</span>, </span><span class="parameter" id="-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span></span>})</span>
+          <span class="name"><a href="../cell_tissue/TissueListNucleusBase/TissueListNucleusBase.html">TissueListNucleusBase</a></span><span class="signature">({<span class="parameter" id="-param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span><span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../cell_tissue/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">TissueReceptor.passThrough</span>, </span><span class="parameter" id="-param-testRule"><span class="type-annotation"><a href="../cell_tissue/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestTissue.allowAll</span>, </span><span class="parameter" id="-param-synapses"><span class="type-annotation"><a href="../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span><span class="parameter" id="-param-growable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">growable</span> = <span class="default-value">true</span>, </span><span class="parameter" id="-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="-param-principal"><span class="type-annotation"><a href="../cell_tissue/TissueNucleusBase-class.html">TissueNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>, <span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">principal</span></span>})</span>
         </dt>
         <dd>
-          Primary constructor for a <a href="../cell_tissue/TissueListNucleusBase-class.html">TissueListNucleusBase</a> configuration.
-        </dd>
-        <dt id="TissueListNucleusBase.evolve" class="callable">
-          <span class="name"><a href="../cell_tissue/TissueListNucleusBase/TissueListNucleusBase.evolve.html">TissueListNucleusBase.evolve</a></span><span class="signature">({<span class="parameter" id="evolve-param-override"><span class="type-annotation"><a href="../cell_tissue/Nucleus-class.html">Nucleus</a>?</span> <span class="parameter-name">override</span>, </span><span class="parameter" id="evolve-param-principal"><span>required</span> <span class="type-annotation"><a href="../cell_tissue/TissueListNucleus-class.html">TissueListNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">principal</span></span>})</span>
-        </dt>
-        <dd>
-          <strong>Evolution Constructor</strong> – creates a specialised deputy nucleus by
-extending an existing <code>principal</code>.
+          <strong>Primary Blueprint Constructor</strong> – Defines the immutable behaviour and
+storage strategy for a reactive list.
         </dd>
         <dt id="TissueListNucleusBase.fromRecord" class="callable">
           <span class="name"><a href="../cell_tissue/TissueListNucleusBase/TissueListNucleusBase.fromRecord.html">TissueListNucleusBase.fromRecord</a></span><span class="signature">(<span class="parameter" id="fromRecord-param-record"><span class="type-annotation">dynamic</span> <span class="parameter-name">record</span></span>)</span>
@@ -520,7 +504,7 @@ custom property extensions for the associated <a href="../cell_tissue/Cell-class
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

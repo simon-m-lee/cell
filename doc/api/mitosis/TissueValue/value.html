@@ -135,13 +135,6 @@ physical storage update, and pulse broadcasting in a single atomic cycle.</p>
 <li>If the value is a <a href="../../mitosis/Cell-class.html">Cell</a>, the framework manages the synapse wiring.</li>
 <li>A <a href="../../mitosis/Tissue/elementUpdated-constant.html">Tissue.elementUpdated</a> is dispatched to observers.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>If the new value is identical to the current value (by <code>==</code>), the
-operation short‑circuits and no event is emitted.</li>
-<li>On a deputy, this setter applies the deputy's specific <code>testRule</code> stack.</li>
-<li>On an unmodifiable projection, this setter throws <a href="https://api.flutter.dev/flutter/dart-core/UnsupportedError-class.html">UnsupportedError</a>.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final counter = TissueValue&lt;int&gt;(0);
 counter.value = 42;
@@ -181,7 +174,7 @@ set value(V? value);</code></pre>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

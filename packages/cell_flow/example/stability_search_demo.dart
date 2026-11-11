@@ -4,6 +4,15 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+// # `example/stability_search_demo.dart`
+//
+// **What it demonstrates:** Debounce on a search feed — emit only after silence.
+// **Which BRD sentence picks it:** "Wait for silence on the search box."
+// **Layer:** Flow (§3.6 `Flow.debounce` — feed shaping, never the policy gate)
+// **API signatures used:** `Cell.ingress`, `Flow.debounce`, `FlowHandle`
+// **Run:** `dart run example/stability_search_demo.dart`
+// **Verify first:** `dart run tool/ai_preflight.dart` exits 0.
+
 import 'dart:async';
 import 'package:cell_flow/cell_flow.dart';
 

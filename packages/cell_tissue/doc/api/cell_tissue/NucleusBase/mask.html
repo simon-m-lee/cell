@@ -103,19 +103,6 @@ effectively eliminates the "Nullable Field Tax."</li>
 </ul>
 </li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Receptor Auto-Cloning</strong>: If the provided <code>receptor</code> is already
-"activated" (bound to another cell), <code>mask</code> automatically clones it
-to ensure independent logic states for the new node.</li>
-<li><strong>Synapses Provisioning</strong>: Passing <a href="../../cell_tissue/Synapses/enabled-constant.html">Synapses.enabled</a> triggers the
-allocation of a new registry, ensuring every node has a unique
-egress network for its dependents.</li>
-<li><strong>Lock Injection</strong>: By default, it allocates a new reentrant <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>
-to serve as the node's atomic boundary, unless <code>forceLock</code> is <code>true</code>.</li>
-<li><strong>Timestamping</strong>: Every record is tagged with a <code>timestamp</code> to
-facilitate causal ordering and cache invalidation.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>ephemeralPolicy</code>: <strong>Lifecycle Guard.</strong> Defines when the nucleus
@@ -158,10 +145,6 @@ ad-hoc records.</li>
     bool forceLock = false,
     Record? user,
     dynamic others}) {
-  if (synapses == Synapses.enabled) {
-    synapses = Synapses();
-  }
-
   if (receptor != null) {
     if (receptor == Receptor.passThrough) {
       receptor = _Receptor();
@@ -170,12 +153,12 @@ ad-hoc records.</li>
     }
   }
 
-  final inheritableMask = (
-      (context != null &amp;&amp; context != Context.system ? 1 : 0) |
+  final inheritableMask = ((context != null &amp;&amp; context != Context.system
+          ? 1
+          : 0) |
       (receptor != null &amp;&amp; receptor != Receptor.passThrough ? 2 : 0) |
       (testRule != null &amp;&amp; !identical(testRule, TestCell.allowAll) ? 4 : 0) |
-      (ephemeralPolicy != null ? 8 : 0)
-  );
+      (ephemeralPolicy != null ? 8 : 0));
 
   final inheritable = switch (inheritableMask) {
     0 =&gt; (),
@@ -217,277 +200,258 @@ ad-hoc records.</li>
   final mask = ((inheritableMask != 0 ? 1 : 0) |
       (user != null ? 2 : 0) |
       (forceLock ? 4 : 0) |
-      (synapses != null &amp;&amp; synapses != Synapses.disabled ? 8 : 0) |
+      (synapses != null ? 8 : 0) |
       (bind != null ? 16 : 0) |
       (others != null ? 32 : 0));
 
-  final timestamp = DateTime.now().millisecondsSinceEpoch;
+  &#47;&#47; Field-level shape tag: accessors test these bits and then read the
+  &#47;&#47; record directly — exception-free hot path. Bit layout mirrors the
+  &#47;&#47; `mask` computation above (1 inheritable, 2 user, 4 lock, 8 synapses,
+  &#47;&#47; 16 bind, 32 others) plus the inheritable sub-mask (context=1,
+  &#47;&#47; receptor=2, testRule=4, ephemeralPolicy=8) in bits 8..11.
+  final shape = mask | (inheritableMask &lt;&lt; 8);
 
   return switch (mask) {
-    0 =&gt; (timestamp: timestamp),
-    1 =&gt; (timestamp: timestamp, inheritable: inheritable),
-    2 =&gt; (timestamp: timestamp, user: user),
-    3 =&gt; (timestamp: timestamp, inheritable: inheritable, user: user),
-    4 =&gt; (timestamp: timestamp, lock: Lock(reentrant: true)),
+    0 =&gt; (shape: shape),
+    1 =&gt; (shape: shape, inheritable: inheritable),
+    2 =&gt; (shape: shape, user: user),
+    3 =&gt; (shape: shape, inheritable: inheritable, user: user),
+    4 =&gt; (shape: shape, lock: Lock(reentrant: true)),
     5 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         lock: Lock(reentrant: true)
       ),
-    6 =&gt; (timestamp: timestamp, user: user, lock: Lock(reentrant: true)),
+    6 =&gt; (shape: shape, user: user, lock: Lock(reentrant: true)),
     7 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         user: user,
         lock: Lock(reentrant: true)
       ),
-    8 =&gt; (timestamp: timestamp, synapses: synapses),
-    9 =&gt; (timestamp: timestamp, inheritable: inheritable, synapses: synapses),
-    10 =&gt; (timestamp: timestamp, user: user, synapses: synapses),
+    8 =&gt; (shape: shape, synapses: synapses),
+    9 =&gt; (shape: shape, inheritable: inheritable, synapses: synapses),
+    10 =&gt; (shape: shape, user: user, synapses: synapses),
     11 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         user: user,
         synapses: synapses
       ),
-    12 =&gt; (
-        timestamp: timestamp,
-        lock: Lock(reentrant: true),
-        synapses: synapses
-      ),
+    12 =&gt; (shape: shape, lock: Lock(reentrant: true), synapses: synapses),
     13 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         lock: Lock(reentrant: true),
         synapses: synapses
       ),
     14 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         user: user,
         lock: Lock(reentrant: true),
         synapses: synapses
       ),
     15 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         user: user,
         lock: Lock(reentrant: true),
         synapses: synapses
       ),
-    16 =&gt; (timestamp: timestamp, bind: bind),
-    17 =&gt; (timestamp: timestamp, inheritable: inheritable, bind: bind),
-    18 =&gt; (timestamp: timestamp, user: user, bind: bind),
-    19 =&gt; (
-        timestamp: timestamp,
-        inheritable: inheritable,
-        user: user,
-        bind: bind
-      ),
-    20 =&gt; (timestamp: timestamp, lock: Lock(reentrant: true), bind: bind),
+    16 =&gt; (shape: shape, bind: bind),
+    17 =&gt; (shape: shape, inheritable: inheritable, bind: bind),
+    18 =&gt; (shape: shape, user: user, bind: bind),
+    19 =&gt; (shape: shape, inheritable: inheritable, user: user, bind: bind),
+    20 =&gt; (shape: shape, lock: Lock(reentrant: true), bind: bind),
     21 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         lock: Lock(reentrant: true),
         bind: bind
       ),
-    22 =&gt; (
-        timestamp: timestamp,
-        user: user,
-        lock: Lock(reentrant: true),
-        bind: bind
-      ),
+    22 =&gt; (shape: shape, user: user, lock: Lock(reentrant: true), bind: bind),
     23 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         user: user,
         lock: Lock(reentrant: true),
         bind: bind
       ),
-    24 =&gt; (timestamp: timestamp, synapses: synapses, bind: bind),
+    24 =&gt; (shape: shape, synapses: synapses, bind: bind),
     25 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         synapses: synapses,
         bind: bind
       ),
-    26 =&gt; (timestamp: timestamp, user: user, synapses: synapses, bind: bind),
+    26 =&gt; (shape: shape, user: user, synapses: synapses, bind: bind),
     27 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         user: user,
         synapses: synapses,
         bind: bind
       ),
     28 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         lock: Lock(reentrant: true),
         synapses: synapses,
         bind: bind
       ),
     29 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         lock: Lock(reentrant: true),
         synapses: synapses,
         bind: bind
       ),
     30 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         user: user,
         lock: Lock(reentrant: true),
         synapses: synapses,
         bind: bind
       ),
     31 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         user: user,
         lock: Lock(reentrant: true),
         synapses: synapses,
         bind: bind
       ),
-    32 =&gt; (timestamp: timestamp, others: others),
-    33 =&gt; (timestamp: timestamp, inheritable: inheritable, others: others),
-    34 =&gt; (timestamp: timestamp, user: user, others: others),
+    32 =&gt; (shape: shape, others: others),
+    33 =&gt; (shape: shape, inheritable: inheritable, others: others),
+    34 =&gt; (shape: shape, user: user, others: others),
     35 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         user: user,
         others: others
       ),
-    36 =&gt; (timestamp: timestamp, lock: Lock(reentrant: true), others: others),
+    36 =&gt; (shape: shape, lock: Lock(reentrant: true), others: others),
     37 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         lock: Lock(reentrant: true),
         others: others
       ),
     38 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         user: user,
         lock: Lock(reentrant: true),
         others: others
       ),
     39 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         user: user,
         lock: Lock(reentrant: true),
         others: others
       ),
-    40 =&gt; (timestamp: timestamp, synapses: synapses, others: others),
+    40 =&gt; (shape: shape, synapses: synapses, others: others),
     41 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         synapses: synapses,
         others: others
       ),
-    42 =&gt; (
-        timestamp: timestamp,
-        user: user,
-        synapses: synapses,
-        others: others
-      ),
+    42 =&gt; (shape: shape, user: user, synapses: synapses, others: others),
     43 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         user: user,
         synapses: synapses,
         others: others
       ),
     44 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         lock: Lock(reentrant: true),
         synapses: synapses,
         others: others
       ),
     45 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         lock: Lock(reentrant: true),
         synapses: synapses,
         others: others
       ),
     46 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         user: user,
         lock: Lock(reentrant: true),
         synapses: synapses,
         others: others
       ),
     47 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         user: user,
         lock: Lock(reentrant: true),
         synapses: synapses,
         others: others
       ),
-    48 =&gt; (timestamp: timestamp, bind: bind, others: others),
+    48 =&gt; (shape: shape, bind: bind, others: others),
     49 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         bind: bind,
         others: others
       ),
-    50 =&gt; (timestamp: timestamp, user: user, bind: bind, others: others),
+    50 =&gt; (shape: shape, user: user, bind: bind, others: others),
     51 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         user: user,
         bind: bind,
         others: others
       ),
     52 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         lock: Lock(reentrant: true),
         bind: bind,
         others: others
       ),
     53 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         lock: Lock(reentrant: true),
         bind: bind,
         others: others
       ),
     54 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         user: user,
         lock: Lock(reentrant: true),
         bind: bind,
         others: others
       ),
     55 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         user: user,
         lock: Lock(reentrant: true),
         bind: bind,
         others: others
       ),
-    56 =&gt; (
-        timestamp: timestamp,
-        synapses: synapses,
-        bind: bind,
-        others: others
-      ),
+    56 =&gt; (shape: shape, synapses: synapses, bind: bind, others: others),
     57 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         synapses: synapses,
         bind: bind,
         others: others
       ),
     58 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         user: user,
         synapses: synapses,
         bind: bind,
         others: others
       ),
     59 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         user: user,
         synapses: synapses,
@@ -495,14 +459,14 @@ ad-hoc records.</li>
         others: others
       ),
     60 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         lock: Lock(reentrant: true),
         synapses: synapses,
         bind: bind,
         others: others
       ),
     61 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         lock: Lock(reentrant: true),
         synapses: synapses,
@@ -510,7 +474,7 @@ ad-hoc records.</li>
         others: others
       ),
     62 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         user: user,
         lock: Lock(reentrant: true),
         synapses: synapses,
@@ -518,7 +482,7 @@ ad-hoc records.</li>
         others: others
       ),
     63 =&gt; (
-        timestamp: timestamp,
+        shape: shape,
         inheritable: inheritable,
         user: user,
         lock: Lock(reentrant: true),
@@ -556,7 +520,7 @@ ad-hoc records.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

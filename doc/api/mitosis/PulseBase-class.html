@@ -54,6 +54,55 @@
 </h1></div>
 
     
+<section class="desc markdown">
+  <p>The foundational blueprint for all nervous signals within the reactive graph.</p>
+<p><a href="../mitosis/PulseBase-class.html">PulseBase</a> is the "Common DNA" shared by every signal, whether it is a
+high-speed <code>_FastPulse</code> or a fully audited, governed impulse. It provides
+the core logic for causal tracking, forensic logging, and signal evolution.</p>
+<p>In the framework's biological metaphor, this class defines the
+<strong>Signal Architecture</strong>. Every impulse that travels through a cell's
+synapses is built upon this base, ensuring that the <strong>Forensic Ledger</strong>
+can always trace a signal's origin and journey.</p>
+<h3 id="why-it-is-used">Why it is used</h3>
+<ul>
+<li><strong>Causal Integrity</strong>: It maintains the "Lineage" of signals. When a cell
+reacts to an input and produces an output, <a href="../mitosis/PulseBase-class.html">PulseBase</a> ensures the
+new signal is "evolved" from the old one, preserving the audit trail.</li>
+<li><strong>Performance at Scale</strong>: It uses a specialized <strong>Bitmask Record</strong>
+system (<code>_shape</code>) to store metadata. This allows the framework to
+handle thousands of signals per second by avoiding expensive object
+allocations for every metadata field.</li>
+<li><strong>Unified Interface</strong>: It allows receptors and synapses to treat all
+signals—whether they are single values or collective batches—through
+a single, type-safe API.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Masking</strong>: When a pulse is created, its metadata (timestamp,
+source, priority, etc.) is packed into a sparse record. A bitmask
+(<code>_shape</code>) is generated to tell the engine which fields exist.</li>
+<li><strong>Causal Evolution</strong>: Through the <a href="../mitosis/PulseBase/evolve.html">evolve</a> method, a pulse creates
+a child signal. The child inherits the parent's "Causal Link,"
+allowing the framework to detect infinite loops or trace history.</li>
+<li><strong>Forensic Tracking</strong>: It provides a <a href="../mitosis/PulseBase/trace.html">trace</a> of "Genetic Markers"
+(steps), which are breadcrumbs representing every milestone the
+signal passed through.</li>
+</ol>
+<h3 id="technical-details">Technical Details</h3>
+<ul>
+<li><strong>Bitmask Optimization</strong>: Field access (like <code>payload</code> or <code>source</code>)
+checks the <code>_shape</code> bitmask first. This is an "exception-free"
+sparse read that is significantly faster than standard reflection.</li>
+<li><strong>Flyweight Pattern</strong>: The internal <code>_record</code> is a Dart Record,
+which the compiler can often optimize into registers, reducing
+heap pressure during high-frequency signaling.</li>
+</ul>
+<p>See also:</p>
+<ul>
+<li><a href="../mitosis/Cell/apply.html">Cell.apply</a> — The primary gateway where these signals are vetted.</li>
+<li><a href="../mitosis/Pulse-class.html">Pulse</a> — The public-facing interface for this class.</li>
+</ul>
+</section>
 
 
     <section>
@@ -947,8 +996,8 @@ collection.
 
 </dt>
 <dd>
-  Appends a diagnostic stage to the pulse's causal trace without branching
-the causal chain.
+  Appends <code>step</code> to the pulse's causal trace without branching the
+causal chain.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -1034,7 +1083,7 @@ the causal chain.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

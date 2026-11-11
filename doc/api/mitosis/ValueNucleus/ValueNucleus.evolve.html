@@ -79,13 +79,6 @@ state.</p>
 <p>The new nucleus does not allocate a new <code>Box</code>. Instead, it delegates
 storage resolution to the <code>principal</code>. Overrides are applied locally;
 missing properties are inherited from the principal.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>rule</code> (if provided) overrides the transformation logic, but the
-<code>postProcess</code> (commitment) is still applied.</li>
-<li>The lock is inherited from the principal unless the <code>override</code>
-parameter is used.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>instruction</code>: <strong>The Specialization Logic.</strong> An optional <a href="../../mitosis/Instruction-class.html">Instruction</a>
@@ -137,10 +130,14 @@ behavior to, used for complex structural redirections.</li>
                             postProcess: ValueCell.postProcessRule)
                         : receptor,
                 testRule: testRule,
-                synapses: synapses,
+                &#47;&#47; A derivative needs a working egress registry. `null`
+                &#47;&#47; would fall through the mask to `Synapses.disabled`
+                &#47;&#47; (the orElse), silently orphaning every observer linked
+                &#47;&#47; to the projection — the same trap the `clone` path
+                &#47;&#47; documents and avoids by materializing `Synapses()`.
+                synapses: synapses ?? Synapses.enabled,
                 user: user,
-                ephemeralPolicy: ephemeralPolicy,
-                others: (value: Box&lt;V&gt;())),
+                ephemeralPolicy: ephemeralPolicy),
         principal: principal
       ));</code></pre>
 </section>
@@ -170,7 +167,7 @@ behavior to, used for complex structural redirections.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

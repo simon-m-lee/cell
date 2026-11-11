@@ -92,13 +92,6 @@ inherits from that principal.</li>
 <li>The <code>container</code> parameter determines the storage strategy (standard Map
 or IdentityMap).</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>forceLock</code> flag, when <code>true</code>, allows sharing the principal's lock.
-This is typically used for deputies to maintain a single atomic boundary.</li>
-<li>The <code>container</code> parameter can be used to explicitly set the storage
-strategy – useful for custom container types.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>bind</code>: Optional upstream cell.</li>
@@ -185,7 +178,7 @@ tissue types.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

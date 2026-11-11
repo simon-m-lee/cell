@@ -74,11 +74,6 @@ to broadcast state updates without manual provenance tuning.</p>
 <p>It sets <code>actor</code> to <code>'system_daemon'</code>, <code>strategy</code> to <code>deterministic</code>,
 and <code>priority</code> to 35 (routine). The context is optimised for low‑latency
 validation.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>actor</code> is fixed to <code>system_daemon</code> – you cannot change it.</li>
-<li>The <code>confidence</code> is 1.0, as system tasks are assumed reliable.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final context = PulseContext.systemInternal(
   baseContext: incomingPulse.context,
@@ -149,7 +144,7 @@ validation.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

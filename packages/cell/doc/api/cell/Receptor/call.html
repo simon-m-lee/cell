@@ -87,24 +87,6 @@ governance policies and invariants.</li>
 <li><strong>Result</strong>: It returns the final transformed <a href="../../cell/Pulse-class.html">Pulse</a> to be committed
 to state, or <code>null</code> if the signal was dropped/filtered.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Operational Perimeter</strong>: The execution is bound to the host cell's
-context. Accessing state or context during the call is guaranteed to
-be consistent with the cell's current operational phase.</li>
-<li><strong>Resilience</strong>: The entire execution is shielded. Exceptions are
-caught, logged to the pulse's forensic metadata, and the signal is
-terminated (<code>null</code>) to protect graph stability.</li>
-<li><strong>Synchronous Execution</strong>: The method executes synchronously and
-returns the result immediately. For asynchronous execution, use
-<a href="../../cell/Receptor/async.html">Receptor.async</a>.</li>
-<li><strong>Short-circuiting</strong>: If the host cell is invalidated or the signal
-fails a security check, the method returns <code>null</code> immediately without
-running the transformation logic.</li>
-<li><strong>Validation Async Support</strong>: While the pipeline is synchronous,
-validation can return a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;bool&gt;</a> for asynchronous validation
-checks. This is the only async operation in the call path.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>pulse</code>: The incoming pulse to process.</li>
@@ -145,7 +127,7 @@ checks. This is the only async operation in the call path.</li>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

@@ -83,15 +83,6 @@ and the filter.</li>
 <li>The <code>serializedCompletion</code> flag controls whether to wait for all
 downstream propagation to finish.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The queue is <strong>unbounded</strong> – be mindful of memory under high load.</li>
-<li>The worker is lazy – it starts on the first <code>call</code>.</li>
-<li>The async synapses shares the same <code>TestCell</code> and <code>Lock</code> as the
-synchronous synapses, so validation and atomicity are preserved.</li>
-<li><code>serializedCompletion: false</code> can lead to causal races if not
-carefully considered.</li>
-</ul>
 <h3 id="example-awaiting-completion">Example: Awaiting Completion</h3>
 <pre class="language-dart"><code class="language-dart">final async = synapses.async;
 await async.call(Pulse('update'), serializedCompletion: true);
@@ -174,7 +165,7 @@ signal distribution.
 </dd>
 
         <dt id="isEmpty" class="property inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/isEmpty.html">isEmpty</a></span>
+  <span class="name"><a href="../mitosis/SynapsesBase/isEmpty.html">isEmpty</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
   
 
@@ -186,7 +177,7 @@ signal distribution.
 </dd>
 
         <dt id="isNotEmpty" class="property inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/isNotEmpty.html">isNotEmpty</a></span>
+  <span class="name"><a href="../mitosis/SynapsesBase/isNotEmpty.html">isNotEmpty</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
   
 
@@ -687,7 +678,7 @@ predicate <code>test</code>.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

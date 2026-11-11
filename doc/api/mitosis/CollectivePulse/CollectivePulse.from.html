@@ -76,9 +76,6 @@ together as a single atomic unit.</li>
 <p>The pulses are bundled into a <a href="../../mitosis/CollectivePulse-class.html">CollectivePulse</a>. Each sub‑pulse retains
 its own identity, trace, and callbacks. The collective's metadata (type,
 source, priority, step) is applied to the bundle as a whole.</p>
-<h3 id="nonobvious-the-collectives-payload-is-the-iterable">Non‑obvious: the collective's payload is the iterable</h3>
-<p>The <a href="../../mitosis/CollectivePulse/payload.html">payload</a> of the collective is the iterable of pulses itself — not
-a combined value. To access the individual pulses, iterate over the payload.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>pulses</code>: The individual pulses to bundle.</li>
@@ -125,7 +122,7 @@ a combined value. To access the individual pulses, iterate over the payload.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

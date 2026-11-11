@@ -70,11 +70,6 @@ read state and never mutate it.</p>
 <p>The factory sets the authority to <code>'OBSERVATION'</code> and the role to
 <code>'Observer'</code>. You can optionally set a <code>clearance</code> – use
 <a href="../../cell_flow/Clearance.html">Clearance.observational</a> for strict read‑only.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The deputy is still reactive – changes to the principal are reflected.</li>
-<li>Mutations are blocked at the integrity gate level.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final uiObserver = DeputyContext.observer(
   baseContext: context,
@@ -134,7 +129,7 @@ read state and never mutate it.</p>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

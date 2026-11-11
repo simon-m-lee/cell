@@ -33,7 +33,7 @@ class _Probe {
   }
 }
 
-({IngressHandle<T> gate, FlowHandle<T> out, _Probe probe}) bind<T>(
+({IngressHandle<T> gate, FlowHandle out, _Probe probe}) bind<T>(
   FlowInstructionBase<Cell, Pulse, Pulse> op,
 ) {
   final gate = Cell.ingress<T>();
@@ -71,9 +71,8 @@ void main() {
       addTearDown(b.probe.stop);
       await b.gate.emitAsync(1);
       await b.gate.emitAsync(2);
-      await b.probe.settle(const Duration(milliseconds: 20));
-      expect(seen, [1]);
-      await b.probe.settle(const Duration(milliseconds: 50));
+      await b.probe.settle(const Duration(milliseconds: 100));
+      expect(seen, [1, 2]);
       expect(b.probe.payloads, [1, 2]);
     });
 
@@ -178,6 +177,24 @@ void main() {
       await b.gate.emitAsync(1);
       await b.probe.settle();
       expect(b.probe.payloads, [1, 11]);
+    });
+
+    test('out-of-order inner completion cannot lose accumulator updates',
+        () async {
+      // Regression for the lost-update race: accumulation is serialized, so
+      // a slow first inner and a fast second inner must both contribute.
+      final b = bind(MergeScan<int, int>(0, (acc, n) async {
+        await Future<void>.delayed(n == 1
+            ? const Duration(milliseconds: 40)
+            : const Duration(milliseconds: 5));
+        return acc + n;
+      }));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.gate.emitAsync(2);
+      await b.probe.settle(const Duration(milliseconds: 120));
+      // Serialized: 0+1=1, then 1+2=3. A racing snapshot would produce 2.
+      expect(b.probe.payloads, [1, 3]);
     });
 
     test('accumulate exceptions call onError and keep the previous seed',

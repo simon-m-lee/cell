@@ -84,15 +84,6 @@ state and lock but applies the new rules.</li>
 <li>If all parameters are left at their defaults, the method returns <code>this</code>
 – no proxy is created.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The deputy's <code>testRule</code> is layered <strong>on top</strong> of the principal's rule.
-You can only narrow permissions, never expand them.</li>
-<li>Deputies are logically equal to their principal: <code>deputy == principal</code>
-is <code>true</code>, so they work seamlessly in <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a>s and <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a>s.</li>
-<li>The deputy gets its own independent <a href="../../mitosis/Synapses-class.html">Synapses</a> registry by default,
-so it can have its own observers separate from the principal.</li>
-</ul>
 <h3 id="parameters">Parameters</h3>
 <ul>
 <li><code>context</code>: <a href="../../mitosis/DeputyContext-class.html">DeputyContext</a> defining the authority tier.</li>
@@ -148,7 +139,7 @@ FutureOr&lt;Tissue&lt;E&gt;&gt; deputy({
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

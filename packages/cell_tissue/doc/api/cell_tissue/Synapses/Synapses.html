@@ -74,13 +74,6 @@ timing.</p>
 transform or drop pulses, and a <code>policy</code> to control timing (debounce,
 throttle, batch, etc.). You can also supply a custom <code>relay</code> to take
 full control of distribution.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>If you provide a <code>relay</code>, the default sequential broadcast is bypassed
-– you must manually deliver pulses to downstream cells.</li>
-<li>The <code>filter</code> is applied to every outgoing pulse before any observer
-receives it.</li>
-</ul>
 <h3 id="example-with-debouncing">Example: with debouncing</h3>
 <pre class="language-dart"><code class="language-dart">final debouncedSynapses = Synapses&lt;String, Cell&gt;(
   downstreams: [searchHandler],
@@ -143,7 +136,7 @@ reactive signals within a collection.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -629,10 +629,10 @@ class RideHailDispatchHarness {
   late final MatchDecisionInstruction surgeGate;
 
   /// The DISPATCH gate handle.
-  FlowHandle<Pulse<dynamic>>? dispatchHandle;
+  FlowHandle? dispatchHandle;
 
   /// The SURGE gate handle.
-  FlowHandle<Pulse<dynamic>>? surgeHandle;
+  FlowHandle? surgeHandle;
 
   /// The DISPATCH gate cell — emits `Pulse<Match>` when the DISPATCH
   /// chain lets a dispatch through.

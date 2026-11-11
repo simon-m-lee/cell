@@ -61,7 +61,7 @@
 <li><span class="parameter" id="fromStream-param-emitErrorPulse"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">emitErrorPulse</span> = <span class="default-value">true</span>, </span></li>
 </ol>})
 
-      <div class="features"><span class="feature">override</span></div>
+      
 
     </section>
     
@@ -91,14 +91,6 @@ into the Cell graph.</p>
 <li>The instruction stops after the first trigger.</li>
 <li>Each emitted event gets the step <code>'FromStream'</code> for provenance.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>First Trigger Only</strong>: The stream only starts on the first trigger.</li>
-<li><strong>Single Subscription</strong>: Only one subscription is created.</li>
-<li><strong>Error Handling</strong>: Stream errors are caught and reported.</li>
-<li><strong>Provenance Preservation</strong>: Each emitted event preserves the
-source cell, type, and priority from the trigger pulse.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Trigger Source.</strong> The cell that triggers the subscription.</li>
@@ -130,6 +122,23 @@ connect.emit(null);
 <li><a href="../../mitosis/Flow/deferStream.html">deferStream</a>: For creating a new stream on each trigger.</li>
 <li><a href="../../mitosis/Flow/fromFuture.html">fromFuture</a>: For bridging a single future.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Flow — create operator. Not a Cell factory, not a Tissue book.
+<strong>When to use:</strong> the belt PLC is already a Dart <code>Stream</code> — bridge it into the graph.
+<strong>When NOT to use:</strong> a single value (<code>Flow.fromFuture</code>) or imperative callbacks (<code>Cell.ingress</code>).
+<strong>Live signature:</strong> <code>Flow.fromStream&lt;S&gt;(Cell source, {required Stream&lt;S&gt; stream, StreamErrorHandler? onError, bool emitErrorPulse = true})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Flow.deferStream</code> (new subscription per trigger) and <code>Cell.fromStream</code> (no source cell).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.1 "Create" (#flow-create)
+<strong>Example:</strong> <code>example/from_stream_realtime_data_demo.dart</code>
+<strong>Cross-layer:</strong> feed shaping before <code>publishTick</code> is the legal Time-operator slot.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final h = Flow.fromStream&lt;int&gt;(src.cell, stream: Stream.fromIterable([1, 2]));
+final o = Cell.observe(source: h.cell, effect: (Pulse p) =&gt; print(p.payload));
+src.emit(0);
+await Future&lt;void&gt;.delayed(const Duration(milliseconds: 20));
+o.stop();
+</code></pre>
 </section>
 
 
@@ -175,7 +184,7 @@ connect.emit(null);
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

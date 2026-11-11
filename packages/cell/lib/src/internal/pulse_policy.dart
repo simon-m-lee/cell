@@ -43,19 +43,6 @@ part of '../../cell.dart';
 /// - The policy is **stateless** except for the hop counter and invalidation flag,
 ///   which are stored in a lightweight record.
 ///
-/// ### Non‑obvious
-/// - The TTL timer starts **lazily** – only when the pulse first interacts
-///   with a cell, not at creation time. This avoids unnecessary timers for
-///   pulses that are never propagated.
-/// - If both `duration` and `hopLimit` are set, the policy invalidates as soon
-///   as **either** condition is met.
-/// - The `onEvent` callback must return a `({int? hops})` record. Returning
-///   `null` for `hops` means no hop increment (useful for resetting counters).
-/// - The policy is attached to a **specific pulse instance**; it does not
-///   affect the cell's lifecycle policy.
-/// - The `onInvalidate` callback receives the invalidated pulse – you can use
-///   this for logging, cleanup, or triggering compensatory actions.
-///
 /// ### Example: Time‑Sensitive Authentication Token
 /// ```dart
 /// final authPolicy = PulseEphemeralPolicy(
@@ -112,16 +99,6 @@ class PulseEphemeralPolicy {
   /// - When invalidated, the `onInvalidate` callback is invoked with the pulse.
   ///   Return `true` to confirm successful invalidation.
   ///
-  /// ### Non‑obvious
-  /// - The `onEvent` function can be used to **reset** the hop counter by
-  ///   returning `(hops: 0)`. This is useful if you want to count only
-  ///   certain types of traversals.
-  /// - The `user` parameter is not used by the policy itself but is stored
-  ///   in the record for custom logic – you can access it via `policy._user`
-  ///   if needed, though it's recommended to keep logic in `onEvent`.
-  /// - The timer is **not** automatically cancelled when the pulse is invalidated
-  ///   by hop limit – it's cancelled in `_triggerInvalidation` to avoid leaks.
-  ///
   /// ### Parameters:
   /// - [onEvent]: Called on each hop. Returns the updated hop count.
   /// - [onInvalidate]: Called when the pulse is invalidated. Return `true` to
@@ -170,12 +147,6 @@ class PulseEphemeralPolicy {
   /// The timer starts on the first interaction with a cell. If the pulse
   /// is never processed, the timer never starts, avoiding unnecessary overhead.
   ///
-  /// ### Non‑obvious
-  /// - The timer is reset if you set a new `duration`? No, it's set at
-  ///   construction and cannot be changed.
-  /// - If both TTL and hop limit are set, the first one to fire triggers
-  ///   invalidation.
-  ///
   /// ### Returns:
   /// The [Duration] for the TTL, or `null` if no TTL is set.
   Duration? get duration {
@@ -192,10 +163,6 @@ class PulseEphemeralPolicy {
   /// Each call to `onEvent` can increment the hop counter (or not). When the
   /// counter reaches or exceeds this limit, the pulse is invalidated.
   ///
-  /// ### Non‑obvious
-  /// - The hop counter starts at 0 and is updated by `onEvent`.
-  /// - You can reset the counter by returning `(hops: 0)` from `onEvent`.
-  ///
   /// ### Returns:
   /// The maximum allowed hop count, or `null` if no hop limit.
   int? get hopLimit {
@@ -211,12 +178,8 @@ class PulseEphemeralPolicy {
   /// This value is updated by `onEvent` and stored in the policy record.
   /// It starts at 0 and is only meaningful if you increment it in `onEvent`.
   ///
-  /// ### Non‑obvious
-  /// - The value is not automatically incremented; you must explicitly return
-  ///   a new count in `onEvent`.
-  /// - If you never increment it, it remains 0, and hopLimit is never reached.
   int get hops {
-    return get<int>(() => _record.hops.value, orElse: 0);
+    return _record.hops.value ?? 0;
   }
 
   /// Returns `true` if the pulse has been invalidated.
@@ -232,18 +195,27 @@ class PulseEphemeralPolicy {
   /// ### Returns:
   /// `true` if the pulse is no longer valid; `false` otherwise.
   bool get isInvalidated {
-    return get<bool>(() => _record.invalidated.value, orElse: false);
+    return _record.invalidated.value ?? false;
   }
 
   void _onPulseComplete(Pulse pulse, {required Cell cell}) {
     if (isInvalidated) return;
 
-// Initialize TTL timer on the first interaction if configured
-    if (duration != null && _ttlTimer == null) {
+    // TTL is an INACTIVITY window: every hop restarts the timer instead
+    // of arming a one-shot on first contact.
+    if (duration != null) {
+      _ttlTimer?.cancel();
       _ttlTimer = Timer(duration!, () => _triggerInvalidation(pulse));
     }
 
-    final handle = _record.onEvent(cell, policy: this);
+    final dynamic handle;
+    try {
+      handle = _record.onEvent(cell, policy: this);
+    } catch (_) {
+      // Policy bookkeeping must not crash the pulse wave it is observing;
+      // a throwing hook simply skips this tick.
+      return;
+    }
     final hops = handle.hops;
 
     // `hops: 0` resets the counter (or is a no-op for TTL-only policies).
@@ -260,10 +232,26 @@ class PulseEphemeralPolicy {
     if (isInvalidated) return;
 
     final onInvalidate = get<Function>(() => _record.onInvalidate);
-    final success = onInvalidate(pulse);
+    final bool success;
+    try {
+      success = onInvalidate(pulse);
+    } catch (_) {
+      // A throwing hook must not freeze reclamation forever: re-arm the
+      // inactivity timer so a later expiry can retry the invalidation.
+      if (duration != null) {
+        _ttlTimer?.cancel();
+        _ttlTimer = Timer(duration!, () => _triggerInvalidation(pulse));
+      }
+      return;
+    }
 
     if (success) {
       _record.invalidated.value = true;
+      // Surface the termination through the pulse's own onError contract:
+      // the documented callback fires when the TTL or hop limit is
+      // exceeded, not only on validation failures and receptor throws.
+      (pulse as PulseBase)
+          ._fail(StateError('Pulse invalidated: TTL or hop limit exceeded.'));
     }
   }
 

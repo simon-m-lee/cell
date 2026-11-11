@@ -7,6 +7,33 @@ import 'dart:async';
 import 'package:cell_tissue/cell_tissue.dart';
 import 'package:test/test.dart';
 
+
+// Local builders for the forensic command model.
+ApplyCommand cmd(
+  Function function, [
+  List<Object?>? positionalArguments,
+  ApplyCompensation? compensation,
+]) =>
+    (
+      function: function,
+      arguments:
+          (positionalArguments: positionalArguments, namedArguments: null),
+      compensation: compensation,
+    );
+
+ApplyCompensation undo(
+  Function function, [
+  List<Object?>? positionalArguments,
+  Cell? cell,
+]) =>
+    (
+      function: function,
+      arguments:
+          (positionalArguments: positionalArguments, namedArguments: null),
+      cell: cell,
+    );
+
+
 /// Resolves the [FutureOr] returned by [TissueList.deputy] into a [TissueList].
 Future<TissueList<T>> resolveDeputy<T>(TissueList<T> source) async {
   final result = source.deputy();
@@ -221,7 +248,7 @@ void main() {
     test('apply gateway dispatches whitelisted functions', () {
       final list = TissueList<int>();
 
-      final added = list.apply(list.add, positionalArguments: [9]);
+      final added = (list.apply<Object?>(cmd(list.add, [9])) as ApplyAccepted<Object?>).result;
       expect(added, isNotNull);
       expect(list.toList(), [9]);
     });
@@ -229,7 +256,7 @@ void main() {
     test('apply rejects non-whitelisted functions', () {
       final list = TissueList.of([1]);
 
-      expect(list.apply(list.contains, positionalArguments: [1]), isNull);
+      expect(list.apply<Object?>(cmd(list.contains, [1])), isA<ApplyRejected<Object?>>());
     });
 
     test('operator + concatenates two lists', () {
@@ -270,7 +297,7 @@ void main() {
     test('evolve produces a deputy nucleus', () {
       final principal = TissueListNucleus.create<int, TissueList<int>>();
       final evolved = TissueListNucleus<int>.evolve(
-        principal: principal,
+        principal,
         testRule: TestTissue<int, TissueList<int>>(
           (object, {host, arguments, user}) => (object as int) > 0,
         ),
@@ -434,7 +461,7 @@ void main() {
       await expectLater(async.shuffle(), throwsUnsupportedError);
       await expectLater(async.sort(), throwsUnsupportedError);
       await expectLater(
-        async.apply(view.add, positionalArguments: [9]),
+        async.apply<void>(cmd(view.add, [9])),
         throwsUnsupportedError,
       );
     });
@@ -450,8 +477,8 @@ void main() {
           participants: [list],
           body: (tx) {
             expect(list.toList(), isEmpty);
-            list.apply(list.add, positionalArguments: [1], tx: tx);
-            list.apply(list.add, positionalArguments: [2], tx: tx);
+            list.apply<Object?>(cmd(list.add, [1]), tx: tx);
+            list.apply<Object?>(cmd(list.add, [2]), tx: tx);
             expect(list.toList(), isEmpty); // staged, not applied until commit
           });
 
@@ -470,8 +497,8 @@ void main() {
           participants: [list],
           body: (tx) {
             final result =
-                list.apply(list.add, positionalArguments: [7], tx: tx);
-            expect(result, isNull);
+                list.apply<Object?>(cmd(list.add, [7]), tx: tx);
+            expect(result, isA<ApplyStaged>());
             expect(list.toList(), isEmpty);
           });
 
@@ -486,8 +513,8 @@ void main() {
         tx.execute(
             participants: [list],
             body: (tx) {
-              list.apply(list.add, positionalArguments: [1], tx: tx);
-              list.apply(list.add, positionalArguments: [2], tx: tx);
+              list.apply<Object?>(cmd(list.add, [1]), tx: tx);
+              list.apply<Object?>(cmd(list.add, [2]), tx: tx);
               throw StateError('boom');
             }),
         throwsStateError,
@@ -504,15 +531,10 @@ void main() {
       );
 
       await tx.begin([list]);
-      tx.enqueue(
-        list,
-        list.add,
-        [1],
-        null,
-        compensateCell: list,
-        compensateFunction: list.remove,
-        compensatePositional: [1],
-      );
+      tx.enqueueCommand(
+  list,
+  cmd(list.add, [1], undo(list.remove, [1], list)),
+);
       await tx.rollback();
 
       expect(list.toList(), isEmpty);
@@ -527,7 +549,7 @@ void main() {
         tx.execute(
             participants: [list],
             body: (tx) {
-              list.apply(list.contains, positionalArguments: [1], tx: tx);
+              list.apply<Object?>(cmd(list.contains, [1]), tx: tx);
             }),
         throwsA(isA<TxApplyException>()),
       );
@@ -543,13 +565,10 @@ void main() {
       await tx.execute(
           participants: [list],
           body: (tx) {
-            list.apply(
-              list.add,
-              positionalArguments: [5],
-              tx: tx,
-              compensate: list.remove,
-              compensatePositional: [5],
-            );
+            list.apply<Object?>(
+  cmd(list.add, [5], undo(list.remove, [5])),
+  tx: tx,
+);
           });
 
       expect(list.toList(), [5]);

@@ -26,13 +26,6 @@ part of '../cell.dart';
 /// rules. The [evolvable] flag decides whether a dimension can be refined
 /// when you create a deputy.
 ///
-/// ### Non‑obvious
-/// - The [isType] guard prevents type mismatches at runtime – it's why
-///   you can't accidentally put a `String` where a `List<String>` is expected.
-/// - The [evolvable] flag is what stops a deputy from changing its core
-///   identity (like `role` or `taxonomy`) – that's intentional to prevent
-///   privilege escalation.
-///
 /// ### Type Parameters:
 /// - [V]: The expected value type for this specific governance dimension.
 abstract interface class Governance<V> implements Enum {
@@ -46,11 +39,6 @@ abstract interface class Governance<V> implements Enum {
   /// You'll rarely check this directly – the framework uses it internally
   /// to decide what can be overridden when you call `context.evolve()`.
   ///
-  /// ### Non‑obvious
-  /// - Dimensions marked `false` (like `taxonomy`) cannot be changed, even
-  ///   if you try to override them in a deputy. This prevents identity drift.
-  /// - This is enforced at the engine level – you don't need to guard
-  ///   against it manually.
   bool get evolvable;
 
   /// A **Type Guard** and **Ontological Validator** that verifies if a given
@@ -107,12 +95,6 @@ abstract interface class Governance<V> implements Enum {
 /// ### How it works
 /// Each entry pairs a dimension key with a typed value. The framework uses
 /// these internally to build context records.
-///
-/// ### Non‑obvious
-/// The type parameters [G] and [V] are preserved so that when you later
-/// read from a context using `context[Ontology.taxonomy]`, you get a
-/// `String` (or whatever the expected type is) – not a loose `dynamic`.
-/// This is why entries are type‑safe.
 ///
 /// ### Type Parameters
 /// - [G]: The specific [Governance] type (e.g., [Ontology], [Provenance], [Mandate])
@@ -250,17 +232,6 @@ mixin GovernanceMixin<G extends Governance<V>, V> implements Governance<V> {
 /// (`evolvable: false`) are fixed at creation; fluid boundaries
 /// (`evolvable: true`) can be refined via `context.evolve()`.
 ///
-/// ### Non‑obvious
-/// - The `evolvable` flag is not a suggestion – the framework enforces it
-///   at the engine level. If you try to evolve a non‑evolvable dimension,
-///   the change will be silently ignored.
-/// - The `compose` and `evolve` methods are used internally by the framework
-///   to build contexts. You'll rarely call them directly.
-///
-/// See also:
-/// * [Context]: The operational environment built from ontology.
-/// * [Mandate]: The delegation parameters that govern deputy behavior.
-/// * [Provenance]: The dynamic history of a pulse.
 enum Ontology<V> with GovernanceMixin<Ontology<V>, V> implements Governance<V> {
   // non-evolvable
 
@@ -277,10 +248,6 @@ enum Ontology<V> with GovernanceMixin<Ontology<V>, V> implements Governance<V> {
   /// ### How it works
   /// The framework uses this for affinity routing and constraint scoping.
   /// Pulses can be broadcast to all cells in a given domain.
-  ///
-  /// ### Non‑obvious
-  /// This is a static pillar – once set, it cannot be changed via `evolve`.
-  /// This ensures that a cell's functional area doesn't drift.
   ///
   /// ### Example
   /// ```dart
@@ -333,10 +300,6 @@ enum Ontology<V> with GovernanceMixin<Ontology<V>, V> implements Governance<V> {
   /// ### How it works
   /// The taxonomy dictates expected behavior and interface contracts.
   /// It is used for capability discovery and protocol enforcement.
-  ///
-  /// ### Non‑obvious
-  /// As a static pillar, a cell's taxonomy cannot be changed after creation.
-  /// This prevents identity drift – an 'Audit_Log' can't become a 'Mutable_Cache'.
   ///
   /// ### Example
   /// ```dart
@@ -419,12 +382,6 @@ enum Ontology<V> with GovernanceMixin<Ontology<V>, V> implements Governance<V> {
   /// example, a `Pulse.type('alert')` can be screened by an **Integrity Gate**
   /// that specifically looks for the 'alert' type in the context.
   ///
-  /// ### Non‑obvious
-  /// While [taxonomy] is a static architectural identifier (what the cell
-  /// *is*), [type] is a fluid operational identifier (what the current
-  /// interaction *is about*). It is designed to match the `type` parameter
-  /// in the [Pulse] factory.
-  ///
   /// ### Example
   /// ```dart
   /// // Type: 'security_event'
@@ -452,12 +409,6 @@ enum Ontology<V> with GovernanceMixin<Ontology<V>, V> implements Governance<V> {
   /// The framework uses this for **Precise Targeting** and **Forensic Audit**.
   /// When a [Pulse] moves through the fabric, its [identity] allows the
   /// **Switching Fabric** to track exactly which node initiated a change.
-  ///
-  /// ### Non‑obvious
-  /// This dimension is **Evolvable** specifically to support the
-  /// **Deputy Pattern**. When you create a proxy of a cell, its [identity]
-  /// can be refined (e.g., from 'Auth_Node' to 'Auth_Node_ReadOnly_Proxy')
-  /// to maintain clear **Identity Transparency** across the system.
   ///
   /// ### Example
   /// ```dart
@@ -788,15 +739,6 @@ enum Ontology<V> with GovernanceMixin<Ontology<V>, V> implements Governance<V> {
 /// It uses a **Prototype-based Inheritance** model where dimensions are
 /// either **Static Pillars** (invariant) or **Fluid Boundaries** (evolvable).
 ///
-/// ### Non‑obvious
-/// **Not every field can be changed later.** Fields like [taxonomy] and [topology]
-/// are fixed at creation — calling [evolve] can't change them, only fields
-/// marked evolvable (like [constraints], [stakeholders], [compliance]) can be
-/// refined. This is intentional: it stops a cell's fundamental identity from
-/// silently drifting as it gets passed through [deputy] layers. If [evolve]
-/// seems to be ignoring a field you passed, check whether that field is
-/// evolvable at all.
-///
 /// ### See Also
 /// * [Context.deputy]: Returns a [DeputyContext] for per‑proxy authority.
 /// * [Context.pulse]: Returns a [PulseContext] for per‑signal provenance.
@@ -829,15 +771,6 @@ abstract interface class Context {
   /// 3. **Hybrid Convergence**: As a `static const`, it provides a
   ///    pre-compiled, zero-cost path for metadata resolution and security
   ///    checks across the entire reactive wave.
-  ///
-  /// ### Non‑obvious
-  /// - **Immutable Anchor**: Unlike specialized contexts, [system] cannot be
-  ///   fully evolved into a different identity; it defines the shared
-  ///   reality of the system.
-  /// - **Visibility**: Nodes under the [system] context are visible to all
-  ///   diagnostic and auditing layers by default.
-  /// - **Zero-Cost Access**: Because it is shared across all nodes, it
-  ///   incurs no heap pressure regardless of the graph size.
   ///
   /// ### Example: Implicit vs. Explicit System Context
   /// ```dart
@@ -908,11 +841,6 @@ abstract interface class Context {
   /// Each named parameter corresponds to an [Ontology] dimension. The context
   /// is built as an immutable record.
   ///
-  /// ### Non‑obvious
-  /// Remember that some fields (like `taxonomy` and `topology`) are not
-  /// evolvable – they can't be changed later via `evolve`. Make sure you
-  /// set them correctly upfront.
-  ///
   /// ### Parameters:
   /// - [type]: The **Category or Archetype** of the cell.
   /// - [identity]: The unique identifier for this cell.
@@ -965,11 +893,6 @@ abstract interface class Context {
   /// This factory returns a [DeputyContext] that extends the base [Context]
   /// with mandate‑specific fields. The resulting context can be passed to
   /// `cell.deputy()` to create a restricted proxy.
-  ///
-  /// ### Non‑obvious
-  /// The deputy's authority is always **downward‑only** – you cannot grant
-  /// more privileges than the base context provides. This enforces least
-  /// privilege.
   ///
   /// ### Example (Use of [Ontology.type], [Ontology.identity], [Mandate.role] and [Mandate.authority] together)
   /// ```dart
@@ -1040,11 +963,6 @@ abstract interface class Context {
   /// like actor, reason, confidence, and traceId. The framework uses this
   /// for auditing and validation.
   ///
-  /// ### Non‑obvious
-  /// The [traceId] is automatically generated if not provided, ensuring
-  /// uniqueness. You can link pulses via `parentTraceId` to build a causal
-  /// chain.
-  ///
   /// ### Parameters:
   /// - [baseContext]: The underlying environment (e.g., a **Context**)
   ///   under which this pulse is being authorized.
@@ -1098,10 +1016,6 @@ abstract interface class Context {
   /// constructs a context record from them. You can optionally specify a
   /// [parent] to inherit from.
   ///
-  /// ### Non‑obvious
-  /// The entries are validated against their `isType` guard at construction
-  /// time, so you can't build a context with mismatched types.
-  ///
   /// ### Parameters:
   /// - [entries]: An iterable of [GovernanceEntry] objects (key-value pairs)
   ///   defining the ontological pillars of this context.
@@ -1141,17 +1055,6 @@ abstract interface class Context {
   /// - `domains`: fixed to `'system'` – scopes the cell to the system domain.
   /// - `priority`: set to `0` – maximum precedence for infrastructure
   ///   orchestration, ensuring these cells are processed before any others.
-  ///
-  /// ### Non‑obvious
-  /// - The `type` parameter is not optional – it provides the semantic category
-  ///   of the infrastructure component, which is critical for routing and
-  ///   policy enforcement.
-  /// - The `priority` of `0` means these cells execute before any module‑level
-  ///   or user‑level cells, making them suitable for security checks,
-  ///   authentication, and routing.
-  /// - The `taxonomy` and `domains` are static pillars – they cannot be evolved.
-  /// - If you need to add custom metadata (e.g., cluster tags, hardware IDs),
-  ///   use the `others` map.
   ///
   /// ### Example
   /// ```dart
@@ -1226,15 +1129,6 @@ abstract interface class Context {
   /// - `domains`: fixed to `'logic'` – scopes the cell to the logic domain.
   /// - `priority`: set to `10` – standard priority for application logic,
   ///   lower than infrastructure (0) but higher than background tasks.
-  ///
-  /// ### Non‑obvious
-  /// - The `type` parameter is required – it provides the semantic category of
-  ///   the module, which is used for routing and policy enforcement.
-  /// - The `priority` of `10` means these cells execute after core infrastructure
-  ///   but before background or telemetry tasks.
-  /// - The `taxonomy` and `domains` are static pillars – they cannot be evolved.
-  /// - If you need to add custom metadata (e.g., feature flags, versioning),
-  ///   use the `others` map.
   ///
   /// ### Example
   /// ```dart
@@ -1331,12 +1225,15 @@ abstract interface class Context {
         Ontology.subDomains.entry('integrity-gate'),
         Ontology.compliance.entry(compliances),
         Ontology.isNot.entry('External_Signals,Unauthenticated_Telemetry'),
+        // Constraints are a first-class ontology dimension; store them on
+        // the dimension so `context.constraints` resolves them (previously
+        // they were tucked into `others` where the getter can't see them).
+        if (constraints != null) Ontology.constraints.entry(constraints),
       ],
       others: {
         'sensitivity': Sensitivity.restricted.name,
         'audit_level': AuditLevel.full.name,
         'priority': 0, // Enclaves operate at infrastructure-level precedence
-        ...?constraints,
         ...?others,
       },
     );
@@ -1664,10 +1561,6 @@ abstract interface class Context {
   /// - `audit_level: AuditLevel.none`
   /// - `priority: 30`
   ///
-  /// ### Non‑obvious
-  /// Sandbox contexts are marked as `ephemeral` – they are not persisted
-  /// and are automatically cleaned up when no longer in use.
-  ///
   /// ### Example
   /// ```dart
   /// final testContext = Context.sandbox(
@@ -1786,11 +1679,6 @@ abstract interface class Context {
   /// - `auto_delete: true`
   /// - `priority: 60`
   ///
-  /// ### Non‑obvious
-  /// The `auto_delete` flag instructs the framework to automatically
-  /// clean up the cell once the lease expires – you don't need to
-  /// manually dispose of it.
-  ///
   /// ### Example
   /// ```dart
   /// final taskContext = Context.transientTask(
@@ -1854,10 +1742,6 @@ abstract interface class Context {
   /// You provide a resolver function that returns a new governance entry
   /// for any evolvable dimension you want to change. Dimensions you don't
   /// touch are inherited from the current context.
-  ///
-  /// ### Non‑obvious
-  /// Only dimensions marked `evolvable: true` can be changed – trying to
-  /// change a static pillar will have no effect. This is by design.
   ///
   /// ### Parameters:
   /// - [resolver]: A callback that reconciles requested [Governance]

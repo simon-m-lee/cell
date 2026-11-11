@@ -76,14 +76,6 @@ ergonomic.</p>
 <p>The provided <code>rule</code> function is called whenever an element is being
 evaluated for membership. It receives the element, the host collection,
 the mutation action, and optional user data.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The rule is wrapped in a generic <a href="../../cell_tissue/TestRule-class.html">TestRule</a> that only triggers if the
-object is of type <code>E</code> and the arguments are a <a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>.</li>
-<li>The <code>action</code> parameter allows you to differentiate between <code>add</code>,
-<code>remove</code>, <code>update</code>, and other operations.</li>
-<li>The optional <code>parent</code> allows chaining with another element rule.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final positiveRule = TestElementRule&lt;int, TissueList&lt;int&gt;&gt;(
   (element, {host, action, user}) =&gt; element &gt; 0,
@@ -140,7 +132,7 @@ object is of type <code>E</code> and the arguments are a <a href="https://api.fl
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

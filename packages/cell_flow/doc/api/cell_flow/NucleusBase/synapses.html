@@ -86,8 +86,15 @@ If synapses are disabled, returns <a href="../../cell_flow/Synapses/disabled-con
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Synapses get synapses =&gt;
-    get&lt;Synapses&gt;(() =&gt; record.local.synapses, orElse: Synapses.disabled);</code></pre>
+Synapses get synapses {
+  final stored =
+      get&lt;Synapses&gt;(() =&gt; record.local.synapses, orElse: Synapses.disabled);
+  &#47;&#47; Default-enabled records store the enabled flyweight; materialize a
+  &#47;&#47; real set so links and async broadcasts work. `_Nucleus` and
+  &#47;&#47; `ValueNucleus` cache this per instance.
+  if (stored != Synapses.enabled) return stored;
+  return Synapses();
+}</code></pre>
 </section>
 
   </section>
@@ -117,7 +124,7 @@ Synapses get synapses =&gt;
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

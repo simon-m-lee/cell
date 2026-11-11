@@ -76,13 +76,6 @@ the new batch.</li>
 <li>It ensures that the resulting collection of pulses is treated as a
 unified atomic update.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>If the <code>other</code> event is already a <a href="../../mitosis/CollectiveTissuePulse-class.html">CollectiveTissuePulse</a>, this event
-is appended to that collection.</li>
-<li>The operation is non-destructive; it returns a new signal instance
-rather than modifying the existing ones.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final batch = evolvedEvent + nextEvent;
 </code></pre>
@@ -120,7 +113,7 @@ rather than modifying the existing ones.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

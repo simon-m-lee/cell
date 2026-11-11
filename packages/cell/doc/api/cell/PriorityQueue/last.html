@@ -85,7 +85,16 @@ without iterating through the previous ones).</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-E get last =&gt; _heap.last;</code></pre>
+E get last {
+  if (_heap.isEmpty) throw StateError(&#39;Metabolic buffer is empty.&#39;);
+  &#47;&#47; The lowest-precedence element is the maximum of the leaf nodes
+  &#47;&#47; (the last half of the array); the raw array tail is arbitrary.
+  var target = _heap.length ~&#47; 2;
+  for (var i = target + 1; i &lt; _heap.length; i++) {
+    if (_compare(_heap[i], _heap[target]) &gt; 0) target = i;
+  }
+  return _heap[target];
+}</code></pre>
 </section>
 
   </section>
@@ -115,7 +124,7 @@ E get last =&gt; _heap.last;</code></pre>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

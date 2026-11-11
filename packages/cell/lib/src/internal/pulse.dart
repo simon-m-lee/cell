@@ -19,10 +19,6 @@ part of '../../cell.dart';
 /// collective's payload. It also sets up the branch counter to track when all
 /// sub‑pulses have completed.
 ///
-/// ### Non‑obvious: branch counter tracks completion
-/// The `_branches` counter is incremented in the superclass constructor. This
-/// counter ensures that the collective's completion callback fires only when
-/// **all** sub‑pulses have finished processing.
 class _CollectivePulse<P> extends CollectivePulseBase<P> {
   _CollectivePulse(
     Iterable<Pulse<P>> pulses, {
@@ -61,23 +57,6 @@ class _CollectivePulse<P> extends CollectivePulseBase<P> {
 /// - Provides the `payload` getter that returns the bundled pulses.
 /// - Manages the branch counter for completion tracking across all sub‑pulses.
 ///
-/// ### Non‑obvious: the collective iterates over itself, not its payload
-/// The `iterator` returns an iterator over the collective itself (a single
-/// element), not over the individual pulses. This is by design — the
-/// collective is a single unit that happens to contain multiple pulses.
-/// To access individual pulses, use the `payload` getter:
-/// ```dart
-/// for (final p in collective.payload) {
-///   print(p.payload);
-/// }
-/// ```
-///
-/// ### Non‑obvious: the branch counter tracks completion
-/// The `_branches` counter is incremented in the constructor. This counter
-/// ensures that the collective's completion callback fires only when **all**
-/// sub‑pulses have finished processing. Without this, the framework wouldn't
-/// know when a composite pulse is truly complete.
-///
 /// ### Example
 /// ```dart
 /// // You never create this directly — the framework does it for you:
@@ -100,17 +79,6 @@ abstract class CollectivePulseBase<P>
   ///   sub‑pulses.
   /// - The resulting collective is a single unit that moves through the
   ///   graph atomically.
-  ///
-  /// ### Non‑obvious: the branch counter is critical for completion
-  /// The `_branches` counter is incremented here. Each sub‑pulse
-  /// decrements the counter when it completes. When the counter reaches
-  /// zero, the collective's completion callback fires. This is how the
-  /// framework knows when a composite pulse is fully processed.
-  ///
-  /// ### Non‑obvious: metadata is applied to the collective, not sub‑pulses
-  /// The [policy], [context], [type], and other metadata are applied to the
-  /// collective as a whole, not to individual sub‑pulses. Each sub‑pulse
-  /// retains its own metadata.
   ///
   /// ### Parameters:
   /// - [pulses]: The individual pulses to bundle into a collective.
@@ -158,22 +126,40 @@ abstract class CollectivePulseBase<P>
       super.scrutinize,
       super.user,
       super.priority})
-      : super(payload: pulses) {
-    final branches = _branches;
-    if (branches != null) {
-      branches.value = branches.value! + 1;
-    }
-  }
+      : super(payload: pulses);
+  // No branch-counter increment here. `mask` already allocates
+  // `branches: Box<int>(1)` whenever `onComplete` is present, and the
+  // empty-synapse terminal paths decrement exactly once per journey. An
+  // extra increment would leave a single-terminal dead-end stuck at 1 and
+  // the completion callback would never fire.
 
   /// The collection of pulses bundled in this collective.
   ///
   /// ### When to use
   /// Use this to access the individual pulses in the collective.
   ///
-  /// ### Non‑obvious: this is the entire iterable
-  /// This returns **all** the pulses, not just the first one.
   @override
   Iterable<Pulse<P>> get payload => super.payload as Iterable<Pulse<P>>;
+
+  @override
+  // A collective iterates itself (see `iterator`), so its `last` is the
+  // collective, not the final sub-pulse. The pipeline passes `pulse.last`
+  // into instruction stages and must receive the batch itself.
+  PulseBase get last => this;
+
+  /// Completes every sub‑pulse before completing the collective itself.
+  ///
+  /// A collective is only truly settled once each sub‑pulse it carries has
+  /// also completed. Completing them depth‑first guarantees that governed
+  /// sub‑pulses fire their own `onComplete` callbacks before the collective's
+  /// completion callback observes the settled batch.
+  @override
+  void _complete() {
+    for (final sub in payload) {
+      (sub as PulseBase)._complete();
+    }
+    super._complete();
+  }
 
   /// Indicates that this pulse is a composite bundle.
   ///
@@ -184,9 +170,6 @@ abstract class CollectivePulseBase<P>
 
   /// Returns an iterator over this collective itself.
   ///
-  /// ### Non‑obvious: this returns a single element
-  /// Iterating over a collective yields the collective itself, not its
-  /// constituent pulses. To access individual pulses, use the `payload` getter.
   @override
   Iterator<CollectivePulseBase<P>> get iterator => [this].iterator;
 
@@ -200,9 +183,6 @@ abstract class CollectivePulseBase<P>
 /// The constructor accepts a parent pulse and stores it. The branch counter
 /// is incremented to track completion across the chain.
 ///
-/// ### Non‑obvious: evolved pulses are immutable
-/// Once created, an evolved pulse never changes. The parent chain is fixed
-/// at construction time.
 class _EvolvedPulse<P> extends EvolvedPulseBase<P> {
   _EvolvedPulse({
     super.policy,
@@ -238,16 +218,6 @@ class _EvolvedPulse<P> extends EvolvedPulseBase<P> {
 /// - Builds a flattened list of all pulses in the chain for iteration.
 /// - The payload is inherited from the last pulse in the chain.
 ///
-/// ### Non‑obvious: evolution is not mutation
-/// When you call [Pulse.evolve], you get a *new* pulse that points to the old
-/// one. The old pulse is still there — unchanged, available for reference.
-/// This is why you can trace the entire lineage without copying data.
-///
-/// ### Non‑obvious: payload is inherited, not copied
-/// The `payload` getter returns the payload of the last pulse in the chain.
-/// The data is inherited from the root — it's never duplicated. This is why
-/// causal chains are memory‑efficient even when they're dozens of steps long.
-///
 /// ### Example
 /// ```dart
 /// // You never create this directly — the framework does it for you:
@@ -269,21 +239,8 @@ abstract class EvolvedPulseBase<P> extends _SinglePulseBase<P>
   /// ### How it works
   /// - Accepts metadata for the new evolved pulse.
   /// - Passes all parameters to the superclass constructor.
-  /// - Increments the `_branches` counter to track completion of the chain.
   /// - The resulting pulse is a new node in the causal chain, linked to
   ///   its [parent] via the superclass.
-  ///
-  /// ### Non‑obvious: the branch counter tracks chain completion
-  /// The `_branches` counter is incremented here. Each pulse in the chain
-  /// decrements the counter when it completes. When the counter reaches zero,
-  /// the chain's completion callback fires. This is how the framework knows
-  /// when a causal chain is fully processed.
-  ///
-  /// ### Non‑obvious: metadata is additive
-  /// When you evolve a pulse, the new metadata (context, step, etc.) is
-  /// added to the chain. The original metadata is preserved in the parent.
-  /// This is how the framework maintains full provenance — you can always
-  /// walk back up the chain to see the complete history.
   ///
   /// ### Parameters:
   /// - [policy]: Optional lifecycle policy (TTL, hop limit).
@@ -329,18 +286,21 @@ abstract class EvolvedPulseBase<P> extends _SinglePulseBase<P>
   })  : _pulses = pulse is EvolvedPulseBase
             ? [...pulse._pulses, pulse]
             : [parent, pulse],
-        super(pulse: pulse, parent: parent) {
-    final branches = _branches;
-    if (branches != null) {
-      branches.value = branches.value! + 1;
-    }
-  }
+        super(pulse: pulse, parent: parent);
+  // No branch-counter increment here, for the same reason as
+  // CollectivePulseBase: `mask` allocates `branches: Box<int>(1)` when
+  // `onComplete` is present, and the terminal paths decrement once per
+  // journey. An extra increment would strand a single-terminal dead-end
+  // at 1 and the chain's completion callback would never fire.
 
   @override
   bool get isComposite => true;
 
   @override
   Pulse get parent => _parent!;
+
+  @override
+  PulseBase get last => _pulses.last;
 
   @override
   P? get payload {
@@ -364,9 +324,6 @@ abstract class EvolvedPulseBase<P> extends _SinglePulseBase<P>
 /// - Extends [_SinglePulseBase] with a payload of type `P`.
 /// - Implements `iterator` to return a single element iterator.
 ///
-/// ### Non‑obvious: this is a flyweight
-/// Instances of this class are lightweight because they store only the
-/// delta from their parent in a compact record.
 class _Pulse<P> extends _SinglePulseBase<P> {
   _Pulse({
     super.policy,
@@ -387,6 +344,206 @@ class _Pulse<P> extends _SinglePulseBase<P> {
   }) : super();
 }
 
+/// An optimized, flat-field implementation of a pulse used for high-frequency
+/// signal transmission.
+///
+/// In the framework's biological metaphor, [_FastPulse] represents a
+/// **High-Speed Nervous Impulse**. It is designed for **Synaptic Ingress**—points
+/// where data enters the reactive graph so frequently that the overhead of
+/// standard governance must be bypassed for performance.
+///
+/// ### Why it is used
+/// - **Performance Optimization**: Standard pulses use a flexible but complex
+///   record-mask system. [_FastPulse] replaces this with direct fields,
+///   drastically reducing memory allocation and CPU overhead during
+///   "hot path" operations like [Cell.ingress].
+/// - **Minimalist Footprint**: It avoids allocating nested record trees,
+///   cycle-checker boxes, or eager timestamps unless they are specifically
+///   requested.
+///
+/// ### How it works
+/// - **Direct Storage**: Instead of resolving data through a bitmask, it stores
+///   the [payload], [source], and [priority] directly on the instance.
+/// - **Lazy Resolution**: Heavily computed fields, such as the [timestamp]
+///   and the [CycleChecker], are only created if a downstream synapse
+///   actually accesses them.
+///
+/// ### Technical Details
+/// - **Shape Zero**: It explicitly sets its `_shape` to `0`, informing the
+///   engine to skip the standard record-based resolution logic.
+/// - **Flyweight Semantics**: Despite its internal optimizations, it fully
+///   implements the [PulseBase] interface, ensuring it remains compatible
+///   with all synapses and receptors.
+///
+/// See also:
+/// - [Cell.ingress] — The primary entry point for fast pulses.
+/// - [PulseBase] — The foundation for all signals in the Mitosis ledger.
+/// - [guide/HowTo-Cell.apply.md](guide/HowTo-Cell.apply.md) — For
+///   contrast with "Governed" signals.
+class _FastPulse<P> extends PulseBase<P> {
+  _FastPulse({
+    P? payload,
+    dynamic type,
+    Cell? source,
+    int? priority,
+    String? step,
+  })  : _payload = payload,
+        _type = type,
+        _source = source,
+        _priority = priority,
+        _step = step,
+        super.fromRecord(());
+
+  final P? _payload;
+  final dynamic _type;
+  final Cell? _source;
+  final int? _priority;
+  final String? _step;
+  DateTime? _timestampCache;
+  CycleChecker? _checkerCache;
+
+  @override
+  int get _shape => 0;
+
+  @override
+  P? get payload => _payload;
+
+  @override
+  Cell? get source => _source;
+
+  @override
+  DateTime get timestamp => _timestampCache ??= DateTime.now();
+
+  @override
+  PulseEphemeralPolicy? get policy => null;
+
+  @override
+  dynamic get type => _type;
+
+  @override
+  int get priority => _priority ?? Pulse.defaultPriority;
+
+  @override
+  PulseContext get context => PulseContext.system;
+
+  @override
+  bool get isGoverned => false;
+
+  @override
+  bool get isComposite => false;
+
+  @override
+  PulseBase? get _parent => null;
+
+  @override
+  PulseBase<P>? get _pulse => null;
+
+  @override
+  dynamic get _user => null;
+
+  @override
+  Function? get _scrutinize => null;
+
+  @override
+  void Function(Pulse pulse)? get _onComplete => null;
+
+  @override
+  void Function(Pulse pulse, Object error, {StackTrace? stackTrace})?
+      get _onError => null;
+
+  @override
+  void Function(Pulse pulse, Cell cell, {String? message})? get _onProgress =>
+      null;
+
+  @override
+  Box<int>? get _branches => null;
+
+  @override
+  CycleChecker get _checker => _checkerCache ??= CycleChecker._();
+
+  @override
+  Iterator<PulseBase> get iterator => [this].iterator;
+
+  @override
+  PulseBase get last => this;
+
+  @override
+  List<String> get trace {
+    final step = _step;
+    return step == null ? const [] : [step];
+  }
+
+  @override
+  bool operator ==(Object other) => identical(this, other);
+
+  @override
+  int get hashCode => identityHashCode(this);
+
+  @override
+  String toString() => 'Pulse<$P>($payload, priority: $priority)';
+}
+
+/// A lightweight node used to track a single step in a pulse's journey.
+///
+/// [_StepPulse] acts as a **Genetic Marker** in the **Forensic Ledger**. Instead of
+/// recreating a full pulse with all its metadata, it simply points to a parent
+/// pulse and adds a new "step" tag to the lineage.
+///
+/// ### Why it is used
+/// - **Memory Efficiency**: It is a "Flyweight" implementation. It avoids the
+///   overhead of allocating a full [PulseBase] record every time a pulse moves
+///   through a new cell or processor.
+/// - **Causal Traceability**: It allows the framework to build a complete `trace`
+///   (a breadcrumb trail) of everywhere a **Nervous Signal** has traveled without
+///   duplicating the payload data.
+///
+/// ### How it works
+/// 1. **Lineage Link**: It holds a reference to the `parent` pulse, maintaining
+///    the causal chain.
+/// 2. **Step Tagging**: It stores a specific string representing the current
+///    milestone (e.g., "validation", "ingress").
+/// 3. **Lineage Resolution**: When you ask for the `trace`, the framework walks
+///    back through these markers to assemble the history.
+///
+/// ### Technical Details
+/// - **Minimal Allocation**: It uses a specialized bitmask ([PulseBase._kParent] |
+///   [PulseBase._kStep]) to inform the engine that only lineage and step
+///   data exist in its record.
+/// - **Payload Resolution**: Accessing `payload` on this pulse will automatically
+///   resolve to the parent's payload, ensuring the data remains consistent
+///   throughout the chain.
+///
+/// See also:
+/// - [PulseBase.withStep] — The primary way to create these markers.
+/// - [PulseBase.trace] — The property that resolves these markers into a list of strings.
+class _StepPulse<P> extends PulseBase<P> {
+  _StepPulse(this._stepParent, this._stepValue) : super.fromRecord(());
+
+  final PulseBase<P> _stepParent;
+  final String _stepValue;
+
+  @override
+  int get _shape => 0;
+
+  @override
+  PulseBase? get _parent => _stepParent;
+
+  @override
+  List<String> get trace => [..._stepParent.trace, _stepValue];
+
+  @override
+  bool operator ==(Object other) => identical(this, other);
+
+  @override
+  int get hashCode => identityHashCode(this);
+
+  @override
+  Iterator<PulseBase> get iterator => [this].iterator;
+
+  @override
+  PulseBase get last => this;
+}
+
 /// The abstract base class for single (non‑composite) pulses.
 ///
 /// ### When to use
@@ -399,9 +556,6 @@ class _Pulse<P> extends _SinglePulseBase<P> {
 /// - Implements a string representation that includes payload, source, type,
 ///   trace, and priority.
 ///
-/// ### Non‑obvious: the string representation is computed lazily
-/// The string representation is computed once and cached in `_toString` to
-/// avoid repeated string building.
 abstract class _SinglePulseBase<P> extends PulseBase<P> {
   _SinglePulseBase({
     super.policy,
@@ -423,6 +577,9 @@ abstract class _SinglePulseBase<P> extends PulseBase<P> {
 
   @override
   Iterator<PulseBase> get iterator => [this].iterator;
+
+  @override
+  PulseBase get last => this;
 
   @override
   PulseBase<P> get unmodifiable => UnmodifiablePulse<P>(this) as PulseBase<P>;
@@ -463,9 +620,140 @@ abstract class _SinglePulseBase<P> extends PulseBase<P> {
   String toString() => 'Pulse<$P>($_toString)';
 }
 
+/// The foundational blueprint for all nervous signals within the reactive graph.
+///
+/// [PulseBase] is the "Common DNA" shared by every signal, whether it is a
+/// high-speed `_FastPulse` or a fully audited, governed impulse. It provides
+/// the core logic for causal tracking, forensic logging, and signal evolution.
+///
+/// In the framework's biological metaphor, this class defines the
+/// **Signal Architecture**. Every impulse that travels through a cell's
+/// synapses is built upon this base, ensuring that the **Forensic Ledger**
+/// can always trace a signal's origin and journey.
+///
+/// ### Why it is used
+/// - **Causal Integrity**: It maintains the "Lineage" of signals. When a cell
+///   reacts to an input and produces an output, [PulseBase] ensures the
+///   new signal is "evolved" from the old one, preserving the audit trail.
+/// - **Performance at Scale**: It uses a specialized **Bitmask Record**
+///   system (`_shape`) to store metadata. This allows the framework to
+///   handle thousands of signals per second by avoiding expensive object
+///   allocations for every metadata field.
+/// - **Unified Interface**: It allows receptors and synapses to treat all
+///   signals—whether they are single values or collective batches—through
+///   a single, type-safe API.
+///
+/// ### How it works
+/// 1. **Signal Masking**: When a pulse is created, its metadata (timestamp,
+///    source, priority, etc.) is packed into a sparse record. A bitmask
+///    ([_shape]) is generated to tell the engine which fields exist.
+/// 2. **Causal Evolution**: Through the [evolve] method, a pulse creates
+///    a child signal. The child inherits the parent's "Causal Link,"
+///    allowing the framework to detect infinite loops or trace history.
+/// 3. **Forensic Tracking**: It provides a [trace] of "Genetic Markers"
+///    (steps), which are breadcrumbs representing every milestone the
+///    signal passed through.
+///
+/// ### Technical Details
+/// - **Bitmask Optimization**: Field access (like `payload` or `source`)
+///   checks the `_shape` bitmask first. This is an "exception-free"
+///   sparse read that is significantly faster than standard reflection.
+/// - **Flyweight Pattern**: The internal `_record` is a Dart Record,
+///   which the compiler can often optimize into registers, reducing
+///   heap pressure during high-frequency signaling.
+///
+/// See also:
+/// - [Cell.apply] — The primary gateway where these signals are vetted.
+/// - [Pulse] — The public-facing interface for this class.
 abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   // ignore: prefer_typing_uninitialized_variables, strict_top_level_inference
   final _record;
+
+// ───── Shape Tag: The Genetic Fingerprint for Sparse Records ─────
+  /// A bitmask that identifies which metadata fields exist within this pulse.
+  ///
+  /// In the framework's biological metaphor, the `_shape` tag is the
+  /// **Genetic Fingerprint** of the signal. It tells the engine exactly
+  /// which "organs" (fields like source, timestamp, or priority) the pulse
+  /// possesses before any attempt is made to access them.
+  ///
+  /// ### Why it is used
+  /// - **High-Speed Signaling**: Accessing fields in a dynamic record can be
+  ///   slow or throw errors if a field is missing. By checking the bitmask
+  ///   first, the framework ensures "zero-latency" reads on the hot path.
+  /// - **Forensic Integrity**: It prevents the framework from processing
+  ///   "malformed" signals by providing an immediate manifest of the
+  ///   pulse's structure.
+  ///
+  /// ### How it works
+  /// - **Stamping**: When a pulse is created, the `mask` utility stamps
+  ///   a `shape` integer directly onto the underlying record.
+  /// - **Validation**: Accessors (like `payload` or `source`) perform a
+  ///   bitwise `&` check against this tag. If the bit isn't set, the
+  ///   accessor returns `null` immediately without ever touching the
+  ///   potentially missing record field.
+  ///
+  /// ### Technical Details
+  /// - **Exception-Free**: This architecture avoids `NoSuchMethodError`
+  ///   or `LateInitializationError`, which are expensive to catch during
+  ///   high-frequency reactive cycles.
+  /// - **Legacy Fallback**: If a pulse is created via [fromRecord] (legacy
+  ///   or external data), the tag is resolved once and cached to maintain
+  ///   compatibility with the forensic ledger.
+  ///
+  static const int _kPayload = 1 << 0;
+  static const int _kSource = 1 << 1;
+  static const int _kTimestamp = 1 << 2;
+  static const int _kPolicy = 1 << 3;
+  static const int _kGoverned = 1 << 4;
+  static const int _kParent = 1 << 5;
+  static const int _kPulse = 1 << 6;
+  static const int _kType = 1 << 8;
+  static const int _kContext = 1 << 9;
+  static const int _kStep = 1 << 10;
+  static const int _kPriority = 1 << 16;
+  static const int _kUser = 1 << 17;
+  static const int _kScrutinize = 1 << 18;
+  static const int _kOnComplete = 1 << 24;
+  static const int _kOnError = 1 << 25;
+  static const int _kOnProgress = 1 << 26;
+
+  /// The active **Genetic Fingerprint** of this specific signal.
+  ///
+  /// [_shape] retrieves the bitmask that identifies which metadata fields
+  /// exist within the pulse's underlying record. This allows the framework
+  /// to perform "Genetic Profiling" on a signal before attempting to
+  /// read its data.
+  ///
+  /// ### Why it is used
+  /// - **Zero-Latency Reads**: Checking a bit in a number is significantly
+  ///   faster than querying a dynamic record. It allows the framework to
+  ///   skip missing fields without any performance penalty.
+  /// - **Integrity Protection**: It ensures that accessors only touch
+  ///   valid data, preventing runtime errors during high-frequency
+  ///   reactive cycles.
+  ///
+  /// ### How it works
+  /// 1. **Extraction**: It attempts to read the `shape` property directly
+  ///    from the [Nervous Signal]'s internal record.
+  /// 2. **Fallback**: If the pulse was created through a legacy or external
+  ///    source that lacks a fingerprint, it defaults to `0` (meaning no
+  ///    optional metadata is present).
+  ///
+  /// ### Technical Details
+  /// - **Exception-Free Path**: Modern pulses built via the [mask] utility
+  ///   always carry this tag. The `try-catch` block is a safety net for
+  ///   [fromRecord] instances, ensuring the "hot path" remains stable.
+  /// - **Bitwise Scrutiny**: This value is used by every getter (like
+  ///   [payload] or [source]) to verify field presence using bitwise `&`.
+  ///
+  int get _shape {
+    try {
+      return _record.shape as int;
+    } catch (_) {
+      return 0;
+    }
+  }
 
   PulseBase(
       {PulseEphemeralPolicy? policy,
@@ -517,11 +805,6 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   /// Directly assigns the provided record to `_record`. The record is
   /// assumed to be correctly shaped — no validation is performed.
   ///
-  /// ### Non‑obvious: this bypasses the bitmask optimization
-  /// Unlike the primary constructor, this does not call `mask`. It assumes
-  /// the record is already correctly formed. This is why it's only used
-  /// internally — to avoid the overhead of re‑masking when cloning.
-  ///
   /// ### Parameters:
   /// - [record]: The record containing the pulse's metadata.
   ///
@@ -543,13 +826,16 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
       'A pulse cannot evolve using itself as the delta provider.',
     );
 
-    // Ensure the new context is a legitimate descendant
-    assert(
-      context == null ||
-          this.context == PulseContext.system ||
-          context._parent == this.context,
-      'Causal Integrity Violation: The new context must be evolved from the current pulse context.',
-    );
+    // Ensure the new context is a legitimate descendant. Runtime check —
+    // an `assert` would evaporate in release builds and leave the lineage
+    // gate unenforced.
+    if (context != null &&
+        this.context != PulseContext.system &&
+        context._parent != this.context) {
+      throw StateError(
+        'Causal Integrity Violation: The new context must be evolved from the current pulse context.',
+      );
+    }
 
     if (pulse != null) {
       if (pulse is PulseBase) {
@@ -576,7 +862,7 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   }
 
   @override
-  Pulse<P> withStep(String step) => _Pulse<P>(step: step, parent: this);
+  Pulse<P> withStep(String step) => _StepPulse<P>(this, step);
 
   @override
   CollectivePulse operator +(covariant Pulse other) {
@@ -593,13 +879,18 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   PulseBase<P> get unmodifiable => UnmodifiablePulse<P>(this) as PulseBase<P>;
 
   CycleChecker get _checker {
-    final finalBox =
-        get<FinalBox<CycleChecker>>(() => root._record.cycleChecker);
-    try {
-      return finalBox.value as CycleChecker;
-    } catch (e) {
-      return finalBox.value = CycleChecker._();
-    }
+    // Exception-free: `cycleChecker` is present on every mask record and
+    // FinalBox.value returns null before the first write, so the lazily
+    // created checker costs no thrown error per pulse. Flat pulses
+    // (_FastPulse) keep the checker on the instance instead of the record.
+    final r = root;
+    if (r is _FastPulse) return r._checker;
+    final FinalBox<CycleChecker> finalBox = r._record.cycleChecker;
+    final existing = finalBox.value;
+    if (existing != null) return existing;
+    final created = CycleChecker._();
+    finalBox.value = created;
+    return created;
   }
 
   // ───── primary ─────
@@ -607,28 +898,38 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   /// Main payload.
   @override
   P? get payload {
-    return get<P?>(() => _record.root.primary.payload,
-        fallback: () => _pulse?.payload ?? _parent?.payload, orElse: null);
+    if ((_shape & _kPayload) != 0) {
+      return _record.root.primary.payload;
+    }
+    return _pulse?.payload ?? _parent?.payload;
   }
 
   /// Origin cell (for tracing).
   @override
   Cell? get source {
-    return get<Cell?>(() => _record.root.primary.source,
-        fallback: () => _parent?.source, orElse: null);
+    if ((_shape & _kSource) != 0) {
+      return _record.root.primary.source;
+    }
+    return _parent?.source;
   }
 
   /// When this pulse was created.
   @override
   DateTime get timestamp {
-    return get<DateTime>(() => _record.root.primary.timestamp,
-        fallback: () => _parent?.timestamp);
+    if ((_shape & _kTimestamp) != 0) {
+      return _record.root.primary.timestamp;
+    }
+    final inherited = _parent?.timestamp;
+    if (inherited != null) return inherited;
+    throw StateError('Pulse record has no timestamp.');
   }
 
   @override
   PulseEphemeralPolicy? get policy {
-    return get<PulseEphemeralPolicy?>(() => _record.root.primary.policy,
-        fallback: () => _parent?.policy, orElse: null);
+    if ((_shape & _kPolicy) != 0) {
+      return _record.root.primary.policy;
+    }
+    return _parent?.policy;
   }
 
   // ───── secondary ─────
@@ -639,15 +940,19 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   /// an enum) may be used as a classifier.
   @override
   dynamic get type {
-    return get<dynamic>(() => _record.root.secondary.type,
-        fallback: () => _pulse?.type ?? _parent?.type, orElse: null);
+    if ((_shape & _kType) != 0) {
+      return _record.root.secondary.type;
+    }
+    return _pulse?.type ?? _parent?.type;
   }
 
   @override
   int get priority {
     int local() {
-      return get<int>(() => _record.root.tertiary.priority,
-          fallback: () => _parent?.priority, orElse: Pulse.defaultPriority);
+      if ((_shape & _kPriority) != 0) {
+        return _record.root.tertiary.priority;
+      }
+      return _parent?.priority ?? Pulse.defaultPriority;
     }
 
     if (context != PulseContext.system) {
@@ -659,8 +964,10 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   /// Execution/security context.
   @override
   PulseContext get context {
-    return get<PulseContext>(() => _record.root.secondary.context,
-        fallback: () => _parent?.context, orElse: PulseContext.system);
+    if ((_shape & _kContext) != 0) {
+      return _record.root.secondary.context;
+    }
+    return _parent?.context ?? PulseContext.system;
   }
 
   /// Causal trace path.
@@ -671,9 +978,15 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
     iterate(PulseBase? p) {
       String? step;
       while (p != null) {
-        step = get<String?>(() => p!._record.root.secondary.step, orElse: null);
-        if (step != null) {
-          trace.add(step);
+        if (p is _StepPulse) {
+          // Flat step node: its step lives in a plain field, not a record.
+          trace.add(p._stepValue);
+        } else {
+          step =
+              (p._shape & _kStep) != 0 ? p._record.root.secondary.step : null;
+          if (step != null) {
+            trace.add(step);
+          }
         }
         p = p._parent;
       }
@@ -685,7 +998,10 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   }
 
   Function? get _scrutinize {
-    return get<Function?>(() => _record.root.tertiary.scrutinize, orElse: null);
+    if ((_shape & _kScrutinize) != 0) {
+      return _record.root.tertiary.scrutinize;
+    }
+    return null;
   }
 
   @override
@@ -711,51 +1027,49 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   @override
   PulseShell<P, Receptor> get shell => PulseShell<P, Receptor>(this);
 
-  /// The **Branch Completion Counter** for composite pulses.
+  /// The **Branch Completion Counter** for pulses carrying an `onComplete`
+  /// callback.
   ///
-  /// This internal getter tracks how many sub-pulses in a composite
-  /// ([CollectivePulse] or [EvolvedPulse]) need to complete before the
-  /// composite's completion callback can fire.
+  /// This internal getter tracks the remaining terminal branches of the
+  /// pulse's own journey through the graph.
   ///
   /// ### When to use
   /// * This is an internal implementation detail. You never access this directly.
-  ///   It exists to support the framework's composite pulse lifecycle management.
+  ///   It exists to support the framework's pulse lifecycle management.
   /// * This is used internally by the framework. You don't need to use it
   ///   in application code.
   ///
   /// ### How it works
-  /// 1. When a composite pulse is created, the `_branches` counter is
-  ///    initialised to the number of sub-pulses.
-  /// 2. As each sub-pulse completes, the counter is decremented.
-  /// 3. When the counter reaches zero, the completion callback fires.
-  /// 4. This mechanism ensures that a composite pulse only completes when
-  ///    **all** of its constituent pulses have finished processing.
-  ///
-  /// ### Non‑obvious
-  /// - The counter is stored in a [Box] – a mutable container that allows
-  ///   the counter to be updated even though the pulse itself is immutable.
-  /// - For atomic (non-composite) pulses, `_branches` is `null`.
-  /// - The counter is incremented when a pulse is added to a composite,
-  ///   and decremented when a sub-pulse completes.
-  /// - If any sub-pulse is invalidated or filtered out, the counter
-  ///   may not reach zero, and the completion callback will not fire.
-  /// - The counter is thread-safe because pulse processing is serialised
-  ///   through the cell's [Lock].
+  /// 1. `mask` allocates `branches: Box<int>(1)` whenever a pulse is created
+  ///    with an `onComplete` callback.
+  /// 2. Each terminal branch (e.g. empty synapses) decrements the counter
+  ///    exactly once.
+  /// 3. When the counter reaches zero, `_complete()` fires — which, for
+  ///    composites, first completes every sub-pulse depth-first.
+  /// 4. This mechanism ensures a pulse completes when its journey reaches a
+  ///    terminal, without stranding the callback.
   ///
   /// ### Example (Internal)
   /// ```dart
-  /// final collective = Pulse.batch([pulse1, pulse2, pulse3]);
-  /// // _branches.state == 3
-  /// // After pulse1 completes: _branches.state == 2
-  /// // After pulse2 completes: _branches.state == 1
-  /// // After pulse3 completes: _branches.state == 0 -> onComplete fires
+  /// final batch = Pulse.batch([pulse1, pulse2], onComplete: cb);
+  /// // _branches.state == 1 (the batch's own journey)
+  /// // Terminal branch: _branches.state == 0 -> _complete() -> sub-pulses
+  /// // complete first, then the batch callback fires.
   /// ```
   ///
   /// ### Returns:
   /// A [Box<int>] containing the remaining branch count, or `null` if this
-  /// is an atomic (non-composite) pulse.
+  /// pulse's root has no completion callback.
   Box<int>? get _branches {
-    return get<Box<int>?>(() => _record.root.callbacks.branches, orElse: null);
+    // Resolve through the lineage root: evolved descendants share the
+    // originating pulse's completion counter, so every terminal along the
+    // causal chain decrements the same box. Exception-free read: the
+    // `branches` box is only present when `onComplete` was provided.
+    final r = root;
+    if ((r._shape & _kOnComplete) != 0) {
+      return r._record.root.callbacks.branches;
+    }
+    return null;
   }
 
   // ───── callbacks ─────
@@ -788,20 +1102,6 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   /// 5. The callback receives the final, post-transformation [Pulse] instance
   ///    upon successful system-wide completion.
   ///
-  /// ### Non‑obvious
-  /// - The callback is **inherited** through the causal chain. If you attach
-  ///   `onComplete` to a root pulse, it will fire even after the pulse has
-  ///   been evolved multiple times.
-  /// - For composite pulses ([CollectivePulse], [EvolvedPulse]), the callback
-  ///   fires **only once** when all sub-pulses have completed. The `_branches`
-  ///   counter tracks completion across all branches.
-  /// - If the pulse is invalidated (TTL or hop limit exceeded), the completion
-  ///   callback is **not** fired – instead, the error callback is triggered.
-  /// - The callback is synchronous – it should not perform long-running
-  ///   operations that would block the reactive wave.
-  /// - The callback is **not** called if the pulse is filtered out by a
-  ///   [TestCell] or [Receptor].
-  ///
   /// ### Example
   /// ```dart
   /// final pulse = Pulse.governed<int>(
@@ -819,10 +1119,10 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   /// instance upon successful system-wide completion, or `null` if no
   /// completion callback was attached.
   void Function(Pulse pulse)? get _onComplete {
-    return get<void Function(Pulse pulse)?>(
-        () => _record.root.callbacks.onComplete,
-        fallback: () => _parent?._onComplete,
-        orElse: null);
+    if ((_shape & _kOnComplete) != 0) {
+      return _record.root.callbacks.onComplete;
+    }
+    return _parent?._onComplete;
   }
 
   /// The **Failure Feedback** hook invoked if the pulse encounters a processing
@@ -857,21 +1157,6 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   ///    the reactive graph does not enter an inconsistent or "Partial Update"
   ///    state.
   ///
-  /// ### Non‑obvious
-  /// - The callback is **inherited** through the causal chain – an error
-  ///   listener attached to the root pulse will be notified even if the
-  ///   error occurs deep in a derived pulse.
-  /// - For composite pulses, the error callback fires **once** for the
-  ///   first error encountered, and processing of remaining sub-pulses
-  ///   continues (the error does not cancel the entire composite).
-  /// - The callback is synchronous – it should not perform long-running
-  ///   operations that would block the reactive wave.
-  /// - If both `onError` and `onComplete` are provided, `onError` takes
-  ///   precedence – the completion callback is not fired if an error occurs.
-  /// - The error callback is **not** called for expected filter outcomes
-  ///   (e.g., a pulse returning `null` from a [Receptor]) – only for
-  ///   actual exceptions or validation failures.
-  ///
   /// ### Example
   /// ```dart
   /// final pulse = Pulse.governed<int>(
@@ -891,12 +1176,10 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   /// error callback was attached.
   void Function(Pulse pulse, Object error, {StackTrace? stackTrace})?
       get _onError {
-    return get<
-            void Function(Pulse pulse, Object error,
-                {StackTrace? stackTrace})?>(
-        () => _record.root.callbacks.onError,
-        fallback: () => _parent?._onError,
-        orElse: null);
+    if ((_shape & _kOnError) != 0) {
+      return _record.root.callbacks.onError;
+    }
+    return _parent?._onError;
   }
 
   /// A callback invoked during high-latency or asynchronous operations to
@@ -929,21 +1212,6 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   ///    describing the current stage of execution.
   /// 5. The callback is synchronous and should not block the reactive wave.
   ///
-  /// ### Non‑obvious
-  /// - The callback is **inherited** through the causal chain – a progress
-  ///   listener attached to the root pulse will receive updates from all
-  ///   derived pulses.
-  /// - For composite pulses, progress callbacks may be triggered multiple
-  ///   times – once for each sub-pulse that reports progress.
-  /// - The callback is **not** guaranteed to be called for every step –
-  ///   it depends on the receptors and cells implementing progress reporting.
-  /// - The `message` parameter is optional and can be used to provide
-  ///   contextual information (e.g., "50% complete", "Waiting for database").
-  /// - The callback is synchronous – it should not perform expensive operations
-  ///   that would slow down the reactive wave.
-  /// - Progress callbacks are **not** fired if the pulse is invalidated or
-  ///   filtered out – they only fire for actively processing pulses.
-  ///
   /// ### Example
   /// ```dart
   /// final pulse = Pulse.governed<int>(
@@ -962,24 +1230,33 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   /// [String] during the pulse's lifecycle, or `null` if no progress
   /// callback was attached.
   void Function(Pulse pulse, Cell cell, {String? message})? get _onProgress {
-    return get<void Function(Pulse pulse, Cell cell, {String? message})?>(
-        () => _record.root.callbacks.onProgress,
-        fallback: () => _parent?._onProgress,
-        orElse: null);
+    if ((_shape & _kOnProgress) != 0) {
+      return _record.root.callbacks.onProgress;
+    }
+    return _parent?._onProgress;
   }
 
   // others
 
   PulseBase? get _parent {
-    return get<PulseBase?>(() => _record.parent, orElse: null);
+    if ((_shape & _kParent) != 0) {
+      return _record.parent;
+    }
+    return null;
   }
 
   PulseBase<P>? get _pulse {
-    return get<PulseBase<P>?>(() => _record.pulse, orElse: null);
+    if ((_shape & _kPulse) != 0) {
+      return _record.pulse;
+    }
+    return null;
   }
 
   dynamic get _user {
-    return get<dynamic>(() => _record.root.tertiary.user, orElse: null);
+    if ((_shape & _kUser) != 0) {
+      return _record.root.tertiary.user;
+    }
+    return null;
   }
 
   @override
@@ -1162,59 +1439,89 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
             (parent != null ? 16 : 0)) |
         (pulse != null ? 32 : 0);
 
+    // Field-level shape tag packed into one int. Accessors test these bits
+    // and then read record fields directly — exception-free hot path.
+    final shape = primaryMask |
+        (secondaryMask << 8) |
+        (tertiaryMask << 16) |
+        (callbackMask << 24) |
+        ((parent != null ? 1 : 0) << 5) |
+        ((pulse != null ? 1 : 0) << 6);
+
     return switch (finalMask) {
-      0 => (cycleChecker: FinalBox<CycleChecker>()),
-      1 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary)),
+      0 => (shape: shape, cycleChecker: FinalBox<CycleChecker>()),
+      1 => (
+          shape: shape,
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary)
+        ),
       2 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (secondary: secondary)
         ),
       3 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, secondary: secondary)
         ),
-      4 => (cycleChecker: FinalBox<CycleChecker>(), root: (tertiary: tertiary)),
+      4 => (
+          shape: shape,
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (tertiary: tertiary)
+        ),
       5 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, tertiary: tertiary)
         ),
       6 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (secondary: secondary, tertiary: tertiary)
         ),
       7 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, secondary: secondary, tertiary: tertiary)
         ),
       8 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (callbacks: callbacks)
         ),
       9 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, callbacks: callbacks)
         ),
       10 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (secondary: secondary, callbacks: callbacks)
         ),
       11 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, secondary: secondary, callbacks: callbacks)
         ),
       12 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (tertiary: tertiary, callbacks: callbacks)
         ),
       13 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, tertiary: tertiary, callbacks: callbacks)
         ),
       14 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (secondary: secondary, tertiary: tertiary, callbacks: callbacks)
         ),
       15 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (
             primary: primary,
@@ -1223,73 +1530,87 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
             callbacks: callbacks
           )
         ),
-      16 => (parent: parent),
+      16 => (shape: shape, parent: parent),
       17 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary),
           parent: parent
         ),
       18 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (secondary: secondary),
           parent: parent
         ),
       19 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, secondary: secondary),
           parent: parent
         ),
       20 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (tertiary: tertiary),
           parent: parent
         ),
       21 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, tertiary: tertiary),
           parent: parent
         ),
       22 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (secondary: secondary, tertiary: tertiary),
           parent: parent
         ),
       23 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, secondary: secondary, tertiary: tertiary),
           parent: parent
         ),
       24 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (callbacks: callbacks),
           parent: parent
         ),
       25 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, callbacks: callbacks),
           parent: parent
         ),
       26 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (secondary: secondary, callbacks: callbacks),
           parent: parent
         ),
       27 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, secondary: secondary, callbacks: callbacks),
           parent: parent
         ),
       28 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (tertiary: tertiary, callbacks: callbacks),
           parent: parent
         ),
       29 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, tertiary: tertiary, callbacks: callbacks),
           parent: parent
         ),
       30 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (
             secondary: secondary,
@@ -1299,6 +1620,7 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
           parent: parent
         ),
       31 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (
             primary: primary,
@@ -1308,73 +1630,87 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
           ),
           parent: parent
         ),
-      32 => (pulse: pulse),
+      32 => (shape: shape, pulse: pulse),
       33 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary),
           pulse: pulse
         ),
       34 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (secondary: secondary),
           pulse: pulse
         ),
       35 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, secondary: secondary),
           pulse: pulse
         ),
       36 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (tertiary: tertiary),
           pulse: pulse
         ),
       37 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, tertiary: tertiary),
           pulse: pulse
         ),
       38 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (secondary: secondary, tertiary: tertiary),
           pulse: pulse
         ),
       39 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, secondary: secondary, tertiary: tertiary),
           pulse: pulse
         ),
       40 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (callbacks: callbacks),
           pulse: pulse
         ),
       41 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, callbacks: callbacks),
           pulse: pulse
         ),
       42 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (secondary: secondary, callbacks: callbacks),
           pulse: pulse
         ),
       43 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, secondary: secondary, callbacks: callbacks),
           pulse: pulse
         ),
       44 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (tertiary: tertiary, callbacks: callbacks),
           pulse: pulse
         ),
       45 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, tertiary: tertiary, callbacks: callbacks),
           pulse: pulse
         ),
       46 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (
             secondary: secondary,
@@ -1384,6 +1720,7 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
           pulse: pulse
         ),
       47 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (
             primary: primary,
@@ -1393,86 +1730,100 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
           ),
           pulse: pulse
         ),
-      48 => (parent: parent, pulse: pulse),
+      48 => (shape: shape, parent: parent, pulse: pulse),
       49 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary),
           parent: parent,
           pulse: pulse
         ),
       50 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (secondary: secondary),
           parent: parent,
           pulse: pulse
         ),
       51 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, secondary: secondary),
           parent: parent,
           pulse: pulse
         ),
       52 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (tertiary: tertiary),
           parent: parent,
           pulse: pulse
         ),
       53 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, tertiary: tertiary),
           parent: parent,
           pulse: pulse
         ),
       54 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (secondary: secondary, tertiary: tertiary),
           parent: parent,
           pulse: pulse
         ),
       55 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, secondary: secondary, tertiary: tertiary),
           parent: parent,
           pulse: pulse
         ),
       56 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (callbacks: callbacks),
           parent: parent,
           pulse: pulse
         ),
       57 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, callbacks: callbacks),
           parent: parent,
           pulse: pulse
         ),
       58 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (secondary: secondary, callbacks: callbacks),
           parent: parent,
           pulse: pulse
         ),
       59 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, secondary: secondary, callbacks: callbacks),
           parent: parent,
           pulse: pulse
         ),
       60 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (tertiary: tertiary, callbacks: callbacks),
           parent: parent,
           pulse: pulse
         ),
       61 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (primary: primary, tertiary: tertiary, callbacks: callbacks),
           parent: parent,
           pulse: pulse
         ),
       62 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (
             secondary: secondary,
@@ -1483,6 +1834,7 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
           pulse: pulse
         ),
       63 => (
+          shape: shape,
           cycleChecker: FinalBox<CycleChecker>(),
           root: (
             primary: primary,
@@ -1508,10 +1860,6 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   /// Calls the `_onComplete` callback on the root pulse, passing this pulse.
   /// The callback is invoked after all downstream propagation has finished.
   ///
-  /// ### Non‑obvious: this delegates to the root
-  /// The completion callback is stored on the root pulse, not on the current
-  /// pulse. This ensures that callbacks attached to the original pulse are
-  /// still fired even after multiple evolutions.
   void _complete() {
     root._onComplete?.call(this);
   }
@@ -1621,13 +1969,10 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
 
   @override
   bool get isGoverned {
-    return get<bool>(() {
-      if (_record.root.primary.isGoverned == false) {
-        return _parent?.isGoverned ?? false;
-      } else {
-        return true;
-      }
-    }, fallback: () => _parent?.isGoverned, orElse: false);
+    if ((_shape & _kGoverned) != 0) {
+      return _record.root.primary.isGoverned || (_parent?.isGoverned ?? false);
+    }
+    return _parent?.isGoverned ?? false;
   }
 
   @override
@@ -1638,33 +1983,36 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
 
     while (p != null) {
       switch (arg) {
+        // Resolve as `Object?` and filter below: `lineage` deliberately
+        // skips ancestors whose value does not match the requested [T]
+        // instead of letting the cast throw (see the guarded `add` below).
         case LineageArgument.payload:
-          v = get<P?>(() => p!._record.root.primary.payload,
+          v = get<Object?>(() => p!._record.root.primary.payload,
               fallback: () => p!._record.pulse._record.root.primary.payload,
               orElse: null);
 
         case LineageArgument.source:
-          v = get<Cell?>(() => p!._record.root.primary.source,
+          v = get<Object?>(() => p!._record.root.primary.source,
               fallback: () => p!._record.pulse._record.root.primary.source,
               orElse: null);
 
         case LineageArgument.policy:
-          v = get<PulseEphemeralPolicy?>(() => p!._record.root.primary.policy,
+          v = get<Object?>(() => p!._record.root.primary.policy,
               fallback: () => p!._record.pulse._record.root.primary.policy,
               orElse: null);
 
         case LineageArgument.type:
-          v = get<dynamic>(() => p!._record.root.secondary.type,
+          v = get<Object?>(() => p!._record.root.secondary.type,
               fallback: () => p!._record.pulse._record.root.secondary.type,
               orElse: null);
 
         case LineageArgument.priority:
-          v = get<int?>(() => p!._record.root.tertiary.priority,
+          v = get<Object?>(() => p!._record.root.tertiary.priority,
               fallback: () => p!._record.pulse._record.root.tertiary.priority,
               orElse: null);
 
         case LineageArgument.context:
-          v = get<Context?>(() => p!._record.root.secondary.context,
+          v = get<Object?>(() => p!._record.root.secondary.context,
               fallback: () => p!._record.pulse._record.root.secondary.context,
               orElse: null);
       }
@@ -1739,6 +2087,9 @@ class UnmodifiableEvolvedPulse<P> extends _UnmodifiablePulse<P>
   UnmodifiableEvolvedPulse._(EvolvedPulse<P> super.source) : super();
 
   @override
+  PulseBase get last => (_source as EvolvedPulseBase).last;
+
+  @override
   Pulse get parent => (_source as EvolvedPulse).parent.unmodifiable;
 
   @override
@@ -1780,6 +2131,13 @@ abstract class UnmodifiablePulseBase<P> extends PulseBase<P>
 
   @override
   get _record => _source._record;
+
+  /// Delegate the cycle checker to the wrapped pulse. The inherited
+  /// [PulseBase._checker] resolves `root` to this wrapper and then reads
+  /// `_record.cycleChecker` — for a `_FastPulse` source that record is the
+  /// unit record and the lookup throws a [NoSuchMethodError].
+  @override
+  CycleChecker get _checker => _source._checker;
 
   @override
   @override
@@ -1893,18 +2251,6 @@ abstract class UnmodifiablePulseBase<P> extends PulseBase<P>
 ///    further propagation along the offending branch, allowing the rest of
 ///    the graph to settle normally.
 ///
-/// ### Non‑obvious
-/// - **Identity-Based**: Tracking is performed using referential identity of
-///   the [Cell] instances, not their values or states.
-/// - **Single-Wave Lifecycle**: Instances are intended to be ephemeral, typically
-///   mapping 1:1 with the lifespan of a single [Pulse] wave.
-/// - **Concurrency Bridge**: While optimized for synchronous execution, it
-///   seamlessly transitions to thread-safe mode via the [async] property
-///   ([SyncCycleChecker]) when crossing asynchronous boundaries.
-/// - **Zero-Overhead for Linear Paths**: The internal `_visited` set is highly
-///   optimized for small collections, minimizing the latency penalty for
-///   most propagation paths.
-///
 /// ### Example
 /// ```dart
 /// void propagate(Pulse pulse, Cell node) {
@@ -1925,7 +2271,18 @@ abstract class UnmodifiablePulseBase<P> extends PulseBase<P>
 /// * [Receptor]: The primary component that implements this guard.
 class CycleChecker {
   /// The set of nodes that have already processed the current stimulus.
-  final Set<Cell> _visited = {};
+  ///
+  /// Identity-based on purpose: deputies are logically `==` to their
+  /// principals, but they are distinct graph nodes with their own synapses
+  /// and observers. A plain value-equality set would treat a deputy as
+  /// already visited the moment its principal processed the pulse, silently
+  /// cutting the deputy's entire branch. Real cycles are still caught
+  /// because a loop must eventually revisit the *same* object.
+  /// The first visited cell. The identity set is only materialized when a
+  /// second, different cell is registered — single-path pulses never
+  /// allocate one.
+  Cell? _single;
+  Set<Cell>? _visited;
 
   /// The set of lifecycle policies that have already been ticked for the
   /// current stimulus wave.
@@ -1933,7 +2290,7 @@ class CycleChecker {
   /// This guarantees a shared (hosted or inherited) [EphemeralPolicy] counts
   /// each pulse exactly once, no matter how many governed cells the pulse
   /// visits while propagating through the reactive graph.
-  final Set<EphemeralPolicy> _tickedPolicies = {};
+  Set<EphemeralPolicy>? _tickedPolicies;
 
   CycleChecker._();
 
@@ -1943,8 +2300,15 @@ class CycleChecker {
   /// Returns `false` if the [cell] was already visited, indicating a
   /// **Circular Dependency**.
   bool add(Cell cell) {
-    if (_visited.contains(cell)) return false;
-    _visited.add(cell);
+    final single = _single;
+    if (single == null) {
+      _single = cell;
+      return true;
+    }
+    if (identical(single, cell)) return false;
+    final visited = _visited ??= Set<Cell>.identity()..add(single);
+    if (visited.contains(cell)) return false;
+    visited.add(cell);
     return true;
   }
 
@@ -1953,7 +2317,8 @@ class CycleChecker {
   /// This method performs a non-mutating lookup within the **Causal Path** registry,
   /// allowing internal logic to inspect the current propagation state without
   /// registering a new visit.
-  bool contains(Cell cell) => _visited.contains(cell);
+  bool contains(Cell cell) =>
+      identical(_single, cell) || (_visited?.contains(cell) ?? false);
 
   /// Registers [policy] for the current stimulus wave.
   ///
@@ -1961,7 +2326,8 @@ class CycleChecker {
   /// therefore should be ticked), and `false` on subsequent cell visits, so a
   /// policy shared through the upstream [Cell.bind] chain is only counted once
   /// per pulse.
-  bool tickPolicy(EphemeralPolicy policy) => _tickedPolicies.add(policy);
+  bool tickPolicy(EphemeralPolicy policy) =>
+      (_tickedPolicies ??= <EphemeralPolicy>{}).add(policy);
 
   /// Provides a thread-safe, synchronized version of this checker for
   /// asynchronous propagation waves.
@@ -1998,18 +2364,6 @@ class CycleChecker {
 ///    across all concurrent tasks associated with a single [Pulse] lineage.
 /// 4. **Async Interface**: Provides a [Future]-based API to align with the
 ///    framework's non-blocking concurrency model.
-///
-/// ### Non‑obvious
-/// - **Lifecycle**: Typically accessed via the `async` property of a base
-///   [CycleChecker]. It is an ephemeral proxy that lasts for the duration
-///   of a single propagation wave.
-/// - **Principal Proxy**: It does not own the visited set itself but merely
-///   coordinates synchronized access to its principal [CycleChecker].
-/// - **Zero-Blocking**: Uses the framework's internal [Lock] to ensure the
-///   calling thread remains available for other tasks while waiting for
-///   registry access.
-/// - **Forensic Integrity**: Maintains the causal path of a pulse even when
-///   execution is deferred, parallelized, or moved to different execution tiers.
 ///
 /// ### Example
 /// ```dart
@@ -2098,20 +2452,6 @@ class SyncCycleChecker {
 ///    and lineage of the underlying object, ensuring metadata (trace,
 ///    timestamp, context) is preserved throughout the handshake.
 ///
-/// ### Non‑obvious
-/// - **Flyweight Strategy**: Many implementations (like [PulseShell]) utilize
-///   `const` constructors and shared storage to minimize heap pressure
-///   during high-frequency propagation waves.
-/// - **Fail-Closed Design**: If the scrutiny process fails or is bypassed,
-///   the shell remains opaque, preventing unauthorized leak of the internal
-///   cytoplasm.
-/// - **Identity Transparency**: The shell does not replace the identity of the
-///   underlying stimulus but acts as a perceptual lens through which the
-///   stimulus is viewed by specific consumers.
-/// - **Structural Blueprint**: It defines the zero-cost anchoring for
-///   defensive proxies, allowing security protocols to be embedded directly
-///   into the signal propagation logic.
-///
 /// ### Example
 /// ```dart
 /// class SecureShell<P> implements Shell<Cell> {
@@ -2196,17 +2536,6 @@ abstract interface class Shell<T> {
 ///    validation logic against the receptor's authority tokens.
 /// 5. **Kernel Release**: If authorized, the internal kernel is released for
 ///    the transformation phase; otherwise, the interaction is **Neutralized**.
-///
-/// ### Non‑obvious
-/// - **Flyweight Strategy**: Implemented as a `const` class to ensure zero-cost
-///   projections during high-frequency reactive waves.
-/// - **Terminal Projection**: Unlike a standard [Pulse], a shell is non-composite
-///   and cannot be evolved (using [evolve] or `+` will throw an [UnsupportedError]).
-/// - **Causal Provenance Masking**: Suppresses internal [trace] and [lineage]
-///   metadata to prevent information leakage before the handshake is complete.
-/// - **Fail-Closed Policy**: If the scrutiny logic encounters an error or
-///   insufficient authority, the shell defaults to a neutralized state
-///   (returning `null`).
 ///
 /// ### Example
 /// ```dart

@@ -81,20 +81,6 @@ replaces it with the last leaf, and "Bubbles Down" to restore order.</li>
 <li><strong>Structural Reconstruction</strong>: Methods like <a href="../cell/PriorityQueue/removeWhere.html">removeWhere</a> perform a
 full O(n) <strong>Re-heapification</strong> to maintain integrity after bulk changes.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Traversal Order</strong>: The <a href="../cell/PriorityQueue/iterator.html">iterator</a> and <a href="https://api.flutter.dev/flutter/dart-core/Iterable/forEach.html">forEach</a> methods traverse the
-internal heap list, which does <strong>not</strong> guarantee priority order. Use
-<a href="../cell/PriorityQueue/removeFirst.html">removeFirst</a> sequentially if ranked traversal is required.</li>
-<li><strong>Removal Penalty</strong>: Removing arbitrary elements via <a href="../cell/PriorityQueue/remove.html">remove</a> or
-<a href="../cell/PriorityQueue/removeWhere.html">removeWhere</a> is significantly more expensive than <a href="../cell/PriorityQueue/removeFirst.html">removeFirst</a> due to
-the required structural repair.</li>
-<li><strong>Comparison Strategy</strong>: If no custom comparator is provided, elements
-<strong>must</strong> implement <a href="https://api.flutter.dev/flutter/dart-core/Comparable-class.html">Comparable&lt;E&gt;</a>, or a <a href="https://api.flutter.dev/flutter/dart-core/TypeError-class.html">TypeError</a> will occur during
-insertion.</li>
-<li><strong>Non-Thread Safety</strong>: This class is a "somatic" (synchronous) component.
-For cross-thread synchronization, wrap it in <a href="../cell/AsyncPriorityQueue-class.html">AsyncPriorityQueue</a>.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// Create a queue where lower numbers have higher priority
 final taskBuffer = PriorityQueue&lt;int&gt;((a, b) =&gt; a.compareTo(b));
@@ -1030,7 +1016,7 @@ collection.
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

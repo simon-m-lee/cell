@@ -94,9 +94,6 @@
             PropagationStrategy.throttled,
             PropagationStrategy.audit,
             PropagationStrategy.debounceLeading,
-            PropagationStrategy.exhaust,
-            PropagationStrategy.sample,
-            PropagationStrategy.resilient,
           ].contains(policy.strategy)
       ? Box&lt;Timer&gt;()
       : null;
@@ -257,7 +254,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

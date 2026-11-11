@@ -87,11 +87,6 @@ final intPulse = dynamicPulse.cast&lt;int&gt;();
 print(intPulse.payload.isEven); // True
 print(intPulse.trace);          // Causal history is preserved
 </code></pre>
-<h3 id="nonobvious">Non‑obvious</h3>
-<p><a href="../../cell_tissue/Pulse-class.html">Pulse</a> is an <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a>, so <code>pulse.cast&lt;T&gt;()</code> resolves to <a href="https://api.flutter.dev/flutter/dart-core/Iterable/cast.html">Iterable.cast</a>.
-Call this as <code>PulseExtension(pulse).cast&lt;T&gt;()</code>. The result is an
-<a href="../../cell_tissue/EvolvedPulse-class.html">EvolvedPulse</a> whose <a href="../../cell_tissue/EvolvedPulse/parent.html">EvolvedPulse.parent</a> is <code>this</code>. If <code>P</code> is not a
-subtype of <code>T</code>, <a href="../../cell_tissue/Pulse/root.html">Pulse.root</a> throws (same mixed-type <code>PulseBase&lt;P&gt;</code> cast).</p>
 </section>
 
 
@@ -128,7 +123,7 @@ subtype of <code>T</code>, <a href="../../cell_tissue/Pulse/root.html">Pulse.roo
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -84,6 +84,8 @@ for <strong>Topographical Auditing</strong> and provenance tracing.</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">const FlowInstructionBase(super.instruction, {super.user})
     : _user = user,
+      _syncFactory = null,
+      _futureFactory = null,
       super();</code></pre>
 </section>
 
@@ -112,7 +114,7 @@ for <strong>Topographical Auditing</strong> and provenance tracing.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

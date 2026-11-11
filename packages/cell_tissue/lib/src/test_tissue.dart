@@ -56,18 +56,6 @@ part of '../cell_tissue.dart';
 /// individual members, and it integrates with the `modifiable` manifest to
 /// block entire categories of operations (e.g., `clear`).
 ///
-/// ### Non‑obvious
-/// - A deputy (created via `deputy()`) gets its own [TestTissue], layered
-///   on top of the principal's rule. You can narrow permissions, never widen.
-/// - If a rule throws an exception, the framework treats it as a `true` (pass)
-///   when the host is ungoverned, or `false` (fail) when governed.
-/// - The [TestTissue] is a flyweight – many collections can share the same
-///   policy instance without extra memory.
-/// - The `element` validation is **not** automatically applied to every
-///   element in an `addAll` – it's applied per element, and if one fails,
-///   the behaviour depends on the collection type. For sets, a failed element
-///   is simply skipped; for lists, the entire operation may be rejected.
-///
 /// ### Type Parameters:
 /// * [E]: The type of elements managed by the target [Tissue].
 /// * [C]: The concrete type of the [Tissue] being governed (e.g.,
@@ -89,6 +77,27 @@ part of '../cell_tissue.dart';
 /// - [TestCell] – the base validation logic for all reactive cells.
 /// - [TestElementRule] – the specific interface for membership validation.
 /// - [TissueNucleus] – where these rules are attached to the reactive blueprint.
+///
+/// ### AI Agent Guide
+/// **Layer:** Tissue — the mutation rule for books. Not a Cell factory, not a Flow operator.
+/// **When to use:** `testRule:` on **every** Tissue constructor: append-only log, non-negative reserve, key shape, or documented `allowAll`.
+/// **When NOT to use:**
+///   {@macro ai-do-not-testcell-on-tissue}
+/// **Live signature:** `TestTissue<E, C extends Tissue<E>>(FutureOr<bool> Function(dynamic object, {C? host, dynamic arguments, dynamic user}) rule, {TestTissue<E, C>? parent, dynamic user})` — pinned at `cell_tissue: 1.0.0`
+/// **Do NOT confuse with:** `TestCell` (Cell nodes only). They are not subtypes; swapping them fails the acceptance grep.
+/// **Guide:** `HowTo-Mitose-Tissue.md` §3 "TestTissue — considering factors" (#tissue-testtissue)
+/// **Example:** `example/cell_tissue_example.dart`
+/// **Cross-layer:** quality rules on **ingress / state / toHandle** are `TestCell` in `cell`.
+/// **Minimal compilable example**
+/// ```dart
+/// final gate = TestTissue<int, TissueList<int>>(
+///   (v, {host, arguments, user}) => (v as int) > 0,
+/// );
+/// final book = TissueList<int>(testRule: gate);
+/// book.add(1);
+/// book.add(-1); // rejected by the gate
+/// print(book.length); // 1
+/// ```
 class TestTissue<E, C extends Tissue<E>> extends TestCell<C>
     implements TestElementRule<E, C> {
   /// Maximum size constant used for unbounded collections.
@@ -111,12 +120,6 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C>
   /// It unconditionally returns `true` for all validation requests. It is a
   /// singleton, so millions of collections can share it without memory
   /// overhead.
-  ///
-  /// ### Non‑obvious
-  /// - When combined with other rules via `+`, it acts as a no‑op – the
-  ///   other rule's logic is preserved.
-  /// - It is the fallback authority in deputy chains: if no restrictive
-  ///   rule intercepts an operation, [allowAll] permits it.
   ///
   /// ### Example
   /// ```dart
@@ -150,13 +153,6 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C>
   ///   A read‑only deputy remains a "Live" node that reflects the source state
   ///   in real time; it simply lacks "Write‑Back" rights.
   ///
-  /// ### Non‑obvious
-  /// - This is a singleton – all unmodifiable collection deputies share the
-  ///   exact same validation logic, reducing memory footprint.
-  /// - It only blocks *structural* mutations. If the collection contains
-  ///   mutable cells, those cells can still be mutated directly unless
-  ///   `unmodifiableElement` is used.
-  ///
   /// ### Example
   /// ```dart
   /// final source = TissueList<String>(['A', 'B']);
@@ -185,15 +181,6 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C>
   /// collection, optional arguments, and optional user data. Return `true` to
   /// allow, `false` to block.
   ///
-  /// ### Non‑obvious
-  /// - The [rule] is polymorphic – it can handle elements (for membership),
-  ///   functions (for actions), and pulses (for signals). The framework
-  ///   routes the call appropriately.
-  /// - If the [rule] throws an exception, the behaviour depends on whether
-  ///   the host is governed (fail) or ungoverned (pass).
-  /// - The optional [parent] allows policy inheritance – the parent rule is
-  ///   checked after this rule (if this rule passes).
-  ///
   /// ### Example
   /// ```dart
   /// final positiveRule = TestTissue<int, TissueList<int>>(
@@ -210,14 +197,18 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C>
   /// - [parent]: An optional [TestTissue] to chain after this rule.
   /// - [user]: Optional metadata for auditing or context.
   const TestTissue(
-      FutureOr<bool> Function(dynamic object, {C? host, dynamic arguments, dynamic user}) rule, {
-        TestTissue<E, C>? parent,
-        dynamic user
-      }) : this.fromRecord(parent != null
+      FutureOr<bool> Function(dynamic object,
+              {C? host, dynamic arguments, dynamic user})
+          rule,
+      {TestTissue<E, C>? parent,
+      dynamic user})
+      : this.fromRecord(parent != null
             ? user != null
                 ? (rule: rule, parent: parent, user: user)
                 : (rule: rule, parent: parent)
-            : (rule: rule));
+            : user != null
+                ? (rule: rule, user: user)
+                : (rule: rule));
 
   /// Creates a **Composite Validation Pipeline** by aggregating multiple
   /// specialised rules into a single, unified **Integrity Gate**.
@@ -231,15 +222,6 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C>
   /// ### How it works
   /// The rules are executed in the order given; if any rule returns `false`,
   /// the chain short‑circuits and the whole validation fails.
-  ///
-  /// ### Non‑obvious
-  /// - You can provide a custom `fn` that acts as an "Omniscient Guard,"
-  ///   executing alongside the specialised [rules]. If provided, it overrides
-  ///   the default sequential evaluation.
-  /// - If a rule returns a `Future`, the chain automatically becomes
-  ///   asynchronous and waits for it.
-  /// - The default strategy is **fail‑fast** – any rule returning `false`
-  ///   stops the pipeline immediately.
   ///
   /// ### Example
   /// ```dart
@@ -258,11 +240,13 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C>
   /// - [strategy]: An optional override function that takes full control of
   ///   the validation logic; if provided, the default sequential evaluation
   ///   is bypassed.
-  const TestTissue.chain(
-      Iterable<TestRule<C>> rules, {
-        TestTissue<E, C>? parent, dynamic user,
-        FutureOr<bool> Function(dynamic object, {C? host, dynamic arguments, dynamic user})? strategy
-      }) : this.fromRecord(strategy != null
+  const TestTissue.chain(Iterable<TestRule<C>> rules,
+      {TestTissue<E, C>? parent,
+      dynamic user,
+      FutureOr<bool> Function(dynamic object,
+              {C? host, dynamic arguments, dynamic user})?
+          strategy})
+      : this.fromRecord(strategy != null
             ? parent != null
                 ? user != null
                     ? (rules: rules, rule: strategy, parent: parent, user: user)
@@ -296,12 +280,6 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C>
   /// - Otherwise, it falls back to the base [TestCell.call] logic, which
   ///   handles actions, pulses, and links.
   ///
-  /// ### Non‑obvious
-  /// - This routing ensures that element‑level validations are only applied
-  ///   when an element is actually being added or updated.
-  /// - The [arguments] parameter is typically a mutation function like `add`
-  ///   or `remove`.
-  ///
   /// ### Parameters:
   /// - [object]: The primary subject (element, pulse, or function).
   /// - [host]: The collection instance being mutated.
@@ -330,15 +308,6 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C>
   ///   action (e.g., `add`, `remove`).
   /// - If any rule returns `false`, the element is rejected.
   /// - If all pass, the element is authorised.
-  ///
-  /// ### Non‑obvious
-  /// - The [action] parameter allows **differentiated validation** – a rule
-  ///   might permit an element for a `contains` check but forbid it for an
-  ///   `add` mutation.
-  /// - If a rule returns a `Future`, the validation suspends until the
-  ///   future completes.
-  /// - Unhandled exceptions default to `true` (pass) to preserve system
-  ///   liveness.
   ///
   /// ### Example
   /// ```dart
@@ -378,7 +347,7 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C>
     // Internal recursive evaluator to handle FutureOr branching
     FutureOr<bool> runRules(int index) {
       for (var i = index; i < rules.length; i++) {
-        final result = rules[i].element(element, host: host);
+        final result = rules[i].element(element, host: host, action: action);
 
         // Branching: If a rule returns a Future, chain the rest of the stack
         if (result is Future<bool>) {
@@ -408,13 +377,6 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C>
   /// It returns a new [TestTissue] where the current rule (`this`) is
   /// evaluated first, and if it passes, the [other] rule is evaluated next.
   /// If `this` returns `false`, `other` is never called (short‑circuit).
-  ///
-  /// ### Non‑obvious
-  /// - The order matters: `ruleA + ruleB` means ruleA is evaluated first.
-  /// - The resulting policy is still a [TestTissue] and can be further
-  ///   composed.
-  /// - This is the engine behind **Mandate Attenuation** – a deputy can
-  ///   add a restrictive rule on top of the principal's existing policy.
   ///
   /// ### Example
   /// ```dart
@@ -461,15 +423,6 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C>
 /// - Return `true` to allow the element, `false` to block it.
 /// - Rules are composed with `+` (via the base [TestRule]).
 ///
-/// ### Non‑obvious
-/// - The rule is only evaluated when the object is of type [E] and the
-///   action is a function. This prevents it from accidentally blocking
-///   other types of validation (like pulses or links).
-/// - The [action] parameter enables **action‑aware validation**. For example,
-///   you might allow a value in a `contains` check but forbid it in an `add`.
-/// - Like all [TestRule]s, it supports asynchronous validation via
-///   `FutureOr<bool>`.
-///
 /// ### Example
 /// ```dart
 /// final elementRule = TestElementRule<String, TissueList<String>>(
@@ -503,13 +456,6 @@ class TestElementRule<E, C extends Tissue<E>> extends TestRule<C> {
   /// The provided [rule] function is called whenever an element is being
   /// evaluated for membership. It receives the element, the host collection,
   /// the mutation action, and optional user data.
-  ///
-  /// ### Non‑obvious
-  /// - The rule is wrapped in a generic [TestRule] that only triggers if the
-  ///   object is of type [E] and the arguments are a [Function].
-  /// - The [action] parameter allows you to differentiate between `add`,
-  ///   `remove`, `update`, and other operations.
-  /// - The optional [parent] allows chaining with another element rule.
   ///
   /// ### Example
   /// ```dart

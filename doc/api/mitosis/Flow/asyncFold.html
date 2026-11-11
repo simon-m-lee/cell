@@ -95,14 +95,6 @@ and the payload.</li>
 <li>If <code>accumulate</code> throws an error, it's reported and the instruction
 continues with the next input.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Sequential Processing</strong>: Steps run one after another.</li>
-<li><strong>Queueing</strong>: Inputs are queued while processing.</li>
-<li><strong>No Cancellation</strong>: Previous operations are not cancelled.</li>
-<li><strong>Error Isolation</strong>: Errors don't stop the queue.</li>
-<li><strong>Snapshot Access</strong>: The snapshot can be read externally.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -186,7 +178,7 @@ input.emit(7);  // -&gt; 15
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -73,12 +73,6 @@ pulses leapfrog lower priority ones.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The dispatcher uses the numeric priority to order pulses. The default is
 <code>routine</code> (21‑50).</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>Emergency pulses (96‑100) are processed before anything else.</li>
-<li>Background pulses (0‑20) are only processed when resources are available.</li>
-</ul>
-<p>See also: <a href="../cell/Provenance.html">Provenance.priority</a>.</p>
 </section>
 
 
@@ -378,7 +372,7 @@ that should potentially bypass standard reactive debouncing or queues.
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

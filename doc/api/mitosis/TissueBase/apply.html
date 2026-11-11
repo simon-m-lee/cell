@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the apply method from the TissueBase class, for the Dart programming language.">
+  <title>apply method - TissueBase class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/TissueBase-class.html">TissueBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">apply&lt;<wbr><span class="type-parameter">R</span>&gt; method</li>
+  </ol>
+  <div class="self-name">apply</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;TissueBase-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">apply&lt;<wbr><span class="type-parameter">R</span>&gt;</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../mitosis/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span>
+<span class="name ">apply</span>&lt;<wbr><span class="type-parameter">R</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="apply-param-command"><span class="type-annotation"><a href="../../mitosis/ApplyCommand.html">ApplyCommand</a></span> <span class="parameter-name">command</span>, {</span></li>
+<li><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../../mitosis/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span></li>
+</ol>})
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Submits a first-class <a href="../../mitosis/ApplyCommand.html">ApplyCommand</a> through the tissue dispatch engine.</p>
+<p>Collection mutations (<code>add</code>, <code>remove</code>, <code>put</code>, ...) route through the
+specialized dispatch logic of the individual tissue mixins, so the
+command model bridges into that engine and wraps its result in an
+auditable <a href="../../mitosis/ApplyOutcome-class.html">ApplyOutcome</a>.</p>
+<p>The dispatch engine reports a rejected mutation with a <code>null</code> result,
+which this bridge maps to <a href="../../mitosis/ApplyRejected-class.html">ApplyRejected</a>; non-null results map to
+<a href="../../mitosis/ApplyAccepted-class.html">ApplyAccepted</a>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+FutureOr&lt;ApplyOutcome&lt;R&gt;&gt; apply&lt;R&gt;(
+  ApplyCommand command, {
+  ApplyTransactionScope? tx,
+}) {
+  if (tx != null) {
+    final sequence = tx.enqueueCommand(this, command);
+    return ApplyStaged(ApplyLedger.receipt(
+      cell: this,
+      command: command,
+      txSequence: sequence,
+      vetted: modifiable.contains(command.function),
+    ));
+  }
+
+  final result = dispatch(
+    command.function,
+    positionalArguments: command.arguments.positionalArguments,
+    namedArguments: command.arguments.namedArguments,
+  );
+
+  final receipt = ApplyLedger.receipt(
+    cell: this,
+    command: command,
+    vetted: modifiable.contains(command.function),
+  );
+
+  if (result is Future) {
+    return result.then((value) =&gt; value == null
+        ? ApplyRejected&lt;R&gt;(receipt)
+        : ApplyAccepted&lt;R&gt;(value as R, receipt));
+  }
+  return result == null
+      ? ApplyRejected&lt;R&gt;(receipt)
+      : ApplyAccepted&lt;R&gt;(result as R, receipt);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/TissueBase-class.html">TissueBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">apply&lt;<wbr><span class="type-parameter">R</span>&gt; method</li>
+</ol>
+
+    <h5>TissueBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      2.2.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

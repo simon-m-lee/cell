@@ -68,6 +68,13 @@
 atomic unit – either all changes are applied, or none are. This is
 essential for maintaining consistency across related cells when
 a logical operation spans multiple state atoms.</p>
+<p><strong>Notification model:</strong> writes are validated first, then applied
+sequentially while the participants' locks are held. A failure during
+the apply phase restores the prior values of the cells already written
+by this commit before the rollback is reported. Observers may still
+see the intermediate states of a multi-cell commit as each write lands;
+the commit's own <code>onCommit</code>/<code>onRollback</code> events fire exactly once,
+after the whole batch has settled.</p>
 <h3 id="when-to-use">When to use</h3>
 <p>Use this when you need to update several cells together atomically.
 The simplest usage is:</p>
@@ -94,18 +101,6 @@ or any operation with invariants across cells.</li>
 <li><strong>Commit</strong>: Acquire locks, validate, apply all changes atomically.</li>
 <li><strong>Rollback</strong>: Discard buffered changes.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>Locks are held <strong>only during commit</strong>, not across begin→commit.
-This means you can perform long-running logic between begin and
-commit without holding locks.</li>
-<li>Validation happens during commit, not during update. This allows
-you to stage changes and then decide whether to commit.</li>
-<li>If any validation fails, the entire transaction is rolled back
-automatically – no partial updates.</li>
-<li>The transaction scope is not reentrant – you must commit or
-rollback before starting another transaction.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>options</code>: Configuration for isolation level, lock ordering,
@@ -180,6 +175,28 @@ await tx.commit();
 {@category Advanced}
 {@category Transactions}</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> Coordinating multiple <code>ValueCell</code>s atomically (money, forms) <strong>outside</strong> a Mitose Demo.
+<strong>When NOT to use:</strong>
+  <strong>DON'T</strong> wrap a Tissue write in <code>Cell.transaction</code>. Mitose commits with
+<code>Cell.txApply</code> on Tissue books. <code>Cell.transaction</code> coordinates <code>ValueCell</code>.
+See <code>HowTo-Mitose-Cell.md</code> §3.3 "Cell.transaction — not the Mitose commit".
+<strong>Live signature:</strong> <code>Cell.transaction([TransactionOptions options = const TransactionOptions()])</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.txApply</code> (the Mitose commit; participants are Tissue books).
+<strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §3.3 "Cell.transaction — not the Mitose commit" (#cell-transaction)
+<strong>Example:</strong> <code>example/transaction_demo.dart</code>
+<strong>Cross-layer:</strong> in a Mitose Demo, record it as deferred: <code>transaction deferred txApply on Tissue</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final a = Cell.state&lt;int&gt;(initial: 1);
+final b = Cell.state&lt;int&gt;(initial: 10);
+final tx = Cell.transaction();
+await tx.begin([a.cell, b.cell]);
+tx.update(a.cell, 2);
+tx.update(b.cell, 20);
+await tx.commit();
+print('${a.cell.value},${b.cell.value}'); // 2,20
+</code></pre>
 </section>
 
 
@@ -217,7 +234,7 @@ await tx.commit();
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

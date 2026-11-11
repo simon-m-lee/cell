@@ -90,13 +90,6 @@ a. If <code>includeTrigger</code> is <code>true</code>, the value is added.
 b. The buffer is emitted as a list.
 c. The buffer is cleared.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Trigger Inclusion</strong>: <code>includeTrigger</code> controls whether the
-triggering value is included in the buffer.</li>
-<li><strong>Empty Skip</strong>: Empty buffers are not emitted.</li>
-<li><strong>Predicate Evaluation</strong>: The predicate is evaluated on each value.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -175,7 +168,7 @@ input.emit(4); // -&gt; [3, 4]
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

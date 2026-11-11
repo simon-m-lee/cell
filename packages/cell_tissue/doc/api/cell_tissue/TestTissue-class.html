@@ -101,19 +101,6 @@ them in sequence (short‑circuiting on <code>false</code>).</li>
 semantics</strong>. It provides a specialised <code>element</code> method that validates
 individual members, and it integrates with the <code>modifiable</code> manifest to
 block entire categories of operations (e.g., <code>clear</code>).</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>A deputy (created via <code>deputy()</code>) gets its own <a href="../cell_tissue/TestTissue-class.html">TestTissue</a>, layered
-on top of the principal's rule. You can narrow permissions, never widen.</li>
-<li>If a rule throws an exception, the framework treats it as a <code>true</code> (pass)
-when the host is ungoverned, or <code>false</code> (fail) when governed.</li>
-<li>The <a href="../cell_tissue/TestTissue-class.html">TestTissue</a> is a flyweight – many collections can share the same
-policy instance without extra memory.</li>
-<li>The <code>element</code> validation is <strong>not</strong> automatically applied to every
-element in an <code>addAll</code> – it's applied per element, and if one fails,
-the behaviour depends on the collection type. For sets, a failed element
-is simply skipped; for lists, the entire operation may be rejected.</li>
-</ul>
 <h3 id="type-parameters">Type Parameters:</h3>
 <ul>
 <li><code>E</code>: The type of elements managed by the target <a href="../cell_tissue/Tissue-class.html">Tissue</a>.</li>
@@ -136,6 +123,27 @@ is simply skipped; for lists, the entire operation may be rejected.</li>
 <li><a href="../cell_tissue/TestElementRule-class.html">TestElementRule</a> – the specific interface for membership validation.</li>
 <li><a href="../cell_tissue/TissueNucleus-class.html">TissueNucleus</a> – where these rules are attached to the reactive blueprint.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Tissue — the mutation rule for books. Not a Cell factory, not a Flow operator.
+<strong>When to use:</strong> <code>testRule:</code> on <strong>every</strong> Tissue constructor: append-only log, non-negative reserve, key shape, or documented <code>allowAll</code>.
+<strong>When NOT to use:</strong>
+  <strong>DON'T</strong> put <code>testRule: TestCell</code> on any <code>TissueList</code> / <code>TissueMap</code> /
+<code>TissueSet</code> / <code>TissueQueue</code> / <code>TissueValue</code> constructor. Use <code>TestTissue</code>.
+This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-test.dart</code>.
+<strong>Live signature:</strong> <code>TestTissue&lt;E, C extends Tissue&lt;E&gt;&gt;(FutureOr&lt;bool&gt; Function(dynamic object, {C? host, dynamic arguments, dynamic user}) rule, {TestTissue&lt;E, C&gt;? parent, dynamic user})</code> — pinned at <code>cell_tissue: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>TestCell</code> (Cell nodes only). They are not subtypes; swapping them fails the acceptance grep.
+<strong>Guide:</strong> <code>HowTo-Mitose-Tissue.md</code> §3 "TestTissue — considering factors" (#tissue-testtissue)
+<strong>Example:</strong> <code>example/cell_tissue_example.dart</code>
+<strong>Cross-layer:</strong> quality rules on <strong>ingress / state / toHandle</strong> are <code>TestCell</code> in <code>cell</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final gate = TestTissue&lt;int, TissueList&lt;int&gt;&gt;(
+  (v, {host, arguments, user}) =&gt; (v as int) &gt; 0,
+);
+final book = TissueList&lt;int&gt;(testRule: gate);
+book.add(1);
+book.add(-1); // rejected by the gate
+print(book.length); // 1
+</code></pre>
 </section>
 
 
@@ -238,7 +246,7 @@ directly from a structured <code>record</code> configuration.
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="action" class="callable inherited">
-  <span class="name"><a href="../cell_tissue/TestCell/action.html">action</a></span><span class="signature">(<wbr><span class="parameter" id="action-param-action"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">action</span>, {</span><span class="parameter" id="action-param-host"><span>required</span> <span class="type-annotation">C</span> <span class="parameter-name">host</span>, </span><span class="parameter" id="action-param-arguments"><span class="type-annotation"><a href="../cell_tissue/Arguments.html">Arguments</a>?</span> <span class="parameter-name">arguments</span></span>})
+  <span class="name"><a href="../cell_tissue/TestCell/action.html">action</a></span><span class="signature">(<wbr><span class="parameter" id="action-param-action"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">action</span>, {</span><span class="parameter" id="action-param-host"><span>required</span> <span class="type-annotation">C</span> <span class="parameter-name">host</span>, </span><span class="parameter" id="action-param-arguments"><span class="type-annotation"><a href="../cell_tissue/Arguments.html">Arguments</a>?</span> <span class="parameter-name">arguments</span>, </span><span class="parameter" id="action-param-command"><span class="type-annotation"><a href="../cell_tissue/ApplyCommand.html">ApplyCommand</a>?</span> <span class="parameter-name">command</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span>
   </span>
   
@@ -439,7 +447,7 @@ Mutation Barrier</strong> specifically for reactive collections.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

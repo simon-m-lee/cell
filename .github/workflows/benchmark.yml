@@ -1,0 +1,95 @@
+name: benchmark
+
+on:
+  pull_request:
+    paths:
+      - 'packages/cell/lib/**'
+      - 'packages/cell/benchmark/**'
+      - 'packages/cell_tissue/lib/**'
+      - 'packages/cell_tissue/benchmark/**'
+  push:
+    branches: [master]
+  schedule:
+    - cron: '0 3 * * *' # nightly full run
+
+jobs:
+  pr-suite:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/cell
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - run: dart pub get
+      - name: Run benchmarks
+        run: dart run benchmark/runner.dart --out current.json
+      - name: Compare against baseline
+        run: |
+          dart run benchmark/compare.dart \
+            --baseline benchmark/baseline.json \
+            --current current.json \
+            --max-regression 0.15
+
+  pr-suite-tissue:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/cell_tissue
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - run: dart pub get
+      - name: Run benchmarks
+        run: dart run benchmark/runner.dart --out current.json
+      - name: Compare against baseline
+        run: |
+          dart run benchmark/compare.dart             --baseline benchmark/baseline.json             --current current.json             --max-regression 0.15
+      - name: Run research sub-suite
+        run: dart run benchmark/tissue/runner.dart --full --out benchmark/tissue/current.json
+      - name: Compare research sub-suite against baseline
+        run: |
+          dart run benchmark/tissue/compare.dart             --baseline benchmark/tissue/baseline.json             --current benchmark/tissue/current.json             --max-regression 0.15
+
+  pr-suite-flow:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/cell_flow
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - run: dart pub get
+      - name: Run benchmarks
+        run: dart run benchmark/runner.dart --out current.json
+      - name: Compare against baseline
+        run: |
+          dart run benchmark/compare.dart             --baseline benchmark/baseline.json             --current current.json             --max-regression 0.15
+
+  nightly-full:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/cell
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - run: dart pub get
+      - name: Heavy propagation stress
+        run: dart run benchmark/synapses/high_frequency.dart
+      - name: Memory footprint
+        run: dart run --observe benchmark/memory/per_cell_footprint.dart
+      - name: Evolution chain memory
+        run: dart run --observe benchmark/memory/evolution_chain.dart
+      - name: Tissue memory footprint
+        working-directory: packages/cell_tissue
+        run: dart run --observe benchmark/memory/per_tissue_footprint.dart
+      - name: Tissue comparison benches
+        working-directory: packages/cell_tissue
+        run: dart run benchmark/compare/vs_plain_collections.dart
+      - name: Comparison benches
+        run: |
+          dart run benchmark/compare/vs_rxdart_distinct.dart
+          dart run benchmark/compare/vs_rxdart_asyncmap.dart
+          dart run benchmark/compare/vs_raw_stream.dart

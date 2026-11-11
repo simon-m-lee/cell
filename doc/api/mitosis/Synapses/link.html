@@ -73,12 +73,6 @@ when a UI component mounts.</p>
 <p>The method validates the link via the cell's <a href="../../mitosis/TestCell-class.html">TestCell</a>, then adds the
 downstream cell to the registry. If the cell is already linked, it's a
 no‑op. Returns <code>true</code> on success, <code>false</code> if rejected.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The link is governed by the host cell's validation rules – you can't
-link to a cell that the host doesn't allow.</li>
-<li>Deputies and their principals are considered equivalent for linking.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final linked = await synapses.link(source, downstreamCell: observer);
 if (linked) { /* observer now receives updates */ }
@@ -130,7 +124,7 @@ the synapses are disabled.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

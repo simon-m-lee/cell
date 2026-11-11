@@ -60,13 +60,6 @@ cell that rejected its value.</p>
 <h3 id="when-to-use">When to use</h3>
 <p>Catch this to handle validation failures gracefully, e.g., by
 presenting errors to the user or retrying with corrected values.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>Validation happens during <code>commit</code>, not during <code>update</code>. This means
-you can stage changes and then decide whether to commit or rollback.</li>
-<li>If validation fails, the transaction is automatically rolled back.
-You don't need to call <code>rollback</code> manually.</li>
-</ul>
 </section>
 
 
@@ -231,7 +224,7 @@ You don't need to call <code>rollback</code> manually.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

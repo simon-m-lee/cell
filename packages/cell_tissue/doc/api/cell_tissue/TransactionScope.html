@@ -90,19 +90,6 @@ or any operation with invariants across cells.</li>
 <li><strong>Commit</strong>: Acquire locks, validate, apply all changes atomically.</li>
 <li><strong>Rollback</strong>: Discard buffered changes.</li>
 </ol>
-<h3 id="nonobvious-locks-are-held-only-during-commit">Non‑obvious: locks are held only during commit</h3>
-<p>Locks are acquired <strong>only during commit</strong>, not across begin→commit.
-This means you can perform long-running logic between begin and commit
-without holding locks. This is a deliberate design choice to prevent
-deadlocks and long-held locks.</p>
-<h3 id="nonobvious-validation-happens-during-commit-not-update">Non‑obvious: validation happens during commit, not update</h3>
-<p>You can stage changes (<code>update</code>) and then decide whether to commit.
-Validation runs during commit, not during update. This allows you
-to build up complex changes and validate them as a whole.</p>
-<h3 id="nonobvious-transactions-are-not-reentrant">Non‑obvious: transactions are not reentrant</h3>
-<p>You must commit or rollback before starting another transaction
-on the same scope. Attempting to call <code>begin</code> while a transaction
-is active throws a <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a>.</p>
 <h3 id="example-1-basic-transfer">Example 1: Basic Transfer</h3>
 <pre class="language-dart"><code class="language-dart">final tx = Cell.transaction();
 
@@ -172,12 +159,6 @@ await tx.commit();
   &#47;&#47;&#47; - Resolves lock ordering for the commit phase.
   &#47;&#47;&#47; - Starts a timeout timer if [timeout] is set.
   &#47;&#47;&#47;
-  &#47;&#47;&#47; ### Non‑obvious
-  &#47;&#47;&#47; - Locks are **not** held during `begin` – they are acquired only
-  &#47;&#47;&#47;   during `commit`. This avoids long‑held locks.
-  &#47;&#47;&#47; - If a timeout is set, the transaction is automatically rolled back
-  &#47;&#47;&#47;   when it expires.
-  &#47;&#47;&#47;
   &#47;&#47;&#47; ### Throws
   &#47;&#47;&#47; - [StateError] if a transaction is already active.
   &#47;&#47;&#47; - [ArgumentError] if [cells] is empty.
@@ -195,11 +176,6 @@ await tx.commit();
   &#47;&#47;&#47; - The cell is marked as pending for `pending` reads.
   &#47;&#47;&#47; - Emits a [TransactionUpdated] event.
   &#47;&#47;&#47;
-  &#47;&#47;&#47; ### Non‑obvious
-  &#47;&#47;&#47; - Validation happens during `commit`, not during `update`.
-  &#47;&#47;&#47; - You can update the same cell multiple times – only the last value
-  &#47;&#47;&#47;   is used.
-  &#47;&#47;&#47;
   &#47;&#47;&#47; ### Throws
   &#47;&#47;&#47; - [StateError] if no transaction is active.
   &#47;&#47;&#47; - [ArgumentError] if the cell is not a participant.
@@ -215,12 +191,6 @@ await tx.commit();
   &#47;&#47;&#47; - `readCommitted`: returns the current live value.
   &#47;&#47;&#47; - `repeatableRead`: returns the snapshot value from `begin`.
   &#47;&#47;&#47; - `serializable`: returns the snapshot value and tracks the read set.
-  &#47;&#47;&#47;
-  &#47;&#47;&#47; ### Non‑obvious
-  &#47;&#47;&#47; - For `serializable`, reading a cell tracks it in the read set.
-  &#47;&#47;&#47;   If the cell changes before commit, the transaction aborts.
-  &#47;&#47;&#47; - For `repeatableRead`, reads are stable, but writes are not
-  &#47;&#47;&#47;   included – use `pending` if you need to see buffered writes.
   &#47;&#47;&#47;
   &#47;&#47;&#47; ### Returns
   &#47;&#47;&#47; The value of the cell according to the isolation level.
@@ -264,12 +234,6 @@ await tx.commit();
   &#47;&#47;&#47; 5. Releases locks and resets the transaction state.
   &#47;&#47;&#47; 6. Emits a [TransactionCommitted] event.
   &#47;&#47;&#47;
-  &#47;&#47;&#47; ### Non‑obvious
-  &#47;&#47;&#47; - Locks are held **only during commit**, not across begin→commit.
-  &#47;&#47;&#47; - If validation fails, the transaction is automatically rolled back.
-  &#47;&#47;&#47; - After commit, the transaction scope is reset – you must call
-  &#47;&#47;&#47;   `begin` again for a new transaction.
-  &#47;&#47;&#47;
   &#47;&#47;&#47; ### Throws
   &#47;&#47;&#47; - [StateError] if no transaction is active.
   &#47;&#47;&#47; - [TransactionValidationException] if validation fails.
@@ -289,12 +253,6 @@ await tx.commit();
   &#47;&#47;&#47; - Otherwise, discards all changes and resets the transaction.
   &#47;&#47;&#47; - Emits a [TransactionRolledBack] event.
   &#47;&#47;&#47;
-  &#47;&#47;&#47; ### Non‑obvious
-  &#47;&#47;&#47; - Rolling back to a savepoint does **not** release locks – the
-  &#47;&#47;&#47;   transaction remains active.
-  &#47;&#47;&#47; - After a full rollback (no savepoint), the transaction scope is
-  &#47;&#47;&#47;   reset – you must call `begin` again.
-  &#47;&#47;&#47;
   &#47;&#47;&#47; ### Throws
   &#47;&#47;&#47; - [ArgumentError] if the savepoint is unknown.
   Future&lt;void&gt; Function({Object? savepoint}) rollback,
@@ -308,12 +266,6 @@ await tx.commit();
   &#47;&#47;&#47; ### How it works
   &#47;&#47;&#47; - Records the current buffer length.
   &#47;&#47;&#47; - Returns an opaque identifier that can be passed to `rollback`.
-  &#47;&#47;&#47;
-  &#47;&#47;&#47; ### Non‑obvious
-  &#47;&#47;&#47; - Savepoints are sequential – rolling back to an earlier savepoint
-  &#47;&#47;&#47;   discards all later savepoints.
-  &#47;&#47;&#47; - The savepoint identifier is a simple integer. You can use it as a
-  &#47;&#47;&#47;   key for custom logic.
   &#47;&#47;&#47;
   &#47;&#47;&#47; ### Returns
   &#47;&#47;&#47; An opaque identifier that can be passed to `rollback`.
@@ -344,7 +296,7 @@ await tx.commit();
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

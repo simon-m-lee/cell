@@ -102,7 +102,7 @@ during multi-source ingestion.</li>
           receptor: receptor,
           bind: bind,
           context: context,
-          synapses: synapses == Synapses.enabled ? Synapses() : synapses,
+          synapses: synapses,
           forceLock: forceLock)) {
   for (var c in cells) {
     c._nucleus.synapses.link(c, downstreamCell: this);
@@ -135,7 +135,7 @@ during multi-source ingestion.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

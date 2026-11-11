@@ -90,22 +90,6 @@ forensic metadata.</li>
 <li><strong>Activation</strong>: A receptor is a stateless template until bound to a
 specific cell via <a href="../mitosis/Receptor/activate.html">activate</a>.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Activation</strong>: A receptor is a stateless template until bound to a
-specific cell. Once activated, it is pinned to that cell's context.
-To use the same logic on a different cell, use the <a href="../mitosis/Receptor/clone.html">clone</a> method.</li>
-<li><strong>Pass‑through Efficiency</strong>: The default behavior uses a singleton
-instance, allowing millions of cells to share the same logic without
-memory overhead.</li>
-<li><strong>Filtering vs. Errors</strong>: Returning <code>null</code> is the standard way to
-filter signals (e.g., ignoring out-of-range values). It is not treated
-as an error path.</li>
-<li><strong>Synchronous vs Asynchronous</strong>: The <a href="../mitosis/Receptor/call.html">call</a> method executes
-synchronously. Use <a href="../mitosis/Receptor/async.html">Receptor.async</a> for asynchronous pulse injection.</li>
-<li><strong>Governance</strong>: When <a href="../mitosis/Cell/isGoverned.html">Cell.isGoverned</a> is <code>true</code>, the receptor applies
-architectural policies and appends forensic trace information.</li>
-</ul>
 <h3 id="type-parameters">Type Parameters:</h3>
 <ul>
 <li><code>C</code>: The type of the host <a href="../mitosis/Cell-class.html">Cell</a> that this receptor serves.</li>
@@ -405,7 +389,7 @@ Transformation</strong> on all incoming signals.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

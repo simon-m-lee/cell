@@ -89,13 +89,6 @@ grouped values.</p>
 <li>The current map is emitted as a snapshot.</li>
 <li>If <code>keyOf</code> throws an error, the pulse is dropped.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Stateful</strong>: Maintains a map of all groups.</li>
-<li><strong>Running Snapshot</strong>: Emits the complete map after every pulse.</li>
-<li><strong>Snapshot Copy</strong>: The emitted map is a copy (not the internal map).</li>
-<li><strong>Monotonic Growth</strong>: Groups only grow; values are never removed.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -173,7 +166,7 @@ input.emit(2); // -&gt; {odd: [1], even: [2]}
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

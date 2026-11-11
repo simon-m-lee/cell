@@ -87,14 +87,6 @@ after a delay.</p>
 timer is cancelled.</li>
 <li>Only the latest pulse is delivered.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Cancellation</strong>: Previous timers are cancelled on new pulses.</li>
-<li><strong>Latest Only</strong>: Only the latest pulse is delivered.</li>
-<li><strong>Trailing</strong>: The delay is trailing (after the last pulse).</li>
-<li><strong>Generation Tracking</strong>: Each pulse gets a generation ID to
-determine if it's still current.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -166,7 +158,7 @@ input.emit('c'); // Delivered after 300ms
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -80,8 +80,12 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 DateTime get timestamp {
-  return get&lt;DateTime&gt;(() =&gt; _record.root.primary.timestamp,
-      fallback: () =&gt; _parent?.timestamp);
+  if ((_shape &amp; _kTimestamp) != 0) {
+    return _record.root.primary.timestamp;
+  }
+  final inherited = _parent?.timestamp;
+  if (inherited != null) return inherited;
+  throw StateError(&#39;Pulse record has no timestamp.&#39;);
 }</code></pre>
 </section>
 
@@ -112,7 +116,7 @@ DateTime get timestamp {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

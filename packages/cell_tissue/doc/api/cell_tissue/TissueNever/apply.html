@@ -27,7 +27,7 @@
     <li><a href="../../index.html">cell_tissue</a></li>
     <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueNever-class.html">TissueNever</a></li>
-    <li class="self-crumb">apply method</li>
+    <li class="self-crumb">apply&lt;<wbr><span class="type-parameter">R</span>&gt; method</li>
   </ol>
   <div class="self-name">apply</div>
   <form class="search navbar-right" role="search">
@@ -49,7 +49,7 @@
     data-above-sidebar="cell_tissue&#47;TissueNever-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">apply</span> method 
+<h1><span class="kind-method">apply&lt;<wbr><span class="type-parameter">R</span>&gt;</span> method 
 </h1></div>
 
     <section class="multi-line-signature">
@@ -59,15 +59,9 @@
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-<span class="returntype">dynamic</span>
-<span class="name ">apply</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span></li>
-<li><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span></li>
-<li><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span></li>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span>
+<span class="name ">apply</span>&lt;<wbr><span class="type-parameter">R</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="apply-param-command"><span class="type-annotation"><a href="../../cell_tissue/ApplyCommand.html">ApplyCommand</a></span> <span class="parameter-name">command</span>, {</span></li>
 <li><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span></li>
-<li><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span></li>
-<li><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span></li>
-<li><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span></li>
-<li><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span>, </span></li>
 </ol>})
 
       <div class="features"><span class="feature">override</span></div>
@@ -75,10 +69,8 @@
     </section>
     
 <section class="desc markdown">
-  <p>A no‑op implementation of the <a href="../../cell_tissue/Cell/apply.html">Cell.apply</a> method.</p>
-<p>Since the tissue is empty, there are no elements to apply
-functions to, and the tissue itself provides no dynamic
-callable behaviour.</p>
+  <p>The empty tissue has no mutation surface, so every command is
+forensically rejected.</p>
 </section>
 
 
@@ -86,16 +78,16 @@ callable behaviour.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-dynamic apply(
-  Function function, {
-  List? positionalArguments,
-  Map&lt;Symbol, dynamic&gt;? namedArguments,
+FutureOr&lt;ApplyOutcome&lt;R&gt;&gt; apply&lt;R&gt;(
+  ApplyCommand command, {
   ApplyTransactionScope? tx,
-  Function? compensate,
-  List? compensatePositional,
-  Map&lt;Symbol, dynamic&gt;? compensateNamed,
-  Cell? compensateCell,
-}) {}</code></pre>
+}) {
+  return ApplyRejected&lt;R&gt;(ApplyLedger.receipt(
+    cell: this,
+    command: command,
+    vetted: false,
+  ));
+}</code></pre>
 </section>
 
 
@@ -111,7 +103,7 @@ dynamic apply(
     <li><a href="../../index.html">cell_tissue</a></li>
     <li><a href="../../cell_tissue/">cell_tissue</a></li>
     <li><a href="../../cell_tissue/TissueNever-class.html">TissueNever</a></li>
-    <li class="self-crumb">apply method</li>
+    <li class="self-crumb">apply&lt;<wbr><span class="type-parameter">R</span>&gt; method</li>
 </ol>
 
     <h5>TissueNever class</h5>
@@ -123,7 +115,7 @@ dynamic apply(
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

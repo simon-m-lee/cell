@@ -1,3 +1,11 @@
+// # `example/state_demo.dart`
+//
+// **What it demonstrates:** Retained state with validation and evolution.
+// **Which BRD sentence picks it:** "Retain the current setting X." (no Tissue book named)
+// **Layer:** Cell (§2 `Cell.state`)
+// **API signatures used:** `Cell.state`, `StateHandle.update`, `ValueCell.value`
+// **Run:** `dart run example/state_demo.dart`
+// **Verify first:** `dart run tool/ai_preflight.dart` exits 0.
 // =============================================================================
 // Practical executable walkthrough – Cell.state
 // Persistent State · Evolution Logic · Atomic Updates

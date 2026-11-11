@@ -73,12 +73,6 @@ nodes where identity matters.</p>
 <li>The <code>create</code> function returns a <a href="https://api.flutter.dev/flutter/dart-collection/LinkedHashSet/LinkedHashSet.identity.html">LinkedHashSet.identity</a>.</li>
 <li>Membership is determined by <a href="https://api.flutter.dev/flutter/dart-core/identical.html">identical</a> comparisons.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is faster than value‑based sets because it avoids calling
-<code>hashCode</code> and <code>==</code>.</li>
-<li>It is the preferred strategy for collections of <code>Cell</code> objects.</li>
-</ul>
 </section>
 
       
@@ -114,7 +108,7 @@ nodes where identity matters.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

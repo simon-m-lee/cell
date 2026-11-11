@@ -110,17 +110,6 @@ that it is shutting down.</li>
 in memory, <code>isInvalidated</code> serves as a semantic lock, preventing
 further state transitions.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Irreversibility</strong>: Invalidation is a <strong>terminal state</strong>. Once a cell
-is invalidated, it cannot be "revived"; a new <a href="../../mitosis/Cell-class.html">Cell</a> instance must be
-synthesized from a <code>Nucleus</code> if the logic needs to restart.</li>
-<li><strong>Memory Safety</strong>: This state allows the internal <a href="../../mitosis/Synapses-class.html">Synapses</a> to
-clear their observer registries, breaking strong reference cycles and
-facilitating proper garbage collection.</li>
-<li><strong>Deputy Impact</strong>: When a principal cell is invalidated, all of its
-attenuated deputies are automatically moved into the neutralization phase.</li>
-</ul>
 <h3 id="returns">Returns:</h3>
 <ul>
 <li><code>true</code>: If the cell's governance policy has emitted its termination
@@ -164,7 +153,7 @@ bool get isInvalidated =&gt; _nucleus.isInvalidated;</code></pre>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

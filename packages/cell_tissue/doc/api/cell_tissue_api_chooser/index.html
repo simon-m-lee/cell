@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="cell_tissue_api_chooser library API docs, for the Dart programming language.">
+  <title>cell_tissue_api_chooser library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li class="self-crumb">doc\api_chooser.dart</li>
+  </ol>
+  <div class="self-name">cell_tissue_api_chooser</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar=""
+    data-below-sidebar="cell_tissue_api_chooser&#47;cell_tissue_api_chooser-library-sidebar.html">
+  
+    <div>
+      
+
+      <h1>
+        <span class="kind-library">doc\api_chooser</span>
+        library 
+ 
+
+      </h1>
+    </div>
+
+    
+<section class="desc markdown">
+  <h2 id="api-chooser--cell_tissue-operators">API Chooser — <code>cell_tissue</code> operators</h2>
+<p><strong>Layer:</strong> Tissue — the books. Owns: the five collection types,
+TestTissue, deputies, <code>.unmodifiable</code>. Does <strong>not</strong> own: the decision
+(cell_flow), the glue (Cell.observe).</p>
+<p><strong>Read this file when:</strong> a BRD sentence says "record every Y",
+"reserve N units", "protected / guarded keys", "open incidents by X",
+"alert the supervisor", or "council reads, cannot delete".</p>
+<p>The full decision procedure lives in <code>HowTo-Mitose-Flow.md</code>; this
+matrix is generated from the <code>### AI Agent Guide</code> blocks and cannot
+drift.</p>
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>When to use</th>
+<th>When NOT to use</th>
+<th>Live signature</th>
+<th>Guide</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Iterable</code></td>
+<td>** the shared surface of <code>TissueList</code> / <code>TissueSet</code> / <code>TissueMap</code> / <code>TissueQueue</code> / <code>TissueValue</code> — every book is a Cell under the hood with its own lock and collection pulses.</td>
+<td>** as a book directly — pick one of the five concrete types; a plain Dart <code>List</code> is not a book.</td>
+<td>** <code>abstract interface class Tissue&lt;E&gt; implements Cell, Iterable&lt;E&gt;</code> — pinned at <code>cell_tissue: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Tissue.md</code> §2 "Examine all five collections against the BRD" (#tissue-catalog)</td>
+<td>** <code>example/cell_tissue_example.dart</code></td>
+</tr>
+<tr>
+<td><code>Pulse</code></td>
+<td>** optional second-order observe on a book (e.g. UI shows the audit log live); app observers in a Cell-variant Demo still sit on the <strong>gate Cell</strong>.</td>
+<td>** as the decision signal — Tissue records, Flow decides.</td>
+<td>** <code>abstract interface class TissuePulse&lt;E&gt; implements Pulse&lt;E&gt;</code> — pinned at <code>cell_tissue: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Tissue.md</code> §1 "What Tissue owns in a Demo" (#tissue-owns)</td>
+<td>** <code>example/cell_tissue_example.dart</code></td>
+</tr>
+<tr>
+<td><code>TestTissue</code></td>
+<td>** <code>testRule:</code> on <strong>every</strong> Tissue constructor: append-only log, non-negative reserve, key shape, or documented <code>allowAll</code>.</td>
+<td>** <strong>DON'T</strong> put <code>testRule: TestCell</code> on any <code>TissueList</code> / <code>TissueMap</code> /</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>TissueSet</code> / <code>TissueQueue</code> / <code>TissueValue</code> constructor. Use <code>TestTissue</code>.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-test.dart</code>.</td>
+<td>** <code>TestTissue&lt;E, C extends Tissue&lt;E&gt;&gt;(FutureOr&lt;bool&gt; Function(dynamic object, {C? host, dynamic arguments, dynamic user}) rule, {TestTissue&lt;E, C&gt;? parent, dynamic user})</code> — pinned at <code>cell_tissue: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Tissue.md</code> §3 "TestTissue — considering factors" (#tissue-testtissue)</td>
+<td>** <code>example/cell_tissue_example.dart</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>TissueList</code></td>
+<td>** "record every alert and action" — ordered history, indexable log, 24-month retention = append-only list (not a purge job).</td>
+<td>** <strong>DON'T</strong> put <code>testRule: TestCell</code> on any <code>TissueList</code> / <code>TissueMap</code> /</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>TissueSet</code> / <code>TissueQueue</code> / <code>TissueValue</code> constructor. Use <code>TestTissue</code>.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-test.dart</code>. <strong>DON'T</strong> keep a plain Dart <code>List</code> / <code>Map</code> as the system of record when</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>the WalkThrough named a Tissue book. Mutation signals and TestTissue</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>validation only exist on the Tissue types.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>See <code>HowTo-Mitose-Tissue.md</code> §9 "Anti-patterns".</td>
+<td>** <code>TissueList&lt;E&gt;({bind, context, receptor, testRule, synapses, growable})</code> / <code>TissueList.of(iterable, {...})</code> / <code>TissueList.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Tissue.md</code> §2.1 "TissueList — the audit book" (#tissue-list)</td>
+<td>** <code>example/cell_tissue_example.dart</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>TissueMap</code></td>
+<td>** "open incidents across terminals / streams" — one open row per belt/stream; <code>incidentMap[key] = ...</code>, <code>incidentMap.remove(key)</code> only from <code>closeIncident</code>.</td>
+<td>** <strong>DON'T</strong> put <code>testRule: TestCell</code> on any <code>TissueList</code> / <code>TissueMap</code> /</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>TissueSet</code> / <code>TissueQueue</code> / <code>TissueValue</code> constructor. Use <code>TestTissue</code>.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-test.dart</code>. A new Map per bag — the payload on <code>V</code> carries the many.</td>
+<td>** <code>TissueMap&lt;K, V&gt;({bind, context, testRule, receptor, synapses, ...})</code> / <code>TissueMap.of(entries, {...})</code> / <code>TissueMap.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Tissue.md</code> §2.3 "TissueMap — open work keyed by location" (#tissue-map)</td>
+<td>** <code>example/cell_tissue_example.dart</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>TissueQueue</code></td>
+<td>** "alert the supervisor / RTU / issuer" — audit enqueue (<code>addLast(job)</code>) with an optional <code>capacity</code> for backpressure; the Dart list + <code>_driveAlert</code> is the retry-once pump.</td>
+<td>** <strong>DON'T</strong> put <code>testRule: TestCell</code> on any <code>TissueList</code> / <code>TissueMap</code> /</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>TissueSet</code> / <code>TissueQueue</code> / <code>TissueValue</code> constructor. Use <code>TestTissue</code>.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-test.dart</code>. <strong>DON'T</strong> drain a <code>TissueQueue</code> as the only working list if you still</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>need the queue as history. The TissueQueue is the <strong>audit enqueue</strong>; a</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Dart list + <code>_driveAlert</code> / <code>_driveRtu</code> is the retry-once pump.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>See <code>HowTo-Mitose-Tissue.md</code> §2.4 "TissueQueue — outbound work".</td>
+<td>** <code>TissueQueue&lt;E&gt;({bind, context, testRule, receptor, synapses, ...})</code> / <code>TissueQueue.of(iterable, {...})</code> / <code>TissueQueue.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Tissue.md</code> §2.4 "TissueQueue — outbound work" (#tissue-queue)</td>
+<td>** <code>example/cell_tissue_example.dart</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>TissueSet</code></td>
+<td>** "protected / diplomatic / resus never re-routed" — unique membership fed <strong>into</strong> <code>riskOf(tick, protected)</code>; uniqueness is free.</td>
+<td>** <strong>DON'T</strong> put <code>testRule: TestCell</code> on any <code>TissueList</code> / <code>TissueMap</code> /</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>TissueSet</code> / <code>TissueQueue</code> / <code>TissueValue</code> constructor. Use <code>TestTissue</code>.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-test.dart</code>. <strong>DON'T</strong> keep two lists "for compliance" instead of one book plus a</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>.unmodifiable</code> / <code>.deputy</code> view. One book, many surfaces.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>See <code>HowTo-Mitose-Tissue.md</code> §9 "Anti-patterns".</td>
+<td>** <code>TissueSet&lt;E&gt;(Iterable&lt;E&gt; elements, {bind, context, testRule, receptor, synapses, ...})</code> / <code>TissueSet.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Tissue.md</code> §2.2 "TissueSet — the guard register" (#tissue-set)</td>
+<td>** <code>example/cell_tissue_example.dart</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>TissueValue</code></td>
+<td>** "45,000 bags / 42 trolleys / 800 MW / ledger cents" — one governed number with an invariant (<code>TestTissue</code> <code>&gt;= 0</code>) plus a harness pre-check.</td>
+<td>** <strong>DON'T</strong> put <code>testRule: TestCell</code> on any <code>TissueList</code> / <code>TissueMap</code> /</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>TissueSet</code> / <code>TissueQueue</code> / <code>TissueValue</code> constructor. Use <code>TestTissue</code>.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-test.dart</code>. <code>Cell.state&lt;int&gt;</code> when the WalkThrough named a reserve book.</td>
+<td>** <code>TissueValue&lt;V&gt;(V? value, {bind, context, testRule, receptor, synapses, finalValue})</code> / <code>TissueValue.empty({...})</code> / <code>TissueValue.unmodifiable(bind)</code> — pinned at <code>cell_tissue: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Tissue.md</code> §2.5 "TissueValue — the reserve scalar" (#tissue-value)</td>
+<td>** <code>example/cell_tissue_example.dart</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Unmodifiable</code></td>
+<td>** COMPLY / council views — <code>book.unmodifiable</code> is a <strong>live</strong> zero-copy view, not a snapshot; use <code>.deputy(testRule: …)</code> for a narrowed write set.</td>
+<td>** a daily PDF roll-up (that is a harness <strong>read</strong>, not a view); never keep two books "for compliance".</td>
+<td>** <code>abstract interface class UnmodifiableTissue&lt;E&gt; implements Tissue&lt;E&gt;, Unmodifiable</code> — pinned at <code>cell_tissue: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Tissue.md</code> §4 "Deputies and .unmodifiable" (#tissue-deputies)</td>
+<td>** <code>example/cell_tissue_example.dart</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="how-this-matrix-stays-fresh">How this matrix stays fresh</h2>
+<ul>
+<li><code>dart run tool/generate_api_chooser.dart</code> — regenerates this file.</li>
+<li><code>test/api_chooser_up_to_date_test.dart</code> — fails CI if stale.</li>
+<li><code>dart run tool/ai_preflight.dart</code> — fails CI if a pin drifts.</li>
+</ul>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li class="self-crumb">doc\api_chooser.dart</li>
+</ol>
+
+    <h5><span class="package-name">cell_tissue</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+        <li><a href="../topics/Fintech Pipeline-topic.html">Demo&nbsp;·&nbsp;Fintech&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Grid Demand-topic.html">Demo&nbsp;·&nbsp;Grid&nbsp;Demand</a></li>
+        <li><a href="../topics/Natural-Language-topic.html">Demo&nbsp;·&nbsp;Natural-Language</a></li>
+        <li><a href="../topics/Ride Hail-topic.html">Demo&nbsp;·&nbsp;Ride&nbsp;Hail</a></li>
+        <li><a href="../topics/Examples-topic.html">Quick&nbsp;Start&nbsp;&&nbsp;Examples</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_tissue_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
+      <li><a href="../cell_tissue_api_chooser/">doc\api_chooser</a></li>
+      <li class="section-subtitle">Core</li>
+        <li class="section-subitem"><a href="../cell_tissue/">cell_tissue</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <h5>cell_tissue_api_chooser library</h5>
+  </div><!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

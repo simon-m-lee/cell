@@ -94,14 +94,6 @@ limits, a custom security context, or completion/error callbacks.</li>
 <li>Callbacks (<code>onComplete</code>, <code>onError</code>, <code>onProgress</code>) are attached to the
 pulse and fire during its lifecycle.</li>
 </ul>
-<h3 id="nonobvious-callbacks-travel-with-the-pulse">Non‑obvious: callbacks travel with the pulse</h3>
-<p>Callbacks attached to a governed pulse are <strong>inherited</strong> through the
-parent chain. If you evolve a pulse, the original callbacks are still
-present — they're not lost or duplicated.</p>
-<h3 id="nonobvious-governance-is-determined-by-context-or-policy">Non‑obvious: governance is determined by Context or Policy</h3>
-<p>A pulse becomes governed when either <code>context</code> (non‑default provenance)
-or <code>policy</code> (lifecycle rules) is provided. Governed pulses undergo
-additional validation, TTL checks, and auditing during propagation.</p>
 <h3 id="example-a-timesensitive-token">Example: A Time‑Sensitive Token</h3>
 <pre class="language-dart"><code class="language-dart">final token = Pulse.governed&lt;String&gt;(
   payload: 'session_123',
@@ -174,7 +166,7 @@ additional validation, TTL checks, and auditing during propagation.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

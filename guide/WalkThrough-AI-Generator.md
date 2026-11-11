@@ -447,8 +447,10 @@ This is `HowTo-Mitose.md` §6. It is **not** part of the first WalkThrough write
 4. Trailer integers come from the Demo header / last-good run, not from this draft.
 5. Recommendations for Enhancement map to a landing layer (Cell / Flow / Tissue / harness) using the three HowTos. Do not dump new policy into `riskOf` by default.
 6. If `main()` implemented something Wave A deferred, move that row from §5.10 to “implemented”.
+7. **Reconcile the contract.** Update §5.2–§5.5, §5.7, §5.10 and the coverage matrix so they describe what the executed Demo actually does (with the intended full shape recorded as Recommendations / Real-desk rows), or clearly mark “intended vs executed” at the top of §5.12 and in the affected sections. Leaving the contract sections describing a shape the Demo does not implement while §5.12 describes a different implementation is invalid. ARCHITECTURE and FEATURES must not be offered until this is done.
+8. **Live signatures.** If the Demo adapted because a live package signature (constructor, export, `apply`/`txApply` shape) prevented the idealized form, record the exact deviation in §5.12 and list the intended shape as a Recommendation. Do not claim the idealized form was executed.
 
-ARCHITECTURE and FEATURES must read this filled §5.12. They must not treat an unproven clause as a handled failure.
+ARCHITECTURE and FEATURES must read this filled and reconciled §5.12. They must not treat an unproven clause as a handled failure.
 
 After the filled §5.12 is shown, offer the three choices in `HowTo-Mitose.md` §6 (Change path, in-place update, or skip) before the ledger is offered.
 

@@ -27,15 +27,6 @@ part of '../../cell.dart';
 ///    the provided parameters.
 /// 3. It handles both standard and delayed/future propagation modes.
 ///
-/// ### Non‑obvious
-/// - **Flyweight Storage**: It uses record-based storage to minimize memory
-///    footprint.
-/// - **Type Safety**: It enforces strict type checking on results.
-/// - **Const Support**: It supports `const` initialization for compile-time
-///    deduplication.
-/// - **Synchronous Execution**: The instruction executes synchronously.
-///    Asynchronous behavior is handled via the [future] callback mechanism.
-///
 /// ### Type Parameters:
 /// - [C]: The type of the host [Cell].
 /// - [I]: The type of the incoming [Pulse].
@@ -91,20 +82,6 @@ class _Instruction<C extends Cell, I extends Pulse, O extends Pulse>
 ///    signal recovers using a fallback strategy to prevent graph-wide failures.
 /// 5. **Future Propagation**: It supports asynchronous continuation via the
 ///    [future] callback mechanism.
-///
-/// ### Non‑obvious
-/// - **Sparsity-Aware Storage**: The internal record shape is automatically
-///   optimized to omit unused fields (like metadata), reducing the memory
-///   tax for systems with millions of reactive nodes.
-/// - **Type Integrity**: It enforces strict type checking on results,
-///   ensuring that incompatible payloads are discarded to maintain
-///   graph-wide type safety.
-/// - **Const-Ready Design**: The class is designed to support `const`
-///   initialization, ensuring that identical logic units share the same
-///   physical memory address across the entire application.
-/// - **Synchronous Execution**: All instruction execution is synchronous.
-///   The [call] method returns the result immediately without awaiting any
-///   [Future]. Asynchronous coordination is handled via the [future] callback.
 ///
 /// ### Type Parameters:
 /// * [C]: The type of the host [Cell] (the transformation target).
@@ -172,16 +149,6 @@ abstract class InstructionBase<C extends Cell, I extends Pulse, O extends Pulse>
   ///    [user] metadata are automatically passed to the logic block.
   /// 3. **Record Optimization**: The logic and metadata are stored in a
   ///    compact record to minimize memory footprint.
-  ///
-  /// ### Non‑obvious
-  /// - **Atomic Execution**: The logic defined here is strictly synchronous.
-  ///   If your transformation requires a [Future], use [InstructionBase.future].
-  /// - **Deduplication**: As a `const` constructor, it supports the framework's
-  ///   **Flyweight Strategy**, allowing identical logic units to share memory
-  ///   addresses.
-  /// - **Metadata Isolation**: The [user] parameter allows logic to be
-  ///   parameterized by "Mandate" or "Role" data without needing access to
-  ///   external variables.
   ///
   /// ### Example
   /// ```dart
@@ -270,18 +237,6 @@ abstract class InstructionBase<C extends Cell, I extends Pulse, O extends Pulse>
   /// 4. If the instruction was created with [Instruction.future], the
   ///    [future] callback is provided to enable asynchronous continuation.
   ///
-  /// ### Non‑obvious
-  /// - **Safety Boundary**: The execution is protected. Any exception is
-  ///   caught and logged to the pulse's forensic trace. In the event of a
-  ///   failure, the method returns `null` to safely terminate the signal
-  ///   and protect the stability of the graph.
-  /// - **Synchronous Execution**: This method executes synchronously and
-  ///   returns immediately. It does not await any [Future].
-  /// - **Execution Order**: The optional [future] callback is provided only
-  ///   to instructions created with [Instruction.future].
-  /// - **Efficiency**: It uses a linear execution path to minimize overhead
-  ///   in high-frequency signal graphs.
-  ///
   /// ### Parameters:
   /// - [pulse]: The incoming pulse to transform.
   /// - [cell]: The host cell context.
@@ -360,13 +315,6 @@ abstract class InstructionBase<C extends Cell, I extends Pulse, O extends Pulse>
 /// - [activate] always returns `false`.
 /// - [clone] returns the same instance (singleton).
 ///
-/// ### Non‑obvious
-/// - **Singleton**: Only one instance exists, shared across all cells.
-/// - **Immutable**: The receptor has no state and cannot be modified.
-/// - **Unactivatable**: This receptor cannot be activated and is always
-///   in a stateless template state.
-/// - **Type Parameter**: Uses [Never] as the cell type since it can never
-///   be activated and thus never has a valid cell reference.
 class _PassThroughReceptor implements Receptor<Never> {
   /// The singleton instance.
   static const _singleton = _PassThroughReceptor();
@@ -450,17 +398,12 @@ class _PassThroughReceptor implements Receptor<Never> {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    if (other is _PassThroughReceptor) return true;
-    if (other is ReceptorBase) {
-      try {
-        if (other._record.$2 != null) {
-          return false;
-        }
-      } catch (_) {
-        return true;
-      }
-    }
-    return false;
+    // Only the pass-through singleton equals itself. The previous heuristic
+    // (`other._record.$2`) accessed a NAMED record positionally, which
+    // always throws NoSuchMethodError and therefore made passThrough equal
+    // to EVERY ReceptorBase — breaking set/map membership and the
+    // hashCode contract.
+    return other is _PassThroughReceptor;
   }
 
   /// Hash code for this receptor.
@@ -490,11 +433,6 @@ class _PassThroughReceptor implements Receptor<Never> {
 /// 3. Activation binds the receptor to a specific cell.
 /// 4. Cloning creates a new unactivated instance.
 ///
-/// ### Non‑obvious
-/// - **Flyweight Storage**: It uses record-based storage for efficiency.
-/// - **Stateless Template**: It only becomes active when bound to a cell.
-/// - **Clone Isolation**: Clones are independent instances.
-///
 /// ### Type Parameters:
 /// - [C]: The type of the host [Cell].
 class _Receptor<C extends Cell> extends ReceptorBase<C> {
@@ -520,6 +458,72 @@ class _Receptor<C extends Cell> extends ReceptorBase<C> {
   /// ### Parameters:
   /// - [record]: The configuration record containing pipeline logic.
   _Receptor.fromRecord({super.record}) : super.fromRecord();
+
+  bool _activated = false;
+
+  @override
+  bool activate(C cell) {
+    try {
+      this.cell = cell;
+      _init?.call();
+      _activated = true;
+      return true;
+    } catch (_) {}
+    return false;
+  }
+
+  @override
+  bool get isActivated => _activated;
+
+  @override
+  late final Function? _reaction = get<Function?>(() {
+    final record = _record;
+    if (record == ()) return null;
+    final nested = record.instruction;
+    if (nested == ()) return null;
+    return nested.reaction;
+  }, orElse: null);
+
+  @override
+  late final Function? _init = get<Function?>(() {
+    final record = _record;
+    if (record == ()) return null;
+    return record.init;
+  }, orElse: null);
+
+  @override
+  late final Instruction? _instruction = get<Instruction?>(() {
+    final record = _record;
+    if (record == ()) return null;
+    final nested = record.instruction;
+    if (nested == ()) return null;
+    return nested.instruction;
+  }, orElse: null);
+
+  @override
+  late final Instruction? _preProcess = get<Instruction?>(() {
+    final record = _record;
+    if (record == ()) return null;
+    final nested = record.instruction;
+    if (nested == ()) return null;
+    return nested.preProcess;
+  }, orElse: null);
+
+  @override
+  late final Instruction? _postProcess = get<Instruction?>(() {
+    final record = _record;
+    if (record == ()) return null;
+    final nested = record.instruction;
+    if (nested == ()) return null;
+    return nested.postProcess;
+  }, orElse: null);
+
+  @override
+  late final dynamic _user = get<FinalBox?>(() {
+    final record = _record;
+    if (record == ()) return null;
+    return record.userBox;
+  }, orElse: null);
 
   /// Returns a clone of this receptor.
   ///
@@ -559,19 +563,6 @@ class _Receptor<C extends Cell> extends ReceptorBase<C> {
 ///    logic blueprints across different cell instances.
 /// 5. **Governance**: When governed, it applies architectural policies and
 ///    forensic trace information.
-///
-/// ### Non‑obvious
-/// - **Flyweight Architecture**: It utilizes a record-based storage
-///   strategy to pack all pipeline instructions into a single memory block.
-/// - **Traceability**: Every propagation step is logged to the pulse's
-///   metadata, providing full forensic visibility for debugging.
-/// - **Thread-Safe Context**: Activation pins the receptor to a specific
-///   operational perimeter, ensuring state access is always consistent.
-/// - **Synchronous Pipeline**: The pipeline executes synchronously. For
-///   asynchronous execution, use [ReceptorAsync].
-/// - **Validation Async Support**: While the pipeline is synchronous,
-///   validation can return a [Future<bool>] for asynchronous validation
-///   checks. This is the only async operation in the call path.
 ///
 /// ### Type Parameters:
 /// * [C]: The type of the host [Cell].
@@ -615,21 +606,6 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   ///    metadata passed to every stage.
   /// 6. **Synchronous Pipeline**: All stages execute synchronously in sequence.
   ///
-  /// ### Non‑obvious
-  /// - **Memory Efficiency**: It utilizes a **Flyweight Record Strategy**. The
-  ///   internal storage shape is optimized at construction to only allocate
-  ///   memory for the logic units actually provided.
-  /// - **Safety Shield**: Each stage of the pipeline is independently wrapped
-  ///   in a resilience boundary. Exceptions are caught and logged to the
-  ///   pulse's trace, ensuring a logic failure doesn't crash the entire graph.
-  /// - **Stateless Template**: Like all receptors, this constructor creates
-  ///   a blueprint. It only acquires a concrete execution context once
-  ///   bound to a specific cell.
-  /// - **Initialization Hook**: The [init] parameter allows for setup logic
-  ///   that runs exactly once when the receptor is first activated by a cell.
-  /// - **Synchronous Execution**: The [call] method executes synchronously.
-  ///   Use [ReceptorAsync] for asynchronous pulse injection.
-  ///
   /// ### Parameters:
   /// - [instruction]: The core [Instruction] defining the primary transformation.
   /// - [preProcess]: Logic for early-stage filtering or sanitization.
@@ -644,14 +620,14 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
     Pulse? Function(Pulse pulse, C host, {dynamic user})? reaction,
     void Function()? init,
     dynamic Function()? user,
-  }) : this.fromRecord(record: mask(
-      instruction: instruction,
-      preProcess: preProcess,
-      postProcess: postProcess,
-      reaction: reaction,
-      user: user,
-      init: init
-  ));
+  }) : this.fromRecord(
+            record: mask(
+                instruction: instruction,
+                preProcess: preProcess,
+                postProcess: postProcess,
+                reaction: reaction,
+                user: user,
+                init: init));
 
   /// Creates a mask record for the receptor configuration.
   ///
@@ -672,15 +648,13 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   /// A record with a fixed set of named fields (`instruction`, `init`, `user`,
   /// `userBox`). Nested `instruction` always exposes `instruction`,
   /// `preProcess`, `postProcess`, and `reaction`.
-  static Record mask({
-    Instruction? instruction,
-    Instruction? preProcess,
-    Instruction? postProcess,
-    Function? reaction,
-    Function? user,
-    Function? init
-  }) {
-
+  static Record mask(
+      {Instruction? instruction,
+      Instruction? preProcess,
+      Instruction? postProcess,
+      Function? reaction,
+      Function? user,
+      Function? init}) {
     final userBox = user != null ? (FinalBox()..value = user()) : null;
 
     // Always return a named-record shape, even when no stages are configured.
@@ -720,18 +694,6 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   ///    the internal storage mechanism, ensuring the framework can optimize
   ///    memory usage without impacting user code.
   ///
-  /// ### Non‑obvious
-  /// - **Flyweight Strategy**: Unlike standard field-based architectures,
-  ///   Record-based storage ensures that instances only allocate memory for
-  ///   the properties they actually use. This significantly reduces the
-  ///   heap footprint in graphs with millions of reactive nodes.
-  /// - **Const Support**: This initialization pattern allows receptors to be
-  ///   defined as `const`, enabling the compiler to deduplicate identical
-  ///   logic units across the entire application.
-  /// - **Immutability**: By anchoring a pre-compiled record, the receptor
-  ///   guarantees that its behavior is fixed at construction, preserving
-  ///   the deterministic consistency of the reactive pulse chain.
-  ///
   /// ### Parameters:
   /// - [record]: The optimized configuration bundle for the receptor.
   ReceptorBase.fromRecord({Record record = ()}) : _record = record;
@@ -762,23 +724,6 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   /// 6. **Broadcast**: If successful, the resulting pulse is automatically
   ///    propagated to all downstream synapses.
   ///
-  /// ### Non‑obvious
-  /// - **Safety Shield**: The entire call stack is protected by a resilience
-  ///   boundary. Exceptions are caught and logged to the pulse's forensic
-  ///   trace, and the signal is safely terminated (`null`) to protect graph
-  ///   stability.
-  /// - **Synchronous Execution**: The method executes synchronously and
-  ///   returns the result immediately. For asynchronous execution, use
-  ///   [ReceptorAsync].
-  /// - **Auditability**: In governed mode, every execution step is recorded,
-  ///   providing a complete audit trail of how data flowed through the graph.
-  /// - **Short-circuiting**: Signal propagation is aborted immediately if
-  ///   the cell is invalidated, validation fails, or a transformation
-  ///   stage returns `null`.
-  /// - **Validation Async Support**: While the pipeline is synchronous,
-  ///   validation can return a [Future<bool>] for asynchronous validation
-  ///   checks. This is the only async operation in the call path.
-  ///
   /// ### Parameters:
   /// - [incoming]: The incoming pulse to process.
   ///
@@ -790,10 +735,8 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
         isActivated,
         'Receptor call failed: The receptor must be activated before it can process pulses. '
         'Verify that the host cell has been properly initialized and is not in a disposed state.');
-    // assert(!cell.isInvalidated,
-    // 'Receptor call failed: The [cell] the receptor is activated with is in a disposed state.');
-    assert(!incoming.isInvalidated,
-        'Receptor call failed: The [incoming] pulse is in a disposed state.');
+    // A TTL-expired pulse reaching a later branch is a normal, handled
+    // runtime condition (it is silently dropped below) — never an assert.
 
     if (incoming is Shell) {
       return incoming.scrutinize(this, null);
@@ -807,7 +750,8 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
         'Receptor call failed: The [incoming] pulse is not implemented from PulseBase.');
 
     if (!(incoming as PulseBase)._checker.add(cell)) {
-      print('DEBUG receptor: checker add false');
+      // Cycle detected: this cell already processed the pulse in the
+      // current wave. Terminate the branch silently.
       return null;
     }
 
@@ -827,26 +771,55 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
       return null;
     }
 
+    // Policy ticks invoke user callbacks (onEvent/onInvalidate). They are
+    // guarded here as well as inside the policy objects, so a throwing hook
+    // fails the pulse cleanly instead of propagating through Synapses.call
+    // and tearing down whatever emitted the pulse.
     if (pulse.isGoverned) {
-      if (_pulseEphemeralPolicyCheck(pulse) == false || pulse.isInvalidated) {
+      try {
+        if (_pulseEphemeralPolicyCheck(pulse) == false || pulse.isInvalidated) {
+          return null;
+        }
+      } catch (e, st) {
+        pulse._fail(e, stackTrace: st);
         return null;
       }
     }
 
-    final step = cell.context is DeputyContext
-        ? (cell.context as DeputyContext).role ?? cell.toString()
-        : cell.toString();
+    // Cached per cell: computing the step inline would call toString() on
+    // every pulse, and a tissue's toString enumerates the whole collection
+    // — O(n) per event, O(n^2) for a sequence of mutations.
+    final step = cell._stepString;
     pulse = pulse.isComposite ? pulse : (pulse.withStep(step) as PulseBase);
 
     final result = _onPulseReceived(pulse);
     if (result != null) {
       _propagate(pulse, result: result);
+    } else {
+      // The cell consumed the pulse without producing output — a terminal
+      // branch. Account for it exactly like `nucleus._propagate`'s
+      // empty-synapse path: each terminal decrements the shared branch
+      // counter once and only the zero-crossing completes the pulse.
+      final box = pulse._branches;
+      if (box == null) {
+        pulse._complete();
+      } else {
+        box.value = box.value! - 1;
+        if (box.value == 0) {
+          pulse._complete();
+        }
+      }
     }
 
     // Tick the hosted lifecycle policy after propagation so the event that
     // reaches an event limit is still delivered before reclamation.
     if (cell.isGoverned) {
-      _ephemeralPolicyCheck(pulse);
+      try {
+        _ephemeralPolicyCheck(pulse);
+      } catch (e, st) {
+        pulse._fail(e, stackTrace: st);
+        return null;
+      }
     }
 
     return result;
@@ -910,7 +883,12 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
 
       final reaction = _reaction;
       if (reaction != null) {
-        final result = reaction(pulse, cell, user: _user);
+        // The receptor stores user metadata in a FinalBox (lazy `user()`
+        // evaluation at construction); reactions must receive the RAW value,
+        // exactly like the Instruction path does — not the box.
+        final userBox = _user;
+        final user = userBox is FinalBox ? userBox.value : userBox;
+        final result = reaction(pulse, cell, user: user);
         return identical(result, pulse)
             ? pulse
             : pulse.isGoverned
@@ -941,35 +919,63 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   /// ### Returns:
   /// The final transformed pulse, or `null` if terminated.
   PulseBase? _executeChain(PulseBase pulse, C cell) {
-    final chain = [_preProcess, _instruction, _postProcess];
+    final pre = _preProcess;
+    final instruction = _instruction;
+    final post = _postProcess;
+
+    // Fast path: pass-through and pure-reaction receptors have no stages.
+    if (pre == null && instruction == null && post == null) {
+      return pulse;
+    }
 
     PulseBase? currentPulse = pulse;
-    for (final instruction in chain) {
-      if (instruction == null) continue;
-      if (currentPulse == null) break;
+    var failed = false;
+
+    PulseBase? run(Instruction stage, {bool core = false}) {
       try {
-        if (identical(instruction, _instruction)) {
-          if (_postProcess != null) {
-            currentPulse = instruction.call(currentPulse.last,
-                    cell: cell,
-                    future: ({required result, required token}) =>
-                        result != null ? _postProcess!.call(result) : null)
-                as PulseBase?;
-          } else {
-            currentPulse = instruction.call(currentPulse.last,
-                cell: cell,
-                future: ({required result, required token}) => result != null
-                    ? cell._nucleus.synapses.call(result)
-                    : null) as PulseBase?;
+        if (core) {
+          if (post != null) {
+            return stage.call(currentPulse!.last, cell: cell,
+                future: ({required result, required token}) {
+              if (result == null) return;
+              if (cell.isInvalidated) return;
+              // Forward the host cell — postProcess stages like
+              // `ValueCell.postProcessRule` commit via
+              // `cell!._nucleus.state.value`, which requires it.
+              // Propagate the postProcess output to downstream
+              // observers; otherwise the async continuation's work
+              // is invisible to the graph.
+              final processed = post.call(result, cell: cell);
+              if (processed is PulseBase) {
+                cell._nucleus.synapses.call(processed);
+              }
+            }) as PulseBase?;
           }
-        } else {
-          currentPulse = instruction.call(currentPulse.last, cell: cell) as PulseBase?;
+          return stage.call(currentPulse!.last, cell: cell,
+              future: ({required result, required token}) {
+            if (result == null) return;
+            if (cell.isInvalidated) return;
+            cell._nucleus.synapses.call(result);
+          }) as PulseBase?;
         }
+        return stage.call(currentPulse!.last, cell: cell) as PulseBase?;
       } catch (e, stackTrace) {
+        failed = true;
         pulse._fail(e, stackTrace: stackTrace);
         return null;
       }
     }
+
+    if (pre != null) {
+      currentPulse = run(pre);
+    }
+    if (instruction != null) {
+      if (currentPulse != null) currentPulse = run(instruction, core: true);
+    }
+    if (post != null) {
+      if (currentPulse != null) currentPulse = run(post);
+    }
+    if (failed) return null;
 
     if (currentPulse is! Future) {
       return identical(currentPulse, pulse)
@@ -1058,12 +1064,13 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   /// ### Returns:
   /// A [ReceptorAsync] handle for asynchronous pulse injection.
   @override
-  ReceptorAsync<C> get async => ReceptorAsync<C>(this);
+  late final ReceptorAsync<C> async = ReceptorAsync<C>(this);
 
   /// Equality operator for receptors.
   ///
   /// Two receptors are considered equal if they have the same configuration
-  /// record. Pass-through receptors are considered equal to each other.
+  /// record (the flyweight identity). This mirrors [hashCode], which hashes
+  /// the configuration record, so the `==`/`hashCode` contract holds.
   ///
   /// ### Parameters:
   /// - [other]: The object to compare with.
@@ -1073,20 +1080,7 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    if (other is Receptor) {
-      if (other == Receptor.passThrough) {
-        try {
-          if ([_instruction, _preProcess, _postProcess, _reaction].every((r) {
-            return r == null;
-          })) {
-            return false;
-          }
-        } catch (_) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return other is _Receptor && other._record == _record;
   }
 
   /// Hash code for this receptor.
@@ -1166,18 +1160,6 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
 /// 4. **Synchronized Completion**: It can optionally wait for every
 ///    downstream synapse to finish propagation before resolving.
 ///
-/// ### Non‑obvious
-/// - **Memory Awareness**: The internal buffer is unbounded; high-frequency
-///   bursts without proper awaiting can lead to memory pressure.
-/// - **Causal Consistency**: By default, it preserves the order of signals
-///   even if the underlying transformations are asynchronous.
-/// - **Atomicity**: Even when called asynchronously, the actual state transition
-///   is protected by the cell's lock, preventing race conditions.
-/// - **Identity Integrity**: The async handle is a stateless proxy; it
-///   shares the same operational context and metadata as the primary receptor.
-/// - **Synchronous Pipeline**: The underlying pipeline executes synchronously.
-///   The async adapter only manages the execution timing and completion.
-///
 /// ### Type Parameters:
 /// * [C]: The type of the host [Cell].
 ///
@@ -1217,12 +1199,6 @@ class ReceptorAsync<C extends Cell> implements Async {
   /// access to its transformation pipeline and cell context while
   /// initializing the internal asynchronous coordination engine.
   ///
-  /// ### Non‑obvious
-  /// - **Lazy Initialization**: The internal processing worker is not
-  ///   started until the first pulse is injected via the [call] method.
-  /// - **Reference Stability**: The adapter maintains a stable reference
-  ///   to its source, ensuring that activation status is always synchronized.
-  ///
   /// ### Parameters:
   /// - [receptor]: The underlying receptor to adapt for asynchronous
   ///   execution.
@@ -1259,19 +1235,6 @@ class ReceptorAsync<C extends Cell> implements Async {
   /// to the cell's [Synapses] for broadcast. To capture the result, attach
   /// an observer, bind a downstream cell, or use the [hook] parameter.
   ///
-  /// ### Non‑obvious:
-  /// - **Lock Acquisition**: The method respects the host cell's
-  ///   synchronization lock; if the cell is busy with a transaction, the
-  ///   async worker will wait until the lock is released.
-  /// - **Serialized vs fire-and-forget**: With [serializedCompletion] `true`,
-  ///   `await call(...)` waits until this pulse has been processed. With
-  ///   `false`, it only waits for the queue entry.
-  /// - **Testing Hook**: The [hook] callback is invoked *immediately* after
-  ///   transformation but *before* the pulse is passed to [Synapses].
-  /// - **Error Handling**: Exceptions within the transformation pipeline are
-  ///   captured and logged; the background worker continues to the next
-  ///   pulse in the queue to prevent graph deadlocks.
-  ///
   /// ### Parameters:
   /// - [incoming]: The data signal to be processed.
   /// - [serializedCompletion]: If `true`, the internal worker waits for
@@ -1306,7 +1269,12 @@ class ReceptorAsync<C extends Cell> implements Async {
     if (serializedCompletion == false || hook != null) {
       final user = {
         if (hook != null) #hook: hook,
-        if (serializedCompletion) #serializedCompletion: serializedCompletion,
+        // Carry the caller's intent explicitly. The worker uses this value
+        // as its `wait` flag, so `false` must be transported too — the
+        // previous code only injected the key when the value was truthy,
+        // which inverted the flag for the `(false, hook)` and
+        // `(true, hook)` combinations.
+        #serializedCompletion: serializedCompletion,
       };
       pulse = _Pulse(parent: pulse, user: user);
     }
@@ -1314,8 +1282,6 @@ class ReceptorAsync<C extends Cell> implements Async {
     await _queue.add(pulse);
 
     Future<void> drain() => _unawaitedLock.synchronized(() async {
-          Pulse? out;
-
           while (await _queue.isNotEmpty) {
             final p = await _queue.removeFirst();
 
@@ -1324,18 +1290,19 @@ class ReceptorAsync<C extends Cell> implements Async {
             final user = p._user;
             if (user != null) {
               if (user.containsKey(#serializedCompletion)) {
-                wait = false;
+                wait = user[#serializedCompletion] as bool;
               }
               if (user.containsKey(#hook)) {
                 hook = user[#hook] as Function?;
               }
             }
 
-            final validation = cell.validate.call(pulse, host: cell);
+            final validation = cell.validate.call(p, host: cell);
             final passed =
                 validation is Future<bool> ? await validation : validation;
-            if (!passed) return;
+            if (!passed) continue;
 
+            Pulse? out;
             final lock = cell._nucleus.lock;
             if (lock != null) {
               out = await lock.synchronized(() async {
@@ -1373,7 +1340,12 @@ class ReceptorAsync<C extends Cell> implements Async {
     // until this pulse has been processed, not merely queued.
     if (serializedCompletion) {
       await drain();
-    } else if (_unawaitedLock.canLock) {
+    } else {
+      // Always schedule a drain: the _unawaitedLock serializes them, and an
+      // idle drain exits immediately. Gating on `canLock` here can strand a
+      // pulse that was enqueued while another drain was finishing — the
+      // running drain may have already passed its final isNotEmpty check,
+      // and no new drain would be scheduled for the late arrival.
       unawaited(drain());
     }
   }

@@ -38,19 +38,6 @@ part of '../cell_tissue.dart';
 /// - The nucleus is immutable; once created, it cannot be changed. Any
 ///   variation requires creating a new nucleus (or deputy).
 ///
-/// ### Non‑obvious
-/// - The [growable] flag is **structural**: it is fixed at creation and
-///   inherited by all deputies. You cannot change a fixed‑length list into a
-///   growable one through a deputy.
-/// - The nucleus is a **flyweight** – many lists can share the same nucleus
-///   (and thus the same logic) without duplicating memory.
-/// - The [clone] getter creates a fresh copy of the nucleus with its own
-///   [Lock] and [Synapses]. This is used internally when you create a new list
-///   from an already‑activated nucleus to avoid sharing locks.
-/// - The `principal` chain allows hierarchical inheritance – a deputy nucleus
-///   can override only specific properties (like `testRule`) while inheriting
-///   the rest from its principal.
-///
 /// ### Example: Reusing a validated nucleus
 /// ```dart
 /// final validNucleus = TissueListNucleus.create<int>(
@@ -89,14 +76,6 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
   /// - The resulting nucleus can be used to instantiate multiple lists that
   ///   share the same logic but hold separate data.
   ///
-  /// ### Non‑obvious
-  /// - If you omit the [testRule], it defaults to [TestTissue.allowAll] – no
-  ///   restrictions.
-  /// - The [receptor] defaults to [TissueReceptor.passThrough] – mutations are
-  ///   applied directly.
-  /// - The [context] defaults to [Context.system] – system‑level authority.
-  /// - The [synapses] default to [Synapses.enabled] – observers receive pulses.
-  ///
   /// ### Parameters:
   /// - [bind]: Optional upstream [Cell] to observe.
   /// - [context]: Operational environment (default: [Context.system]).
@@ -120,72 +99,101 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
     Record? user,
   }) = _TissueListNucleus<E, TissueList<E>>;
 
-  /// Creates a derived [TissueListNucleus] by mutating or extending
-  /// an existing [principal] configuration.
+  /// Creates a specialized **Architectural Extension** of an existing [TissueListNucleus]
+  /// to support hierarchical property inheritance and contextual overrides for lists.
   ///
-  /// This factory is the architectural implementation of **Prototypal Inheritance**
-  /// and **Behavioural Shadowing** within the reactive list ecosystem. It
-  /// allows for the creation of specialised "Deputy" configurations that logically
-  /// inherit the structural DNA of a [principal] while selectively overriding
-  /// specific operational traits.
+  /// This factory is the primary architectural implementation of **Prototypal
+  /// Inheritance** and **Behavioural Shadowing** within the list ecosystem.
+  /// In the framework's biological metaphor, it creates a **Deputy**
+  /// configuration that inherits the structural "DNA" and baseline rules of a
+  /// [principal] while selectively applying directed **Genetic Mutations**.
   ///
   /// ### When to use
-  /// This is the engine behind the `deputy()` method on [TissueList]. You
-  /// rarely call it directly. Use it when you need a restricted view of a list
-  /// that shares the same storage but applies different validation or context.
+  /// - **Access Control**: Creating a restricted "Read-Only" or "Validation-Strict"
+  ///   view of a shared list by overriding the [testRule].
+  /// - **Contextual Isolation**: Moving a list into a different [Context]
+  ///   (e.g., from `background` to `ui`) to change its processing priority.
+  /// - **Transformation Overrides**: Swapping a [receptor] to apply different
+  ///   mutation logic to the same underlying storage.
   ///
   /// ### How it works
-  /// - The new nucleus inherits all properties from [principal] unless
-  ///   explicitly overridden.
-  /// - You can override the [testRule] (to narrow permissions), [context] (to
-  ///   change authority), [receptor] (to transform mutations), or [synapses].
-  /// - The [growable] status is always inherited and cannot be changed.
-  /// - The new nucleus shares the same [Lock] and physical storage as the
-  ///   principal (unless you provide an [override] that introduces a new lock).
+  /// The constructor utilizes a **Tiered Resolution Hierarchy** to determine the
+  /// final state of any property:
+  /// 1. **Local Override**: Values explicitly passed to this factory.
+  /// 2. **Prototype Inheritance**: Values inherited from the [principal].
+  /// 3. **Causal Binding**: Values derived from the upstream [bind] dependency.
+  /// 4. **Global Default**: Framework-level constants (e.g., [Context.system]).
   ///
-  /// ### Non‑obvious
-  /// - The [override] parameter allows you to layer a complete pre‑configured
-  ///   nucleus on top of the principal. This is useful for composing complex
-  ///   deputies.
-  /// - The resulting nucleus does **not** copy the principal's data – it shares
-  ///   it via the inheritance chain.
-  /// - If you override the [synapses], the deputy gets its own observer
-  ///   registry, so listeners attached to the deputy are separate from those
-  ///   attached to the principal.
-  ///
-  /// ### Example
+  /// ### Example: Evolving a restricted integrity gate
   /// ```dart
-  /// final principal = TissueListNucleus.create<int>();
-  /// final readOnlyNucleus = TissueListNucleus.evolve(
-  ///   principal: principal,
-  ///   testRule: TestTissue.readOnly,
+  /// // 1. Define the baseline DNA (Principal)
+  /// final baseNucleus = TissueListNucleus.create<int>(
+  ///   testRule: TestTissue<int>((v) => v >= 0),
+  ///   container: Container.growableTrue,
   /// );
-  /// final readOnlyList = TissueList.fromNucleus(readOnlyNucleus);
+  ///
+  /// // 2. Evolve a Deputy with a stricter integrity gate
+  /// // Shares storage and context, but overrides the validation logic.
+  /// final strictNucleus = TissueListNucleus.evolve(
+  ///   baseNucleus,
+  ///   testRule: TestTissue<int>((v) => v > 100),
+  /// );
+  ///
+  /// // 3. Instantiate a tissue governed by the evolved DNA
+  /// final myList = TissueList.fromNucleus(strictNucleus);
   /// ```
   ///
+  /// ### The [override] Parameter (Composite Shadowing)
+  /// **Note**: If [override] is provided, it triggers an immediate **Record Adoption**.
+  /// The entire internal bitmask record of the [override] nucleus is adopted as
+  /// the `local` tier of the new deputy. In this mode, all other parameters
+  /// (like [context], [receptor], etc.) are **ignored**, as the factory assumes
+  /// you are performing a bulk behavioral swap from a pre-compiled blueprint.
+  ///
   /// ### Parameters:
-  /// - [principal]: **Required**. The base nucleus to extend.
-  /// - [override]: Optional. A complete nucleus whose properties are layered
-  ///   on top of the principal.
-  /// - [bind]: Optional override for the upstream cell.
-  /// - [context]: Optional override for the execution context.
-  /// - [receptor]: Optional override for the mutation processor.
-  /// - [testRule]: Optional override for the validation rule.
-  /// - [synapses]: Optional override for propagation behaviour.
+  /// - [principal]: **Required**. The source nucleus from which this instance
+  ///   derives its structural DNA and inheritance chain.
+  /// - [bind]: **Ingress Link.** An optional upstream [Cell] to observe.
+  /// - [context]: **Operational Authority.** Defines the execution tier
+  ///   (default: inherits from [principal]).
+  /// - [receptor]: **Command Engine.** The logic used to process list mutations
+  ///   (default: inherits from [principal]).
+  /// - [testRule]: **Integrity Gate.** Validation rules that guard the list
+  ///   elements (default: inherits from [principal]).
+  /// - [synapses]: **Signal Distribution.** Manages egress connectivity
+  ///   (default: inherits from [principal]).
+  /// - [ephemeralPolicy]: **Lifecycle Governance.** Defines the TTL for the
+  ///   list state.
+  /// - [override]: **Composite Shadowing.** An optional, complete nucleus
+  ///   whose internal record is adopted directly as the `local` tier.
   ///
   /// ### Returns:
-  /// A new [TissueListNucleus<E>] instance that acts as a specialised
-  /// behavioral layer over the [principal].
-  factory TissueListNucleus.evolve(
-          {Cell? bind,
-          Context? context,
-          TissueReceptor<E, TissueList<E>>? receptor,
-          TestTissue<E, TissueList<E>>? testRule,
-          Synapses? synapses,
-          EphemeralPolicy? ephemeralPolicy,
-          TissueListNucleus<E>? override,
-          required TissueListNucleus<E> principal}) =
-      _TissueListNucleus<E, TissueList<E>>.evolve;
+  /// A new [TissueListNucleus<E>] instance acting as a specialized behavioral
+  /// layer over the [principal].
+  factory TissueListNucleus.evolve(TissueListNucleus<E> principal, {
+    Cell? bind,
+    Context? context,
+    TissueReceptor<E, TissueList<E>>? receptor,
+    TestTissue<E, TissueList<E>>? testRule,
+    Synapses? synapses,
+    EphemeralPolicy? ephemeralPolicy,
+    TissueListNucleus<E>? override
+  }) {
+    return _TissueListNucleus<E, TissueList<E>>.fromRecord((
+      local: override != null
+          ? (override as NucleusBase).record.local
+          : TissueNucleusBase.mask<E, List<E>, TissueList<E>>(
+              bind: bind,
+              context: context,
+              receptor: receptor,
+              testRule: testRule,
+              synapses: synapses,
+              forceLock: true,
+              ephemeralPolicy: ephemeralPolicy,
+            ),
+      principal: principal,
+    ));
+  }
 
   /// A static utility factory that produces a type‑safe nucleus configuration
   /// for a specific element type [E] and a specialised [TissueList] interface [C].
@@ -208,12 +216,6 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
   ///   inherits from that principal.
   /// - The [container] parameter determines the storage strategy (growable or
   ///   fixed‑length).
-  ///
-  /// ### Non‑obvious
-  /// - The [forceLock] flag, when `true`, allows sharing the principal's lock.
-  ///   This is typically used for deputies to maintain a single atomic boundary.
-  /// - The [container] parameter can be used to explicitly set the storage
-  ///   strategy – useful for custom container types.
   ///
   /// ### Parameters:
   /// - [bind]: Optional upstream cell.
@@ -262,7 +264,9 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
         receptor: receptor ?? TissueReceptor.passThrough,
         testRule: testRule ?? TestTissue.allowAll,
         synapses: synapses ?? Synapses.enabled,
-        growable: container == Container.growableTrue,
+        growable: container == null ||
+            container == Container.growableTrue ||
+            container == Container.list,
         user: user,
         ephemeralPolicy: ephemeralPolicy,
         forceLock: forceLock);
@@ -288,12 +292,6 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
   /// - The clone is initially **inactive** – it must be activated by being
   ///   bound to a list instance.
   ///
-  /// ### Non‑obvious
-  /// - The clone does **not** share the same `principal` – it is a root nucleus
-  ///   (no parent). This means it does not inherit from the original.
-  /// - Cloning is a zero‑copy operation for the logic – the logic is shared
-  ///   via the flyweight record, but the state (lock, synapses) is new.
-  ///
   /// ### Returns:
   /// A new [TissueListNucleus<E>] instance with identical behavioural
   /// logic and storage strategy, but an isolated lifecycle and an
@@ -318,11 +316,6 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
   ///   locally.
   /// - It defaults to [Container.growableTrue] if no container type is set.
   ///
-  /// ### Non‑obvious
-  /// - This is a **structural** property – it is fixed and cannot be changed
-  ///   through a deputy. All deputies inherit the same container type.
-  /// - The container type affects which methods are allowed (e.g., `add` will
-  ///   throw on a fixed‑length list).
   @override
   Container get containerType;
 }
@@ -365,18 +358,6 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
 /// - It automatically links child [Cell]s when they are added, enabling
 ///   "bubbling" of internal changes.
 ///
-/// ### Non‑obvious
-/// - Equality (`==`) is based on the underlying list's content and identity,
-///   so `list1 == list2` works like a normal Dart list.
-/// - The [async] getter returns a [ModifiableListAsync] for `Future`‑based
-///   operations, useful for network callbacks or background tasks.
-/// - The `unmodifiable` getter is **not a snapshot** – it's a live view that
-///   stays in sync with the source.
-/// - Fixed‑length lists (growable: false) cannot change size, but you can still
-///   replace elements using index assignment.
-/// - The [modifiable] getter returns the list of functions that can be invoked
-///   via `apply`. For read‑only deputies, this list is empty.
-///
 /// ### Example: Basic usage
 /// ```dart
 /// final list = TissueList<String>(['Hello']);
@@ -416,6 +397,24 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
 /// - [Tissue] – the base interface for all reactive collections.
 /// - [TissueListNucleus] – the blueprint and configuration for the list.
 /// - [UnmodifiableTissueList] – a read‑only deputy variant.
+///
+/// ### AI Agent Guide
+/// **Layer:** Tissue — the audit book. Not a Cell factory, not a Flow operator.
+/// **When to use:** "record every alert and action" — ordered history, indexable log, 24-month retention = append-only list (not a purge job).
+/// **When NOT to use:**
+///   {@macro ai-do-not-testcell-on-tissue}
+///   {@macro ai-do-not-dart-list-as-system-of-record}
+/// **Live signature:** `TissueList<E>({bind, context, receptor, testRule, synapses, growable})` / `TissueList.of(iterable, {...})` / `TissueList.unmodifiable(bind, {...})` — pinned at `cell_tissue: 1.0.0`
+/// **Do NOT confuse with:** `TissueQueue` (FIFO work, not indexable history) and `TissueSet` (unique membership, order not the story).
+/// **Guide:** `HowTo-Mitose-Tissue.md` §2.1 "TissueList — the audit book" (#tissue-list)
+/// **Example:** `example/cell_tissue_example.dart`
+/// **Cross-layer:** rows are appended from `Cell.observe` (or a harness method it calls), never from the Flow instruction.
+/// **Minimal compilable example**
+/// ```dart
+/// final list = TissueList.of(['a', 'b']);
+/// list.add('c');
+/// print(list.length); // 3
+/// ```
 abstract interface class TissueList<E> implements Tissue<E>, List<E> {
   @override
   TissueListNucleus<E> get _nucleus;
@@ -704,12 +703,6 @@ abstract interface class TissueList<E> implements Tissue<E>, List<E> {
   ///   its own observers.
   /// - If all parameters are left at default, `deputy()` returns `this`.
   ///
-  /// ### Non‑obvious
-  /// - The deputy is logically equal to its principal (`deputy == principal`).
-  /// - The deputy's [context] can be overridden to change priority or security.
-  /// - The [ephemeralPolicy] controls the deputy's lifetime independently of
-  ///   the principal.
-  ///
   /// ### Example
   /// ```dart
   /// final source = TissueList<String>(['A', 'B']);
@@ -825,16 +818,6 @@ abstract interface class TissueList<E> implements Tissue<E>, List<E> {
 ///   any element that is itself a [Cell] is automatically projected as its
 ///   `.unmodifiable` deputy when accessed. This prevents "side‑door"
 ///   mutations.
-///
-/// ### Non‑obvious
-/// - **It is not a snapshot**: Unlike `List.unmodifiable` in Dart, this view
-///   is **live**. If the source changes, the view changes with it.
-/// - **Equality**: `source == source.unmodifiable` is `true` – they are
-///   considered the same logical entity.
-/// - **Recursive projection**: Iterating over the view yields unmodifiable
-///   deputies of any child [Cell]s.
-/// - **Own observer registry**: The view has its own [Synapses] registry, so
-///   observers attached to the view are separate from those on the source.
 ///
 /// ### Example: Read‑only UI projection
 /// ```dart

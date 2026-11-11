@@ -87,20 +87,6 @@ a synchronization barrier.</li>
 <li><strong>Conactive Bridge</strong>: It serves as the primary gateway for <a href="../mitosis/Async-class.html">Async</a> proxies
 to interact with a cell's internal cytoplasm safely.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Locking Latency</strong>: While providing safety, the synchronization barrier
-introduces a minor scheduling delay compared to direct <a href="../mitosis/Box-class.html">Box</a> access. Use
-the standard <a href="../mitosis/Box-class.html">Box</a> for pure intra-wave reactive transformations.</li>
-<li><strong>Point-in-Time Consistency</strong>: The <a href="../mitosis/SyncBox/state.html">state</a> getter returns the state at
-the exact moment the lock was acquired, preventing the "Lost Update"
-problem during high-contention cycles.</li>
-<li><strong>Zero-Blocking</strong>: Because it uses the framework's internal <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>, the
-calling thread remains free to handle other event loop tasks while waiting
-for access, preventing UI jank.</li>
-<li><strong>Principal Coupling</strong>: A <a href="../mitosis/SyncBox-class.html">SyncBox</a> is strictly a proxy; it does not own
-the state itself but merely coordinates access to its principal <a href="../mitosis/Box-class.html">Box</a>.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final sharedBox = Box&lt;int&gt;(0).async; // Returns a SyncBox
 
@@ -281,7 +267,7 @@ performed within a thread-safe <strong>State Commitment Phase</strong>.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

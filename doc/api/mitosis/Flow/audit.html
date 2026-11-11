@@ -89,13 +89,6 @@ c. The <code>waiting</code> flag is set to false.</li>
 <li>If no source pulse has arrived since the last audit, the
 notifier pulse is ignored.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Waiting Flag</strong>: The waiting flag tracks if a source pulse
-has arrived since the last audit.</li>
-<li><strong>One-Time Audit</strong>: Each source pulse can only be audited once.</li>
-<li><strong>Ignored Ticks</strong>: Notifier ticks with no waiting are ignored.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -167,7 +160,7 @@ gate.emit(null); // -&gt; 2
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

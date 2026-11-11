@@ -8,6 +8,8 @@ import 'dart:async';
 
 import 'package:cell_flow/cell_flow.dart';
 
+import 'flow_internal.dart';
+
 /// Flow instructions that bridge [Future]s into the Cell graph
 /// (Rx `from(Future)` / `fromPromise` and variants).
 ///
@@ -172,20 +174,6 @@ void _emitError({
 /// | **ForkJoinFutures** | first trigger | one `List` | All futures complete |
 /// | **RaceFutures** | first trigger | first winner | First to complete |
 ///
-/// ### Non‑obvious
-/// - **One-Shot**: The instruction processes only the first trigger.
-///   Subsequent triggers are ignored.
-/// - **Lazy Execution**: The future is not started until the first trigger
-///   arrives. This prevents unnecessary work.
-/// - **Error Handling**: Errors are reported via [onError] and optionally
-///   as error pulses with `type: 'error'`.
-/// - **Timeout**: Optional timeout can be applied to the future operation.
-/// - **Causal Provenance**: Every emitted result is wrapped as an
-///   [EvolvedPulse], preserving the forensic history.
-/// - **Type Safety**: The instruction is generic over [S] (output type),
-///   ensuring compile-time type safety.
-/// - **Memory Efficiency**: Only the state flag and user data are stored.
-///
 /// ### Example: Loading a User Profile
 /// ```dart
 /// final load = FromFuture<UserProfile>(
@@ -271,8 +259,8 @@ class FromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FutureErrorHandler? onError,
     bool emitErrorPulse = true,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _OnceState();
             return (pulse, {cell, user, future, token}) {
               if (state.started) return null;
@@ -299,7 +287,7 @@ class FromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 
@@ -394,20 +382,6 @@ class FromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///   about the most recent result.
 /// - **Use [ExhaustFromFuture]** for **Exhaust**: When you want to ignore
 ///   triggers while busy.
-///
-/// ### Non‑obvious
-/// - **Per-Trigger**: Each trigger starts a new future.
-/// - **Sequential**: The instruction processes inputs one at a time.
-///   Each async operation must complete before the next starts.
-/// - **Payload Access**: The trigger payload is passed to [compute] so
-///   the future can depend on the stimulus.
-/// - **Error Handling**: Errors are reported via [onError] and optionally
-///   as error pulses with `type: 'error'`.
-/// - **Timeout**: Optional timeout can be applied to each future operation.
-/// - **Causal Provenance**: Every emitted result is wrapped as an
-///   [EvolvedPulse], preserving the forensic history.
-/// - **Backpressure**: The instruction processes inputs sequentially,
-///   automatically providing backpressure.
 ///
 /// ### Example: User Profile Loading
 /// ```dart
@@ -532,18 +506,6 @@ class DeferFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 5. Failure is reported through [onError] and optionally an error pulse.
 /// 6. Results are emitted in input order (sequential processing).
 /// 7. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **Sync/Async Hybrid**: Handles both synchronous and asynchronous values.
-/// - **Immediate Emission**: Sync values are emitted immediately without
-///   entering the event loop.
-/// - **Future Awaited**: Async values are awaited before emission.
-/// - **Error Handling**: Errors are reported via [onError] and optionally
-///   as error pulses with `type: 'error'`.
-/// - **Timeout**: Optional timeout can be applied to future operations only.
-/// - **Causal Provenance**: Every emitted result is wrapped as an
-///   [EvolvedPulse], preserving the forensic history.
-/// - **Type Safety**: The instruction is generic over [S] (output type).
 ///
 /// ### Example: Cached Data Loading
 /// ```dart
@@ -681,19 +643,6 @@ class FromFutureOr<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// | **SwitchFromFuture** | Latest only | Latest only |
 /// | **ExhaustFromFuture** | One at a time | Ignore while busy |
 ///
-/// ### Non‑obvious
-/// - **Strict Sequencing**: The instruction processes inputs one at a time.
-///   Each async operation must complete before the next starts.
-/// - **Order Preservation**: Results are emitted in the same order as inputs.
-/// - **Queueing**: Inputs are queued while an operation is in progress.
-/// - **Error Handling**: Errors are reported via [onError] and optionally
-///   as error pulses with `type: 'error'`.
-/// - **Timeout**: Optional timeout can be applied to each future operation.
-/// - **Causal Provenance**: Every emitted result is wrapped as an
-///   [EvolvedPulse], preserving the forensic history.
-/// - **Backpressure**: The instruction processes inputs sequentially,
-///   automatically providing backpressure.
-///
 /// ### Example: Sequential API Calls
 /// ```dart
 /// final ids = Cell.ingress<int>();
@@ -760,9 +709,9 @@ class ConcatFromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FutureErrorHandler? onError,
     bool emitErrorPulse = true,
     dynamic user,
-  }) : super.future(
-          (() {
-            final queue = _AsyncQueueState();
+  }) : super.stateful(
+          () {
+            final queue = SequentialQueue();
             return (pulse, {cell, user, future, token}) {
               queue.enqueue(() async {
                 try {
@@ -788,7 +737,7 @@ class ConcatFromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -816,15 +765,6 @@ class ConcatFromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. Output order is not guaranteed.
 /// 5. Results are emitted in completion order.
 /// 6. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **Unordered Output**: Results are emitted in completion order.
-/// - **Throughput**: Maximum throughput is achieved with parallel execution.
-/// - **Resource Usage**: High concurrency may consume significant resources.
-/// - **Error Isolation**: Errors in one operation don't affect others.
-/// - **Timeout**: Optional timeout can be applied to each future operation.
-/// - **Causal Provenance**: Every emitted result is wrapped as an
-///   [EvolvedPulse], preserving the forensic history.
 ///
 /// ### Example: Parallel API Calls
 /// ```dart
@@ -936,16 +876,6 @@ class MergeFromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. Stale futures' results are silently dropped.
 /// 5. The instruction preserves causal provenance.
 ///
-/// ### Non‑obvious
-/// - **Silent Cancellation**: Cancelled operations do not throw exceptions.
-///   They simply don't emit results.
-/// - **Operation ID Tracking**: Each operation gets a unique ID. Only the
-///   operation with the current ID can emit.
-/// - **Memory Safety**: The state only holds the latest value, not all values.
-/// - **Timeout**: Optional timeout can be applied to each future operation.
-/// - **Causal Provenance**: Every emitted result is wrapped as an
-///   [EvolvedPulse], preserving the forensic history.
-///
 /// ### Example: Search-as-you-Type
 /// ```dart
 /// final searchInput = Cell.ingress<String>();
@@ -1005,8 +935,8 @@ class SwitchFromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FutureErrorHandler? onError,
     bool emitErrorPulse = true,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final gen = _GenerationState();
             return (pulse, {cell, user, future, token}) {
               final id = ++gen.generation;
@@ -1036,7 +966,7 @@ class SwitchFromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -1062,15 +992,6 @@ class SwitchFromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. When the future completes, the instruction is ready for the next trigger.
 /// 4. Results are emitted in input order (sequential processing).
 /// 5. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **Drop While Busy**: Triggers while busy are silently dropped.
-/// - **One at a Time**: Only one future can be in flight at a time.
-/// - **Error Handling**: Errors are reported via [onError] and optionally
-///   as error pulses with `type: 'error'`.
-/// - **Timeout**: Optional timeout can be applied to each future operation.
-/// - **Causal Provenance**: Every emitted result is wrapped as an
-///   [EvolvedPulse], preserving the forensic history.
 ///
 /// ### Example: Button Click Prevention
 /// ```dart
@@ -1134,8 +1055,8 @@ class ExhaustFromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FutureErrorHandler? onError,
     bool emitErrorPulse = true,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _BusyState();
             return (pulse, {cell, user, future, token}) {
               if (state.busy) return null;
@@ -1166,7 +1087,7 @@ class ExhaustFromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -1193,15 +1114,6 @@ class ExhaustFromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 2. Each future's value is emitted as it completes.
 /// 3. Results are emitted in completion order.
 /// 4. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **Unordered Output**: Results are emitted in completion order.
-/// - **All Futures Start**: All futures start on the first trigger.
-/// - **Timeout**: Optional timeout can be applied to each future operation.
-/// - **Error Handling**: Errors are reported via [onError] and optionally
-///   as error pulses with `type: 'error'`.
-/// - **Causal Provenance**: Every emitted result is wrapped as an
-///   [EvolvedPulse], preserving the forensic history.
 ///
 /// ### Example: Multiple API Calls
 /// ```dart
@@ -1236,6 +1148,13 @@ class ExhaustFromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 class FromFutures<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// Creates a [FromFutures] instruction with the specified [futures].
   ///
+  /// **The futures are hot at construction.** A future that rejects before
+  /// the first trigger produces an unhandled zone error, because this
+  /// instruction only awaits them once triggered. This operator expects
+  /// pre-created (already running or already resolved) futures — to defer
+  /// creation until the trigger, use [DeferFuture] or a [FromFuture] whose
+  /// factory returns an already-resolved future.
+  ///
   /// ### Parameters:
   /// - [futures]: **The List of Futures.** Each future's value will be emitted.
   /// - [timeout]: **Timeout Duration.** Optional. If provided, each operation
@@ -1258,8 +1177,8 @@ class FromFutures<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FutureErrorHandler? onError,
     bool emitErrorPulse = true,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _OnceState();
             final list = List<Future<S>>.from(futures);
             return (pulse, {cell, user, future, token}) {
@@ -1290,7 +1209,7 @@ class FromFutures<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -1316,15 +1235,6 @@ class FromFutures<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. This process continues until all futures are processed.
 /// 5. Results are emitted in input-list order.
 /// 6. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **Ordered Output**: Results are emitted in input-list order.
-/// - **Sequential Execution**: Futures are processed one at a time.
-/// - **Timeout**: Optional timeout can be applied to each future operation.
-/// - **Error Handling**: Errors are reported via [onError] and optionally
-///   as error pulses with `type: 'error'`.
-/// - **Causal Provenance**: Every emitted result is wrapped as an
-///   [EvolvedPulse], preserving the forensic history.
 ///
 /// ### Example: Ordered Processing
 /// ```dart
@@ -1384,8 +1294,8 @@ class FromFuturesInOrder<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FutureErrorHandler? onError,
     bool emitErrorPulse = true,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _OnceState();
             final list = List<Future<S>>.from(futures);
             return (pulse, {cell, user, future, token}) {
@@ -1417,7 +1327,7 @@ class FromFuturesInOrder<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -1441,16 +1351,6 @@ class FromFuturesInOrder<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. When all futures complete, a `List<S>` is emitted.
 /// 4. If any future fails, the error is reported.
 /// 5. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **All-or-Nothing**: All futures must succeed to emit a result.
-/// - **Ordered Output**: Results are emitted in input-list order.
-/// - **Parallel Execution**: All futures are started concurrently.
-/// - **Timeout**: Optional timeout can be applied to each future operation.
-/// - **Error Handling**: If any future fails, the error is reported and no
-///   result is emitted.
-/// - **Causal Provenance**: Every emitted result is wrapped as an
-///   [EvolvedPulse], preserving the forensic history.
 ///
 /// ### Example: Multiple API Calls
 /// ```dart
@@ -1509,8 +1409,8 @@ class ForkJoinFutures<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FutureErrorHandler? onError,
     bool emitErrorPulse = true,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _OnceState();
             final list = List<Future<S>>.from(futures);
             return (pulse, {cell, user, future, token}) {
@@ -1542,7 +1442,7 @@ class ForkJoinFutures<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -1566,14 +1466,6 @@ class ForkJoinFutures<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. The first future to complete determines the result.
 /// 4. Other futures are ignored.
 /// 5. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **First Winner**: Only the first future to complete is emitted.
-/// - **Parallel Execution**: All futures are started concurrently.
-/// - **Timeout**: Optional timeout can be applied to the race.
-/// - **Error Handling**: If all futures fail, the error is reported.
-/// - **Causal Provenance**: Every emitted result is wrapped as an
-///   [EvolvedPulse], preserving the forensic history.
 ///
 /// ### Example: Fastest API Response
 /// ```dart
@@ -1631,8 +1523,8 @@ class RaceFutures<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FutureErrorHandler? onError,
     bool emitErrorPulse = true,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _OnceState();
             final list = List<Future<S>>.from(futures);
             return (pulse, {cell, user, future, token}) {
@@ -1661,7 +1553,7 @@ class RaceFutures<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -1691,15 +1583,6 @@ class RaceFutures<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. If all retries fail, the error is reported via [onError].
 /// 4. The instruction continues with the next input.
 /// 5. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **Exponential Backoff**: The delay increases with each retry attempt.
-/// - **Error Reporting**: Only the final failure is reported.
-/// - **Resource Usage**: Retries consume resources and time.
-/// - **Blocking**: The instruction blocks until all retries complete.
-/// - **Timeout**: Optional timeout can be applied to each attempt.
-/// - **Causal Provenance**: Every emitted result is wrapped as an
-///   [EvolvedPulse], preserving the forensic history.
 ///
 /// ### Example: Retry on Failure
 /// ```dart
@@ -1821,14 +1704,6 @@ class FromFutureWithRetry<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. Otherwise, the operation fails with a [TimeoutException].
 /// 5. The instruction preserves causal provenance.
 ///
-/// ### Non‑obvious
-/// - **Timer Precision**: Timers are based on the event loop.
-/// - **Cancellation**: Timed-out operations are cancelled.
-/// - **Fallback**: [onTimeout] provides a fallback value.
-/// - **Error Reporting**: Timeouts are reported via [onError] or as exceptions.
-/// - **Causal Provenance**: Every emitted result is wrapped as an
-///   [EvolvedPulse], preserving the forensic history.
-///
 /// ### Example: API Call with Timeout
 /// ```dart
 /// final withTimeout = FromFutureWithTimeout<String>(
@@ -1933,14 +1808,6 @@ class FromFutureWithTimeout<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. The fallback result is emitted instead.
 /// 5. The instruction always emits a value.
 /// 6. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **Always Emits**: A value is always emitted (success or fallback).
-/// - **Error Isolation**: Errors are caught and handled gracefully.
-/// - **Type Safety**: The fallback must return the same type [S].
-/// - **Performance**: Fallback may be used frequently on failure.
-/// - **Causal Provenance**: Every emitted result is wrapped as an
-///   [EvolvedPulse], preserving the forensic history.
 ///
 /// ### Example: Cached Data with Fallback
 /// ```dart
@@ -2049,17 +1916,6 @@ class FromFutureWithFallback<S>
 /// 5. Failure is reported through [onError] and optionally an error pulse.
 /// 6. Results are emitted in input order (sequential processing).
 /// 7. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **Type Safety**: The instruction is generic over [I] (input) and [S]
-///   (output), ensuring compile-time type safety.
-/// - **Payload Access**: The trigger payload is accessed for mapping.
-/// - **Type Mismatch**: If the payload is not of type [I], an error is reported.
-/// - **Error Handling**: Errors are reported via [onError] and optionally
-///   as error pulses with `type: 'error'`.
-/// - **Timeout**: Optional timeout can be applied to the future operation.
-/// - **Causal Provenance**: Every emitted result is wrapped as an
-///   [EvolvedPulse], preserving the forensic history.
 ///
 /// ### Example: ID to User Profile
 /// ```dart
@@ -2176,13 +2032,6 @@ class _GenerationState {
 }
 
 /// Internal state for [ConcatFromFuture].
-class _AsyncQueueState {
-  Future<void> tail = Future<void>.value();
-
-  void enqueue(Future<void> Function() job) {
-    tail = tail.then((_) => job()).catchError((_) {});
-  }
-}
 
 // ─────────────────────────────────────────────────────────────
 // Demo

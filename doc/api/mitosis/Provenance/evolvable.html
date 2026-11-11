@@ -88,18 +88,6 @@ attributes (e.g., <a href="../../mitosis/Provenance.html">Provenance.priority</a
 can be redefined or specialized to reflect the specific task a cell
 is performing as a pulse propagates.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Security Invariant</strong>: Prevents "metadata tampering" downstream. A
-pulse's compliance tier or causal actor cannot be downgraded or spoofed
-via evolution once the pulse is in flight.</li>
-<li><strong>Flyweight Optimization</strong>: Evolution logic uses this flag to pre-filter
-update maps, minimizing the overhead of record synthesis during
-high-frequency reactive waves.</li>
-<li><strong>Integrity Enforcement</strong>: The framework ensures that capability-based
-access checks are anchored in non-evolvable dimensions, preventing
-accidental authority elevation.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// Overriding a Static Pillar is ignored:
 // (Provenance.actor.evolvable is false)
@@ -156,7 +144,7 @@ final bool evolvable;</code></pre>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

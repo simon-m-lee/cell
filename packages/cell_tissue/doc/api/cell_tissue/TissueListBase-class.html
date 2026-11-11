@@ -91,18 +91,6 @@ of core getters and setters (<code>length</code>, <code>operator []</code>, <cod
 <li>The underlying storage type is strictly <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List&lt;E&gt;</a>, ensuring index‑based
 access and positional integrity.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>The Mixin Magic</strong>: <code>ListMixin</code> provides hundreds of methods for free,
-but relies on the implementing class to correctly handle mutations.
-<code>TissueListMixin</code> ensures that <em>every</em> mutation is intercepted.</li>
-<li><strong>The <code>apply</code> Gateway</strong>: All mutations are funnelled through <code>apply</code>.
-This is a security boundary – deputies override <code>modifiable</code> to return
-an empty set, rejecting any mutation attempt.</li>
-<li><strong>Growability</strong>: The list's ability to change size (<code>growable</code> flag)
-is a structural property determined by the underlying <a href="../cell_tissue/Container-class.html">Container</a>.
-A fixed‑length list cannot be turned into a growable one via a deputy.</li>
-</ul>
 <h3 id="example-internal-usage">Example (Internal Usage)</h3>
 <p>While you never instantiate this directly, understanding it helps you
 reason about how <code>TissueList</code> works:</p>
@@ -153,6 +141,7 @@ allowing for type‑safe pulse processing within the hierarchy.</li>
         
   <dt>Available extensions</dt>
   <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="../cell_tissue/ApplyCommandDSL.html">ApplyCommandDSL</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/EnumByName.html">EnumByName</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/FutureIterable.html">FutureIterable</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a></li>
@@ -596,14 +585,14 @@ proxying the <a href="https://api.flutter.dev/flutter/dart-core/List-class.html"
 </dd>
 
         <dt id="apply" class="callable inherited">
-  <span class="name"><a href="../cell_tissue/TissueListMixin/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
-    <span class="returntype parameter">&#8594; dynamic</span>
+  <span class="name"><a href="../cell_tissue/TissueBase/apply.html">apply</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="apply-param-command"><span class="type-annotation"><a href="../cell_tissue/ApplyCommand.html">ApplyCommand</a></span> <span class="parameter-name">command</span>, {</span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Executes a <strong>State Transition</strong> or arbitrary logic via the <strong>Command Pattern</strong> gateway.
+  Submits a first-class <a href="../cell_tissue/ApplyCommand.html">ApplyCommand</a> through the tissue dispatch engine.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -716,6 +705,23 @@ metadata attached.
 
 </dd>
 
+        <dt id="command" class="callable">
+  <span class="name"><a href="../cell_tissue/ApplyCommandDSL/command.html">command</a></span><span class="signature">(<wbr><span class="parameter" id="command-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_tissue/ApplyCommandRunner-class.html">ApplyCommandRunner</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_tissue/Cell-class.html">Cell</a>,
+        provided by the <a href="../cell_tissue/ApplyCommandDSL.html">ApplyCommandDSL</a> extension</span>
+      </p>
+  Begins assembling a command that invokes <code>function</code> on this cell.
+  
+
+</dd>
+
         <dt id="contains" class="callable inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-collection/ListBase/contains.html">contains</a></span><span class="signature">(<wbr><span class="parameter" id="contains-param-element"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">element</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
@@ -739,6 +745,19 @@ metadata attached.
 <dd class="inherited">
   Creates a delegated view (deputy) of this list with modified behavioural
 and validation logic.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="dispatch" class="callable inherited">
+  <span class="name"><a href="../cell_tissue/TissueListMixin/dispatch.html">dispatch</a></span><span class="signature">(<wbr><span class="parameter" id="dispatch-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="dispatch-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="dispatch-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span></span>})
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The internal mutation dispatch engine, implemented by each tissue mixin.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -1478,7 +1497,7 @@ collection.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

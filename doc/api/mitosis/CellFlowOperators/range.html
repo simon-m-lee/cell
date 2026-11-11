@@ -89,14 +89,6 @@ incrementing by <code>step</code>.</li>
 <li><strong>Pulse Evolution</strong>: Each integer is materialized as a new pulse,
 inheriting the provenance and priority of the trigger.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Immediate Exhaustion</strong>: The entire range is evolved synchronously.
-For extremely large counts, this will occupy the execution frame
-until completion.</li>
-<li><strong>Directional Step</strong>: The <code>step</code> can be negative to evolve a
-descending sequence.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>start</code>: The <strong>Initial Payload</strong> of the sequence.</li>
@@ -145,7 +137,7 @@ descending sequence.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

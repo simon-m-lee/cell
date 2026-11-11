@@ -31,15 +31,6 @@ typedef TestTissueBase<E, C extends Tissue<E>> = TestTissue<E, C>;
 ///   identity** – the other rule's logic is preserved, and this rule is
 ///   effectively a no‑op in the chain.
 ///
-/// ### Non‑obvious
-/// - Because it is host‑agnostic, it can be assigned to any tissue type
-///   without type variance issues.
-/// - When used with `+`, the operator wraps the other rule into a new
-///   [TestTissue] that delegates to it, ensuring that `allowAll + customRule`
-///   behaves exactly like `customRule` alone.
-/// - It does not participate in exception handling – since it never throws,
-///   it doesn't affect the governed/ungoverned exception rules.
-///
 /// ### Example
 /// ```dart
 /// // Default policy – no restrictions
@@ -69,7 +60,7 @@ class _TestTissueNever extends TestTissue<Never, Never> implements TestPasses {
 
   @override
   FutureOr<bool> action(Function action,
-      {required Cell host, Arguments? arguments}) {
+      {required Cell host, Arguments? arguments, ApplyCommand? command}) {
     return true;
   }
 
@@ -86,7 +77,8 @@ class _TestTissueNever extends TestTissue<Never, Never> implements TestPasses {
 
   @override
   FutureOr<bool> link(covariant Cell link, {required Cell host}) {
-    return false;
+    // The docstring promises every hook unconditionally returns true.
+    return true;
   }
 
   @override
@@ -121,7 +113,7 @@ class _TestTissueAllowAll extends TestTissue<Never, Never>
 
   @override
   FutureOr<bool> action(Function action,
-      {required Cell host, Arguments? arguments}) {
+      {required Cell host, Arguments? arguments, ApplyCommand? command}) {
     return _run(action, host: host, arguments: arguments);
   }
 
@@ -133,8 +125,10 @@ class _TestTissueAllowAll extends TestTissue<Never, Never>
   FutureOr<bool> _run(dynamic object, {Cell? host, dynamic arguments}) {
     FutureOr<bool> runRules(int index) {
       for (var i = index; i < _others.length; i++) {
-        final result = (_others[i] as dynamic).call(object,
-            host: host, arguments: arguments) as FutureOr<bool>;
+        // The composed list is heterogeneous in practice: route through
+        // the raw rule interface (host is erased to dynamic).
+        final result = (_others[i] as TestRule)
+            .call(object, host: host, arguments: arguments);
         if (result is Future<bool>) {
           return result.then((passed) {
             if (!passed) return false;
@@ -157,7 +151,8 @@ class _TestTissueAllowAll extends TestTissue<Never, Never>
 
   @override
   FutureOr<bool> link(covariant Cell link, {required Cell host}) {
-    return false;
+    // The docstring promises every hook unconditionally returns true.
+    return true;
   }
 
   @override
@@ -191,13 +186,6 @@ class _TestTissueAllowAll extends TestTissue<Never, Never>
 ///   A read‑only deputy remains a "Live" node that reflects the source state
 ///   in real time; it simply lacks "Write‑Back" rights.
 ///
-/// ### Non‑obvious
-/// - This is a singleton – all unmodifiable collection deputies share the
-///   exact same validation logic, reducing memory footprint.
-/// - It only blocks *structural* mutations. If the collection contains
-///   mutable cells, those cells can still be mutated directly unless
-///   `unmodifiableElement` is used.
-///
 /// ### Example
 /// ```dart
 /// final source = TissueList<String>(['A', 'B']);
@@ -224,7 +212,7 @@ class _TestTissueReadOnly extends TestTissue<Never, Never> {
 
   @override
   FutureOr<bool> action(Function action,
-      {required Cell host, Arguments? arguments}) {
+      {required Cell host, Arguments? arguments, ApplyCommand? command}) {
     return !host.modifiable.contains(action);
   }
 

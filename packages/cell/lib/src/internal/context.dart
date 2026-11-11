@@ -184,15 +184,6 @@ class _Context extends ContextBase {
 /// - All state is immutable – to change a context, you create a new one via
 ///   `evolve()`.
 ///
-/// ### Non‑obvious
-/// - The `parent` chain is established at construction time and never changes.
-/// - Equality (`==`) and `hashCode` are based on the entire record, including
-///   the parent chain – so two contexts are equal only if they have identical
-///   metadata and ancestry.
-/// - Even though it's called "base", it's fully functional on its own – you
-///   can use it directly, but the factory methods are more convenient.
-///
-/// See also: [Context], [DeputyContext], [PulseContext], [Ontology].
 abstract class ContextBase implements Context {
   final dynamic _record;
 
@@ -207,11 +198,6 @@ abstract class ContextBase implements Context {
   /// It takes a list of [GovernanceEntry] objects and packs them into a
   /// memory-optimised record. If a [parent] is provided, the new context
   /// inherits from it via prototype-based inheritance.
-  ///
-  /// ### Non‑obvious
-  /// - The [parent] chain is immutable – once set, it can't be changed.
-  /// - The [others] map is for custom metadata that doesn't fit the standard
-  ///   ontology dimensions.
   ///
   /// ### Parameters:
   /// - [entries]: An iterable of [GovernanceEntry] pairs defining the core
@@ -242,11 +228,6 @@ abstract class ContextBase implements Context {
   /// It directly assigns the provided [Record] to the internal storage.
   /// This bypasses the overhead of map-to-record conversion for maximum
   /// performance.
-  ///
-  /// ### Non‑obvious
-  /// - The record format is internal – don't rely on its structure.
-  /// - This constructor is used by subclasses like `DeputyContext` and
-  ///   `PulseContext` for efficient instantiation.
   ///
   /// ### Parameters:
   /// - [record]: The structured Dart Record containing the `map`, optional
@@ -283,8 +264,14 @@ abstract class ContextBase implements Context {
     return null;
   }
 
-  ContextBase? get _parent =>
-      get<ContextBase?>(() => _record.parent, orElse: null);
+  ContextBase? get _parent {
+    // Resolve as `Object?` first: the system context's parent is the
+    // `_ContextSystem` singleton, which is not a [ContextBase]. The type
+    // filter below maps that to "no parent" explicitly instead of relying
+    // on `get`'s cast handling.
+    final parent = get<Object?>(() => _record.parent, orElse: null);
+    return parent is ContextBase ? parent : null;
+  }
 
   @override
   String? get type => get<String?>(

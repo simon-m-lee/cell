@@ -77,13 +77,6 @@ not yet initialised or for a terminal node in a graph.</p>
 all mutations.</li>
 <li>It is the most memory‑efficient nucleus possible.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The resulting nucleus is <strong>not</strong> a deputy – it is a root nucleus with
-no principal.</li>
-<li>Any tissue created from this nucleus will be empty and immutable.</li>
-<li>It is a singleton – all calls return the same instance.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final emptyNucleus = TissueNucleus.empty&lt;int&gt;();
 final emptyList = Tissue.fromNucleus(emptyNucleus);
@@ -127,7 +120,7 @@ read‑only, and non‑allocating reactive blueprint.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

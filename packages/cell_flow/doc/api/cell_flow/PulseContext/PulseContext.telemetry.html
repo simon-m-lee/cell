@@ -78,11 +78,6 @@ within a cell.</p>
 <li>Sets <code>sensitivity</code> to <code>public</code>.</li>
 <li>Uses <code>deterministic</code> strategy.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>These pulses are never audited – they are pure telemetry.</li>
-<li>They are low priority and will not interfere with critical operations.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final context = PulseContext.telemetry(
   baseContext: currentPulse.context,
@@ -158,7 +153,7 @@ within a cell.</p>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

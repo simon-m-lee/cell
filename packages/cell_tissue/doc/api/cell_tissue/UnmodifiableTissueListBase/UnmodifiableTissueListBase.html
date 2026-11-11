@@ -83,19 +83,6 @@ overhead.</li>
 <li>The resulting instance enters the reactive graph with a read‑only
 barrier – all mutation methods are disabled.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>unmodifiableElement</code> flag is <strong>not</strong> stored in the nucleus – it
-is a behaviour of the view itself. The view applies it during
-iteration and element access.</li>
-<li>The <code>elements</code> parameter is only used when the underlying container
-is not already populated (e.g., when creating a fresh unmodifiable
-list from scratch). For deputies (views), the storage is shared with
-the source, so <code>elements</code> should be <code>null</code> to avoid overwriting.</li>
-<li>The view's <code>modifiable</code> getter returns an empty set, so the
-<a href="../../cell_tissue/TissueListMixin-mixin.html">TissueListMixin</a> will never execute mutations – they are rejected
-at the <code>apply</code> gate.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>properties</code>: <strong>Required</strong>. The <a href="../../cell_tissue/TissueListNucleusBase-class.html">TissueListNucleusBase</a> defining
@@ -143,7 +130,7 @@ with a known immutable set.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

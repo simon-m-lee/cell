@@ -67,14 +67,6 @@ web addresses before processing (e.g., opening in a browser, fetching data).</p>
 <h3 id="how-it-works">How it works</h3>
 <p>By default, it uses a regex that checks for http:// or https://, domain,
 and optional path. You can customise the pattern if needed.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The default pattern allows optional protocol (http/https), domain, TLD,
-and optional path.</li>
-<li><code>null</code> is allowed by default (use <code>allowNull: false</code> to reject null).</li>
-<li>For strict URL validation (e.g., requiring certain subdomains), provide
-a custom <a href="../cell/EntryPattern/pattern.html">pattern</a>.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <h4 id="1-standard-link-validation">1. Standard Link Validation</h4>
 <pre class="language-dart"><code class="language-dart">@WebsiteUrlPattern()
@@ -330,7 +322,7 @@ mandatory subdomains/paths, consider a custom <a href="../cell/EntryPattern/patt
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

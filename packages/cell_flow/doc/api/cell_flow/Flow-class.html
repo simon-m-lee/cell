@@ -89,52 +89,36 @@ mechanism, while managing the underlying receptor lifecycle.</li>
 <li>Transformations are optimized into flyweight receptors that execute
 within the host cell's switching fabric.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Stateless Blueprint</strong>: The methods in <a href="../cell_flow/Flow-class.html">Flow</a> are convenience wrappers. The
-authoritative logic lives in the <a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a> classes.</li>
-<li><strong>Resource Management</strong>: A <a href="../cell_flow/FlowHandle.html">FlowHandle</a> is a managed resource. While cells
-in Mitosis do not "complete", you should dispose of observers or handles to
-prune branches when they are no longer needed.</li>
-<li><strong>Causal Integrity</strong>: All operations in <a href="../cell_flow/Flow-class.html">Flow</a> preserve forensic metadata.
-Incoming pulses are evolved (not replaced), maintaining a full trace of
-the signal's journey across the topography.</li>
-</ul>
 <h3 id="see-also">See Also:</h3>
 <ul>
 <li><a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a>: The stateless blueprint for reactive logic.</li>
 <li><a href="../cell_flow/FlowHandle.html">FlowHandle</a>: The live instance of a flow pipeline.</li>
-<li><a href="../cell_flow/Cell-class.html">Cell</a>: The underlying stateful node in the reactive graph.</li>
+<li><a href="../cell_flow/Cell-class.html">Cell</a>: The underlying stateful node in the reactive graph.
+A namespace of static operator factories. <a href="../cell_flow/Flow-class.html">Flow</a> is deliberately NOT a
+<a href="../cell_flow/CellBase-class.html">CellBase</a>: it has no cell state, no nucleus, and no participation in the
+reactive graph — it only assembles <a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a> blueprints. Keeping
+it out of the cell hierarchy prevents a fake cell from leaking into
+cell-typed positions.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Flow — the static operator catalog. Not a Cell factory, not a Tissue book.
+<strong>When to use:</strong> walk §3 families of <code>HowTo-Mitose-Flow.md</code> against the BRD before writing a custom instruction; <code>Flow.*</code> covers feed adapters and adjacent journeys.
+<strong>When NOT to use:</strong> the <strong>decision</strong> gate of a Cell-variant Demo — that is <code>FlowInstructionBase</code> + <code>+</code> + <code>toHandle</code> (one Receptor, one lock).
+<strong>Live signature:</strong> <code>abstract class Flow</code> — static factories return <code>FlowHandle</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell</code> (graph nodes; Flow is a namespace that only assembles blueprints).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3 "Examine the catalog against the BRD" (#flow-catalog)
+<strong>Example:</strong> <code>example/cell_flow_example.dart</code>
+<strong>Cross-layer:</strong> entry is <code>Cell.ingress</code>; books are <code>cell_tissue</code>; <code>Cell.observe</code> glues them.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final h = Flow.filter&lt;int&gt;(src.cell, test: (v) =&gt; v &gt; 0);
+final o = Cell.observe(source: h.cell, effect: (Pulse p) =&gt; print(p.payload));
+src.emit(1);
+o.stop();
+</code></pre>
 </section>
 
 
-    <section>
-      <dl class="dl-horizontal">
-        
-  <dt>Inheritance</dt>
-  <dd>
-    <ul class="gt-separated dark clazz-relationships">
-      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
-        <li><a href="../cell_flow/CellBase-class.html">CellBase</a></li>
-      <li>Flow</li>
-    </ul>
-  </dd>
-
-        
-        
-
-
-        
-  <dt>Available extensions</dt>
-  <dd><ul class="comma-separated clazz-relationships">
-      <li><a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a></li>
-  </ul></dd>
-        
-
-
-      </dl>
-    </section>
 
     
   <section class="summary offset-anchor" id="constructors">
@@ -154,104 +138,14 @@ the signal's journey across the topography.</li>
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
-        <dt id="async" class="property inherited">
-  <span class="name"><a href="../cell_flow/CellBase/async.html">async</a></span>
-  <span class="signature">&#8594; <a href="../cell_flow/ModifiableAsync-class.html">ModifiableAsync</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span>
-  
-
-</dt>
-<dd class="inherited">
-  Provides a high-level, asynchronous interface for interacting with this
-<code>Cell</code> node.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="context" class="property inherited">
-  <span class="name"><a href="../cell_flow/CellBase/context.html">context</a></span>
-  <span class="signature">&#8594; <a href="../cell_flow/Context-class.html">Context</a></span>
-  
-
-</dt>
-<dd class="inherited">
-  The operational <a href="../cell_flow/Context-class.html">Context</a> defining the forensic identity, administrative
-authority, and causal lineage of this specific <a href="../cell_flow/Cell-class.html">Cell</a> handle.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
         <dt id="hashCode" class="property inherited">
-  <span class="name"><a href="../cell_flow/CellBase/hashCode.html">hashCode</a></span>
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
   
 
 </dt>
 <dd class="inherited">
-  Returns a hash code for this <a href="../cell_flow/Cell-class.html">Cell</a> derived from its <strong>Root Genotypic Identity</strong>.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="isGoverned" class="property inherited">
-  <span class="name"><a href="../cell_flow/CellBase/isGoverned.html">isGoverned</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
-  
-
-</dt>
-<dd class="inherited">
-  Indicates whether this node is subject to active <strong>Administrative Oversight</strong>
-or specialized <strong>Lifecycle Governance</strong>.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="isInvalidated" class="property inherited">
-  <span class="name"><a href="../cell_flow/CellBase/isInvalidated.html">isInvalidated</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
-  
-
-</dt>
-<dd class="inherited">
-  Indicates whether this <a href="../cell_flow/Cell-class.html">Cell</a> has initiated its <strong>Automatic Termination</strong>
-sequence and is currently in the process of being neutralized.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="isTerminal" class="property inherited">
-  <span class="name"><a href="../cell_flow/CellBase/isTerminal.html">isTerminal</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
-  
-
-</dt>
-<dd class="inherited">
-  A boolean indicator identifying whether this <a href="../cell_flow/Cell-class.html">Cell</a> acts as a
-<strong>Processing Sink</strong> within the reactive topology.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="lock" class="property inherited">
-  <span class="name"><a href="../cell_flow/CellBase/lock.html">lock</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>?</span>
-  
-
-</dt>
-<dd class="inherited">
-  The synchronization <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> owned by this cell's nucleus.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="modifiable" class="property inherited">
-  <span class="name"><a href="../cell_flow/CellBase/modifiable.html">modifiable</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span>&gt;</span></span>
-  
-
-</dt>
-<dd class="inherited">
-  Defines the exhaustive whitelist of functions and commands authorized for
-execution on this node via the dynamic <a href="../cell_flow/CellBase/apply.html">apply</a> method.
+  The hash code for this object.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -268,31 +162,6 @@ execution on this node via the dynamic <a href="../cell_flow/CellBase/apply.html
 
 </dd>
 
-        <dt id="unmodifiable" class="property inherited">
-  <span class="name"><a href="../cell_flow/CellBase/unmodifiable.html">unmodifiable</a></span>
-  <span class="signature">&#8594; <a href="../cell_flow/Cell-class.html">Cell</a></span>
-  
-
-</dt>
-<dd class="inherited">
-  Returns a read-only, reactive projection (Deputy) of this <a href="../cell_flow/Cell-class.html">Cell</a>.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="validate" class="property inherited">
-  <span class="name"><a href="../cell_flow/CellBase/validate.html">validate</a></span>
-  <span class="signature">&#8594; <a href="../cell_flow/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span>
-  
-
-</dt>
-<dd class="inherited">
-  The authoritative <strong>Integrity Gate</strong> governing this node's structural
-boundaries and operational authority.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
     </dl>
   </section>
 
@@ -302,120 +171,6 @@ boundaries and operational authority.
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
-        <dt id="apply" class="callable inherited">
-  <span class="name"><a href="../cell_flow/CellBase/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell_flow/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
-    <span class="returntype parameter">&#8594; dynamic</span>
-  </span>
-  
-
-</dt>
-<dd class="inherited">
-  Executes a <strong>State Transition</strong> or arbitrary logic via the <strong>Command Pattern</strong> gateway.
-  <div class="features"><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="deputy" class="callable inherited">
-  <span class="name"><a href="../cell_flow/CellBase/deputy.html">deputy</a></span><span class="signature">(<wbr>{<span class="parameter" id="deputy-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_flow/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="deputy-param-context"><span>covariant</span> <span class="type-annotation"><a href="../cell_flow/DeputyContext-class.html">DeputyContext</a></span> <span class="parameter-name">context</span> = <span class="default-value">DeputyContext.system</span>, </span><span class="parameter" id="deputy-param-testRule"><span>covariant</span> <span class="type-annotation"><a href="../cell_flow/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span><span class="parameter" id="deputy-param-synapses"><span class="type-annotation"><a href="../cell_flow/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span>
-  </span>
-  
-
-</dt>
-<dd class="inherited">
-  Creates an <strong>Attenuated Proxy</strong> (Deputy) of this cell with specialized
-governance and restricted authority.
-  <div class="features"><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="filter" class="callable">
-  <span class="name"><a href="../cell_flow/CellFlowOperators/filter.html">filter</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="filter-param-test"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
-    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-      <p class="from-extension">
-        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
-        provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
-      </p>
-  Materializes a <strong>Predicate Integrity Gate</strong>—a specialized orchestration
-instruction designed to conditionally permit pulse evolution.
-  
-
-</dd>
-
-        <dt id="fromFuture" class="callable">
-  <span class="name"><a href="../cell_flow/CellFlowOperators/fromFuture.html">fromFuture</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="fromFuture-param-future"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> <span class="parameter-name">future</span>, </span><span class="parameter" id="fromFuture-param-timeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">timeout</span>, </span><span class="parameter" id="fromFuture-param-onError"><span class="type-annotation">FutureErrorHandler?</span> <span class="parameter-name">onError</span>, </span><span class="parameter" id="fromFuture-param-emitErrorPulse"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">emitErrorPulse</span> = <span class="default-value">true</span></span>})
-    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-      <p class="from-extension">
-        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
-        provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
-      </p>
-  Synthesizes a <strong>Temporal Resource Bridge</strong> from a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>.
-  
-
-</dd>
-
-        <dt id="fromIterable" class="callable">
-  <span class="name"><a href="../cell_flow/CellFlowOperators/fromIterable.html">fromIterable</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="fromIterable-param-iterable"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">iterable</span></span>})
-    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-      <p class="from-extension">
-        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
-        provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
-      </p>
-  Synthesizes an <strong>Iterative Pulse Bridge</strong> from a dynamic iterable.
-  
-
-</dd>
-
-        <dt id="fromStream" class="callable">
-  <span class="name"><a href="../cell_flow/CellFlowOperators/fromStream.html">fromStream</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="fromStream-param-stream"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> <span class="parameter-name">stream</span>, </span><span class="parameter" id="fromStream-param-onError"><span class="type-annotation">StreamErrorHandler?</span> <span class="parameter-name">onError</span>, </span><span class="parameter" id="fromStream-param-emitErrorPulse"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">emitErrorPulse</span> = <span class="default-value">true</span></span>})
-    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-      <p class="from-extension">
-        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
-        provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
-      </p>
-  Synthesizes a <strong>Continuous Pulse Bridge</strong> from a <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a>.
-  
-
-</dd>
-
-        <dt id="map" class="callable">
-  <span class="name"><a href="../cell_flow/CellFlowOperators/map.html">map</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="map-param-project"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="map-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
-    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-      <p class="from-extension">
-        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
-        provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
-      </p>
-  Materializes a <strong>Projective Evolution Gate</strong>—a fundamental instruction
-designed to transform stimulus payloads as they traverse the topography.
-  
-
-</dd>
-
         <dt id="noSuchMethod" class="callable inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
     <span class="returntype parameter">&#8594; dynamic</span>
@@ -429,79 +184,8 @@ designed to transform stimulus payloads as they traverse the topography.
 
 </dd>
 
-        <dt id="of" class="callable">
-  <span class="name"><a href="../cell_flow/CellFlowOperators/of.html">of</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="of-param-values"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">values</span></span>})
-    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-      <p class="from-extension">
-        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
-        provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
-      </p>
-  Synthesizes a <strong>Fixed Sequence Bridge</strong> from a provided collection.
-  
-
-</dd>
-
-        <dt id="range" class="callable">
-  <span class="name"><a href="../cell_flow/CellFlowOperators/range.html">range</a></span><span class="signature">(<wbr>{<span class="parameter" id="range-param-start"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">start</span>, </span><span class="parameter" id="range-param-count"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span>, </span><span class="parameter" id="range-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">step</span> = <span class="default-value">1</span></span>})
-    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-      <p class="from-extension">
-        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
-        provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
-      </p>
-  Synthesizes a <strong>Counted Pulse Generator</strong>—a specialized bridge
-designed to evolve a sequence of arithmetic integers.
-  
-
-</dd>
-
-        <dt id="repeat" class="callable">
-  <span class="name"><a href="../cell_flow/CellFlowOperators/repeat.html">repeat</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="repeat-param-value"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">value</span>, </span><span class="parameter" id="repeat-param-count"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span> = <span class="default-value">1</span></span>})
-    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-      <p class="from-extension">
-        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
-        provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
-      </p>
-  Synthesizes a <strong>Recursive Stimulus Bridge</strong>—a specialized generator
-designed to evolve the same payload multiple times.
-  
-
-</dd>
-
-        <dt id="tap" class="callable">
-  <span class="name"><a href="../cell_flow/CellFlowOperators/tap.html">tap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="tap-param-onValue"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">onValue</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="tap-param-onError"><span class="type-annotation">TapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
-    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-      <p class="from-extension">
-        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
-        provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
-      </p>
-  Materializes a <strong>Passive Observation Gate</strong>—a specialized orchestration
-instruction designed to perform side-effects without altering pulse evolution.
-  
-
-</dd>
-
         <dt id="toString" class="callable inherited">
-  <span class="name"><a href="../cell_flow/CellBase/toString.html">toString</a></span><span class="signature">(<wbr>)
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
   </span>
   
@@ -522,14 +206,14 @@ instruction designed to perform side-effects without altering pulse evolution.
     <h2>Operators</h2>
     <dl class="callables">
         <dt id="operator ==" class="callable inherited">
-  <span class="name"><a href="../cell_flow/CellBase/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Determines logical identity between two <a href="../cell_flow/Cell-class.html">Cell</a> nodes within the reactive graph.
+  The equality operator.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -642,7 +326,7 @@ accumulation is already running.
 </dt>
 <dd>
   Maps each payload through an asynchronous <code>mapper</code>.
-  <div class="features"><span class="feature">override</span></div>
+  
 
 </dd>
 
@@ -905,7 +589,7 @@ accumulation is already running.
 <dd>
   Delays the emission of pulses until <code>duration</code> has passed since the
 last pulse (Rx <code>debounce</code>).
-  <div class="features"><span class="feature">override</span></div>
+  
 
 </dd>
 
@@ -999,7 +683,7 @@ from <code>source</code> (Rx <code>defer</code> for streams).
 <dd>
   Suppresses pulses that have been seen before (globally or consecutively
 depending on configuration).
-  <div class="features"><span class="feature">override</span></div>
+  
 
 </dd>
 
@@ -1040,7 +724,7 @@ sequence is already active (Rx <code>exhaustMap</code>).
 <dd>
   Bridges a single <code>future</code> into the graph on the first pulse received
 from <code>source</code> (Rx <code>fromFuture</code>).
-  <div class="features"><span class="feature">override</span></div>
+  
 
 </dd>
 
@@ -1068,7 +752,7 @@ from <code>source</code> (Rx <code>fromFuture</code>).
 <dd>
   Subscribes to <code>stream</code> on the first pulse received from <code>source</code>
 (Rx <code>fromStream</code>).
-  <div class="features"><span class="feature">override</span></div>
+  
 
 </dd>
 
@@ -1663,7 +1347,7 @@ intermediate result (Rx <code>scan</code>).
 <dd>
   Maps each payload to an inner sequence and always switches to the
 <strong>latest</strong> one (Rx <code>switchMap</code>).
-  <div class="features"><span class="feature">override</span></div>
+  
 
 </dd>
 
@@ -1756,7 +1440,7 @@ sequence (Rx <code>tap</code>).
 <dd>
   Limits the rate of emissions by enforcing a silent window of <code>duration</code>
 after a pulse.
-  <div class="features"><span class="feature">override</span></div>
+  
 
 </dd>
 
@@ -1892,7 +1576,7 @@ after a pulse.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

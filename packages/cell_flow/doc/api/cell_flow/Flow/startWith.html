@@ -88,14 +88,6 @@ the stream starts emitting.</p>
 <li>If <code>replaceFirst</code> is <code>true</code>, the original pulse is dropped.</li>
 <li>Each emitted value gets the step <code>'StartWith'</code> for provenance.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>First Trigger Only</strong>: The prefix is emitted only on the first pulse.</li>
-<li><strong>Replace First</strong>: <code>replaceFirst</code> controls whether the original
-pulse is dropped.</li>
-<li><strong>Provenance Preservation</strong>: The emitted value preserves the
-source cell, type, and priority from the trigger pulse.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -167,7 +159,7 @@ input.emit(2); // -&gt; 2
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

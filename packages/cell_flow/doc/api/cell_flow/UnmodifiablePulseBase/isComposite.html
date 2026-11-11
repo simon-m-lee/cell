@@ -90,13 +90,6 @@ extension.</li>
 <li><strong>Explicit Evolution</strong>: Calling <a href="../../cell_flow/PulseBase/evolve.html">evolve</a> while passing a new
 <a href="../../cell_flow/Pulse-class.html">Pulse</a>.</li>
 </ol>
-<h3 id="nonobvious-evolution-vs-aggregation">Non‑obvious: Evolution vs. Aggregation</h3>
-<p>Simply calling <a href="../../cell_flow/PulseBase/withStep.html">withStep</a> or evolving the metadata (context, priority)
-does <strong>not</strong> make a pulse composite. These operations extend the
-<em>causal lineage</em> of a single signal but do not change the number of
-elements in the propagation unit.</p>
-<p>Even a pulse with a very long <a href="../../cell_flow/UnmodifiablePulseBase/trace.html">trace</a> from many <code>withStep</code> calls
-will have <code>isComposite == false</code> and a <code>length</code> of 1.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final p1 = Pulse(1).withStep('validated');
 print(p1.isComposite); // false (still one signal)
@@ -141,7 +134,7 @@ bool get isComposite =&gt; _source.isComposite;</code></pre>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

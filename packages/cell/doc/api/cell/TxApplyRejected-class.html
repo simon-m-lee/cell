@@ -53,6 +53,22 @@
 </h1></div>
 
     
+<section class="desc markdown">
+  <p>Emitted when a staged command is refused.</p>
+<p>This event can fire at <strong>two distinct points</strong>:</p>
+<ol>
+<li>During <a href="../cell/ApplyTransactionScope/enqueueCommand.html">ApplyTransactionScope.enqueueCommand</a> — if the function is not
+in the cell's <code>modifiable</code> set, or a compensation target is not a
+participant. In this case the call <strong>throws</strong> <a href="../cell/TxApplyException-class.html">TxApplyException</a>
+immediately after emitting this event.</li>
+<li>During <a href="../cell/ApplyTransactionScope/commit.html">ApplyTransactionScope.commit</a> — if a staged command's function
+was removed from <code>modifiable</code> between staging and commit, or if the
+command's function returns an <a href="../cell/ApplyVeto-class.html">ApplyVeto</a> at execution time.</li>
+</ol>
+<p><code>reason</code> is a human-readable string in the current implementation, but it
+is typed as <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a> to allow richer diagnostic payloads in future
+versions. Consumers should not assume a specific type.</p>
+</section>
 
 
     <section>
@@ -104,7 +120,7 @@
 
 </dt>
 <dd>
-  
+  The cell whose staged command was refused.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -128,7 +144,7 @@
 
 </dt>
 <dd>
-  
+  The reason for the rejection. Currently a <code>String</code>; treat as opaque.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -230,7 +246,7 @@
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

@@ -82,15 +82,6 @@ within the synchronisation domain.</li>
 links every member that implements the <a href="../../cell_tissue/Cell-class.html">Cell</a> interface through
 <code>_nucleus.synapses.link</code>. This enables <strong>Member‑Level Bubbling</strong>.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The initial population is performed <strong>atomically</strong> – observers never
-see a partially populated collection.</li>
-<li>The auto‑linking happens regardless of whether the elements are added
-via <code>add</code> or through the initial population. This ensures that even
-the initial state is fully reactive.</li>
-<li>If the nucleus has <code>synapses</code> disabled, linking is skipped.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>nucleus</code>: The <a href="../../cell_tissue/TissueNucleusBase-class.html">TissueNucleusBase</a> defining the behavioural
@@ -146,7 +137,7 @@ reactive discovery.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

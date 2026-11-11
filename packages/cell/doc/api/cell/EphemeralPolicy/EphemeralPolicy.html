@@ -97,13 +97,6 @@ governed body.</p>
 cleanup and return <code>true</code> to confirm.</li>
 <li>The <code>duration</code> and <code>eventLimit</code> are optional; you can use one or both.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>Returning a negative <code>events</code> count from <code>onEvent</code> will ignore the event.</li>
-<li>The TTL timer starts only on the first interaction, not at creation.</li>
-<li>A hosted policy wins over an upstream one; a body can therefore
-override the lifecycle policy of the head of its reactive graph.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>onEvent</code>: A user-defined logic function called on every pulse to
@@ -164,7 +157,7 @@ actual removal or neutralization of the cell from the system.</li>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

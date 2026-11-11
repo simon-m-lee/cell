@@ -37,17 +37,6 @@ part of '../../../cell.dart';
 ///   If any cell that was read (but not written) has changed, the
 ///   transaction aborts. Commits are globally serialized.
 ///
-/// ### Non‑obvious
-/// - `readCommitted` does **not** prevent non-repeatable reads – if you
-///   read the same cell twice, you may see different values.
-/// - `repeatableRead` prevents non-repeatable reads, but does **not**
-///   prevent phantom reads (if you read a collection, new items may appear).
-/// - `serializable` prevents all anomalies, but requires a global gate
-///   which can become a bottleneck under high contention.
-/// - The isolation level only affects reads; writes are always applied
-///   atomically regardless of the level.
-///
-/// See also [TransactionOptions.isolation].
 enum IsolationLevel {
   /// **Read Committed** – the default level.
   ///
@@ -60,10 +49,6 @@ enum IsolationLevel {
   /// - High‑throughput scenarios where consistency can be relaxed.
   /// - When you only need atomicity for writes, not isolation for reads.
   ///
-  /// ### Non‑obvious
-  /// - If you read a value, then update it based on that read, another
-  ///   transaction may have changed the value between your read and update,
-  ///   leading to lost updates. Use a higher level if this is a concern.
   readCommitted,
 
   /// **Repeatable Read** – ensures a stable view of participant cells.
@@ -79,11 +64,6 @@ enum IsolationLevel {
   /// - For scenarios like "read balance, then deduct amount" where you
   ///   need consistency.
   ///
-  /// ### Non‑obvious
-  /// - This level does **not** prevent phantom reads – if you iterate over
-  ///   a collection, new items may appear.
-  /// - The snapshot is taken at `begin`, not at the first read.
-  /// - Concurrent changes abort the transaction – you must retry.
   repeatableRead,
 
   /// **Serializable** – the strongest isolation level.
@@ -99,11 +79,6 @@ enum IsolationLevel {
   ///   must be zero").
   /// - When you can tolerate the performance overhead of global ordering.
   ///
-  /// ### Non‑obvious
-  /// - The global gate can become a bottleneck under high contention.
-  /// - Reads are tracked – even reading a value that hasn't changed
-  ///   can cause an abort if another transaction wrote to it.
-  /// - This is the safest level but the most expensive.
   serializable,
 }
 
@@ -118,15 +93,6 @@ enum IsolationLevel {
 /// - `insertion` – uses the order passed to `begin`.
 /// - `explicit` – uses a custom comparator.
 ///
-/// ### Non‑obvious
-/// - `byHashCode` is the default and works well for most cases.
-/// - `insertion` preserves the order you specify, which can be useful
-///   if you have a natural order in your domain.
-/// - `explicit` requires a comparator that is total and consistent.
-///   If your comparator is not consistent (e.g., depends on mutable state),
-///   you may encounter deadlocks.
-///
-/// See also [TransactionOptions.ordering].
 enum LockOrdering {
   /// Order locks by cell hash code.
   ///
@@ -134,9 +100,6 @@ enum LockOrdering {
   /// consistent across all transactions. Deadlocks are prevented because
   /// all transactions acquire locks in the same order.
   ///
-  /// ### Non‑obvious
-  /// - Hash codes are not guaranteed to be unique, but the comparison
-  ///   is stable for the lifetime of the cell.
   byHashCode,
 
   /// Order locks by the insertion order passed to `begin`.
@@ -144,10 +107,6 @@ enum LockOrdering {
   /// Locks are acquired in the exact order the cells were provided.
   /// This can be useful if you have a natural order in your domain.
   ///
-  /// ### Non‑obvious
-  /// - If different transactions provide cells in different orders,
-  ///   deadlocks can still occur. This mode is only safe if all
-  ///   transactions use the same order.
   insertion,
 
   /// Use a custom comparator provided in [TransactionOptions.comparator].
@@ -155,9 +114,6 @@ enum LockOrdering {
   /// This gives you full control over lock ordering. The comparator must
   /// be total and consistent with `==`.
   ///
-  /// ### Non‑obvious
-  /// - If your comparator is not consistent (e.g., depends on mutable state),
-  ///   you may encounter deadlocks or non‑deterministic behaviour.
   explicit,
 }
 
@@ -300,11 +256,6 @@ class ValidationFailure {
 /// Catch this to handle validation failures gracefully, e.g., by
 /// presenting errors to the user or retrying with corrected values.
 ///
-/// ### Non‑obvious
-/// - Validation happens during `commit`, not during `update`. This means
-///   you can stage changes and then decide whether to commit or rollback.
-/// - If validation fails, the transaction is automatically rolled back.
-///   You don't need to call `rollback` manually.
 class TransactionValidationException implements Exception {
   final List<ValidationFailure> failures;
 
@@ -325,11 +276,6 @@ class TransactionValidationException implements Exception {
 /// ### When to use
 /// Catch this to retry the transaction with fresh values.
 ///
-/// ### Non‑obvious
-/// - The transaction is automatically rolled back when this is thrown.
-/// - You should retry the entire transaction (from `begin`) after handling
-///   the conflict.
-/// - The conflicts list provides details on which cells changed.
 class TransactionConflictException implements Exception {
   final List<ValidationFailure> conflicts;
 
@@ -381,16 +327,6 @@ class TransactionTimeoutException implements Exception {
 /// - Use `apply` to customize how values are applied to cells.
 /// - Use `onEvent` for logging and monitoring.
 ///
-/// ### Non‑obvious
-/// - The `validate` callback is called **in addition** to each cell's
-///   own `testRule`. Both must pass for the transaction to commit.
-/// - The `apply` callback is called **instead of** the default application
-///   logic. You can use this to add side effects or to apply changes to
-///   non‑[ValueCell] cells.
-/// - If a `timeout` is set, the transaction is automatically rolled back
-///   and a [TransactionTimeoutException] is thrown.
-///
-/// See also [Cell.transaction].
 class TransactionOptions {
   /// The isolation level for the transaction.
   ///
@@ -410,14 +346,16 @@ class TransactionOptions {
 
   /// Maximum duration the transaction can run.
   ///
-  /// If exceeded, the transaction is rolled back and a
-  /// [TransactionTimeoutException] is thrown.
+  /// If exceeded, the transaction is automatically rolled back and a
+  /// [TransactionTimeoutException] is thrown by the next interaction.
+  ///
   final Duration? timeout;
 
   /// Additional validation callback applied during commit.
   ///
   /// Called after each cell's own `testRule`. If either fails, the
   /// transaction is rolled back.
+  ///
   final FutureOr<bool> Function(Cell cell, dynamic value)? validate;
 
   /// Custom application callback for applying changes.
@@ -425,6 +363,7 @@ class TransactionOptions {
   /// Called for each change during commit. If not provided, the default
   /// logic is used ([ValueCell] updates via `_emit`, others via their
   /// receptor).
+  ///
   final FutureOr<void> Function(Cell cell, dynamic value)? apply;
 
   /// Callback for transaction lifecycle events.
@@ -504,22 +443,6 @@ final _serializableGate = Lock();
 /// 4. **Commit**: Acquire locks, validate, apply all changes atomically.
 /// 5. **Rollback**: Discard buffered changes.
 ///
-/// ### Non‑obvious: locks are held only during commit
-/// Locks are acquired **only during commit**, not across begin→commit.
-/// This means you can perform long-running logic between begin and commit
-/// without holding locks. This is a deliberate design choice to prevent
-/// deadlocks and long-held locks.
-///
-/// ### Non‑obvious: validation happens during commit, not update
-/// You can stage changes (`update`) and then decide whether to commit.
-/// Validation runs during commit, not during update. This allows you
-/// to build up complex changes and validate them as a whole.
-///
-/// ### Non‑obvious: transactions are not reentrant
-/// You must commit or rollback before starting another transaction
-/// on the same scope. Attempting to call `begin` while a transaction
-/// is active throws a [StateError].
-///
 /// ### Example 1: Basic Transfer
 /// ```dart
 /// final tx = Cell.transaction();
@@ -590,12 +513,6 @@ typedef TransactionScope = ({
   /// - Resolves lock ordering for the commit phase.
   /// - Starts a timeout timer if [timeout] is set.
   ///
-  /// ### Non‑obvious
-  /// - Locks are **not** held during `begin` – they are acquired only
-  ///   during `commit`. This avoids long‑held locks.
-  /// - If a timeout is set, the transaction is automatically rolled back
-  ///   when it expires.
-  ///
   /// ### Throws
   /// - [StateError] if a transaction is already active.
   /// - [ArgumentError] if [cells] is empty.
@@ -613,11 +530,6 @@ typedef TransactionScope = ({
   /// - The cell is marked as pending for `pending` reads.
   /// - Emits a [TransactionUpdated] event.
   ///
-  /// ### Non‑obvious
-  /// - Validation happens during `commit`, not during `update`.
-  /// - You can update the same cell multiple times – only the last value
-  ///   is used.
-  ///
   /// ### Throws
   /// - [StateError] if no transaction is active.
   /// - [ArgumentError] if the cell is not a participant.
@@ -633,12 +545,6 @@ typedef TransactionScope = ({
   /// - `readCommitted`: returns the current live value.
   /// - `repeatableRead`: returns the snapshot value from `begin`.
   /// - `serializable`: returns the snapshot value and tracks the read set.
-  ///
-  /// ### Non‑obvious
-  /// - For `serializable`, reading a cell tracks it in the read set.
-  ///   If the cell changes before commit, the transaction aborts.
-  /// - For `repeatableRead`, reads are stable, but writes are not
-  ///   included – use `pending` if you need to see buffered writes.
   ///
   /// ### Returns
   /// The value of the cell according to the isolation level.
@@ -682,12 +588,6 @@ typedef TransactionScope = ({
   /// 5. Releases locks and resets the transaction state.
   /// 6. Emits a [TransactionCommitted] event.
   ///
-  /// ### Non‑obvious
-  /// - Locks are held **only during commit**, not across begin→commit.
-  /// - If validation fails, the transaction is automatically rolled back.
-  /// - After commit, the transaction scope is reset – you must call
-  ///   `begin` again for a new transaction.
-  ///
   /// ### Throws
   /// - [StateError] if no transaction is active.
   /// - [TransactionValidationException] if validation fails.
@@ -707,12 +607,6 @@ typedef TransactionScope = ({
   /// - Otherwise, discards all changes and resets the transaction.
   /// - Emits a [TransactionRolledBack] event.
   ///
-  /// ### Non‑obvious
-  /// - Rolling back to a savepoint does **not** release locks – the
-  ///   transaction remains active.
-  /// - After a full rollback (no savepoint), the transaction scope is
-  ///   reset – you must call `begin` again.
-  ///
   /// ### Throws
   /// - [ArgumentError] if the savepoint is unknown.
   Future<void> Function({Object? savepoint}) rollback,
@@ -726,12 +620,6 @@ typedef TransactionScope = ({
   /// ### How it works
   /// - Records the current buffer length.
   /// - Returns an opaque identifier that can be passed to `rollback`.
-  ///
-  /// ### Non‑obvious
-  /// - Savepoints are sequential – rolling back to an earlier savepoint
-  ///   discards all later savepoints.
-  /// - The savepoint identifier is a simple integer. You can use it as a
-  ///   key for custom logic.
   ///
   /// ### Returns
   /// An opaque identifier that can be passed to `rollback`.
@@ -755,13 +643,6 @@ typedef TransactionScope = ({
 /// 5. `rollback` discards changes.
 /// 6. `savepoint` captures a restoration point.
 ///
-/// ### Non‑obvious
-/// - The `_serializableGate` ensures global ordering of serializable
-///   transactions.
-/// - Locks are acquired using the order strategy defined in options.
-/// - The default validation and application logic can be overridden.
-///
-/// See also [TransactionOptions], [TransactionScope].
 TransactionScope _transaction([
   TransactionOptions options = const TransactionOptions(),
 ]) {
@@ -829,7 +710,14 @@ TransactionScope _transaction([
   int Function(Cell, Cell) _resolveOrder(List<Cell> cells) {
     switch (options.ordering) {
       case LockOrdering.byHashCode:
-        return (a, b) => a.hashCode.compareTo(b.hashCode);
+        return (a, b) {
+          final byHash = a.hashCode.compareTo(b.hashCode);
+          // Equal hash codes must still get a deterministic total order:
+          // `List.sort` is not stable, so two transactions locking the same
+          // colliding pair in different orders would deadlock.
+          if (byHash != 0) return byHash;
+          return identityHashCode(a).compareTo(identityHashCode(b));
+        };
       case LockOrdering.insertion:
         return _insertionOrder(cells);
       case LockOrdering.explicit:
@@ -872,8 +760,17 @@ TransactionScope _transaction([
       if (options.timeout != null) {
         timedOut = false;
         timeoutTimer = Timer(options.timeout!, () {
-          timedOut = true;
-          _emit(TransactionTimedOut(options.timeout!));
+          // The timeout fires asynchronously: serialize the state mutation
+          // through the scope lock so it cannot race a commit/rollback in
+          // flight. Per the documented contract, timing out automatically
+          // rolls the transaction back (leaving `timedOut` set so the next
+          // gate interaction still reports TransactionTimeoutException).
+          scopeLock.synchronized(() {
+            if (!isActive || timedOut) return;
+            timedOut = true;
+            _emit(TransactionTimedOut(options.timeout!));
+            _reset();
+          });
         });
       }
 
@@ -963,7 +860,15 @@ TransactionScope _transaction([
   // ── validate / apply defaults ──────────────────────────────
 
   FutureOr<bool> _defaultValidate(Cell cell, dynamic value) async {
-    final result = cell.validate(value, host: cell);
+    // Mirror the direct mutation path: validation sees the same Pulse shape
+    // the receptor will receive at apply time. Validating the raw value
+    // here would silently bypass TestPulseRules — they return `true` for
+    // non-pulse inputs — while direct updates enforce them through
+    // `receptor.call(pulse)`.
+    final result = cell.validate(
+      Pulse.governed(payload: value, source: cell),
+      host: cell,
+    );
     return result is Future<bool> ? await result : result;
   }
 
@@ -971,7 +876,8 @@ TransactionScope _transaction([
     if (cell is ValueCell) {
       // Cross-package ValueCell implementations (e.g., TissueValue) do not
       // inherit the private `_emit`; commit through the public value
-      // setter, which is a silent no-op on unmodifiable views.
+      // setter. Unmodifiable views reject the write loudly, which surfaces
+      // as a commit failure and rolls the transaction back.
       cell.value = value;
       return;
     }
@@ -1047,16 +953,47 @@ TransactionScope _transaction([
             throw TransactionValidationException(failures);
           }
 
-          // 3. Apply while locks are held.
+          // 3. Apply while locks are held. A mid-commit failure must not
+          // leave earlier writes of THIS commit applied: record each
+          // cell's prior value and restore it (in reverse order) before
+          // the rollback is reported.
           final applied = <({Cell cell, dynamic value})>[];
+          final priors = <({Cell cell, dynamic value})>[];
           for (final change in buffer) {
-            await apply(change.cell, change.newValue);
-            applied.add((cell: change.cell, value: change.newValue));
+            try {
+              final prior = change.cell is ValueCell
+                  ? (change.cell as ValueCell).value
+                  : null;
+              priors.add((cell: change.cell, value: prior));
+              await apply(change.cell, change.newValue);
+              applied.add((cell: change.cell, value: change.newValue));
+            } catch (_) {
+              for (final prior in priors.reversed) {
+                if (prior.cell is ValueCell) {
+                  try {
+                    (prior.cell as ValueCell).value = prior.value;
+                  } catch (_) {
+                    // Best effort: an unmodifiable projection cannot be
+                    // restored, and that surfaces through the original
+                    // exception below.
+                  }
+                }
+              }
+              rethrow;
+            }
           }
 
           final committed = List.of(applied);
           _reset();
-          _emit(TransactionCommitted(committed));
+          try {
+            _emit(TransactionCommitted(committed));
+          } catch (_) {
+            // The batch is already applied at this point; a throwing
+            // onEvent handler cannot roll it back, and reporting a
+            // TransactionRolledBack afterwards would contradict the
+            // committed state. Swallow the handler error and keep the
+            // committed outcome.
+          }
         });
       }
 

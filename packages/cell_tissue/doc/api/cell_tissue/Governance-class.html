@@ -72,14 +72,6 @@ building contexts.</p>
 The framework uses these to enforce security, compliance, and operational
 rules. The <a href="../cell_tissue/Governance/evolvable.html">evolvable</a> flag decides whether a dimension can be refined
 when you create a deputy.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <a href="../cell_tissue/Governance/isType.html">isType</a> guard prevents type mismatches at runtime – it's why
-you can't accidentally put a <code>String</code> where a <code>List&lt;String&gt;</code> is expected.</li>
-<li>The <a href="../cell_tissue/Governance/evolvable.html">evolvable</a> flag is what stops a deputy from changing its core
-identity (like <code>role</code> or <code>taxonomy</code>) – that's intentional to prevent
-privilege escalation.</li>
-</ul>
 <h3 id="type-parameters">Type Parameters:</h3>
 <ul>
 <li><code>V</code>: The expected value type for this specific governance dimension.</li>
@@ -297,7 +289,7 @@ value conforms to the expected type of this governance dimension.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

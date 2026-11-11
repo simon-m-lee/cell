@@ -67,12 +67,11 @@
     </section>
     
 <section class="desc markdown">
-  <p>Asynchronously retrieves the current state of the principal <a href="../../cell_tissue/ValueCell-class.html">ValueCell</a>
-with a guarantee of <strong>Atomic Memory Consistency</strong>.</p>
-<p>This getter is the primary mechanism for performing a <strong>Thread‑Safe Read</strong>
-from the asynchronous execution layer. It facilitates the framework's
-<strong>Conactive</strong> model by ensuring that the value retrieved is never
-"torn" or partial, even in high‑concurrency environments.</p>
+  <p>Asynchronously retrieves the current state of the principal <a href="../../cell_tissue/ValueCell-class.html">ValueCell</a>.</p>
+<p>When the cell has a lock, the read is serialized behind any in-flight
+mutation, so callers observe a consistent point-in-time snapshot. On
+the default lock-free cell the read is a plain, synchronous-isolate
+access — there are no OS threads involved.</p>
 <h3 id="when-to-use">When to use</h3>
 <p>Use this when you need to read the cell's state from an async context.</p>
 <h3 id="how-it-works">How it works</h3>
@@ -82,13 +81,6 @@ from the asynchronous execution layer. It facilitates the framework's
 the lock is released.</li>
 <li>The returned value is a point‑in‑time snapshot that is guaranteed
 consistent.</li>
-</ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This getter is <strong>not</strong> cached – each access reads the current state.</li>
-<li>It returns <code>null</code> if the cell's state is <code>null</code>.</li>
-<li>If the cell is invalidated, it may still return the last valid state
-or <code>null</code>; check <code>cell.isInvalidated</code> to avoid stale reads.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
 <p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> that resolves to the current state <code>V?</code> of the cell once
@@ -136,7 +128,7 @@ the synchronization domain is available.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

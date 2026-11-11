@@ -8,6 +8,8 @@ import 'dart:async';
 
 import 'package:cell_flow/cell_flow.dart';
 
+import 'flow_internal.dart';
+
 /// Flow instructions that flatten inner sequences (Rx `concatMap` family).
 ///
 /// | Operator | Rx analogue | Overlap | Order |
@@ -81,45 +83,6 @@ Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
 /// - [onData]: Called for each value drained.
 /// - [stillLive]: Optional callback to check if the operation is still current.
 ///
-/// ### Non‑obvious
-/// - **Recursive Draining**: The function recurses on `Future` and `Iterable`
-///   values, allowing nested structures to be flattened.
-/// - **Cancellation**: The [stillLive] callback is checked at each step,
-///   allowing cancelled operations to stop early.
-/// - **String Special Case**: Strings are treated as values, not iterables,
-///   to avoid character-by-character iteration.
-Future<void> _drain(
-  Object? inner,
-  void Function(dynamic value) onData, {
-  bool Function()? stillLive,
-}) async {
-  if (inner == null) return;
-  if (stillLive != null && !stillLive()) return;
-
-  if (inner is Stream) {
-    await for (final event in inner) {
-      if (stillLive != null && !stillLive()) return;
-      await _drain(event, onData, stillLive: stillLive);
-    }
-    return;
-  }
-
-  if (inner is Future) {
-    final value = await inner;
-    await _drain(value, onData, stillLive: stillLive);
-    return;
-  }
-
-  if (inner is Iterable && inner is! String) {
-    for (final event in inner) {
-      if (stillLive != null && !stillLive()) return;
-      await _drain(event, onData, stillLive: stillLive);
-    }
-    return;
-  }
-
-  onData(inner);
-}
 
 // ─────────────────────────────────────────────────────────────
 // ConcatMap - Sequential Flattening
@@ -178,18 +141,6 @@ Future<void> _drain(
 /// - **[T]**: The value itself is emitted directly.
 /// - **`null`**: No emission (the pulse is dropped).
 /// - **Nested combinations**: `Future<Iterable<T>>`, etc., are recursively expanded.
-///
-/// ### Non‑obvious
-/// - **Strict Sequencing**: The instruction processes inputs one at a time.
-///   Each sequence must complete before the next starts.
-/// - **Queueing**: If triggers arrive while a sequence is in progress,
-///   they are queued in FIFO order.
-/// - **Error Handling**: Errors in the [mapper] or during draining are
-///   reported via [onError].
-/// - **Backpressure**: The instruction processes inputs sequentially,
-///   automatically providing backpressure.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
 ///
 /// ### Example: Sequential Order Processing
 /// ```dart
@@ -269,9 +220,9 @@ class ConcatMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FlattenMapper<S> mapper, {
     FlattenErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
-            final queue = _ConcatQueue();
+  }) : super.stateful(
+          () {
+            final queue = SequentialQueue();
             return (pulse, {cell, user, future, token}) {
               final payload = pulse.payload;
               if (payload is! S) {
@@ -286,7 +237,7 @@ class ConcatMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               queue.enqueue(() async {
                 try {
                   final inner = await Future.sync(() => mapper(payload));
-                  await _drain(inner, (value) {
+                  await drainInner(inner, (value) {
                     if (value is T) {
                       future!(
                         result: _out<T>(value, cell, pulse, 'ConcatMap'),
@@ -300,7 +251,7 @@ class ConcatMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -408,14 +359,14 @@ class ConcatMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FutureOr<Object?> Function() inner, {
     FlattenErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
-            final queue = _ConcatQueue();
+  }) : super.stateful(
+          () {
+            final queue = SequentialQueue();
             return (pulse, {cell, user, future, token}) {
               queue.enqueue(() async {
                 try {
                   final seq = await Future.sync(inner);
-                  await _drain(seq, (value) {
+                  await drainInner(seq, (value) {
                     if (value is T) {
                       future!(
                         result: _out<T>(value, cell, pulse, 'ConcatMapTo'),
@@ -429,7 +380,7 @@ class ConcatMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -477,15 +428,6 @@ class ConcatMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 5. If [mapper] throws an error, it's reported only for the current
 ///    generation.
 /// 6. Each emitted value gets the step `'ConcatMapLatest'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Generation Tracking**: Each operation gets a unique ID.
-/// - **Silent Cancellation**: Cancelled operations don't emit errors.
-/// - **Latest Only**: Only the most recent operation emits values.
-/// - **Error Isolation**: Only errors from the current generation are
-///   reported.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
 ///
 /// ### Parameters:
 /// - [mapper]: **Mapping Function.** Called with each typed payload,
@@ -537,8 +479,8 @@ class ConcatMapLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FlattenMapper<S> mapper, {
     FlattenErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final gen = _GenerationState();
             return (pulse, {cell, user, future, token}) {
               final payload = pulse.payload;
@@ -556,7 +498,7 @@ class ConcatMapLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 try {
                   final inner = await Future.sync(() => mapper(payload));
                   if (id != gen.generation) return;
-                  await _drain(
+                  await drainInner(
                     inner,
                     (item) {
                       if (id != gen.generation) return;
@@ -575,7 +517,7 @@ class ConcatMapLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -623,13 +565,6 @@ class ConcatMapLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. When the sequence completes, the instruction is ready for the next trigger.
 /// 4. Results are emitted from the first sequence.
 /// 5. Each emitted value gets the step `'ConcatMapFirst'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Drop While Busy**: Triggers while busy are silently dropped.
-/// - **One at a Time**: Only one sequence can be in flight at a time.
-/// - **Error Handling**: Errors are reported via [onError].
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
 ///
 /// ### Parameters:
 /// - [mapper]: **Mapping Function.** Called with each typed payload,
@@ -698,8 +633,8 @@ class ConcatMapFirst<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FlattenMapper<S> mapper, {
     FlattenErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _BusyState();
             return (pulse, {cell, user, future, token}) {
               if (state.busy) return null;
@@ -717,7 +652,7 @@ class ConcatMapFirst<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               Future<void>(() async {
                 try {
                   final inner = await Future.sync(() => mapper(payload));
-                  await _drain(inner, (item) {
+                  await drainInner(inner, (item) {
                     if (item is T) {
                       future!(
                         result: _out<T>(item, cell, pulse, 'ConcatMapFirst'),
@@ -733,7 +668,7 @@ class ConcatMapFirst<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -745,15 +680,6 @@ class ConcatMapFirst<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// Internal state for sequential queuing.
 ///
 /// Maintains a chain of async operations that run one after another.
-class _ConcatQueue {
-  /// The tail of the async queue.
-  Future<void> tail = Future<void>.value();
-
-  /// Enqueues a job to run after the current tail completes.
-  void enqueue(Future<void> Function() job) {
-    tail = tail.then((_) => job()).catchError((_) {});
-  }
-}
 
 /// Internal state for generation-based operators.
 ///

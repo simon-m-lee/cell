@@ -72,6 +72,16 @@ for merging disparate data streams into a unified reactive output.</p>
 dependency unit. Whenever <em>any</em> source cell emits a signal, the
 synthesis cell reacts, aggregates the current state of the network,
 and propagates a new converged pulse.</p>
+<blockquote>
+<p><strong>Diamond-dependency limitation.</strong> The propagation engine visits
+each cell at most once per pulse wave (<code>Pulse</code> cycle checking). In a
+diamond (<code>A → B → D</code> and <code>A → C → D</code>) the second arrival at <code>D</code>
+within the same wave is treated as a cycle and dropped, so <code>D</code> is
+computed from the first arrival only — possibly with a stale value
+of the other input. If the last arrival must win, aggregate in a
+single combiner cell fed through one path (e.g. a <code>Cell.hub</code> or a
+hand-rolled receptor cell) instead of a diamond-shaped fan-in.</p>
+</blockquote>
 <h3 id="when-to-use">When to use</h3>
 <ul>
 <li><strong>Data Fusion</strong>: Combining multiple sensor readings (e.g., Temperature,
@@ -95,17 +105,6 @@ specific <code>emit</code> pulse that triggered the current update cycle.</li>
 <li><strong>Convergence</strong>: The resulting pulse from the aggregator is
 broadcast to all downstream <a href="../../cell_flow/Synapses-class.html">Synapses</a>.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Pulse Awareness</strong>: The <code>aggregator</code> has access to the specific
-<code>emit</code> pulse, allowing logic to differ based on <em>which</em> source
-triggered the update or what metadata that source provided.</li>
-<li><strong>Transaction Safety</strong>: If multiple sources are updated within a
-single <a href="../../cell_flow/Cell/transaction.html">Cell.transaction</a>, the <code>aggregator</code> fires exactly once at
-the end of the transaction, preventing intermediate "glitches."</li>
-<li><strong>Statelessness</strong>: A synthesis cell does not store its own history;
-it acts as a functional projection of its sources' current values.</li>
-</ul>
 <h3 id="example-total-price-calculation">Example: Total Price Calculation</h3>
 <pre class="language-dart"><code class="language-dart">final total = Cell.synthesis&lt;Pulse&lt;double&gt;&gt;(
   [price, tax, shipping],
@@ -136,6 +135,27 @@ of information convergence.</li>
 complex information convergence.
 {@category Core 16 Operators}</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> "one screen / one status from many feeds" — aggregate current values whenever any source pulses.
+<strong>When NOT to use:</strong> a policy decision on the merged tick; and never use it <em>and</em> a custom instruction on the same tick without saying which decides.
+<strong>Live signature:</strong> <code>Cell.synthesis&lt;P extends Pulse&gt;(Iterable&lt;Cell&gt; sources, {required P? Function(Iterable&lt;Cell&gt; cells, Pulse emit) aggregator})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.derive</code> (single-source projection).
+<strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)
+<strong>Example:</strong> <code>example/synthesis_demo.dart</code>
+<strong>Cross-layer:</strong> multi-source <em>decision</em> logic belongs to <code>cell_flow</code> Combine operators or a harness-assembled Tick.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final a = Cell.state&lt;int&gt;(initial: 2);
+final b = Cell.state&lt;int&gt;(initial: 3);
+final sum = Cell.synthesis&lt;Pulse&lt;int&gt;&gt;([a.cell, b.cell], aggregator: (cells, emit) {
+  final total = cells.fold&lt;int&gt;(0, (acc, c) =&gt; acc + (((c as ValueCell).value as int?) ?? 0));
+  return Pulse&lt;int&gt;(total);
+});
+final o = Cell.observe(source: sum, effect: (Pulse p) =&gt; print(p.payload));
+a.update(4);
+b.update(5);
+o.stop();
+</code></pre>
 </section>
 
 
@@ -180,7 +200,7 @@ complex information convergence.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

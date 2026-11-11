@@ -4,6 +4,15 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+/// # `example/filter_data_quality_demo.dart`
+///
+/// **What it demonstrates:** A stock `Flow.filter` gate keeping only valid payloads.
+/// **Which BRD sentence picks it:** "Reject bad records before downstream work."
+/// **Layer:** Flow (§3.3 `Flow.filter`)
+/// **API signatures used:** `Cell.ingress`, `Flow.filter`, `FlowHandle.emit`
+/// **Run:** `dart run example/filter_data_quality_demo.dart`
+/// **Verify first:** `dart run tool/ai_preflight.dart` exits 0.
+
 // ignore_for_file: unnecessary_brace_in_string_interps
 
 /// A real-life practical executable walkthrough demonstrating the use of

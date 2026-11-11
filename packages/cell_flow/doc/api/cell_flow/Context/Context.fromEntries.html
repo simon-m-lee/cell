@@ -75,9 +75,6 @@ deserializing a context from an external source.</p>
 <p>You provide a list of <a href="../../cell_flow/GovernanceEntry-class.html">GovernanceEntry</a> objects, and the framework
 constructs a context record from them. You can optionally specify a
 <code>parent</code> to inherit from.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<p>The entries are validated against their <code>isType</code> guard at construction
-time, so you can't build a context with mismatched types.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>entries</code>: An iterable of <a href="../../cell_flow/GovernanceEntry-class.html">GovernanceEntry</a> objects (key-value pairs)
@@ -124,7 +121,7 @@ fallback properties for this evolution.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -93,6 +93,32 @@ participate in <code>+</code> operator chaining.</li>
 <li><a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a>: The public interface for logic gates.</li>
 <li><a href="../cell_flow/InstructionBase-class.html">InstructionBase</a>: The core framework implementation from <code>package:cell</code>.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Flow — the base class for custom policy instructions. Not a Cell factory, not a Tissue book.
+<strong>When to use:</strong> <em>all</em> of: clause-ordered policy, two products sharing policy, ACK must clear a latch (<code>reset()</code>), and the instruction emits a rich <code>*Decision</code>. Imitate <code>GridDecisionInstruction</code>.
+<strong>When NOT to use:</strong>
+  <strong>DON'T</strong> write a Tissue book inside a <code>FlowInstructionBase</code> subclass.
+The instruction decides; the chain assembles; the observer glues.
+See <code>HowTo-Mitose-Flow.md</code> §5 "Mix-and-match rules".
+  <strong>DON'T</strong> put flatten operators (<code>concatMap</code>, <code>mergeMap</code>, <code>switchMap</code>,
+<code>exhaustMap</code>) <em>inside</em> <code>riskOf</code>. Flatten wraps I/O after or beside the
+decision.
+See <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)".
+<strong>Live signature:</strong> <code>class X extends FlowInstructionBase&lt;Cell, Pulse, Pulse&gt; { X(..., {required pass}); static Level riskOf(...); Level? lastDecision; Level get pass; void reset(); }</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>FlowInstruction</code> (interface / closure gate; no <code>reset()</code>).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §4 "When the BRD requires a custom FlowInstruction" (#flow-custom-instruction)
+<strong>Example:</strong> <code>example/ICU-alarm-pipeline-Demo.dart</code>
+<strong>Cross-layer:</strong> the chain it joins ends at <code>toHandle</code>; Tissue writes happen in <code>Cell.observe</code> on the gate Cell.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">enum Risk { go, hold }
+class RiskGate extends FlowInstructionBase&lt;Cell, Pulse, Pulse&gt; {
+  RiskGate() : super.future((p, {cell, user, future, token}) =&gt; p);
+  static Risk riskOf(String word) =&gt; word == 'x' ? Risk.hold : Risk.go;
+  Risk? lastDecision;
+}
+final gate = RiskGate();
+print(gate.lastDecision);
+</code></pre>
 </section>
 
 
@@ -150,6 +176,18 @@ establishing synchronous pulse evolution within the reactive topography.
           Synthesizes an <strong>Asynchronous Logic Gate Blueprint</strong>—the foundational
 mechanism for establishing deferred pulse evolution.
             <div class="constructor-modifier features">const</div>
+        </dd>
+        <dt id="FlowInstructionBase.stateful" class="callable">
+          <span class="name"><a href="../cell_flow/FlowInstructionBase/FlowInstructionBase.stateful.html">FlowInstructionBase.stateful</a></span><span class="signature">(<span class="parameter" id="stateful-param-factory"><span class="type-annotation">O? Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation">I</span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-cell"><span class="type-annotation">C?</span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-future"><span class="type-annotation">void</span> <span class="parameter-name">future</span>({<span class="parameter" id="param-result"><span>required</span> <span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">result</span>, </span><span class="parameter" id="param-token"><span>required</span> <span class="type-annotation">dynamic</span> <span class="parameter-name">token</span></span>})?, </span><span class="parameter" id="param-token"><span class="type-annotation">dynamic</span> <span class="parameter-name">token</span>, </span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span></span> <span class="parameter-name">factory</span>(), {</span><span class="parameter" id="stateful-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span>
+        </dt>
+        <dd>
+          Creates a <strong>stateful asynchronous</strong> blueprint.
+        </dd>
+        <dt id="FlowInstructionBase.statefulSync" class="callable">
+          <span class="name"><a href="../cell_flow/FlowInstructionBase/FlowInstructionBase.statefulSync.html">FlowInstructionBase.statefulSync</a></span><span class="signature">(<span class="parameter" id="statefulSync-param-factory"><span class="type-annotation">O? Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation">I</span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-cell"><span class="type-annotation">C?</span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span></span> <span class="parameter-name">factory</span>(), {</span><span class="parameter" id="statefulSync-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span>
+        </dt>
+        <dd>
+          Creates a <strong>stateful synchronous</strong> blueprint.
         </dd>
     </dl>
   </section>
@@ -320,7 +358,7 @@ resilience.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

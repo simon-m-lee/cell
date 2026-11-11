@@ -87,12 +87,6 @@ provide a default value on failure.</p>
 <li>The default value always matches type <code>T</code>.</li>
 <li>The pulse gets the step <code>'PluckOr'</code> (or <code>'PluckOr.orElse'</code> for defaults).</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Always Emits</strong>: A value is always emitted (success or default).</li>
-<li><strong>Type Safety</strong>: The default must match type <code>T</code>.</li>
-<li><strong>Error Handling</strong>: Errors are caught and the default is used.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the payloads.</li>
@@ -166,7 +160,7 @@ users.emit({'id': 2, 'name': 'Bob'});                  // -&gt; Unknown
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

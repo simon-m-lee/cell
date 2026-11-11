@@ -173,13 +173,6 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// 4. If [project] throws an error, the pulse is dropped.
 /// 5. The emitted pulse gets the step `'MapValue'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Type Safety**: Input type [S] and output type [T] are separate.
-/// - **Error Handling**: If [project] throws, the pulse is dropped.
-/// - **Provenance Preservation**: The emitted pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Transformation**: [project] is synchronous.
-///
 /// ### Example: Doubling Values
 /// ```dart
 /// final input = Cell.ingress<int>();
@@ -234,6 +227,24 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// - [MapValueOr]: For error handling with fallback.
 /// - [MapValues]: For transforming map values.
 /// - [MapKeys]: For transforming map keys.
+///
+/// ### AI Agent Guide
+/// **Layer:** Flow — projection operator (Rx `map`). Not a Cell factory, not a Tissue book.
+/// **When to use:** project a rich `*Decision` onto the narrow seam enum — required on the Cell-variant chain; **never** inside the custom instruction.
+/// **When NOT to use:** emitting a level directly from the decision itself (the instruction emits the rich decision; `MapValue` narrows it).
+/// **Live signature:** `MapValue<S, T>(T Function(S value) project, {MapErrorHandler? onError, dynamic user})` — pinned at `cell_flow: 1.0.0`
+/// **Do NOT confuse with:** `Map` (dart:core, a data structure; this is a Flow projection operator).
+/// **Guide:** `HowTo-Mitose-Flow.md` §3.2 "Transform" (#flow-transform)
+/// **Example:** `example/cell_flow_example.dart`
+/// **Cross-layer:** entry is `Cell.ingress`; the projected gate Cell is consumed by `Cell.observe`.
+/// **Minimal compilable example**
+/// ```dart
+/// final src = Cell.ingress<int>();
+/// final h = MapValue<int, String>((v) => 'v=$v').toHandle(source: src.cell);
+/// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+/// src.emit(7);
+/// o.stop();
+/// ```
 class MapValue<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// Creates a standard mapping instruction.
   ///
@@ -324,14 +335,6 @@ class MapValue<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 2. If the type matches, the constant [value] is emitted.
 /// 3. The input value is ignored (only the type is checked).
 /// 4. The emitted pulse gets the step `'MapTo'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Input Ignored**: The input value is not used in the output.
-/// - **Type Check**: The type is still checked to ensure proper typing.
-/// - **Constant Output**: The same value is emitted for every input.
-/// - **Provenance Preservation**: The emitted pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Mapping**: The mapping is synchronous.
 ///
 /// ### Parameters:
 /// - [value]: **Constant Value.** The value to emit for every input.
@@ -429,15 +432,6 @@ class MapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 5. If [project] throws an error, the pulse is dropped.
 /// 6. The emitted pulse gets the step `'MapWithIndex'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Index Type**: The index is a 0-based integer.
-/// - **Typed Only**: Only typed pulses increment the index.
-/// - **Error Handling**: If [project] throws, the pulse is dropped
-///   and the index is not incremented.
-/// - **Provenance Preservation**: The emitted pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Transformation**: [project] is synchronous.
-///
 /// ### Parameters:
 /// - [project]: **Indexed Transformation Function.** Called with each
 ///   typed payload and its index, returns the transformed value.
@@ -476,8 +470,8 @@ class MapWithIndex<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     T Function(S value, int index) project, {
     MapErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             var index = 0;
             return (pulse, {cell, user}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -491,7 +485,7 @@ class MapWithIndex<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 return null;
               }
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -549,14 +543,6 @@ class MapWithIndex<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. If [project] returns a non-null value, it's emitted.
 /// 5. If [project] throws an error, the pulse is dropped.
 /// 6. The emitted pulse gets the step `'MapNotNull'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Null Dropping**: `null` results are dropped silently.
-/// - **Type Safety**: The output type [T] is non-nullable.
-/// - **Error Handling**: If [project] throws, the pulse is dropped.
-/// - **Provenance Preservation**: The emitted pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Transformation**: [project] is synchronous.
 ///
 /// ### Parameters:
 /// - [project]: **Optional Transformation Function.** Called with each
@@ -669,14 +655,6 @@ class MapNotNull<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 5. The result is emitted as a typed pulse.
 /// 6. If [test] or [project] throws an error, the pulse is dropped.
 /// 7. The emitted pulse gets the step `'MapWhen'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Two Steps**: Test then project (both synchronous).
-/// - **Dropping**: If [test] fails, the pulse is dropped.
-/// - **Error Handling**: If [test] or [project] throws, the pulse is dropped.
-/// - **Provenance Preservation**: The emitted pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Operations**: Both [test] and [project] are synchronous.
 ///
 /// ### Parameters:
 /// - [test]: **Predicate Function.** Called with each typed payload,
@@ -829,13 +807,6 @@ class MapValueIf<S, T> extends MapWhen<S, T> {
 /// 7. If [project] throws and [orElse] succeeds, the emitted pulse
 ///    gets the step `'MapValueOr.orElse'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Two-Level Error Handling**: Errors in [project] go to [orElse].
-/// - **Errors in [orElse]**: If [orElse] throws, the pulse is dropped.
-/// - **Provenance Preservation**: Fallback emissions get the step
-///   `'MapValueOr.orElse'` to distinguish them.
-/// - **Synchronous Operations**: Both [project] and [orElse] are synchronous.
-///
 /// ### Parameters:
 /// - [project]: **Transformation Function.** Called with each typed
 ///   payload, returns the transformed value.
@@ -951,16 +922,6 @@ class MapValueOr<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 5. If [project] throws an error, the pulse is dropped.
 /// 6. The emitted pulse gets the step `'MapValues'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Map Payload Required**: The payload must be a `Map`.
-/// - **Keys Preserved**: The keys remain unchanged.
-/// - **Type Safety**: Generic over key type [K], value type [V],
-///   and result type [R].
-/// - **Error Handling**: If [project] throws, the pulse is dropped.
-/// - **Provenance Preservation**: The emitted pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Transformation**: [project] is synchronous.
-///
 /// ### Parameters:
 /// - [project]: **Value Transformation Function.** Called with each
 ///   map value, returns the transformed value.
@@ -1074,18 +1035,6 @@ class MapValues<K, V, R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. The new map is emitted.
 /// 5. If [project] throws an error, the pulse is dropped.
 /// 6. The emitted pulse gets the step `'MapKeys'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Map Payload Required**: The payload must be a `Map`.
-/// - **Values Preserved**: The values remain unchanged.
-/// - **Type Safety**: Generic over key type [K], value type [V],
-///   and result key type [R].
-/// - **Error Handling**: If [project] throws, the pulse is dropped.
-/// - **Provenance Preservation**: The emitted pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Transformation**: [project] is synchronous.
-/// - **Key Collisions**: If two keys map to the same value, the last
-///   one wins (standard Map behavior).
 ///
 /// ### Parameters:
 /// - [project]: **Key Transformation Function.** Called with each

@@ -86,13 +86,6 @@ when <a href="../../cell/Synapses/link.html">Synapses.link</a> is called. It can
 <li>If any rule returns <code>false</code>, the link is rejected.</li>
 <li>If all pass, it delegates to the <code>TestCell.parent</code>.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The link rule is only evaluated for <code>Cell</code> objects – other objects
-always pass.</li>
-<li>This validation occurs <strong>before</strong> the link is added to the synapses
-registry, so a rejected link never becomes visible.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// Domain Isolation
 final domainPolicy = TestCell&lt;Cell&gt;((object, {host, arguments, user}) {
@@ -133,7 +126,13 @@ FutureOr&lt;bool&gt; link(covariant Cell link, {required C host}) {
 
   FutureOr&lt;bool&gt; runRules(int index) {
     for (var i = index; i &lt; rules.length; i++) {
-      final result = rules[i].link(link, host: host);
+      final rule = rules[i];
+      &#47;&#47; Nested TestCells implement TestLinkRule, so dispatch them through
+      &#47;&#47; `call` — their generic rule must see the link object. Only true
+      &#47;&#47; TestLinkRule instances use the specialized path.
+      final result = rule is TestCell&lt;C&gt;
+          ? rule.call(link, host: host)
+          : rule.link(link, host: host);
 
       if (result is Future&lt;bool&gt;) {
         return result.then((passed) {
@@ -178,7 +177,7 @@ FutureOr&lt;bool&gt; link(covariant Cell link, {required C host}) {
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

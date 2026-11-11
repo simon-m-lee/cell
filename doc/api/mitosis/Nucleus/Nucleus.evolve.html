@@ -54,7 +54,8 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">Nucleus.evolve</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="evolve-param-ephemeralPolicy"><span class="type-annotation"><a href="../../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
+      <span class="name ">Nucleus.evolve</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="evolve-param-principal"><span class="type-annotation"><a href="../../mitosis/Nucleus-class.html">Nucleus</a></span> <span class="parameter-name">principal</span>, {</span></li>
+<li><span class="parameter" id="evolve-param-ephemeralPolicy"><span class="type-annotation"><a href="../../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
 <li><span class="parameter" id="evolve-param-bind"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
 <li><span class="parameter" id="evolve-param-context"><span class="type-annotation"><a href="../../mitosis/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span></li>
 <li><span class="parameter" id="evolve-param-receptor"><span class="type-annotation"><a href="../../mitosis/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span></li>
@@ -62,7 +63,6 @@
 <li><span class="parameter" id="evolve-param-synapses"><span class="type-annotation"><a href="../../mitosis/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span></li>
 <li><span class="parameter" id="evolve-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span></li>
 <li><span class="parameter" id="evolve-param-override"><span class="type-annotation"><a href="../../mitosis/Nucleus-class.html">Nucleus</a>?</span> <span class="parameter-name">override</span>, </span></li>
-<li><span class="parameter" id="evolve-param-principal"><span>required</span> <span class="type-annotation"><a href="../../mitosis/Nucleus-class.html">Nucleus</a></span> <span class="parameter-name">principal</span>, </span></li>
 </ol>})
     </section>
     
@@ -70,50 +70,49 @@
   <p>Creates a specialized <strong>Architectural Extension</strong> of an existing <a href="../../mitosis/Nucleus-class.html">Nucleus</a> to
 support hierarchical property inheritance and contextual overrides.</p>
 <p>This factory constructor is the primary implementation of the <strong>Prototype-based
-Inheritance</strong> pattern (specifically the <strong>Proxy/Deputy Pattern</strong>) within the
-framework. It allows a derived <strong>Blueprint</strong> to inherit its core configuration
-and behavioral logic from a <code>principal</code> while layering on its own specific
-overrides, execution contexts, or ad-hoc metadata.</p>
+Inheritance</strong> pattern (specifically the <strong>Deputy-Principal Relationship</strong>) within
+the framework. In its biological meta-language, <a href="../../mitosis/Nucleus/Nucleus.evolve.html">evolve</a> performs a directed
+<strong>Genetic Mutation</strong>, creating a descendant (Deputy) that inherits the
+foundational "DNA" of this nucleus (Principal) while layering on its own
+specific operational traits.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Only if you are building framework extensions. For deputies, use
-<a href="../../mitosis/Cell/deputy.html">Cell.deputy</a> instead.</p>
-<h3 id="how-it-works">How it works</h3>
-<p>You provide a <code>principal</code> (the parent nucleus) and override specific
-properties (e.g., <code>context</code>, <code>testRule</code>). Missing properties are
-resolved by walking up the principal chain.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>The <code>override</code> parameter, if provided, replaces all local overrides.</li>
-<li>Bindings (<code>bind</code>) are not inherited – they are instance‑specific.</li>
-<li>The lock is inherited from the principal unless <code>override</code> provides
-its own lock.</li>
+<li><strong>Specialization</strong>: Creating a cell that shares the same <a href="../../mitosis/Context-class.html">Context</a> and
+<a href="../../mitosis/Receptor-class.html">Receptor</a> but requires a stricter <a href="../../mitosis/TestCell-class.html">TestCell</a> integrity gate.</li>
+<li><strong>Contextual Shifting</strong>: Moving a node to a different <a href="../../mitosis/Context-class.html">Context</a> (e.g.,
+from <code>module</code> to <code>system</code>) without redefining its transformation logic.</li>
+<li><strong>Lifecycle Tuning</strong>: Overriding an <a href="../../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a> to change the
+TTL of a specific branch in the reactive graph.</li>
 </ul>
+<h3 id="how-it-works">How it works</h3>
+<p>The constructor utilizes a <strong>Tiered Resolution Hierarchy</strong> to determine the
+final state of any property:</p>
+<ol>
+<li><strong>Local Override</strong>: Values explicitly passed to this method.</li>
+<li><strong>Prototype Inheritance</strong>: Values inherited from the <code>principal</code>.</li>
+<li><strong>Causal Binding</strong>: Values derived from the upstream <code>bind</code> dependency.</li>
+<li><strong>Global Default</strong>: Framework-level constants (e.g., <a href="../../mitosis/Context/system-constant.html">Context.system</a>).</li>
+</ol>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>ephemeralPolicy</code>: <strong>Lifecycle Governance.</strong> Defines when the node
-should be automatically neutralized and purged. If null, resolves
-from the <code>principal</code>. <em>(Ignored if <code>override</code> is set)</em>.</li>
-<li><code>bind</code>: Optional. A <a href="../../mitosis/Cell-class.html">Cell</a> dependency. Note: bindings are
-instance-specific and are <strong>not</strong> inherited from the <code>principal</code>.
-<em>(Ignored if <code>override</code> is set)</em>.</li>
-<li><code>context</code>: <strong>Execution Environment.</strong> Defines the security tier and
-priority of the node. If null, resolves from the <code>principal</code>.
-<em>(Ignored if <code>override</code> is set)</em>.</li>
-<li><code>receptor</code>: <strong>Transformation Pipeline.</strong> The logic used to process
-incoming signals. If null, resolves from the <code>principal</code>.
-<em>(Ignored if <code>override</code> is set)</em>.</li>
-<li><code>testRule</code>: <strong>Integrity Gate.</strong> Validation rules that act as a guard
-for all state modifications. If null, resolves from the <code>principal</code>.
-<em>(Ignored if <code>override</code> is set)</em>.</li>
-<li><code>synapses</code>: <strong>Signal Manifest.</strong> Manages connectivity and distribution
-via the <code>SignalDistributionHub</code>. If null, resolves from the <code>principal</code>.
-<em>(Ignored if <code>override</code> is set)</em>.</li>
-<li><code>user</code>: <strong>Extension Metadata.</strong> An optional record for domain-specific
-properties kept separate from framework logic.</li>
-<li><code>override</code>: Optional. A pre-compiled <a href="../../mitosis/Nucleus-class.html">Nucleus</a> whose record will be
-directly adopted as the property base.</li>
 <li><code>principal</code>: <strong>Required</strong>. The source <a href="../../mitosis/Nucleus-class.html">Nucleus</a> from which this instance
 derives its structural and logic inheritance.</li>
+<li><code>ephemeralPolicy</code>: <strong>Lifecycle Governance.</strong> Defines when the node
+should be automatically neutralized. Resolves from <code>principal</code> if null.</li>
+<li><code>bind</code>: <strong>Ingress Link.</strong> A <a href="../../mitosis/Cell-class.html">Cell</a> dependency. Note: bindings are
+instance-specific and are <strong>not</strong> inherited from the <code>principal</code>.</li>
+<li><code>context</code>: <strong>Execution Environment.</strong> Defines the security tier and
+priority. Resolves from <code>principal</code> if null.</li>
+<li><code>receptor</code>: <strong>Transformation Pipeline.</strong> The logic used to process
+incoming signals. Resolves from <code>principal</code> if null.</li>
+<li><code>testRule</code>: <strong>Integrity Gate.</strong> Validation rules that guard state
+modifications. Resolves from <code>principal</code> if null.</li>
+<li><code>synapses</code>: <strong>Signal Distribution.</strong> Manages egress connectivity.
+Resolves from <code>principal</code> if null.</li>
+<li><code>user</code>: <strong>Extension Metadata.</strong> An optional record for domain-specific
+properties kept separate from framework logic.</li>
+<li><code>override</code>: Optional. A pre-compiled <a href="../../mitosis/Nucleus-class.html">Nucleus</a> whose internal record
+will be adopted directly.</li>
 </ul>
 </section>
 
@@ -121,7 +120,7 @@ derives its structural and logic inheritance.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory Nucleus.evolve(
+  <pre class="language-dart"><code class="language-dart">factory Nucleus.evolve(Nucleus principal,
     {EphemeralPolicy? ephemeralPolicy,
     Cell? bind,
     Context? context,
@@ -129,8 +128,22 @@ derives its structural and logic inheritance.</li>
     TestCell? testRule,
     Synapses? synapses,
     Record? user,
-    Nucleus? override,
-    required Nucleus principal}) = _Nucleus.evolve;</code></pre>
+    Nucleus? override}) {
+  return _Nucleus.fromRecord((
+    local: override != null
+        ? (override as NucleusBase).record.local
+        : NucleusBase.mask(
+            bind: bind,
+            context: context,
+            receptor: receptor,
+            testRule: testRule,
+            synapses: synapses,
+            user: user,
+            ephemeralPolicy: ephemeralPolicy,
+          ),
+    principal: principal,
+  ));
+}</code></pre>
 </section>
 
 
@@ -158,7 +171,7 @@ derives its structural and logic inheritance.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

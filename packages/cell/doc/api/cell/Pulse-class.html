@@ -52,8 +52,8 @@
     <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
     <a href="https://dart.dev/language/class-modifiers#interface" class="feature feature-interface" title="This class can only be implemented (not extended or mixed in).">interface</a>
  
-    <span class="category pulse cp-5 linked" title="This is part of the Pulse topic."><a href="../topics/Pulse-topic.html">Pulse</a></span>
-    <span class="category signals-&-synapses cp-6 linked" title="This is part of the Signals & Synapses topic."><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></span>
+    <span class="category pulse cp-6 linked" title="This is part of the Pulse topic."><a href="../topics/Pulse-topic.html">Pulse</a></span>
+    <span class="category signals-&-synapses cp-7 linked" title="This is part of the Signals & Synapses topic."><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></span>
 </h1></div>
 
     
@@ -89,18 +89,6 @@ commonly a <code>String</code> tag, but may be any object (such as an enum).</li
 <p>Pulses are immutable — you can't change one. To "update" a pulse, you
 <a href="../cell/Pulse/evolve.html">evolve</a> it, creating a new pulse that links back to the original. This is
 how the framework preserves causal history without duplicating data.</p>
-<h3 id="nonobvious-a-pulse-is-governed-if-it-has-a-context-or-policy">Non‑obvious: a pulse is governed if it has a Context or Policy</h3>
-<p>A pulse is considered <a href="../cell/Pulse/isGoverned.html">isGoverned</a> if it was created with a non‑default
-<a href="../cell/PulseContext-class.html">PulseContext</a> and/or a <a href="../cell/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a>. This triggers additional
-validation, lifecycle management, and auditing behaviours during propagation.</p>
-<h3 id="nonobvious-pulses-are-flyweights">Non‑obvious: pulses are flyweights</h3>
-<p>The framework uses a flyweight pattern internally. An evolved pulse doesn't
-copy its parent's payload — it inherits it by walking up the parent chain.
-This means you can have deep causal chains with minimal memory overhead.</p>
-<h3 id="nonobvious-pulses-carry-their-own-governance">Non‑obvious: pulses carry their own governance</h3>
-<p>A pulse can challenge a receptor before revealing its payload. This is the
-<strong>reciprocal handshake</strong> — the pulse and receptor validate each other
-before any data is exchanged. Use <a href="../cell/Pulse/shell.html">shell</a> to send a pulse to untrusted code.</p>
 <h3 id="example-creating-and-evolving-a-pulse">Example: Creating and Evolving a Pulse</h3>
 <pre class="language-dart"><code class="language-dart">final root = Pulse&lt;int&gt;(42, type: 'counter');
 final evolved = root
@@ -118,6 +106,19 @@ print(evolved.type); // 'counter' (inherited)
 <li><a href="../cell/CollectivePulse-class.html">CollectivePulse</a> – a flat bundle of pulses.</li>
 <li><a href="../cell/PulseShell-class.html">PulseShell</a> – a defensive proxy for untrusted receivers.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is the graph's message, not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> read <code>pulse.payload</code>, <code>pulse.source</code>, <code>pulse.type</code> in observers; create one for manual injection (<code>Pulse(value, type: '...')</code>).
+<strong>When NOT to use:</strong> as a storage unit — state lives in <code>Cell.state</code> / Tissue books; pulses are immutable signals.
+<strong>Live signature:</strong> <code>Pulse&lt;P&gt;(P? payload, {dynamic type, Cell? source, int? priority, String? step})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>TissuePulse</code> (the collection-event variant in <code>cell_tissue</code>).
+<strong>Guide:</strong> <code>guide/HowTo-Pulse.md</code> (pulse anatomy)
+<strong>Example:</strong> <code>example/ingress_demo.dart</code>
+<strong>Cross-layer:</strong> a Flow instruction emits evolved pulses; a Tissue mutation emits <code>TissuePulse</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final p = Pulse&lt;int&gt;(42, type: 'counter', step: 'init');
+print('${p.payload},${p.type}'); // 42,counter
+</code></pre>
 </section>
 
 
@@ -1016,8 +1017,8 @@ collection.
 
 </dt>
 <dd>
-  Appends a diagnostic stage to the pulse's causal trace without branching
-the causal chain.
+  Appends <code>step</code> to the pulse's causal trace without branching the
+causal chain.
   
 
 </dd>
@@ -1120,7 +1121,7 @@ the causal chain.
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

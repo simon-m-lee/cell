@@ -28,15 +28,6 @@ part of '../cell_tissue.dart';
 /// - The payload is inherited from the root – evolved events don't duplicate
 ///   data, they just add a new layer of metadata.
 ///
-/// ### Non‑obvious
-/// - An evolved event is **not** a batch – it's a single event with a history.
-///   For batching multiple independent events, use [CollectiveTissuePulse].
-/// - The [parent] is never `null` for an evolved event – the root is the only
-///   one without a parent.
-/// - When you call [evolve] again, you get a new [EvolvedTissuePulse] that
-///   links back to the previous one, building a chain.
-/// - The event itself is still immutable – evolution creates a new instance.
-///
 /// ### Example: tracing a value change
 /// ```dart
 /// final evolved = originalEvent
@@ -71,12 +62,6 @@ abstract interface class EvolvedTissuePulse<E>
   /// - The returned object is a [TissuePulse], preserving the structural
   ///   context of the collection.
   ///
-  /// ### Non‑obvious
-  /// - This property creates a "linked list" of history, allowing you
-  ///   to traverse back to the root of the interaction.
-  /// - Evolution ensures that even though the event is new, its
-  ///   origin is never lost.
-  ///
   /// ### Example
   /// ```dart
   /// final previous = evolved.parent;
@@ -99,12 +84,6 @@ abstract interface class EvolvedTissuePulse<E>
   ///   the new batch.
   /// - It ensures that the resulting collection of pulses is treated as a
   ///   unified atomic update.
-  ///
-  /// ### Non‑obvious
-  /// - If the [other] event is already a [CollectiveTissuePulse], this event
-  ///   is appended to that collection.
-  /// - The operation is non-destructive; it returns a new signal instance
-  ///   rather than modifying the existing ones.
   ///
   /// ### Example
   /// ```dart
@@ -134,21 +113,6 @@ abstract interface class EvolvedTissuePulse<E>
 /// - Each sub‑event retains its own identity, causal trace, and parent chain.
 /// - The collective's own metadata (type, context, source) can be overridden
 ///   via the `.governed` constructor.
-///
-/// ### Non‑obvious
-/// - A collective is **not** a chain – it does **not** create a causal
-///   relationship between its members. Each event's `parent` remains unchanged.
-/// - The collective's [root] is itself (it's a root collective), but each
-///   sub‑event's [root] remains its own root.
-/// - The `onComplete` and `onError` callbacks are taken from the **first**
-///   event in the iterable (or overridden). They are **not** applied to each
-///   individual event – they fire once for the whole batch.
-/// - If the iterable is empty, the collective still exists (with `null` payload
-///   and `isComposite` `true`).
-/// - The `+` operator on a collective creates a new collective that combines
-///   both batches (flattened).
-/// - When you [evolve] a collective, it transforms into an [EvolvedTissuePulse]
-///   (a chain), not another collective – because evolution adds a causal step.
 ///
 /// ### Example: Batching two events
 /// ```dart
@@ -316,12 +280,6 @@ abstract interface class CollectiveTissuePulse<E>
 /// - If the receptor is authorised, the shell returns the underlying event.
 /// - If not, it returns `null` – the signal is neutralised.
 ///
-/// ### Non‑obvious
-/// - The shell is terminal – you cannot [evolve] or [withStep] it.
-/// - The shell is itself an [Iterable] that yields only itself.
-/// - The shell is the primary mechanism for **reciprocal handshake** –
-///   both the pulse and the receptor validate each other.
-///
 /// ### Example
 /// ```dart
 /// final list = TissueList.of([1]);
@@ -337,7 +295,8 @@ abstract interface class CollectiveTissuePulse<E>
 ///
 /// ### Type Parameters:
 /// * [E] – The type of the event's payload.
-class TissueEventShell<E> extends PulseShell<E, TissueReceptor> implements TissuePulse<E> {
+class TissueEventShell<E> extends PulseShell<E, TissueReceptor>
+    implements TissuePulse<E> {
   const TissueEventShell._(TissuePulseBase<E> super.kernal) : super();
 
   @override
@@ -380,7 +339,10 @@ class TissueEventShell<E> extends PulseShell<E, TissueReceptor> implements Tissu
   TissuePulse<E> get root => this;
 
   @override
-  Tissue? get source => super.source as Tissue?;
+  Tissue? get source {
+    final src = super.source;
+    return src is Tissue ? src : null;
+  }
 
   @override
   TissuePulse<E> get unmodifiable => this;
@@ -421,24 +383,6 @@ class TissueEventShell<E> extends PulseShell<E, TissueReceptor> implements Tissu
 /// - The event is immutable – it represents a fact that has already occurred.
 /// - You can [evolve] the event to add a step to its trace or change its context.
 ///
-/// ### Non‑obvious
-/// - The event is a [Pulse] – it participates in the same reactive propagation
-///   system as any other signal. It can be evolved, batched, and observed.
-/// - The payload shape follows the [type] classification: element mutations
-///   carry the element itself (a [MapEntry] for map add/remove), scalar value
-///   changes carry an [ElementUpdatedRecord], and map entry updates carry an
-///   [EntryUpdatedRecord].
-/// - The event is emitted **after** the mutation, not before. If you need to
-///   capture the before state, the event's [ElementUpdatedRecord] or
-///   [EntryUpdatedRecord] payload includes it.
-/// - For batch operations (`addAll`, `removeAll`, `clear`), the framework emits
-///   a [CollectiveTissuePulse] whose sub-events each retain their own
-///   [TissueEvent] classification.
-/// - The event is not emitted for initial population of the tissue – only for
-///   mutations that happen after creation.
-/// - `null` values are valid payloads – they represent the removal or clearing
-///   of a value.
-///
 /// ### Example: Listening to changes
 /// ```dart
 /// final list = TissueList<int>([1, 2, 3]);
@@ -466,6 +410,25 @@ class TissueEventShell<E> extends PulseShell<E, TissueReceptor> implements Tissu
 /// - [ElementUpdatedRecord] – the payload delivered for scalar updates.
 /// - [EntryUpdatedRecord] – the payload delivered for map entry updates.
 /// - [CollectiveTissuePulse] – batches of these events.
+///
+/// ### AI Agent Guide
+/// **Layer:** Tissue — the book's event signal. Not a Cell factory, not a Flow operator.
+/// **When to use:** optional second-order observe on a book (e.g. UI shows the audit log live); app observers in a Cell-variant Demo still sit on the **gate Cell**.
+/// **When NOT to use:** as the decision signal — Tissue records, Flow decides.
+/// **Live signature:** `abstract interface class TissuePulse<E> implements Pulse<E>` — pinned at `cell_tissue: 1.0.0`
+/// **Do NOT confuse with:** `Pulse` (the generic graph signal; this is a collection event).
+/// **Guide:** `HowTo-Mitose-Tissue.md` §1 "What Tissue owns in a Demo" (#tissue-owns)
+/// **Example:** `example/cell_tissue_example.dart`
+/// **Cross-layer:** the glue that writes books is `Cell.observe` on the gate Cell.
+/// **Minimal compilable example**
+/// ```dart
+/// final book = TissueList.of([1]);
+/// final seen = <Object?>[];
+/// final o = Cell.observe(source: book, effect: (Pulse p) => seen.add(p.payload));
+/// book.add(2);
+/// o.stop();
+/// print(seen.length);
+/// ```
 abstract interface class TissuePulse<E> implements Pulse<E> {
   /// Batches multiple events into a single [CollectiveTissuePulse].
   ///
@@ -494,7 +457,18 @@ abstract interface class TissuePulse<E> implements Pulse<E> {
         onError,
     void Function(TissuePulse event, Cell cell, {String? message})? onProgress,
     FutureOr<TissuePulse?> Function(TissueReceptor receptor)? scrutinize,
-  }) => _CollectiveTissueEvent<E>(events);
+  }) =>
+      _CollectiveTissueEvent<E>(events,
+          policy: policy,
+          context: context,
+          type: type,
+          source: source,
+          step: step,
+          priority: priority,
+          onComplete: onComplete,
+          onError: onError,
+          onProgress: onProgress,
+          scrutinize: scrutinize);
 
   /// Challenges a receptor to prove its authority before revealing the event.
   ///
@@ -612,13 +586,6 @@ abstract interface class TissuePulse<E> implements Pulse<E> {
 /// - The projection is **live** – if the source event were mutable (it isn't),
 ///   the projection would reflect changes, but events are immutable.
 ///
-/// ### Non‑obvious
-/// - This is a zero‑copy projection – the underlying data is not duplicated.
-/// - It is recursive: `parent` and [root] are also unmodifiable projections.
-/// - For composite events (collectives), iteration yields unmodifiable
-///   projections of each sub‑event.
-/// - The unmodifiable view is still iterable – you can loop over it.
-///
 /// ### Example
 /// ```dart
 /// final list = TissueList.of([1]);
@@ -680,12 +647,6 @@ abstract interface class UnmodifiableTissuePulse<E>
 /// - The class implements [IterableMixin], allowing you to iterate over
 ///   unpacked individual events directly from a composite instance.
 ///
-/// ### Non‑obvious
-/// - **Bitwise Composition**: The `+` operator performs a bitwise OR (`|`)
-///   rather than arithmetic addition, allowing clean combination of event flags.
-/// - **Dynamic Unpacking**: Iterating over a composite [TissueEvent] automatically
-///   unpacks the bitmask into individual, discrete event constants.
-///
 /// ### Example: Bitwise combination and iteration
 /// ```dart
 /// final compositeEvent = Tissue.elementAdded + Tissue.elementRemoved;
@@ -700,10 +661,9 @@ abstract interface class UnmodifiableTissuePulse<E>
 /// See also:
 /// * [TissuePulse] – The structural signal carrying these event classifications.
 final class TissueEvent with IterableMixin<TissueEvent> {
-
   /// Represents the absence of any structural event flags.
   static const none = TissueEvent._(0);
-  
+
   const TissueEvent._(this.mask);
 
   /// Combines this event flag with another using a bitwise OR operation.
@@ -714,9 +674,16 @@ final class TissueEvent with IterableMixin<TissueEvent> {
   /// The underlying bitmask representing the active event categories.
   final int mask;
 
+  /// Structural equality: composites compare equal whenever their event
+  /// bitmasks match, so `(a + b) == (a + b)` holds.
+  @override
+  bool operator ==(Object other) => other is TissueEvent && other.mask == mask;
+
+  @override
+  int get hashCode => mask.hashCode;
+
   @override
   Iterator<TissueEvent> get iterator => [this].iterator;
-
 }
 
 /// A specialized subclass of [TissueEvent] that represents a composite,
@@ -741,25 +708,18 @@ final class TissueEvent with IterableMixin<TissueEvent> {
 /// - Overrides the [iterator] to yield each discrete [TissueEvent] directly from
 ///   the unpacked collection.
 ///
-/// ### Non‑obvious
-/// - **Eager Unpacking**: Unlike the base [TissueEvent] iterator which computes
-///   matching flags on demand, [CompositeTissueEvent] caches the unpacked list
-///   in `events` for high-performance iteration during frequent UI redraws.
-/// - **Immutable Construction**: The internal event list is immutable and
-///   guarantees that composite flags remain synchronized with the underlying bitmask.
-///
-/// See also:
-/// * [TissueEvent] – The base vocabulary class for collection mutations.
-/// * [TissuePulse] – The signal carrying these composite event classifications.
 final class CompositeTissueEvent extends TissueEvent {
-
   CompositeTissueEvent._(int mask) : super._(mask) {
     final List<TissueEvent> events = [];
 
     // Check and unpack individual bitmask flags
     if ((mask & Tissue.elementAdded.mask) != 0) events.add(Tissue.elementAdded);
-    if ((mask & Tissue.elementRemoved.mask) != 0) events.add(Tissue.elementRemoved);
-    if ((mask & Tissue.elementUpdated.mask) != 0) events.add(Tissue.elementUpdated);
+    if ((mask & Tissue.elementRemoved.mask) != 0) {
+      events.add(Tissue.elementRemoved);
+    }
+    if ((mask & Tissue.elementUpdated.mask) != 0) {
+      events.add(Tissue.elementUpdated);
+    }
     if ((mask & Tissue.entryUpdated.mask) != 0) events.add(Tissue.entryUpdated);
 
     _events = events;
@@ -769,7 +729,6 @@ final class CompositeTissueEvent extends TissueEvent {
 
   @override
   Iterator<TissueEvent> get iterator => _events.iterator;
-
 }
 
 /// A record that captures a before‑and‑after snapshot of a reactive value
@@ -805,23 +764,6 @@ final class CompositeTissueEvent extends TissueEvent {
 /// final (:value, :before, :after) = event.payload!;
 /// print('$value changed from $before to $after');
 /// ```
-///
-/// ### Non‑obvious
-/// - **Deep immutability**: If the value (before or after) is itself a [Cell],
-///   and the event was emitted by an unmodifiable view, the record will
-///   contain the `.unmodifiable` deputy of that cell – not the mutable original.
-///   This prevents you from accidentally mutating the source through the event.
-/// - **The `value` field is the cell**: It's not the raw value – it's the
-///   reactive container that holds the value. This is useful if you need to
-///   observe or mutate it later (though in an unmodifiable event, you can't).
-/// - **Both `before` and `after` can be `null`**: This is normal – a cell
-///   can be uninitialised (`before: null`) or cleared (`after: null`). Always
-///   handle `null` gracefully.
-/// - **The record is not typed with the cell type**: The second type parameter
-///   [E] is the concrete `TissueValue` subtype – you can narrow it to
-///   a specific cell class if needed.
-/// - **Equality**: Because this is a record, equality is value‑based. Two
-///   records with the same `value`, `before`, and `after` are considered equal.
 ///
 /// ### Example: Destructuring in an event handler
 /// ```dart
@@ -894,12 +836,6 @@ typedef ElementUpdatedRecord<V, E extends TissueValue<V>> = ({
 /// });
 /// ```
 ///
-/// ### Non‑obvious
-/// - **Insertions vs. Deletions**: If `before` is `null` and `after` is present,
-///   it represents an insertion. If `after` is `null`, it represents a removal.
-/// - **Equality**: Because this is a record, equality is value‑based. Two
-///   records with identical `key`, `before`, and `after` values are equal.
-///
 /// ### Type Parameters:
 /// * [K] – The type of the map keys (e.g., `String`, `int`).
 /// * [V] – The type of the map values being tracked.
@@ -908,7 +844,7 @@ typedef ElementUpdatedRecord<V, E extends TissueValue<V>> = ({
 /// * [Tissue.entryUpdated] – the event classification that carries this record.
 /// * [TissueMap] – the reactive map collection that emits these events.
 typedef EntryUpdatedRecord<K, V> = ({
-K key,
-V? before,
-V? after,
+  K key,
+  V? before,
+  V? after,
 });

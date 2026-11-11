@@ -86,13 +86,6 @@ first trigger.</p>
 <li>Later pulses are ignored.</li>
 <li>Each emitted value gets the step <code>'Of'</code> for provenance.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>First Trigger Only</strong>: The sequence only plays on the first pulse.</li>
-<li><strong>Synchronous Emission</strong>: Values are emitted synchronously.</li>
-<li><strong>No Completion</strong>: Cells don't complete, but the instruction
-stops emitting after all values are sent.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Trigger Source.</strong> The cell that triggers the emission.</li>
@@ -122,6 +115,22 @@ start.emit(null);
 <li><a href="../../mitosis/Flow/range.html">range</a>: For emitting a numeric range.</li>
 <li><a href="../../mitosis/Flow/repeat.html">repeat</a>: For emitting a repeated value.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Flow — create operator. Not a Cell factory, not a Tissue book.
+<strong>When to use:</strong> replay a fixed fixture list of values on the first trigger (test data, init values).
+<strong>When NOT to use:</strong> v1 industry Demos usually <code>tickIn.emit</code> from the harness instead of Create operators.
+<strong>Live signature:</strong> <code>Flow.of&lt;T&gt;(Cell source, {required Iterable&lt;T&gt; values})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Flow.fromIterable</code> (same semantics; takes an Iterable source).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.1 "Create" (#flow-create)
+<strong>Example:</strong> <code>example/cell_flow_example.dart</code>
+<strong>Cross-layer:</strong> external facts enter through <code>Cell.ingress</code>; this only replays fixtures.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final h = Flow.of&lt;int&gt;(src.cell, values: [1, 2, 3]);
+final o = Cell.observe(source: h.cell, effect: (Pulse p) =&gt; print(p.payload));
+src.emit(1);
+o.stop();
+</code></pre>
 </section>
 
 
@@ -161,7 +170,7 @@ start.emit(null);
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -47,20 +47,6 @@ export 'ai_tissue_command_domain_stub.dart'
 /// instruction (in the demo) consults `TissueSet.modifiable` and
 /// invokes the tear-off.
 ///
-/// ### Non-obvious
-///
-/// - **The verb list is closed.** The model cannot invent a verb.
-///   If it returns a string that is not a key in [verbByName], the
-///   port synthesises a [Reject] with reason `'unknown-verb'`.
-/// - **The port never executes code.** It parses a verb string and
-///   an args array; it never evaluates Dart.
-/// - **The domain is portable.** It can be reused by a CLI tool, a
-///   test harness, or a scripted replay without any reactive
-///   framework dependency.
-/// - **`AiConfig` is the explicit source of AI settings.** When a
-///   config is supplied, the interpreter reads only the config.
-///   Environment variables are not consulted.
-///
 /// ### See Also
 ///
 /// - `ai_tissue_command.dart` — the three instructions that consume
@@ -94,21 +80,6 @@ export 'ai_tissue_command_domain_stub.dart'
 ///    [TissueVerb] via [verbByName].
 /// 3. A verb string that does not resolve is treated as a [Reject],
 ///    not as an executable command.
-///
-/// ### Non-obvious
-///
-/// - **The string → enum conversion is the boundary.** It is the
-///   only place a model's reply becomes a typed verb. That is why
-///   it lives in this file: the port cannot return a verb outside
-///   the enum.
-/// - **Not every verb is driven by the demo.** `removeWhere` and
-///   `retainWhere` are listed so the closed vocabulary is complete,
-///   but the demo's dispatch instruction rejects them. Predicates
-///   are not safe to take from a model — see the individual value
-///   docs.
-/// - **Extending the list is manual.** Adding a verb to the enum
-///   and to [verbByName] are two separate edits. A future build
-///   could generate one from the other.
 ///
 /// ### Values
 ///
@@ -181,13 +152,6 @@ enum TissueVerb {
   /// `TissueSet.removeWhere(bool Function(E))` — not driven by
   /// this demo.
   ///
-  /// ### Non-obvious
-  ///
-  /// Predicates are not safe to take from a model: a model that
-  /// produced `(x) => x > 5` would be returning code, which the
-  /// instruction refuses to execute. The verb is listed so the
-  /// closed vocabulary is complete; the dispatch instruction
-  /// rejects it if the model ever returns it.
   removeWhere,
 
   /// `TissueSet.retainWhere(bool Function(E))` — not driven by
@@ -215,14 +179,6 @@ enum TissueVerb {
 /// null, the reply becomes a Reject. If non-null, the reply becomes
 /// a [TissueCommand] with that verb.
 ///
-/// ### Non-obvious
-///
-/// - **Missing key = refused verb.** If the map is missing a key,
-///   the model cannot name that verb, even if
-///   `TissueSet.modifiable` exposes the tear-off.
-/// - **Manual sync with the enum.** Keeping this map and
-///   [TissueVerb] in sync is a manual step. A future build could
-///   generate one from the other.
 const Map<String, TissueVerb> verbByName = {
   'add': TissueVerb.add,
   'addAll': TissueVerb.addAll,
@@ -276,18 +232,6 @@ const Map<String, TissueVerb> verbByName = {
 /// the tear-off's expected parameter type. If the cast fails, the
 /// dispatch throws and the exception is caught inside
 /// `_runDispatch`.
-///
-/// ### Non-obvious
-///
-/// - **A [TissueCommand] does not mutate a tissue.** It is a
-///   declarative record of a verb and its args. The mutation
-///   happens only when a downstream dispatch instruction reads the
-///   command and invokes the tear-off. That separation is what
-///   makes the command inspectable, loggable, and testable without
-///   any collection involvement.
-/// - **Confidence is not enforced.** The demo carries it for
-///   auditing. A production system could route low-confidence
-///   commands to a supervised approval queue.
 ///
 /// ### Example
 ///
@@ -394,14 +338,6 @@ final class TissueCommand {
 /// | `'retries-exhausted: ...'` | The retry variant consumed its budget. |
 /// | `'empty-reply'` | The port returned neither command nor reject. |
 ///
-/// ### Non-obvious
-///
-/// A [Reject] is emitted as a *value*, not as a dropped pulse. The
-/// downstream filter is what drops it. That means the filter can
-/// also count it, which is how the demo's `rejected` counter
-/// increments. If the instruction dropped the pulse directly, the
-/// counter could never see it.
-///
 /// ### Example
 ///
 /// ```dart
@@ -465,18 +401,6 @@ final class Reject {
 /// tolerates the edge case where both are null by synthesising a
 /// `Reject(reason: 'empty-reply')`.
 ///
-/// ### Non-obvious
-///
-/// - **Why a record.** A Dart record `({command, reject})` is
-///   immutable, cheap to allocate, and pattern-matchable. A sealed
-///   class hierarchy would be slightly more type-safe but heavier
-///   at the call site. The demo's filter matches on
-///   `v is TissueCommand` and `v is Reject` directly, so the record
-///   serves the same purpose with less ceremony.
-/// - **Both null is possible.** A misbehaving port may return
-///   `(command: null, reject: null)`. The instruction synthesises a
-///   Reject so the pipeline stays well-formed.
-///
 /// ### Example
 ///
 /// ```dart
@@ -533,21 +457,6 @@ typedef InterpreterReply = ({TissueCommand? command, Reject? reject});
 ///   interpreter should implement its own timeout (see
 ///   [HttpInterpreter.timeout]).
 ///
-/// ### Non-obvious
-///
-/// - **The port never executes Dart code returned by the model.**
-///   It only parses a verb string and an args array, then looks the
-///   verb up in [verbByName]. A model that returned
-///   `"verb": "(x) => x.clear()"` would be rejected with
-///   `reason: 'unknown-verb'`.
-/// - **The transport label is advisory.** [transport] is used by
-///   the demo to distinguish live from offline in the banner. It is
-///   not used by the instruction.
-/// - **Timeout injection is one-shot.** [injectTimeoutOnce] fires
-///   on the next call and clears itself. To exercise a retry loop
-///   that needs `count + 1` consecutive failures, call it
-///   `count + 1` times.
-///
 /// ### See Also
 ///
 /// - [HttpInterpreter] — the live HTTP implementation.
@@ -603,13 +512,6 @@ abstract interface class Interpreter {
   /// Implemented by both HTTP and stub interpreters so scenario 10
   /// behaves identically in offline and live modes.
   ///
-  /// ### Non-obvious
-  ///
-  /// The injection is **one-shot**: it fires once and clears
-  /// itself. To exercise a retry loop that needs `count + 1`
-  /// consecutive failures, call this method `count + 1` times
-  /// before the next `complete`. The demo's
-  /// `AiTissueCommandWithRetry` demo does exactly that.
   void injectTimeoutOnce();
 }
 
@@ -644,22 +546,6 @@ abstract interface class Interpreter {
 /// 4. [parsed] **or** [refused] — the classified reply.
 ///
 /// If the port throws, [error] is called instead of steps 3–4.
-///
-/// ### Non-obvious
-///
-/// - **The logger writes to `stdout` directly.** It has no buffer,
-///   no flush, no file target. For a demo, that is what we want.
-///   For a production system, replace `_out` with a structured
-///   logger call.
-/// - **The prompt is printed in full the first time, then
-///   truncated.** The first call prints all lines. Every
-///   subsequent call prints the first 12 lines and appends
-///   `... (N more lines — same prompt as scenario 1)`. That keeps
-///   the console readable while guaranteeing the reader sees the
-///   full security contract at least once.
-/// - **`silent: true` suppresses all output.** Useful for tests.
-///   The logger still runs its truncation logic so the first
-///   non-silent call behaves correctly.
 ///
 /// ### Example
 ///
@@ -866,19 +752,6 @@ class TrafficLog {
 ///    array, multi-element verbs use a nested array, zero-arg
 ///    verbs use `[]`, never invent a verb, never return code.
 ///
-/// ### Non-obvious
-///
-/// - **The prompt is the security contract.** Trimming it would
-///   weaken the guarantee that the model's reply can be parsed by
-///   the strict shape the instruction enforces.
-/// - **Verbs are listed in sorted order.** Sorting makes the
-///   prompt deterministic for a given verb set, which is useful
-///   for caching and diffing. It does not affect the model's
-///   choice.
-/// - **The prompt is bounded by the caller's verb set.** A caller
-///   that passes `{'add'}` gets a prompt listing only `add`. The
-///   prompt does not leak verbs the caller did not authorise.
-///
 /// ### Example
 ///
 /// ```dart
@@ -964,19 +837,6 @@ Rules:
 ///   "extraBody": { "seed": 42 }
 /// }
 /// ```
-///
-/// ### Non-obvious
-///
-/// - **`extraBody` is merged into the request envelope.** It can
-///   add `seed`, `top_p`, `max_tokens`, or any provider-specific
-///   field. It cannot override `model`, `messages`,
-///   `temperature`, or `response_format` — those are set by the
-///   interpreter after the merge.
-/// - **`apiKey` is required.** There is no "anonymous" mode in
-///   this build. A caller that wants to run without a key should
-///   use [StubInterpreter] directly.
-/// - **`timeoutSeconds` is optional.** Omitting it uses the
-///   interpreter's own default of 30 seconds.
 ///
 /// ### No Environment Fallback
 ///
@@ -1226,22 +1086,6 @@ final class AiConfig {
 /// interpretation and dispatch. A live model would be far more
 /// forgiving with phrasing; the stub is deliberately not, so the
 /// demo's console output is deterministic.
-///
-/// ### Non-obvious
-///
-/// - **The stub honours the verb set.** If the caller excludes a
-///   verb, the stub will not return it, and the sentence falls
-///   through to the `reject` case. That is how the demo proves
-///   the closed-vocabulary contract works even in offline mode.
-/// - **The stub prints synthetic traffic.** Every `complete` call
-///   logs a system prompt, a synthetic request body, and a
-///   synthetic OpenAI-shaped response body, so the console output
-///   is identical in structure whether the demo is running
-///   offline or live.
-/// - **`latency` is configurable.** The default is 1ms so the
-///   async pipeline is exercised. Set to [Duration.zero] in the
-///   production-shaped demo so the console output is
-///   deterministic.
 ///
 /// ### Example
 ///

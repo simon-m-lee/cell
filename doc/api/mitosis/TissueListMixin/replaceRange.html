@@ -85,7 +85,7 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 void replaceRange(int start, int end, Iterable&lt;E&gt; newContents) =&gt;
-    apply(replaceRange, positionalArguments: [start, end, newContents]);</code></pre>
+    dispatch(replaceRange, positionalArguments: [start, end, newContents]);</code></pre>
 </section>
 
 
@@ -113,7 +113,7 @@ void replaceRange(int start, int end, Iterable&lt;E&gt; newContents) =&gt;
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

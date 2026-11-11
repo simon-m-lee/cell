@@ -98,18 +98,6 @@ it adopts the integrity gate of that source.</li>
 <li><strong>Global Default</strong>: If no rule is found in the lineage or
 bindings, it defaults to <a href="../../mitosis/TestCell/allowAll-constant.html">TestCell.allowAll</a>.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Forensic Rejection</strong>: If validation fails, the mutation is
-neutralized. The framework records a rejection milestone in the
-<a href="../../mitosis/Pulse/trace.html">Pulse.trace</a> and returns <code>null</code>, ensuring the "threat" is logged
-without crashing the application.</li>
-<li><strong>Synchronous Enforcement</strong>: Validation happens before the
-transformation logic is executed, preventing side-effects from
-invalid data.</li>
-<li><strong>Deputy Narrowing</strong>: A <a href="../../mitosis/TissueMap/deputy.html">deputy</a> handle can only narrow permissions;
-it can never bypass the root integrity logic of the underlying cell.</li>
-</ul>
 <h3 id="returns">Returns:</h3>
 <p>The <a href="../../mitosis/TestCell-class.html">TestCell</a> validator representing the active security perimeter
 of this node.</p>
@@ -149,7 +137,7 @@ TestTissue&lt;V, C&gt; get validate =&gt; _nucleus.testRule;</code></pre>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -74,8 +74,15 @@ Returns <code>false</code> if the <code>cell</code> was already visited, indicat
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">bool add(Cell cell) {
-  if (_visited.contains(cell)) return false;
-  _visited.add(cell);
+  final single = _single;
+  if (single == null) {
+    _single = cell;
+    return true;
+  }
+  if (identical(single, cell)) return false;
+  final visited = _visited ??= Set&lt;Cell&gt;.identity()..add(single);
+  if (visited.contains(cell)) return false;
+  visited.add(cell);
   return true;
 }</code></pre>
 </section>
@@ -105,7 +112,7 @@ Returns <code>false</code> if the <code>cell</code> was already visited, indicat
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

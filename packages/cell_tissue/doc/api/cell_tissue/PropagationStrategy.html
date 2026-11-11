@@ -87,11 +87,7 @@ Choose the strategy that matches your use case – most common are
 <li><strong>throttled</strong>: For rate‑limiting high‑frequency events (e.g., scroll).</li>
 <li><strong>batched</strong>: For aggregating multiple updates into one (e.g., logging).</li>
 <li><strong>audit</strong>: To get the latest value at a fixed interval.</li>
-<li><strong>exhaust</strong>: To prevent concurrent processing of overlapping signals.</li>
-<li><strong>sample</strong>: To emit a constant‑rate heartbeat of the current state.</li>
-<li><strong>resilient</strong>: To protect against downstream failures (circuit breaker).</li>
 <li><strong>debounceLeading</strong>: To respond immediately to the first event, then wait.</li>
-<li><strong>retry</strong>: To automatically retry failed deliveries.</li>
 <li><strong>persistent</strong>: To replay the last state to new observers.</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
@@ -103,21 +99,6 @@ be broadcast to observers.</li>
 to buffer, delay, or batch outgoing pulses.</li>
 <li>Each strategy has a specific behaviour; see the individual enum values
 for details.</li>
-</ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>immediate</code> strategy is the fastest and most predictable – it ensures
-that changes are propagated synchronously, but can cause deep call stacks.</li>
-<li><code>async</code> simply schedules the broadcast on the next event loop tick,
-breaking the synchronous chain.</li>
-<li><code>debounced</code> and <code>throttled</code> use timers that are started on the first
-interaction; they are lazy and don't allocate timers until needed.</li>
-<li><code>persistent</code> does <strong>not</strong> affect regular propagation; it only replays
-the last pulse to newly linked observers.</li>
-<li><code>retry</code> and <code>resilient</code> are more advanced and require careful tuning
-of batchSize and timers to avoid loops.</li>
-<li>The strategy is <strong>per‑synapse</strong>, not per‑pulse – it applies to all
-pulses emitted by that cell.</li>
 </ul>
 <h3 id="example-debounced-search">Example: Debounced Search</h3>
 <pre class="language-dart"><code class="language-dart">final searchSynapses = Synapses&lt;String, Cell&gt;(
@@ -327,78 +308,6 @@ requirement of <a href="../cell_tissue/PropagationStrategy.html">debounced</a>.<
 
 </dd>
 
-            <dt id="exhaust" class="constant">
-    <span class="name ">exhaust</span>
-  <span class="signature">&#8594; const <a href="../cell_tissue/PropagationStrategy.html">PropagationStrategy</a></span>
-  
-
-</dt>
-<dd>
-  <p>The <strong>Concurrency Lock</strong> strategy. Ignores new signals while a
-previous signal is still being processed.</p>
-<ul>
-<li><strong>Behavior</strong>: If a <a href="../cell_tissue/Pulse-class.html">Pulse</a> is currently traversing the downstream
-receptor chain (especially useful for async flows), any new pulses
-arriving at the hub are dropped until the cycle completes.</li>
-<li><strong>Use Case</strong>: Preventing "Race Conditions" in expensive side effects,
-such as avoiding multiple simultaneous database writes or redundant
-API calls.</li>
-<li><strong>Trade-off</strong>: Intermediate state changes are completely lost if
-they occur while the "gate" is closed.</li>
-</ul>
-  
-
-</dd>
-
-            <dt id="sample" class="constant">
-    <span class="name ">sample</span>
-  <span class="signature">&#8594; const <a href="../cell_tissue/PropagationStrategy.html">PropagationStrategy</a></span>
-  
-
-</dt>
-<dd>
-  <p>The <strong>Fixed-Interval Heartbeat</strong> strategy. Periodically emits the
-current state regardless of arrival frequency.</p>
-<ul>
-<li><strong>Behavior</strong>: Ignores the arrival of individual pulses and instead
-"samples" the current value of the source cell at a fixed interval
-defined by <code>throttleTime</code>.</li>
-<li><strong>Use Case</strong>: Constant-rate telemetry, physics engines, or
-monitoring systems where "no change" is just as important as "change."</li>
-<li><strong>Trade-off</strong>: Can result in redundant broadcasts if the state
-hasn't changed, and misses high-frequency fluctuations.</li>
-<li><strong>Non‑obvious</strong>: The heartbeat rebroadcasts the <em>first</em> pulse
-captured when the timer starts. The pulse cycle checker then
-drops later ticks of that same instance, so observers typically
-see one delivery. Unlinking the last observer cancels the
-<a href="https://api.flutter.dev/flutter/dart-async/Timer/Timer.periodic.html">Timer.periodic</a> so it does not leak.</li>
-</ul>
-  
-
-</dd>
-
-            <dt id="resilient" class="constant">
-    <span class="name ">resilient</span>
-  <span class="signature">&#8594; const <a href="../cell_tissue/PropagationStrategy.html">PropagationStrategy</a></span>
-  
-
-</dt>
-<dd>
-  <p>The <strong>Stability Governance</strong> strategy (Circuit Breaker). Stops
-propagation if downstream failures exceed a threshold.</p>
-<ul>
-<li><strong>Behavior</strong>: Monitors for errors in downstream receptors. If a
-failure threshold is met, the strategy enters an "Open" state,
-silencing the synapse to prevent cascade failures.</li>
-<li><strong>Use Case</strong>: Resilient distributed systems, unreliable network
-integrations, or experimental AI logic that might crash.</li>
-<li><strong>Trade-off</strong>: Requires a "Reset" or "Half-Open" logic to resume
-normal operations after a failure.</li>
-</ul>
-  
-
-</dd>
-
             <dt id="debounceLeading" class="constant">
     <span class="name ">debounceLeading</span>
   <span class="signature">&#8594; const <a href="../cell_tissue/PropagationStrategy.html">PropagationStrategy</a></span>
@@ -414,25 +323,6 @@ immediately, then ignores all others until the <code>throttleTime</code>
 silence window is met.</li>
 <li><strong>Use Case</strong>: Button debouncing where the user expects immediate
 UI feedback, but the backend must be protected from double-clicks.</li>
-</ul>
-  
-
-</dd>
-
-            <dt id="retry" class="constant">
-    <span class="name ">retry</span>
-  <span class="signature">&#8594; const <a href="../cell_tissue/PropagationStrategy.html">PropagationStrategy</a></span>
-  
-
-</dt>
-<dd>
-  <p>The <strong>Transient Resilience</strong> strategy. Retries failed downstream
-deliveries.</p>
-<ul>
-<li><strong>Behavior</strong>: If a downstream receptor throws an exception,
-the synapse will re-attempt delivery after a delay.</li>
-<li><strong>Use Case</strong>: Unreliable network observers or distributed nodes
-that may be momentarily offline.</li>
 </ul>
   
 
@@ -620,7 +510,7 @@ need to "catch up" to the current system state.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

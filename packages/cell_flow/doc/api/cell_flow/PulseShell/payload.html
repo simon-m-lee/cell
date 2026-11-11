@@ -84,16 +84,6 @@ Read it to get the signal's content.</li>
 <h3 id="how-it-works">How it works</h3>
 <p>The payload is resolved by walking up the parent chain. Evolved pulses
 inherit their payload from their root — they don't duplicate it.</p>
-<h3 id="nonobvious-payload-is-inherited-not-copied">Non‑obvious: payload is inherited, not copied</h3>
-<p>For an evolved pulse, <code>payload</code> returns the root's payload. This is why
-causal chains are memory‑efficient — no data is duplicated.</p>
-<h3 id="nonobvious-collective-pulses-have-a-collective-payload">Non‑obvious: collective pulses have a collective payload</h3>
-<p>For a <a href="../../cell_flow/CollectivePulse-class.html">CollectivePulse</a>, <code>payload</code> returns an <code>Iterable</code> of all sub‑pulses.
-To access individual payloads, iterate over the collective's payload:</p>
-<pre class="language-dart"><code class="language-dart">for (final p in collective.payload) {
-  print(p.payload);
-}
-</code></pre>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final pulse = Pulse&lt;String&gt;('Hello');
 print(pulse.payload); // 'Hello'
@@ -134,7 +124,7 @@ P? get payload =&gt; null;</code></pre>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

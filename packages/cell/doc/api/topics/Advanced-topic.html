@@ -85,14 +85,6 @@
 <td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-PropagationPolicy.md">Propagation Policy</a></td>
 <td>Debounce / throttle / batch at the synapse</td>
 </tr>
-<tr>
-<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Transaction.md">Transactions</a></td>
-<td>Multi-cell buffered writes and isolation</td>
-</tr>
-<tr>
-<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-TransactionOnApply.md">txApply</a></td>
-<td>Staged <code>apply()</code> plus compensation</td>
-</tr>
 </tbody>
 </table>
 <p>None of this runs unless you pass the type in. <code>Context.describe('…')</code> stores text; it is not a compliance program.</p>
@@ -112,8 +104,8 @@ static Transaction transaction([TransactionOptions? options]) { ... }
     <dl>
       <dt id="Context">
   <span class="name "><a href="../cell/Context-class.html">Context</a></span> 
-    <span class="category advanced cp-10 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
-    <span class="category advanced-·-context cp-13 linked" title="This is part of the Advanced · Context topic."><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></span>
+    <span class="category advanced cp-11 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-context cp-14 linked" title="This is part of the Advanced · Context topic."><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></span>
 
 </dt>
 <dd>
@@ -121,19 +113,9 @@ static Transaction transaction([TransactionOptions? options]) { ... }
 boundaries — used by <a href="../cell/TestCell-class.html">TestCell</a> rules to make context-aware decisions.
 </dd>
 
-      <dt id="DeputyContext">
-  <span class="name "><a href="../cell/DeputyContext-class.html">DeputyContext</a></span> 
-    <span class="category advanced cp-10 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
-    <span class="category advanced-·-deputy-context cp-14 linked" title="This is part of the Advanced · Deputy Context topic."><a href="../topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></span>
-
-</dt>
-<dd>
-  Represents the <strong>Formal Mandate</strong> and declaration of intention for a <a href="../cell/Deputy-mixin.html">Deputy</a>.
-</dd>
-
       <dt id="EphemeralPolicy">
   <span class="name "><a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
-    <span class="category advanced cp-10 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced cp-11 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
     <span class="category advanced-·-ephemeral-policy cp-16 linked" title="This is part of the Advanced · Ephemeral Policy topic."><a href="../topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></span>
 
 </dt>
@@ -143,7 +125,7 @@ boundaries — used by <a href="../cell/TestCell-class.html">TestCell</a> rules 
 
       <dt id="Nucleus">
   <span class="name "><a href="../cell/Nucleus-class.html">Nucleus</a></span> 
-    <span class="category advanced cp-10 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced cp-11 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
     <span class="category advanced-·-nucleus cp-15 linked" title="This is part of the Advanced · Nucleus topic."><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></span>
 
 </dt>
@@ -155,8 +137,8 @@ separately from the live cell instance.
 
       <dt id="PulseContext">
   <span class="name "><a href="../cell/PulseContext-class.html">PulseContext</a></span> 
-    <span class="category advanced cp-10 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
-    <span class="category advanced-·-pulse-context cp-11 linked" title="This is part of the Advanced · Pulse Context topic."><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></span>
+    <span class="category advanced cp-11 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-pulse-context cp-12 linked" title="This is part of the Advanced · Pulse Context topic."><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></span>
 
 </dt>
 <dd>
@@ -165,8 +147,8 @@ separately from the live cell instance.
 
       <dt id="PulseEphemeralPolicy">
   <span class="name "><a href="../cell/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a></span> 
-    <span class="category advanced cp-10 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
-    <span class="category advanced-·-pulse-ephemeral-policy cp-12 linked" title="This is part of the Advanced · Pulse Ephemeral Policy topic."><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></span>
+    <span class="category advanced cp-11 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-pulse-ephemeral-policy cp-13 linked" title="This is part of the Advanced · Pulse Ephemeral Policy topic."><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></span>
 
 </dt>
 <dd>
@@ -203,21 +185,23 @@ for a <a href="../cell/Pulse-class.html">Pulse</a> as it traverses the reactive 
         <li><a href="../topics/Features-topic.html">Features</a></li>
         <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
         <li><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
+        <li><a href="../topics/Transactions-topic.html">Transactions</a></li>
+        <li><a href="../topics/Apply + Transactions-topic.html">Apply&nbsp;+&nbsp;Transactions</a></li>
         <li><a href="../topics/Pulse-topic.html">Pulse</a></li>
         <li><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
         <li><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
         <li><a href="../topics/Instructions-topic.html">Instructions</a></li>
         <li><a href="../topics/Advanced-topic.html">Advanced</a></li>
         <li><a href="../topics/Demo: aircraft-topic.html">Demo:aircraft</a></li>
-        <li><a href="../topics/Demo: hotel-topic.html">Demo:hotel</a></li>
         <li><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></li>
         <li><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></li>
         <li><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></li>
         <li><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></li>
-        <li><a href="../topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></li>
         <li><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></li>
         <li><a href="../topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></li>
       <li class="section-title">Libraries</li>
+      <li><a href="../cell_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
+      <li><a href="../cell_api_chooser/">doc\api_chooser</a></li>
       <li class="section-subtitle">Features</li>
         <li class="section-subitem"><a href="../cell/">cell</a></li>
 </ol>
@@ -229,7 +213,6 @@ for a <a href="../cell/Pulse-class.html">Pulse</a> as it traverses the reactive 
 
     <li class="section-title"><a href="../topics/Advanced-topic.html#classes">Classes</a></li>
       <li><a href="../cell/Context-class.html">Context</a></li>
-      <li><a href="../cell/DeputyContext-class.html">DeputyContext</a></li>
       <li><a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a></li>
       <li><a href="../cell/Nucleus-class.html">Nucleus</a></li>
       <li><a href="../cell/PulseContext-class.html">PulseContext</a></li>
@@ -251,7 +234,7 @@ for a <a href="../cell/Pulse-class.html">Pulse</a> as it traverses the reactive 
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

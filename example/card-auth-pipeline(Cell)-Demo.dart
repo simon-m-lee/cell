@@ -660,7 +660,7 @@ class CardAuthHarness {
   late final FlowInstruction<Cell, Pulse, Pulse> cardAuth;
 
   /// The one `toHandle` produced by [installGate].
-  FlowHandle<Pulse<dynamic>>? authHandle;
+  FlowHandle? authHandle;
 
   /// The gate cell — emits a [Decision] when the chain lets it through.
   late final Cell authCell;

@@ -94,25 +94,6 @@ any element that is itself a <a href="../cell_tissue/Cell-class.html">Cell</a> i
 mutations – you cannot get a mutable reference to a child cell through
 a read‑only collection.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>It is not a snapshot</strong>: Unlike <code>List.unmodifiable</code> in Dart, this view
-is <strong>live</strong>. If the source changes, the view changes with it. This is
-essential for reactive UIs that need to stay in sync.</li>
-<li><strong>Equality</strong>: An unmodifiable view is logically equal to its source.
-<code>source == source.unmodifiable</code> is <code>true</code> (in terms of <code>==</code>), and they
-share the same <code>hashCode</code>. This means they can be used interchangeably
-in <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a>s and <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a>s.</li>
-<li><strong>Recursive projection</strong>: If you iterate over an unmodifiable view and
-the elements are themselves <a href="../cell_tissue/Cell-class.html">Cell</a>s, you receive <strong>unmodifiable deputies</strong>
-of those cells. This ensures that deep immutability is enforced.</li>
-<li><strong>Own observer registry</strong>: The unmodifiable view has its own
-<a href="../cell_tissue/Synapses-class.html">Synapses</a> registry. Observers attached to the view are notified of
-changes, but they are separate from observers attached to the source.</li>
-<li><strong>Terminal behaviour</strong>: An unmodifiable view is not necessarily
-terminal. It can still have downstream observers, and it participates
-in propagation waves just like any other cell.</li>
-</ul>
 <h3 id="example-readonly-ui-projection">Example: Read‑only UI projection</h3>
 <pre class="language-dart"><code class="language-dart">final source = TissueList&lt;String&gt;(['Apple', 'Banana']);
 final readOnly = source.unmodifiable;
@@ -144,6 +125,20 @@ source.first.complete();
 implementations for each collection type.</li>
 <li><a href="../cell_tissue/Unmodifiable-class.html">Unmodifiable</a> – the marker interface for all read‑only proxies.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Tissue — the read-only book surface. Not a Cell factory, not a Flow operator.
+<strong>When to use:</strong> COMPLY / council views — <code>book.unmodifiable</code> is a <strong>live</strong> zero-copy view, not a snapshot; use <code>.deputy(testRule: …)</code> for a narrowed write set.
+<strong>When NOT to use:</strong> a daily PDF roll-up (that is a harness <strong>read</strong>, not a view); never keep two books "for compliance".
+<strong>Live signature:</strong> <code>abstract interface class UnmodifiableTissue&lt;E&gt; implements Tissue&lt;E&gt;, Unmodifiable</code> — pinned at <code>cell_tissue: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Tissue</code> itself (the writable book; this is its read-only surface).
+<strong>Guide:</strong> <code>HowTo-Mitose-Tissue.md</code> §4 "Deputies and .unmodifiable" (#tissue-deputies)
+<strong>Example:</strong> <code>example/cell_tissue_example.dart</code>
+<strong>Cross-layer:</strong> the Cell-layer equivalent is <code>Cell.unmodifiable</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final book = TissueList.of([1, 2]);
+final ro = book.unmodifiable;
+print(ro.length); // 2
+</code></pre>
 </section>
 
 
@@ -173,6 +168,7 @@ implementations for each collection type.</li>
         
   <dt>Available extensions</dt>
   <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="../cell_tissue/ApplyCommandDSL.html">ApplyCommandDSL</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/EnumByName.html">EnumByName</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/FutureIterable.html">FutureIterable</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a></li>
@@ -545,8 +541,8 @@ downstream observers and does not broadcast pulses.
 </dd>
 
         <dt id="apply" class="callable inherited">
-  <span class="name"><a href="../cell_tissue/Tissue/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
-    <span class="returntype parameter">&#8594; dynamic</span>
+  <span class="name"><a href="../cell_tissue/Tissue/apply.html">apply</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="apply-param-command"><span class="type-annotation"><a href="../cell_tissue/ApplyCommand.html">ApplyCommand</a></span> <span class="parameter-name">command</span>, {</span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span>
   </span>
   
 
@@ -636,6 +632,23 @@ metadata attached.
 <dd class="inherited">
   A view of this iterable as an iterable of <code>R</code> instances.
   <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="command" class="callable">
+  <span class="name"><a href="../cell_tissue/ApplyCommandDSL/command.html">command</a></span><span class="signature">(<wbr><span class="parameter" id="command-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_tissue/ApplyCommandRunner-class.html">ApplyCommandRunner</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_tissue/Cell-class.html">Cell</a>,
+        provided by the <a href="../cell_tissue/ApplyCommandDSL.html">ApplyCommandDSL</a> extension</span>
+      </p>
+  Begins assembling a command that invokes <code>function</code> on this cell.
+  
 
 </dd>
 
@@ -1076,7 +1089,7 @@ collection.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

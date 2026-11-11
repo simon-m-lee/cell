@@ -97,14 +97,6 @@ once the timer expires.</li>
 <li><strong>Reset</strong>: Once the window closes (and the optional trailing pulse is
 sent), the cycle resets.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious:</h3>
-<ul>
-<li><strong>Leading vs. Trailing</strong>: By default, <code>leading</code> is true and <code>trailing</code>
-is false. This ensures immediate feedback for the first user action
-while suppressing the subsequent burst.</li>
-<li><strong>Resource Management</strong>: The internal timer is automatically managed
-and cleaned up when the cell is disposed or its context is revoked.</li>
-</ul>
 <h3 id="example">Example:</h3>
 <p>See <code>example/throttle_demo.dart</code> for a practical executable walkthrough.</p>
 <h3 id="parameters">Parameters:</h3>
@@ -126,6 +118,24 @@ the duration expires.</li>
 walkthrough of frequency-based rate limiting.
 {@category Core 16 Operators}</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> limit a feed to at most one pulse per duration (leading immediate, trailing optional) — feed shaping <strong>before</strong> <code>publishTick</code>.
+<strong>When NOT to use:</strong> as the policy gate; the decision belongs to the <code>cell_flow</code> instruction, and Time operators shape feeds, not decisions.
+<strong>Live signature:</strong> <code>Cell.throttle(Cell source, Duration duration, {bool leading = true, bool trailing = false})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.debounce</code> (waits for silence; leading defaults false).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.6 "Time" (#flow-time)
+<strong>Example:</strong> <code>example/throttle_demo.dart</code>
+<strong>Cross-layer:</strong> identical semantics available as <code>Flow.throttle</code> in <code>cell_flow</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final th = Cell.throttle(src.cell, const Duration(milliseconds: 50));
+final o = Cell.observe(source: th, effect: (Pulse p) =&gt; print(p.payload));
+src.emit(1);
+src.emit(2); // throttled
+await Future&lt;void&gt;.delayed(const Duration(milliseconds: 80));
+o.stop();
+</code></pre>
 </section>
 
 
@@ -166,7 +176,7 @@ walkthrough of frequency-based rate limiting.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

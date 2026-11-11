@@ -106,16 +106,6 @@ but the signal propagation terminates at this node.</li>
 terminal nodes are easier for the garbage collector to reclaim
 once their parent handle is released.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>One-Way Traffic</strong>: You cannot attach observers to a terminal node.
-Attempting to listen to a terminal cell's stream will typically
-throw an exception or result in a no-op, depending on the specific
-implementation.</li>
-<li><strong>Identity</strong>: A terminal node still maintains logical identity and
-lineage within its <a href="../../mitosis/Context-class.html">Context</a>, even though it does not propagate
-signals.</li>
-</ul>
 <h3 id="returns">Returns:</h3>
 <ul>
 <li><code>true</code>: If this cell is a terminal sink with no outgoing
@@ -159,7 +149,7 @@ bool get isTerminal =&gt; true;</code></pre>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

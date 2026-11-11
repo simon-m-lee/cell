@@ -241,59 +241,89 @@
           (parent != null ? 16 : 0)) |
       (pulse != null ? 32 : 0);
 
+  &#47;&#47; Field-level shape tag packed into one int. Accessors test these bits
+  &#47;&#47; and then read record fields directly — exception-free hot path.
+  final shape = primaryMask |
+      (secondaryMask &lt;&lt; 8) |
+      (tertiaryMask &lt;&lt; 16) |
+      (callbackMask &lt;&lt; 24) |
+      ((parent != null ? 1 : 0) &lt;&lt; 5) |
+      ((pulse != null ? 1 : 0) &lt;&lt; 6);
+
   return switch (finalMask) {
-    0 =&gt; (cycleChecker: FinalBox&lt;CycleChecker&gt;()),
-    1 =&gt; (cycleChecker: FinalBox&lt;CycleChecker&gt;(), root: (primary: primary)),
+    0 =&gt; (shape: shape, cycleChecker: FinalBox&lt;CycleChecker&gt;()),
+    1 =&gt; (
+        shape: shape,
+        cycleChecker: FinalBox&lt;CycleChecker&gt;(),
+        root: (primary: primary)
+      ),
     2 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (secondary: secondary)
       ),
     3 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, secondary: secondary)
       ),
-    4 =&gt; (cycleChecker: FinalBox&lt;CycleChecker&gt;(), root: (tertiary: tertiary)),
+    4 =&gt; (
+        shape: shape,
+        cycleChecker: FinalBox&lt;CycleChecker&gt;(),
+        root: (tertiary: tertiary)
+      ),
     5 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, tertiary: tertiary)
       ),
     6 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (secondary: secondary, tertiary: tertiary)
       ),
     7 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, secondary: secondary, tertiary: tertiary)
       ),
     8 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (callbacks: callbacks)
       ),
     9 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, callbacks: callbacks)
       ),
     10 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (secondary: secondary, callbacks: callbacks)
       ),
     11 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, secondary: secondary, callbacks: callbacks)
       ),
     12 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (tertiary: tertiary, callbacks: callbacks)
       ),
     13 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, tertiary: tertiary, callbacks: callbacks)
       ),
     14 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (secondary: secondary, tertiary: tertiary, callbacks: callbacks)
       ),
     15 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (
           primary: primary,
@@ -302,73 +332,87 @@
           callbacks: callbacks
         )
       ),
-    16 =&gt; (parent: parent),
+    16 =&gt; (shape: shape, parent: parent),
     17 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary),
         parent: parent
       ),
     18 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (secondary: secondary),
         parent: parent
       ),
     19 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, secondary: secondary),
         parent: parent
       ),
     20 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (tertiary: tertiary),
         parent: parent
       ),
     21 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, tertiary: tertiary),
         parent: parent
       ),
     22 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (secondary: secondary, tertiary: tertiary),
         parent: parent
       ),
     23 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, secondary: secondary, tertiary: tertiary),
         parent: parent
       ),
     24 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (callbacks: callbacks),
         parent: parent
       ),
     25 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, callbacks: callbacks),
         parent: parent
       ),
     26 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (secondary: secondary, callbacks: callbacks),
         parent: parent
       ),
     27 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, secondary: secondary, callbacks: callbacks),
         parent: parent
       ),
     28 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (tertiary: tertiary, callbacks: callbacks),
         parent: parent
       ),
     29 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, tertiary: tertiary, callbacks: callbacks),
         parent: parent
       ),
     30 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (
           secondary: secondary,
@@ -378,6 +422,7 @@
         parent: parent
       ),
     31 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (
           primary: primary,
@@ -387,73 +432,87 @@
         ),
         parent: parent
       ),
-    32 =&gt; (pulse: pulse),
+    32 =&gt; (shape: shape, pulse: pulse),
     33 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary),
         pulse: pulse
       ),
     34 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (secondary: secondary),
         pulse: pulse
       ),
     35 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, secondary: secondary),
         pulse: pulse
       ),
     36 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (tertiary: tertiary),
         pulse: pulse
       ),
     37 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, tertiary: tertiary),
         pulse: pulse
       ),
     38 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (secondary: secondary, tertiary: tertiary),
         pulse: pulse
       ),
     39 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, secondary: secondary, tertiary: tertiary),
         pulse: pulse
       ),
     40 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (callbacks: callbacks),
         pulse: pulse
       ),
     41 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, callbacks: callbacks),
         pulse: pulse
       ),
     42 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (secondary: secondary, callbacks: callbacks),
         pulse: pulse
       ),
     43 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, secondary: secondary, callbacks: callbacks),
         pulse: pulse
       ),
     44 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (tertiary: tertiary, callbacks: callbacks),
         pulse: pulse
       ),
     45 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, tertiary: tertiary, callbacks: callbacks),
         pulse: pulse
       ),
     46 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (
           secondary: secondary,
@@ -463,6 +522,7 @@
         pulse: pulse
       ),
     47 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (
           primary: primary,
@@ -472,86 +532,100 @@
         ),
         pulse: pulse
       ),
-    48 =&gt; (parent: parent, pulse: pulse),
+    48 =&gt; (shape: shape, parent: parent, pulse: pulse),
     49 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary),
         parent: parent,
         pulse: pulse
       ),
     50 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (secondary: secondary),
         parent: parent,
         pulse: pulse
       ),
     51 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, secondary: secondary),
         parent: parent,
         pulse: pulse
       ),
     52 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (tertiary: tertiary),
         parent: parent,
         pulse: pulse
       ),
     53 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, tertiary: tertiary),
         parent: parent,
         pulse: pulse
       ),
     54 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (secondary: secondary, tertiary: tertiary),
         parent: parent,
         pulse: pulse
       ),
     55 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, secondary: secondary, tertiary: tertiary),
         parent: parent,
         pulse: pulse
       ),
     56 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (callbacks: callbacks),
         parent: parent,
         pulse: pulse
       ),
     57 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, callbacks: callbacks),
         parent: parent,
         pulse: pulse
       ),
     58 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (secondary: secondary, callbacks: callbacks),
         parent: parent,
         pulse: pulse
       ),
     59 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, secondary: secondary, callbacks: callbacks),
         parent: parent,
         pulse: pulse
       ),
     60 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (tertiary: tertiary, callbacks: callbacks),
         parent: parent,
         pulse: pulse
       ),
     61 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (primary: primary, tertiary: tertiary, callbacks: callbacks),
         parent: parent,
         pulse: pulse
       ),
     62 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (
           secondary: secondary,
@@ -562,6 +636,7 @@
         pulse: pulse
       ),
     63 =&gt; (
+        shape: shape,
         cycleChecker: FinalBox&lt;CycleChecker&gt;(),
         root: (
           primary: primary,
@@ -602,7 +677,7 @@
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

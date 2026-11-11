@@ -106,32 +106,6 @@ downstream observers.</li>
 </ol>
 <p>This is the same reactive pipeline you know from <a href="../mitosis/Cell-class.html">Cell</a>, extended to
 collections.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Initial population is silent</strong>: When you create a tissue with initial
-elements (e.g., <code>TissueList([1, 2, 3])</code>), <strong>no</strong> <a href="../mitosis/TissuePulse-class.html">TissuePulse</a> is emitted.
-Observers only see events for mutations that happen <em>after</em> creation.</li>
-<li><strong>Deputies are zero‑copy</strong>: Calling <code>.deputy()</code> or <code>.unmodifiable</code> on a
-tissue creates a new view that shares the <strong>same</strong> physical storage.
-No data is duplicated – changes to the source are immediately visible.</li>
-<li><strong>Unmodifiable is live</strong>: The view returned by <code>.unmodifiable</code> is <strong>not
-a snapshot</strong>. It stays in sync with the source indefinitely.</li>
-<li><strong>Deep immutability</strong>: If <code>unmodifiableElement</code> is <code>true</code> (the default
-in factories), any child <a href="../mitosis/Cell-class.html">Cell</a> elements are automatically projected as
-their <code>.unmodifiable</code> deputies – no "side‑door" mutations.</li>
-<li><strong>Validation per element</strong>: When you add multiple elements via
-<code>addAll</code>, each element is validated individually. Invalid ones are
-silently skipped – they do <strong>not</strong> fail the entire operation.</li>
-<li><strong>Bounded queues</strong>: For <a href="../mitosis/TissueQueue-class.html">TissueQueue</a>, setting a <code>capacity</code> creates a
-circular buffer. When the queue is full, adding a new element drops the
-oldest one silently.</li>
-<li><strong>Equality</strong>: <code>Tissue</code> instances compare like normal Dart collections.
-<code>list1 == list2</code> compares the content. Deputies and their principals
-are considered equal.</li>
-<li><strong>Async operations</strong>: The <code>.async</code> getter provides a <code>Future</code>‑based API
-for non‑blocking mutations, ideal for network callbacks or background
-tasks.</li>
-</ul>
 <h3 id="example-a-validated-task-list">Example: A validated task list</h3>
 <pre class="language-dart"><code class="language-dart">final tasks = TissueList&lt;Task&gt;(
   testRule: TestTissue&lt;Task, TissueList&lt;Task&gt;&gt;(
@@ -169,6 +143,19 @@ for the concrete collection types.</li>
 <ul>
 <li><code>E</code> – The type of elements held within the collection.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Tissue — the governed-book interface. Not a Cell factory, not a Flow operator.
+<strong>When to use:</strong> the shared surface of <code>TissueList</code> / <code>TissueSet</code> / <code>TissueMap</code> / <code>TissueQueue</code> / <code>TissueValue</code> — every book is a Cell under the hood with its own lock and collection pulses.
+<strong>When NOT to use:</strong> as a book directly — pick one of the five concrete types; a plain Dart <code>List</code> is not a book.
+<strong>Live signature:</strong> <code>abstract interface class Tissue&lt;E&gt; implements Cell, Iterable&lt;E&gt;</code> — pinned at <code>cell_tissue: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell</code> (graph node; Tissue adds collection semantics and <code>TestTissue</code>).
+<strong>Guide:</strong> <code>HowTo-Mitose-Tissue.md</code> §2 "Examine all five collections against the BRD" (#tissue-catalog)
+<strong>Example:</strong> <code>example/cell_tissue_example.dart</code>
+<strong>Cross-layer:</strong> entry is <code>Cell.ingress</code>; the decision is <code>cell_flow</code>; only <code>Cell.observe</code> may write books.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final book = TissueList.of([1, 2, 3]);
+print(book.map((e) =&gt; e * 2).toList()); // [2, 4, 6]
+</code></pre>
 </section>
 
 
@@ -190,6 +177,7 @@ for the concrete collection types.</li>
         
   <dt>Available extensions</dt>
   <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="../mitosis/ApplyCommandDSL.html">ApplyCommandDSL</a></li>
       <li><a href="../mitosis/CellFlowOperators.html">CellFlowOperators</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/EnumByName.html">EnumByName</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/FutureIterable.html">FutureIterable</a></li>
@@ -578,8 +566,8 @@ downstream observers and does not broadcast pulses.
 </dd>
 
         <dt id="apply" class="callable">
-  <span class="name"><a href="../mitosis/Tissue/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../mitosis/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
-    <span class="returntype parameter">&#8594; dynamic</span>
+  <span class="name"><a href="../mitosis/Tissue/apply.html">apply</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="apply-param-command"><span class="type-annotation"><a href="../mitosis/ApplyCommand.html">ApplyCommand</a></span> <span class="parameter-name">command</span>, {</span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../mitosis/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span>
   </span>
   
 
@@ -669,6 +657,23 @@ metadata attached.
 <dd class="inherited">
   A view of this iterable as an iterable of <code>R</code> instances.
   <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="command" class="callable">
+  <span class="name"><a href="../mitosis/ApplyCommandDSL/command.html">command</a></span><span class="signature">(<wbr><span class="parameter" id="command-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../mitosis/ApplyCommandRunner-class.html">ApplyCommandRunner</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/Cell-class.html">Cell</a>,
+        provided by the <a href="../mitosis/ApplyCommandDSL.html">ApplyCommandDSL</a> extension</span>
+      </p>
+  Begins assembling a command that invokes <code>function</code> on this cell.
+  
 
 </dd>
 
@@ -921,6 +926,19 @@ element of the collection with an existing value
 
 </dd>
 
+        <dt id="map" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/map.html">map</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="map-param-toElement"><span class="type-annotation">T</span> <span class="parameter-name">toElement</span>(<span class="parameter" id="param-e"><span class="type-annotation">E</span> <span class="parameter-name">e</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The current elements of this iterable modified by <code>toElement</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="map" class="callable">
   <span class="name"><a href="../mitosis/CellFlowOperators/map.html">map</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="map-param-project"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="map-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
     <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
@@ -936,19 +954,6 @@ element of the collection with an existing value
   Materializes a <strong>Projective Evolution Gate</strong>—a fundamental instruction
 designed to transform stimulus payloads as they traverse the topography.
   
-
-</dd>
-
-        <dt id="map" class="callable inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/map.html">map</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="map-param-toElement"><span class="type-annotation">T</span> <span class="parameter-name">toElement</span>(<span class="parameter" id="param-e"><span class="type-annotation">E</span> <span class="parameter-name">e</span></span>)</span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
-  </span>
-  
-
-</dt>
-<dd class="inherited">
-  The current elements of this iterable modified by <code>toElement</code>.
-  <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -1339,7 +1344,7 @@ its internal implementation types and storage.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

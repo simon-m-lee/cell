@@ -80,12 +80,6 @@ info) that must be audited and handled with extra care.</p>
 <p>The factory populates all necessary provenance dimensions to ensure
 compliance. The resulting pulse will be fully audited and carry the
 required legal markers.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>auditLevel</code> is forced to <code>full</code> – you cannot reduce it.</li>
-<li>The <code>strategy</code> is set to <code>deterministic</code> to avoid probabilistic
-reasoning on regulated data.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final context = PulseContext.regulated(
   actor: 'Payment_Processor_B',
@@ -160,7 +154,7 @@ reasoning on regulated data.</li>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

@@ -95,17 +95,6 @@ while providing a local override for the <a href="../../cell_tissue/NucleusBase/
 <li><strong>Termination</strong>: The chain ends when this getter returns <code>null</code> –
 that's the "root" nucleus.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The type is overridden to <code>TissueSetNucleusBase&lt;E, C&gt;?</code> – a covariant
-override that ensures you get a properly typed principal when you need
-to access set‑specific methods (like <code>containerType</code>).</li>
-<li>Even though the getter is <code>public</code>, it's intended for internal
-framework use. Mutating or replacing the principal after construction
-is not supported – the nucleus is immutable.</li>
-<li>The principal chain determines the <code>containerType</code> and all other
-structural properties; a deputy cannot change the uniqueness strategy.</li>
-</ul>
 <h3 id="example-internal">Example (Internal)</h3>
 <pre class="language-dart"><code class="language-dart">final set = TissueSet&lt;int&gt;();
 final deputy = set.deputy(testRule: TestTissue.readOnly);
@@ -152,7 +141,7 @@ TissueSetNucleusBase&lt;E, C&gt;? get principal =&gt;
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

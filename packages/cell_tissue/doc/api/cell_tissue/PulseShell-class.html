@@ -85,18 +85,6 @@ validation logic against the receptor's authority tokens.</li>
 <li><strong>Kernel Release</strong>: If authorized, the internal kernel is released for
 the transformation phase; otherwise, the interaction is <strong>Neutralized</strong>.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Flyweight Strategy</strong>: Implemented as a <code>const</code> class to ensure zero-cost
-projections during high-frequency reactive waves.</li>
-<li><strong>Terminal Projection</strong>: Unlike a standard <a href="../cell_tissue/Pulse-class.html">Pulse</a>, a shell is non-composite
-and cannot be evolved (using <a href="../cell_tissue/PulseShell/evolve.html">evolve</a> or <code>+</code> will throw an <a href="https://api.flutter.dev/flutter/dart-core/UnsupportedError-class.html">UnsupportedError</a>).</li>
-<li><strong>Causal Provenance Masking</strong>: Suppresses internal <a href="../cell_tissue/PulseShell/trace.html">trace</a> and <a href="../cell_tissue/PulseShell/lineage.html">lineage</a>
-metadata to prevent information leakage before the handshake is complete.</li>
-<li><strong>Fail-Closed Policy</strong>: If the scrutiny logic encounters an error or
-insufficient authority, the shell defaults to a neutralized state
-(returning <code>null</code>).</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">void onPulse(PulseShell&lt;int, MyReceptor&gt; shell, MyReceptor receptor) {
   // Accessing payload directly returns null before the handshake
@@ -1018,8 +1006,8 @@ collection.
 
 </dt>
 <dd>
-  Appends a diagnostic stage to the pulse's causal trace without branching
-the causal chain.
+  Appends <code>step</code> to the pulse's causal trace without branching the
+causal chain.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -1087,7 +1075,7 @@ the causal chain.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

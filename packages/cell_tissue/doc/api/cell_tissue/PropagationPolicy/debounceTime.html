@@ -84,11 +84,6 @@ If a new pulse arrives before the timer expires:</p>
 <li>The timer is reset to the full <a href="../../cell_tissue/PropagationPolicy/debounceTime.html">debounceTime</a>.</li>
 <li>The new pulse becomes the candidate for the next broadcast.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>Only effective for <code>debounced</code> and <code>debounceLeading</code> strategies.</li>
-<li>Defaults to <strong>150 milliseconds</strong> if not explicitly set.</li>
-</ul>
 <h3 id="returns">Returns:</h3>
 <p>A <a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a> representing the required period of inactivity before
 signal propagation.</p>
@@ -128,7 +123,7 @@ signal propagation.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -90,18 +90,6 @@ graph share the same starting point.</li>
 Every subsequent evolution (via <a href="../../cell/PulseBase/evolve.html">evolve</a>, <a href="../../cell/PulseBase/withStep.html">withStep</a>, or <a href="https://api.flutter.dev/flutter/dart-core/Iterable/map.html">map</a>) inherits
 this reference. It is immutable and persists throughout the entire
 lifecycle of the signal.</p>
-<h3 id="nonobvious-roots-are-not-aware-of-descendants">Non‑obvious: Roots are not aware of descendants</h3>
-<p>Causal tracking in the cell graph is <strong>backwards-looking</strong>. A pulse knows
-its parent, but a parent does not know its children.</p>
-<p>Consequently, calling <code>root.trace</code> (or any lineage inspection) will only
-show the history of the root itself—which is typically empty. It will
-<strong>not</strong> show the steps or transformations added by descendants. To see
-the "complete story" of a signal's evolution, you must inspect the
-latest pulse in the chain.</p>
-<h3 id="nonobvious-self-referential-roots">Non‑obvious: Self-referential roots</h3>
-<p>For an original pulse (the start of a chain), <code>pulse.root</code> returns the
-pulse itself. For any evolved pulse, <code>pulse.root</code> points back to that
-first instance.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final original = Pulse&lt;int&gt;(1);
 final evolved = original
@@ -161,7 +149,7 @@ PulseBase&lt;P&gt; get root {
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

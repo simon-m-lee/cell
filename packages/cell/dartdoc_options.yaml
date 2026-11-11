@@ -26,9 +26,12 @@ dartdoc:
     "Demo: aircraft":
       markdown: example/aircraft-gate-turnaround-WalkThrough.md
       displayName: Demo:aircraft
-    "Demo: hotel":
-      markdown: example/hotel-front-desk-checkin-WalkThrough.md
-      displayName: Demo:hotel
+    "Transactions":
+      markdown: guide/HowTo-Transaction.md
+      displayName: "Transactions"
+    "Apply + Transactions":
+      markdown: guide/HowTo-Cell.apply.md
+      displayName: "Apply + Transactions"
     "Pulse":
       markdown: guide/HowTo-Pulse.md
       displayName: Pulse
@@ -70,25 +73,15 @@ dartdoc:
     "Ephemeral Policy":
       markdown: guide/HowTo-EphemeralPolicy.md
       displayName: "Advanced · Ephemeral Policy"
-    "Transactions":
-      markdown: guide/HowTo-Transaction.md
-      displayName: "Advanced · Transactions"
-    "txApply":
-      markdown: guide/HowTo-TransactionOnApply.md
-      displayName: "Advanced · txApply"
-
-    # ── Examples ──────────────────────────────────────────────────
-    "asyncMap":
-      markdown: example/async_map_demo.dart
-      displayName: "asyncMap"
 
   categoryOrder:
     - "Features"
     - "Architecture"
     - "Getting Started"
     - "Core 16 Operators"
+    - "Transactions"
+    - "Apply + Transactions"
     - "Demo: aircraft"
-    - "Demo: hotel"
     - "Pulse"
     - "Signals & Synapses"
     - "Testing & Validation"
@@ -102,6 +95,3 @@ dartdoc:
     - "Nucleus"
     - "Propagation Policy"
     - "Ephemeral Policy"
-    - "Transactions"
-    - "txApply"
-    - "asyncMap"

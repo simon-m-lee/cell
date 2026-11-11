@@ -95,19 +95,6 @@ the expected output type.</li>
 <li>If the instruction was created with <a href="../../mitosis/Instruction/Instruction.future.html">Instruction.future</a>, the
 <code>future</code> callback is provided to enable asynchronous continuation.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Safety Boundary</strong>: The execution is protected. Any exception is
-caught and logged to the pulse's forensic trace. In the event of a
-failure, the method returns <code>null</code> to safely terminate the signal
-and protect the stability of the graph.</li>
-<li><strong>Synchronous Execution</strong>: This method executes synchronously and
-returns immediately. It does not await any <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>.</li>
-<li><strong>Execution Order</strong>: The optional <code>future</code> callback is provided only
-to instructions created with <a href="../../mitosis/Instruction/Instruction.future.html">Instruction.future</a>.</li>
-<li><strong>Efficiency</strong>: It uses a linear execution path to minimize overhead
-in high-frequency signal graphs.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>pulse</code>: The incoming pulse to transform.</li>
@@ -184,7 +171,7 @@ O? call(I pulse,
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

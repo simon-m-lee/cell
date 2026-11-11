@@ -53,6 +53,12 @@
 </h1></div>
 
     
+<section class="desc markdown">
+  <p>Emitted each time a compensation attempt fails.</p>
+<p>One event is emitted <strong>per failed compensation</strong>, after retries have been
+exhausted for that command. Compensations run in reverse-staging order,
+so events may arrive interleaved with subsequent compensation attempts.</p>
+</section>
 
 
     <section>
@@ -104,7 +110,7 @@
 
 </dt>
 <dd>
-  
+  Details of the failed compensation.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -218,7 +224,7 @@
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

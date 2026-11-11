@@ -622,10 +622,10 @@ class GridDemandResponseHarness {
   late final GridDecisionInstruction warnGate;
 
   /// The SHED gate handle.
-  FlowHandle<Pulse<dynamic>>? shedHandle;
+  FlowHandle? shedHandle;
 
   /// The WARN gate handle.
-  FlowHandle<Pulse<dynamic>>? warnHandle;
+  FlowHandle? warnHandle;
 
   /// The SHED gate cell — emits `Pulse<Action>` when the SHED chain
   /// lets a shed through.

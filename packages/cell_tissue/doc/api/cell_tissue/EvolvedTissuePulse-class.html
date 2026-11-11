@@ -80,16 +80,6 @@ entire chain.</li>
 <li>The payload is inherited from the root – evolved events don't duplicate
 data, they just add a new layer of metadata.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>An evolved event is <strong>not</strong> a batch – it's a single event with a history.
-For batching multiple independent events, use <a href="../cell_tissue/CollectiveTissuePulse-class.html">CollectiveTissuePulse</a>.</li>
-<li>The <a href="../cell_tissue/EvolvedTissuePulse/parent.html">parent</a> is never <code>null</code> for an evolved event – the root is the only
-one without a parent.</li>
-<li>When you call <a href="../cell_tissue/TissuePulse/evolve.html">evolve</a> again, you get a new <a href="../cell_tissue/EvolvedTissuePulse-class.html">EvolvedTissuePulse</a> that
-links back to the previous one, building a chain.</li>
-<li>The event itself is still immutable – evolution creates a new instance.</li>
-</ul>
 <h3 id="example-tracing-a-value-change">Example: tracing a value change</h3>
 <pre class="language-dart"><code class="language-dart">final evolved = originalEvent
     .withStep('validation')
@@ -1059,7 +1049,7 @@ collection.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

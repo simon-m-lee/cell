@@ -116,7 +116,8 @@ counterparts of the Tissue demos. Pipeline 1 produced:
 
 There was no residual ledger, no always-on test file, no comprehension
 check, no change mode, and no version plate. Atomic work used whatever
-the harness wrote; `Cell.transaction` was not yet deferred.
+the harness wrote; `Cell.transaction` had not yet been deferred to
+`Cell.txApply`.
 
 ### What Pipeline 2 produces
 

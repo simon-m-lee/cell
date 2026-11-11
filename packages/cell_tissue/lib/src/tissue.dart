@@ -56,31 +56,6 @@ part of '../cell_tissue.dart';
 /// This is the same reactive pipeline you know from [Cell], extended to
 /// collections.
 ///
-/// ### Non‑obvious
-/// - **Initial population is silent**: When you create a tissue with initial
-///   elements (e.g., `TissueList([1, 2, 3])`), **no** [TissuePulse] is emitted.
-///   Observers only see events for mutations that happen *after* creation.
-/// - **Deputies are zero‑copy**: Calling `.deputy()` or `.unmodifiable` on a
-///   tissue creates a new view that shares the **same** physical storage.
-///   No data is duplicated – changes to the source are immediately visible.
-/// - **Unmodifiable is live**: The view returned by `.unmodifiable` is **not
-///   a snapshot**. It stays in sync with the source indefinitely.
-/// - **Deep immutability**: If `unmodifiableElement` is `true` (the default
-///   in factories), any child [Cell] elements are automatically projected as
-///   their `.unmodifiable` deputies – no "side‑door" mutations.
-/// - **Validation per element**: When you add multiple elements via
-///   `addAll`, each element is validated individually. Invalid ones are
-///   silently skipped – they do **not** fail the entire operation.
-/// - **Bounded queues**: For [TissueQueue], setting a `capacity` creates a
-///   circular buffer. When the queue is full, adding a new element drops the
-///   oldest one silently.
-/// - **Equality**: `Tissue` instances compare like normal Dart collections.
-///   `list1 == list2` compares the content. Deputies and their principals
-///   are considered equal.
-/// - **Async operations**: The `.async` getter provides a `Future`‑based API
-///   for non‑blocking mutations, ideal for network callbacks or background
-///   tasks.
-///
 /// ### Example: A validated task list
 /// ```dart
 /// final tasks = TissueList<Task>(
@@ -128,6 +103,21 @@ part of '../cell_tissue.dart';
 ///
 /// ### Type Parameters:
 /// * [E] – The type of elements held within the collection.
+///
+/// ### AI Agent Guide
+/// **Layer:** Tissue — the governed-book interface. Not a Cell factory, not a Flow operator.
+/// **When to use:** the shared surface of `TissueList` / `TissueSet` / `TissueMap` / `TissueQueue` / `TissueValue` — every book is a Cell under the hood with its own lock and collection pulses.
+/// **When NOT to use:** as a book directly — pick one of the five concrete types; a plain Dart `List` is not a book.
+/// **Live signature:** `abstract interface class Tissue<E> implements Cell, Iterable<E>` — pinned at `cell_tissue: 1.0.0`
+/// **Do NOT confuse with:** `Cell` (graph node; Tissue adds collection semantics and `TestTissue`).
+/// **Guide:** `HowTo-Mitose-Tissue.md` §2 "Examine all five collections against the BRD" (#tissue-catalog)
+/// **Example:** `example/cell_tissue_example.dart`
+/// **Cross-layer:** entry is `Cell.ingress`; the decision is `cell_flow`; only `Cell.observe` may write books.
+/// **Minimal compilable example**
+/// ```dart
+/// final book = TissueList.of([1, 2, 3]);
+/// print(book.map((e) => e * 2).toList()); // [2, 4, 6]
+/// ```
 abstract interface class Tissue<E> implements Cell, Iterable<E> {
 
   /// An element has been added to the collection.
@@ -440,14 +430,6 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
   /// - If all parameters are left at their defaults, the method returns `this`
   ///   – no proxy is created.
   ///
-  /// ### Non‑obvious
-  /// - The deputy's [testRule] is layered **on top** of the principal's rule.
-  ///   You can only narrow permissions, never expand them.
-  /// - Deputies are logically equal to their principal: `deputy == principal`
-  ///   is `true`, so they work seamlessly in [Set]s and [Map]s.
-  /// - The deputy gets its own independent [Synapses] registry by default,
-  ///   so it can have its own observers separate from the principal.
-  ///
   /// ### Parameters
   /// - [context]: [DeputyContext] defining the authority tier.
   /// - [testRule]: Additional [TestTissue] validation, layered on top.
@@ -561,67 +543,28 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
 
   /// Executes a governed mutation on this tissue through the command gateway.
   ///
-  /// This is the foundational method for all structural changes (e.g., adding
-  /// elements, clearing the collection). It ensures that every action is
-  /// audited, validated by the [testRule], and correctly linked in the
-  /// forensic causal chain.
-  ///
-  /// ### When to use
-  /// *   **Custom Mutations**: When implementing specialized collection
-  ///     operations not covered by the standard `add`/`remove` methods.
-  /// *   **Transaction Logic**: When you need to bundle operations with
-  ///     [compensate] logic for self-healing or undo-capabilities.
-  /// *   **Internal Logic**: Used primarily by the framework's high-level
-  ///     API to route mutations through the security and auditing gates.
+  /// This is the forensic command-model entry point for all structural
+  /// changes (e.g., adding elements, clearing the collection). The command
+  /// routes through the tissue mutation dispatch engine, is validated by the
+  /// [testRule], and returns an auditable [ApplyOutcome].
   ///
   /// ### How it works
-  /// 1.  **Whitelist Check**: The provided [function] is verified against the
-  ///     [modifiable] whitelist. If the function is not registered as an
-  ///     authorized mutation, it is rejected.
-  /// 2.  **Integrity Validation**: The [testRule] (DNA) evaluates the action
-  ///     request. If the rule rejects the stimulus, the method returns `null`
-  ///     and the state remains unchanged.
-  /// 3.  **Command Execution**: The function is invoked within the tissue's
-  ///     [Lock] boundary to ensure atomic state transitions.
-  /// 4.  **Forensic Auditing**: The mutation is recorded as a step in the
-  ///     resulting [Pulse.trace], identifying the logic that caused the
-  ///     structural change.
-  ///
-  /// ### Forensic Integrity
-  /// Unlike standard Dart collections where mutations are silent, `apply`
-  /// ensures that every change creates an **Audit Milestone**. If this action
-  /// is part of a larger transaction, the [tx] scope ensures that multiple
-  /// `apply` calls are batched into a single atomic propagation wave.
-  ///
-  /// ### Non‑obvious
-  /// *   **Compensation**: The [compensate] function provides a "Reversal
-  ///     Blueprint." If a subsequent step in a transaction fails, the
-  ///     framework can invoke this logic to restore the tissue to its
-  ///     primordial state.
-  /// *   **Deputy Restrictions**: If called on a read-only deputy (like
-  ///     [unmodifiable]), `apply` will always return `null` or throw an
-  ///     [UnsupportedError], as the whitelist for deputies is empty.
-  ///
-  /// ### Parameters:
-  /// - [function]: The specific mutation logic to execute.
-  /// - [positionalArguments]: Arguments passed to the mutation function.
-  /// - [namedArguments]: Named arguments passed to the mutation function.
-  /// - [tx]: Optional [ApplyTransactionScope] for batching and atomic commits.
-  /// - [compensate]: Logic used to reverse this mutation in case of failure.
+  /// 1. **Capability Scrutiny**: The command's function is checked against
+  ///    the [modifiable] whitelist; the receipt's `vetted` flag records the
+  ///    result.
+  /// 2. **Transaction Staging**: With a [tx] scope the command is enqueued
+  ///    via [ApplyTransactionScope.enqueueCommand] and the outcome is
+  ///    [ApplyStaged].
+  /// 3. **Dispatch Execution**: Without a scope the command is routed through
+  ///    the collection-specific dispatch engine; a rejected mutation maps to
+  ///    [ApplyRejected], a successful one to [ApplyAccepted].
   ///
   /// ### Returns:
-  /// The result of the mutation (usually the return value of [function]),
-  /// or `null` if the action was rejected by the [testRule].
+  /// An [ApplyOutcome] carrying the mutation result and a forensic
+  /// [ApplyReceipt].
   @override
-  dynamic apply(
-    Function function, {
-    List? positionalArguments,
-    Map<Symbol, dynamic>? namedArguments,
+  FutureOr<ApplyOutcome<R>> apply<R>(ApplyCommand command, {
     ApplyTransactionScope? tx,
-    Function? compensate,
-    List? compensatePositional,
-    Map<Symbol, dynamic>? compensateNamed,
-    Cell? compensateCell,
   });
 
   /// The exhaustive whitelist of functions that can be invoked via `apply`.
@@ -692,24 +635,6 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
 ///   mutations – you cannot get a mutable reference to a child cell through
 ///   a read‑only collection.
 ///
-/// ### Non‑obvious
-/// - **It is not a snapshot**: Unlike `List.unmodifiable` in Dart, this view
-///   is **live**. If the source changes, the view changes with it. This is
-///   essential for reactive UIs that need to stay in sync.
-/// - **Equality**: An unmodifiable view is logically equal to its source.
-///   `source == source.unmodifiable` is `true` (in terms of `==`), and they
-///   share the same `hashCode`. This means they can be used interchangeably
-///   in [Set]s and [Map]s.
-/// - **Recursive projection**: If you iterate over an unmodifiable view and
-///   the elements are themselves [Cell]s, you receive **unmodifiable deputies**
-///   of those cells. This ensures that deep immutability is enforced.
-/// - **Own observer registry**: The unmodifiable view has its own
-///   [Synapses] registry. Observers attached to the view are notified of
-///   changes, but they are separate from observers attached to the source.
-/// - **Terminal behaviour**: An unmodifiable view is not necessarily
-///   terminal. It can still have downstream observers, and it participates
-///   in propagation waves just like any other cell.
-///
 /// ### Example: Read‑only UI projection
 /// ```dart
 /// final source = TissueList<String>(['Apple', 'Banana']);
@@ -743,6 +668,22 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
 ///   [UnmodifiableTissueQueue], [UnmodifiableTissueValue] – concrete
 ///   implementations for each collection type.
 /// - [Unmodifiable] – the marker interface for all read‑only proxies.
+///
+/// ### AI Agent Guide
+/// **Layer:** Tissue — the read-only book surface. Not a Cell factory, not a Flow operator.
+/// **When to use:** COMPLY / council views — `book.unmodifiable` is a **live** zero-copy view, not a snapshot; use `.deputy(testRule: …)` for a narrowed write set.
+/// **When NOT to use:** a daily PDF roll-up (that is a harness **read**, not a view); never keep two books "for compliance".
+/// **Live signature:** `abstract interface class UnmodifiableTissue<E> implements Tissue<E>, Unmodifiable` — pinned at `cell_tissue: 1.0.0`
+/// **Do NOT confuse with:** `Tissue` itself (the writable book; this is its read-only surface).
+/// **Guide:** `HowTo-Mitose-Tissue.md` §4 "Deputies and .unmodifiable" (#tissue-deputies)
+/// **Example:** `example/cell_tissue_example.dart`
+/// **Cross-layer:** the Cell-layer equivalent is `Cell.unmodifiable`.
+/// **Minimal compilable example**
+/// ```dart
+/// final book = TissueList.of([1, 2]);
+/// final ro = book.unmodifiable;
+/// print(ro.length); // 2
+/// ```
 abstract interface class UnmodifiableTissue<E>
     implements Tissue<E>, Unmodifiable {
   /// Creates a permanently read‑only reactive collection from a fixed set of elements.
@@ -775,17 +716,6 @@ abstract interface class UnmodifiableTissue<E>
   /// - The tissue is fully reactive: it can be observed, it participates in the
   ///   graph, and it can be used as a source for derived tissues. It simply
   ///   blocks all mutations.
-  ///
-  /// ### Non‑obvious
-  /// - The collection is **not a snapshot** – it is a live, reactive node.
-  ///   However, because the data is fixed, it will never emit change pulses.
-  /// - The provided [nucleus] parameter allows you to customise the context,
-  ///   synapses, and other governance aspects even for an immutable collection.
-  ///   If omitted, a default read‑only nucleus is used.
-  /// - The [unmodifiableElement] flag only affects the behaviour when you access
-  ///   elements *through this collection*. If you hold a direct reference to a
-  ///   mutable child cell, it remains mutable – the collection only projects
-  ///   it as unmodifiable when you retrieve it via its API.
   ///
   /// ### Example: Static configuration
   /// ```dart
@@ -845,14 +775,6 @@ abstract interface class UnmodifiableTissue<E>
   /// - The view has its own [Synapses] registry, so observers attached to the
   ///   view receive pulses independently of observers attached to the source.
   ///
-  /// ### Non‑obvious
-  /// - The view is **not a snapshot** – it stays in sync with the source.
-  /// - Equality (`==`) between the view and the source returns `true` – they
-  ///   are considered the same logical entity.
-  /// - If you override the [context], the view runs with that authority tier,
-  ///   which affects scheduling and security checks for any observers attached
-  ///   to the view.
-  ///
   /// ### Example: UI‑safe projection
   /// ```dart
   /// final source = TissueList<String>(['A', 'B']);
@@ -904,16 +826,6 @@ abstract interface class UnmodifiableTissue<E>
   ///   atomically during construction, ensuring a consistent initial state.
   /// - If [unmodifiableElement] is `true` (the default), child cells are
   ///   projected as unmodifiable when accessed.
-  ///
-  /// ### Non‑obvious
-  /// - The nucleus is **not** automatically cloned; if it is already activated
-  ///   (bound to another tissue), the factory will clone it internally to avoid
-  ///   sharing locks and synapses. This is handled by the underlying
-  ///   `Cell.fromNucleus` machinery.
-  /// - The [unmodifiableElement] flag is applied *in addition* to whatever
-  ///   projection rules the nucleus might have. It is a layer of safety.
-  /// - The resulting tissue is live and can be observed; it just cannot be
-  ///   mutated through this handle.
   ///
   /// ### Example: Reusing a validated blueprint
   /// ```dart

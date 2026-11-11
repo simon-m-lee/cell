@@ -73,7 +73,7 @@
     
 <section class="desc markdown">
   <p>Defines the exhaustive whitelist of functions and commands authorized for
-execution on this node via the dynamic <a href="../../cell_tissue/TissueSetMixin/apply.html">apply</a> method.</p>
+execution on this node via the dynamic <a href="../../cell_tissue/TissueBase/apply.html">apply</a> method.</p>
 <p>This property is a foundational component of the framework's <strong>Command
 Pattern</strong> and <strong>Action-Based Security</strong> architecture. It acts as a
 reflective <strong>Capability Manifest</strong>, declaring which specific operations
@@ -83,7 +83,7 @@ are exposed for external or dynamic manipulation on this <a href="../../cell_tis
 <ul>
 <li><strong><a href="../../cell_tissue/Cell/modifiable.html">Cell.modifiable</a> (The Authority)</strong>: Provides the set of "Keys" or
 capabilities that allow a caller to trigger state transitions via
-the <a href="../../cell_tissue/TissueSetMixin/apply.html">apply</a> gateway.</li>
+the <a href="../../cell_tissue/TissueBase/apply.html">apply</a> gateway.</li>
 <li><strong><a href="../../cell_tissue/Cell/unmodifiable.html">Cell.unmodifiable</a> (The Egress)</strong>: Produces a <a href="../../cell_tissue/Cell-class.html">Cell</a> projection where
 this <a href="../../cell_tissue/TissueSetMixin/modifiable.html">modifiable</a> list is <strong>explicitly nullified</strong>. While the deputy
 retains the same state, it possesses zero capabilities from this
@@ -91,7 +91,7 @@ manifest, ensuring it remains read-only.</li>
 </ul>
 <h3 id="when-to-use">When to use</h3>
 <ul>
-<li><strong>Internal Orchestration</strong>: Used by the <a href="../../cell_tissue/TissueSetMixin/apply.html">apply</a> method to verify if a
+<li><strong>Internal Orchestration</strong>: Used by the <a href="../../cell_tissue/TissueBase/apply.html">apply</a> method to verify if a
 requested command is within the cell's authorized perimeter.</li>
 <li><strong>Security Auditing</strong>: Checking the surface area of a reactive node to
 determine what mutations are possible at runtime.</li>
@@ -100,7 +100,7 @@ automatically render buttons or controls that map to whitelisted commands.</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
 <ol>
-<li><strong>Capability Matching</strong>: When <a href="../../cell_tissue/TissueSetMixin/apply.html">apply</a> is called with a function
+<li><strong>Capability Matching</strong>: When <a href="../../cell_tissue/TissueBase/apply.html">apply</a> is called with a function
 reference, the cell checks if that reference exists within this <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a>.</li>
 <li><strong>Integrity Gate</strong>: Even if a function is in this manifest, the
 <a href="../../cell_tissue/TestCell-class.html">TestCell</a> (Integrity Gate) may still reject the specific execution
@@ -109,15 +109,6 @@ context or payload.</li>
 this getter is hardcoded to return an empty collection, effectively
 disabling the command pattern gateway.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Reference Equality</strong>: Functions are typically compared by reference.
-Ensure that the functions passed to <a href="../../cell_tissue/TissueSetMixin/apply.html">apply</a> are the exact instances
-defined in this manifest.</li>
-<li><strong>Flyweight Optimization</strong>: The manifest is often stored using
-optimized records to minimize memory overhead when managing thousands
-of cells.</li>
-</ul>
 <h3 id="returns">Returns:</h3>
 <p>An <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> of <code>Function</code> references that represent the authorized
 mutation surface of this node.</p>
@@ -127,7 +118,7 @@ mutation surface of this node.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Iterable&lt;Function&gt; get modifiable =&gt; &lt;Function&gt;{apply};</code></pre>
+Iterable&lt;Function&gt; get modifiable =&gt; &lt;Function&gt;{apply&lt;dynamic&gt;};</code></pre>
 </section>
 
   </section>
@@ -157,7 +148,7 @@ Iterable&lt;Function&gt; get modifiable =&gt; &lt;Function&gt;{apply};</code></p
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

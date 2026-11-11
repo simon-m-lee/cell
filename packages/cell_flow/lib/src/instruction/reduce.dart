@@ -102,18 +102,6 @@ Pulse? _typedOrError<S>(
 /// 3. The snapshot is shared between the instruction and external code.
 /// 4. You can read the snapshot at any time to inspect the current state.
 ///
-/// ### Non‑obvious
-/// - **Volatile**: The snapshot is not persisted across process restarts.
-/// - **In-Memory**: The state lives only in the current process.
-/// - **Shared State**: The snapshot is mutable and shared with the instruction.
-/// - **Generation Tracking**: The [generation] helps detect updates.
-/// - **Not a Store**: This is not a database or cache. Use [Cell.state] for
-///   persistent state.
-/// - **Mutable**: The snapshot is mutable, allowing external updates.
-///   Be careful not to mutate it unexpectedly.
-/// - **Thread Safety**: Not thread-safe by default. Use synchronization
-///   if accessing from multiple isolates.
-///
 /// ### Example: Inspecting State
 /// ```dart
 /// final snapshot = ReduceSnapshot<int>(0);
@@ -210,24 +198,6 @@ class ReduceSnapshot<A> {
 /// 5. The new value is emitted as a pulse.
 /// 6. The [snapshot] can be read at any time to inspect the state.
 /// 7. Each emitted value gets the step `'Reduce'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Volatile State**: The state is in-memory only. It is not
-///   persisted across process restarts.
-/// - **Type Safety**: The instruction is generic over [S] (input type)
-///   and [A] (accumulator type), ensuring compile-time type safety.
-/// - **Error Handling**: Errors in [reduce] are caught and reported
-///   via [onError], and the pulse is dropped.
-/// - **Generation Tracking**: The [generation] counter increments on
-///   each update, allowing external code to detect changes.
-/// - **Shared Snapshot**: The [snapshot] is mutable and shared with
-///   the instruction, allowing external inspection.
-/// - **Provenance Preservation**: Every emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Reduction**: The [reduce] function is synchronous.
-///   For asynchronous accumulation, use [AsyncFold].
-/// - **First Emission**: The seed is not emitted automatically. Only
-///   updates from pulses are emitted.
 ///
 /// ### Example: Running Sum
 /// ```dart
@@ -352,8 +322,8 @@ class Reduce<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     this.snapshot,
     ReduceErrorHandler? onError,
     dynamic user,
-  ) : super(
-          (() {
+  ) : super.statefulSync(
+          () {
             final snap = snapshot;
             return (pulse, {cell, user}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -367,7 +337,7 @@ class Reduce<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return _out<A>(snap.value, typed, cell, 'Reduce');
             };
-          })(),
+          },
           user: user,
         );
 
@@ -418,18 +388,6 @@ class Reduce<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. The result is emitted as a pulse.
 /// 4. No state is maintained (unlike [Reduce]).
 /// 5. Each emitted value gets the step `'ReduceSelect'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Stateless**: Unlike [Reduce], no state is maintained.
-/// - **Type Safety**: The instruction is generic over [S] (input type)
-///   and [T] (output type), ensuring compile-time type safety.
-/// - **Error Handling**: Errors in [select] are caught and reported
-///   via [onError], and the pulse is dropped.
-/// - **Provenance Preservation**: Every emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Performance**: This is a lightweight operation with minimal overhead.
-/// - **Synchronous Projection**: The [select] function is synchronous.
-/// - **No State**: This is a pure transformation operator.
 ///
 /// ### Example: Field Extraction
 /// ```dart
@@ -627,24 +585,6 @@ class ReduceSelect<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///    and the state hasn't changed).
 /// 6. Each emitted value gets the step `'ReduceMachine'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Event-First Design**: The instruction is designed for event-driven
-///   state management where events drive transitions.
-/// - **Emit Control**: [emitIfUnchanged] controls whether to emit when
-///   the state doesn't change. Default is `true`.
-/// - **Type Safety**: The instruction is generic over [E] (event type)
-///   and [A] (state type), ensuring compile-time type safety.
-/// - **Error Handling**: Errors in [transition] are caught and reported
-///   via [onError], and the pulse is dropped.
-/// - **Shared Snapshot**: The [snapshot] can be read externally to
-///   inspect the current state.
-/// - **Provenance Preservation**: Every emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Transition**: The [transition] function is synchronous.
-///   For asynchronous transitions, use [AsyncFold].
-/// - **No Emission on No Change**: When [emitIfUnchanged] is `false`,
-///   unchanged states don't emit, reducing noise.
-///
 /// ### Parameters:
 /// - [seed]: **Initial State.** The starting state value.
 /// - [transition]: **Transition Function.** Takes the current state
@@ -741,8 +681,8 @@ class ReduceMachine<E, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool emitIfUnchanged,
     ReduceErrorHandler? onError,
     dynamic user,
-  ) : super(
-          (() {
+  ) : super.statefulSync(
+          () {
             final snap = snapshot;
             return (pulse, {cell, user}) {
               final typed = _typedOrError<E>(pulse, onError: onError);
@@ -758,7 +698,7 @@ class ReduceMachine<E, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               if (!emitIfUnchanged && snap.value == previous) return null;
               return _out<A>(snap.value, typed, cell, 'ReduceMachine');
             };
-          })(),
+          },
           user: user,
         );
 

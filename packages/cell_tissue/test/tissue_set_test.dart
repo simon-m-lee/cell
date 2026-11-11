@@ -7,6 +7,33 @@ import 'dart:async';
 import 'package:cell_tissue/cell_tissue.dart';
 import 'package:test/test.dart';
 
+
+// Local builders for the forensic command model.
+ApplyCommand cmd(
+  Function function, [
+  List<Object?>? positionalArguments,
+  ApplyCompensation? compensation,
+]) =>
+    (
+      function: function,
+      arguments:
+          (positionalArguments: positionalArguments, namedArguments: null),
+      compensation: compensation,
+    );
+
+ApplyCompensation undo(
+  Function function, [
+  List<Object?>? positionalArguments,
+  Cell? cell,
+]) =>
+    (
+      function: function,
+      arguments:
+          (positionalArguments: positionalArguments, namedArguments: null),
+      cell: cell,
+    );
+
+
 /// Resolves the [FutureOr] returned by [TissueSet.deputy] into a [TissueSet].
 Future<TissueSet<T>> resolveDeputy<T>(TissueSet<T> source) async {
   final result = source.deputy();
@@ -218,11 +245,11 @@ void main() {
     test('add and remove can be invoked through apply gateway', () {
       final set = TissueSet<int>.empty();
 
-      final added = set.apply(set.add, positionalArguments: [9]);
+      final added = (set.apply<Object?>(cmd(set.add, [9])) as ApplyAccepted<Object?>).result;
       expect(added, isNotNull);
       expect(set.toSet(), {9});
 
-      final removed = set.apply(set.remove, positionalArguments: [9]);
+      final removed = (set.apply<Object?>(cmd(set.remove, [9])) as ApplyAccepted<Object?>).result;
       expect(removed, isNotNull);
       expect(set.toSet(), isEmpty);
     });
@@ -230,7 +257,7 @@ void main() {
     test('apply rejects functions outside the modifiable whitelist', () {
       final set = TissueSet<int>([1]);
 
-      expect(set.apply(set.contains, positionalArguments: [1]), isNull);
+      expect(set.apply<Object?>(cmd(set.contains, [1])), isA<ApplyRejected<Object?>>());
     });
   });
 
@@ -253,7 +280,7 @@ void main() {
     test('evolve produces a deputy nucleus', () {
       final principal = TissueSetNucleus.create<int, TissueSet<int>>();
       final evolved = TissueSetNucleus<int>.evolve(
-        principal: principal,
+        principal,
         testRule: TestTissue<int, TissueSet<int>>(
           (object, {host, arguments, user}) => (object as int) > 0,
         ),
@@ -447,7 +474,7 @@ void main() {
       await expectLater(async.retainWhere((e) => true), throwsUnsupportedError);
       await expectLater(async.removeWhere((e) => true), throwsUnsupportedError);
       await expectLater(
-        async.apply(view.add, positionalArguments: [1]),
+        async.apply<void>(cmd(view.add, [1])),
         throwsUnsupportedError,
       );
     });
@@ -463,8 +490,8 @@ void main() {
           participants: [set],
           body: (tx) {
             expect(set.toSet(), isEmpty);
-            set.apply(set.add, positionalArguments: [1], tx: tx);
-            set.apply(set.add, positionalArguments: [2], tx: tx);
+            set.apply<Object?>(cmd(set.add, [1]), tx: tx);
+            set.apply<Object?>(cmd(set.add, [2]), tx: tx);
             expect(set.toSet(), isEmpty); // staged, not applied until commit
           });
 
@@ -482,8 +509,8 @@ void main() {
       await tx.execute(
           participants: [set],
           body: (tx) {
-            final result = set.apply(set.add, positionalArguments: [7], tx: tx);
-            expect(result, isNull);
+            final result = set.apply<Object?>(cmd(set.add, [7]), tx: tx);
+            expect(result, isA<ApplyStaged>());
             expect(set.toSet(), isEmpty);
           });
 
@@ -498,8 +525,8 @@ void main() {
         tx.execute(
             participants: [set],
             body: (tx) {
-              set.apply(set.add, positionalArguments: [1], tx: tx);
-              set.apply(set.add, positionalArguments: [2], tx: tx);
+              set.apply<Object?>(cmd(set.add, [1]), tx: tx);
+              set.apply<Object?>(cmd(set.add, [2]), tx: tx);
               throw StateError('boom');
             }),
         throwsStateError,
@@ -516,15 +543,15 @@ void main() {
       );
 
       await tx.begin([set]);
-      tx.enqueue(
-        set,
-        set.add,
-        [1],
-        null,
-        compensateCell: set,
-        compensateFunction: set.remove,
-        compensatePositional: [1],
-      );
+      tx.enqueueCommand(set, (
+        function: set.add,
+        arguments: (positionalArguments: [1], namedArguments: null),
+        compensation: (
+          function: set.remove,
+          arguments: (positionalArguments: [1], namedArguments: null),
+          cell: set,
+        ),
+      ));
       await tx.rollback();
 
       expect(set.toSet(), isEmpty);
@@ -539,7 +566,7 @@ void main() {
         tx.execute(
             participants: [set],
             body: (tx) {
-              set.apply(set.contains, positionalArguments: [1], tx: tx);
+              set.apply<Object?>(cmd(set.contains, [1]), tx: tx);
             }),
         throwsA(isA<TxApplyException>()),
       );
@@ -555,13 +582,10 @@ void main() {
       await tx.execute(
           participants: [set],
           body: (tx) {
-            set.apply(
-              set.add,
-              positionalArguments: [5],
-              tx: tx,
-              compensate: set.remove,
-              compensatePositional: [5],
-            );
+            set.apply<Object?>(
+  cmd(set.add, [5], undo(set.remove, [5])),
+  tx: tx,
+);
           });
 
       expect(set.toSet(), {5});

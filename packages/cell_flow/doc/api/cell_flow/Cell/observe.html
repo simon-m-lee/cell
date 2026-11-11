@@ -87,15 +87,6 @@ updating UI, writing to a database, sending a network request, or logging.</p>
 <li>The returned <a href="../../cell_flow/EgressHandle.html">EgressHandle</a> allows you to <code>start</code> or <code>stop</code> the observer
 manually, providing complete lifecycle control.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Terminal Nature</strong>: This node is a "sink"—it has no downstream
-observers and never propagates pulses further, effectively preventing
-causal loops.</li>
-<li><strong>Dormancy</strong>: Observers can be created in a dormant state if
-<code>initiallyStarted</code> is <code>false</code>, meaning they will ignore pulses until
-<code>.start()</code> is called on the handle.</li>
-</ul>
 <h3 id="example-ui-update-observer">Example: UI Update Observer</h3>
 <pre class="language-dart"><code class="language-dart">final counter = Cell.state&lt;int&gt;(initial: 0);
 final uiUpdate = Cell.observe&lt;int&gt;(
@@ -133,6 +124,28 @@ observer begins processing signals immediately upon creation.</li>
 walkthrough of UI side-effects, terminal lifecycle management, and forensic logging.
 {@category Core 16 Operators}</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> A pulse has already been <em>decided</em> and a book / side effect must move — the <strong>only</strong> Flow → Tissue glue in a Mitose Demo.
+<strong>When NOT to use:</strong>
+  <strong>DON'T</strong> put business logic in <code>Cell.observe</code>'s <code>effect</code>.
+<code>effect</code> may write Tissue books, call <code>reset()</code>, enqueue pumps, print.
+It may <strong>not</strong> call <code>riskOf</code>, change <code>pass</code>, or call <code>toHandle</code>.
+See <code>HowTo-Mitose-Cell.md</code> §3.2 "Cell.observe — the only Flow → Tissue glue".
+<strong>Live signature:</strong> <code>Cell.observe&lt;P extends Pulse&gt;({required Cell source, required void Function(P) effect, bool initiallyStarted = true})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.ingress</code> (entry into the graph, not exit from it).
+<strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §3.2 "Cell.observe — the only Flow → Tissue glue" (#cell-observe)
+<strong>Example:</strong> <code>example/observe_demo.dart</code>
+<strong>Cross-layer:</strong> the decision itself lives in a <code>cell_flow</code> instruction; the books live in <code>cell_tissue</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final events = Cell.ingress&lt;String&gt;();
+final o = Cell.observe(
+  source: events.cell,
+  effect: (Pulse p) =&gt; print('got ${p.payload}'),
+);
+events.emit('x');
+o.stop();
+</code></pre>
 </section>
 
 
@@ -176,7 +189,7 @@ walkthrough of UI side-effects, terminal lifecycle management, and forensic logg
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

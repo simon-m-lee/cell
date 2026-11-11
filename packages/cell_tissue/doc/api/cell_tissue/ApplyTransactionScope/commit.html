@@ -61,6 +61,18 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Executes every staged command atomically, compensating on failure.</p>
+<h3 id="throws">Throws</h3>
+<ul>
+<li><a href="../../cell_tissue/TxApplyException-class.html">TxApplyException</a> if not begun, a function is no longer in
+<code>modifiable</code> at commit time, a command was rejected, or a command
+threw.</li>
+<li><a href="../../cell_tissue/TxApplyCompensationException-class.html">TxApplyCompensationException</a> if compensations failed under
+<a href="../../cell_tissue/CompensationErrorPolicy.html">CompensationErrorPolicy.collectThenThrow</a> or
+<a href="../../cell_tissue/CompensationErrorPolicy.html">CompensationErrorPolicy.failFast</a>.</li>
+</ul>
+</section>
 
 
     
@@ -94,7 +106,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

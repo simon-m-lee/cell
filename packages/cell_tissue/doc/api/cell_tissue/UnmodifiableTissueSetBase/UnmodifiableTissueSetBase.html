@@ -95,23 +95,6 @@ faster (O(1) per access).</li>
 (<code>get</code>) that walks up the principal chain if needed. This means
 the view shares the same physical storage as its source – <strong>zero‑copy</strong>.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>elements</code> parameter is <strong>only</strong> used when the view is created
-from a nucleus that does not yet have a container (e.g., when you
-create a standalone unmodifiable set from scratch). For deputies
-created via <code>.view</code>, the storage is already shared with the source,
-so <code>elements</code> is typically <code>null</code> to avoid overwriting.</li>
-<li>The <code>unmodifiableElement</code> flag is <strong>not</strong> stored in the nucleus – it
-is a behaviour of the view itself. It is applied during iteration
-and element access.</li>
-<li>If you pass <code>elements</code> that contain <a href="../../cell_tissue/Cell-class.html">Cell</a>s, they are <strong>not</strong>
-automatically linked to the view's synapses unless the
-<code>unmodifiableElement</code> flag is <code>true</code>. This is because the view is
-read‑only – it only reflects changes, it does not propagate them.</li>
-<li>The constructor does <strong>not</strong> emit any pulses – the view is considered
-"hydrated" and ready for observation.</li>
-</ul>
 <h3 id="example-internal-usage--how-the-framework-creates-a-view">Example (internal usage – how the framework creates a view)</h3>
 <pre class="language-dart"><code class="language-dart">// When you write source.unmodifiable, the framework does something like:
 final source = TissueSet&lt;int&gt;({1, 2, 3});
@@ -171,7 +154,7 @@ during iteration.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

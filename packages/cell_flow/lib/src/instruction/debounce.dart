@@ -129,16 +129,6 @@ Pulse<S> _fromPayload<S>(S value, Pulse sourcePulse, Cell? cell, String step) {
 /// 4. Only the final value in each burst is emitted.
 /// 5. Each emitted value gets the step `'Debounce'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Silence Window**: The timer resets on every new pulse.
-/// - **Pending Value**: Only the most recent value is emitted.
-/// - **State Persistence**: The instruction maintains the pending value and timer.
-/// - **Order Preservation**: Only the final value in each burst is emitted.
-/// - **Zero-Duration**: If [duration] is zero, the gate acts as a
-///   microtask-deferred relay rather than a true silence gate.
-/// - **Temporal Discontinuity**: The time of emission is shifted by exactly
-///   [duration] from the arrival of the last received pulse.
-///
 /// ### Example: Search-as-you-type
 /// ```dart
 /// final search = Cell.ingress<String>();
@@ -183,8 +173,8 @@ class Debounce<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Duration duration, {
     DebounceErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _GateState<S>();
             return (pulse, {cell, user, future, token}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -205,7 +195,7 @@ class Debounce<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -255,11 +245,6 @@ class Debounce<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. **Provenance Preservation**: Emitted pulses are tagged with
 ///    `'DebounceLeading.leading'` or `'DebounceLeading.trailing'`.
 ///
-/// ### Non‑obvious
-/// - **Single-Pulse Bursts**: If only one pulse arrives and no others follow
-///   within the duration, it is emitted only as a leading pulse; the trailing
-///   materialization is suppressed to prevent duplicates.
-///
 /// ### Parameters:
 /// - [duration]: The silence window required before trailing emission.
 /// - [onError]: Optional error handler for type mismatches.
@@ -285,8 +270,8 @@ class DebounceLeading<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Duration duration, {
     DebounceErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _GateState<S>();
             return (pulse, {cell, user, future, token}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -326,7 +311,7 @@ class DebounceLeading<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -373,12 +358,6 @@ class DebounceLeading<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. **Silence Reset**: Unlike a standard throttle, every suppressed pulse
 ///    re-arms the silence timer, extending the lock-out period.
 ///
-/// ### Non‑obvious
-/// - **Silence Requirements**: If pulses continue to arrive faster than
-///   [duration], the gate may remain locked indefinitely.
-/// - **Provenance Preservation**: Emitted pulses are tagged with
-///   `'DebounceLeadingOnly'`.
-///
 /// ### Parameters:
 /// - [duration]: The lock-out interval.
 /// - [onError]: Optional error handler for type mismatches.
@@ -405,8 +384,8 @@ class DebounceLeadingOnly<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Duration duration, {
     DebounceErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _GateState<S>();
             return (pulse, {cell, user, future, token}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -419,7 +398,7 @@ class DebounceLeadingOnly<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return _mark(typed, 'DebounceLeadingOnly');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -462,12 +441,6 @@ class DebounceLeadingOnly<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. **Provenance Preservation**: Emitted pulses are tagged with
 ///    `'DebounceWith'`.
 ///
-/// ### Non‑obvious
-/// - **Execution Context**: The [durationOf] closure is executed synchronously
-///   upon pulse arrival; heavy logic here will block the reactive engine.
-/// - **Generation Tracking**: Each pulse gets a generation ID to prevent
-///   stale emissions.
-///
 /// ### Parameters:
 /// - [durationOf]: A function that returns the silence duration for each payload.
 /// - [onError]: Optional error handler for type mismatches or duration errors.
@@ -493,8 +466,8 @@ class DebounceWith<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Duration Function(S value) durationOf, {
     DebounceErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _GateState<S>();
             var generation = 0;
             return (pulse, {cell, user, future, token}) {
@@ -527,7 +500,7 @@ class DebounceWith<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }

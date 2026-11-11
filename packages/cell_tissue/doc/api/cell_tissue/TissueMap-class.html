@@ -94,24 +94,6 @@ authority, etc.) that share the same storage.</li>
 <li>It automatically links child <a href="../cell_tissue/Cell-class.html">Cell</a> values when they are added, enabling
 "bubbling" of internal changes.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>Equality (<code>==</code>) is based on the underlying map's content and identity,
-so <code>map1 == map2</code> works like a normal Dart map.</li>
-<li>The <a href="../cell_tissue/TissueMap/async.html">async</a> getter returns a <a href="../cell_tissue/ModifiableMapAsync-class.html">ModifiableMapAsync</a> for <code>Future</code>‑based
-operations, useful for network callbacks or background tasks.</li>
-<li>The <code>unmodifiable</code> getter is <strong>not a snapshot</strong> – it's a live view that
-stays in sync with the source.</li>
-<li>The <a href="../cell_tissue/Tissue/modifiable.html">modifiable</a> getter returns the list of functions that can be invoked
-via <code>apply</code>. For read‑only deputies, this list is empty.</li>
-<li>The map treats its <strong>values</strong> as the primary "elements" for validation
-and events. Keys are the structural indices.</li>
-<li>Event contract: inserting a new entry (<code>add</code>, <code>[]=</code>, <code>put</code>, <code>putIfAbsent</code>)
-emits <a href="../cell_tissue/Tissue/elementAdded-constant.html">Tissue.elementAdded</a>; replacing an existing entry (<code>[]=</code>, <code>put</code>,
-<code>update</code>, <code>updateAll</code>) emits <a href="../cell_tissue/Tissue/entryUpdated-constant.html">Tissue.entryUpdated</a> with an
-<a href="../cell_tissue/EntryUpdatedRecord.html">EntryUpdatedRecord</a> payload (<code>key</code>, <code>before</code>, <code>after</code>); removals emit
-<a href="../cell_tissue/Tissue/elementRemoved-constant.html">Tissue.elementRemoved</a>.</li>
-</ul>
 <h3 id="example-basic-usage">Example: Basic usage</h3>
 <pre class="language-dart"><code class="language-dart">final map = TissueMap&lt;String, int&gt;();
 map['a'] = 1;
@@ -162,6 +144,24 @@ print(uiView['score']); // 100
 <li><a href="../cell_tissue/TissueMapNucleus-class.html">TissueMapNucleus</a> – the blueprint and configuration for the map.</li>
 <li><a href="../cell_tissue/UnmodifiableTissueMap-class.html">UnmodifiableTissueMap</a> – a read‑only deputy variant.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Tissue — open work keyed by location. Not a Cell factory, not a Flow operator.
+<strong>When to use:</strong> "open incidents across terminals / streams" — one open row per belt/stream; <code>incidentMap[key] = ...</code>, <code>incidentMap.remove(key)</code> only from <code>closeIncident</code>.
+<strong>When NOT to use:</strong>
+  <strong>DON'T</strong> put <code>testRule: TestCell</code> on any <code>TissueList</code> / <code>TissueMap</code> /
+<code>TissueSet</code> / <code>TissueQueue</code> / <code>TissueValue</code> constructor. Use <code>TestTissue</code>.
+This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-test.dart</code>.
+  A new Map per bag — the payload on <code>V</code> carries the many.
+<strong>Live signature:</strong> <code>TissueMap&lt;K, V&gt;({bind, context, testRule, receptor, synapses, ...})</code> / <code>TissueMap.of(entries, {...})</code> / <code>TissueMap.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Map</code> (dart:core — no validation, no collection pulses).
+<strong>Guide:</strong> <code>HowTo-Mitose-Tissue.md</code> §2.3 "TissueMap — open work keyed by location" (#tissue-map)
+<strong>Example:</strong> <code>example/cell_tissue_example.dart</code>
+<strong>Cross-layer:</strong> the reserve protocol (Value + Map) is a harness pattern driven from <code>Cell.observe</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final map = TissueMap&lt;String, int&gt;(entries: [MapEntry('a', 1)]);
+map['b'] = 2;
+print(map.length); // 2
+</code></pre>
 </section>
 
 
@@ -188,6 +188,7 @@ print(uiView['score']); // 100
         
   <dt>Available extensions</dt>
   <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="../cell_tissue/ApplyCommandDSL.html">ApplyCommandDSL</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/EnumByName.html">EnumByName</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/FutureIterable.html">FutureIterable</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a></li>
@@ -662,8 +663,8 @@ downstream observers and does not broadcast pulses.
 </dd>
 
         <dt id="apply" class="callable inherited">
-  <span class="name"><a href="../cell_tissue/Tissue/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
-    <span class="returntype parameter">&#8594; dynamic</span>
+  <span class="name"><a href="../cell_tissue/Tissue/apply.html">apply</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="apply-param-command"><span class="type-annotation"><a href="../cell_tissue/ApplyCommand.html">ApplyCommand</a></span> <span class="parameter-name">command</span>, {</span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span>
   </span>
   
 
@@ -765,6 +766,23 @@ metadata attached.
 </dt>
 <dd>
   Removes all entries from this map.
+  
+
+</dd>
+
+        <dt id="command" class="callable">
+  <span class="name"><a href="../cell_tissue/ApplyCommandDSL/command.html">command</a></span><span class="signature">(<wbr><span class="parameter" id="command-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_tissue/ApplyCommandRunner-class.html">ApplyCommandRunner</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_tissue/Cell-class.html">Cell</a>,
+        provided by the <a href="../cell_tissue/ApplyCommandDSL.html">ApplyCommandDSL</a> extension</span>
+      </p>
+  Begins assembling a command that invokes <code>function</code> on this cell.
   
 
 </dd>
@@ -1356,7 +1374,7 @@ reactive map with explicit control over its behavioural and structural blueprint
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

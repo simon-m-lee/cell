@@ -78,14 +78,6 @@ when a UI component mounts.</p>
 <p>The method validates the link via the cell's <a href="../../cell/TestCell-class.html">TestCell</a>, then adds the
 downstream cell to the registry. If the cell is already linked, it's a
 no‑op. Returns <code>true</code> on success, <code>false</code> if rejected.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The link is governed by the host cell's validation rules – you can't
-link to a cell that the host doesn't allow.</li>
-<li>Deputies and their principals are considered equivalent for linking.</li>
-<li>If the policy is <code>persistent</code>, the new observer immediately receives
-the last emitted pulse.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final linked = await synapses.link(source, downstreamCell: observer);
 if (linked) { /* observer now receives updates */ }
@@ -120,6 +112,12 @@ FutureOr&lt;bool&gt; link(Cell cell, {required Cell downstreamCell}) {
     &#47;&#47; 2. Define the registration logic as a reusable closure
     bool register() {
       if (downstreamCell is! C) return false;
+      if (_broadcastDepth &gt; 0) {
+        &#47;&#47; Defer the mutation: the sync broadcast is iterating the live
+        &#47;&#47; downstream set right now.
+        (_deferredAdds ??= &lt;C&gt;[]).add(downstreamCell);
+        return true;
+      }
       final added = _downstreams.add(downstreamCell);
 
       &#47;&#47; If strategy is persistent, send the last state to the new observer
@@ -169,7 +167,7 @@ FutureOr&lt;bool&gt; link(Cell cell, {required Cell downstreamCell}) {
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

@@ -68,14 +68,6 @@ full provenance with minimal memory overhead.</p>
 <li>Builds a flattened list of all pulses in the chain for iteration.</li>
 <li>The payload is inherited from the last pulse in the chain.</li>
 </ul>
-<h3 id="nonobvious-evolution-is-not-mutation">Non‑obvious: evolution is not mutation</h3>
-<p>When you call <a href="../cell_tissue/Pulse/evolve.html">Pulse.evolve</a>, you get a <em>new</em> pulse that points to the old
-one. The old pulse is still there — unchanged, available for reference.
-This is why you can trace the entire lineage without copying data.</p>
-<h3 id="nonobvious-payload-is-inherited-not-copied">Non‑obvious: payload is inherited, not copied</h3>
-<p>The <code>payload</code> getter returns the payload of the last pulse in the chain.
-The data is inherited from the root — it's never duplicated. This is why
-causal chains are memory‑efficient even when they're dozens of steps long.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// You never create this directly — the framework does it for you:
 final root = Pulse(42);
@@ -251,15 +243,15 @@ final evolved = root.withStep('validation');
 
 </dd>
 
-        <dt id="last" class="property inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/last.html">last</a></span>
-  <span class="signature">&#8594; <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>
+        <dt id="last" class="property">
+  <span class="name"><a href="../cell_tissue/EvolvedPulseBase/last.html">last</a></span>
+  <span class="signature">&#8594; <a href="../cell_tissue/PulseBase-class.html">PulseBase</a></span>
   
 
 </dt>
-<dd class="inherited">
+<dd>
   The last element.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
@@ -989,8 +981,8 @@ collection.
 
 </dt>
 <dd class="inherited">
-  Appends a diagnostic stage to the pulse's causal trace without branching
-the causal chain.
+  Appends <code>step</code> to the pulse's causal trace without branching the
+causal chain.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -1058,7 +1050,7 @@ the causal chain.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

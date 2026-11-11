@@ -67,14 +67,6 @@ percentage (0.0-1.0), temperature, coordinates.</p>
 <p>The generated validation code checks that the value is within <code>min</code> and
 <code>max</code> inclusive. Non‑numeric values (like <code>null</code> or strings) pass
 validation to allow flexible annotation usage on optional fields.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The range is inclusive: <code>min &lt;= value &lt;= max</code>.</li>
-<li><code>null</code> and non‑numeric values are allowed (return <code>true</code>). This is
-intentional – use <code>@DefaultValue</code> to provide a default if needed.</li>
-<li>If the field is nullable and you want to disallow <code>null</code>, you can
-combine with a separate <code>TestRule</code> or handle it in code.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <h4 id="1-percentage--ratio-constraints">1. Percentage / Ratio Constraints</h4>
 <pre class="language-dart"><code class="language-dart">@ValueRange(min: 0.0, max: 1.0)
@@ -304,7 +296,7 @@ allowing the annotation to be used flexibly on optional or dynamic fields.</li>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

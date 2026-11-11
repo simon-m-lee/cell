@@ -84,13 +84,6 @@ notifier emits, all subsequent values are forwarded.</p>
 <li>When the <code>notifier</code> emits a value, the stream opens.</li>
 <li>After the notifier emits, all subsequent source values pass through.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>State</strong>: The instruction maintains an <code>open</code> flag.</li>
-<li><strong>Once Opened</strong>: The stream cannot be closed again.</li>
-<li><strong>First Value</strong>: The notifier's value is not passed through.</li>
-<li><strong>Memory Efficiency</strong>: Only a boolean flag is stored.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -163,7 +156,7 @@ source.emit(4); // passes through
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

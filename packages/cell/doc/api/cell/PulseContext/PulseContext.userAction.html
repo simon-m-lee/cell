@@ -78,12 +78,6 @@ such as form submissions, button clicks, or API calls from a client.</p>
 <li>Sets <code>confidence</code> to 1.0 (human intent is treated as absolute).</li>
 <li>Sets <code>priority</code> to 60 (high, for UI responsiveness).</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>confidence</code> is 1.0 – the framework trusts human actions unless
-explicitly overridden.</li>
-<li>The <code>purpose</code> defaults to <code>USER_INTERACTION</code>.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final context = PulseContext.userAction(
   baseContext: uiNode.context,
@@ -159,7 +153,7 @@ explicitly overridden.</li>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

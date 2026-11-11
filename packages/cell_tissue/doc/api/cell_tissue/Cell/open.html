@@ -100,22 +100,6 @@ methods to change which cells receive updates at runtime.</li>
 recorded with its origin, allowing you to trace the cause of changes
 back to this specific gateway.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Security Rules Apply</strong>: Even though this node is "Open," it is not
-a backdoor. All manual data entries must match the <code>context</code>
-permissions and pass the safety checks in the <code>testRule</code>.</li>
-<li><strong>Connection Authority</strong>: Linking and unlinking other nodes are
-protected actions. A caller must have the correct <a href="../../cell_tissue/Context-class.html">Context</a>
-authority to change the network structure.</li>
-<li><strong>Hybrid Mode</strong>: If a <code>bind</code> source is provided, the cell will relay
-data from that source automatically while <em>also</em> accepting your
-manual inputs.</li>
-<li><strong>Flow Control</strong>: Use the <code>synapses</code> parameter to attach a
-<a href="../../cell_tissue/PropagationPolicy-class.html">PropagationPolicy</a>. This allows you to debounce state emissions,
-throttle high-frequency updates, or batch multiple state changes
-into a single downstream pulse.</li>
-</ul>
 <h3 id="example-system-command-gateway">Example: System Command Gateway</h3>
 <pre class="language-dart"><code class="language-dart">final commandGate = Cell.open(
   context: Context.admin,
@@ -154,6 +138,19 @@ inputs are processed one at a time in a safe, isolated block.</li>
 <li><a href="../../cell_tissue/Cell/hub.html">Cell.hub</a>: For routing manual signals to multiple specific handlers.
 {@category Core 16 Operators}</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> Late-bind a device / module after boot, or manually manage link/unlink topology.
+<strong>When NOT to use:</strong> standard external facts — use <code>Cell.ingress</code>; rare in v1 Demos.
+<strong>Live signature:</strong> <code>Cell.open({ephemeralPolicy, context, source, receptor, testRule, synapses, forceLock})</code> → <code>OpenCell</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.ingress</code> (fixed single-path entry).
+<strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)
+<strong>Example:</strong> <code>example/open_cell_demo.dart</code>
+<strong>Cross-layer:</strong> dynamic routing decisions remain <code>cell_flow</code> concerns.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final o = Cell.open();
+o.emit(Pulse('hello'));
+</code></pre>
 </section>
 
 
@@ -206,7 +203,7 @@ inputs are processed one at a time in a safe, isolated block.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

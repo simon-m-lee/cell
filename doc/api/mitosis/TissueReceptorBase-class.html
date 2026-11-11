@@ -82,19 +82,6 @@ tissue stays perfectly in sync with its principal without any extra code.</li>
 standard pipeline for user‑defined processing.</li>
 <li>It handles both synchronous and asynchronous pulses seamlessly.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The implicit synchronisation only happens for pulses that <strong>originate
-from the bind source</strong>. Pulses from other sources are processed normally
-but do not trigger automatic mirroring.</li>
-<li>If the synchronisation cannot be fully applied (e.g., due to validation
-failure or capacity constraints), the receptor may produce a <strong>partial
-pulse</strong> that reflects only the changes that were actually committed.</li>
-<li>The receptor is <strong>activated</strong> when bound to a tissue – this sets the
-<code>cell</code> getter and marks <code>isActivated</code> as <code>true</code>.</li>
-<li>The <code>clone</code> method creates a shallow copy for reuse across multiple tissues.</li>
-<li>The <code>call</code> method uses the pulse's <code>_checker</code> to prevent cycles.</li>
-</ul>
 <h3 id="example-internal--how-the-framework-uses-it">Example (Internal – how the framework uses it)</h3>
 <pre class="language-dart"><code class="language-dart">final receptor = TissueReceptorBase&lt;int, TissueList&lt;int&gt;&gt;(
   rule: Instruction((tissue, pulse, {user}) {
@@ -169,7 +156,7 @@ reactive collection.
 </dt>
 <dd class="inherited">
   Returns an asynchronous adapter for this receptor.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -346,7 +333,7 @@ management.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

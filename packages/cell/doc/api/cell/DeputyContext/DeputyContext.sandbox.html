@@ -68,11 +68,6 @@ affect production state.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The factory sets <a href="../../cell/Isolation.html">Isolation.sandboxed</a> to virtualize all mutations.
 Pulses from this deputy are never committed to the principal state.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>Even with high sovereignty, the sandbox prevents live mutation.</li>
-<li>The clearance is set to <code>minimal</code> – only safe, idempotent operations.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final strategist = DeputyContext.sandbox(
   baseContext: context,
@@ -130,7 +125,7 @@ simulated environment access.</li>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

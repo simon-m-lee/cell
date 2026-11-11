@@ -827,7 +827,7 @@ final label = Cell.state<bool>(
 /// using FlowInstruction composition.
 class ConfirmGate {
   late final IngressHandle<String> _gun;
-  late final FlowHandle<Pulse<String>> _rx;
+  late final FlowHandle _rx;
 
   ConfirmGate() {
     // Create the ingress cell (scan gun)

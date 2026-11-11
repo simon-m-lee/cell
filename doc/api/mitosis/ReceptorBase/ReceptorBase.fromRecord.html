@@ -76,19 +76,6 @@ resolves its operational logic from this unified bundle.</li>
 the internal storage mechanism, ensuring the framework can optimize
 memory usage without impacting user code.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Flyweight Strategy</strong>: Unlike standard field-based architectures,
-Record-based storage ensures that instances only allocate memory for
-the properties they actually use. This significantly reduces the
-heap footprint in graphs with millions of reactive nodes.</li>
-<li><strong>Const Support</strong>: This initialization pattern allows receptors to be
-defined as <code>const</code>, enabling the compiler to deduplicate identical
-logic units across the entire application.</li>
-<li><strong>Immutability</strong>: By anchoring a pre-compiled record, the receptor
-guarantees that its behavior is fixed at construction, preserving
-the deterministic consistency of the reactive pulse chain.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>record</code>: The optimized configuration bundle for the receptor.</li>
@@ -127,7 +114,7 @@ the deterministic consistency of the reactive pulse chain.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -84,15 +84,6 @@ or for debugging.</p>
 defined locally.</li>
 <li>It defaults to <code>-1</code> (unbounded) if no capacity is set.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The capacity is a <strong>structural</strong> property – it is fixed at creation and
-inherited by all deputies. You cannot change the capacity of a queue
-through a deputy unless you explicitly override it at creation.</li>
-<li>The capacity is used for <strong>backpressure regulation</strong> – when the queue
-is full, <code>add</code> operations may drop the oldest element or reject the new
-one, depending on the specific <code>TissueQueue</code> implementation.</li>
-</ul>
 </section>
 
     
@@ -128,7 +119,7 @@ one, depending on the specific <code>TissueQueue</code> implementation.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

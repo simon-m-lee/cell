@@ -99,20 +99,6 @@ for that bucket.</li>
 <li>The order of elements within each group preserves the original iteration
 order (insertion order).</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The function returns a <strong>new</strong> <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a> – the original iterable is not
-modified.</li>
-<li>The keys are determined by the <code>key</code> function <strong>at the time of grouping</strong>.
-If the elements are mutable and change later, the grouping is not updated
-automatically – you would need to re‑run <a href="../cell_tissue/groupBy.html">groupBy</a>.</li>
-<li>The values in the resulting map are <strong>new lists</strong> – they are not the same
-lists as the original iterable. Modifying them does not affect the source.</li>
-<li>The function is <strong>lazy</strong> in the sense that it only iterates over the
-<code>values</code> once, but it eagerly collects all elements into the map.</li>
-<li>If the <code>key</code> function returns <code>null</code> for some elements, they are grouped
-under the key <code>null</code> (since Dart maps allow null keys).</li>
-</ul>
 <h3 id="example-grouping-tasks-by-priority">Example: Grouping tasks by priority</h3>
 <pre class="language-dart"><code class="language-dart">final tasks = [
   Task('Buy milk', priority: 'high'),
@@ -195,7 +181,7 @@ sharing the same key.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

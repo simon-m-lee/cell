@@ -83,15 +83,6 @@ should use <a href="../../mitosis/Cell-class.html">Cell</a> or <a href="../../mi
 <h3 id="how-it-works">How it works</h3>
 <p>You provide a set of parameters; the method creates a nucleus record.
 If <code>principal</code> is provided, the new nucleus inherits from it.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>forceLock</code> semantics differ from the primary constructor:
-if <code>true</code>, the nucleus shares the principal's lock (i.e., does not
-create a new one). This is the opposite of the primary constructor
-where <code>true</code> means <em>create</em> a lock.</li>
-<li>The <code>receptor</code> and <code>testRule</code> are type‑bound to <code>C</code>, ensuring
-compile‑time safety.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>ephemeralPolicy</code>: Optional. The <strong>Lifecycle Governance Policy</strong> (TTL/Hops).
@@ -105,8 +96,9 @@ type <code>C</code> that orchestrates how incoming signals are applied to the st
 <li><code>testRule</code>: Optional. The <strong>Policy Guard</strong> validator used to authorize
 and validate state changes.</li>
 <li><code>synapses</code>: Optional. Configuration for the <strong>Signal Distribution Network</strong>.</li>
-<li><code>forceLock</code>: Optimization flag. If <code>true</code>, the nucleus will share the
-synchronization domain of its <code>principal</code>.</li>
+<li><code>forceLock</code>: <strong>Atomic Isolation.</strong> If <code>true</code>, allocates a fresh,
+private synchronization <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> for this nucleus. If <code>false</code> and a
+<code>principal</code> is provided, the principal's lock is inherited instead.</li>
 <li><code>user</code>: Optional <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> for developer-defined ad-hoc metadata
 kept separate from core framework logic.</li>
 <li><code>principal</code>: Optional. An ancestor <a href="../../mitosis/Nucleus-class.html">Nucleus</a> to extend via the
@@ -178,7 +170,7 @@ specified reactive node.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

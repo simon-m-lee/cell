@@ -87,14 +87,6 @@ traversed, converting each payload into a new stimulus.</li>
 inheriting the priority and provenance of the trigger pulse,
 tagged with the <code>'FromIterable'</code> step.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Synchronous Blocking</strong>: The iteration occurs synchronously. If the
-<code>iterable</code> is extremely large or infinite, it will block the
-reactive engine's evolution cycle.</li>
-<li><strong>Pulse Distinction</strong>: Every item in the iterable results in a unique
-pulse; they are not batched into a single downstream materialization.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>iterable</code>: The <strong>Dynamic Sequence</strong> of payloads to be evolved.</li>
@@ -141,7 +133,7 @@ pulse; they are not batched into a single downstream materialization.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

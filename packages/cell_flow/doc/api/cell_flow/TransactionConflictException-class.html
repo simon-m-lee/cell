@@ -62,13 +62,6 @@
 </ul>
 <h3 id="when-to-use">When to use</h3>
 <p>Catch this to retry the transaction with fresh values.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The transaction is automatically rolled back when this is thrown.</li>
-<li>You should retry the entire transaction (from <code>begin</code>) after handling
-the conflict.</li>
-<li>The conflicts list provides details on which cells changed.</li>
-</ul>
 </section>
 
 
@@ -233,7 +226,7 @@ the conflict.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -67,10 +67,27 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">E removeLast() {
-  &#47;&#47; Note: Standard priority queues are optimized for removeFirst.
-  &#47;&#47; removeLast requires a linear scan of the leaf nodes.
+  &#47;&#47; Standard priority queues are optimized for removeFirst.
+  &#47;&#47; removeLast requires a linear scan of the leaf nodes: the maximum
+  &#47;&#47; element of a min-heap can only live on the bottom level, which is
+  &#47;&#47; the last half of the array.
   if (_heap.isEmpty) throw StateError(&#39;Metabolic buffer is empty.&#39;);
-  return _heap.removeLast();
+  if (_heap.length == 1) return _heap.removeLast();
+
+  var target = _heap.length ~&#47; 2;
+  for (var i = target + 1; i &lt; _heap.length; i++) {
+    if (_compare(_heap[i], _heap[target]) &gt; 0) target = i;
+  }
+
+  final result = _heap[target];
+  if (target == _heap.length - 1) {
+    _heap.removeLast();
+  } else {
+    _heap[target] = _heap.removeLast();
+    _bubbleUp(target);
+    _bubbleDown(target);
+  }
+  return result;
 }</code></pre>
 </section>
 
@@ -99,7 +116,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

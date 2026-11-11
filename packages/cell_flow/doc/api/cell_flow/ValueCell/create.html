@@ -82,14 +82,6 @@ the transformation pipeline.</li>
 <code>updateAsync</code>, <code>ingest</code>) that bridge imperative calls to the cell's
 internal <a href="../../cell_flow/Receptor-class.html">Receptor</a>.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Instance Binding</strong>: Handles are permanently bound to the specific
-cell instance; they cannot be reassigned or used with other cells.</li>
-<li><strong>Graph Stabilization</strong>: The <code>ingest</code> handle defaults to
-<code>serializedCompletion: true</code>, meaning the <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> only resolves once
-the <em>entire</em> downstream reactive chain has settled.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>nucleus</code>: The blueprint defining the cell's identity and logic.</li>
@@ -155,7 +147,7 @@ primitives (<code>update</code>, <code>updateAsync</code>, and <code>ingest</cod
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

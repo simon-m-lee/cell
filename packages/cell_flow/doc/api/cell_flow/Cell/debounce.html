@@ -93,17 +93,6 @@ the previous timer is cancelled and a new one starts from zero.</li>
 <li><strong>Settling</strong>: Only when the timer reaches the end of the <code>duration</code>
 window without interruption is the latest pulse propagated.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Leading Edge</strong>: If <code>leading</code> is <code>true</code>, the <em>first</em> pulse in a burst
-is emitted immediately, and subsequent pulses are debounced until the
-silence window is met.</li>
-<li><strong>Wait vs Throttle</strong>: Unlike <a href="../../cell_flow/Cell/throttle.html">Cell.throttle</a> (which limits frequency),
-<code>debounce</code> requires a specific period of <em>silence</em> before emission.</li>
-<li><strong>Graph Stabilization</strong>: The debounce gate effectively introduces a
-delay in the reactive graph, so downstream nodes will observe changes
-later than they occur at the source.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Ingress Source.</strong> The upstream <a href="../../cell_flow/Cell-class.html">Cell</a> to be monitored
@@ -130,6 +119,24 @@ walkthrough of user-input stabilization and debounced API calls.</li>
 reactive patterns and scheduling.
 {@category Core 16 Operators}</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> wait for silence on a feed (belt chatter, search input, 15 s snapshots) — feed shaping <strong>before</strong> <code>publishTick</code>.
+<strong>When NOT to use:</strong> as the policy gate; Time operators shape feeds, they never <em>decide</em>. A "wait for silence" decision is still a <code>cell_flow</code> instruction concern.
+<strong>Live signature:</strong> <code>Cell.debounce(Cell source, Duration duration, {bool leading = false, EphemeralPolicy? ephemeralPolicy})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.throttle</code> (frequency limit; leading defaults true).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.6 "Time" (#flow-time)
+<strong>Example:</strong> <code>example/stability_search_demo.dart</code>
+<strong>Cross-layer:</strong> identical semantics available as <code>Flow.debounce</code> in <code>cell_flow</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;String&gt;();
+final db = Cell.debounce(src.cell, const Duration(milliseconds: 50));
+final o = Cell.observe(source: db, effect: (Pulse p) =&gt; print(p.payload));
+src.emit('a');
+src.emit('b');
+await Future&lt;void&gt;.delayed(const Duration(milliseconds: 80));
+o.stop();
+</code></pre>
 </section>
 
 
@@ -175,7 +182,7 @@ reactive patterns and scheduling.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

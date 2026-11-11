@@ -104,7 +104,10 @@ void main() {
     test('the deputy rule is additive on top of the principal', () async {
       final principal = Cell(
         testRule: TestCell((object, {host, arguments, user}) {
-          return object is int && object > 0;
+          // Value predicate for apply/emit; also accept Cell objects so
+          // the deputy's construction link passes the link gate (the gate
+          // consults the rule with the linked cell object).
+          return object is int ? object > 0 : object is Cell;
         }),
       );
       final deputy = await principal.deputy(
@@ -119,14 +122,18 @@ void main() {
       expect(deputy.validate.call(-1), isFalse);
     });
 
-    test('readOnly deputy still exposes apply on the principal via forwarding',
-        () async {
+    test('readOnly deputy rejects apply forwarding', () async {
       final cell = Cell();
       var ran = false;
       void mark() => ran = true;
       final deputy = await cell.deputy(testRule: TestCell.readOnly);
-      deputy.apply(mark);
-      expect(ran, isTrue);
+      final outcome = await deputy.apply<void>((
+        function: mark,
+        arguments: (positionalArguments: null, namedArguments: null),
+        compensation: null,
+      ));
+      expect(outcome, isA<ApplyRejected<void>>());
+      expect(ran, isFalse);
     });
   });
 
@@ -141,8 +148,13 @@ void main() {
       final deputy = await cell.deputy(
         testRule: TestCell((object, {host, arguments, user}) => true),
       );
-      expect(deputy.apply(add, positionalArguments: [4]), isNull);
-      deputy.apply(add, positionalArguments: [4]);
+      final command = (
+        function: add,
+        arguments: (positionalArguments: [4], namedArguments: null),
+        compensation: null,
+      );
+      expect(deputy.apply<void>(command), isA<ApplyAccepted<void>>());
+      deputy.apply<void>(command);
       expect(total, 8);
     });
   });
@@ -194,6 +206,77 @@ void main() {
       expect(second.context, childCtx);
     });
 
+    group('Attenuation enforcement', () {
+      test('isolation can only tighten', () {
+        final ctx = DeputyContext(
+          baseContext: Context.system,
+          authority: 'READ',
+          isolation: Isolation.scoped,
+        );
+        expect(
+          () => ctx.evolve((e) => e == Mandate.isolation
+              ? Mandate.isolation.entry(Isolation.shared)
+              : null),
+          throwsArgumentError,
+        );
+        final tightened = ctx.evolve((e) => e == Mandate.isolation
+            ? Mandate.isolation.entry(Isolation.sandboxed)
+            : null);
+        expect(tightened.isolation, Isolation.sandboxed);
+      });
+
+      test('sovereignty can only tighten', () {
+        final ctx = DeputyContext(
+          baseContext: Context.system,
+          authority: 'READ',
+        );
+        final supervised = ctx.evolve((e) => e == Mandate.sovereignty
+            ? Mandate.sovereignty.entry(Sovereignty.supervised)
+            : null);
+        expect(supervised.sovereignty, Sovereignty.supervised);
+        expect(
+          () => supervised.evolve((e) => e == Mandate.sovereignty
+              ? Mandate.sovereignty.entry(Sovereignty.sovereign)
+              : null),
+          throwsArgumentError,
+        );
+      });
+
+      test('clearance can only tighten', () {
+        final ctx = DeputyContext(
+          baseContext: Context.system,
+          authority: 'READ',
+        );
+        final observational = ctx.evolve((e) => e == Mandate.clearance
+            ? Mandate.clearance.entry(Clearance.observational)
+            : null);
+        expect(observational.clearance, Clearance.observational);
+        expect(
+          () => observational.evolve((e) => e == Mandate.clearance
+              ? Mandate.clearance.entry(Clearance.standard)
+              : null),
+          throwsArgumentError,
+        );
+      });
+
+      test('auditLevel can only tighten', () {
+        final ctx = DeputyContext(
+          baseContext: Context.system,
+          authority: 'READ',
+        );
+        expect(
+          () => ctx.evolve((e) => e == Mandate.auditLevel
+              ? Mandate.auditLevel.entry(AuditLevel.none)
+              : null),
+          throwsArgumentError,
+        );
+        final detailed = ctx.evolve((e) => e == Mandate.auditLevel
+            ? Mandate.auditLevel.entry(AuditLevel.full)
+            : null);
+        expect(detailed.auditLevel, AuditLevel.full);
+      });
+    });
+
     test('a nested deputy rejects an unrelated DeputyContext', () async {
       final cell = Cell();
       final first = await cell.deputy(
@@ -208,7 +291,7 @@ void main() {
       );
       expect(
         () => first.deputy(context: unrelated),
-        throwsA(isA<AssertionError>()),
+        throwsA(isA<StateError>()),
       );
     });
   });
@@ -217,6 +300,19 @@ void main() {
     test('returns this when no attenuation is requested', () {
       final cell = Cell.open();
       expect(cell.deputy(), same(cell));
+    });
+
+    test('rejects a DeputyContext from an unrelated context tree',
+        () async {
+      final gate = Cell.open(context: Context.module('Auth'));
+      final unrelated = DeputyContext.observer(
+        baseContext: Context.module('HR'),
+        task: 'spy',
+      );
+      expect(
+        () => gate.deputy(context: unrelated),
+        throwsA(isA<StateError>()),
+      );
     });
 
     test('creates an OpenCell proxy that can emit', () async {

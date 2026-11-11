@@ -90,18 +90,6 @@ the principal rule and the <code>other</code> rule satisfy their invariants.</li
 If either rule is asynchronous, the execution engine ensures the
 reactive wave is correctly awaited, maintaining <strong>Causal Integrity</strong>.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Evaluation Order</strong>: Execution is strictly left-to-right. This is
-critical when a downstream rule depends on a type-check or null-check
-performed by an upstream rule.</li>
-<li><strong>Structural Efficiency</strong>: Under the hood, this operator delegates to
-<a href="../../mitosis/TestRule/TestRule.chain.html">TestRule.chain</a>, which utilizes the framework's <strong>Flyweight Strategy</strong>
-to minimize memory overhead for long validation chains.</li>
-<li><strong>Short-Circuit Performance</strong>: By failing early, the pipeline avoids
-expensive validation logic (like database lookups) if a basic
-structural invariant has already failed.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final isNotNull = TestRule&lt;String?&gt;((val, {host, arguments, user}) =&gt; val != null);
 final isNotEmpty = TestRule&lt;String&gt;((val, {host, arguments, user}) =&gt; val.isNotEmpty);
@@ -162,7 +150,7 @@ with the host environment <code>C</code>.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

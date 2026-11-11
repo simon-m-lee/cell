@@ -70,7 +70,8 @@
 <section class="desc markdown">
   <p>Equality operator for receptors.</p>
 <p>Two receptors are considered equal if they have the same configuration
-record. Pass-through receptors are considered equal to each other.</p>
+record (the flyweight identity). This mirrors <a href="../../cell_tissue/ReceptorBase/hashCode.html">hashCode</a>, which hashes
+the configuration record, so the <code>==</code>/<code>hashCode</code> contract holds.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>other</code>: The object to compare with.</li>
@@ -86,20 +87,7 @@ record. Pass-through receptors are considered equal to each other.</p>
   <pre class="language-dart"><code class="language-dart">@override
 bool operator ==(Object other) {
   if (identical(this, other)) return true;
-  if (other is Receptor) {
-    if (other == Receptor.passThrough) {
-      try {
-        if ([_instruction, _preProcess, _postProcess, _reaction].every((r) {
-          return r == null;
-        })) {
-          return false;
-        }
-      } catch (_) {
-        return true;
-      }
-    }
-  }
-  return false;
+  return other is _Receptor &amp;&amp; other._record == _record;
 }</code></pre>
 </section>
 
@@ -128,7 +116,7 @@ bool operator ==(Object other) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

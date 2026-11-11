@@ -85,18 +85,6 @@ to the box.</li>
 allowing the same state to be managed safely across asynchronous
 execution boundaries.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Nullable Flexibility</strong>: A box is designed to hold <code>null</code> by default,
-representing an uninitialized, reset, or transitional state.</li>
-<li><strong>Thread Safety Boundary</strong>: The base <a href="../cell_flow/Box-class.html">Box</a> is optimized for
-high-performance, synchronous execution within a single reactive wave.
-It is <strong>not</strong> thread-safe; use the <a href="../cell_flow/Box/async.html">async</a> property for cross-context
-mutations.</li>
-<li><strong>Identity Transparency</strong>: Replacing the <em>value</em> inside a box does not
-trigger observer notifications directly—that responsibility lies with
-the <a href="../cell_flow/Cell-class.html">Cell</a> or <a href="../cell_flow/Nucleus-class.html">Nucleus</a> orchestrating the change.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// 1. Define a state box within an immutable record
 final metadata = (id: 'counter_01', state: Box&lt;int&gt;(0));
@@ -276,7 +264,7 @@ asynchronous access to the underlying state.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

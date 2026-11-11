@@ -26,14 +26,6 @@ import 'test_rule.dart';
 /// into the constructor and/or field initializer of the generated class.
 /// The value must be a compile-time constant.
 ///
-/// ### Non‑obvious
-/// - The annotation itself does not enforce validation; it's purely for
-///   code generation. The generated code handles the initialization.
-/// - The value must be a constant expression; otherwise, the generator will
-///   throw an error.
-/// - The type of [value] must match the annotated field's type, otherwise
-///   you'll get a compile‑time error in the generated code.
-///
 /// ### Examples
 ///
 /// #### Primitives and Strings
@@ -104,16 +96,6 @@ class DefaultValue {
 /// The code generator creates validation code that checks the length of the
 /// field (or its host container) against the specified limits. The validation
 /// runs at runtime when setting the field.
-///
-/// ### Non‑obvious
-/// - The rule supports **host‑aware validation** via the optional [hostLength]
-///   parameter. This allows you to restrict the length of a container (like a
-///   list) from an annotation on its elements.
-/// - For `String` fields, it checks `object.length`. For `Iterable` fields,
-///   it checks `object.length` (element count).
-/// - The `.host()` constructor disables direct length checking and only
-///   validates the host container – useful for annotations on child elements.
-/// - Non‑string/iterable objects pass validation (the rule does not apply).
 ///
 /// ### Examples
 ///
@@ -248,13 +230,6 @@ class MaxLength extends TestRule<Never> {
 /// `max` inclusive. Non‑numeric values (like `null` or strings) pass
 /// validation to allow flexible annotation usage on optional fields.
 ///
-/// ### Non‑obvious
-/// - The range is inclusive: `min <= value <= max`.
-/// - `null` and non‑numeric values are allowed (return `true`). This is
-///   intentional – use `@DefaultValue` to provide a default if needed.
-/// - If the field is nullable and you want to disallow `null`, you can
-///   combine with a separate `TestRule` or handle it in code.
-///
 /// ### Examples
 ///
 /// #### 1. Percentage / Ratio Constraints
@@ -335,12 +310,6 @@ class ValueRange extends TestRule<Never> {
 /// The generated validation code matches the field's value against the [pattern]
 /// using Dart's [RegExp]. You can control case sensitivity, allow empty strings,
 /// and allow null values.
-///
-/// ### Non‑obvious
-/// - `null` values are validated based on [allowNull] – if `false`, they fail.
-/// - Empty strings are validated based on [allowEmpty] – if `false`, they fail.
-/// - Non‑string objects always pass (useful for optional or dynamic fields).
-/// - The pattern must be a valid Dart regex string.
 ///
 /// ### Examples
 ///
@@ -456,12 +425,6 @@ class EntryPattern extends TestRule<Never> {
 /// provided [values] list. It uses `Iterable.contains`, so equality is based
 /// on `==` and `hashCode`.
 ///
-/// ### Non‑obvious
-/// - You can include `null` in the list to allow `null` values.
-/// - Equality is based on `==`, so for custom objects you may need to override
-///   `==` and `hashCode`.
-/// - Non‑matching values (including `null` if not in the list) fail validation.
-///
 /// ### Examples
 ///
 /// #### 1. Status and Role Whitelisting
@@ -547,11 +510,6 @@ class Values extends TestRule<Never> {
 /// By default, it uses a robust regex that checks for user@domain.tld.
 /// You can customise the pattern if needed.
 ///
-/// ### Non‑obvious
-/// - The default pattern is case‑insensitive and allows typical email formats.
-/// - `null` is allowed by default (use `allowNull: false` to reject null).
-/// - For strict RFC compliance, consider providing a custom [pattern].
-///
 /// ### Examples
 ///
 /// #### 1. Standard Profile Validation
@@ -605,13 +563,6 @@ class EmailPattern extends EntryPattern {
 /// ### How it works
 /// By default, it uses a regex that checks for http:// or https://, domain,
 /// and optional path. You can customise the pattern if needed.
-///
-/// ### Non‑obvious
-/// - The default pattern allows optional protocol (http/https), domain, TLD,
-///   and optional path.
-/// - `null` is allowed by default (use `allowNull: false` to reject null).
-/// - For strict URL validation (e.g., requiring certain subdomains), provide
-///   a custom [pattern].
 ///
 /// ### Examples
 ///

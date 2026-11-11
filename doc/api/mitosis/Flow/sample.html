@@ -87,14 +87,6 @@ a. If there's a pending value, it's emitted.
 b. The pending value is cleared.
 c. If no pending value, nothing is emitted.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Pending Only</strong>: Values are only emitted if they arrived since
-the last emission.</li>
-<li><strong>Ignored Ticks</strong>: Notifier ticks with no pending value are ignored.</li>
-<li><strong>Latest Only</strong>: Only the latest value is held; older values are
-overwritten.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -125,7 +117,10 @@ source.emit(3);
 <h3 id="see-also">See Also:</h3>
 <ul>
 <li><a href="../../mitosis/Flow/sampleTime.html">sampleTime</a>: For time-based sampling.</li>
-<li><a href="../../mitosis/Flow/audit.html">audit</a>: For audit on notifier.</li>
+<li><a href="../../mitosis/Flow/audit.html">audit</a>: For audit on notifier.
+Materializes a <code>Sample</code> instruction. Like every <a href="../../mitosis/Flow-class.html">Flow</a> factory the
+returned <a href="../../mitosis/FlowHandle.html">FlowHandle</a> is untyped: the payload type <code>S</code> is enforced by
+the operator's own type checks, not by the handle record.</li>
 </ul>
 </section>
 
@@ -167,7 +162,7 @@ source.emit(3);
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

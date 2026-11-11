@@ -70,12 +70,6 @@ This constructor is the internal engine that powers that factory.</p>
 <p>It takes a list of <a href="../../mitosis/GovernanceEntry-class.html">GovernanceEntry</a> objects and packs them into a
 memory-optimised record. If a <code>parent</code> is provided, the new context
 inherits from it via prototype-based inheritance.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>parent</code> chain is immutable – once set, it can't be changed.</li>
-<li>The <code>others</code> map is for custom metadata that doesn't fit the standard
-ontology dimensions.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>entries</code>: An iterable of <a href="../../mitosis/GovernanceEntry-class.html">GovernanceEntry</a> pairs defining the core
@@ -128,7 +122,7 @@ its baseline governance and identity.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

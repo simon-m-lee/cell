@@ -80,11 +80,6 @@ Pulse<A> _out<A>(A value, Pulse trigger, Cell? cell, String step) {
 /// 2. [generation] increments on each successful update.
 /// 3. The snapshot is shared between the instruction and external code.
 ///
-/// ### Non‑obvious
-/// - **Volatile**: The snapshot is in-memory only, not persisted.
-/// - **Shared**: The snapshot is mutable and shared with the instruction.
-/// - **Generation**: The generation counter helps detect updates.
-///
 /// ### Example: Inspecting State
 /// ```dart
 /// final snapshot = FoldSnapshot<int>(0);
@@ -167,15 +162,6 @@ class FoldSnapshot<A> {
 /// 6. If [accumulate] throws an error, it's reported and the instruction
 ///    continues with the next input.
 /// 7. Each emitted value gets the step `'AsyncFold'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Sequential Processing**: Steps run one after another.
-/// - **Queueing**: Inputs are queued while processing.
-/// - **No Cancellation**: Previous operations are not cancelled.
-/// - **Error Isolation**: Errors don't stop the queue.
-/// - **Snapshot Access**: The snapshot can be read externally.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
 ///
 /// ### Example: Running Sum
 /// ```dart
@@ -303,8 +289,8 @@ class AsyncFold<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     this.snapshot,
     FoldErrorHandler? onError,
     dynamic user,
-  ) : super.future(
-          (() {
+  ) : super.stateful(
+          () {
             final snap = snapshot;
             final queue = <S>[];
             var busy = false;
@@ -344,7 +330,7 @@ class AsyncFold<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               pump();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 
@@ -395,15 +381,6 @@ class AsyncFold<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///    continues with the next input.
 /// 5. Each emitted value gets the step `'AsyncReduce'` (or `'AsyncReduce.seed'`
 ///    for the first value) for provenance.
-///
-/// ### Non‑obvious
-/// - **First Value as Seed**: The first value is emitted as the seed.
-/// - **No Seed Parameter**: No explicit seed is required.
-/// - **Sequential Processing**: Steps run one after another.
-/// - **Queueing**: Inputs are queued while processing.
-/// - **Error Isolation**: Errors don't stop the queue.
-/// - **Provenance Preservation**: The seed emission gets the step
-///   `'AsyncReduce.seed'` to distinguish it from accumulated values.
 ///
 /// ### Parameters:
 /// - [accumulate]: **Accumulation Function.** Called with the current
@@ -487,8 +464,8 @@ class AsyncReduce<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FutureOr<S> Function(S acc, S value) accumulate, {
     FoldErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             S? acc;
             var has = false;
             final queue = <S>[];
@@ -536,7 +513,7 @@ class AsyncReduce<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               pump();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -587,17 +564,6 @@ class AsyncReduce<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 6. If [accumulate] throws an error, it's reported only for the
 ///    current generation.
 /// 7. Each emitted value gets the step `'AsyncFoldLatest'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Generation Tracking**: Each operation gets a unique ID.
-/// - **Silent Cancellation**: Cancelled operations don't emit errors.
-/// - **Latest Only**: Only the most recent operation emits values.
-/// - **Error Isolation**: Only errors from the current generation are
-///   reported.
-/// - **Snapshot Update**: The snapshot is only updated for the latest
-///   generation.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
 ///
 /// ### Parameters:
 /// - [seed]: **Initial State.** The starting accumulator value.
@@ -700,8 +666,8 @@ class AsyncFoldLatest<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     this.snapshot,
     FoldErrorHandler? onError,
     dynamic user,
-  ) : super.future(
-          (() {
+  ) : super.stateful(
+          () {
             final snap = snapshot;
             var generation = 0;
             return (pulse, {cell, user, future, token}) {
@@ -736,7 +702,7 @@ class AsyncFoldLatest<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               run();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 
@@ -792,17 +758,6 @@ class AsyncFoldLatest<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. The snapshot is updated on each successful accumulation.
 /// 5. If [accumulate] throws an error, the busy flag is cleared.
 /// 6. Each emitted value gets the step `'AsyncFoldExhaust'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Dropping**: New triggers are silently dropped while busy.
-/// - **Single Operation**: Only one accumulation runs at a time.
-/// - **No Queuing**: No queuing; dropped triggers are lost.
-/// - **Error Clearing**: Errors clear the busy flag.
-/// - **Snapshot Update**: The snapshot is updated on each successful
-///   accumulation.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Drop First**: The first trigger is always processed.
 ///
 /// ### Parameters:
 /// - [seed]: **Initial State.** The starting accumulator value.
@@ -904,8 +859,8 @@ class AsyncFoldExhaust<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     this.snapshot,
     FoldErrorHandler? onError,
     dynamic user,
-  ) : super.future(
-          (() {
+  ) : super.stateful(
+          () {
             final snap = snapshot;
             var busy = false;
             return (pulse, {cell, user, future, token}) {
@@ -942,7 +897,7 @@ class AsyncFoldExhaust<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               run();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 

@@ -82,12 +82,6 @@ it's skipped.</li>
 <li>If the payload is different, it's emitted and becomes the new
 previous value.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Consecutive Only</strong>: Only back-to-back duplicates are skipped.</li>
-<li><strong>No Initial Emission</strong>: The first value is always skipped.</li>
-<li><strong>State Persistence</strong>: The instruction maintains the previous value.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -151,7 +145,7 @@ ticks.emit(3); // passes through
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

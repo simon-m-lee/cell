@@ -82,24 +82,6 @@ the <code>principal</code> chain, with sensible defaults.</li>
 nucleus with a fresh lock and synapses, essential for creating new
 queue instances from a template.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <a href="../mitosis/TissueQueueNucleusBase/capacity.html">capacity</a> is <strong>structural</strong> – it is fixed at creation and inherited
-by all deputies. A deputy cannot change an unbounded queue into a bounded
-one, or vice versa, unless it explicitly overrides the capacity at
-creation time (which is possible via <code>TissueQueueNucleus.evolve</code> with a
-new capacity).</li>
-<li>The nucleus is a <strong>flyweight</strong> – many queues can share the same nucleus
-without duplicating memory.</li>
-<li>The <a href="../mitosis/TissueQueueNucleus/clone.html">clone</a> getter creates a root nucleus (no principal) with its own
-lock, making it safe to use for independent queue instances.</li>
-<li>The <a href="../mitosis/TissueQueueNucleusBase/principal.html">principal</a> chain enables <strong>prototype inheritance</strong> – a deputy can
-override only specific properties (like <code>testRule</code>) while inheriting the
-rest from its principal.</li>
-<li>The <a href="../mitosis/TissueQueueNucleusBase/capacity.html">capacity</a> is used for <strong>backpressure regulation</strong> – when the queue
-is full, <code>add</code> operations may drop the oldest element or reject the new
-one, depending on the specific <code>TissueQueue</code> implementation.</li>
-</ul>
 <h3 id="example-reusing-a-validated-queue-nucleus">Example: Reusing a validated queue nucleus</h3>
 <pre class="language-dart"><code class="language-dart">final validNucleus = TissueQueueNucleus.create&lt;String&gt;(
   capacity: 10,
@@ -158,18 +140,11 @@ allowing for type‑safe pulse processing within the hierarchy.</li>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="TissueQueueNucleusBase.new" class="callable">
-          <span class="name"><a href="../mitosis/TissueQueueNucleusBase/TissueQueueNucleusBase.html">TissueQueueNucleusBase</a></span><span class="signature">({<span class="parameter" id="-param-capacity"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">capacity</span>, </span><span class="parameter" id="-param-bind"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../mitosis/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span><span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../mitosis/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">TissueReceptor.passThrough</span>, </span><span class="parameter" id="-param-testRule"><span class="type-annotation"><a href="../mitosis/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestTissue.allowAll</span>, </span><span class="parameter" id="-param-synapses"><span class="type-annotation"><a href="../mitosis/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span><span class="parameter" id="-param-ephemeralPolicy"><span class="type-annotation"><a href="../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span></span>})</span>
+          <span class="name"><a href="../mitosis/TissueQueueNucleusBase/TissueQueueNucleusBase.html">TissueQueueNucleusBase</a></span><span class="signature">({<span class="parameter" id="-param-capacity"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">capacity</span>, </span><span class="parameter" id="-param-bind"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../mitosis/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span><span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../mitosis/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">TissueReceptor.passThrough</span>, </span><span class="parameter" id="-param-testRule"><span class="type-annotation"><a href="../mitosis/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestTissue.allowAll</span>, </span><span class="parameter" id="-param-synapses"><span class="type-annotation"><a href="../mitosis/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span><span class="parameter" id="-param-ephemeralPolicy"><span class="type-annotation"><a href="../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="-param-principal"><span class="type-annotation"><a href="../mitosis/TissueNucleusBase-class.html">TissueNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-collection/Queue-class.html">Queue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>, <span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">principal</span></span>})</span>
         </dt>
         <dd>
-          <strong>Primary Constructor</strong> – defines the immutable behaviour, capacity,
-and storage strategy for a reactive queue.
-        </dd>
-        <dt id="TissueQueueNucleusBase.evolve" class="callable">
-          <span class="name"><a href="../mitosis/TissueQueueNucleusBase/TissueQueueNucleusBase.evolve.html">TissueQueueNucleusBase.evolve</a></span><span class="signature">({<span class="parameter" id="evolve-param-override"><span class="type-annotation"><a href="../mitosis/Nucleus-class.html">Nucleus</a>?</span> <span class="parameter-name">override</span>, </span><span class="parameter" id="evolve-param-principal"><span>required</span> <span class="type-annotation"><a href="../mitosis/TissueQueueNucleus-class.html">TissueQueueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">principal</span></span>})</span>
-        </dt>
-        <dd>
-          <strong>Evolution Constructor</strong> – creates a specialised deputy nucleus by
-extending an existing <code>principal</code>.
+          <strong>Primary Blueprint Constructor</strong> – Defines the immutable behaviour,
+capacity, and storage strategy for a reactive queue.
         </dd>
         <dt id="TissueQueueNucleusBase.fromRecord" class="callable">
           <span class="name"><a href="../mitosis/TissueQueueNucleusBase/TissueQueueNucleusBase.fromRecord.html">TissueQueueNucleusBase.fromRecord</a></span><span class="signature">(<span class="parameter" id="fromRecord-param-record"><span class="type-annotation">dynamic</span> <span class="parameter-name">record</span></span>)</span>
@@ -549,7 +524,7 @@ custom property extensions for the associated <a href="../mitosis/Cell-class.htm
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

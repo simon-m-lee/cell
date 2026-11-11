@@ -391,6 +391,32 @@ void main() {
         expect(cell.isInvalidated, isFalse);
       });
 
+      test('a declined eventLimit reclamation keeps the TTL timer alive',
+          () async {
+        var invalidations = 0;
+        final policy = EphemeralPolicy(
+          eventLimit: 1,
+          duration: Duration(milliseconds: 40),
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
+              (events: policy.events + 1),
+          onInvalidate: (nucleus) {
+            invalidations++;
+            // Decline the quota-triggered reclamation; accept the TTL one.
+            return invalidations > 1;
+          },
+        );
+        final cell = hostCell(policy);
+        policy('start', cell: cell);
+        // The limit is reached but the hook declines: the node stays live
+        // and must keep its TTL guarantee — the timer may not be disposed.
+        expect(policy.isInvalidated, isFalse);
+        await Future<void>.delayed(Duration(milliseconds: 90));
+        expect(invalidations, 2);
+        expect(policy.isInvalidated, isTrue);
+        expect(cell.isInvalidated, isTrue);
+      });
+
       test('TTL is a no-op if the cell was already reclaimed', () async {
         var invalidations = 0;
         final policy = EphemeralPolicy(

@@ -53,6 +53,11 @@
 </h1></div>
 
     
+<section class="desc markdown">
+  <p>Emitted before each retry of a compensation function.</p>
+<p>Fires between attempts — not after the final failed attempt (that
+produces <a href="../cell_flow/TxApplyCompensationFailed-class.html">TxApplyCompensationFailed</a> instead).</p>
+</section>
 
 
     <section>
@@ -104,7 +109,7 @@
 
 </dt>
 <dd>
-  
+  The 1-based attempt number that just failed.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -116,7 +121,7 @@
 
 </dt>
 <dd>
-  
+  The cell whose compensation is being retried.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -128,7 +133,7 @@
 
 </dt>
 <dd>
-  
+  The error that caused the retry.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -152,7 +157,7 @@
 
 </dt>
 <dd>
-  
+  The total number of attempts configured for this compensation.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -254,7 +259,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -73,13 +73,6 @@ conditions, compose multiple rules.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The rule is wrapped into a generic <a href="../../mitosis/TestRule-class.html">TestRule</a> that only triggers if
 the object is a <a href="../../mitosis/Pulse-class.html">Pulse</a> and the host is non‑null.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The rule receives the <code>host</code> cell, which you can use to check the
-cell's context or state.</li>
-<li>The optional <code>parent</code> allows chaining to another pulse rule.</li>
-<li>The <code>user</code> parameter can carry configuration data to the rule.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final rule = TestPulseRule&lt;Cell&gt;((pulse, {host, user}) {
   return pulse.context.actor == 'admin';
@@ -167,7 +160,7 @@ expect(await pulsePolicy.pulse(invalid, host: cell), isFalse);
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

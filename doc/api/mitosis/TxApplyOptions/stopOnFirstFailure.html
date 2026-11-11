@@ -61,6 +61,13 @@
 
       </section>
       
+<section class="desc markdown">
+  <p>If <code>true</code> (default), a forward-path rejection or veto stops the commit
+loop and triggers compensation of previously-executed commands.</p>
+<p>If <code>false</code>, rejections are <strong>logged via <a href="../../mitosis/TxApplyRejected-class.html">TxApplyRejected</a> but not
+treated as failures</strong> — commit continues to the next staged command.
+Use with care: this defeats the atomicity contract.</p>
+</section>
 
       
 <section class="summary source-code" id="source">
@@ -94,7 +101,7 @@
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

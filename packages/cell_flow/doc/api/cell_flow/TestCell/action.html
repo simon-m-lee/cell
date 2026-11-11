@@ -63,6 +63,7 @@
 <span class="name ">action</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="action-param-action"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">action</span>, {</span></li>
 <li><span class="parameter" id="action-param-host"><span>required</span> <span class="type-annotation">C</span> <span class="parameter-name">host</span>, </span></li>
 <li><span class="parameter" id="action-param-arguments"><span class="type-annotation"><a href="../../cell_flow/Arguments.html">Arguments</a>?</span> <span class="parameter-name">arguments</span>, </span></li>
+<li><span class="parameter" id="action-param-command"><span class="type-annotation"><a href="../../cell_flow/ApplyCommand.html">ApplyCommand</a>?</span> <span class="parameter-name">command</span>, </span></li>
 </ol>})
 
       <div class="features"><span class="feature">override</span></div>
@@ -113,16 +114,6 @@ evaluated.</li>
 <li><strong>Short‑Circuit</strong>: If any validation returns <code>false</code>, the whole
 action is rejected.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The arguments are validated using the same <code>call()</code> method, so they
-can be subject to the same policies as state changes.</li>
-<li>The <a href="../../cell_flow/TestActionRule-class.html">TestActionRule</a>s are only those that are explicitly added via
-<code>TestActionRule</code> instances; other rules are ignored for action
-validation.</li>
-<li>The method returns <code>FutureOr&lt;bool&gt;</code>, so it can be synchronous or
-asynchronous depending on the rules.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final policy = TestCell&lt;Cell&gt;((object, {host, arguments, user}) {
   return object is int &amp;&amp; object &gt; 0;
@@ -172,15 +163,6 @@ print(authorized); // true or false
 &#47;&#47;&#47; 4. **Short‑Circuit**: If any validation returns `false`, the whole
 &#47;&#47;&#47;    action is rejected.
 &#47;&#47;&#47;
-&#47;&#47;&#47; ### Non‑obvious
-&#47;&#47;&#47; - The arguments are validated using the same `call()` method, so they
-&#47;&#47;&#47;   can be subject to the same policies as state changes.
-&#47;&#47;&#47; - The [TestActionRule]s are only those that are explicitly added via
-&#47;&#47;&#47;   `TestActionRule` instances; other rules are ignored for action
-&#47;&#47;&#47;   validation.
-&#47;&#47;&#47; - The method returns `FutureOr&lt;bool&gt;`, so it can be synchronous or
-&#47;&#47;&#47;   asynchronous depending on the rules.
-&#47;&#47;&#47;
 &#47;&#47;&#47; ### Example
 &#47;&#47;&#47; ```dart
 &#47;&#47;&#47; final policy = TestCell&lt;Cell&gt;((object, {host, arguments, user}) {
@@ -205,7 +187,7 @@ print(authorized); // true or false
 &#47;&#47;&#47; `true` if the action is authorized; `false` otherwise.
 @override
 FutureOr&lt;bool&gt; action(Function action,
-    {required C host, Arguments? arguments}) {
+    {required C host, Arguments? arguments, ApplyCommand? command}) {
   &#47;&#47; Phase A: Argument Integrity
   if (arguments != null) {
     final elements = [
@@ -221,7 +203,7 @@ FutureOr&lt;bool&gt; action(Function action,
     if (argResult is Future&lt;bool&gt;) {
       return argResult.then((passed) {
         if (!passed) return false;
-        return _checkActionRules(action, host, arguments);
+        return _checkActionRules(action, host, arguments, command);
       });
     }
 
@@ -229,7 +211,7 @@ FutureOr&lt;bool&gt; action(Function action,
   }
 
   &#47;&#47; Phase B: Action Specialization
-  return _checkActionRules(action, host, arguments);
+  return _checkActionRules(action, host, arguments, command);
 }</code></pre>
 </section>
 
@@ -258,7 +240,7 @@ FutureOr&lt;bool&gt; action(Function action,
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

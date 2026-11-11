@@ -90,14 +90,6 @@ provided <code>arg</code>.</li>
 <li>The resulting collection is <strong>reversed</strong> to provide a chronological
 sequence (FIFO: First-In, First-Out).</li>
 </ol>
-<h3 id="nonobvious-chronological-order">Non‑obvious: chronological order</h3>
-<p>Unlike the manual <code>parent</code> traversal which is LIFO (Last-In, First-Out),
-<a href="../../cell_tissue/PulseShell/lineage.html">lineage</a> returns a FIFO list. The element at index <code>0</code> is always
-the <a href="../../cell_tissue/PulseShell/root.html">root</a> pulse's value.</p>
-<h3 id="nonobvious-type-safety">Non‑obvious: type safety</h3>
-<p>If a pulse in the chain returns a value that does not match the
-requested type <code>T</code>, that specific hop is omitted from the results
-to prevent runtime type exceptions during iteration.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// Trace how the payload evolved from the original input
 final history = pulse.lineage&lt;double&gt;(Pulse.payload);
@@ -152,7 +144,7 @@ List&lt;T&gt; lineage&lt;T&gt;(LineageArgument arg) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

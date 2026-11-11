@@ -61,7 +61,7 @@
 <li><span class="parameter" id="throttle-param-trailing"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">trailing</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
 
-      <div class="features"><span class="feature">override</span></div>
+      
 
     </section>
     
@@ -91,14 +91,6 @@ ignore rest during window.</li>
 after window, skip first.</li>
 <li><strong>Both</strong> (<code>leading: true, trailing: true</code>): Emit first and last.</li>
 <li><strong>Neither</strong> (<code>leading: false, trailing: false</code>): No emissions during window.</li>
-</ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Fixed Windows</strong>: Windows are fixed duration and do not reset.</li>
-<li><strong>Leading Emission</strong>: The first pulse in a window is emitted immediately.</li>
-<li><strong>Trailing Emission</strong>: The last pulse in a window is emitted when the
-window closes.</li>
-<li><strong>Pending Value</strong>: Only the most recent value in the window is kept.</li>
 </ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
@@ -131,6 +123,28 @@ final handle = Flow.throttle&lt;ScrollEvent&gt;(
 <li><a href="../../cell_flow/Flow/debounce.html">debounce</a>: For silence-based emission.</li>
 <li><a href="../../cell_flow/Flow/sample.html">sample</a>: For sampling on notifier.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Flow — time operator. Not a Cell factory, not a Tissue book.
+<strong>When to use:</strong> supervisor mash on ACK / constant-rate sampling — at most one pulse per duration (leading/trailing), on a feed <strong>before</strong> <code>publishTick</code>.
+<strong>When NOT to use:</strong>
+  <strong>DON'T</strong> use a Time operator (<code>Debounce</code>, <code>Throttle</code>, <code>Delay</code>) as the
+policy gate. Time operators shape feeds (belt chatter, search boxes);
+the decision belongs in a <code>FlowInstructionBase</code> subclass.
+See <code>HowTo-Mitose-Flow.md</code> §3.6 "Time".
+<strong>Live signature:</strong> <code>Flow.throttle&lt;S&gt;(Cell source, {required Duration duration, bool leading = true, bool trailing = false})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Flow.debounce</code> (waits for silence; this is a fixed rate window).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.6 "Time" (#flow-time)
+<strong>Example:</strong> <code>example/throttle_rate_limiting_demo.dart</code>
+<strong>Cross-layer:</strong> the Cell-layer twin is <code>Cell.throttle</code>; neither is a policy gate.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final h = Flow.throttle&lt;int&gt;(src.cell, duration: const Duration(milliseconds: 50));
+final o = Cell.observe(source: h.cell, effect: (Pulse p) =&gt; print(p.payload));
+src.emit(1);
+src.emit(2);
+await Future&lt;void&gt;.delayed(const Duration(milliseconds: 80));
+o.stop();
+</code></pre>
 </section>
 
 
@@ -176,7 +190,7 @@ final handle = Flow.throttle&lt;ScrollEvent&gt;(
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -1,0 +1,60 @@
+# cell_tissue benchmark suite
+
+Mirrors the `cell` package's suite: every benchmark runs outside the
+`cell_tissue` library, exercising only the public API surface.
+
+## Layout
+
+| Path | What it measures |
+|---|---|
+| `benchmark/micro/tissue_construction.dart` | Per-shape construction: `TissueList`, `TissueMap`, `TissueSet`, `TissueQueue`, `TissueValue` vs plain `List`/`Map`/`Set`/`Queue`/field controls |
+| `benchmark/micro/tissue_mutation.dart` | Pure mutation cost (`add`/`put`/`addLast`/`value =`) with no observers vs bare collection mutations |
+| `benchmark/propagation/observer_delivery.dart` | End-to-end delivery: mutation → validation → commit → broadcast → observer, vs plain collection + listener callback |
+| `benchmark/memory/per_tissue_footprint.dart` | VM-service heap delta per tissue instance (run with `dart run --observe`) |
+| `benchmark/compare/vs_plain_collections.dart` | Feature-fair comparison: reactive tissue + observer vs plain collection + hand-rolled listener |
+| `benchmark/runner.dart` | PR suite: runs the three cheap files and writes JSON results |
+| `benchmark/compare.dart` | Regression gate: fails when any result regresses > 15% vs `baseline.json` |
+
+## Run
+
+```bash
+# From packages/cell_tissue
+dart run benchmark/runner.dart --out current.json   # full PR suite
+dart run benchmark/compare.dart \
+  --baseline benchmark/baseline.json --current current.json
+dart run benchmark/compare/vs_plain_collections.dart
+dart run --observe benchmark/memory/per_tissue_footprint.dart
+```
+
+## Pass criteria
+
+| Claim | Benchmark | Criterion |
+|---|---|---|
+| Tissue construction is "cheap enough" for app code | `micro/tissue_construction.dart` | Each shape constructs in the low microsecond range; the suite gates regressions, the plain-collection ratio is reported honestly |
+| Mutations stay bounded | `micro/tissue_mutation.dart` | Per-op mutation remains in the microsecond range and scales linearly with graph size |
+| Observer delivery preserves the cell pipeline's characteristics | `propagation/observer_delivery.dart` | Delivery within ~2× of the equivalent `cell` single-hop cost |
+| Flyweight footprint | `memory/per_tissue_footprint.dart` | Per-tissue heap footprint reported per shape; gate keeps it bounded across releases |
+
+## Research sub-suite
+
+The expanded `benchmark/tissue/` sub-suite implements
+the tissue benchmark proposal: per-op mutation anchors, fan-out scaling,
+deputy/unmodifiable live-view checks, batch metadata fitness, container
+variants, bulk/complex operators, async mutation, memory footprint, and
+feature-fair plain-collection comparisons — see
+[`benchmark/tissue/README.md`](tissue/README.md) for the layout and how to run
+the PR suite and the 15% regression gate.
+
+The sub-suite's semantic fitness tests live in `test/tissue/fitness/` and run
+in normal CI; they assert the docstring contracts (live unmodifiable views,
+deep projection, batch metadata, `TestTissue` user propagation, growable
+defaults, unknown-dispatch rejection, `fromNucleus` casts) that the timing
+numbers depend on.
+
+The honest framing: a tissue is a `Cell` + `Nucleus` + container, so
+construction and per-mutation costs are dominated by the `cell` layer's
+pipeline. The suite's job is to catch regressions in that layering — the
+plain-collection ratios are published for context, not as parity targets.
+
+If a benchmark never fails on the current codebase, it's probably not
+testing enough — tighten the workload before tuning the criterion.

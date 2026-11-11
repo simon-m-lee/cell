@@ -107,8 +107,10 @@ priority pulses are processed before lower priority ones.</p>
   <pre class="language-dart"><code class="language-dart">@override
 int get priority {
   int local() {
-    return get&lt;int&gt;(() =&gt; _record.root.tertiary.priority,
-        fallback: () =&gt; _parent?.priority, orElse: Pulse.defaultPriority);
+    if ((_shape &amp; _kPriority) != 0) {
+      return _record.root.tertiary.priority;
+    }
+    return _parent?.priority ?? Pulse.defaultPriority;
   }
 
   if (context != PulseContext.system) {
@@ -145,7 +147,7 @@ int get priority {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

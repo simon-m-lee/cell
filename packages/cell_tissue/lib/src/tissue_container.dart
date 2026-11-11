@@ -29,16 +29,6 @@ part of '../cell_tissue.dart';
 /// - When the value is swapped, the owning [TissueValue] detects the change
 ///   and broadcasts the appropriate reactive signals.
 ///
-/// ### Non‑obvious
-/// - Unlike a [List] with a single element, [ValueContainer] avoids the
-///   overhead of an underlying array allocation. It stores the reference
-///   directly, making it memory‑efficient.
-/// - The container is mutable – you can change `value` directly. However,
-///   in a [Tissue] context, you should use the tissue's `set` method to
-///   ensure validation and pulse propagation.
-/// - The container itself is not reactive; it's just a dumb storage cell.
-///   Reactivity is added by the [TissueValue] that wraps it.
-///
 /// ### Example (internal usage)
 /// ```dart
 /// final container = ValueContainer<int>(42);
@@ -115,16 +105,6 @@ class ValueContainer<V> extends IterableBase<V> {
 /// - The [store] is initialised lazily via the [init] method, allowing
 ///   collections to defer memory allocation until the first pulse or
 ///   iteration occurs.
-///
-/// ### Non‑obvious
-/// - The container is **not** itself reactive – it only stores data. Reactivity
-///   is provided by the [Tissue] that wraps it.
-/// - The `add` and `remove` methods automatically manage synaptic links for
-///   child cells. When you add a cell, it's linked; when you remove it, it's
-///   unlinked (if no other references exist).
-/// - The `store` is `late final` – it must be initialised before use. The
-///   `init` method is called by the tissue during construction.
-/// - Equality of containers is based on the underlying store's equality.
 ///
 /// ### Type Parameters:
 /// * [E]: The type of elements managed by the tissue.
@@ -222,12 +202,6 @@ class TissueContainer<E, I extends Iterable<E>> extends IterableBase<E>
   /// - It invokes the `_init` closure defined in the container's [_type] strategy.
   /// - The [store] is assigned exactly once; subsequent calls are no‑ops.
   ///
-  /// ### Non‑obvious
-  /// - The [initialization] parameter is polymorphic – it can be an `Iterable`,
-  ///   a `Map`, or a single value, depending on the storage strategy.
-  /// - If the store was already initialised (e.g., by the [iterator] lazy path),
-  ///   this method safely returns the existing instance.
-  ///
   /// ### Parameters:
   /// - [initialization]: Optional data used to populate the collection.
   ///
@@ -255,13 +229,6 @@ class TissueContainer<E, I extends Iterable<E>> extends IterableBase<E>
   ///   `synapses.link` to wire the element into the tissue's dependency graph.
   /// - The operation is designed to occur within the synchronisation [Lock] of
   ///   the [tissue], ensuring atomicity.
-  ///
-  /// ### Non‑obvious
-  /// - The method is wrapped in a `try‑catch` to handle edge cases where the
-  ///   underlying store might be fixed‑length (throwing an [UnsupportedError]).
-  /// - If the element is a [Cell] and the addition succeeds, the link is
-  ///   established. If the element was already present (in a Set), the link
-  ///   is still established if it's a new reference.
   ///
   /// ### Parameters:
   /// - [tissue]: The [Tissue] instance that owns this container.
@@ -297,13 +264,6 @@ class TissueContainer<E, I extends Iterable<E>> extends IterableBase<E>
   ///   elsewhere in the collection. If not, it invokes `synapses.unlink` to
   ///   sever the dependency.
   /// - The operation is atomic within the tissue's lock.
-  ///
-  /// ### Non‑obvious
-  /// - The duplicate check is important for non‑unique collections like Lists.
-  ///   If the same [Cell] instance appears multiple times, the link is
-  ///   preserved until the last reference is removed.
-  /// - If the element is not found, the method returns `false` without
-  ///   attempting to unlink.
   ///
   /// ### Parameters:
   /// - [tissue]: The [Tissue] instance that owns this container.
@@ -433,20 +393,6 @@ class TissueContainer<E, I extends Iterable<E>> extends IterableBase<E>
 /// - [Container.iterable] – read‑only iterable (no mutations).
 /// - [Container.iterableNever] – permanently empty iterable.
 ///
-/// ### Non‑obvious
-/// - The strategy is **stateless** – it holds no data. The data is stored
-///   in a separate [TissueContainer] instance. This allows strategies to
-///   be shared (flyweight pattern) across millions of collections.
-/// - The `add` and `remove` functions are responsible for **reactive
-///   lifecycle management** – they should not be called directly without
-///   the appropriate context (tissue, lock, etc.). The framework handles
-///   this via [TissueContainer].
-/// - When you create a custom strategy, you must ensure that the `add` and
-///   `remove` functions correctly handle the linking/unlinking of [Cell]
-///   elements if needed. The framework expects that the container will
-///   call `synapses.link`/`unlink` appropriately, but the strategy itself
-///   only knows about the storage; the linking is done in [TissueContainer].
-///
 /// ### Example: Using a predefined strategy
 /// ```dart
 /// // Create a container backed by an identity set
@@ -488,9 +434,6 @@ abstract interface class Container {
   /// - The `add` and `remove` functions always return `false`.
   /// - No reactive links are ever established.
   ///
-  /// ### Non‑obvious
-  /// - This is a singleton – all instances share the same empty iterable.
-  /// - It is the most memory‑efficient container possible.
   static const iterableNever = _Container(
       create: _iterableNeverCreate,
       add: _iterableNeverAdd,
@@ -507,10 +450,6 @@ abstract interface class Container {
   /// - The `add` and `remove` functions always return `false`.
   /// - No reactive linking is performed.
   ///
-  /// ### Non‑obvious
-  /// - The underlying iterable is not copied – the container holds a reference
-  ///   to the original. If the original is mutable, changes will be visible.
-  /// - This strategy is often used for `Tissue.unmodifiable` views.
   static const iterable = _Container(
       create: _iterableCreate, add: _iterableAdd, remove: _iterableRemove);
 
@@ -526,10 +465,6 @@ abstract interface class Container {
   /// - The `add` function adds the element if not already present.
   /// - The `remove` function removes the element if present.
   ///
-  /// ### Non‑obvious
-  /// - The set uses value equality, so two different objects with the same
-  ///   `hashCode` and `==` are considered duplicates.
-  /// - For identity‑based uniqueness, use [Container.identitySet].
   static const set =
       _Container(create: _setCreate, add: _setAdd, remove: _setRemove);
 
@@ -545,10 +480,6 @@ abstract interface class Container {
   /// - The `create` function returns a [LinkedHashSet.identity].
   /// - Membership is determined by [identical] comparisons.
   ///
-  /// ### Non‑obvious
-  /// - This is faster than value‑based sets because it avoids calling
-  ///   `hashCode` and `==`.
-  /// - It is the preferred strategy for collections of `Cell` objects.
   static const identitySet =
       _Container(create: _identitySetCreate, add: _setAdd, remove: _setRemove);
 
@@ -563,10 +494,6 @@ abstract interface class Container {
   /// - The `add` function appends the element.
   /// - The `remove` function removes the first occurrence.
   ///
-  /// ### Non‑obvious
-  /// - Lists allow duplicate elements. The container tracks each reference
-  ///   separately and only unlinks a `Cell` when the last reference is removed.
-  /// - For fixed‑length lists, use [Container.growableFalse].
   static const list =
       _Container(create: _listCreate, add: _listAdd, remove: _listRemove);
 
@@ -588,11 +515,6 @@ abstract interface class Container {
   /// - The `remove` function works on fixed‑length lists (removes by value,
   ///   shifting elements), but the length stays the same.
   ///
-  /// ### Non‑obvious
-  /// - Even though the list is fixed‑length, you can still replace elements
-  ///   using index assignment. The `add` and `remove` methods operate on
-  ///   content, not structure.
-  /// - This strategy is memory‑efficient for known‑size collections.
   static const growableFalse = _Container(
       create: _growableFalseCreate, add: _listAdd, remove: _listRemove);
 
@@ -606,10 +528,6 @@ abstract interface class Container {
   /// - The `add` function adds to the end (`addLast`).
   /// - The `remove` function removes the first occurrence.
   ///
-  /// ### Non‑obvious
-  /// - The queue strategy also supports a `capacity` parameter (via the nucleus)
-  ///   for bounded queues. When capacity is reached, `add` may drop the oldest
-  ///   element or reject the new one, depending on the implementation.
   static const queue =
       _Container(create: _queueCreate, add: _queueAdd, remove: _queueRemove);
 
@@ -625,9 +543,6 @@ abstract interface class Container {
   /// - The `add` function updates or inserts the entry.
   /// - The `remove` function removes the entry by key.
   ///
-  /// ### Non‑obvious
-  /// - The map is treated as a collection of values; keys are the "indices".
-  /// - For identity‑based keys, use [Container.identityMap].
   static const map =
       _Container(create: _mapCreate, add: _mapAdd, remove: _mapRemove);
 
@@ -650,9 +565,6 @@ abstract interface class Container {
   /// - The `add` function replaces the current value (if different).
   /// - The `remove` function sets the value to `null`.
   ///
-  /// ### Non‑obvious
-  /// - This is not a collection in the traditional sense; it's a container
-  ///   that behaves like a collection of zero or one element.
   static const value =
       _Container(create: _valueCreate, add: _valueAdd, remove: _valueRemove);
 
@@ -669,8 +581,6 @@ abstract interface class Container {
   /// - The `create` function returns the value itself (not a container).
   /// - The `add` and `remove` functions always return `false`.
   ///
-  /// ### Non‑obvious
-  /// - This is the most memory‑efficient way to represent an immutable scalar.
   static const finalValue = _Container(
       create: _finalValueCreate,
       add: _finalValueAdd,
@@ -873,10 +783,12 @@ abstract interface class Container {
   static Queue<E> _queueCreate<E>([Iterable<E>? i]) =>
       i != null ? Queue<E>.of(i) : Queue<E>();
   static bool _queueAdd<E>(TissueQueue<E> base, Queue<E> container, E e) {
-    if ((base as TissueQueueBase)._nucleus.capacity == container.length) {
+    // Custom TissueQueue implementations need not extend TissueQueueBase;
+    // treat them as unbounded instead of downcasting.
+    final cap = base is TissueQueueBase ? base._nucleus.capacity : -1;
+    if (cap == 0) return false;
+    if (cap != -1 && container.length >= cap) {
       container.removeFirst();
-      container.addLast(e);
-      return true;
     }
     container.addLast(e);
     return true;

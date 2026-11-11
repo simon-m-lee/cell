@@ -67,11 +67,6 @@ third-party auditing, integrity verification, or regulatory reporting.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The factory sets <a href="../../cell_flow/Clearance.html">Clearance.observational</a> and the role to <code>'Witness'</code>.
 The authority is <code>'REGULATORY_AUDIT'</code>. It forces full audit logging.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The deputy is read‑only – it cannot mutate state.</li>
-<li>The audit level is forced to <code>full</code> for non‑repudiation.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final auditor = DeputyContext.auditor(
   baseContext: context,
@@ -132,7 +127,7 @@ The authority is <code>'REGULATORY_AUDIT'</code>. It forces full audit logging.<
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

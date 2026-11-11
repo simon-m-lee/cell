@@ -7,6 +7,33 @@ import 'dart:async';
 import 'package:cell_tissue/cell_tissue.dart';
 import 'package:test/test.dart';
 
+
+// Local builders for the forensic command model.
+ApplyCommand cmd(
+  Function function, [
+  List<Object?>? positionalArguments,
+  ApplyCompensation? compensation,
+]) =>
+    (
+      function: function,
+      arguments:
+          (positionalArguments: positionalArguments, namedArguments: null),
+      compensation: compensation,
+    );
+
+ApplyCompensation undo(
+  Function function, [
+  List<Object?>? positionalArguments,
+  Cell? cell,
+]) =>
+    (
+      function: function,
+      arguments:
+          (positionalArguments: positionalArguments, namedArguments: null),
+      cell: cell,
+    );
+
+
 /// Resolves the [FutureOr] returned by [Tissue.deputy] into a [Tissue].
 Future<Tissue<T>> resolveDeputy<T>(Tissue<T> source) async {
   final result = source.deputy();
@@ -30,6 +57,33 @@ class _DirectTissue<E> extends TissueBase<E, Iterable<E>, Tissue<E>> {
 
   @override
   TestTissue get validate => TestTissue.allowAll;
+
+  @override
+  dynamic dispatch(
+    Function function, {
+    List? positionalArguments,
+    Map<Symbol, dynamic>? namedArguments,
+  }) {
+    if (!modifiable.contains(function)) {
+      return Function.apply(function, positionalArguments, namedArguments);
+    }
+    final validation = validate.action(
+      function,
+      host: this,
+      arguments: (
+        positionalArguments: positionalArguments,
+        namedArguments: namedArguments,
+      ),
+    );
+    if (validation is Future<bool>) {
+      return validation.then((passed) => passed
+          ? Function.apply(function, positionalArguments, namedArguments)
+          : null);
+    }
+    return validation == true
+        ? Function.apply(function, positionalArguments, namedArguments)
+        : null;
+  }
 
   @override
   FutureOr<Tissue<E>> deputy({
@@ -191,7 +245,7 @@ void main() {
     });
 
     test('apply is a no-op returning null', () {
-      expect(empty.apply((x) => x), isNull);
+      expect(empty.apply<Object?>((function: (x) => x, arguments: (positionalArguments: null, namedArguments: null), compensation: null)), isA<ApplyRejected<Object?>>());
     });
 
     test('deputy returns itself', () {

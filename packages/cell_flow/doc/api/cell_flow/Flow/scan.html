@@ -89,12 +89,6 @@ running total and the new total is emitted.</p>
 current accumulator and the new value.</li>
 <li>The result becomes the new accumulator and is emitted.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>No Seed</strong>: The first value is used as the seed and not emitted.</li>
-<li><strong>Silent First</strong>: The instruction is silent on the first pulse.</li>
-<li><strong>State Persistence</strong>: The accumulator is maintained across pulses.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -126,6 +120,22 @@ nums.emit(3); // -&gt; 6
 <li><a href="../../cell_flow/Flow/reduce.html">reduce</a>: For using an explicit seed value.</li>
 <li><a href="../../cell_flow/Flow/pairwise.html">pairwise</a>: For emitting adjacent pairs.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Flow — accumulation operator. Not a Cell factory, not a Tissue book.
+<strong>When to use:</strong> running totals / cumulative state emitted per pulse.
+<strong>When NOT to use:</strong> a retained reserve — that is a <code>TissueValue</code> with an invariant in <code>cell_tissue</code>.
+<strong>Live signature:</strong> <code>Flow.scan&lt;S, A&gt;(Cell source, {required A Function(A acc, S value) accumulate})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Flow.reduce</code> (emits only the final accumulated value).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.2 "Transform" (#flow-transform)
+<strong>Example:</strong> <code>example/start_with_scan_ui_demo.dart</code>
+<strong>Cross-layer:</strong> the reserve protocol is a Tissue harness pattern, not a chain accumulator.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final h = Flow.scan&lt;int, int&gt;(src.cell, accumulate: (acc, v) =&gt; acc + v);
+final o = Cell.observe(source: h.cell, effect: (Pulse p) =&gt; print(p.payload));
+src.emit(1);
+o.stop();
+</code></pre>
 </section>
 
 
@@ -165,7 +175,7 @@ nums.emit(3); // -&gt; 6
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

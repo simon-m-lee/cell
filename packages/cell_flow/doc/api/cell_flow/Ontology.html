@@ -74,20 +74,6 @@ Only reach for manual entries if none of the named factories fit.</p>
 <p>Each dimension is a typed key that holds a value. Static pillars
 (<code>evolvable: false</code>) are fixed at creation; fluid boundaries
 (<code>evolvable: true</code>) can be refined via <code>context.evolve()</code>.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>evolvable</code> flag is not a suggestion – the framework enforces it
-at the engine level. If you try to evolve a non‑evolvable dimension,
-the change will be silently ignored.</li>
-<li>The <code>compose</code> and <code>evolve</code> methods are used internally by the framework
-to build contexts. You'll rarely call them directly.</li>
-</ul>
-<p>See also:</p>
-<ul>
-<li><a href="../cell_flow/Context-class.html">Context</a>: The operational environment built from ontology.</li>
-<li><a href="../cell_flow/Mandate.html">Mandate</a>: The delegation parameters that govern deputy behavior.</li>
-<li><a href="../cell_flow/Provenance.html">Provenance</a>: The dynamic history of a pulse.</li>
-</ul>
 </section>
 
 
@@ -148,9 +134,6 @@ this <a href="../cell_flow/Cell-class.html">Cell</a> governs.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The framework uses this for affinity routing and constraint scoping.
 Pulses can be broadcast to all cells in a given domain.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<p>This is a static pillar – once set, it cannot be changed via <code>evolve</code>.
-This ensures that a cell's functional area doesn't drift.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// Domains: 'Finance, PII'
 if (context.domains?.contains('PII') ?? false) {
@@ -219,9 +202,6 @@ This is often set automatically by context factories like <code>Context.core</co
 <h3 id="how-it-works">How it works</h3>
 <p>The taxonomy dictates expected behavior and interface contracts.
 It is used for capability discovery and protocol enforcement.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<p>As a static pillar, a cell's taxonomy cannot be changed after creation.
-This prevents identity drift – an 'Audit_Log' can't become a 'Mutable_Cache'.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// Taxonomy: 'Audit_Repository'
 if (context.taxonomy == 'Audit_Repository') {
@@ -325,11 +305,6 @@ routing or filtering without inspecting the raw data.</p>
 <p>The framework uses this to align <strong>Signals</strong> with <strong>Boundaries</strong>. For
 example, a <code>Pulse.type('alert')</code> can be screened by an <strong>Integrity Gate</strong>
 that specifically looks for the 'alert' type in the context.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<p>While <a href="../cell_flow/Ontology.html">taxonomy</a> is a static architectural identifier (what the cell
-<em>is</em>), <a href="../cell_flow/Ontology.html">type</a> is a fluid operational identifier (what the current
-interaction <em>is about</em>). It is designed to match the <code>type</code> parameter
-in the <a href="../cell_flow/Pulse-class.html">Pulse</a> factory.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// Type: 'security_event'
 if (context.type == 'security_event') {
@@ -366,11 +341,6 @@ if (context.type == 'security_event') {
 <p>The framework uses this for <strong>Precise Targeting</strong> and <strong>Forensic Audit</strong>.
 When a <a href="../cell_flow/Pulse-class.html">Pulse</a> moves through the fabric, its <a href="../cell_flow/Ontology.html">identity</a> allows the
 <strong>Switching Fabric</strong> to track exactly which node initiated a change.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<p>This dimension is <strong>Evolvable</strong> specifically to support the
-<strong>Deputy Pattern</strong>. When you create a proxy of a cell, its <a href="../cell_flow/Ontology.html">identity</a>
-can be refined (e.g., from 'Auth_Node' to 'Auth_Node_ReadOnly_Proxy')
-to maintain clear <strong>Identity Transparency</strong> across the system.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// Identity: 'Payment_Gateway_Alpha'
 if (context.identity == 'Payment_Gateway_Alpha') {
@@ -832,7 +802,7 @@ every defined dimension in the <a href="../cell_flow/Ontology.html">Ontology</a>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

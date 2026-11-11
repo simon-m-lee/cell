@@ -99,15 +99,6 @@ the <code>principal</code> chain to find the rule from an ancestor.</li>
 <li><strong>Default Fallback</strong>: If the root is reached without finding a rule,
 it defaults to <a href="../../cell_tissue/TestTissue/allowAll-constant.html">TestTissue.allowAll</a> – no restrictions.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>For deputies, the <a href="../../cell_tissue/TissueNucleusBase/testRule.html">testRule</a> is <strong>layered on top</strong> of the principal's
-rule (via <code>+</code>). You can only narrow permissions, never widen.</li>
-<li>The rule is invoked for <strong>every</strong> mutation attempt – it is a hot path,
-so keep it efficient.</li>
-<li>The rule can be asynchronous (<a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr&lt;bool&gt;</a>) – the framework
-suspends the mutation until the future completes.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final list = TissueList&lt;int&gt;(testRule: TestTissue&lt;int&gt;((v) =&gt; v &gt; 0));
 print(list.validate); // the TestTissue instance
@@ -153,7 +144,7 @@ TestTissue&lt;E, C&gt; get testRule {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -39,18 +39,6 @@ part of '../cell_tissue.dart';
 ///   restricted view that shares the same data but applies different rules.
 /// - The nucleus is immutable; once created, it cannot be changed.
 ///
-/// ### Non‑obvious
-/// - The [capacity] is **structural** – it is fixed at creation and inherited
-///   by all deputies. You cannot change the capacity of a queue through a deputy.
-/// - The nucleus is a **flyweight** – many queues can share the same nucleus
-///   without duplicating memory.
-/// - The [clone] getter creates a fresh copy of the nucleus with its own
-///   [Lock] and [Synapses]. This is used internally when you create a new queue
-///   from an already‑activated nucleus to avoid sharing locks.
-/// - The `principal` chain allows hierarchical inheritance – a deputy nucleus
-///   can override only specific properties (like `testRule`) while inheriting
-///   the rest from its principal.
-///
 /// ### Example: Reusing a validated queue blueprint
 /// ```dart
 /// final validNucleus = TissueQueueNucleus.create<String>(
@@ -91,14 +79,6 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
   ///   properties (memory optimisation).
   /// - The resulting nucleus can be used to instantiate multiple queues that
   ///   share the same logic but hold separate data.
-  ///
-  /// ### Non‑obvious
-  /// - If you omit the [testRule], it defaults to [TestTissue.allowAll] – no
-  ///   restrictions.
-  /// - The [receptor] defaults to [TissueReceptor.passThrough] – mutations are
-  ///   applied directly.
-  /// - The [context] defaults to [Context.system] – system‑level authority.
-  /// - The [synapses] default to [Synapses.enabled] – observers receive pulses.
   ///
   /// ### Parameters:
   /// - [capacity]: The maximum number of elements permitted. `-1` means unbounded.
@@ -147,15 +127,6 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
   /// - The new nucleus shares the same [Lock] and physical storage as the
   ///   principal (unless you provide an [override] that introduces a new lock).
   ///
-  /// ### Non‑obvious
-  /// - The [capacity] override allows you to create a "Sub‑Queue" deputy that
-  ///   has a stricter resource limit than its principal, useful for partitioning
-  ///   a shared system‑wide buffer into smaller, scoped consumer pools.
-  /// - The [override] parameter allows you to layer a complete pre‑configured
-  ///   nucleus on top of the principal.
-  /// - The resulting nucleus does **not** copy the principal's data – it shares
-  ///   it via the inheritance chain.
-  ///
   /// ### Example
   /// ```dart
   /// final principal = TissueQueueNucleus.create<String>(capacity: 10);
@@ -181,18 +152,32 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
   /// ### Returns:
   /// A new [TissueQueueNucleus<E>] instance that acts as a specialised
   /// behavioral layer over the [principal].
-  factory TissueQueueNucleus.evolve(
-          {int? capacity,
-          Cell? bind,
-          Context? context,
-          TissueReceptor<E, TissueQueue<E>>? receptor,
-          TestTissue<E, TissueQueue<E>>? testRule,
-          Synapses? synapses,
-          EphemeralPolicy? ephemeralPolicy,
-          TissueQueueNucleus<E>? override,
-          required TissueQueueNucleus<E> principal}) =
-      _TissueQueueNucleus<E, TissueQueue<E>>.evolve;
-
+  factory TissueQueueNucleus.evolve(TissueQueueNucleus<E> principal, {
+    int? capacity,
+    Cell? bind,
+    Context? context,
+    TissueReceptor<E, TissueQueue<E>>? receptor,
+    TestTissue<E, TissueQueue<E>>? testRule,
+    Synapses? synapses,
+    EphemeralPolicy? ephemeralPolicy,
+    TissueQueueNucleus<E>? override
+  }) {
+    return _TissueQueueNucleus<E, TissueQueue<E>>.fromRecord((
+      local: override != null
+          ? (override as NucleusBase).record.local
+          : TissueNucleusBase.mask<E, Queue<E>, TissueQueue<E>>(
+              bind: bind,
+              context: context,
+              receptor: receptor,
+              testRule: testRule,
+              synapses: synapses,
+              forceLock: true,
+              ephemeralPolicy: ephemeralPolicy,
+              others: capacity != null ? (capacity: capacity) : null,
+            ),
+      principal: principal,
+    ));
+  }
   /// A highly configurable static utility factory that produces a type‑safe
   /// [TissueQueueNucleus] configuration for a specific element type [E]
   /// and a specialised [TissueQueue] interface [C].
@@ -215,12 +200,6 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
   ///   inherits from that principal.
   /// - The [capacity] parameter establishes the resource boundary.
   /// - The [container] parameter defaults to [Container.queue].
-  ///
-  /// ### Non‑obvious
-  /// - The [forceLock] flag, when `true`, allows sharing the principal's lock.
-  ///   This is typically used for deputies to maintain a single atomic boundary.
-  /// - The [capacity] is stored in the `others` segment of the record, keeping
-  ///   the core nucleus compact.
   ///
   /// ### Parameters:
   /// - [capacity]: The maximum element threshold (use -1 for unbounded).
@@ -297,12 +276,6 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
   /// - The clone is initially **inactive** – it must be activated by being
   ///   bound to a queue instance.
   ///
-  /// ### Non‑obvious
-  /// - The clone does **not** share the same `principal` – it is a root nucleus
-  ///   (no parent). This means it does not inherit from the original.
-  /// - Cloning is a zero‑copy operation for the logic – the logic is shared
-  ///   via the flyweight record, but the state (lock, synapses) is new.
-  ///
   /// ### Returns:
   /// A new [TissueQueueNucleus<E>] instance with identical behavioural
   /// logic and storage strategy, but an isolated lifecycle and an
@@ -327,10 +300,6 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
   ///   locally.
   /// - It always returns [Container.queue] for a queue nucleus.
   ///
-  /// ### Non‑obvious
-  /// - This is a **structural** property – it is fixed and cannot be changed
-  ///   through a deputy. A deputy cannot change a queue into a different
-  ///   collection type.
   @override
   Container get containerType;
 
@@ -353,13 +322,6 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
   ///   defined locally.
   /// - It defaults to `-1` (unbounded) if no capacity is set.
   ///
-  /// ### Non‑obvious
-  /// - The capacity is a **structural** property – it is fixed at creation and
-  ///   inherited by all deputies. You cannot change the capacity of a queue
-  ///   through a deputy unless you explicitly override it at creation.
-  /// - The capacity is used for **backpressure regulation** – when the queue
-  ///   is full, `add` operations may drop the oldest element or reject the new
-  ///   one, depending on the specific `TissueQueue` implementation.
   int get capacity;
 }
 
@@ -402,18 +364,6 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
 /// - It supports both unbounded and bounded capacities (backpressure).
 /// - It automatically links child [Cell]s when they are added, enabling
 ///   "bubbling" of internal changes.
-///
-/// ### Non‑obvious
-/// - Equality (`==`) is based on the underlying queue's content and identity,
-///   so `queue1 == queue2` works like a normal Dart queue.
-/// - The [async] getter returns a [ModifiableQueueAsync] for `Future`‑based
-///   operations, useful for network callbacks or background tasks.
-/// - The `unmodifiable` getter is **not a snapshot** – it's a live view that
-///   stays in sync with the source.
-/// - Bounded queues (capacity >= 0) will drop the oldest element when a new
-///   element is added and the queue is full (circular buffer behaviour).
-/// - The [modifiable] getter returns the list of functions that can be invoked
-///   via `apply`. For read‑only deputies, this list is empty.
 ///
 /// ### Example: Basic usage
 /// ```dart
@@ -462,6 +412,25 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
 /// - [Tissue] – the base interface for all reactive collections.
 /// - [TissueQueueNucleus] – the blueprint and configuration for the queue.
 /// - [UnmodifiableTissueQueue] – a read‑only deputy variant.
+///
+/// ### AI Agent Guide
+/// **Layer:** Tissue — outbound work. Not a Cell factory, not a Flow operator.
+/// **When to use:** "alert the supervisor / RTU / issuer" — audit enqueue (`addLast(job)`) with an optional `capacity` for backpressure; the Dart list + `_driveAlert` is the retry-once pump.
+/// **When NOT to use:**
+///   {@macro ai-do-not-testcell-on-tissue}
+///   {@macro ai-do-not-drain-tissuequeue}
+/// **Live signature:** `TissueQueue<E>({bind, context, testRule, receptor, synapses, ...})` / `TissueQueue.of(iterable, {...})` / `TissueQueue.unmodifiable(bind, {...})` — pinned at `cell_tissue: 1.0.0`
+/// **Do NOT confuse with:** `TissueList` (indexable history; use the queue for FIFO work).
+/// **Guide:** `HowTo-Mitose-Tissue.md` §2.4 "TissueQueue — outbound work" (#tissue-queue)
+/// **Example:** `example/cell_tissue_example.dart`
+/// **Cross-layer:** enqueues happen in `Cell.observe`; the pump is harness code.
+/// **Minimal compilable example**
+/// ```dart
+/// final q = TissueQueue<int>(capacity: 3);
+/// q.addLast(1);
+/// q.addLast(2);
+/// print(q.length); // 2
+/// ```
 abstract interface class TissueQueue<E> implements Tissue<E>, Queue<E> {
   @override
   TissueQueueNucleus<E> get _nucleus;
@@ -758,14 +727,6 @@ abstract interface class TissueQueue<E> implements Tissue<E>, Queue<E> {
   ///   its own observers.
   /// - If all parameters are left at default, `deputy()` returns `this`.
   ///
-  /// ### Non‑obvious
-  /// - The deputy is logically equal to its principal (`deputy == principal`).
-  /// - The deputy's [context] can be overridden to change priority or security.
-  /// - The [ephemeralPolicy] controls the deputy's lifetime independently of
-  ///   the principal.
-  /// - The deputy can also override the [capacity] (if the underlying nucleus
-  ///   supports it) to create a bounded view of an unbounded queue.
-  ///
   /// ### Example
   /// ```dart
   /// final source = TissueQueue<String>();
@@ -860,16 +821,6 @@ abstract interface class TissueQueue<E> implements Tissue<E>, Queue<E> {
 ///   any element that is itself a [Cell] is automatically projected as its
 ///   `.unmodifiable` deputy when accessed. This prevents "side‑door"
 ///   mutations.
-///
-/// ### Non‑obvious
-/// - **It is not a snapshot**: Unlike `List.unmodifiable` in Dart, this view
-///   is **live**. If the source changes, the view changes with it.
-/// - **Equality**: `source == source.unmodifiable` is `true` – they are
-///   considered the same logical entity.
-/// - **Recursive projection**: Iterating over the view yields unmodifiable
-///   deputies of any child [Cell]s.
-/// - **Own observer registry**: The view has its own [Synapses] registry, so
-///   observers attached to the view are separate from those on the source.
 ///
 /// ### Example: Read‑only UI projection
 /// ```dart

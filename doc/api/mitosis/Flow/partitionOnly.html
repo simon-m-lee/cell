@@ -88,13 +88,6 @@ match) a predicate.</p>
 <li>If <code>test</code> returns the opposite, the value is dropped.</li>
 <li>If <code>test</code> throws an error, the pulse is dropped.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>No State</strong>: No state is maintained between pulses.</li>
-<li><strong>Filtering</strong>: Only values matching the condition are emitted.</li>
-<li><strong>Inverse Filtering</strong>: With <code>matched</code> <code>false</code>, keeps non-matching values.</li>
-<li><strong>Type Safety</strong>: Generic over value type <code>S</code>.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -174,7 +167,7 @@ input.emit(4); // -&gt; 4
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

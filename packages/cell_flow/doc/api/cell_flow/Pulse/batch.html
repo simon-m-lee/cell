@@ -95,10 +95,6 @@ multiple cells, and you want all updates to propagate together.</li>
 <p>The individual pulses are bundled into a <a href="../../cell_flow/CollectivePulse-class.html">CollectivePulse</a>. The collective
 moves through the graph as a single entity, but each sub‑pulse retains
 its own identity, trace, and callbacks.</p>
-<h3 id="nonobvious-this-is-a-flat-bundle-not-a-chain">Non‑obvious: this is a flat bundle, not a chain</h3>
-<p>Unlike <a href="../../cell_flow/Pulse/evolve.html">evolve</a>, which creates a causal chain, <a href="../../cell_flow/Pulse/batch.html">batch</a> creates a flat
-collection. There's no parent‑child relationship between the pulses —
-they're just grouped together for atomic propagation.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>pulses</code>: The pulses to bundle.</li>
@@ -135,7 +131,18 @@ final batch = Pulse.batch([pulse1, pulse2]);
   void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? onError,
   void Function(Pulse pulse, Cell cell, {String? message})? onProgress,
 }) =&gt;
-    _CollectivePulse&lt;P&gt;(pulses);</code></pre>
+    _CollectivePulse&lt;P&gt;(
+      pulses,
+      policy: policy,
+      context: context,
+      type: type,
+      source: source,
+      step: step,
+      priority: priority,
+      onComplete: onComplete,
+      onError: onError,
+      onProgress: onProgress,
+    );</code></pre>
 </section>
 
 
@@ -163,7 +170,7 @@ final batch = Pulse.batch([pulse1, pulse2]);
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

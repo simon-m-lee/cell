@@ -74,13 +74,6 @@ modified during a context <a href="../../cell_flow/Context/evolve.html">Context.
 <h3 id="when-to-use">When to use</h3>
 <p>You'll rarely check this directly – the framework uses it internally
 to decide what can be overridden when you call <code>context.evolve()</code>.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>Dimensions marked <code>false</code> (like <code>taxonomy</code>) cannot be changed, even
-if you try to override them in a deputy. This prevents identity drift.</li>
-<li>This is enforced at the engine level – you don't need to guard
-against it manually.</li>
-</ul>
 </section>
 
     
@@ -116,7 +109,7 @@ against it manually.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

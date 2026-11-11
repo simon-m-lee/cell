@@ -1,12 +1,56 @@
 # cell_flow
 
-**Codename: Mitosis** · `1.0.0-rc.9`
+## Install and import
+
+```bash
+dart pub add cell cell_flow cell_tissue
+```
+
+```dart
+import 'package:cell_flow/cell_flow.dart';  // re-exports package:cell
+import 'package:cell_tissue/cell_tissue.dart';
+```
+
+## AI agents start here
+
+Read this before opening any other page.
+
+`cell_flow` is designed with AI coding agents in mind. Every top public symbol
+carries a machine-readable `### AI Agent Guide` block, and the surfaces below
+let an agent reliably pick the right operator and generate code that compiles
+against the live API.
+
+1. **Version pin:** `cell 1.1.0`, `cell_flow 1.0.0`, `cell_tissue 1.0.0`.
+2. **Preflight:** `dart run tool/ai_preflight.dart` — prints the resolved versions and any stale pins.
+3. **API chooser:** `lib/doc/api_chooser.dart` (generated from the `### AI Agent Guide` doc blocks).
+4. **Layer guides:**
+    - `guide/HowTo-Mitose-Flow.md` — Flow operator choices
+    - `guide/HowTo-Mitose-Cell.md` — Cell factory choices
+    - `guide/HowTo-Mitose-Tissue.md` — Tissue collection choices
+5. **The seam sentence:** *The instruction decides, the chain assembles, the observer glues.*
+
+## If you have a BRD sentence that says…
+
+| BRD sentence | First Flow construct | Do NOT |
+|---|---|---|
+| "flag at-risk when remaining < MCT" | `riskOf` clause in `FlowInstructionBase` | put in `Cell.observe` |
+| "do not flood the supervisor" | latch / `Distinct` + ACK `reset()` | stock `Distinct` without reset |
+| "latest reservation / flight only" | `Flow.switchMap` | `Flow.mergeMap` |
+| "prevent double checkout / ACK" | `Flow.exhaustMap` | hand-roll a busy flag |
+| "retry flaky RTU" | `Flow.retry` or harness pump | retry inside `riskOf` |
+| "wait for silence" | `Flow.debounce` on the feed | use it as the policy gate |
+
+(The full matrix lives in `lib/doc/api_chooser.dart`; this is the 6-row elevator version.)
+
+---
+
+**Codename: Mitosis** · `1.0.0`
 
 [![Dart](https://img.shields.io/badge/Dart-3.5%2B-blue.svg)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg)](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/LICENSE)
-[![Status](https://img.shields.io/badge/Status-RC9-yellow.svg)](#status)
+[![Status](https://img.shields.io/badge/Status-RC%20on%20pub.dev-yellow.svg)](#versioning)
 
-**Rx-shaped operators for the [Cell](https://github.com/simon-m-lee/cell) framework.** Debounce, switchMap, zip, retry, buffer, and the complete reactive stream vocabulary — implemented as `FlowInstruction`s on the **same graph** as `package:cell`.
+**100 Rx-shaped operators for the [Cell](https://github.com/simon-m-lee/cell) framework.** Debounce, switchMap, zip, retry, buffer, and the complete reactive stream vocabulary — implemented as `FlowInstruction`s on the **same graph** as `package:cell`, with forensic pulse provenance on every hop.
 
 > **Mitose pipeline — the umbrella feature.** The root repository ships an AI-executable pipeline that turns a business requirement into a working Cell + Flow + Tissue solution with its BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES documents. An AI prompt agent follows [`guide/HowTo-Mitose.md`](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose.md); this package supplies the **Flow layer** rules via [`guide/HowTo-Mitose-Flow.md`](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Flow.md). See the [root README](https://github.com/simon-m-lee/cell#readme).
 
@@ -20,9 +64,11 @@ Add both packages to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  cell: ^1.0.0-rc.8
-  cell_flow: ^1.0.0-rc.9
+  cell: ^1.1.0     # the stable versions on pub.dev
+  cell_flow: ^1.0.0
 ```
+
+> ℹ️ The stable releases (`cell` `1.1.0`, `cell_flow` `1.0.0`) are published on pub.dev (see [CHANGELOG.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/CHANGELOG.md)).
 
 Import once in your Dart file:
 
@@ -35,22 +81,24 @@ import 'package:cell_flow/cell_flow.dart'; // re-exports package:cell
 ```dart
 import 'package:cell_flow/cell_flow.dart';
 
-final query = Cell.ingress<String>();
+Future<void> main() async {
+  final query = Cell.ingress<String>();
 
-// Build a reactive search pipeline
-final results = query.cell
-    .map<String, String>(project: (q) => q.trim().toLowerCase())
-    .filter<String>(test: (q) => q.length >= 2)
-    .debounce<String>(duration: const Duration(milliseconds: 300))
-    .asyncMapLatest<String, List<Hit>>(mapper: (q) => api.search(q));
+  // Build a reactive search pipeline
+  final results = query.cell
+      .map<String, String>(project: (q) => q.trim().toLowerCase())
+      .filter<String>(test: (q) => q.length >= 2)
+      .debounce<String>(duration: const Duration(milliseconds: 300))
+      .asyncMapLatest<String, List<Hit>>(mapper: (q) => api.search(q));
 
-// Observe results
-Cell.observe(source: results.cell, effect: (p) {
-  print('Found ${p.payload.length} hits');
-});
+  // Observe results
+  Cell.observe(source: results.cell, effect: (Pulse pulse) {
+    print('Found ${(pulse.payload! as List<Hit>).length} hits');
+  });
 
-// Emit user input
-await query.emitAsync('Dart packages');
+  // Emit user input
+  await query.emitAsync('Dart packages');
+}
 ```
 
 > 💡 **New to cell_flow?** Read the **[How to Start Guide](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-Start.md)** for a complete 15-minute tutorial with 5 copy-paste examples.
@@ -71,9 +119,36 @@ await query.emitAsync('Dart packages');
 | Retry failed operations | `Flow.retry` or `.retry()` | Configurable retry count |
 | Batch events | `Flow.bufferCount` or `.bufferCount()` | Collect N values |
 | Prevent double-taps | `Flow.exhaustMap` or `.exhaustMap()` | Ignore while busy |
-| Combine multiple streams | `Flow.combineLatest` | Latest from all sources |
+| Combine multiple streams | `Flow.combineLatestWith` | Latest from all sources |
 
 **Key insight:** The graph, locks, validation, and provenance stay in **cell**. Flow only decides *which* pulses leave and *when*.
+
+---
+
+## 🏆 Why Flow (what Rx/raw Streams don't give you)
+
+- **Forensic pulses on every hop.** Each operator appends a `step` to the
+  pulse trace and re-publishes with provenance; `pulse.root.source` recovers
+  the original ingress after any pipeline depth. RxDart and raw streams carry
+  bare values — no lineage, no audit trail.
+- **Reusable, composable blueprints.** A `FlowInstruction` is a policy you
+  can materialize any number of times (`toHandle`), chain with `+` into one
+  Receptor under one lock, and unit-test without any graph. Stateful
+  operators allocate their state **per activation**, so two handles from one
+  blueprint never share timers, queues, or accumulators.
+- **Governance on the data path.** Every node is a `Cell`: `TestCell` gates,
+  zero-copy deputies, `Context` authority, and the transactional command
+  model (`Cell.txApply` / `Cell.transaction`) apply to Flow pipelines as
+  much as to state cells — validation is enforced, not remembered.
+- **Lifecycle that cleans up after itself.** Notifier observers and periodic
+  timers stop when a handle's cell is invalidated; long-lived processes do
+  not accumulate dead branches.
+- **One graph, three layers.** Operators run on the same topography as
+  `cell` state and `cell_tissue` collections — the "Flow decides, Tissue
+  records" pattern ships as libraries, not as hand-wired glue.
+- **Pinned performance.** A benchmark suite with a checked-in baseline and a
+  15% regression gate ([`benchmark/`](benchmark/README.md)) publishes the
+  honest, feature-accounted numbers — see the cost ladder there.
 
 ---
 
@@ -95,7 +170,7 @@ final debounced = Flow.debounce<String>(
 );
 ```
 
-**Best for:** Multi-source operators (`merge`, `zip`, `combineLatest`), naming nodes for logs.
+**Best for:** Multi-source operators (`merge`, `zip`, `combineLatestWith`), naming nodes for logs.
 
 ---
 
@@ -122,9 +197,12 @@ final results = box.cell
 final box = Cell.ingress<String>();
 
 // Build a reusable policy - runs in ONE Receptor under ONE lock
-final gate = MapValue<String, String>((s) => s.trim()) +
-    Filter<String>((s) => s.isNotEmpty) +
-    Distinct<String>();
+final gate = FlowInstruction<Cell, Pulse, Pulse>((p, {cell, user}) {
+      final s = (p.payload as String).trim();
+      return s.isEmpty ? null : p;
+    }) +
+    FlowInstruction<Cell, Pulse, Pulse>((p, {cell, user}) =>
+        p.payload.toString().startsWith('x') ? p : null);
 
 final handle = gate.toHandle(source: box.cell);
 ```
@@ -135,78 +213,25 @@ final handle = gate.toHandle(source: box.cell);
 
 ---
 
-## 📊 Complete Operator Catalog (79+ Operators)
+## 📊 Operator Catalog (100 operators)
 
-### Create Operators
+The `Flow` facade exposes **100 operator factories** across these families:
 
-| Operator | Description | Example |
-|---|---|---|
-| `of` | Play values on first pulse | `Flow.of(values: [1, 2, 3])` |
-| `fromIterable` | Same, from iterable | `cell.fromIterable(iterable: list)` |
-| `fromFuture` | One Future, first pulse | `cell.fromFuture(future: api.me())` |
-| `fromStream` | One subscription, first pulse | `cell.fromStream(stream: ticker)` |
-| `range` | start + count + step | `cell.range(start: 1, count: 5)` |
+| Family | Highlights |
+|---|---|
+| Create / bridge | `of`, `fromIterable`, `fromFuture`, `deferFuture`, `fromStream`, `deferStream`, `range`, `repeat` |
+| Transform | `map` (index/not-null/when/keys/values variants), `mapTo`, `pluck` (key/all/path), `mapValueOr` |
+| Scan / fold | `scan`, `reduce`, `pairwise`, `asyncFold`, `asyncFoldLatest`, `asyncFoldExhaust`, `asyncReduce` |
+| Filter / gate | `filter`, `distinct`, `skipRepeated` |
+| Take / skip | `take`, `takeWhile`, `takeUntil`, `skip`, `skipWhile`, `skipUntil`, `skipWhen` |
+| Flatten (inner sequences) | `concatMap`, `concat`, `concatAll`, `concatLatest`, `mergeMap`, `switchMap`, `exhaustMap`, `merge`, `mergeAll`, async expand family |
+| Combine | `mergeWith`, `zipWith`, `zip`, `zipAll`, `combineLatestWith`, `withLatestFrom`, `race`, `sample`, `audit` |
+| Time | `delay` (latest/when/selector), `debounce`, `throttle`, `timeout`, `timeoutWithFallback`, `interval`, `sampleTime`, `auditTime` |
+| Collect / batch | `bufferCount`, `bufferTime`, `bufferWhen`, `bufferWithPredicate`, `bufferWithTimeAndCount`, `windowCount`, `windowTime` |
+| Route / partition | `groupBy`, `groupCollect`, `groupByCount`, `partition`, `partitionMap`, `partitionOnly`, `iif` |
+| Utility | `retry`, `share`, `shareReplay`, `startWith`, `tap`, `tapAll`, `tapWithIndex` |
 
-### Transform Operators
-
-| Operator | Description | Example |
-|---|---|---|
-| `map` | Project value | `cell.map(project: (x) => x * 2)` |
-| `mapTo` | Map to constant | `cell.mapTo(value: 'done')` |
-| `pluck` | Extract field | `cell.pluck(field: 'name')` |
-| `scan` | Running fold | `cell.scan(seed: 0, accumulate: (a, b) => a + b)` |
-| `pairwise` | Emit pairs | `cell.pairwise()` |
-
-### Filter / Take / Skip
-
-| Operator | Description | Example |
-|---|---|---|
-| `filter` | Predicate gate | `cell.filter(test: (x) => x > 0)` |
-| `distinct` | Consecutive unique | `cell.distinct()` |
-| `take` | First N values | `cell.take(count: 3)` |
-| `skip` | Skip first N | `cell.skip(count: 2)` |
-
-### Flatten Operators (Inner Sequences)
-
-| Operator | Policy | Use When |
-|---|---|---|
-| `concatMap` | Queue inners | Order matters |
-| `mergeMap` | Overlap inners | Parallel OK |
-| `switchMap` | Latest only | Cancel stale |
-| `exhaustMap` | Ignore while busy | Prevent double-taps |
-
-### Combine Operators
-
-| Operator | Pairing Rule | Example |
-|---|---|---|
-| `mergeWith` | Interleave | `cell.mergeWith(sources: [a, b])` |
-| `zipWith` | Same index | `cell.zipWith(others: [a, b])` |
-| `combineLatestWith` | Latest of all | `cell.combineLatestWith(others: [a])` |
-| `withLatestFrom` | Source + latest others | `cell.withLatestFrom(others: [a], combine: ...)` |
-| `race` | First to emit | `Flow.race(cell, competitors: [a, b])` |
-
-### Time Operators
-
-| Operator | When It Emits | Example |
-|---|---|---|
-| `delay` | After fixed duration | `cell.delay(duration: 1s)` |
-| `debounce` | Last after silence | `cell.debounce(duration: 300ms)` |
-| `throttle` | Leading/trailing window | `cell.throttle(duration: 1s, leading: true)` |
-| `sample` | Notifier or period | `cell.sampleTime(period: 1s)` |
-| `timeout` | Idle too long | `cell.timeout(duration: 5s)` |
-
-### Collect / Control Operators
-
-| Operator | Payload | Example |
-|---|---|---|
-| `bufferCount` | List | `cell.bufferCount(count: 10)` |
-| `bufferTime` | List | `cell.bufferTime(duration: 5s)` |
-| `groupBy` | Grouped | `cell.groupBy(keyOf: (x) => x.type)` |
-| `startWith` | Prefix | `cell.startWith(value: 0)` |
-| `retry` | Retry count | `cell.retry(count: 3)` |
-| `tap` | Side effect | `cell.tap(onValue: print)` |
-
-📖 **Full documentation:** [`FEATURES-Flow.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/FEATURES-Flow.md)
+📖 **Full catalog with signatures:** [`FEATURES-Flow.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/FEATURES-Flow.md)
 
 ---
 
@@ -251,9 +276,11 @@ final email = raw.cell
 ```dart
 final taps = Cell.ingress<void>();
 
-final receipts = taps.cell.exhaustMap<void, Receipt>(
-  project: (_) => api.checkout(cart),
-);
+final receipts = taps.cell
+    .map<void, void>(project: (v) => v)
+    .exhaustMap<void, Receipt>(
+      project: (_) => api.checkout(cart),
+    );
 
 // While checkout runs, additional taps are ignored
 await taps.emitAsync(null);  // Starts checkout
@@ -267,12 +294,11 @@ await taps.emitAsync(null);  // Ignored
 ```dart
 final events = Cell.ingress<Metric>();
 
-final batches = events.cell
-    .bufferWithTimeAndCount<Metric>(
-      duration: const Duration(seconds: 5),
-      count: 50,
-    )
-    .asyncMap<List<Metric>, void>(mapper: (batch) => api.flush(batch));
+final batches = Flow.bufferWithTimeAndCount<Metric>(
+  events.cell,
+  duration: const Duration(seconds: 5),
+  count: 50,
+).asyncMap<List<Metric>, void>(mapper: (batch) => api.flush(batch));
 
 // Flushes when either 50 events arrive OR 5 seconds pass
 ```
@@ -285,7 +311,8 @@ final batches = events.cell
 final price = Cell.ingress<int>();
 final currency = Cell.ingress<String>();
 
-final display = price.cell.withLatestFrom<int, String>(
+final display = Flow.withLatestFrom<int, String>(
+  price.cell,
   others: [currency.cell],
   combine: (p, latest) => '${latest.single} $p',
 );
@@ -299,6 +326,97 @@ await price.emitAsync(25);       // → 'EUR 25'
 
 ---
 
+## 🧭 Operator Selection Matrix
+
+100 operators ship in the `Flow` facade. Start from the goal, not the name:
+
+| Goal | Operator(s) |
+|---|---|
+| Transform each value once | `map`, `mapTo`, `mapWithIndex`, `mapNotNull` |
+| Skip repeated values | `skipRepeated` (consecutive), `distinct` (global) |
+| Cancel previous work | `switchMap`, `asyncMapLatest` |
+| Ignore inputs while work is in flight | `exhaustMap` |
+| Preserve order with concurrency | `asyncMap` / `mergeMap` (completion-ordered) vs `concatMap` / `asyncExpand` (input-ordered, sequential) |
+| Wait for the last event of a burst | `debounce`, `delayWhen` |
+| Rate-limit a hot source | `throttle` |
+| Take the latest of several sources | `combineLatestWith`, `withLatestFrom` |
+| Pair one source with others | `zip`, `zipWith`, `pairwise` |
+| Add a timeout | `timeout`, `timeoutWithFallback`, `race` |
+| Retry failures | `retry` |
+| Gather a window of values | `bufferCount`, `bufferTime`, `bufferWithTimeAndCount` |
+| Emit windows progressively | `windowCount`, `windowTime` |
+| Route by payload | `partition`, `partitionMap`, `partitionOnly`, `iif` |
+| Side effects without mutation | `tap`, `tapAll` |
+
+## ⚠️ Error-Emission Policy
+
+Operators do not agree on what happens after `onError` fires — read this
+before porting between families:
+
+| Pattern | Operators |
+|---|---|
+| `onError` + drop the pulse | `mapValue`, `filter`, `takeWhile`, `skipWhen`, `distinct`, … |
+| `onError` + emit fallback | `mapValueOr`, `asyncMapWithFallback`, `timeoutWithFallback` |
+| `onError` + optional error pulse | `fromFuture`, `timeout`, `retry` (via `emitErrorPulse`) |
+| `onError` + silent drop (no error pulse) | `asyncMap`, `asyncMapWithRetry`, `asyncMapWithTimeout`, `asyncMapConcurrent` |
+
+The `asyncMap*` family has no `emitErrorPulse` parameter; the `fromFuture*`
+family does. Porting error handling from one to the other silently changes
+error visibility — check the operator's docstring.
+
+## 🔍 Operator Trace Naming
+
+Every operator appends a `step` to the pulse trace. Two conventions exist:
+
+- **Flat names** — the operator name: `'MapValue'`, `'Filter'`.
+- **Dotted names** — a sub-branch inside one operator: `'Throttle.leading'`,
+  `'DebounceLeading.trailing'`, `'RouteWhen.$i'`, `'RouteByKey.else'`.
+
+The dotted form always means "this operator has multiple emission paths";
+read the step to know which edge fired.
+
+## ♻️ Lifecycle & Resources
+
+- **Blueprints are reusable.** A `FlowInstruction` may be stateful, but
+  stateful operators allocate their timers/queues/accumulators from a
+  per-activation factory: two `toHandle` calls on one blueprint never share
+  state, and stateless blueprints are shared safely.
+- **Handles self-clean.** Operators that observe notifiers or run periodic
+  timers stop them once the materialized handle's cell is invalidated
+  (`cell.isInvalidated`). Dispose a pipeline by invalidating its anchor cell.
+- **`toHandle` allocates a full cell.** Every activation builds a
+  `Receptor` + `Nucleus` + `Cell`. For a single pulse this is pure overhead —
+  batch work through one handle, and prefer the `+` chain form
+  (one Receptor for many sync operators) when applicable.
+- **Backpressure is upstream's job.** `mergeMap(concurrency: 0)` means
+  "no limit imposed by this operator" (capped at 1 << 20 in flight); a
+  synchronous burst still grows the queue. Throttle at the ingress, not in
+  the operator.
+- **`FlowHandle` is untyped by design.** Every `Flow` factory returns the
+  same untyped `FlowHandle` record; the operator's own type checks enforce
+  payload types, not the handle.
+
+## 🔎 Trace & Provenance
+
+- **Traces grow with pipeline depth.** Each operator appends one `step` per
+  pass, so `trace.length` is proportional to pipeline depth x passes —
+  not to the total number of pulses. Traces are for forensics, not for
+  aggregation; use `Cell.synthesis` or a tissue if you need running
+  statistics.
+- **`pulse.source` is the immediate emitter.** Every operator re-publishes
+  with `source:` set to its own cell (the hop that just fired). To find the
+  original ingress, read `pulse.root.source` — the trace preserves the
+  full journey.
+- **Null payloads drop silently.** For a non-nullable payload type `S`, a
+  `null` payload is treated as "no value" (the pulse is dropped without
+  calling `onError`). If you need to see nulls, use a nullable `S`.
+- **`FromFutures` futures are hot.** All futures start before the first
+  trigger; a pre-trigger rejection is an unhandled zone error. Use
+  `DeferFuture` to defer creation until the trigger.
+
+
+---
+
 ## 🧪 Testing Your Pipelines
 
 ### Test a Sync Chain (No Timer)
@@ -308,14 +426,17 @@ import 'package:cell_flow/cell_flow.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('sanitize drops blanks', () {
-    final gate = MapValue<String, String>((s) => s.trim()) +
-        Filter<String>((s) => s.isNotEmpty);
-    
+  test('sanitize drops blanks', () async {
+    final gate = FlowInstruction<Cell, Pulse, Pulse>((p, {cell, user}) {
+          final s = (p.payload as String).trim();
+          return s.isEmpty ? null : p;
+        }) +
+        FlowInstruction<Cell, Pulse, Pulse>((p, {cell, user}) => p);
+
     final receptor = Receptor.instruction(gate);
-    
-    expect(receptor.call(Pulse('  x  '))?.payload, equals('x'));
-    expect(receptor.call(Pulse('   ')), isNull);
+
+    expect((await receptor.call(Pulse('  x  ')))?.payload, equals('x'));
+    expect(await receptor.call(Pulse('   ')), isNull);
   });
 }
 ```
@@ -327,12 +448,12 @@ void main() {
   test('debounce emits last after silence', () async {
     final ingress = Cell.ingress<String>();
     
-    final debounced = ingress.cell
-        .debounce<String>(duration: const Duration(milliseconds: 100));
+    final debounced =
+        Flow.debounce<String>(ingress.cell, duration: const Duration(milliseconds: 100));
     
     final results = <String>[];
-    Cell.observe(source: debounced.cell, effect: (p) {
-      results.add(p.payload);
+    Cell.observe(source: debounced.cell, effect: (Pulse pulse) {
+      results.add(pulse.payload as String);
     });
     
     await ingress.emitAsync('a');
@@ -369,7 +490,7 @@ package:cell_flow/cell_flow.dart
 |---|---|
 | 📘 **[How to Start](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-Start.md)** | **Quick-start tutorial (15 min)** with 5 examples |
 | 🏗️ [ARCHITECTURE-Flow.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/ARCHITECTURE-Flow.md) | Why Flow is shaped this way |
-| 📋 [FEATURES-Flow.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/FEATURES-Flow.md) | Complete operator catalog (79+ operators) |
+| 📋 [FEATURES-Flow.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/FEATURES-Flow.md) | Complete operator catalog (100 operators) |
 | 🎬 [DEMO_GUIDE.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/DEMO_GUIDE.md) | High-fidelity walkthroughs |
 | 🔗 [HowTo-Fluent_Operator.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-Fluent_Operator.md) | Method chaining deep dive |
 | 🎯 [HowTo-FlowInstruction-Receptor.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-FlowInstruction-Receptor.md) | Purpose-built Receptors |
@@ -406,20 +527,20 @@ dart run example/filter_data_quality_demo.dart
 2. **`reduce` / `scan` are running folds**, not terminal values.
 3. **Fluent `filter().map()` = 2 cells.** Use `Filter + MapValue` for **one Receptor**.
 4. **Use `+` for sync policies.** Keep timers and HTTP on the next node.
-5. **Keep `cell` and `cell_flow` on the same version line.**
+5. **Resolve `cell` and `cell_flow` together** — this package's pubspec pins `cell ^1.1.0`; resolve the stable line (`cell ^1.1.0`, `cell_flow ^1.0.0`) on pub.dev.
 
 ---
 
 ## 📌 Versioning
 
-| Package | Version      | Status |
-|---|--------------|---|
-| `cell` | `1.0.0-rc.8` | Release Candidate — on pub.dev |
-| `cell_flow` | `1.0.0-rc.9` | Release Candidate — on pub.dev |
+| Package | Version | Status |
+|---|---|---|
+| `cell` | `1.1.0` | Stable — on pub.dev |
+| `cell_flow` | `1.0.0` | Stable — on pub.dev |
 
-**Mitosis** is the release codename (like an Android Studio animal). It is not part of the SemVer string. The stable release on pub.dev will be `1.0.0`.
+The stable releases — `cell` `1.1.0` and `cell_flow` `1.0.0` — are published on pub.dev (see [CHANGELOG.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/CHANGELOG.md)).
 
-> ⚠️ **Status:** Release Candidate (RC9) — published to pub.dev. APIs may change before `1.0.0` stable. Verify behaviour against source.
+**Mitosis** is the release codename (like an Android Studio animal); it is not part of the SemVer string.
 
 ---
 

@@ -67,13 +67,6 @@ alternative to creating a full Dart enum.</p>
 <p>The generated validation code checks if the field's value is in the
 provided <a href="../cell_tissue/Values/values.html">values</a> list. It uses <code>Iterable.contains</code>, so equality is based
 on <code>==</code> and <code>hashCode</code>.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>You can include <code>null</code> in the list to allow <code>null</code> values.</li>
-<li>Equality is based on <code>==</code>, so for custom objects you may need to override
-<code>==</code> and <code>hashCode</code>.</li>
-<li>Non‑matching values (including <code>null</code> if not in the list) fail validation.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <h4 id="1-status-and-role-whitelisting">1. Status and Role Whitelisting</h4>
 <pre class="language-dart"><code class="language-dart">@Values(['pending', 'approved', 'rejected'])
@@ -296,7 +289,7 @@ present in the whitelist.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

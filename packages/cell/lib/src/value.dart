@@ -22,13 +22,6 @@ part of '../cell.dart';
 /// strict write‑privilege model – observers can only read, the owner can
 /// write.
 ///
-/// ### Non‑obvious
-/// - `ingest` with `serializedCompletion: true` waits for the entire graph
-///   to stabilise before the Future completes – useful for sequential
-///   reasoning steps.
-/// - `updateAsync` queues the mutation through the cell's [Lock], so it's
-///   safe even under high concurrency.
-///
 /// ### Type Parameters:
 /// * [V]: The type of the value managed by this state handle.
 typedef StateHandle<V> = ({
@@ -36,7 +29,11 @@ typedef StateHandle<V> = ({
   ValueCell<V> cell,
 
   /// Synchronously emits a state transition.
-  /// Returns `true` if the value was successfully committed.
+  ///
+  /// Returns `true` if the value was successfully committed. A no-op
+  /// update (a value `identical` to or `==` the current state) is
+  /// deduplicated: nothing is emitted and `false` is returned — a skipped
+  /// update is deliberately not a commit.
   bool Function(V? value) update,
 
   /// Asynchronously emits a state transition, ensuring atomic
@@ -66,16 +63,20 @@ typedef StateHandle<V> = ({
 /// ([ValueCell.postProcessRule]). The [Box] is resolved by walking up the
 /// principal chain, so deputies share the same storage.
 ///
-/// ### Non‑obvious
-/// - The [forceLock] parameter in the primary constructor is `true` by
-///   default (unlike the generic `Nucleus`), because state cells need their
-///   own lock to prevent race conditions.
-/// - When you `evolve` a `ValueNucleus`, the new nucleus shares the same
-///   `Box` as its principal – no state duplication.
-///
-/// See also: [ValueCell], [Box], [Cell.state].
 class ValueNucleus<V> extends NucleusBase {
   ValueNucleus._(super.record) : super.fromRecord();
+
+  /// Default-enabled records store the [Synapses.enabled] flyweight; the
+  /// real set is materialized once on first access.
+  @override
+  late final Synapses synapses = _resolveSynapses();
+
+  Synapses _resolveSynapses() {
+    final stored =
+        get<Synapses>(() => record.local.synapses, orElse: Synapses.disabled);
+    if (stored != Synapses.enabled) return stored;
+    return Synapses();
+  }
 
   /// Initializes a new primary `ValueNucleus` – the blueprint for a stateful
   /// cell.
@@ -88,11 +89,6 @@ class ValueNucleus<V> extends NucleusBase {
   /// pipeline from the `transform` function, and integrates the commitment
   /// rule. If you provide a custom `receptor`, you must manually include
   /// `ValueCell.postProcessRule` to persist state.
-  ///
-  /// ### Non‑obvious
-  /// - The initial `state` is written directly to the Box, bypassing the
-  ///   transform – it's considered a trusted seed.
-  /// - If `transform` is provided, it overrides the `receptor` parameter.
   ///
   /// ### Parameters:
   /// * [transform]: **Transformation Logic.** An optional function defining
@@ -154,12 +150,6 @@ class ValueNucleus<V> extends NucleusBase {
   /// a complete commitment pipeline. The nucleus gets a fresh `Box` and
   /// lock.
   ///
-  /// ### Non‑obvious
-  /// - If you omit the rule and provide a custom `receptor`, you must
-  ///   ensure state commitment is handled.
-  /// - The `forceLock` is set to `false` here (shared with principal),
-  ///   unlike the primary constructor which forces a lock by default.
-  ///
   /// ### Parameters:
   /// * [instruction]: **The Transformation Blueprint.** A formal [Instruction] defining
   ///   how stimuli are converted into state. If provided, it overrides
@@ -219,12 +209,6 @@ class ValueNucleus<V> extends NucleusBase {
   /// storage resolution to the [principal]. Overrides are applied locally;
   /// missing properties are inherited from the principal.
   ///
-  /// ### Non‑obvious
-  /// - The `rule` (if provided) overrides the transformation logic, but the
-  ///   `postProcess` (commitment) is still applied.
-  /// - The lock is inherited from the principal unless the `override`
-  ///   parameter is used.
-  ///
   /// ### Parameters:
   /// * [instruction]: **The Specialization Logic.** An optional [Instruction]
   ///   defining a new transformation strategy for this deputy.
@@ -269,10 +253,14 @@ class ValueNucleus<V> extends NucleusBase {
                               postProcess: ValueCell.postProcessRule)
                           : receptor,
                   testRule: testRule,
-                  synapses: synapses,
+                  // A derivative needs a working egress registry. `null`
+                  // would fall through the mask to `Synapses.disabled`
+                  // (the orElse), silently orphaning every observer linked
+                  // to the projection — the same trap the `clone` path
+                  // documents and avoids by materializing `Synapses()`.
+                  synapses: synapses ?? Synapses.enabled,
                   user: user,
-                  ephemeralPolicy: ephemeralPolicy,
-                  others: (value: Box<V>())),
+                  ephemeralPolicy: ephemeralPolicy),
           principal: principal
         ));
 
@@ -302,9 +290,11 @@ class ValueNucleus<V> extends NucleusBase {
         receptor: handle.receptor.clone,
         testRule: handle.testRule,
         ephemeralPolicy: handle.ephemeralPolicy,
-        synapses: synapses != Synapses.disabled
-            ? Synapses.enabled
-            : Synapses.disabled,
+        // Materialize a working egress registry: the `enabled` flyweight
+        // rejects every `link`, which would silently orphan the clone's
+        // observers.
+        synapses:
+            synapses != Synapses.disabled ? Synapses() : Synapses.disabled,
         user: user,
         forceLock: lock != null,
       ),
@@ -326,17 +316,6 @@ class ValueNucleus<V> extends NucleusBase {
 /// validates the result with a `testRule`, and commits the new state to
 /// the `Box`. Changes are then broadcast to observers via [Synapses].
 ///
-/// ### Non‑obvious
-/// - The cell is thread‑safe – all mutations are serialized through its
-///   internal [Lock].
-/// - You can read the state synchronously with `cell.state`, but for
-///   consistency across concurrent updates, use `await cell.async.state`.
-/// - If you create a deputy via `deputy()`, it shares the same state but
-///   can have its own validation or propagation rules.
-///
-/// See also: [Cell.state] (the factory), [ValueNucleus] (the blueprint),
-/// [Box] (storage), [StateHandle] (the returned record).
-/// {@category Core}
 class ValueCell<V> extends CellBase {
   /// A static, reusable [Instruction] that commits a validated pulse to the
   /// cell's `Box`.
@@ -360,13 +339,6 @@ class ValueCell<V> extends CellBase {
   /// ### How it works
   /// It creates a `ValueNucleus` with the given parameters, then seeds the
   /// initial `state` directly into the `Box` (bypassing the transform).
-  ///
-  /// ### Non‑obvious
-  /// - If you provide a custom `receptor` without a `transform`, you must
-  ///   include `ValueCell.postProcessRule` manually, otherwise the state
-  ///   won't be persisted.
-  /// - The `bind` parameter creates a dependency – when the bound cell
-  ///   changes, this cell automatically receives a pulse.
   ///
   /// ### Parameters:
   /// *   `transform`: **The Reactive Brain.** An optional functional unit
@@ -449,10 +421,6 @@ class ValueCell<V> extends CellBase {
   /// It binds the nucleus to the cell and optionally seeds an initial state
   /// directly (bypassing the transform).
   ///
-  /// ### Non‑obvious
-  /// - The initial state is written directly to the Box without validation.
-  /// - The nucleus is cloned if it's already activated (to avoid sharing).
-  ///
   /// ### Parameters:
   /// * [nucleus]: **Required.** The [ValueNucleus] that defines the behavior,
   ///   storage schema, and environmental [Context] for this cell.
@@ -485,13 +453,6 @@ class ValueCell<V> extends CellBase {
   /// 3. **Handle Synthesis**: Creates a suite of closures (`update`,
   ///    `updateAsync`, `ingest`) that bridge imperative calls to the cell's
   ///    internal [Receptor].
-  ///
-  /// ### Non‑obvious
-  /// - **Instance Binding**: Handles are permanently bound to the specific
-  ///   cell instance; they cannot be reassigned or used with other cells.
-  /// - **Graph Stabilization**: The `ingest` handle defaults to
-  ///   `serializedCompletion: true`, meaning the [Future] only resolves once
-  ///   the *entire* downstream reactive chain has settled.
   ///
   /// ### Parameters:
   /// * [nucleus]: The blueprint defining the cell's identity and logic.
@@ -596,7 +557,12 @@ class ValueCell<V> extends CellBase {
   bool _emit(V? v) {
     if (!identical(v, value) && v != value) {
       final receptor = _nucleus.receptor;
-      return receptor.call(v == null ? Pulse<V>(null) : Pulse<V>(v)) != null;
+      final result = receptor.call(v == null ? Pulse<V>(null) : Pulse<V>(v));
+      // The synchronous update contract can only report "accepted": an
+      // async validation pipeline returns a Future here, and its committed
+      // outcome is surfaced by ValueCellAsync._emit, which awaits the same
+      // result (an async-rejected mutation must resolve false there).
+      return result is Future<Pulse?> || result != null;
     }
     return false;
   }
@@ -622,6 +588,51 @@ class ValueCell<V> extends CellBase {
   @override
   ValueCellAsync<V> get async => ValueCellAsync<V>(this);
 
+  /// Creates a governed projection of this cell that shares its state.
+  ///
+  /// Unlike the generic [CellBase.deputy], this returns a `ValueCell`-typed
+  /// deputy so the value pipeline ([ValueCell.postProcessRule]) can keep
+  /// committing to the shared [Box] and the deputy's own observers keep
+  /// receiving updates. The deputy's rule is layered additively on top of
+  /// this cell's rule — permissions can only narrow, never widen.
+  @override
+  FutureOr<ValueCell<V>> deputy({
+    EphemeralPolicy? ephemeralPolicy,
+    covariant DeputyContext context = DeputyContext.system,
+    covariant TestCell testRule = TestCell.allowAll,
+    Synapses synapses = Synapses.enabled,
+  }) {
+    // Causal Integrity: the security context cannot escalate or bypass.
+    // Runtime check — an `assert` disappears in release builds.
+    if (context != DeputyContext.system &&
+        this.context != DeputyContext.system &&
+        context._parent != this.context) {
+      throw StateError(
+        'Causal Integrity Violation: The new DeputyContext must be a direct '
+        'descendant of the current context.',
+      );
+    }
+
+    // Identity Preservation: avoid a deputy of a deputy when no attenuation
+    // is actually requested.
+    final bool isAttenuationRequested = ephemeralPolicy != null ||
+        !identical(context, DeputyContext.system) ||
+        !identical(testRule, TestCell.allowAll) ||
+        !identical(synapses, Synapses.enabled);
+
+    if (!isAttenuationRequested) {
+      return this;
+    }
+
+    return _ValueCellDeputy<V>(
+      this,
+      context: context,
+      testRule: testRule,
+      ephemeralPolicy: ephemeralPolicy,
+      synapses: synapses,
+    );
+  }
+
   /// Generates a read‑only proxy of this cell that cannot be mutated.
   ///
   /// ### When to use
@@ -632,10 +643,6 @@ class ValueCell<V> extends CellBase {
   /// It creates a deputy with `TestCell.readOnly` – any attempt to mutate
   /// will be blocked by the integrity gate.
   ///
-  /// ### Non‑obvious
-  /// - The read‑only view still broadcasts changes to its own observers.
-  /// - It shares the same state and lock as the principal.
-  /// - `cell == cell.unmodifiable` is `true`.
   @override
   ValueCell<V> get unmodifiable => UnmodifiableValueCell<V>._(this);
 
@@ -657,13 +664,46 @@ class ValueCell<V> extends CellBase {
 /// It shares the same `Box` and lock as the principal, but its `testRule`
 /// is set to `TestCell.readOnly`, so any mutation is rejected.
 ///
-/// ### Non‑obvious
-/// - It recursively projects nested `Cell` values as unmodifiable.
-/// - It is logically equal to its principal (`==` is `true`).
-///
-/// See also: [ValueCell.unmodifiable].
 class UnmodifiableValueCell<V> extends ValueCell<V> implements Unmodifiable {
-  UnmodifiableValueCell._(ValueCell<V> bind) : super.fromNucleus(bind._nucleus);
+  UnmodifiableValueCell._(ValueCell<V> bind)
+      : super.fromNucleus(
+            // Evolve (not clone) so the projection LINKS to the principal
+            // cell as its upstream: a bare `fromNucleus(bind._nucleus)` on an
+            // already-activated nucleus clones it with the principal's own
+            // (usually null) `bind`, leaving the projection an island whose
+            // observers never hear about principal mutations. `evolve` also
+            // resolves state through the principal chain — the projection
+            // shares the principal's Box, exactly like `_ValueCellDeputy`.
+            ValueNucleus<V>.evolve(principal: bind._nucleus, bind: bind));
+
+  /// Layers `TestCell.readOnly` atop the principal's integrity gate.
+  ///
+  /// Because this projection shares the principal's nucleus (and therefore
+  /// its Box, lock, and receptor), the only safe place to install the
+  /// read-only enforcement is on the `validate` seam. `CellBase.apply`
+  /// consults `validate.action(...)`, which now sees
+  /// `chain([principal.testRule, readOnly])` and rejects any call to a
+  /// whitelisted function (i.e. `apply` itself).
+  ///
+  /// Cached (`late final`) because `TestCell.chain` allocates a fresh record.
+  @override
+  late final TestCell validate =
+      TestCell<Cell>.chain([_nucleus.testRule, TestCell.readOnly]);
+
+  /// Rejects direct state mutation on the projection.
+  ///
+  /// The inherited `_emit` path calls the shared receptor directly and
+  /// bypasses `validate`, so the setter must be sealed explicitly. This is
+  /// intentionally *loud* (throws, matching `UnmodifiableListView`) rather
+  /// than silently ignoring the write — the caller's intent is almost
+  /// certainly a bug.
+  @override
+  set value(V? value) {
+    throw UnsupportedError(
+      'UnmodifiableValueCell: cannot assign `value` on a read-only '
+      'projection. Mutate the principal returned by `Cell.state(...).cell`.',
+    );
+  }
 
   /// Retrieves the current state, projecting any nested `Cell` as
   /// unmodifiable.
@@ -684,4 +724,136 @@ class UnmodifiableValueCell<V> extends ValueCell<V> implements Unmodifiable {
   /// Returns itself – it's already the most restrictive view.
   @override
   ValueCell<V> get unmodifiable => this;
+
+  /// Returns itself for any parameter set.
+  ///
+  /// An unmodifiable projection cannot be "deputized" into anything more
+  /// permissive: the inherited [ValueCell.deputy] would build a
+  /// [_ValueCellDeputy] with a working `value` setter, which is a mutable
+  /// escape hatch around this read-only view.
+  @override
+  FutureOr<ValueCell<V>> deputy({
+    EphemeralPolicy? ephemeralPolicy,
+    covariant DeputyContext context = DeputyContext.system,
+    covariant TestCell testRule = TestCell.allowAll,
+    Synapses synapses = Synapses.enabled,
+  }) =>
+      this;
+}
+
+/// A [ValueCell]-typed deputy that shares its principal's [Box], lock, and
+/// transformation pipeline while layering its own additive [TestCell].
+///
+/// The generic `_CellDeputy` cannot host the value pipeline:
+/// [ValueCell.postProcessRule] requires a `ValueCell`-typed host to commit to
+/// the shared storage. This class keeps that contract so a read-only deputy
+/// still receives principal mutations and re-broadcasts them to its own
+/// observers.
+class _ValueCellDeputy<V> extends ValueCell<V> with Deputy<ValueCell<V>> {
+  _ValueCellDeputy(
+    ValueCell<V> bind, {
+    DeputyContext context = DeputyContext.system,
+    TestCell testRule = TestCell.allowAll,
+    EphemeralPolicy? ephemeralPolicy,
+    Synapses synapses = Synapses.enabled,
+  })  : _layered = testRule,
+        super.fromNucleus(ValueNucleus<V>._((
+          local: NucleusBase.mask(
+            bind: bind,
+            context: identical(context, DeputyContext.system) ? null : context,
+            testRule: identical(testRule, TestCell.allowAll)
+                ? null
+                : TestCell<Cell>.chain([
+                    bind._nucleus.testRule,
+                    testRule,
+                  ]),
+            // No local `others` record: `state` then resolves through the
+            // principal chain to the SHARED Box.
+            synapses: synapses,
+            ephemeralPolicy: ephemeralPolicy,
+          ),
+          principal: bind._nucleus,
+        )));
+
+  /// The rule this deputy layered on top of its principal — kept separately
+  /// because [TestCell.chain] folds it into an opaque composite whose
+  /// internal list is not exposed by [_parent] walking.
+  final TestCell _layered;
+
+  static bool _derivesReadOnly(TestCell<Cell>? rule) {
+    while (rule != null) {
+      if (identical(rule, TestCell.readOnly)) return true;
+      rule = rule._parent;
+    }
+    return false;
+  }
+
+  bool get _isReadOnlyDeputy =>
+      _derivesReadOnly(_layered) ||
+      _derivesReadOnly(_nucleus.testRule);
+
+  /// Exposes the principal's whitelist plus this deputy's own `apply`
+  /// gateway, so principal-whitelisted commands are vetted through the FULL
+  /// additive chain instead of the trusted unvetted path.
+  @override
+  Iterable<Function> get modifiable => {
+        ..._nucleus.bind!.modifiable,
+        apply<dynamic>,
+      };
+
+  @override
+  FutureOr<ValueCell<V>> deputy({
+    EphemeralPolicy? ephemeralPolicy,
+    covariant DeputyContext context = DeputyContext.system,
+    covariant TestCell testRule = TestCell.allowAll,
+    Synapses synapses = Synapses.enabled,
+  }) {
+    // Causal Integrity: the security context cannot escalate or bypass.
+    // Runtime check — an `assert` disappears in release builds.
+    if (context != DeputyContext.system &&
+        this.context != DeputyContext.system &&
+        context._parent != this.context) {
+      throw StateError(
+        'Causal Integrity Violation: The new DeputyContext must be a direct '
+        'descendant of the current context.',
+      );
+    }
+
+    // Identity Preservation: avoid a deputy of a deputy when no attenuation
+    // is actually requested.
+    final bool isAttenuationRequested = ephemeralPolicy != null ||
+        !identical(context, DeputyContext.system) ||
+        !identical(testRule, TestCell.allowAll) ||
+        !identical(synapses, Synapses.enabled);
+
+    if (!isAttenuationRequested) {
+      return this;
+    }
+
+    return _ValueCellDeputy<V>(
+      this,
+      context: context,
+      testRule: testRule,
+      ephemeralPolicy: ephemeralPolicy,
+      synapses: synapses,
+    );
+  }
+
+  /// Seals the direct-write path when the layered rule derives from
+  /// [TestCell.readOnly].
+  ///
+  /// The inherited [ValueCell.value] setter emits through the SHARED
+  /// principal receptor, which validates against the principal's `validate`
+  /// — not this deputy's additive chain. A read-only deputy therefore has
+  /// to be sealed explicitly, exactly like [UnmodifiableValueCell].
+  @override
+  set value(V? value) {
+    if (_isReadOnlyDeputy) {
+      throw UnsupportedError(
+        'ValueCell deputy: cannot assign `value` through a read-only '
+        'deputy. Mutate the principal cell instead.',
+      );
+    }
+    _emit(value);
+  }
 }

@@ -86,13 +86,6 @@ between receiving a pulse and forwarding it.</p>
 <li>When the timer fires, the pulse is forwarded.</li>
 <li>The pulse gets the step <code>'Delay'</code> for provenance.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Fixed Delay</strong>: The delay is the same for all pulses.</li>
-<li><strong>No Cancellation</strong>: Previous delays are not cancelled.</li>
-<li><strong>Provenance Preservation</strong>: The forwarded pulse preserves the
-source cell, type, and priority from the trigger pulse.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -162,7 +155,7 @@ input.emit(42); // Will be emitted after 500ms
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

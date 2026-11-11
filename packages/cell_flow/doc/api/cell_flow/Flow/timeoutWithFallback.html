@@ -86,15 +86,6 @@ on timeout instead of an error.</p>
 <li>If <code>once</code> is <code>true</code>, the fallback is emitted only once.</li>
 <li>If <code>once</code> is <code>false</code>, the fallback is emitted on every timeout.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Once vs Continuous</strong>: <code>once</code> controls whether the fallback is
-emitted repeatedly.</li>
-<li><strong>No Error</strong>: No error pulse is emitted.</li>
-<li><strong>Provenance Preservation</strong>: The fallback pulse preserves the
-source cell, type, and priority from the trigger pulse.</li>
-<li><strong>Type Safety</strong>: The fallback must match the payload type <code>S</code>.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -170,7 +161,7 @@ final handle = Flow.timeoutWithFallback&lt;int&gt;(
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

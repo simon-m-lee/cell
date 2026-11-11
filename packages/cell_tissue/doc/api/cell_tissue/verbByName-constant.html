@@ -73,15 +73,6 @@ reply to an executable verb.</p>
 <p>The interpreter calls <code>verbByName[verbString]</code>. If the result is
 null, the reply becomes a Reject. If non-null, the reply becomes
 a <a href="../cell_tissue/TissueCommand-class.html">TissueCommand</a> with that verb.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<ul>
-<li><strong>Missing key = refused verb.</strong> If the map is missing a key,
-the model cannot name that verb, even if
-<code>TissueSet.modifiable</code> exposes the tear-off.</li>
-<li><strong>Manual sync with the enum.</strong> Keeping this map and
-<a href="../cell_tissue/TissueVerb.html">TissueVerb</a> in sync is a manual step. A future build could
-generate one from the other.</li>
-</ul>
 </section>
 
         
@@ -124,7 +115,7 @@ generate one from the other.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

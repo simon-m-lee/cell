@@ -37,17 +37,6 @@ part of '../../cell.dart';
 /// - The controller is lightweight – it holds only a reference to the
 ///   principal cell.
 ///
-/// ### Non‑obvious
-/// - The `state` getter uses the cell's lock, so it waits for any ongoing
-///   transformation to complete before returning.
-/// - The `update` method is private; you use `updateAsync` from the
-///   `StateHandle` returned by `Cell.state`.
-/// - All operations are scheduled on the Dart event loop; they never block
-///   the calling thread.
-/// - The controller does not create its own lock – it reuses the cell's.
-/// - If the cell is invalidated, operations may return stale data or fail
-///   silently; check `cell.isInvalidated` before using.
-///
 /// ### Example: Reading State Asynchronously
 /// ```dart
 /// final counter = Cell.state<int>(state: 0);
@@ -81,21 +70,16 @@ class ValueCellAsync<V> extends ModifiableAsync<ValueCell<V>> {
   ///   cell's nucleus.
   /// - The resulting instance is ready for asynchronous operations.
   ///
-  /// ### Non‑obvious
-  /// - The controller is **cheap** – it's just a wrapper.
-  /// - It shares the cell's lock, so it's fully thread‑safe.
-  ///
   /// ### Parameters:
   /// - [cell]: The principal [ValueCell] to control.
   ValueCellAsync(super.cell);
 
-  /// Asynchronously retrieves the current state of the principal [ValueCell]
-  /// with a guarantee of **Atomic Memory Consistency**.
+  /// Asynchronously retrieves the current state of the principal [ValueCell].
   ///
-  /// This getter is the primary mechanism for performing a **Thread‑Safe Read**
-  /// from the asynchronous execution layer. It facilitates the framework's
-  /// **Conactive** model by ensuring that the value retrieved is never
-  /// "torn" or partial, even in high‑concurrency environments.
+  /// When the cell has a lock, the read is serialized behind any in-flight
+  /// mutation, so callers observe a consistent point-in-time snapshot. On
+  /// the default lock-free cell the read is a plain, synchronous-isolate
+  /// access — there are no OS threads involved.
   ///
   /// ### When to use
   /// Use this when you need to read the cell's state from an async context.
@@ -106,12 +90,6 @@ class ValueCellAsync<V> extends ModifiableAsync<ValueCell<V>> {
   ///   the lock is released.
   /// - The returned value is a point‑in‑time snapshot that is guaranteed
   ///   consistent.
-  ///
-  /// ### Non‑obvious
-  /// - This getter is **not** cached – each access reads the current state.
-  /// - It returns `null` if the cell's state is `null`.
-  /// - If the cell is invalidated, it may still return the last valid state
-  ///   or `null`; check `cell.isInvalidated` to avoid stale reads.
   ///
   /// ### Returns:
   /// A [Future] that resolves to the current state [V?] of the cell once
@@ -141,12 +119,6 @@ class ValueCellAsync<V> extends ModifiableAsync<ValueCell<V>> {
   /// - Inside the lock, it calls the synchronous `_emit` method.
   /// - Returns a `Future<bool>` indicating success.
   ///
-  /// ### Non‑obvious
-  /// - This method is private; use `updateAsync` from the `StateHandle`.
-  /// - The mutation is subject to the same validation rules as synchronous
-  ///   updates – the `TestCell` is enforced.
-  /// - If the cell is invalidated, the update will fail silently.
-  ///
   /// ### Parameters:
   /// - [v]: The new state to set (passed as payload to the pulse).
   ///
@@ -155,12 +127,21 @@ class ValueCellAsync<V> extends ModifiableAsync<ValueCell<V>> {
   /// committed; `false` otherwise.
   Future<bool> _emit(V? v) async {
     final lock = _cell._nucleus.lock;
-    return lock != null
-        ? lock.synchronized(() {
-            return _cell._emit(v);
-          }).then((value) {
-            return value;
-          })
-        : Future<bool>(() => _cell._emit(v)).then((value) => value);
+    Future<bool> submit() async {
+      // Await the full pipeline: with async validation the synchronous
+      // `ValueCell._emit` can only report "accepted" (a Future is non-null
+      // before it resolves). Resolving the receptor's Future here reports
+      // the committed outcome — an async-rejected mutation must resolve
+      // false, not true.
+      if (identical(v, _cell.value) || v == _cell.value) return false;
+      final receptor = _cell._nucleus.receptor;
+      final result = receptor.call(v == null ? Pulse<V>(null) : Pulse<V>(v));
+      if (result is Future<Pulse?>) {
+        return (await result) != null;
+      }
+      return result != null;
+    }
+
+    return lock != null ? lock.synchronized(submit) : submit();
   }
 }

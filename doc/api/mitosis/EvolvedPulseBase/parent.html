@@ -84,9 +84,6 @@ need to walk a pulse's evolution history manually.</li>
 <p>Every call to <a href="../../mitosis/PulseBase/evolve.html">evolve</a> creates a new pulse that links back to the old one
 via this property. This forms a chain you can traverse to see the entire
 transformation history.</p>
-<h3 id="nonobvious-the-chain-is-immutable">Non‑obvious: the chain is immutable</h3>
-<p>Once set, <a href="../../mitosis/EvolvedPulseBase/parent.html">parent</a> never changes. For the root pulse (the original),
-<a href="../../mitosis/EvolvedPulseBase/parent.html">parent</a> is <code>null</code>. The chain is resolved by walking up — never duplicated.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final evolved = root.evolve(PulseContext(reason: 'test'), step: 'step1');
 print(evolved.parent); // root
@@ -127,7 +124,7 @@ Pulse get parent =&gt; _parent!;</code></pre>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

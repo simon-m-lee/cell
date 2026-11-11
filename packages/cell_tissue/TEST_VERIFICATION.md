@@ -1,9 +1,9 @@
 # cell_tissue package - Test Verification Report
 
-**Generated:** 2026-11-02
-**Package:** cell_tissue (v1.0.0-rc.9)
-**Test Files Analyzed:** 10
-**Total Tests:** 329 (0 skipped)
+**Generated:** 2026-11-11
+**Package:** cell_tissue (v1.0.0)
+**Test Files Analyzed:** 15
+**Total Tests:** 340 (0 skipped)
 
 ---
 
@@ -14,16 +14,21 @@
   - [Quick Stats](#quick-stats)
 - [Test File Inventory](#test-file-inventory)
 - [Detailed Test Coverage](#detailed-test-coverage)
-  - [test_tissue_test.dart](#file-1-test_tissue_test.dart-15-tests)
-  - [tissue_container_test.dart](#file-2-tissue_container_test.dart-5-tests)
-  - [tissue_list_test.dart](#file-3-tissue_list_test.dart-49-tests)
-  - [tissue_map_test.dart](#file-4-tissue_map_test.dart-63-tests)
-  - [tissue_pulse_test.dart](#file-5-tissue_pulse_test.dart-26-tests)
-  - [tissue_queue_test.dart](#file-6-tissue_queue_test.dart-40-tests)
-  - [tissue_receptor_test.dart](#file-7-tissue_receptor_test.dart-17-tests)
-  - [tissue_set_test.dart](#file-8-tissue_set_test.dart-51-tests)
-  - [tissue_test.dart](#file-9-tissue_test.dart-35-tests)
-  - [tissue_value_test.dart](#file-10-tissue_value_test.dart-28-tests)
+  - [ai_guide_examples_test.dart](#file-1-ai_guide_examples_test.dart-3-tests)
+  - [ai_preflight_test.dart](#file-2-ai_preflight_test.dart-1-tests)
+  - [api_chooser_up_to_date_test.dart](#file-3-api_chooser_up_to_date_test.dart-1-tests)
+  - [seam_test.dart](#file-4-seam_test.dart-2-tests)
+  - [test_tissue_test.dart](#file-5-test_tissue_test.dart-15-tests)
+  - [tissue_apply_command_test.dart](#file-6-tissue_apply_command_test.dart-4-tests)
+  - [tissue_container_test.dart](#file-7-tissue_container_test.dart-5-tests)
+  - [tissue_list_test.dart](#file-8-tissue_list_test.dart-49-tests)
+  - [tissue_map_test.dart](#file-9-tissue_map_test.dart-63-tests)
+  - [tissue_pulse_test.dart](#file-10-tissue_pulse_test.dart-26-tests)
+  - [tissue_queue_test.dart](#file-11-tissue_queue_test.dart-40-tests)
+  - [tissue_receptor_test.dart](#file-12-tissue_receptor_test.dart-17-tests)
+  - [tissue_set_test.dart](#file-13-tissue_set_test.dart-51-tests)
+  - [tissue_test.dart](#file-14-tissue_test.dart-35-tests)
+  - [tissue_value_test.dart](#file-15-tissue_value_test.dart-28-tests)
 - [Runtime Verification Status](#runtime-verification-status)
   - [Last `dart test`](#last-dart-test)
   - [Line Coverage (`lib/`)](#line-coverage-lib)
@@ -34,29 +39,29 @@
 
 ## Executive Summary
 
-The cell_tissue test suite contains **329 unit tests** across **10 files** in `test/`. Counts are `test(` declarations.
+The cell_tissue test suite contains **340 unit tests** across **15 files** in `test/`. Counts are `test(` declarations.
 
 This file is **generated**. Edit the script flags or the stub sections at the bottom; do not hand-count `test(`.
 
 ### Snapshot
 
-Last `dart test` is **green**: **329 passed**, 0 failed (exit 0).
+Last `dart test` is **green**: **340 passed**, 0 failed (exit 0).
 
-`lib/` line coverage is **93.7%** (2067 / 2205).
+`lib/` line coverage is **72.8%** (2395 / 3289).
 
-No `lib/` file is below 70% in this lcov.
+Below 70%: `lib/src/instruction/ai_tissue_command.dart`, `lib/src/instruction/ai_tissue_command_domain_io.dart`, `lib/src/instruction/ai_tissue_command_domain.dart`, `lib/src/tissue_pulse.dart`…
 
 ### Quick Stats
 
 | Metric | Value |
 |--------|-------|
-| **Total Test Files** | 10 |
-| **Total Tests** | 329 |
+| **Total Test Files** | 15 |
+| **Total Tests** | 340 |
 | **Skipped** | 0 |
-| **Last full run** | 329 passed, 0 failed, 0 skipped (exit 0) |
-| **Test Groups** | 63 (`group(` declarations) |
-| **Async-ish tests** | ~89 (heuristic) |
-| **Line coverage (`lib/`)** | **93.7%** (2067 / 2205) |
+| **Last full run** | 340 passed, 0 failed, 0 skipped (exit 0) |
+| **Test Groups** | 64 (`group(` declarations) |
+| **Async-ish tests** | ~96 (heuristic) |
+| **Line coverage (`lib/`)** | **72.8%** (2395 / 3289) |
 
 ---
 
@@ -64,17 +69,22 @@ No `lib/` file is below 70% in this lcov.
 
 | # | File | Lines | Tests | Size | Focus |
 |---|------|------:|------:|------:|-------|
-| 1 | test_tissue_test.dart | 228 | 15 | 8.5 KB | test test; groups: TestTissue sentinel policies, TestTissue rule policies, TestTissue.chain pipelines, TestElementRule |
-| 2 | tissue_container_test.dart | 50 | 5 | 1.7 KB | container test; groups: Container strategies |
-| 3 | tissue_list_test.dart | 558 | 49 | 16.7 KB | list test; groups: TissueList factories, TissueList read operations, TissueList mutations, TissueListNucleus factories, TissueList.unmodifiable, TissueList.deputy… |
-| 4 | tissue_map_test.dart | 754 | 63 | 24.8 KB | map test; groups: TissueMap factories, TissueMap read operations, TissueMap mutations, TissueMapNucleus factories, TissueMap.unmodifiable, TissueMap.deputy… |
-| 5 | tissue_pulse_test.dart | 338 | 26 | 10.7 KB | pulse test; groups: TissuePulse.batch and CollectiveTissuePulse, TissuePulse evolution, TissuePulse shell, TissuePulse unmodifiable, TissueEvent classification, groupBy utility |
-| 6 | tissue_queue_test.dart | 462 | 40 | 14.0 KB | queue test; groups: TissueQueue factories, TissueQueue read operations, TissueQueue mutations, TissueQueueNucleus factories, TissueQueue.unmodifiable, TissueQueue.deputy… |
-| 7 | tissue_receptor_test.dart | 261 | 17 | 8.8 KB | receptor test; groups: TissueReceptor.passThrough, TissueReceptor factory, TissueReceptorBase.call |
-| 8 | tissue_set_test.dart | 570 | 51 | 17.3 KB | set test; groups: TissueSet factories, TissueSet read operations, TissueSet mutations, TissueSetNucleus factories, TissueSet.unmodifiable, TissueSet.deputy… |
-| 9 | tissue_test.dart | 410 | 35 | 12.9 KB | test; groups: Tissue primary factory, Tissue.governed, Tissue.empty, TissueNever sentinel, Tissue.fromNucleus and Tissue.create, Tissue.deputy… |
-| 10 | tissue_value_test.dart | 318 | 28 | 9.6 KB | value test; groups: TissueValue factories, TissueValue reads and writes, TissueValueNucleus factories, TissueValue.unmodifiable, TissueValue.deputy, TissueValue async… |
-| **Total** | | **3,949** | **329** | **125.0 KB** | |
+| 1 | ai_guide_examples_test.dart | 43 | 3 | 1.7 KB | ai guide examples test |
+| 2 | ai_preflight_test.dart | 22 | 1 | 0.8 KB | ai preflight test |
+| 3 | api_chooser_up_to_date_test.dart | 27 | 1 | 1.0 KB | api chooser up to date test |
+| 4 | seam_test.dart | 52 | 2 | 1.9 KB | seam test |
+| 5 | test_tissue_test.dart | 228 | 15 | 8.3 KB | test test; groups: TestTissue sentinel policies, TestTissue rule policies, TestTissue.chain pipelines, TestElementRule |
+| 6 | tissue_apply_command_test.dart | 89 | 4 | 2.7 KB | apply command test; groups: Tissue Apply command model |
+| 7 | tissue_container_test.dart | 50 | 5 | 1.7 KB | container test; groups: Container strategies |
+| 8 | tissue_list_test.dart | 577 | 49 | 17.0 KB | list test; groups: TissueList factories, TissueList read operations, TissueList mutations, TissueListNucleus factories, TissueList.unmodifiable, TissueList.deputy… |
+| 9 | tissue_map_test.dart | 773 | 63 | 24.5 KB | map test; groups: TissueMap factories, TissueMap read operations, TissueMap mutations, TissueMapNucleus factories, TissueMap.unmodifiable, TissueMap.deputy… |
+| 10 | tissue_pulse_test.dart | 366 | 26 | 11.1 KB | pulse test; groups: TissuePulse.batch and CollectiveTissuePulse, TissuePulse evolution, TissuePulse shell, TissuePulse unmodifiable, TissueEvent classification, groupBy utility |
+| 11 | tissue_queue_test.dart | 481 | 40 | 14.0 KB | queue test; groups: TissueQueue factories, TissueQueue read operations, TissueQueue mutations, TissueQueueNucleus factories, TissueQueue.unmodifiable, TissueQueue.deputy… |
+| 12 | tissue_receptor_test.dart | 290 | 17 | 9.3 KB | receptor test; groups: TissueReceptor.passThrough, TissueReceptor factory, TissueReceptorBase.call |
+| 13 | tissue_set_test.dart | 594 | 51 | 17.4 KB | set test; groups: TissueSet factories, TissueSet read operations, TissueSet mutations, TissueSetNucleus factories, TissueSet.unmodifiable, TissueSet.deputy… |
+| 14 | tissue_test.dart | 464 | 35 | 14.3 KB | test; groups: Tissue primary factory, Tissue.governed, Tissue.empty, TissueNever sentinel, Tissue.fromNucleus and Tissue.create, Tissue.deputy… |
+| 15 | tissue_value_test.dart | 355 | 28 | 10.2 KB | value test; groups: TissueValue factories, TissueValue reads and writes, TissueValueNucleus factories, TissueValue.unmodifiable, TissueValue.deputy, TissueValue async… |
+| **Total** | | **4,411** | **340** | **135.8 KB** | |
 
 ---
 
@@ -82,7 +92,50 @@ No `lib/` file is below 70% in this lcov.
 
 Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 
-### File 1: test_tissue_test.dart (15 tests)
+### File 1: ai_guide_examples_test.dart (3 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 3 |
+
+**Tests**
+
+- generated AI guide example file is up to date
+- every minimal example compiles under dart analyze
+- every minimal example runs and exits 0
+
+### File 2: ai_preflight_test.dart (1 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 1 |
+
+**Tests**
+
+- all doc-comment and HowTo pins match resolved versions
+
+### File 3: api_chooser_up_to_date_test.dart (1 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 1 |
+
+**Tests**
+
+- lib/doc/api_chooser.dart is generated and up to date
+
+### File 4: seam_test.dart (2 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 2 |
+
+**Tests**
+
+- no testRule: TestCell on any Tissue constructor in example/
+- no testRule: TestTissue on a Cell factory in example/
+
+### File 5: test_tissue_test.dart (15 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -110,7 +163,21 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - element() delegates to call()
 - action-aware element rule receives the mutation function
 
-### File 2: tissue_container_test.dart (5 tests)
+### File 6: tissue_apply_command_test.dart (4 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 4 |
+| Tissue Apply command model | |
+
+**Tests**
+
+- execute routes through the dispatch engine and returns accepted
+- execute stages into a transaction and commits atomically
+- execute with compensation rolls back through the command model
+- execute on an unmodifiable view returns rejected
+
+### File 7: tissue_container_test.dart (5 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -125,7 +192,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - add operates on a transient store
 - remove operates on a transient store
 
-### File 3: tissue_list_test.dart (49 tests)
+### File 8: tissue_list_test.dart (49 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -191,7 +258,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - rejects functions outside the modifiable whitelist at enqueue
 - enqueued compensation commits when the staged apply succeeds
 
-### File 4: tissue_map_test.dart (63 tests)
+### File 9: tissue_map_test.dart (63 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -272,7 +339,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - rejects functions outside the modifiable whitelist at enqueue
 - enqueued compensation commits when the staged apply succeeds
 
-### File 5: tissue_pulse_test.dart (26 tests)
+### File 10: tissue_pulse_test.dart (26 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -313,7 +380,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - groups elements by key
 - handles empty iterable
 
-### File 6: tissue_queue_test.dart (40 tests)
+### File 11: tissue_queue_test.dart (40 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -367,10 +434,10 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - apply with tx returns null and does not mutate before commit
 - body failure rolls back staged mutations
 - compensates unexecuted stages with compensateIfNotExecuted
-- rejects functions outside the modifiable whitelist at enqueue
+- accepts functions outside the modifiable whitelist; gate decides
 - enqueued compensation commits when the staged apply succeeds
 
-### File 7: tissue_receptor_test.dart (17 tests)
+### File 12: tissue_receptor_test.dart (17 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -399,7 +466,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - synchronises elementUpdated into a list of cells
 - partial sync returns applied events only
 
-### File 8: tissue_set_test.dart (51 tests)
+### File 13: tissue_set_test.dart (51 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -467,7 +534,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - rejects functions outside the modifiable whitelist at enqueue
 - enqueued compensation commits when the staged apply succeeds
 
-### File 9: tissue_test.dart (35 tests)
+### File 14: tissue_test.dart (35 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -520,7 +587,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - base equality, hashCode, iterator and toString
 - unmodifiable branch of base equality is exercised
 
-### File 10: tissue_value_test.dart (28 tests)
+### File 15: tissue_value_test.dart (28 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -576,7 +643,12 @@ no path finds nothing. Pass explicit files:
 ```bash
 dart pub get
 dart test \
+  test/ai_guide_examples_test.dart \
+  test/ai_preflight_test.dart \
+  test/api_chooser_up_to_date_test.dart \
+  test/seam_test.dart \
   test/test_tissue_test.dart \
+  test/tissue_apply_command_test.dart \
   test/tissue_container_test.dart \
   test/tissue_list_test.dart \
   test/tissue_map_test.dart \
@@ -592,65 +664,68 @@ dart test \
 
 | Passed | Failed | Skipped | Exit |
 |-------:|-------:|--------:|-----:|
-| 329 | 0 | 0 | 0 |
+| 340 | 0 | 0 | 0 |
 
 Status: **green**.
 
 <details><summary>tail of test log</summary>
 
 ```
-0:03 +321: test/tissue_value_test.dart: TissueValue.unmodifiable create factory                                                                                                                       
-00:03 +321: test/tissue_value_test.dart: TissueValue.deputy deputy shares principal storage and equality                                                                                               
-00:03 +322: test/tissue_value_test.dart: TissueValue.deputy deputy shares principal storage and equality                                                                                               
-00:03 +322: test/tissue_value_test.dart: TissueValue.deputy deputy of an unmodifiable view works                                                                                                       
-00:03 +323: test/tissue_value_test.dart: TissueValue.deputy deputy of an unmodifiable view works                                                                                                       
-00:03 +323: test/tissue_value_test.dart: TissueValue.deputy nested deputies                                                                                                                            
-00:03 +324: test/tissue_value_test.dart: TissueValue.deputy nested deputies                                                                                                                            
-00:03 +324: test/tissue_value_test.dart: TissueValue async async set updates the value                                                                                                                 
-00:03 +325: test/tissue_value_test.dart: TissueValue async async set updates the value                                                                                                                 
-00:03 +325: test/tissue_value_test.dart: TissueValue async unmodifiable async set returns false and value is readable                                                                                  
-00:03 +326: test/tissue_value_test.dart: TissueValue async unmodifiable async set returns false and value is readable                                                                                  
-00:03 +326: test/tissue_value_test.dart: TissueValue transaction Cell.transaction commits a TissueValue like a Cell.state                                                                              
-00:03 +327: test/tissue_value_test.dart: TissueValue transaction Cell.transaction commits a TissueValue like a Cell.state                                                                              
-00:03 +327: test/tissue_value_test.dart: TissueValue transaction commit validation failure leaves the TissueValue unchanged                                                                            
-00:03 +328: test/tissue_value_test.dart: TissueValue transaction commit validation failure leaves the TissueValue unchanged                                                                            
-00:03 +328: test/tissue_value_test.dart: TissueValue transaction unmodifiable TissueValue rejects transaction commits                                                                                  
-00:03 +329: test/tissue_value_test.dart: TissueValue transaction unmodifiable TissueValue rejects transaction commits                                                                                  
-00:04 +329: test/tissue_value_test.dart: TissueValue transaction unmodifiable TissueValue rejects transaction commits                                                                                  
-00:05 +329: test/tissue_value_test.dart: TissueValue transaction unmodifiable TissueValue rejects transaction commits                                                                                  
-00:05 +329: All tests passed!
+0:02 +324: test/ai_guide_examples_test.dart: every minimal example runs and exits 0                                                                                                                   
+00:02 +325: test/ai_guide_examples_test.dart: every minimal example runs and exits 0                                                                                                                   
+00:02 +326: test/ai_guide_examples_test.dart: every minimal example runs and exits 0                                                                                                                   
+00:02 +327: test/ai_guide_examples_test.dart: every minimal example runs and exits 0                                                                                                                   
+00:02 +328: test/ai_guide_examples_test.dart: every minimal example runs and exits 0                                                                                                                   
+00:02 +329: test/ai_guide_examples_test.dart: every minimal example runs and exits 0                                                                                                                   
+00:02 +330: test/ai_guide_examples_test.dart: every minimal example runs and exits 0                                                                                                                   
+00:02 +331: test/ai_guide_examples_test.dart: every minimal example runs and exits 0                                                                                                                   
+00:02 +332: test/ai_guide_examples_test.dart: every minimal example runs and exits 0                                                                                                                   
+00:02 +333: test/ai_guide_examples_test.dart: every minimal example runs and exits 0                                                                                                                   
+00:02 +334: test/ai_guide_examples_test.dart: every minimal example runs and exits 0                                                                                                                   
+00:02 +335: test/ai_guide_examples_test.dart: every minimal example runs and exits 0                                                                                                                   
+00:02 +336: test/ai_guide_examples_test.dart: every minimal example runs and exits 0                                                                                                                   
+00:02 +337: test/ai_guide_examples_test.dart: every minimal example runs and exits 0                                                                                                                   
+00:02 +338: test/ai_guide_examples_test.dart: every minimal example runs and exits 0                                                                                                                   
+00:02 +339: test/ai_guide_examples_test.dart: every minimal example runs and exits 0                                                                                                                   
+00:03 +339: test/ai_guide_examples_test.dart: every minimal example runs and exits 0                                                                                                                   
+00:03 +340: test/ai_guide_examples_test.dart: every minimal example runs and exits 0                                                                                                                   
+00:04 +340: test/ai_guide_examples_test.dart: every minimal example runs and exits 0                                                                                                                   
+00:04 +340: All tests passed!
 ```
 
 </details>
 
 ### Line Coverage (`lib/`)
 
-**Overall: 2067 / 2205 lines = 93.7%**
+**Overall: 2395 / 3289 lines = 72.8%**
 
 | File | Hit | Found | Line % |
 |------|----:|------:|-------:|
-| `lib/src/internal/test_tissue.dart` | 19 | 19 | 100.0 |
-| `lib/src/internal/tissue.dart` | 109 | 109 | 100.0 |
 | `lib/src/internal/tissue_container.dart` | 10 | 10 | 100.0 |
-| `lib/src/test_tissue.dart` | 31 | 31 | 100.0 |
-| `lib/src/tissue.dart` | 6 | 6 | 100.0 |
-| `lib/src/tissue_list.dart` | 11 | 11 | 100.0 |
-| `lib/src/tissue_map.dart` | 11 | 11 | 100.0 |
-| `lib/src/tissue_nucleus.dart` | 3 | 3 | 100.0 |
-| `lib/src/tissue_pulse.dart` | 24 | 24 | 100.0 |
-| `lib/src/tissue_queue.dart` | 10 | 10 | 100.0 |
-| `lib/src/tissue_receptor.dart` | 7 | 7 | 100.0 |
-| `lib/src/tissue_set.dart` | 20 | 20 | 100.0 |
-| `lib/src/tissue_value.dart` | 11 | 11 | 100.0 |
-| `lib/src/internal/tissue_list.dart` | 389 | 393 | 99.0 |
-| `lib/src/internal/tissue_set.dart` | 242 | 246 | 98.4 |
-| `lib/src/internal/tissue_map.dart` | 361 | 367 | 98.4 |
-| `lib/src/internal/tissue_receptor.dart` | 48 | 49 | 98.0 |
-| `lib/src/internal/tissue_queue.dart` | 257 | 270 | 95.2 |
-| `lib/src/internal/tissue_pulse.dart` | 92 | 98 | 93.9 |
-| `lib/src/internal/tissue_value.dart` | 164 | 197 | 83.2 |
-| `lib/src/internal/tissue_nucleus.dart` | 155 | 198 | 78.3 |
-| `lib/src/tissue_container.dart` | 87 | 115 | 75.7 |
+| `lib/src/test_tissue.dart` | 33 | 33 | 100.0 |
+| `lib/src/tissue.dart` | 8 | 8 | 100.0 |
+| `lib/src/tissue_receptor.dart` | 8 | 8 | 100.0 |
+| `lib/src/internal/tissue_list.dart` | 440 | 445 | 98.9 |
+| `lib/src/internal/tissue_set.dart` | 275 | 279 | 98.6 |
+| `lib/src/internal/tissue_map.dart` | 428 | 442 | 96.8 |
+| `lib/src/tissue_set.dart` | 22 | 23 | 95.7 |
+| `lib/src/internal/tissue_queue.dart` | 313 | 328 | 95.4 |
+| `lib/src/internal/tissue_pulse.dart` | 96 | 102 | 94.1 |
+| `lib/src/tissue_map.dart` | 14 | 15 | 93.3 |
+| `lib/src/tissue_value.dart` | 14 | 15 | 93.3 |
+| `lib/src/tissue_queue.dart` | 13 | 14 | 92.9 |
+| `lib/src/internal/tissue_receptor.dart` | 59 | 65 | 90.8 |
+| `lib/src/tissue_list.dart` | 14 | 16 | 87.5 |
+| `lib/src/tissue_nucleus.dart` | 6 | 7 | 85.7 |
+| `lib/src/internal/tissue_value.dart` | 172 | 205 | 83.9 |
+| `lib/src/internal/tissue.dart` | 132 | 161 | 82.0 |
+| `lib/src/internal/test_tissue.dart` | 31 | 40 | 77.5 |
+| `lib/src/tissue_container.dart` | 94 | 130 | 72.3 |
+| `lib/src/internal/tissue_nucleus.dart` | 189 | 289 | 65.4 |
+| `lib/src/tissue_pulse.dart` | 22 | 39 | 56.4 |
+| `lib/src/instruction/ai_tissue_command_domain.dart` | 2 | 262 | 0.8 |
+| `lib/src/instruction/ai_tissue_command.dart` | 0 | 282 | 0.0 |
+| `lib/src/instruction/ai_tissue_command_domain_io.dart` | 0 | 71 | 0.0 |
 
 ---
 
@@ -668,18 +743,23 @@ Status: **green**.
 
 ```
 test/
-├── test_tissue_test.dart  (15 tests, 8.5 KB, 228 lines)
+├── ai_guide_examples_test.dart  (3 tests, 1.7 KB, 43 lines)
+├── ai_preflight_test.dart  (1 tests, 0.8 KB, 22 lines)
+├── api_chooser_up_to_date_test.dart  (1 tests, 1.0 KB, 27 lines)
+├── seam_test.dart  (2 tests, 1.9 KB, 52 lines)
+├── test_tissue_test.dart  (15 tests, 8.3 KB, 228 lines)
+├── tissue_apply_command_test.dart  (4 tests, 2.7 KB, 89 lines)
 ├── tissue_container_test.dart  (5 tests, 1.7 KB, 50 lines)
-├── tissue_list_test.dart  (49 tests, 16.7 KB, 558 lines)
-├── tissue_map_test.dart  (63 tests, 24.8 KB, 754 lines)
-├── tissue_pulse_test.dart  (26 tests, 10.7 KB, 338 lines)
-├── tissue_queue_test.dart  (40 tests, 14.0 KB, 462 lines)
-├── tissue_receptor_test.dart  (17 tests, 8.8 KB, 261 lines)
-├── tissue_set_test.dart  (51 tests, 17.3 KB, 570 lines)
-├── tissue_test.dart  (35 tests, 12.9 KB, 410 lines)
-├── tissue_value_test.dart  (28 tests, 9.6 KB, 318 lines)
+├── tissue_list_test.dart  (49 tests, 17.0 KB, 577 lines)
+├── tissue_map_test.dart  (63 tests, 24.5 KB, 773 lines)
+├── tissue_pulse_test.dart  (26 tests, 11.1 KB, 366 lines)
+├── tissue_queue_test.dart  (40 tests, 14.0 KB, 481 lines)
+├── tissue_receptor_test.dart  (17 tests, 9.3 KB, 290 lines)
+├── tissue_set_test.dart  (51 tests, 17.4 KB, 594 lines)
+├── tissue_test.dart  (35 tests, 14.3 KB, 464 lines)
+├── tissue_value_test.dart  (28 tests, 10.2 KB, 355 lines)
 ```
 
-**Total lines of test code:** 3,949
+**Total lines of test code:** 4,411
 
-*Generated 2026-11-02 by generate_test_verification.py*
+*Generated 2026-11-11 by generate_test_verification.py*

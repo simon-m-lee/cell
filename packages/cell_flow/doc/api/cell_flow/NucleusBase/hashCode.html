@@ -104,7 +104,17 @@ like <a href="https://api.flutter.dev/flutter/dart-collection/HashSet-class.html
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-int get hashCode =&gt; record.hashCode;</code></pre>
+int get hashCode {
+  &#47;&#47; Must agree with `==`: both walk to the root principal and compare by
+  &#47;&#47; identity. The previous `record.hashCode` made two nuclei with the same
+  &#47;&#47; root (e.g. a deputy nucleus and its principal&#39;s) hash differently,
+  &#47;&#47; breaking every Set&lt;Nucleus&gt;&#47;Map&lt;Nucleus, …&gt; they share.
+  Nucleus? p = this;
+  while (p?.principal != null) {
+    p = p!.principal;
+  }
+  return identityHashCode(p);
+}</code></pre>
 </section>
 
   </section>
@@ -134,7 +144,7 @@ int get hashCode =&gt; record.hashCode;</code></pre>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

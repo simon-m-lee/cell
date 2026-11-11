@@ -90,15 +90,6 @@ synchronously with the pulse payload.</li>
 full trace history, source, and priority—is propagated to
 downstream synapses.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Synchronous Blocking</strong>: The side-effect occurs within the same
-execution frame as the ingress. Heavy logic here will block the
-reactive engine's evolution cycle.</li>
-<li><strong>Integrity Safeguard</strong>: If the observation logic throws an error,
-the evolution is aborted, and the error is routed to the <code>onError</code>
-orchestrator.</li>
-</ul>
 <h3 id="type-parameters">Type Parameters</h3>
 <ul>
 <li><code>S</code>: <strong>Stimulus Payload Type</strong>. The type of the payload arriving
@@ -155,7 +146,7 @@ violates topographical integrity.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

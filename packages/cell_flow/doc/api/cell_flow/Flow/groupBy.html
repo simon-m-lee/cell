@@ -88,13 +88,6 @@ without aggregating them.</p>
 <li>The <code>Grouped</code> record is emitted.</li>
 <li>If <code>keyOf</code> throws an error, the pulse is dropped.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>No State</strong>: No state is maintained between pulses.</li>
-<li><strong>Per-Item Emit</strong>: Emits one <code>Grouped</code> for each input.</li>
-<li><strong>Key Extraction</strong>: <code>keyOf</code> is called for each value.</li>
-<li><strong>Type Safety</strong>: Generic over value type <code>S</code> and key type <code>K</code>.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -125,6 +118,22 @@ input.emit(2); // -&gt; Grouped(even, 2)
 <li><a href="../../cell_flow/Flow/groupCollect.html">groupCollect</a>: For collecting values by group.</li>
 <li><a href="../../cell_flow/Flow/groupByCount.html">groupByCount</a>: For batching values by group.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Flow — collect operator. Not a Cell factory, not a Tissue book.
+<strong>When to use:</strong> group bag alerts by belt (FR-08) — emit <code>Grouped(key, value)</code> per pulse.
+<strong>When NOT to use:</strong> the WalkThrough often chooses a <code>TissueMap</code> key instead; do not run both without saying which is the system of record.
+<strong>Live signature:</strong> <code>Flow.groupBy&lt;S, K&gt;(Cell source, {required K Function(S value) keyOf, GroupErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Flow.groupCollect</code> (collects each group into a list).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.7 "Collect / control" (#flow-collect-control)
+<strong>Example:</strong> <code>example/cell_flow_example.dart</code>
+<strong>Cross-layer:</strong> persistent grouping by key is <code>TissueMap&lt;K, V&gt;</code> in <code>cell_tissue</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final h = Flow.groupBy&lt;int, int&gt;(src.cell, keyOf: (v) =&gt; v % 2);
+final o = Cell.observe(source: h.cell, effect: (Pulse p) =&gt; print(p.payload));
+src.emit(1);
+o.stop();
+</code></pre>
 </section>
 
 
@@ -165,7 +174,7 @@ input.emit(2); // -&gt; Grouped(even, 2)
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

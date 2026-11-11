@@ -97,15 +97,6 @@ the root property set that originally initialized the physical storage.
 This ensures that all derived views (deputies) share the same
 underlying data instance.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The container is resolved lazily – it is only instantiated when first
-accessed, saving memory for collections that are never used.</li>
-<li>For deputies, the container is always inherited from the principal –
-a deputy never has its own container.</li>
-<li>The container's type (List, Set, Map, Queue, etc.) is fixed at the
-root nucleus and cannot be changed by deputies.</li>
-</ul>
 <h3 id="example-internal">Example (Internal)</h3>
 <pre class="language-dart"><code class="language-dart">final container = list._nucleus.container;
 print(container.length); // number of elements
@@ -119,8 +110,20 @@ print(container.length); // number of elements
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 TissueContainer&lt;E, I&gt; get container {
-  return get&lt;TissueContainer&lt;E, I&gt;&gt;(() =&gt; record.local.container,
-      fallback: () =&gt; principal?.container);
+  TissueContainer&lt;E, I&gt;? local;
+  try {
+    final raw = record.local.container;
+    &#47;&#47; A deputy&#39;s record can hold the principal&#39;s container with its
+    &#47;&#47; original (un-erased) generic type; such a container is not a
+    &#47;&#47; `TissueContainer&lt;E, I&gt;` at runtime, so fall back to the principal.
+    if (raw is TissueContainer&lt;E, I&gt;) local = raw;
+  } on NoSuchMethodError {
+    &#47;&#47; The local record has no container field — inherit.
+  }
+  return local ??
+      principal?.container ??
+      (throw StateError(
+          &#39;Tissue nucleus has neither a local container nor a principal&#39;));
 }</code></pre>
 </section>
 
@@ -151,7 +154,7 @@ TissueContainer&lt;E, I&gt; get container {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

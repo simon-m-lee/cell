@@ -92,15 +92,6 @@ and tagged with the <code>'FromStream'</code> step.</li>
 <code>emitErrorPulse</code>, they are either evolved as error-tagged pulses
 or silenced after the <code>onError</code> callback.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Lifecycle Synchronization</strong>: The bridge automatically cancels the
-stream subscription if the anchored node is disposed or if a
-new trigger pulse re-activates the gate.</li>
-<li><strong>Backpressure</strong>: This bridge performs immediate materialization;
-downstream nodes should use <code>buffer</code> or <code>throttle</code> if the stream
-frequency exceeds evolution capacity.</li>
-</ul>
 <h3 id="type-parameters">Type Parameters</h3>
 <ul>
 <li><code>S</code>: <strong>Stimulus Payload Type</strong>. The type of data yielded by
@@ -164,7 +155,7 @@ topography as error-tagged pulses.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

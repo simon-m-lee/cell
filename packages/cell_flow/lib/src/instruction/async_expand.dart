@@ -8,6 +8,8 @@ import 'dart:async';
 
 import 'package:cell_flow/cell_flow.dart';
 
+import 'flow_internal.dart';
+
 // ─────────────────────────────────────────────────────────────
 // Core AsyncExpand Operators
 // ─────────────────────────────────────────────────────────────
@@ -88,45 +90,6 @@ Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
 /// - [onData]: Called for each value drained.
 /// - [stillLive]: Optional callback to check if the operation is still current.
 ///
-/// ### Non‑obvious
-/// - **Recursive Draining**: The function recurses on `Future` and `Iterable`
-///   values, allowing nested structures to be flattened.
-/// - **Cancellation**: The [stillLive] callback is checked at each step,
-///   allowing cancelled operations to stop early.
-/// - **String Special Case**: Strings are treated as values, not iterables,
-///   to avoid character-by-character iteration.
-Future<void> _drain(
-  Object? inner,
-  void Function(dynamic value) onData, {
-  bool Function()? stillLive,
-}) async {
-  if (inner == null) return;
-  if (stillLive != null && !stillLive()) return;
-
-  if (inner is Stream) {
-    await for (final event in inner) {
-      if (stillLive != null && !stillLive()) return;
-      await _drain(event, onData, stillLive: stillLive);
-    }
-    return;
-  }
-
-  if (inner is Future) {
-    final value = await Future<dynamic>.value(inner);
-    await _drain(value, onData, stillLive: stillLive);
-    return;
-  }
-
-  if (inner is Iterable && inner is! String) {
-    for (final event in inner) {
-      if (stillLive != null && !stillLive()) return;
-      await _drain(event, onData, stillLive: stillLive);
-    }
-    return;
-  }
-
-  onData(inner);
-}
 
 // ─────────────────────────────────────────────────────────────
 // AsyncExpand - Sequential Flattening
@@ -176,15 +139,6 @@ Future<void> _drain(
 /// 5. If [expand] throws an error, the error is reported and the
 ///    instruction continues with the next input.
 /// 6. Each emitted value gets the step `'AsyncExpand'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Strict Ordering**: Output order matches input order.
-/// - **Queueing**: Inputs are queued while processing.
-/// - **No Cancellation**: Previous operations are not cancelled.
-/// - **Error Isolation**: Errors don't stop the queue.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Memory Efficient**: Only one inner sequence is in flight.
 ///
 /// ### Example: Sequential API Calls
 /// ```dart
@@ -285,8 +239,8 @@ class AsyncExpand<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Expander<S> expand, {
     ExpandErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final queue = <S>[];
             var busy = false;
             return (pulse, {cell, user, future, token}) {
@@ -308,7 +262,7 @@ class AsyncExpand<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                   final next = queue.removeAt(0);
                   try {
                     final inner = await Future.sync(() => expand(next));
-                    await _drain(inner, (item) {
+                    await drainInner(inner, (item) {
                       if (item is T) {
                         future!(
                           result: _out<T>(item, cell, pulse, 'AsyncExpand'),
@@ -326,7 +280,7 @@ class AsyncExpand<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               pump();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -387,15 +341,6 @@ class AsyncExpand<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. Order is not preserved.
 /// 5. If [expand] throws an error, it's reported independently.
 /// 6. Each emitted value gets the step `'AsyncExpandConcurrent'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Unordered**: Results are emitted in completion order.
-/// - **Unlimited Concurrency**: All operations start immediately.
-/// - **No Queuing**: No queuing; operations start immediately.
-/// - **Error Isolation**: Errors are reported independently.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Resource Usage**: May use significant resources with many inputs.
 ///
 /// ### Parameters:
 /// - [expand]: **Expansion Function.** Takes an input value and returns
@@ -485,7 +430,7 @@ class AsyncExpandConcurrent<S, T>
             Future<void> run() async {
               try {
                 final inner = await Future.sync(() => expand(payload));
-                await _drain(inner, (item) {
+                await drainInner(inner, (item) {
                   if (item is T) {
                     future!(
                       result:
@@ -566,15 +511,6 @@ class AsyncExpandConcurrent<S, T>
 ///   arbitrarily, the gate ensures topological consistency by ignoring stale
 ///   completion events.
 ///
-/// ### Non‑obvious
-/// - **Generation Tracking**: Each operation gets a unique ID.
-/// - **Silent Cancellation**: Cancelled operations don't emit errors.
-/// - **Latest Only**: Only the most recent operation emits values.
-/// - **Error Isolation**: Only errors from the current generation are
-///   reported.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-///
 /// ### Parameters:
 /// - [expand]: **Expansion Function.** Takes an input value and returns
 ///   a `FutureOr<Object?>` that can be drained.
@@ -614,8 +550,8 @@ class AsyncExpandLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Expander<S> expand, {
     ExpandErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             var generation = 0;
             return (pulse, {cell, user, future, token}) {
               final payload = pulse.payload;
@@ -633,7 +569,7 @@ class AsyncExpandLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 try {
                   final inner = await Future.sync(() => expand(payload));
                   if (id != generation) return;
-                  await _drain(
+                  await drainInner(
                     inner,
                     (item) {
                       if (id != generation) return;
@@ -655,7 +591,7 @@ class AsyncExpandLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               run();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -704,15 +640,6 @@ class AsyncExpandLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. When the inner sequence completes, the next trigger is accepted.
 /// 4. If [expand] throws an error, the busy flag is cleared.
 /// 5. Each emitted value gets the step `'AsyncExpandExhaust'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Dropping**: New triggers are silently dropped while busy.
-/// - **Single Operation**: Only one operation runs at a time.
-/// - **No Queuing**: No queuing; dropped triggers are lost.
-/// - **Error Clearing**: Errors clear the busy flag.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Drop First**: The first trigger is always processed.
 ///
 /// ### Parameters:
 /// - [expand]: **Expansion Function.** Takes an input value and returns
@@ -791,8 +718,8 @@ class AsyncExpandExhaust<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Expander<S> expand, {
     ExpandErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             var busy = false;
             return (pulse, {cell, user, future, token}) {
               final payload = pulse.payload;
@@ -810,7 +737,7 @@ class AsyncExpandExhaust<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               Future<void> run() async {
                 try {
                   final inner = await Future.sync(() => expand(payload));
-                  await _drain(inner, (item) {
+                  await drainInner(inner, (item) {
                     if (item is T) {
                       future!(
                         result:
@@ -829,7 +756,7 @@ class AsyncExpandExhaust<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               run();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }

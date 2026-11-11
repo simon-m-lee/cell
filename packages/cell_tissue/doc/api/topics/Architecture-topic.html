@@ -171,7 +171,7 @@ subject of §8.</p>
 TestTissue  ──reject──► no write, no event
     │ accept
     ▼
-TissueReceptor / apply (whitelisted method)
+TissueReceptor / apply (integrity-gated command)
     │
     ▼
 Container (physical List/Set/Map/Queue)  under Lock
@@ -183,13 +183,14 @@ TissuePulse  ──Synapses──► observers (and child-cell links)
 events. Only mutations <em>after</em> construction do.</p>
 <p><strong>Batch validation is per-element.</strong> <code>addAll</code> skips invalid members; it
 does not fail the whole call.</p>
-<p><strong>The <code>modifiable</code> manifest is the public contract.</strong> <code>TissueList</code>,
-<code>TissueSet</code>, <code>TissueMap</code>, <code>TissueQueue</code>, and <code>TissueValue</code> each expose a
-<code>modifiable</code> iterable of functions. Every mutation routed through
-<code>apply(function, …)</code> first checks <code>modifiable.contains(function)</code>. An
-unmodifiable view has an empty <code>modifiable</code>, so an external dispatcher
-that consults the manifest can deny a verb <strong>before</strong> the tissue lock is
-taken.</p>
+<p><strong><code>modifiable</code> is a capability manifest, not an enforcement point.</strong>
+<code>TissueList</code>, <code>TissueSet</code>, <code>TissueMap</code>, <code>TissueQueue</code>, and <code>TissueValue</code>
+each expose a <code>modifiable</code> iterable of functions, and an unmodifiable
+view exposes an empty one — a dispatcher may consult it to deny a verb
+before taking the tissue lock (the <code>nl-instruction-tissue-set</code> demo does
+exactly this). Authorization itself is decided by the integrity gate
+(<code>TestTissue</code> through the <code>validate</code> seam): every <code>apply</code> is vetted,
+whitelisted or not.</p>
 <hr>
 <h2 id="4-deputies-on-collections">4. Deputies on collections</h2>
 <p>Same contract as cell, applied to containers:</p>
@@ -210,13 +211,9 @@ so callers cannot mutate children as a side door.</li>
 the view without going through <code>deputy()</code> if you prefer a factory.</p>
 <p><strong>Dispatch-side gate.</strong> A deputy’s empty <code>modifiable</code> is the mechanism a
 dispatcher uses to deny a verb without attempting the mutation. The
-sibling demos exercise this directly: the dispatch instruction consults
-<code>host.modifiable.contains(tearOff)</code> before calling the tear-off, so an
-unmodifiable host is denied at the gate.</p>
-<p><strong>Snapshot caveat.</strong> In some builds, <code>.unmodifiable</code> may be a snapshot
-rather than a live view. Verify the header of the demo or the docstring
-of <code>.unmodifiable</code> before relying on liveliness; the two behaviours are
-indistinguishable from an observer that subscribes after install.</p>
+<code>nl-instruction-tissue-set</code> demo exercises this directly: its dispatch
+instruction consults <code>host.modifiable.contains(tearOff)</code> before calling
+the tear-off, so an unmodifiable host is denied at the gate.</p>
 <hr>
 <h2 id="5-relationship-to-cell">5. Relationship to cell</h2>
 <table>
@@ -259,7 +256,7 @@ indistinguishable from an observer that subscribes after install.</p>
 <td>same, plus deep element projection</td>
 </tr>
 <tr>
-<td>Command whitelist</td>
+<td>Command manifest</td>
 <td><code>Cell.modifiable</code></td>
 <td><code>Tissue.modifiable</code> (per collection type)</td>
 </tr>
@@ -301,7 +298,7 @@ pulse belongs on a <code>Cell</code>. A rule that validates a mutation, a member
 or a value write belongs on a <code>Tissue</code>. Passing a <code>TestCell</code> where a
 <code>TestTissue</code> is expected is a type error; wrapping one in the other is a
 layering error.</p>
-<p><strong>TissueValue vs ValueCell</strong> (also <code>docs/InDepth-CollectiveValue-vs-ValueCell.md</code>):
+<p><strong>TissueValue vs ValueCell</strong>:
 <code>TissueValue</code> implements <code>ValueCell</code> but uses <code>TissueValueNucleus</code>,
 <code>TestTissue</code>, and <code>TissueReceptor</code>. Prefer <code>Cell.state</code> / <code>ValueCell</code>
 for a lightweight scalar; prefer <code>TissueValue</code> when the scalar must
@@ -546,20 +543,18 @@ enqueue</strong> (<code>addLast</code> → <code>ElementAdded&lt;RtuJob&gt;</cod
 on a plain Dart working list (<code>_rtuWork</code>, <code>_pushWork</code>, <code>_issuerWork</code>).
 A downstream observer can still subscribe to the queue's <code>ElementAdded</code>
 pulses to reconstruct every outbound attempt.</p>
-<h3 id="82-tissue-cell-observer-caveat">8.2 Tissue-cell observer caveat</h3>
-<p>In this build, <code>Cell.observe</code> on a <strong>Tissue</strong> cell does not deliver
-pulses to observer effects. The demos emit trace prints from the
-<strong>writers</strong> themselves — the gate observers, the pump methods, the
-money methods, and the scenario code in <code>main()</code>.</p>
-<p>The pattern is portable: subscribe with <code>Cell.observe</code> when the Tissue
-is a source for Flow; emit prints from the writer when the Tissue write
-is the observable event.</p>
 <hr>
 <h2 id="9-current-status-and-known-gaps">9. Current status and known gaps</h2>
 <ul>
-<li><strong>Alpha.</strong> <code>publish_to: none</code>. No independent audit. <code>test/</code> is
-minimal in this package.</li>
-<li><strong><code>example/</code> now ships four end-to-end demos</strong>, each with an
+<li><strong>Stable (package version <code>1.0.0</code>).</strong> The published pub.dev package is
+still <code>1.0.0-rc.9</code> until the stable release is published. No
+independent security or correctness audit has been performed.</li>
+<li><strong>Verification:</strong> the full test suite passes — <strong>362 tests</strong> — and
+<code>dart doc .</code> exits with 0 warnings and 0 errors. <code>dart analyze lib</code>
+reports two pre-existing info-level style lints
+(<code>curly_braces_in_flow_control_structures</code> in
+<code>lib/src/tissue_pulse.dart</code>); the library is otherwise clean.</li>
+<li><strong><code>example/</code> ships four end-to-end demos</strong>, each with an
 <code>*-Demo.dart</code>, a <code>*-WalkThrough.md</code>, a <code>*-FEATURES.md</code>, and a
 <code>*-ARCHITECTURE.md</code>:
 <ul>
@@ -577,18 +572,27 @@ minimal in this package.</li>
 do take initial data on the main factory.</li>
 <li><strong><code>TissueMap</code> constructor</strong> puts <code>testRule</code> on the
 <code>TissueMapNucleus</code>, passed via <code>properties:</code>.</li>
-<li><strong><code>addAll</code> skips invalid elements silently</strong> — easy to miss in UI
-unless you count before/after or log in a custom <code>TestTissue</code>.</li>
+<li><strong><code>addAll</code> skips invalid elements silently</strong> — by design of the
+<code>TestTissue</code> gate; count before/after or log in a custom <code>TestTissue</code>
+if you need to observe rejections.</li>
 <li><strong>Queue overflow</strong> drops the oldest element with no dedicated event
 documented as distinct from a normal remove.</li>
 <li><strong><code>TissueQueue</code> does not drain</strong> via <code>removeFirst</code> / <code>remove</code> in this
-build.</li>
-<li><strong><code>Cell.observe</code> on a Tissue cell is silent</strong> in this build.</li>
-<li><strong><code>.unmodifiable</code> may be a snapshot</strong> in some builds. Verify the
-docstring or the demo header before relying on liveliness.</li>
-<li><strong>No joint commit</strong> across multiple Tissues in this build. The demos
-use the v1 compensation ladder; <code>Cell.transaction</code> is the migration
-target.</li>
+build (see the <code>ai-do-not-drain-tissuequeue</code> macro).</li>
+<li><strong><code>Cell.observe</code> on a Tissue cell works</strong> — tissue broadcasts are
+regular pulses and observer wiring is covered by the suite
+(<code>tissue_map_test.dart</code>, AI-guide examples). Older builds were silent
+here; if you see no delivery, the cell was never mutated or the
+observer was linked to a projection.</li>
+<li><strong><code>.unmodifiable</code> is live</strong>, not a snapshot — a fitness test
+(<code>unmodifiable_is_live_test.dart</code>) proves the projection reflects
+source mutations.</li>
+<li><strong>No joint commit</strong> across multiple Tissues is exercised by the suite
+in this build. <code>Cell.txApply</code> integration with a single tissue is
+covered (<code>tissue_queue_test.dart</code>); the demos use the v1 compensation
+ladder, and <code>Cell.transaction</code> is the migration target for
+multi-tissue atomicity. Verify a multi-tissue transaction against the
+current source before relying on it.</li>
 <li><strong>Isolates.</strong> Locks make mutations atomic on one isolate; they do not
 share a tissue across isolates.</li>
 <li><strong>Marketing claims</strong> in the previous README (AI-native tier,
@@ -698,6 +702,8 @@ reactive containers in <code>cell_tissue</code>.
         <li><a href="../topics/Ride Hail-topic.html">Demo&nbsp;·&nbsp;Ride&nbsp;Hail</a></li>
         <li><a href="../topics/Examples-topic.html">Quick&nbsp;Start&nbsp;&&nbsp;Examples</a></li>
       <li class="section-title">Libraries</li>
+      <li><a href="../cell_tissue_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
+      <li><a href="../cell_tissue_api_chooser/">doc\api_chooser</a></li>
       <li class="section-subtitle">Core</li>
         <li class="section-subitem"><a href="../cell_tissue/">cell_tissue</a></li>
 </ol>
@@ -726,7 +732,7 @@ reactive containers in <code>cell_tissue</code>.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

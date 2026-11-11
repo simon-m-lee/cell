@@ -43,14 +43,6 @@ class _Synapses<P extends Pulse, L extends Cell> extends SynapsesBase<P, L> {
 /// - The `serializedCompletion` flag controls whether to wait for all
 ///   downstream propagation to finish.
 ///
-/// ### Non‑obvious
-/// - The queue is **unbounded** – be mindful of memory under high load.
-/// - The worker is lazy – it starts on the first `call`.
-/// - The async synapses shares the same `TestCell` and `Lock` as the
-///   synchronous synapses, so validation and atomicity are preserved.
-/// - `serializedCompletion: false` can lead to causal races if not
-///   carefully considered.
-///
 /// ### Example: Awaiting Completion
 /// ```dart
 /// final async = synapses.async;
@@ -64,6 +56,7 @@ class _Synapses<P extends Pulse, L extends Cell> extends SynapsesBase<P, L> {
 class AsyncSynapses<P extends Pulse, L extends Cell>
     extends SynapsesBase<P, L> {
   final SynapsesBase _source;
+
   AsyncSynapses._(this._source);
 
   @override
@@ -85,7 +78,6 @@ class AsyncSynapses<P extends Pulse, L extends Cell>
   Future<void> _broadcast(PulseBase pulse) async {
     final downstreams = _source.toList(growable: false);
     if (_source.isEmpty) {
-      _stopSampleHeartbeat();
       final box = pulse._branches;
       if (box != null) {
         box.value = box.value! - 1;
@@ -93,6 +85,7 @@ class AsyncSynapses<P extends Pulse, L extends Cell>
           pulse._complete();
           return;
         }
+        return;
       } else {
         pulse._complete();
         return;
@@ -107,6 +100,21 @@ class AsyncSynapses<P extends Pulse, L extends Cell>
       }
       relay.call(pulse);
     } else {
+      // Fan-out accounting (mirrors the sync broadcast): each delivered
+      // downstream owns one terminal decrement, so credit the root branch
+      // box with (eligible - 1) before the drain loop starts.
+      var eligible = 0;
+      for (Cell c in downstreams) {
+        if (!pulse._checker.contains(c)) eligible++;
+      }
+      if (eligible == 0) {
+        pulse._complete();
+        return;
+      }
+      final branches = pulse._branches;
+      if (eligible > 1 && branches != null) {
+        branches.value = branches.value! + (eligible - 1);
+      }
       final futures = <Future>[];
 
       for (Cell c in downstreams) {
@@ -158,7 +166,13 @@ class AsyncSynapses<P extends Pulse, L extends Cell>
       final buffer = _buffer;
       if (buffer != null) {
         final pulse = await buffer.async.removeLast();
-        await _broadcast(pulse);
+        try {
+          await _broadcast(pulse);
+        } catch (e, st) {
+          // Timer callbacks have no synchronous caller; a throwing
+          // downstream must not become an unhandled zone error.
+          pulse._fail(e, stackTrace: st);
+        }
       }
       timerBox.value?.cancel();
       timerBox.value = null;
@@ -171,12 +185,15 @@ class AsyncSynapses<P extends Pulse, L extends Cell>
     if (buffer != null) {
       await buffer.async.add(p);
 
-      // New temporal flush logic: if it's the first in the buffer, start a timer
       if (buffer.length == 1) {
         final timerBox = _timerBox;
         if (timerBox != null && timerBox.value == null) {
           timerBox.value = Timer(_policy!.throttleTime, () async {
-            await _flushBatch();
+            try {
+              await _flushBatch();
+            } catch (e, st) {
+              p._fail(e, stackTrace: st);
+            }
             timerBox.value!.cancel();
             timerBox.value = null;
           });
@@ -233,62 +250,17 @@ class AsyncSynapses<P extends Pulse, L extends Cell>
         timerBox.value = Timer(window, () async {
           final latest = _buffer?.firstOrNull;
           if (latest != null) {
-            await _broadcast(latest);
-            _buffer?.clear();
+            try {
+              await _broadcast(latest);
+              _buffer?.clear();
+            } catch (e, st) {
+              latest._fail(e, stackTrace: st);
+            }
           }
           timerBox.value?.cancel();
           timerBox.value = null;
         });
       }
-    }
-  }
-
-  @override
-  Future<void> _exhaust(PulseBase p) async {
-    final timerBox = _timerBox;
-    // We use the timerBox as a 'Busy' flag
-    if (timerBox != null && timerBox.value == null) {
-      // Set a dummy timer or use a specific duration if policy defines it
-      // For exhaust, we simply 'lock' the gate until the broadcast completes
-      timerBox.value = Timer(Duration.zero, () {});
-
-      try {
-        await _broadcast(p);
-      } finally {
-        timerBox.value?.cancel();
-        timerBox.value = null;
-      }
-    }
-  }
-
-  @override
-  Future<void> _sample(PulseBase p) async {
-    final timerBox = _timerBox;
-    // For sampling, we don't trigger on 'p'. Instead, we ensure
-    // a background heart-beat is running if not already.
-    if (timerBox != null && timerBox.value == null) {
-      timerBox.value = Timer.periodic(_policy!.throttleTime, (t) async {
-        // Broadcasts the current pulse (the one passed to 'call')
-        await _broadcast(p);
-      });
-    }
-  }
-
-  @override
-  Future<void> _resilient(PulseBase p) async {
-    // Note: This requires a 'failureCount' in the policy or a local state.
-    // For now, we implement the basic gate check.
-    final timerBox = _timerBox;
-
-    // If timerBox holds a 'Cooldown' timer, the circuit is OPEN (Broken)
-    if (timerBox != null && timerBox.value != null) return;
-
-    try {
-      await _broadcast(p);
-    } catch (e) {
-      // Logic to increment error count and potentially 'Open' the circuit
-      // by setting a timerBox.state for a cooldown period.
-      print('Resilience Gate: Downstream failure suppressed.');
     }
   }
 
@@ -304,21 +276,6 @@ class AsyncSynapses<P extends Pulse, L extends Cell>
       timerBox.value?.cancel();
       timerBox.value = null;
     });
-  }
-
-  @override
-  Future<void> _retry(PulseBase p, {int attempt = 0}) async {
-    try {
-      await _broadcast(p);
-    } catch (e) {
-      final maxRetries =
-          _policy?.batchSize ?? 3; // Use batchSize as retry limit for now
-      if (attempt < maxRetries) {
-        await Future.delayed(_policy!.throttleTime);
-        return _retry(p, attempt: attempt + 1);
-      }
-      print('Retry Policy: Failed after $maxRetries attempts.');
-    }
   }
 
   // Note: _persistent is handled inside the 'link' method, not the 'call' method.
@@ -360,19 +317,6 @@ class AsyncSynapses<P extends Pulse, L extends Cell>
   ///    handler (like `_debounced` or `_batched`) which manages timers,
   ///    buffers, and final delivery.
   ///
-  /// ### Non‑obvious
-  /// - **Early Termination**: If the filter returns `null`, propagation
-  ///   terminates immediately for *all* observers, effectively acting as a
-  ///   centralized "Output Valve."
-  /// - **Branch Synchronization**: The branch counter logic ensures that
-  ///   complex graph updates involving multiple paths can detect when the
-  ///   entire reactive wave has settled.
-  /// - **Causal Provenance**: Propagation strategies like `debounced` or
-  ///   `throttled` preserve the original pulse's forensic metadata, even
-  ///   though delivery is delayed.
-  /// - **Empty Optimization**: If a cell has no listeners, it quickly
-  ///   short-circuits to avoid unnecessary filtering or strategy overhead.
-  ///
   /// ### Parameters:
   /// * [pulse]: **The Stimulus.** The [Pulse] instance to be distributed.
   ///   It contains the payload, source context, and forensic lineage.
@@ -397,6 +341,11 @@ class AsyncSynapses<P extends Pulse, L extends Cell>
           pulse._complete();
           return;
         }
+        // Returning here serves two purposes:
+        // 1. Do not complete a pulse that still has sibling branches.
+        // 2. Do not fall through into the strategy switch, which would
+        //    re-enter `_broadcast` and decrement the counter a second time.
+        return;
       } else {
         pulse._complete();
         return;
@@ -442,24 +391,8 @@ class AsyncSynapses<P extends Pulse, L extends Cell>
         await _audit(p);
         break;
 
-      case PropagationStrategy.exhaust:
-        await _exhaust(p);
-        break;
-
-      case PropagationStrategy.sample:
-        await _sample(p);
-        break;
-
-      case PropagationStrategy.resilient:
-        await _resilient(p);
-        break;
-
       case PropagationStrategy.debounceLeading:
         await _debounceLeading(p);
-        break;
-
-      case PropagationStrategy.retry:
-        await _retry(p);
         break;
 
       case PropagationStrategy.persistent:
@@ -509,18 +442,6 @@ class AsyncSynapses<P extends Pulse, L extends Cell>
 ///   by the cell's `TestCell.link` rule.
 /// - The `async` getter provides a thread‑safe asynchronous version.
 ///
-/// ### Non‑obvious
-/// - **Identity‑based linking**: The set of downstreams is identity‑based,
-///   so deputies and principals are treated as distinct observers.
-/// - **Cycle detection**: The pulse's `_checker` prevents infinite loops.
-/// - **Filtering**: The `filter` is applied to the pulse **before** it is
-///   delivered; if the filter returns `null`, the pulse is dropped for all
-///   observers.
-/// - **Propagation strategies** are applied at the egress point; they do not
-///   affect the pulse's internal state.
-/// - The synapses is **not** itself a cell – it's a component of a cell's
-///   nucleus.
-///
 /// ### Example: Basic Synapses Setup
 /// ```dart
 /// final synapses = Synapses<String, Cell>(
@@ -545,6 +466,14 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
   // ignore: prefer_typing_uninitialized_variables, strict_top_level_inference
   final _record;
 
+  /// Depth of nested synchronous broadcasts currently iterating
+  /// [_downstreams]. Link/unlink mutations received at depth > 0 are
+  /// deferred so the live set is never modified mid-iteration (this replaces
+  /// a per-broadcast `List.of` snapshot).
+  int _broadcastDepth = 0;
+  List<C>? _deferredAdds;
+  List<C>? _deferredRemoves;
+
   /// Initializes a new [SynapsesBase] instance, acting as the **Network
   /// Controller** for signal distribution and graph topology management.
   ///
@@ -562,13 +491,6 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
   /// - It prepares internal buffers and timers if the policy requires them.
   /// - The resulting instance is ready for linking and broadcasting.
   ///
-  /// ### Non‑obvious
-  /// - The `downstreams` set is **identity‑based** – deputies and principals
-  ///   are distinct entries.
-  /// - The `filter` is applied to **all** outgoing pulses; if you need
-  ///   per‑observer filters, use separate synapses.
-  /// - The `policy` is optional; if omitted, propagation is immediate.
-  ///
   /// ### Parameters:
   /// * [policy]: The [PropagationPolicy] defining temporal flow control and
   ///   distribution strategy (e.g., immediate vs. batched).
@@ -585,7 +507,14 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
     FilterRule<P>? filter,
     void Function(P pulse)? relay,
   }) : _record = mask(
-          downstreams: downstreams != null ? <C>{...downstreams} : <C>{},
+          // Identity-based edge set, on purpose: deputies are `==` to their
+          // principals, but they are distinct graph nodes with their own
+          // synapses and observers. A value-equality set would silently
+          // collapse both edges into one (the same rule CycleChecker
+          // already documents for pulse visitation).
+          downstreams: downstreams != null
+              ? (Set<C>.identity()..addAll(downstreams))
+              : Set<C>.identity(),
           policy: policy,
           filter: filter,
           relay: relay,
@@ -615,9 +544,6 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
               PropagationStrategy.throttled,
               PropagationStrategy.audit,
               PropagationStrategy.debounceLeading,
-              PropagationStrategy.exhaust,
-              PropagationStrategy.sample,
-              PropagationStrategy.resilient,
             ].contains(policy.strategy)
         ? Box<Timer>()
         : null;
@@ -766,6 +692,12 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
   @override
   Iterator<C> get iterator => _downstreams.iterator;
 
+  @override
+  bool get isEmpty => _downstreams.isEmpty;
+
+  @override
+  bool get isNotEmpty => _downstreams.isNotEmpty;
+
   FilterRule<P>? get _filter =>
       get<FilterRule<P>?>(() => _record.filter, orElse: null);
 
@@ -780,20 +712,8 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
     _broadcast(Pulse.batch(snapshot) as PulseBase);
   }
 
-  /// Cancels a [PropagationStrategy.sample] heartbeat when nobody is listening.
-  ///
-  /// [Timer.periodic] is otherwise never cancelled, which would leak the
-  /// timer for the rest of the isolate lifetime.
-  void _stopSampleHeartbeat() {
-    if (_policy?.strategy != PropagationStrategy.sample) return;
-    final timerBox = _timerBox;
-    timerBox?.value?.cancel();
-    timerBox?.value = null;
-  }
-
   void _broadcast(PulseBase pulse) {
     if (isEmpty) {
-      _stopSampleHeartbeat();
       final box = pulse._branches;
       if (box != null) {
         box.value = box.value! - 1;
@@ -801,6 +721,12 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
           pulse._complete();
           return;
         }
+        // Sibling branches still own the completion counter. Decrement has
+        // been applied; completion will be driven by whichever branch is
+        // last to reach zero. Do NOT fall through to the empty-loop
+        // `_complete()` guard below — that would complete the collective
+        // while other branches are still in flight.
+        return;
       }
     }
 
@@ -812,15 +738,127 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
       }
       relay.call(pulse);
     } else {
-      bool notified = false;
-      for (Cell c in this) {
-        if (!pulse._checker.contains(c)) {
-          final receptor = c._nucleus.receptor;
-          receptor(pulse);
-          notified = true;
+      // Fan-out accounting: the root's branch box starts at one (the
+      // emitting cell's own journey). Each downstream delivery owns one
+      // terminal decrement, so credit the box with (eligible - 1) up
+      // front — N terminals then drive it to zero exactly once, after the
+      // last one. Without this the first terminal of a fan-out fires the
+      // completion callback early and later terminals drive the counter
+      // negative.
+      var eligible = 0;
+      for (Cell c in _downstreams) {
+        if (!pulse._checker.contains(c)) eligible++;
+      }
+      if (eligible == 0) {
+        pulse._complete();
+        return;
+      }
+      final branches = pulse._branches;
+      if (eligible > 1 && branches != null) {
+        branches.value = branches.value! + (eligible - 1);
+      }
+      var delivered = 0;
+      // Iterate the live set under the mutation guard: receptors may link
+      // or unlink cells while they run (e.g. a switchMap mapper that binds
+      // its inner cell to the source). Such mutations are deferred and
+      // applied after the loop, so no snapshot allocation is needed.
+      _broadcastDepth++;
+      try {
+        for (Cell c in _downstreams) {
+          if (!pulse._checker.contains(c)) {
+            final receptor = c._nucleus.receptor;
+            // Fast path for the common observer shape: ungoverned,
+            // allowAll, reaction-only receptor on a disabled-synapse cell
+            // (what `Cell.observe` builds). Invoke the reaction directly
+            // and perform the terminal accounting inline — the full
+            // pipeline only adds no-ops for this configuration.
+            if (receptor is _Receptor &&
+                receptor._reaction != null &&
+                receptor._instruction == null &&
+                receptor._preProcess == null &&
+                receptor._postProcess == null &&
+                !c.isGoverned &&
+                identical(c._nucleus.testRule, TestCell.allowAll) &&
+                c._nucleus.synapses == Synapses.disabled) {
+              if (pulse._checker.add(c)) {
+                try {
+                  // Same user contract as the slow path: reactions receive
+                  // the RAW metadata, not the FinalBox it is stored in.
+                  final userBox = receptor._user;
+                  receptor._reaction!(
+                    pulse,
+                    c,
+                    user: userBox is FinalBox ? userBox.value : userBox,
+                  );
+                } catch (e, stackTrace) {
+                  // Match the contained path: route the failure to the
+                  // pulse's onError and keep delivering to the remaining
+                  // downstreams instead of aborting the broadcast into
+                  // the emit() caller.
+                  pulse._fail(e, stackTrace: stackTrace);
+                }
+                // Terminal accounting is ALWAYS on the input pulse: the
+                // fan-out credit was applied to it, never to a pulse the
+                // reaction returned. A returned pulse starts its own
+                // journey (its own branch box); decrementing it here would
+                // orphan the input's credit and hang its onComplete.
+                final box = pulse._branches;
+                if (box == null) {
+                  pulse._complete();
+                } else {
+                  box.value = box.value! - 1;
+                  if (box.value == 0) pulse._complete();
+                }
+                delivered++;
+              }
+            } else {
+              receptor(pulse);
+              delivered++;
+            }
+          }
+        }
+      } finally {
+        _broadcastDepth--;
+        if (_broadcastDepth == 0) _flushDeferredLinks();
+      }
+      // Reconcile fan-out accounting. The credit was granted for every
+      // eligible downstream up front; a re-entrant receptor can mark a
+      // later downstream as already-visited (or unlink it) mid-loop, so
+      // fewer deliveries happen than were credited. Drive the shared
+      // counter down by the difference — otherwise the pulse's onComplete
+      // hangs forever.
+      if (delivered < eligible) {
+        final box = pulse._branches;
+        if (box == null) {
+          pulse._complete();
+        } else {
+          box.value = box.value! - (eligible - delivered);
+          if (box.value! <= 0) pulse._complete();
         }
       }
-      if (!notified) pulse._complete();
+    }
+  }
+
+  /// Applies link/unlink mutations that were deferred while a synchronous
+  /// broadcast was iterating the downstream set.
+  void _flushDeferredLinks() {
+    final adds = _deferredAdds;
+    _deferredAdds = null;
+    final removes = _deferredRemoves;
+    _deferredRemoves = null;
+
+    if (adds != null) {
+      final persistent = _policy?.strategy == PropagationStrategy.persistent;
+      for (final c in adds) {
+        if (_downstreams.add(c) && persistent) {
+          _rehydrate(c);
+        }
+      }
+    }
+    if (removes != null) {
+      for (final c in removes) {
+        _downstreams.remove(c);
+      }
     }
   }
 
@@ -836,7 +874,11 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
       return;
     }
     timerBox.value = Timer(window, () {
-      _broadcast(p);
+      try {
+        _broadcast(p);
+      } catch (e, st) {
+        p._fail(e, stackTrace: st);
+      }
       timerBox.value?.cancel();
       timerBox.value = null;
     });
@@ -862,7 +904,11 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
         return;
       }
       timerBox.value = Timer(window, () {
-        _flushBatch();
+        try {
+          _flushBatch();
+        } catch (e, st) {
+          p._fail(e, stackTrace: st);
+        }
         timerBox.value?.cancel();
         timerBox.value = null;
       });
@@ -914,58 +960,16 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
     timerBox.value = Timer(window, () {
       final latest = _buffer?.firstOrNull;
       if (latest != null) {
-        _broadcast(latest);
-        _buffer?.clear();
+        try {
+          _broadcast(latest);
+          _buffer?.clear();
+        } catch (e, st) {
+          latest._fail(e, stackTrace: st);
+        }
       }
       timerBox.value?.cancel();
       timerBox.value = null;
     });
-  }
-
-  void _exhaust(PulseBase p) {
-    final timerBox = _timerBox;
-    // We use the timerBox as a 'Busy' flag
-    if (timerBox != null && timerBox.value == null) {
-      // Set a dummy timer or use a specific duration if policy defines it
-      // For exhaust, we simply 'lock' the gate until the broadcast completes
-      timerBox.value = Timer(Duration.zero, () {});
-
-      try {
-        _broadcast(p);
-      } finally {
-        timerBox.value?.cancel();
-        timerBox.value = null;
-      }
-    }
-  }
-
-  void _sample(PulseBase p) {
-    final timerBox = _timerBox;
-    // For sampling, we don't trigger on 'p'. Instead, we ensure
-    // a background heart-beat is running if not already.
-    if (timerBox != null && timerBox.value == null) {
-      timerBox.value = Timer.periodic(_policy!.throttleTime, (t) {
-        // Broadcasts the current pulse (the one passed to 'call')
-        _broadcast(p);
-      });
-    }
-  }
-
-  void _resilient(PulseBase p) {
-    // Note: This requires a 'failureCount' in the policy or a local state.
-    // For now, we implement the basic gate check.
-    final timerBox = _timerBox;
-
-    // If timerBox holds a 'Cooldown' timer, the circuit is OPEN (Broken)
-    if (timerBox != null && timerBox.value != null) return;
-
-    try {
-      _broadcast(p);
-    } catch (e) {
-      // Logic to increment error count and potentially 'Open' the circuit
-      // by setting a timerBox.state for a cooldown period.
-      print('Resilience Gate: Downstream failure suppressed.');
-    }
   }
 
   void _debounceLeading(PulseBase p) {
@@ -979,20 +983,6 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
       timerBox.value?.cancel();
       timerBox.value = null;
     });
-  }
-
-  void _retry(PulseBase p, {int attempt = 0}) async {
-    try {
-      _broadcast(p);
-    } catch (e) {
-      final maxRetries =
-          _policy?.batchSize ?? 3; // Use batchSize as retry limit for now
-      if (attempt < maxRetries) {
-        await Future.delayed(_policy!.throttleTime);
-        return _retry(p, attempt: attempt + 1);
-      }
-      print('Retry Policy: Failed after $maxRetries attempts.');
-    }
   }
 
   // Note: _persistent is handled inside the 'link' method, not the 'call' method.
@@ -1016,13 +1006,6 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
   /// in sequence, respecting the propagation policy. If a cycle is detected,
   /// the branch is silently terminated.
   ///
-  /// ### Non‑obvious
-  /// - The broadcast is synchronous by default – use the `async` view for
-  ///   non‑blocking delivery.
-  /// - If a downstream observer is invalidated, it's skipped.
-  /// - The pulse's `_branches` box is used to track completion across
-  ///   multiple observers.
-  ///
   /// ### Parameters:
   /// - [pulse]: The pulse to broadcast.
   @override
@@ -1043,6 +1026,11 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
           pulse._complete();
           return;
         }
+        // Returning here serves two purposes:
+        // 1. Do not complete a pulse that still has sibling branches.
+        // 2. Do not fall through into the strategy switch, which would
+        //    re-enter `_broadcast` and decrement the counter a second time.
+        return;
       } else {
         pulse._complete();
         return;
@@ -1088,24 +1076,8 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
         _audit(p);
         break;
 
-      case PropagationStrategy.exhaust:
-        _exhaust(p);
-        break;
-
-      case PropagationStrategy.sample:
-        _sample(p);
-        break;
-
-      case PropagationStrategy.resilient:
-        _resilient(p);
-        break;
-
       case PropagationStrategy.debounceLeading:
         _debounceLeading(p);
-        break;
-
-      case PropagationStrategy.retry:
-        _retry(p);
         break;
 
       case PropagationStrategy.persistent:
@@ -1131,13 +1103,6 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
   /// The method validates the link via the cell's [TestCell], then adds the
   /// downstream cell to the registry. If the cell is already linked, it's a
   /// no‑op. Returns `true` on success, `false` if rejected.
-  ///
-  /// ### Non‑obvious
-  /// - The link is governed by the host cell's validation rules – you can't
-  ///   link to a cell that the host doesn't allow.
-  /// - Deputies and their principals are considered equivalent for linking.
-  /// - If the policy is `persistent`, the new observer immediately receives
-  ///   the last emitted pulse.
   ///
   /// ### Example
   /// ```dart
@@ -1166,6 +1131,12 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
       // 2. Define the registration logic as a reusable closure
       bool register() {
         if (downstreamCell is! C) return false;
+        if (_broadcastDepth > 0) {
+          // Defer the mutation: the sync broadcast is iterating the live
+          // downstream set right now.
+          (_deferredAdds ??= <C>[]).add(downstreamCell);
+          return true;
+        }
         final added = _downstreams.add(downstreamCell);
 
         // If strategy is persistent, send the last state to the new observer
@@ -1219,6 +1190,11 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
   bool unlink(Cell cell, {required Cell downstreamCell}) {
     final synapses = cell._nucleus.synapses;
     if (identical(synapses, this)) {
+      if (_broadcastDepth > 0) {
+        if (downstreamCell is! C) return false;
+        (_deferredRemoves ??= <C>[]).add(downstreamCell);
+        return true;
+      }
       return _downstreams.remove(downstreamCell);
     }
     return false;
@@ -1235,13 +1211,6 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
   /// ### How it works
   /// The async view schedules the broadcast on the event loop. It also
   /// uses a thread‑safe cycle checker to maintain causal integrity.
-  ///
-  /// ### Non‑obvious
-  /// - The async view shares the same filter and policy as the synchronous
-  ///   synapses.
-  /// - It uses a queue to serialise deliveries, preserving order.
-  /// - The `call` method on the async view can optionally wait for
-  ///   completion (`serializedCompletion: true`).
   ///
   /// ### Example
   /// ```dart
@@ -1331,11 +1300,7 @@ final class _SynapsesEnabled extends IterableBase<Never>
 /// - **throttled**: For rate‑limiting high‑frequency events (e.g., scroll).
 /// - **batched**: For aggregating multiple updates into one (e.g., logging).
 /// - **audit**: To get the latest value at a fixed interval.
-/// - **exhaust**: To prevent concurrent processing of overlapping signals.
-/// - **sample**: To emit a constant‑rate heartbeat of the current state.
-/// - **resilient**: To protect against downstream failures (circuit breaker).
 /// - **debounceLeading**: To respond immediately to the first event, then wait.
-/// - **retry**: To automatically retry failed deliveries.
 /// - **persistent**: To replay the last state to new observers.
 ///
 /// ### How it works
@@ -1346,20 +1311,6 @@ final class _SynapsesEnabled extends IterableBase<Never>
 ///   to buffer, delay, or batch outgoing pulses.
 /// - Each strategy has a specific behaviour; see the individual enum values
 ///   for details.
-///
-/// ### Non‑obvious
-/// - The `immediate` strategy is the fastest and most predictable – it ensures
-///   that changes are propagated synchronously, but can cause deep call stacks.
-/// - `async` simply schedules the broadcast on the next event loop tick,
-///   breaking the synchronous chain.
-/// - `debounced` and `throttled` use timers that are started on the first
-///   interaction; they are lazy and don't allocate timers until needed.
-/// - `persistent` does **not** affect regular propagation; it only replays
-///   the last pulse to newly linked observers.
-/// - `retry` and `resilient` are more advanced and require careful tuning
-///   of batchSize and timers to avoid loops.
-/// - The strategy is **per‑synapse**, not per‑pulse – it applies to all
-///   pulses emitted by that cell.
 ///
 /// ### Example: Debounced Search
 /// ```dart
@@ -1469,48 +1420,6 @@ enum PropagationStrategy {
   ///     `throttleTime`.
   audit,
 
-  /// The **Concurrency Lock** strategy. Ignores new signals while a
-  /// previous signal is still being processed.
-  ///
-  /// *   **Behavior**: If a [Pulse] is currently traversing the downstream
-  ///     receptor chain (especially useful for async flows), any new pulses
-  ///     arriving at the hub are dropped until the cycle completes.
-  /// *   **Use Case**: Preventing "Race Conditions" in expensive side effects,
-  ///     such as avoiding multiple simultaneous database writes or redundant
-  ///     API calls.
-  /// *   **Trade-off**: Intermediate state changes are completely lost if
-  ///     they occur while the "gate" is closed.
-  exhaust,
-
-  /// The **Fixed-Interval Heartbeat** strategy. Periodically emits the
-  /// current state regardless of arrival frequency.
-  ///
-  /// *   **Behavior**: Ignores the arrival of individual pulses and instead
-  ///     "samples" the current value of the source cell at a fixed interval
-  ///     defined by `throttleTime`.
-  /// *   **Use Case**: Constant-rate telemetry, physics engines, or
-  ///     monitoring systems where "no change" is just as important as "change."
-  /// *   **Trade-off**: Can result in redundant broadcasts if the state
-  ///     hasn't changed, and misses high-frequency fluctuations.
-  /// *   **Non‑obvious**: The heartbeat rebroadcasts the *first* pulse
-  ///     captured when the timer starts. The pulse cycle checker then
-  ///     drops later ticks of that same instance, so observers typically
-  ///     see one delivery. Unlinking the last observer cancels the
-  ///     [Timer.periodic] so it does not leak.
-  sample,
-
-  /// The **Stability Governance** strategy (Circuit Breaker). Stops
-  /// propagation if downstream failures exceed a threshold.
-  ///
-  /// *   **Behavior**: Monitors for errors in downstream receptors. If a
-  ///     failure threshold is met, the strategy enters an "Open" state,
-  ///     silencing the synapse to prevent cascade failures.
-  /// *   **Use Case**: Resilient distributed systems, unreliable network
-  ///     integrations, or experimental AI logic that might crash.
-  /// *   **Trade-off**: Requires a "Reset" or "Half-Open" logic to resume
-  ///     normal operations after a failure.
-  resilient,
-
   /// The **Leading-Edge Debounce** strategy. Delivers the first signal
   /// and silences subsequent signals during the window.
   ///
@@ -1520,15 +1429,6 @@ enum PropagationStrategy {
   /// *   **Use Case**: Button debouncing where the user expects immediate
   ///     UI feedback, but the backend must be protected from double-clicks.
   debounceLeading,
-
-  /// The **Transient Resilience** strategy. Retries failed downstream
-  /// deliveries.
-  ///
-  /// *   **Behavior**: If a downstream receptor throws an exception,
-  ///     the synapse will re-attempt delivery after a delay.
-  /// *   **Use Case**: Unreliable network observers or distributed nodes
-  ///     that may be momentarily offline.
-  retry,
 
   /// The **State-Preserving Relink** strategy. Ensures newly linked observers
   /// receive the last known state.
@@ -1565,18 +1465,6 @@ enum PropagationStrategy {
 /// - When a pulse is emitted, the synapses checks the policy and applies
 ///   the appropriate buffering, timing, or filtering logic.
 /// - The policy is immutable – you set it once at synapses creation.
-///
-/// ### Non‑obvious
-/// - The policy is **per‑synapse**, so different branches of the graph can
-///   have different propagation behaviors.
-/// - `debounceTime` is used for `debounced` and `debounceLeading`.
-/// - `throttleTime` is used for `throttled`, `audit`, `sample`, `buffered`,
-///   and some others.
-/// - `batchSize` is used for `batched`, `retry` (as max retries), and
-///   `buffered` (as max buffer size before flush).
-/// - If a strategy doesn't use a parameter, it's simply ignored.
-/// - All durations default to sensible values, so you can omit them if the
-///   defaults work for you.
 ///
 /// ### Example: Debounced Search
 /// ```dart
@@ -1641,10 +1529,6 @@ class PropagationPolicy {
   /// - The timer is reset to the full [debounceTime].
   /// - The new pulse becomes the candidate for the next broadcast.
   ///
-  /// ### Non‑obvious
-  /// - Only effective for `debounced` and `debounceLeading` strategies.
-  /// - Defaults to **150 milliseconds** if not explicitly set.
-  ///
   /// ### Returns:
   /// A [Duration] representing the required period of inactivity before
   /// signal propagation.
@@ -1667,10 +1551,6 @@ class PropagationPolicy {
   /// begins. Any pulses arriving during this window are dropped. Once the
   /// window expires, the next incoming pulse is again delivered immediately,
   /// restarting the cycle.
-  ///
-  /// ### Non‑obvious
-  /// - Also used by `audit`, `sample`, `buffered`, and some other strategies.
-  /// - Defaults to **200 milliseconds** if not explicitly set.
   ///
   /// ### Returns:
   /// A [Duration] representing the minimum gap between broadcast events.
@@ -1696,10 +1576,6 @@ class PropagationPolicy {
   /// - The resulting composite signal contains the chronological history
   ///   of all [batchSize] pulses.
   ///
-  /// ### Non‑obvious
-  /// - Also used by `retry` as the maximum retry count.
-  /// - Defaults to **10** if not explicitly set.
-  ///
   /// ### Returns:
   /// An [int] representing the signal accumulation threshold.
   int get batchSize => get<int>(() => _record.batchSize, orElse: 10);
@@ -1719,12 +1595,6 @@ class PropagationPolicy {
   /// - The policy stores the strategy and parameters.
   /// - It is attached to a synapses instance at creation.
   /// - The synapses uses the policy to decide how to handle each outgoing pulse.
-  ///
-  /// ### Non‑obvious
-  /// - The policy is immutable – you cannot change it after synapses creation.
-  /// - To change behavior, create a new synapses with a new policy.
-  /// - All parameters have sensible defaults, so you can omit those you
-  ///   don't need.
   ///
   /// ### Parameters:
   /// * [strategy]: The tactical model defining the timing and delivery mode

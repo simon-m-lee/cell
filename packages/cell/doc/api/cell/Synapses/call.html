@@ -72,12 +72,6 @@ state changes. You might use it for manual testing.</p>
 <p>It applies the filter (if any), then delivers the pulse to each observer
 in sequence, respecting the propagation policy. If a cycle is detected,
 the branch is silently terminated.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The broadcast is synchronous by default – use the <code>async</code> view for
-non‑blocking delivery.</li>
-<li>If a downstream observer is invalidated, it's skipped.</li>
-</ul>
 </section>
 
 
@@ -112,7 +106,7 @@ non‑blocking delivery.</li>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

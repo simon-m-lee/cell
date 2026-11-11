@@ -96,17 +96,6 @@ to <code>super.call()</code>, which executes the <code>preProcess</code> → <co
 <code>postProcess</code> pipeline.</li>
 <li><strong>Return</strong>: The final pulse is returned (or <code>null</code> if filtered).</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The implicit synchronisation only happens for pulses from the <code>bind</code>
-source. Pulses from other sources are not mirrored.</li>
-<li>If the synchronisation is partial (e.g., some elements failed
-validation), the resulting pulse reflects only the committed changes.</li>
-<li>The pipeline is wrapped in error boundaries; exceptions are caught
-and reported via the pulse's <code>onError</code> callback.</li>
-<li>The method returns <code>FutureOr</code> – it can be synchronous or asynchronous
-depending on the rules.</li>
-</ul>
 <h3 id="example-manual-invocation">Example (Manual invocation)</h3>
 <pre class="language-dart"><code class="language-dart">final receptor = TissueReceptor.passThrough;
 final result = await receptor.call(Pulse('test'));
@@ -163,7 +152,7 @@ FutureOr&lt;PulseBase?&gt; call(covariant PulseBase pulse) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

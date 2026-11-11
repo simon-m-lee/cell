@@ -45,19 +45,6 @@ part of '../cell_tissue.dart';
 /// - The nucleus is immutable; once created, it cannot be changed. Any
 ///   variation requires creating a new nucleus (or deputy).
 ///
-/// ### Non‑obvious
-/// - The [finalValue] flag is **structural**: it is fixed at creation and
-///   inherited by all deputies. You cannot change a mutable value into a
-///   write‑once value through a deputy.
-/// - The nucleus is a **flyweight** – many value cells can share the same
-///   nucleus without duplicating memory.
-/// - The [clone] getter creates a fresh copy of the nucleus with its own
-///   [Lock] and [Synapses]. This is used internally when you create a new
-///   value from an already‑activated nucleus to avoid sharing locks.
-/// - The `principal` chain allows hierarchical inheritance – a deputy nucleus
-///   can override only specific properties (like `testRule`) while inheriting
-///   the rest from its principal.
-///
 /// ### Example: Reusing a validated nucleus
 /// ```dart
 /// final validNucleus = TissueValueNucleus.create<int>(
@@ -95,14 +82,6 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
   /// - The resulting nucleus can be used to instantiate multiple value cells
   ///   that share the same logic but hold separate data.
   ///
-  /// ### Non‑obvious
-  /// - If you omit the [testRule], it defaults to [TestTissue.allowAll] – no
-  ///   restrictions.
-  /// - The [receptor] defaults to [TissueReceptor.passThrough] – mutations are
-  ///   applied directly.
-  /// - The [context] defaults to [Context.system] – system‑level authority.
-  /// - The [synapses] default to [Synapses.enabled] – observers receive pulses.
-  ///
   /// ### Parameters:
   /// - [bind]: Optional upstream [Cell] to observe.
   /// - [context]: Operational environment (default: [Context.system]).
@@ -125,72 +104,101 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
       EphemeralPolicy? ephemeralPolicy,
       Record? user}) = _TissueValueNucleus<V, TissueValue<V>>;
 
-  /// Creates a specialised extension of [TissueValueNucleus] to support
-  /// hierarchical property inheritance and the **Deputy Pattern** for reactive values.
+  /// Creates a specialized **Architectural Extension** of an existing [TissueValueNucleus]
+  /// to support hierarchical property inheritance and contextual overrides for
+  /// single-value cells.
   ///
-  /// This factory constructor implements the framework's **Property Cascading**
-  /// architecture. It allows a "child" property set—such as a specialised view,
-  /// a restricted proxy, or a localised projection—to derive its core structural
-  /// configuration (including its physical [ValueContainer] storage) from a
-  /// [principal], while layering on its own specific behavioural overrides.
+  /// This factory is the primary architectural implementation of **Prototypal
+  /// Inheritance** and **Behavioural Shadowing** within the value ecosystem.
+  /// In the framework's biological metaphor, it creates a **Deputy**
+  /// configuration that inherits the structural "DNA" and baseline rules of a
+  /// [principal] while selectively applying directed **Genetic Mutations**.
   ///
   /// ### When to use
-  /// This is the engine behind the `deputy()` method on [TissueValue]. You
-  /// rarely call it directly. Use it when you need a restricted view of a value
-  /// that shares the same storage but applies different validation or context.
+  /// - **Access Control**: Creating a restricted "Read-Only" or "Validation-Strict"
+  ///   view of a shared value by overriding the [testRule].
+  /// - **Contextual Isolation**: Moving a value into a different [Context]
+  ///   (e.g., from `background` to `ui`) to change its processing priority.
+  /// - **Transformation Overrides**: Swapping a [receptor] to apply different
+  ///   transformation logic to the same underlying storage pool.
   ///
   /// ### How it works
-  /// - The new nucleus inherits all properties from [principal] unless
-  ///   explicitly overridden.
-  /// - You can override the [testRule] (to narrow permissions), [context] (to
-  ///   change authority), [receptor] (to transform mutations), or [synapses].
-  /// - The [finalValue] status is always inherited and cannot be changed.
-  /// - The new nucleus shares the same [Lock] and physical storage as the
-  ///   principal (unless you provide an [override] that introduces a new lock).
+  /// The constructor utilizes a **Tiered Resolution Hierarchy** to determine the
+  /// final state of any property:
+  /// 1. **Local Override**: Values explicitly passed to this factory.
+  /// 2. **Prototype Inheritance**: Values inherited from the [principal].
+  /// 3. **Causal Binding**: Values derived from the upstream [bind] dependency.
+  /// 4. **Global Default**: Framework-level constants (e.g., [Context.system]).
   ///
-  /// ### Non‑obvious
-  /// - The [override] parameter allows you to layer a complete pre‑configured
-  ///   nucleus on top of the principal. This is useful for composing complex
-  ///   deputies.
-  /// - The resulting nucleus does **not** copy the principal's data – it shares
-  ///   it via the inheritance chain.
-  /// - If you override the [synapses], the deputy gets its own observer
-  ///   registry, so listeners attached to the deputy are separate from those
-  ///   attached to the principal.
-  ///
-  /// ### Example
+  /// ### Example: Evolving a restricted integrity gate
   /// ```dart
-  /// final principal = TissueValueNucleus.create<int>();
-  /// final readOnlyNucleus = TissueValueNucleus.evolve(
-  ///   principal: principal,
-  ///   testRule: TestTissue.readOnly,
+  /// // 1. Define the baseline DNA (Principal)
+  /// final baseNucleus = TissueValueNucleus.create<int>(
+  ///   testRule: TestTissue<int>((v) => v >= 0),
   /// );
-  /// final readOnlyValue = TissueValue.fromNucleus(readOnlyNucleus);
+  ///
+  /// // 2. Evolve a Deputy with a stricter integrity gate
+  /// // Shares storage and context, but overrides the validation logic.
+  /// final strictNucleus = TissueValueNucleus.evolve(
+  ///   baseNucleus,
+  ///   testRule: TestTissue<int>((v) => v > 100),
+  /// );
+  ///
+  /// // 3. Instantiate a tissue governed by the evolved DNA
+  /// final myValue = TissueValue.fromNucleus(strictNucleus);
   /// ```
   ///
+  /// ### The [override] Parameter (Composite Shadowing)
+  /// **Note**: If [override] is provided, it triggers an immediate **Record Adoption**.
+  /// The entire internal bitmask record of the [override] nucleus is adopted as
+  /// the `local` tier of the new deputy. In this mode, all other parameters
+  /// (like [context], [receptor], etc.) are **ignored**, as the factory assumes
+  /// you are performing a bulk behavioral swap from a pre-compiled blueprint.
+  ///
   /// ### Parameters:
-  /// - [principal]: **Required**. The base nucleus to extend.
-  /// - [override]: Optional. A complete nucleus whose properties are layered
-  ///   on top of the principal.
-  /// - [bind]: Optional override for the upstream cell.
-  /// - [context]: Optional override for the execution context.
-  /// - [receptor]: Optional override for the mutation processor.
-  /// - [testRule]: Optional override for the validation rule.
-  /// - [synapses]: Optional override for propagation behaviour.
+  /// - [principal]: **Required**. The source nucleus from which this instance
+  ///   derives its structural DNA and inheritance chain.
+  /// - [bind]: **Ingress Link.** An optional upstream [Cell] to observe.
+  /// - [context]: **Operational Authority.** Defines the execution tier
+  ///   (default: inherits from [principal]).
+  /// - [receptor]: **Command Engine.** The logic used to process mutations
+  ///   (default: inherits from [principal]).
+  /// - [testRule]: **Integrity Gate.** Validation rules that guard the value
+  ///   (default: inherits from [principal]).
+  /// - [synapses]: **Signal Distribution.** Manages egress connectivity
+  ///   (default: inherits from [principal]).
+  /// - [ephemeralPolicy]: **Lifecycle Governance.** Defines the TTL for the
+  ///   cell state.
+  /// - [override]: **Composite Shadowing.** If set, adopts this nucleus's
+  ///   entire local record, bypassing all other parameters.
   ///
   /// ### Returns:
-  /// A new [TissueValueNucleus<V>] instance that acts as a specialised
-  /// behavioral layer over the [principal].
-  factory TissueValueNucleus.evolve(
-          {Cell? bind,
-          Context? context,
-          TissueReceptor<V, TissueValue<V>>? receptor,
-          TestTissue<V, TissueValue<V>>? testRule,
-          Synapses? synapses,
-          EphemeralPolicy? ephemeralPolicy,
-          TissueValueNucleus<V>? override,
-          required TissueValueNucleus<V> principal}) =
-      _TissueValueNucleus<V, TissueValue<V>>.evolve;
+  /// A new [TissueValueNucleus<V>] instance acting as a specialized behavioral
+  /// layer over the [principal].
+  factory TissueValueNucleus.evolve(TissueValueNucleus<V> principal, {
+    Cell? bind,
+    Context? context,
+    TissueReceptor<V, TissueValue<V>>? receptor,
+    TestTissue<V, TissueValue<V>>? testRule,
+    Synapses? synapses,
+    EphemeralPolicy? ephemeralPolicy,
+    TissueValueNucleus<V>? override
+  }) {
+    return _TissueValueNucleus<V, TissueValue<V>>.fromRecord((
+      local: override != null
+          ? (override as NucleusBase).record.local
+          : TissueNucleusBase.mask<V, ValueContainer<V>, TissueValue<V>>(
+              bind: bind,
+              context: context,
+              receptor: receptor,
+              testRule: testRule,
+              synapses: synapses,
+              forceLock: true,
+              ephemeralPolicy: ephemeralPolicy,
+            ),
+      principal: principal,
+    ));
+  }
 
   /// A highly configurable static utility factory for creating specialised,
   /// type‑safe property configurations for [TissueValue] types.
@@ -214,12 +222,6 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
   /// - The [container] parameter determines the storage strategy (mutable
   ///   [Container.value] or write‑once [Container.finalValue]).
   ///
-  /// ### Non‑obvious
-  /// - The [forceLock] flag, when `true`, allows sharing the principal's lock.
-  ///   This is typically used for deputies to maintain a single atomic boundary.
-  /// - The [container] parameter can be used to explicitly set the storage
-  ///   strategy – useful for custom container types.
-  ///
   /// ### Parameters:
   /// - [bind]: Optional upstream cell.
   /// - [context]: Optional execution context.
@@ -235,17 +237,18 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
   /// ### Returns:
   /// A nucleus instance strictly configured for the specified value and
   /// tissue types.
-  static TissueValueNucleusBase<V, C> create<V, C extends TissueValue<V>>(
-      {Cell? bind,
-      Context? context,
-      TissueReceptor<V, C>? receptor,
-      TestTissue<V, C>? testRule,
-      Synapses? synapses,
-      Container? container,
-      Record? user,
-      EphemeralPolicy? ephemeralPolicy,
-      forceLock = false,
-      TissueValueNucleusBase<V, C>? principal}) {
+  static TissueValueNucleusBase<V, C> create<V, C extends TissueValue<V>>({
+    Cell? bind,
+    Context? context,
+    TissueReceptor<V, C>? receptor,
+    TestTissue<V, C>? testRule,
+    Synapses? synapses,
+    Container? container,
+    Record? user,
+    EphemeralPolicy? ephemeralPolicy,
+    forceLock = false,
+    TissueValueNucleusBase<V, C>? principal
+  }) {
     if (principal != null) {
       final local = TissueNucleusBase.mask<V, ValueContainer<V>, C>(
         container: container,
@@ -294,12 +297,6 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
   /// - The clone is initially **inactive** – it must be activated by being
   ///   bound to a value instance.
   ///
-  /// ### Non‑obvious
-  /// - The clone does **not** share the same `principal` – it is a root nucleus
-  ///   (no parent). This means it does not inherit from the original.
-  /// - Cloning is a zero‑copy operation for the logic – the logic is shared
-  ///   via the flyweight record, but the state (lock, synapses) is new.
-  ///
   /// ### Returns:
   /// A new [TissueValueNucleus<V>] instance with identical behavioural
   /// logic and storage strategy, but an isolated lifecycle and an
@@ -323,11 +320,6 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
   ///   locally.
   /// - It defaults to [Container.value] if no container type is set.
   ///
-  /// ### Non‑obvious
-  /// - This is a **structural** property – it is fixed and cannot be changed
-  ///   through a deputy. All deputies inherit the same container type.
-  /// - The container type affects whether `set` succeeds after the first
-  ///   assignment ([Container.finalValue] rejects subsequent writes).
   @override
   Container get containerType;
 }
@@ -369,17 +361,6 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
 /// - It supports both mutable and write‑once (`finalValue`) storage.
 /// - If the value is a [Cell], it is automatically linked to the tissue,
 ///   enabling "bubbling" of internal changes.
-///
-/// ### Non‑obvious
-/// - Equality (`==`) compares the underlying value, so `valueCell == 42` works.
-/// - The [async] getter returns a [ValueCellAsync] for `Future`‑based
-///   operations, useful for network callbacks or background tasks.
-/// - The `unmodifiable` getter is **not a snapshot** – it's a live view that
-///   stays in sync with the source.
-/// - If `finalValue` is `true`, the value can only be set once. Subsequent
-///   `set` attempts are silently ignored or return `false`.
-/// - The `set` method returns `true` if the value was changed, `false` if
-///   it was rejected by validation or already had the same value.
 ///
 /// ### Example: Basic usage
 /// ```dart
@@ -431,6 +412,25 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
 /// - [TissueValueNucleus] – the blueprint and configuration for the value.
 /// - [UnmodifiableTissueValue] – a read‑only deputy variant.
 /// - [Tissue.elementUpdated] – the event emitted on value changes.
+///
+/// ### AI Agent Guide
+/// **Layer:** Tissue — the reserve scalar. Not a Cell factory, not a Flow operator.
+/// **When to use:** "45,000 bags / 42 trolleys / 800 MW / ledger cents" — one governed number with an invariant (`TestTissue` `>= 0`) plus a harness pre-check.
+/// **When NOT to use:**
+///   {@macro ai-do-not-testcell-on-tissue}
+///   `Cell.state<int>` when the WalkThrough named a reserve book.
+/// **Live signature:** `TissueValue<V>(V? value, {bind, context, testRule, receptor, synapses, finalValue})` / `TissueValue.empty({...})` / `TissueValue.unmodifiable(bind)` — pinned at `cell_tissue: 1.0.0`
+/// **Do NOT confuse with:** `Cell.state` (retained setting without Tissue semantics).
+/// **Guide:** `HowTo-Mitose-Tissue.md` §2.5 "TissueValue — the reserve scalar" (#tissue-value)
+/// **Example:** `example/cell_tissue_example.dart`
+/// **Cross-layer:** the conservation invariant (`value + sum(map.values) == baseline`) is a harness read, not a second write path.
+/// **Minimal compilable example**
+/// ```dart
+/// final q = TissueQueue<int>(capacity: 3);
+/// q.addLast(1);
+/// q.addLast(2);
+/// print(q.length); // 2
+/// ```
 abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
   /// Provides access to the configuration properties of this `TissueValue`.
   ///
@@ -691,12 +691,6 @@ abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
   ///   its own observers.
   /// - If all parameters are left at default, `deputy()` returns `this`.
   ///
-  /// ### Non‑obvious
-  /// - The deputy is logically equal to its principal (`deputy == principal`).
-  /// - The deputy's [context] can be overridden to change priority or security.
-  /// - The [ephemeralPolicy] controls the deputy's lifetime independently of
-  ///   the principal.
-  ///
   /// ### Example
   /// ```dart
   /// final source = TissueValue<int>(42);
@@ -752,12 +746,6 @@ abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
   /// - If the value is valid and different, it is written to the [ValueContainer].
   /// - If the value is a [Cell], the framework manages the synapse wiring.
   /// - A [Tissue.elementUpdated] is dispatched to observers.
-  ///
-  /// ### Non‑obvious
-  /// - If the new value is identical to the current value (by `==`), the
-  ///   operation short‑circuits and no event is emitted.
-  /// - On a deputy, this setter applies the deputy's specific [testRule] stack.
-  /// - On an unmodifiable projection, this setter throws [UnsupportedError].
   ///
   /// ### Example
   /// ```dart
@@ -910,16 +898,6 @@ abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
 /// - **Deep immutability**: If `unmodifiableElement` is `true` (the default),
 ///   and the value is itself a [Cell], it is automatically projected as its
 ///   `.unmodifiable` deputy when accessed.
-///
-/// ### Non‑obvious
-/// - **It is not a snapshot**: Unlike a constant or a final variable, this
-///   view is **live**. If the source changes, the view changes with it.
-/// - **Equality**: `source == source.unmodifiable` is `true` – they are
-///   considered the same logical entity.
-/// - **Recursive projection**: If the value is a [Cell], accessing it through
-///   the unmodifiable view returns its `.unmodifiable` deputy.
-/// - **Own observer registry**: The view has its own [Synapses] registry, so
-///   observers attached to the view are separate from those on the source.
 ///
 /// ### Example: Read‑only UI projection
 /// ```dart

@@ -67,12 +67,6 @@ follow a valid format before processing (e.g., sending emails).</p>
 <h3 id="how-it-works">How it works</h3>
 <p>By default, it uses a robust regex that checks for <a href="mailto:user@domain.tld">user@domain.tld</a>.
 You can customise the pattern if needed.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The default pattern is case‑insensitive and allows typical email formats.</li>
-<li><code>null</code> is allowed by default (use <code>allowNull: false</code> to reject null).</li>
-<li>For strict RFC compliance, consider providing a custom <a href="../cell/EntryPattern/pattern.html">pattern</a>.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <h4 id="1-standard-profile-validation">1. Standard Profile Validation</h4>
 <pre class="language-dart"><code class="language-dart">@EmailPattern()
@@ -328,7 +322,7 @@ RFC compliance, consider a custom <a href="../cell/EntryPattern/pattern.html">pa
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

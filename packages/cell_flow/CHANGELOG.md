@@ -6,6 +6,58 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Version numbers follow [SemVer](https://semver.org/). **Flow** is the
 release codename; it is not part of the SemVer string.
 
+## Flow (1.0.0) - Stable Release
+
+Stable release formalizing the **Forensic Orchestration Layer**. This version establishes the final operator topography, ensures full causal anchor propagation across asynchronous boundaries, and aligns with the stable Mitosis ecosystem.
+
+### Added
+
+- **`### AI Agent Guide` doc blocks**: the `Flow` class, `FlowInstruction`, `FlowInstructionBase`, `FlowHandle`, `MapValue`, `Filter`, `Distinct`, `DistinctUntilChanged`, `Tap`, and 24 top `Flow.*` factories (`of`, `fromFuture`, `fromStream`, `map`, `pluck`, `scan`, `filter`, `take`, `skip`, `distinct`, `asyncMapLatest`, `concatMap`, `mergeMap`, `switchMap`, `exhaustMap`, `mergeWith`, `combineLatestWith`, `race`, `debounce`, `throttle`, `timeout`, `groupBy`, `retry`, `tap`) now carry the standardized AI-facing doc block: layer assertion, when to use / when NOT to use (with `{@macro}` anti-patterns), a `Live signature:` pin, sibling disambiguation, a `Guide:` pointer with a stable HowTo anchor, cross-layer guidance, stability, self-verification steps, and a minimal compilable example.
+- **Anti-pattern templates**: new `lib/doc/ai_anti_patterns.dart` (`ai-do-not-put-time-op-as-policy`, `ai-do-not-write-tissue-from-instruction`, `ai-do-not-tap-tissue-on-decision-chain`, …).
+- **API chooser**: new generated `lib/doc/api_chooser.dart` — the full BRD-sentence → operator decision matrix, rendered on pub.dev and generated from the guide blocks.
+- **AI preflight**: new `tool/ai_preflight.dart` — a one-line check for every `Live signature:` pin and the HowTo version pins; prints a paste-ready Demo-header provenance block; exits non-zero on drift.
+- **Executable doc examples**: new `tool/generate_ai_examples.dart` + `test/ai_guide_examples_test.dart` — every `Minimal compilable example` is generated, compiled with `dart analyze`, executed, and asserted to exit 0 in CI.
+- **Seam rules in-package**: new `test/seam_test.dart` — no Tissue write inside a `FlowInstructionBase` subclass in `example/`; no `testRule: TestCell` on Tissue constructors.
+- **Matrix freshness + failure log**: new `tool/generate_api_chooser.dart` + `test/api_chooser_up_to_date_test.dart`, and `tool/ai_failure_log.dart` + `tool/ai_failure_log.jsonl` for structured, quarterly-reviewed AI failure records.
+- **Benchmark suite**: New `benchmark/` directory mirroring the `cell` package's suite — micro per-operator cost pins (construction, pipeline materialization, map/filter chains, scan/reduce, distinct cardinality scaling, take/skip gates, pairwise, pluck), async family anchors (`asyncMap`, `asyncExpand`, `asyncFold`, `FromFuture`/streams), flatten concurrency pins (`concatMap`/`mergeMap`/`switchMap`/`exhaustMap`), temporal anchors (`debounce`/`throttle`/`delay`/`timeout` with `Duration.zero` per-pulse anchors), combine scaling (`mergeWith`/`combineLatestWith`/`zipWith`/`race`/`groupBy`), collect batching, 50k stress, VM-service memory footprints, and feature-fair RxDart + raw-`StreamController` comparisons — with a PR-suite runner (`benchmark/runner.dart`), a 15% regression gate (`benchmark/compare.dart`), and a checked-in `baseline.json`.
+
+### Changed
+
+- **Library docs**: the `cell_flow` library doc now opens with the layer-contract public-surface top table (custom instruction / projection / time / flatten / combine / collect / control) and an explicit "Do NOT use this package for" list.
+- **README**: opens with the AI-starter preamble (Install and import → "AI agents start here" → a six-row BRD elevator table) before the existing content.
+- **Curated examples**: `cell_flow_example.dart`, `filter_data_quality_demo.dart`, `stability_search_demo.dart`, and `exhaust_map_submit_checkout_demo.dart` carry fixed AI-facing headers (`What it demonstrates` / `Which BRD sentence picks it`).
+- **Docs**: new `CONTRIBUTING-AI-DOC.md` (normative block spec) and `CONTRIBUTING.md`.
+- **Dependency alignment**: Tightened constraints to `cell` `^1.1.0` and `cell_tissue` (dev) `^1.0.0`.
+
+### Fixed
+
+- **Per-activation state factories**: Every stateful operator (debounce, throttle, timers, buffers, windows, scans, reduces, maps, races, retries, shares, …) now allocates its mutable state from a factory invoked **once per `toHandle` activation**. Two handles materialized from the same blueprint no longer share timers, pending slots, queues, or accumulators (the historical state-sharing bug); stateless blueprints remain shared safely. Regression-tested with two `Debounce` handles fed independently.
+- **`ExhaustMapLatest` race window**: The busy gate is now set **before** scheduling the async runner, so two pulses in the same synchronous frame can no longer both start inner sequences; the trailing-slot machinery is now race-free.
+- **`MergeScan` lost updates**: Accumulation is serialized through a queue — each inner sequence drains fully before the next starts and every `accumulate` call observes the accumulator produced by the previous sequence (input-ordered, race-free).
+- **Observer/timer lifecycle**: Notifier observers (`TakeUntil`, `SkipUntil`, `BufferWhen`, `WindowWhen`, `Sample`, `Audit`, `MergeWith`/`Merge`, `CombineLatest*`, `WithLatestFrom`, `ZipWith`) and periodic timers (`SampleTime`, `BufferTime`, `WindowTime`, `Interval*`) now stop themselves once the materialized handle's cell is invalidated, instead of retaining the handle forever.
+- **`Throttle(leading: false, trailing: false)`**: Now an `ArgumentError` at construction — the configuration previously emitted nothing at all.
+- **`StartWithFactory` no longer drops data**: A throwing seed factory reports to `onError` and the first source pulse is still forwarded (without a prefix) instead of being lost.
+- **`RaceUntil` empty sources**: A source competitor that completes without a value now reports a `StateError` through `onError`/`emitErrorPulse` instead of being silently dropped via the `Object()` placeholder.
+- **`TakeUntilTime` lifecycle**: The timer callback ignores invalidated handles, and dead handles never arm new timers.
+- **`Timeout` `_arm`**: Returns immediately once the clock is closed — a later pulse can no longer repoint the closed clock's callbacks.
+- **`Distinct` default path**: Default-equality dedup now uses a `Set` (O(1) membership) instead of a linear list scan; custom comparators keep the list path.
+- **`Flow` is no longer a `CellBase`**: The facade is a pure namespace of static factories and never pretended to be a cell in the graph.
+- **`FlowHandle` typedef honesty**: The generic parameter was removed — factories produce untyped handles (`Pulse<dynamic>` ingress), so the old `FlowHandle<I>` advertised types the implementation did not provide.
+- **Cooperative inner draining**: The shared `drainInner` yields to the event loop every 256 items of a long iterable, so a synchronous `MergeAll`/`ConcatAll`-style burst can no longer starve timers and I/O.
+- **Dead-handle fast paths**: `TimerPulse` now returns before computing `valueOf()` when the handle is invalidated, and `_emitAll` (StartWith family) stops allocating pulses mid-iteration once the host cell is dead.
+- **SkipRepeated invariant**: The dedup comparison uses a null-promoted read instead of a brittle `as S` cast.
+- **Helper consolidation**: The seven duplicate `_drain` implementations and three identical sequential queue classes are consolidated into `lib/src/instruction/flow_internal.dart` (`drainInner`, `SequentialQueue`); `_MergeQueue` stays distinct (bounded-concurrency pump) and documents why.
+
+### Docs
+
+- **Blueprint (not "stateless") contract**: `FlowInstruction` docs now state that blueprints may be stateful and that stateful operators allocate per activation; the misleading stateless claim is gone.
+- **Operator selection matrix, error-emission policy, trace-naming convention, lifecycle/resource notes, and the `toHandle` allocation cost** added to the README; `MergeMap` documents its backpressure semantics and `SkipLast` documents that trailing values are never flushed.
+- **Benchmark README**: Documents the layout, pass criteria (matching the `cell` suite's pessimistic style), the itemized cost ladder, and the known-exposure pins the suite is designed to surface.
+- **Package README refresh**: Corrected the operator count to the verified 100 public `Flow` factories, removed the stale RC-9 status/versioning and the outdated per-operator example table, replaced internal-class snippets (`MapValue`/`Filter`) with public-`FlowInstruction` equivalents, and added a "Why cell_flow" section (forensic pulses, reusable per-activation blueprints, governed data paths, self-cleaning lifecycle, one-graph/three-layers, pinned performance).
+- **Nits documented**: `FromFutures` warns that its futures are hot at construction (use `DeferFuture` to defer creation); `FromStream` documents the absence of `cancelOnError`; `Flow.sample` documents the untyped handle; the null-payload drop policy is documented on the shared type-check helper; the README's new Trace & Provenance section documents trace growth with pipeline depth, `pulse.source` as the immediate emitter (use `pulse.root.source` for the origin), and null-payload semantics.
+
+---
+
 ## Flow (1.0.0-rc.9) - Release Candidate
 
 Docs and dependency-alignment release. No public API changes.

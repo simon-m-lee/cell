@@ -83,15 +83,6 @@ local <a href="../../mitosis/TissueContainer-class.html">TissueContainer</a> –
 <li>If the pulse is from any other source, it simply relays it without
 modifying the local state.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is a singleton; millions of tissues can share it without memory
-overhead.</li>
-<li>It is the foundation of the <strong>Deputy Pattern</strong>: a deputy with a pass‑
-through receptor stays perfectly in sync with its principal.</li>
-<li>It does <strong>not</strong> perform any validation – that is the job of the
-<a href="../../mitosis/TestTissue-class.html">TestTissue</a> gatekeeper.</li>
-</ul>
 </section>
 
       
@@ -126,7 +117,7 @@ through receptor stays perfectly in sync with its principal.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

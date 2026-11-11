@@ -81,7 +81,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Tissue? get source =&gt; super.source as Tissue?;</code></pre>
+Tissue? get source {
+  final src = super.source;
+  return src is Tissue ? src : null;
+}</code></pre>
 </section>
 
   </section>
@@ -111,7 +114,7 @@ Tissue? get source =&gt; super.source as Tissue?;</code></pre>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

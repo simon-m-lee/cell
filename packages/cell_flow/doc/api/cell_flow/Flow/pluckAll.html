@@ -89,14 +89,6 @@ payload.</p>
 <li>The collected key-value pairs are emitted as a map.</li>
 <li>The pulse gets the step <code>'PluckAll'</code> for provenance.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Map Output</strong>: The output is always a <code>Map&lt;Object, Object?&gt;</code>.</li>
-<li><strong>Partial Success</strong>: Even if some keys fail, successful ones are
-included in the output.</li>
-<li><strong>Error Handling</strong>: Missing keys can either use defaults or trigger
-error handlers.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the payloads.</li>
@@ -177,7 +169,7 @@ users.emit({
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

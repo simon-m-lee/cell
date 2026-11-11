@@ -63,54 +63,60 @@
 <li><span class="parameter" id="-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
 <li><span class="parameter" id="-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span></li>
+<li><span class="parameter" id="-param-principal"><span class="type-annotation"><a href="../../cell_tissue/TissueNucleusBase-class.html">TissueNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>, <span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">principal</span>, </span></li>
 </ol>})
     </section>
     
 <section class="desc markdown">
-  <p>Primary constructor for a <a href="../../cell_tissue/TissueListNucleusBase-class.html">TissueListNucleusBase</a> configuration.</p>
-<p>This constructor initializes the behavioral and structural metadata
-required for a reactive <a href="../../cell_tissue/TissueList-class.html">TissueList</a>. It bridges the generic
-collection framework with <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>-specific constraints, most notably
-the physical storage strategy defined by <code>growable</code>.</p>
+  <p><strong>Primary Blueprint Constructor</strong> – Defines the immutable behaviour and
+storage strategy for a reactive list.</p>
+<p>In the framework's biological metaphor, this constructor synthesizes the
+<strong>Initial DNA</strong> of a list. It establishes the structural constraints
+(growable vs. fixed-length) and the foundational integrity gates that
+will govern all cells derived from this nucleus.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Internal Implementation</strong>: This constructor is <code>public</code> specifically
+to allow concrete subclasses (like <code>_TissueListNucleus</code>) to invoke it
+via <code>super()</code>.</li>
+<li><strong>Custom List Nuclei</strong>: Use this if you are extending the framework to
+create a specialized list type with unique storage needs.</li>
+</ul>
+<p><strong>Note</strong>: Standard application code should use <a href="../../cell_tissue/TissueListNucleus/create.html">TissueListNucleus.create</a>
+or <a href="../../cell_tissue/TissueListNucleus/TissueListNucleus.evolve.html">TissueListNucleus.evolve</a> instead of calling this directly.</p>
 <h3 id="how-it-works">How it works</h3>
 <ol>
-<li>The <code>growable</code> flag determines the physical container:
+<li><strong>Structural Selection</strong>: The <code>growable</code> flag determines the
+physical <a href="../../cell_tissue/Container-class.html">Container</a> strategy:
 <ul>
-<li><code>true</code> → <a href="../../cell_tissue/Container/growableTrue-constant.html">Container.growableTrue</a> – an ordinary, resizable list.</li>
-<li><code>false</code> → <a href="../../cell_tissue/Container/growableFalse-constant.html">Container.growableFalse</a> – a fixed‑length list.</li>
+<li><code>true</code> → <a href="../../cell_tissue/Container/growableTrue-constant.html">Container.growableTrue</a>: An ordinary, resizable list.</li>
+<li><code>false</code> → <a href="../../cell_tissue/Container/growableFalse-constant.html">Container.growableFalse</a>: A fixed‑length list.</li>
 </ul>
 </li>
-<li>All other parameters are passed to the super‑constructor, which
-stores them in a memory‑optimised record using bitmasking.</li>
-<li>The resulting nucleus is immutable – you cannot change its
-configuration after creation.</li>
+<li><strong>Bitmask Encoding</strong>: All governance parameters are passed to the
+<a href="../../cell_tissue/TissueNucleusBase-class.html">TissueNucleusBase</a> super-constructor, where they are packed into
+a memory-optimized, bitmask-enabled record.</li>
+<li><strong>Immutability</strong>: Once constructed, the structural strategy is locked.
+Any future <a href="../../cell_tissue/TissueListNucleus/TissueListNucleus.evolve.html">TissueListNucleus.evolve</a> operations will maintain this core DNA.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>growable</code> flag is <strong>structural</strong> – once set, it cannot be changed
-by a deputy. If you need a growable and a fixed‑length view of the
-same data, you must create two separate nuclei (or use a deputy with
-a different container type, which is not allowed – deputies inherit
-the container type).</li>
-<li>The <code>receptor</code> is automatically cloned if it is already activated
-(bound to another cell), ensuring that each nucleus starts with a
-clean logic instance.</li>
-<li>If <code>synapses</code> is <a href="../../cell_tissue/Synapses/enabled-constant.html">Synapses.enabled</a>, a fresh, empty registry is
-created for the new list. If you pass <a href="../../cell_tissue/Synapses/disabled-constant.html">Synapses.disabled</a>, the list
-will be terminal (no broadcasts).</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>bind</code>: Optional upstream <a href="../../cell_tissue/Cell-class.html">Cell</a> – the list will automatically
-mirror changes from this source (deputy pattern).</li>
-<li><code>context</code>: Security tier and execution domain (default: <a href="../../cell_tissue/Context/system-constant.html">Context.system</a>).</li>
-<li><code>receptor</code>: Mutation processor – defaults to <a href="../../cell_tissue/TissueReceptor/passThrough-constant.html">TissueReceptor.passThrough</a>.</li>
-<li><code>testRule</code>: Validation gate – defaults to <a href="../../cell_tissue/TestTissue/allowAll-constant.html">TestTissue.allowAll</a>.</li>
-<li><code>synapses</code>: Distribution configuration – defaults to <a href="../../cell_tissue/Synapses/enabled-constant.html">Synapses.enabled</a>.</li>
-<li><code>growable</code>: <code>true</code> for a resizable list, <code>false</code> for fixed length.</li>
-<li><code>forceLock</code>: If <code>true</code>, shares the principal's lock (optimisation
-for deputies); if <code>false</code> (default), allocates a new lock.</li>
-<li><code>user</code>: Optional custom metadata (e.g., UI hints, serialisation tags).</li>
+<li><code>bind</code>: <strong>Ingress Link.</strong> An optional upstream <a href="../../cell_tissue/Cell-class.html">Cell</a> for the list to
+observe and mirror.</li>
+<li><code>context</code>: <strong>Operational Authority.</strong> The security tier and priority
+domain (default: <a href="../../cell_tissue/Context/system-constant.html">Context.system</a>).</li>
+<li><code>receptor</code>: <strong>Command Engine.</strong> The logic used to process mutations.</li>
+<li><code>testRule</code>: <strong>Integrity Gate.</strong> Validation rules that guard elements.</li>
+<li><code>synapses</code>: <strong>Signal Distribution.</strong> Manages egress connectivity and
+event broadcasting.</li>
+<li><code>growable</code>: If <code>true</code>, the list can change size. Defaults to <code>true</code>.</li>
+<li><code>ephemeralPolicy</code>: <strong>Lifecycle Governance.</strong> Defines the TTL for
+the collection state.</li>
+<li><code>forceLock</code>: If <code>true</code>, shares the <code>principal</code>'s synchronization lock;
+otherwise, allocates a new one.</li>
+<li><code>user</code>: <strong>Extension Metadata.</strong> Optional record for domain-specific tags.</li>
+<li><code>principal</code>: <strong>Prototype Source.</strong> The parent nucleus from which this
+instance inherits its structural DNA.</li>
 </ul>
 </section>
 
@@ -127,7 +133,8 @@ for deputies); if <code>false</code> (default), allocates a new lock.</li>
     bool growable = true,
     super.ephemeralPolicy,
     super.forceLock,
-    super.user})
+    super.user,
+    super.principal})
     : super(
           container:
               growable ? Container.growableTrue : Container.growableFalse);</code></pre>
@@ -158,7 +165,7 @@ for deputies); if <code>false</code> (default), allocates a new lock.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

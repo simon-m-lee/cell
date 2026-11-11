@@ -58,6 +58,7 @@
 <span class="name ">action</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="action-param-action"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">action</span>, {</span></li>
 <li><span class="parameter" id="action-param-host"><span>required</span> <span class="type-annotation">C</span> <span class="parameter-name">host</span>, </span></li>
 <li><span class="parameter" id="action-param-arguments"><span class="type-annotation"><a href="../../cell/Arguments.html">Arguments</a>?</span> <span class="parameter-name">arguments</span>, </span></li>
+<li><span class="parameter" id="action-param-command"><span class="type-annotation"><a href="../../cell/ApplyCommand.html">ApplyCommand</a>?</span> <span class="parameter-name">command</span>, </span></li>
 </ol>})
 
       
@@ -78,12 +79,6 @@ when <a href="../../cell/Cell/apply.html">Cell.apply</a> is called. It can be ca
 <h3 id="how-it-works">How it works</h3>
 <p>It delegates to the base <code>call</code> method, which evaluates the rule and
 parent chain.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The method returns <code>FutureOr&lt;bool&gt;</code>, so it can be sync or async.</li>
-<li>The <code>host</code> is required; if <code>null</code>, the validation passes.</li>
-<li>The <code>arguments</code> can be inspected to enforce parameter constraints.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>action</code>: The <a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a> being requested.</li>
@@ -99,7 +94,7 @@ parent chain.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">FutureOr&lt;bool&gt; action(Function action,
-    {required C host, Arguments? arguments}) {
+    {required C host, Arguments? arguments, ApplyCommand? command}) {
   return call(action, host: host, arguments: arguments);
 }</code></pre>
 </section>
@@ -129,7 +124,7 @@ parent chain.</p>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

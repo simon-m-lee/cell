@@ -464,7 +464,7 @@ void armNextPack() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// The confirmed RX handle — emits valid NDC codes.
-FlowHandle<Pulse<dynamic>>? rx;
+FlowHandle? rx;
 
 /// Retains observer references to prevent garbage collection.
 final retain = <Object>[];

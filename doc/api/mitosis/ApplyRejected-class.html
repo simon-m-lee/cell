@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">mitosis</a></li>
     <li><a href="../mitosis/">mitosis.dart</a></li>
-    <li class="self-crumb">ApplyRejected class</li>
+    <li class="self-crumb">ApplyRejected<span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span> class</li>
   </ol>
   <div class="self-name">ApplyRejected</div>
   <form class="search navbar-right" role="search">
@@ -48,21 +48,92 @@
     data-above-sidebar="mitosis&#47;mitosis-library-sidebar.html"
     data-below-sidebar="mitosis&#47;ApplyRejected-class-sidebar.html">
     <div>
-<h1><span class="kind-class">ApplyRejected</span> class 
+<h1><span class="kind-class">ApplyRejected&lt;<wbr><span class="type-parameter">R</span>&gt;</span> class 
+    <a href="https://dart.dev/language/class-modifiers#final" class="feature feature-final" title="This class can neither be extended, implemented, nor mixed in.">final</a>
  
 </h1></div>
 
     
 <section class="desc markdown">
-  <p>Explicit soft-reject from <a href="../mitosis/Cell/apply.html">Cell.apply</a> (not the same as void → null).</p>
+  <p>The command was denied by the framework's safety rules (the Integrity Gate).</p>
+<p><a href="../mitosis/ApplyRejected-class.html">ApplyRejected</a> is the "denial receipt" returned when an action is not
+allowed to proceed. It signifies that the request was intercepted
+before it could change any state, keeping the reactive graph safe.</p>
+<p>In the framework's biological metaphor, this represents a <strong>Blocked Signal</strong>
+where the cell's "Integrity Gate" determined the mutation was
+incompatible with the current DNA.</p>
+<h3 id="why-it-is-used">Why it is used</h3>
+<ul>
+<li><strong>Safety Enforcement</strong>: It confirms that the <a href="../mitosis/TestCell/action.html">TestCell.action</a> rules
+successfully prevented an invalid or unauthorized change.</li>
+<li><strong>Feedback</strong>: It provides a <a href="../mitosis/ApplyRejected/reason.html">reason</a> explaining why the rejection
+happened, allowing the UI or the calling logic to react appropriately.</li>
+<li><strong>Forensic Logging</strong>: Even though the action failed, the <a href="../mitosis/ApplyRejected/receipt.html">receipt</a>
+captures the attempt, providing an audit trail of "Who tried to do what"
+that was denied.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>If a command fails the vetting process, the framework stops execution
+immediately and returns this object. Because <a href="../mitosis/ApplyOutcome-class.html">ApplyOutcome</a> is sealed,
+you can use pattern matching to safely handle the rejection and
+display the <a href="../mitosis/ApplyRejected/reason.html">reason</a> to the user.</p>
+<h3 id="technical-details">Technical Details</h3>
+<ul>
+<li><strong>Result Type <code>R</code></strong>: The class still carries the type <code>R</code> to remain
+compatible with the expected success type, but it contains no actual
+result data.</li>
+<li><strong>Optional Reason</strong>: The <a href="../mitosis/ApplyRejected/reason.html">reason</a> can be any object—a simple string,
+an error code, or a complex validation object—depending on what the
+Integrity Gate provided.</li>
+</ul>
+<p>See also:</p>
+<ul>
+<li><a href="../mitosis/ApplyOutcome-class.html">ApplyOutcome</a> — The base type for all command results.</li>
+<li><a href="../mitosis/ApplyAccepted-class.html">ApplyAccepted</a> — The outcome returned when a command succeeds.</li>
+<li><a href="../mitosis/ApplyReceipt.html">ApplyReceipt</a> — The forensic record of the denied attempt.</li>
+</ul>
 </section>
 
 
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="../mitosis/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></li>
+      <li>ApplyRejected</li>
+    </ul>
+  </dd>
+
+        
+        
+
+
+        
+        
+
+
+      </dl>
+    </section>
 
     
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="ApplyRejected.new" class="callable">
+          <span class="name"><a href="../mitosis/ApplyRejected/ApplyRejected.html">ApplyRejected</a></span><span class="signature">(<span class="parameter" id="-param-receipt"><span class="type-annotation"><a href="../mitosis/ApplyReceipt.html">ApplyReceipt</a></span> <span class="parameter-name">receipt</span>, {</span><span class="parameter" id="-param-reason"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">reason</span></span>})</span>
+        </dt>
+        <dd>
+          Creates a rejected outcome for <code>receipt</code>.
+            <div class="constructor-modifier features">const</div>
+        </dd>
+    </dl>
+  </section>
     
   <section
-      class="summary offset-anchor inherited"
+      class="summary offset-anchor"
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
@@ -75,6 +146,30 @@
 <dd class="inherited">
   The hash code for this object.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="reason" class="property">
+  <span class="name"><a href="../mitosis/ApplyRejected/reason.html">reason</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>
+  
+
+</dt>
+<dd>
+  An optional rejection reason supplied by the policy layer.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="receipt" class="property">
+  <span class="name"><a href="../mitosis/ApplyRejected/receipt.html">receipt</a></span>
+  <span class="signature">&#8594; <a href="../mitosis/ApplyReceipt.html">ApplyReceipt</a></span>
+  
+
+</dt>
+<dd>
+  The forensic receipt of this submission.
+  <div class="features"><span class="feature">final</span></div>
 
 </dd>
 
@@ -152,23 +247,6 @@
     
     
 
-  <section class="summary offset-anchor" id="constants">
-    <h2>Constants</h2>
-    <dl class="properties">
-        <dt id="instance" class="constant">
-    <span class="name "><a href="../mitosis/ApplyRejected/instance-constant.html">instance</a></span>
-  <span class="signature">&#8594; const <a href="../mitosis/ApplyRejected-class.html">ApplyRejected</a></span>
-  
-
-</dt>
-<dd>
-  
-  
-
-</dd>
-
-    </dl>
-  </section>
   </div> <!-- /.main-content -->
   <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
     <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
@@ -180,7 +258,7 @@
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../index.html">mitosis</a></li>
     <li><a href="../mitosis/">mitosis</a></li>
-    <li class="self-crumb">ApplyRejected class</li>
+    <li class="self-crumb">ApplyRejected<span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span> class</li>
 </ol>
 
     <h5>mitosis library</h5>
@@ -192,7 +270,7 @@
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

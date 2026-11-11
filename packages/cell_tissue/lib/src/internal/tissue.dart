@@ -88,7 +88,15 @@ class _Tissue<E, I extends Iterable<E>, C extends Tissue<E>>
   Iterable<R> cast<R>() => _nucleus.container.cast<R>();
 
   @override
-  E elementAt(int index) => _nucleus.container.elementAt(index);
+  E elementAt(int index) {
+    final element = _nucleus.container.elementAt(index);
+    // Deep immutability: child cells are projected as their unmodifiable
+    // deputies when the view was created with unmodifiableElement: true.
+    if (unmodifiableElement && element is Cell) {
+      return element.unmodifiable as E;
+    }
+    return element;
+  }
 
   @override
   E get first => _nucleus.container.first;
@@ -139,7 +147,7 @@ class _TissueDeputy<E, I extends Iterable<E>, C extends Tissue<E>>
       TestTissue<E, C> testRule = TestTissue.allowAll,
       EphemeralPolicy? ephemeralPolicy,
       Synapses synapses = Synapses.enabled})
-      : super.fromNucleus(_TissueNucleus<E, Iterable<E>, C>.evolve(
+      : super.fromNucleus(TissueNucleus<E>.evolve(bind._nucleus,
             override: _TissueNucleus<E, Iterable<E>, C>.fromRecord((
               local: TissueNucleusBase.mask<E, Iterable<E>, C>(
                 bind: bind,
@@ -148,9 +156,7 @@ class _TissueDeputy<E, I extends Iterable<E>, C extends Tissue<E>>
                 synapses: synapses,
                 ephemeralPolicy: ephemeralPolicy,
               )
-            )),
-            principal:
-                bind._nucleus as TissueNucleusBase<E, Iterable<E>, Tissue<E>>));
+            ))));
 
   @override
   FutureOr<Tissue<E>> deputy(
@@ -197,17 +203,6 @@ class _TissueDeputy<E, I extends Iterable<E>, C extends Tissue<E>>
 /// - Iteration yields no elements.
 /// - It is thread‑safe and deeply immutable.
 ///
-/// ### Non‑obvious
-/// - This is a **null object**, not a placeholder. It is a fully functional
-///   reactive node that just happens to be empty and immutable. Observers can
-///   still listen to it, but they will never receive events.
-/// - It is **not** a deputy of another tissue – it is a root node with no
-///   principal. Calling `deputy()` on it returns `this`, not a new proxy.
-/// - The [isInvalidated] getter returns `true` because the node is considered
-///   "already invalidated" – this prevents any attempt to mutate it.
-/// - It is the most memory‑efficient tissue possible, making it ideal for
-///   default values or fallback collections.
-///
 /// ### Example
 /// ```dart
 /// final empty = const TissueNever<int>();
@@ -232,22 +227,31 @@ class TissueNever extends IterableBase<Never>
   @override
   Lock? get lock => null;
 
-  /// A no‑op implementation of the [Cell.apply] method.
+  /// A no‑op implementation of the internal mutation dispatch engine.
   ///
   /// Since the tissue is empty, there are no elements to apply
   /// functions to, and the tissue itself provides no dynamic
   /// callable behaviour.
   @override
-  dynamic apply(
+  dynamic dispatch(
     Function function, {
     List? positionalArguments,
     Map<Symbol, dynamic>? namedArguments,
-    ApplyTransactionScope? tx,
-    Function? compensate,
-    List? compensatePositional,
-    Map<Symbol, dynamic>? compensateNamed,
-    Cell? compensateCell,
   }) {}
+
+  /// The empty tissue has no mutation surface, so every command is
+  /// forensically rejected.
+  @override
+  FutureOr<ApplyOutcome<R>> apply<R>(
+    ApplyCommand command, {
+    ApplyTransactionScope? tx,
+  }) {
+    return ApplyRejected<R>(ApplyLedger.receipt(
+      cell: this,
+      command: command,
+      vetted: false,
+    ));
+  }
 
   /// Provides an asynchronous wrapper for the empty tissue.
   ///
@@ -363,18 +367,6 @@ class TissueNever extends IterableBase<Never>
 /// - Equality (`==`) and `hashCode` are based on the container's content, so
 ///   tissues behave like normal Dart collections in sets and maps.
 ///
-/// ### Non‑obvious
-/// - The constructor is **not** public – it's intended for internal use by
-///   subclasses. You create tissues via the factory methods like `TissueList()`.
-/// - The container is initialised lazily: if no initial elements are provided,
-///   the container may not be allocated until the first access.
-/// - The `_nucleus` is final and immutable – all behavioural changes require
-///   creating a new tissue (or deputy).
-/// - The `principal` chain in the nucleus allows hierarchical inheritance for
-///   deputies – a deputy inherits most properties but can override specific ones.
-/// - The `async` getter returns a [TissueModifiableAsync] which wraps the
-///   tissue for non‑blocking operations.
-///
 /// ### Type Parameters:
 /// * [E]: The type of elements contained within the tissue.
 /// * [I]: The internal [Iterable] implementation type (e.g., `List<E>`,
@@ -429,14 +421,6 @@ abstract class TissueBase<E, I extends Iterable<E>, C extends Tissue<E>>
   ///   links every member that implements the [Cell] interface through
   ///   `_nucleus.synapses.link`. This enables **Member‑Level Bubbling**.
   ///
-  /// ### Non‑obvious
-  /// - The initial population is performed **atomically** – observers never
-  ///   see a partially populated collection.
-  /// - The auto‑linking happens regardless of whether the elements are added
-  ///   via `add` or through the initial population. This ensures that even
-  ///   the initial state is fully reactive.
-  /// - If the nucleus has `synapses` disabled, linking is skipped.
-  ///
   /// ### Parameters:
   /// - [nucleus]: The [TissueNucleusBase] defining the behavioural
   ///   governance and structural blueprint.
@@ -458,6 +442,65 @@ abstract class TissueBase<E, I extends Iterable<E>, C extends Tissue<E>>
     }
   }
 
+  /// The internal mutation dispatch engine, implemented by each tissue mixin.
+  ///
+  /// This is the collection-specific routing table that executes whitelisted
+  /// mutation functions (`add`, `remove`, `put`, ...) with the tissue's
+  /// validation rules. It is invoked by [apply] and by the public mutation
+  /// methods of each collection.
+  dynamic dispatch(
+    Function function, {
+    List? positionalArguments,
+    Map<Symbol, dynamic>? namedArguments,
+  });
+
+  /// Submits a first-class [ApplyCommand] through the tissue dispatch engine.
+  ///
+  /// Collection mutations (`add`, `remove`, `put`, ...) route through the
+  /// specialized dispatch logic of the individual tissue mixins, so the
+  /// command model bridges into that engine and wraps its result in an
+  /// auditable [ApplyOutcome].
+  ///
+  /// The dispatch engine reports a rejected mutation with a `null` result,
+  /// which this bridge maps to [ApplyRejected]; non-null results map to
+  /// [ApplyAccepted].
+  @override
+  FutureOr<ApplyOutcome<R>> apply<R>(
+    ApplyCommand command, {
+    ApplyTransactionScope? tx,
+  }) {
+    if (tx != null) {
+      final sequence = tx.enqueueCommand(this, command);
+      return ApplyStaged(ApplyLedger.receipt(
+        cell: this,
+        command: command,
+        txSequence: sequence,
+        vetted: modifiable.contains(command.function),
+      ));
+    }
+
+    final result = dispatch(
+      command.function,
+      positionalArguments: command.arguments.positionalArguments,
+      namedArguments: command.arguments.namedArguments,
+    );
+
+    final receipt = ApplyLedger.receipt(
+      cell: this,
+      command: command,
+      vetted: modifiable.contains(command.function),
+    );
+
+    if (result is Future) {
+      return result.then((value) => value == null
+          ? ApplyRejected<R>(receipt)
+          : ApplyAccepted<R>(value as R, receipt));
+    }
+    return result == null
+        ? ApplyRejected<R>(receipt)
+        : ApplyAccepted<R>(result as R, receipt);
+  }
+
   /// Synthesizes a specialised **Mandate Handle** (Deputy) of this collection,
   /// providing a scoped, authoritative interface to the underlying state.
   ///
@@ -477,12 +520,6 @@ abstract class TissueBase<E, I extends Iterable<E>, C extends Tissue<E>>
   /// - The deputy gets its own [Synapses] registry by default, so it can have
   ///   its own observers.
   /// - If all parameters are left at default, `deputy()` returns `this`.
-  ///
-  /// ### Non‑obvious
-  /// - The deputy is logically equal to its principal (`deputy == principal`).
-  /// - The deputy's [context] can be overridden to change priority or security.
-  /// - The [ephemeralPolicy] controls the deputy's lifetime independently of
-  ///   the principal.
   ///
   /// ### Parameters:
   /// - [context]: The **DeputyContext** (Authority Tier) defining the
@@ -566,8 +603,42 @@ abstract class TissueBase<E, I extends Iterable<E>, C extends Tissue<E>>
   }
 }
 
+/// A reusable **Architectural Segment** (Genetic Sequence) providing the
+/// standardized operational logic and structural equality for all
+/// [Tissue] implementations.
+///
+/// In the framework's biological metaphor, [TissueMixin] acts as a
+/// **Common Genetic Trait**. It ensures that diverse collection types
+/// (Lists, Sets, Maps) exhibit identical behaviors for core operations
+/// like identity, hashing, and forensic comparison.
+///
+/// ### When to use
+/// - **Custom Tissues**: Apply this mixin when implementing specialized
+///   collection types that must adhere to the standard [Tissue] contract.
+/// - **Behavioral Shadowing**: Use it to ensure that specialized decorators
+///   or proxies maintain the same forensic identity as their underlying source.
+///
+/// ### How it works
+/// - **Identity Logic**: Overrides [operator ==] to implement the framework's
+///   **Forensic Equality**. A tissue is equal to another if they share the
+///   same instance, if one is an [Unmodifiable] view of the other, or if
+///   their underlying [Container] data matches.
+/// - **Storage Delegation**: Forwards core `Iterable` methods (iterator,
+///   toString, hashCode) directly to the [TissueNucleusBase.container],
+///   ensuring that the behavior reflects the physical storage defined in the DNA.
+/// - **Nucleus Binding**: Requires an implementation of [_nucleus] to access
+///   the governing configuration and principal chain.
+///
+/// ### Type Parameters:
+/// - [E]: The type of elements held within the collection.
+/// - [I]: The internal [Iterable] implementation (e.g., `List<E>`).
+/// - [C]: The target [Tissue] interface.
+///
+/// See also:
+/// - [TissueBase] – The primary class where this mixin's traits are applied.
+/// - [UnmodifiableTissueBase] – A consumer of this mixin for read-only projections.
 mixin TissueMixin<E, I extends Iterable<E>, C extends Tissue<E>> on Tissue<E> {
-
+  @override
   TissueNucleusBase<E, I, C> get _nucleus;
 
   @override
@@ -604,7 +675,6 @@ mixin TissueMixin<E, I extends Iterable<E>, C extends Tissue<E>> on Tissue<E> {
   Iterator<E> get iterator {
     return _nucleus.container.iterator;
   }
-
 }
 
 /// A concrete implementation of an unmodifiable (read‑only) tissue view.
@@ -704,15 +774,6 @@ class _UnmodifiableTissue<E, C extends Tissue<E>>
 ///   the mutable source, so `source == source.unmodifiable` is `true`.
 /// - The `async` getter returns a specialised version that throws on mutations.
 ///
-/// ### Non‑obvious
-/// - The unmodifiable view is **not a snapshot** – it is a live projection.
-///   Changes to the source are immediately visible through the view.
-/// - The view has its own [Synapses] registry, so observers attached to the view
-///   are separate from those on the source.
-/// - The [unmodifiableElement] flag controls whether child [Cell]s are also
-///   projected as unmodifiable. When `true`, this prevents "side‑door" mutations.
-/// - The `iterator` is lazy – elements are wrapped only when accessed.
-///
 /// ### Type Parameters:
 /// * [E]: The type of elements contained within the tissue.
 /// * [I]: The internal [Iterable] implementation type (e.g., `List<E>`, `Set<E>`).
@@ -725,6 +786,37 @@ abstract class UnmodifiableTissueBase<E, I extends Iterable<E>,
   /// does not support any modifiable operations.
   @override
   Iterable<Function> get modifiable => const Iterable<Function>.empty();
+
+  /// The generic dispatch engine for the base [Tissue] implementations.
+  ///
+  /// It mirrors the retired dynamic gateway semantics: whitelisted functions
+  /// pass through the integrity gate, everything else executes directly.
+  @override
+  dynamic dispatch(
+    Function function, {
+    List? positionalArguments,
+    Map<Symbol, dynamic>? namedArguments,
+  }) {
+    if (!modifiable.contains(function)) {
+      return Function.apply(function, positionalArguments, namedArguments);
+    }
+    final validation = validate.action(
+      function,
+      host: this,
+      arguments: (
+        positionalArguments: positionalArguments,
+        namedArguments: namedArguments,
+      ),
+    );
+    if (validation is Future<bool>) {
+      return validation.then((passed) => passed
+          ? Function.apply(function, positionalArguments, namedArguments)
+          : null);
+    }
+    return validation == true
+        ? Function.apply(function, positionalArguments, namedArguments)
+        : null;
+  }
 
   /// Determines whether elements that are [Cell]s should be wrapped in their
   /// unmodifiable views.
@@ -841,6 +933,11 @@ abstract class UnmodifiableTissueBase<E, I extends Iterable<E>,
         () => _nucleus.record.local.container,
         orElse: null);
     if (container != null) {
+      if (unmodifiableElement) {
+        return (container.store as Iterable)
+            .map((e) => e is Cell ? e.unmodifiable as E : e as E)
+            .iterator;
+      }
       return (container.store as Iterable).map((e) => e as E).iterator;
     }
     if (unmodifiableElement) {
@@ -877,14 +974,6 @@ abstract class UnmodifiableTissueBase<E, I extends Iterable<E>,
 ///   atomicity.
 /// - The returned `Future` completes when the mutation has been validated,
 ///   applied, and propagated through the reactive graph.
-///
-/// ### Non‑obvious
-/// - The async wrapper does **not** change the validation or reactivity – it's
-///   the same pipeline as synchronous calls, just non‑blocking.
-/// - If the tissue is unmodifiable, the async methods will throw
-///   `UnsupportedError`.
-/// - The `await` ensures that all downstream observers have been notified before
-///   the Future resolves.
 ///
 /// ### Example
 /// ```dart

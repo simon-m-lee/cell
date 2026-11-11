@@ -239,6 +239,24 @@ Run this each time the user supplies output or a reviewer records an inspection.
 
 Optional: give a second agent only the BRD and `<stem>-test.dart`, and ask it to list criteria the tests do not exercise. Record each as a finding.
 
+### 7.1 "Did you try this?" — every Failed row must cite the AI Agent Guide
+
+Phase 6.3 of `CONTRIBUTING-AI-DOC.md` (closes the feedback loop):
+
+1. For every **Failed** row whose residual traces to a specific operator or
+   factory, look up that symbol's `### AI Agent Guide` block in the resolved
+   package dartdoc and copy its `When NOT to use` line into the ledger's
+   residual note, prefixed with `Did you try this?` and the symbol name.
+2. If no block exists, or the block did not warn against this failure, record
+   that as a gap: append to `packages/<pkg>/tool/ai_failure_log.jsonl` via
+   `dart run tool/ai_failure_log.dart add --operator <Symbol> --symptom "…"
+   --demo <stem> --fix "…" --guide "<HowTo> §<n>"`.
+3. The quarterly review of `ai_failure_log.jsonl` promotes recurring entries
+   into `When NOT to use` lines or `{@template}` macros
+   (`lib/doc/ai_anti_patterns.dart`), which regenerates
+   `lib/doc/api_chooser.dart`. Failures feed back into dartdoc; dartdoc feeds
+   back into the next generation attempt.
+
 ---
 
 ## 8. Orphan scan

@@ -80,18 +80,6 @@ aligning with the framework's non-blocking concurrency model.</li>
 prevents <code>ConcurrentModificationError</code> by allowing concurrent mutations
 while a specific reactive wave processes the current state.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Locking Overhead</strong>: While providing safety, the internal synchronization
-introduces latency. For high-frequency read-only access within a single
-thread, consider using <a href="../cell/SyncSet/replicate.html">replicate</a> to get a local, non-synchronized copy.</li>
-<li><strong>Future Completion</strong>: A mutation's <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> completes once the lock is
-acquired and the operation is applied, ensuring causal ordering between
-sequential calls.</li>
-<li><strong>Zero-Blocking</strong>: The use of <code>synchronized</code> ensures that the calling
-thread remains free for other tasks while waiting for the set to become
-available.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final registry = SyncSet&lt;String&gt;();
 
@@ -568,7 +556,7 @@ await registry.addAll(['node_beta', 'node_gamma']);
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

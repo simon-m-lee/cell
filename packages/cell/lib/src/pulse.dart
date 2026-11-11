@@ -30,12 +30,6 @@ part of '../cell.dart';
 /// - The [root] always points to the original pulse that started the chain.
 /// - The payload is inherited from the root — evolved pulses don't duplicate it.
 ///
-/// ### Non‑obvious: evolution is not mutation
-/// [EvolvedPulse] is immutable. When you call [evolve], you get a *new* pulse
-/// that points to the old one. The old pulse is still there — unchanged,
-/// available for reference — which is why you can trace the entire lineage
-/// without copying data.
-///
 /// ### Example
 /// ```dart
 /// final root = Pulse<int>(42);
@@ -62,10 +56,6 @@ abstract interface class EvolvedPulse<P> implements Pulse<P> {
   /// Every call to [evolve] creates a new pulse that links back to the old one
   /// via this property. This forms a chain you can traverse to see the entire
   /// transformation history.
-  ///
-  /// ### Non‑obvious: the chain is immutable
-  /// Once set, [parent] never changes. For the root pulse (the original),
-  /// [parent] is `null`. The chain is resolved by walking up — never duplicated.
   ///
   /// ### Example
   /// ```dart
@@ -94,17 +84,6 @@ abstract interface class EvolvedPulse<P> implements Pulse<P> {
   ///    to identify the most recent transformation step.
   /// 3. It returns the [payload] of that specific terminal pulse, representing
   ///    the cumulative result of the evolution.
-  ///
-  /// ### Non‑obvious
-  /// - **Causal Integrity**: While this returns only the *last* value, the
-  ///   entire history remains available for forensics via the [iterator]
-  ///   or the [trace].
-  /// - **CBAC Enforcement**: Access to the terminal payload is subject to
-  ///   **Capability-Based Access Control**. If a caller lacks the required
-  ///   [Mandate] for the final transformation step, this may return `null`
-  ///   even if data exists.
-  /// - **Efficiency**: Because evolution is a structural wrap, retrieving
-  ///   the last payload avoids unnecessary data duplication across the fabric.
   ///
   /// ### Returns:
   /// The payload of the final pulse in the chain, or `null` if the last step
@@ -136,26 +115,6 @@ abstract interface class EvolvedPulse<P> implements Pulse<P> {
 /// - The collective is processed atomically — all sub‑pulses travel together.
 /// - Each sub‑pulse retains its independent identity and causal trace.
 /// - The collective's [isComposite] returns `true`.
-///
-/// ### Non‑obvious: flat, not chained
-/// A [CollectivePulse] does **not** create parent‑child relationships between
-/// its members. Each pulse's `parent` remains unchanged. The collective's
-/// `root` is itself, but each sub‑pulse's `root` remains its own root.
-///
-/// ### Non‑obvious: callbacks are per‑collective, not per‑pulse
-/// The `onComplete`, `onError`, and `onProgress` callbacks are taken from the
-/// itself as a `root` pulse. They are **not** applied to each individual
-/// pulse — they fire once for the collective as a whole.
-///
-/// ### Non‑obvious: iterating over a collective
-/// The collective itself is iterable — iterating over it yields the collective
-/// as a single item, not its constituent pulses. To access individual pulses,
-/// use the [payload] getter:
-/// ```dart
-/// for (final p in collective.payload) {
-///   print(p.payload);
-/// }
-/// ```
 ///
 /// ### Example
 /// ```dart
@@ -191,10 +150,6 @@ abstract interface class CollectivePulse<P>
   /// its own identity, trace, and callbacks. The collective's metadata (type,
   /// source, priority, step) is applied to the bundle as a whole.
   ///
-  /// ### Non‑obvious: the collective's payload is the iterable
-  /// The [payload] of the collective is the iterable of pulses itself — not
-  /// a combined value. To access the individual pulses, iterate over the payload.
-  ///
   /// ### Parameters:
   /// - [pulses]: The individual pulses to bundle.
   /// - [type]: Optional semantic tag for the bundle.
@@ -221,11 +176,6 @@ abstract interface class CollectivePulse<P>
   /// The [policy] controls the collective's lifetime (TTL/hop limit). The
   /// [context] provides provenance metadata for the bundle. Callbacks are
   /// attached to the collective and fire once when all sub‑pulses complete.
-  ///
-  /// ### Non‑obvious: callbacks fire once, not per‑pulse
-  /// The `onComplete`, `onError`, and `onProgress` callbacks are attached to
-  /// the collective itself. They fire once when the collective completes
-  /// (or fails), not once per sub‑pulse.
   ///
   /// ### Parameters:
   /// - [pulses]: The individual pulses to bundle.
@@ -262,10 +212,6 @@ abstract interface class CollectivePulse<P>
   /// - Iterate over the pulses manually.
   /// - Check the size of the collective.
   /// - Extract a specific pulse from the bundle.
-  ///
-  /// ### Non‑obvious: this is the entire iterable
-  /// This is **all** the pulses, not just the first one. For a collective
-  /// created with `+`, this contains all pulses from both operands.
   ///
   /// ### Example
   /// ```dart
@@ -307,21 +253,6 @@ abstract interface class CollectivePulse<P>
 /// [evolve] it, creating a new pulse that links back to the original. This is
 /// how the framework preserves causal history without duplicating data.
 ///
-/// ### Non‑obvious: a pulse is governed if it has a Context or Policy
-/// A pulse is considered [isGoverned] if it was created with a non‑default
-/// [PulseContext] and/or a [PulseEphemeralPolicy]. This triggers additional
-/// validation, lifecycle management, and auditing behaviours during propagation.
-///
-/// ### Non‑obvious: pulses are flyweights
-/// The framework uses a flyweight pattern internally. An evolved pulse doesn't
-/// copy its parent's payload — it inherits it by walking up the parent chain.
-/// This means you can have deep causal chains with minimal memory overhead.
-///
-/// ### Non‑obvious: pulses carry their own governance
-/// A pulse can challenge a receptor before revealing its payload. This is the
-/// **reciprocal handshake** — the pulse and receptor validate each other
-/// before any data is exchanged. Use [shell] to send a pulse to untrusted code.
-///
 /// ### Example: Creating and Evolving a Pulse
 /// ```dart
 /// final root = Pulse<int>(42, type: 'counter');
@@ -342,6 +273,21 @@ abstract interface class CollectivePulse<P>
 ///
 /// {@category Signals & Synapses}
 /// {@category Pulse}
+///
+/// ### AI Agent Guide
+/// **Layer:** Cell — this is the graph's message, not an operator (Flow), not a book (Tissue).
+/// **When to use:** read `pulse.payload`, `pulse.source`, `pulse.type` in observers; create one for manual injection (`Pulse(value, type: '...')`).
+/// **When NOT to use:** as a storage unit — state lives in `Cell.state` / Tissue books; pulses are immutable signals.
+/// **Live signature:** `Pulse<P>(P? payload, {dynamic type, Cell? source, int? priority, String? step})` — pinned at `cell: 1.1.0`
+/// **Do NOT confuse with:** `TissuePulse` (the collection-event variant in `cell_tissue`).
+/// **Guide:** `guide/HowTo-Pulse.md` (pulse anatomy)
+/// **Example:** `example/ingress_demo.dart`
+/// **Cross-layer:** a Flow instruction emits evolved pulses; a Tissue mutation emits `TissuePulse`.
+/// **Minimal compilable example**
+/// ```dart
+/// final p = Pulse<int>(42, type: 'counter', step: 'init');
+/// print('${p.payload},${p.type}'); // 42,counter
+/// ```
 abstract interface class Pulse<P>
     implements Iterable<Pulse>, Comparable<Pulse<P>> {
   /// The default priority for pulses when none is specified.
@@ -353,13 +299,6 @@ abstract interface class Pulse<P>
   /// * Understanding the baseline urgency of ungoverned pulses.
   /// * Comparing against custom priorities.
   ///
-  /// ### Non‑obvious: priority is 0‑100, higher = more urgent
-  /// The recommended tiers are:
-  /// - 0‑20: Background (telemetry, maintenance)
-  /// - 21‑50: Routine (standard operations)
-  /// - 51‑80: High (user interactions)
-  /// - 81‑95: Critical (system safety)
-  /// - 96‑100: Emergency (system recovery)
   static int defaultPriority = 20;
 
   /// Creates a simple, ungoverned pulse.
@@ -375,11 +314,6 @@ abstract interface class Pulse<P>
   /// ### How it works
   /// The pulse is created with the given [payload], optional [type], [source],
   /// [priority], and [step]. It inherits the default [PulseContext.system].
-  ///
-  /// ### Non‑obvious: ungoverned pulses are still trackable
-  /// Even without explicit governance, all pulses carry a timestamp and trace.
-  /// They're still part of the causal graph — they just don't have TTL or
-  /// hop limits.
   ///
   /// ### Parameters:
   /// - [payload]: The data carried by the pulse.
@@ -419,16 +353,6 @@ abstract interface class Pulse<P>
   /// - The [context] provides provenance (actor, reason, sensitivity, etc.).
   /// - Callbacks (`onComplete`, `onError`, `onProgress`) are attached to the
   ///   pulse and fire during its lifecycle.
-  ///
-  /// ### Non‑obvious: callbacks travel with the pulse
-  /// Callbacks attached to a governed pulse are **inherited** through the
-  /// parent chain. If you evolve a pulse, the original callbacks are still
-  /// present — they're not lost or duplicated.
-  ///
-  /// ### Non‑obvious: governance is determined by Context or Policy
-  /// A pulse becomes governed when either [context] (non‑default provenance)
-  /// or [policy] (lifecycle rules) is provided. Governed pulses undergo
-  /// additional validation, TTL checks, and auditing during propagation.
   ///
   /// ### Example: A Time‑Sensitive Token
   /// ```dart
@@ -488,11 +412,6 @@ abstract interface class Pulse<P>
   /// moves through the graph as a single entity, but each sub‑pulse retains
   /// its own identity, trace, and callbacks.
   ///
-  /// ### Non‑obvious: this is a flat bundle, not a chain
-  /// Unlike [evolve], which creates a causal chain, [batch] creates a flat
-  /// collection. There's no parent‑child relationship between the pulses —
-  /// they're just grouped together for atomic propagation.
-  ///
   /// ### Parameters:
   /// - [pulses]: The pulses to bundle.
   /// - [policy]: Optional lifecycle policy for the bundle.
@@ -523,7 +442,18 @@ abstract interface class Pulse<P>
     void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? onError,
     void Function(Pulse pulse, Cell cell, {String? message})? onProgress,
   }) =>
-      _CollectivePulse<P>(pulses);
+      _CollectivePulse<P>(
+        pulses,
+        policy: policy,
+        context: context,
+        type: type,
+        source: source,
+        step: step,
+        priority: priority,
+        onComplete: onComplete,
+        onError: onError,
+        onProgress: onProgress,
+      );
 
   /// The primary data or instruction carried by this signal.
   ///
@@ -537,19 +467,6 @@ abstract interface class Pulse<P>
   /// ### How it works
   /// The payload is resolved by walking up the parent chain. Evolved pulses
   /// inherit their payload from their root — they don't duplicate it.
-  ///
-  /// ### Non‑obvious: payload is inherited, not copied
-  /// For an evolved pulse, `payload` returns the root's payload. This is why
-  /// causal chains are memory‑efficient — no data is duplicated.
-  ///
-  /// ### Non‑obvious: collective pulses have a collective payload
-  /// For a [CollectivePulse], `payload` returns an `Iterable` of all sub‑pulses.
-  /// To access individual payloads, iterate over the collective's payload:
-  /// ```dart
-  /// for (final p in collective.payload) {
-  ///   print(p.payload);
-  /// }
-  /// ```
   ///
   /// ### Example
   /// ```dart
@@ -574,15 +491,6 @@ abstract interface class Pulse<P>
   /// receptor's host cell, its governed status, and its context. If the
   /// receptor passes scrutiny, the pulse unlocks and returns its kernel
   /// (payload). If not, it returns `null` — the signal is neutralised.
-  ///
-  /// ### Non‑obvious: the handshake is reciprocal
-  /// This is **not** a one‑way permission check. Both the pulse and the
-  /// receptor validate each other. A pulse can refuse to reveal its payload
-  /// to a receptor it doesn't trust.
-  ///
-  /// ### Non‑obvious: this is how [PulseShell] works
-  /// A [PulseShell] is a defensive proxy that wraps a pulse and forces any
-  /// receiver to go through this scrutiny process before accessing the payload.
   ///
   /// ### Parameters:
   /// - [receptor]: The entity requesting access to the pulse's internal state.
@@ -617,16 +525,6 @@ abstract interface class Pulse<P>
   ///   (root) context, which is permitted to evolve into any specialized context.
   /// - Attempting to "jump" a pulse to an unrelated context will trigger an [AssertionError].
   ///
-  /// ### Non‑obvious: you must provide at least one parameter
-  /// At least one of [pulse], [step], or [context] must be non‑null. This
-  /// assertion ensures you don't accidentally create a pointless no‑op
-  /// evolution.
-  ///
-  /// ### Non‑obvious: payload is inherited
-  /// The new pulse's payload is inherited from the root — you can't change
-  /// it here. To change the payload, you'd create a new pulse separately
-  /// and pass it as [pulse]. This prevents data corruption while preserving the chain.
-  ///
   /// ### Parameters:
   /// - [pulse]: An optional pulse to append to the chain.
   /// - [step]: A descriptive string added to the [trace] log.
@@ -645,48 +543,12 @@ abstract interface class Pulse<P>
   /// ```
   Pulse evolve({Pulse? pulse, String? step, covariant PulseContext? context});
 
-  /// Appends a diagnostic stage to the pulse's causal trace without branching
-  /// the causal chain.
+  /// Appends [step] to the pulse's causal trace without branching the
+  /// causal chain.
   ///
-  /// Use this method to document the logical path a signal takes as it flows
-  /// through the cell graph. Unlike [evolve], this method does not create a
-  /// parent-child relationship; it simply records milestones within the current
-  /// signal's lineage.
-  ///
-  /// ### When to use
-  /// *   **Diagnostic Auditing**: Use this to mark significant milestones in a
-  ///     pulse's journey (e.g., `'sanitized'`, `'validated'`, `'serialized'`).
-  /// *   **Breadcrumb Generation**: Building a historical trail that describes
-  ///     how a value reached its current state without creating a new evolved signal.
-  /// *   **Performance Tracing**: Marking timestamps or stages to analyze
-  ///     propagation latency across different cells.
-  ///
-  /// ### How it works
-  /// This method updates the internal [trace] log. Unlike [evolve], which
-  /// creates a new [EvolvedPulse] instance to represent a transition to a new
-  /// stage or context, `withStep` simply lengthens the **lineage** of the
-  /// current pulse. It preserves the same identity, context, and payload.
-  ///
-  /// ### Non‑obvious: It is not an Evolution
-  /// Calling `withStep` does not trigger a causal branch. Because it does not
-  /// create an `EvolvedPulse`, the pulse's structure remains flat. This means:
-  /// *   `isComposite` remains `false`.
-  /// *   `length` remains `1`.
-  /// *   Iterating over the pulse yields only the pulse itself.
-  ///
-  /// ### Non‑obvious: Traces are forward‑looking
-  /// Causal tracking is inherently backwards-looking. Because `withStep`
-  /// lengthens the lineage of the specific pulse instance without creating a
-  /// new causal node, the [root] pulse remains oblivious to these steps.
-  /// Calling `root.trace` will **not** show steps added via `withStep` on its
-  /// descendants. To see the full story, you must inspect the [trace] of the
-  /// final pulse in the chain.
-  ///
-  /// ### Parameters:
-  /// - [step]: A descriptive string identifying the processing stage completed.
-  ///
-  /// ### Returns:
-  /// The [Pulse] instance with the updated causal trace.
+  /// Returns a new flat marker pulse that carries the same payload and
+  /// context with [step] appended to its lineage; the original pulse is
+  /// unchanged.
   ///
   /// ### Example
   /// ```dart
@@ -711,15 +573,6 @@ abstract interface class Pulse<P>
   /// - For a standard or collective pulse: returns an iterator over a single
   ///   element — the pulse itself.
   /// - For an evolved pulse: returns an iterator over the entire chain.
-  ///
-  /// ### Non‑obvious: a collective iterates over itself, not its payload
-  /// For a [CollectivePulse], iterating over the collective yields the
-  /// collective as a single item, not its constituent pulses. To access the
-  /// individual pulses, use the [payload] getter:
-  /// ```dart
-  /// for (final p in collective) { } // one item (the collective)
-  /// for (final p in collective.payload) { } // all sub‑pulses
-  /// ```
   ///
   /// ### Example
   /// ```dart
@@ -748,10 +601,6 @@ abstract interface class Pulse<P>
   /// the payload must go through [scrutinize], which forces the receiver to
   /// prove its identity and clearance.
   ///
-  /// ### Non‑obvious: the shell is read‑only and immutable
-  /// You can't evolve a shell or change its metadata. It's a terminal,
-  /// read‑only view designed for safe distribution.
-  ///
   /// ### Returns:
   /// A [PulseShell] that gates access until **Reciprocal Authorization** is satisfied.
   PulseShell<P, Receptor> get shell;
@@ -770,9 +619,6 @@ abstract interface class Pulse<P>
   /// The timestamp is set when the root pulse is created and inherited by all
   /// derived pulses. It never changes.
   ///
-  /// ### Non‑obvious: this is the root's timestamp
-  /// This is the creation time of the **original** pulse, not the current
-  /// derived one. If you evolve a pulse, the timestamp stays the same.
   DateTime get timestamp;
 
   /// A semantic identifier representing the category or intent of the pulse.
@@ -860,10 +706,6 @@ abstract interface class Pulse<P>
   /// The policy enforces a TTL (time‑to‑live) and/or hop limit. The pulse is
   /// neutralised if it exceeds either limit. The framework checks this
   /// automatically during propagation.
-  ///
-  /// ### Non‑obvious: the policy is attached to the root
-  /// If you evolve a pulse, the policy travels with it — it's inherited
-  /// through the parent chain, not duplicated.
   ///
   /// ### Example
   /// ```dart
@@ -967,21 +809,6 @@ abstract interface class Pulse<P>
   /// this reference. It is immutable and persists throughout the entire
   /// lifecycle of the signal.
   ///
-  /// ### Non‑obvious: Roots are not aware of descendants
-  /// Causal tracking in the cell graph is **backwards-looking**. A pulse knows
-  /// its parent, but a parent does not know its children.
-  ///
-  /// Consequently, calling `root.trace` (or any lineage inspection) will only
-  /// show the history of the root itself—which is typically empty. It will
-  /// **not** show the steps or transformations added by descendants. To see
-  /// the "complete story" of a signal's evolution, you must inspect the
-  /// latest pulse in the chain.
-  ///
-  /// ### Non‑obvious: Self-referential roots
-  /// For an original pulse (the start of a chain), `pulse.root` returns the
-  /// pulse itself. For any evolved pulse, `pulse.root` points back to that
-  /// first instance.
-  ///
   /// ### Example
   /// ```dart
   /// final original = Pulse<int>(1);
@@ -1012,15 +839,6 @@ abstract interface class Pulse<P>
   ///     extension.
   /// 3.  **Explicit Evolution**: Calling [evolve] while passing a new
   ///     [Pulse].
-  ///
-  /// ### Non‑obvious: Evolution vs. Aggregation
-  /// Simply calling [withStep] or evolving the metadata (context, priority)
-  /// does **not** make a pulse composite. These operations extend the
-  /// *causal lineage* of a single signal but do not change the number of
-  /// elements in the propagation unit.
-  ///
-  /// Even a pulse with a very long [trace] from many `withStep` calls
-  /// will have `isComposite == false` and a `length` of 1.
   ///
   /// ### Example
   /// ```dart
@@ -1074,16 +892,6 @@ abstract interface class Pulse<P>
   /// record at construction time and resolved by walking up the parent chain
   /// if not found locally.
   ///
-  /// ### Non‑obvious: governance is determined by Context or Policy
-  /// A pulse is considered governed when either:
-  /// - A non‑default [PulseContext] is provided (e.g., with actor, reason,
-  ///   sensitivity, or compliance metadata).
-  /// - A [PulseEphemeralPolicy] is provided (TTL, hop limit, or callbacks).
-  ///
-  /// Governed pulses undergo additional validation, TTL checks, and auditing
-  /// during propagation. Ungoverned pulses are lightweight and bypass these
-  /// checks.
-  ///
   /// ### Returns:
   /// `true` if the pulse has explicit governance (Context or Policy),
   /// `false` otherwise.
@@ -1113,12 +921,6 @@ abstract interface class Pulse<P>
   /// | **Logic** | Binary Composition (Nesting) | Flattened Aggregation |
   /// | **Structure** | Always creates a pair | Creates a flat list |
   /// | **Payload** | `[Pulse, Pulse]` | `[Pulse, Pulse, Pulse, ...]` |
-  ///
-  /// ### Non‑obvious: Iteration and Nesting
-  /// If you chain this operator (e.g., `p1 + p2 + p3`), you create a nested
-  /// hierarchy. Iterating over the top-level `payload` will yield a length
-  /// of 2: the first element being the result of `(p1 + p2)` and the second
-  /// being `p3`.
   ///
   /// ### Example
   /// ```dart
@@ -1171,18 +973,6 @@ abstract interface class Pulse<P>
   ///     is effectively sealed. This creates an **Integrity Gate** that prevents
   ///     any modification to the current hop's record during the remainder of
   ///     the propagation cycle.
-  ///
-  /// ### Non‑obvious: Evolution is still permitted
-  /// Being "unmodifiable" does not terminate the causal chain. You can still
-  /// call [evolve] or [withStep] on an unmodifiable pulse. Doing so creates
-  /// a **new, modifiable** pulse instance that targets this unmodifiable
-  /// pulse as its parent. This allows the signal to continue its journey
-  /// while ensuring the historical record of this specific hop remains pristine.
-  ///
-  /// ### Non‑obvious: Cells remain reactive
-  /// Converting a [Cell] payload to its unmodifiable form only prevents
-  /// **setting** its value. The cell remains reactive; observers will still
-  /// receive updates if the original source cell changes.
   ///
   /// ### Example
   /// ```dart
@@ -1240,16 +1030,6 @@ abstract interface class Pulse<P>
   /// 3. The resulting collection is **reversed** to provide a chronological
   ///    sequence (FIFO: First-In, First-Out).
   ///
-  /// ### Non‑obvious: chronological order
-  /// Unlike the manual `parent` traversal which is LIFO (Last-In, First-Out),
-  /// [lineage] returns a FIFO list. The element at index `0` is always
-  /// the [root] pulse's value.
-  ///
-  /// ### Non‑obvious: type safety
-  /// If a pulse in the chain returns a value that does not match the
-  /// requested type [T], that specific hop is omitted from the results
-  /// to prevent runtime type exceptions during iteration.
-  ///
   /// ### Example
   /// ```dart
   /// // Trace how the payload evolved from the original input
@@ -1289,15 +1069,6 @@ abstract interface class Pulse<P>
 /// ### How it works
 /// The unmodifiable pulse wraps the original and disables all mutation methods
 /// ([evolve], [withStep]). Any attempt to change it throws an error.
-///
-/// ### Non‑obvious: Recursive Stabilization
-/// The entire **Causal Provenance** chain—including the [EvolvedPulse.parent],
-/// [Pulse.root], and [Pulse.source]—is projected as unmodifiable.
-///
-/// This ensures that a stabilized signal cannot be retroactively
-/// evolved or tampered with through its lineage. The underlying data
-/// ([payload]) remains readable, but the structural envelope is
-/// permanently sealed.
 ///
 /// ### Example
 /// ```dart

@@ -76,12 +76,6 @@ to establish dependencies with the <code>host</code>.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The provided <code>rule</code> function is called whenever a link is attempted.
 It receives the candidate link, the host cell, and optional user data.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The rule is only called when the object being validated is a <a href="../../mitosis/Cell-class.html">Cell</a>.</li>
-<li>The <code>host</code> is the cell that owns the synapses, not the candidate.</li>
-<li>The optional <code>parent</code> allows chaining with another link rule.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final domainRule = TestLinkRule&lt;Cell&gt;((link, {host, user}) {
   return link.context.domains == host.context.domains;
@@ -133,7 +127,7 @@ It receives the candidate link, the host cell, and optional user data.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

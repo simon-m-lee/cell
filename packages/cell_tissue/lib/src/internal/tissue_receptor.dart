@@ -20,10 +20,6 @@ part of '../../cell_tissue.dart';
 /// - It is a singleton – all tissues share the same instance.
 /// - It cannot be activated – `activate` returns `false`.
 ///
-/// ### Non‑obvious
-/// - This is a `const` singleton, making it extremely memory‑efficient.
-/// - It is the foundation of the **Deputy Pattern** – a deputy with a
-///   pass‑through receptor stays perfectly in sync with its principal.
 class _PassThroughTissueReceptor implements TissueReceptor<Never, Never> {
   const _PassThroughTissueReceptor();
 
@@ -139,18 +135,6 @@ class _TissueReceptor<E, C extends Tissue<E>> extends TissueReceptorBase<E, C> {
 ///   standard pipeline for user‑defined processing.
 /// - It handles both synchronous and asynchronous pulses seamlessly.
 ///
-/// ### Non‑obvious
-/// - The implicit synchronisation only happens for pulses that **originate
-///   from the bind source**. Pulses from other sources are processed normally
-///   but do not trigger automatic mirroring.
-/// - If the synchronisation cannot be fully applied (e.g., due to validation
-///   failure or capacity constraints), the receptor may produce a **partial
-///   pulse** that reflects only the changes that were actually committed.
-/// - The receptor is **activated** when bound to a tissue – this sets the
-///   `cell` getter and marks `isActivated` as `true`.
-/// - The `clone` method creates a shallow copy for reuse across multiple tissues.
-/// - The `call` method uses the pulse's `_checker` to prevent cycles.
-///
 /// ### Example (Internal – how the framework uses it)
 /// ```dart
 /// final receptor = TissueReceptorBase<int, TissueList<int>>(
@@ -195,14 +179,6 @@ abstract class TissueReceptorBase<E, C extends Tissue<E>>
   ///    it is wrapped into a [Instruction] internally.
   /// 3. The pipeline is stored in a memory‑optimised record using bitmasking.
   ///
-  /// ### Non‑obvious
-  /// - The `receptor` is automatically cloned if it is already activated
-  ///   (bound to another cell), ensuring that each nucleus starts with a
-  ///   clean logic instance.
-  /// - If `rule` is `null`, the receptor behaves like `passThrough` for that stage.
-  /// - The `user` parameter is passed to the rule functions and can be used
-  ///   for configuration, but it's not part of the pulse's context.
-  ///
   /// ### Parameters:
   /// - `rule`: The primary [Instruction] defining the core transformation logic.
   /// - `preProcess`: Optional [Instruction] for early‑stage filtering or logging.
@@ -229,14 +205,6 @@ abstract class TissueReceptorBase<E, C extends Tissue<E>>
   /// - This bypasses the bitmask optimisation of the primary constructor,
   ///   which is why it is only safe to use when the record shape is
   ///   guaranteed.
-  ///
-  /// ### Non‑obvious
-  /// - The record must contain all necessary fields for a receptor,
-  ///   including the `rule`, `preProcess`, `postProcess`, and `user` metadata.
-  /// - If the record is malformed, the resulting receptor may behave
-  ///   unpredictably – use with extreme caution.
-  /// - This constructor is `const`‑friendly, enabling compile‑time
-  ///   instantiation of static receptors.
   ///
   /// ### Example (Internal)
   /// ```dart
@@ -277,16 +245,6 @@ abstract class TissueReceptorBase<E, C extends Tissue<E>>
   ///    to `super.call()`, which executes the `preProcess` → `rule` →
   ///    `postProcess` pipeline.
   /// 5. **Return**: The final pulse is returned (or `null` if filtered).
-  ///
-  /// ### Non‑obvious
-  /// - The implicit synchronisation only happens for pulses from the `bind`
-  ///   source. Pulses from other sources are not mirrored.
-  /// - If the synchronisation is partial (e.g., some elements failed
-  ///   validation), the resulting pulse reflects only the committed changes.
-  /// - The pipeline is wrapped in error boundaries; exceptions are caught
-  ///   and reported via the pulse's `onError` callback.
-  /// - The method returns `FutureOr` – it can be synchronous or asynchronous
-  ///   depending on the rules.
   ///
   /// ### Example (Manual invocation)
   /// ```dart
@@ -340,21 +298,6 @@ abstract class TissueReceptorBase<E, C extends Tissue<E>>
 /// 4. If some operations fail (e.g., due to validation rules or capacity
 ///    limits on the deputy), it tracks a `partial` flag and returns a new
 ///    event that reflects **only** the successfully applied changes.
-///
-/// ### Non‑obvious
-/// - **Idempotent**: Applying the same event multiple times does not cause
-///   duplicates – the container checks for existing elements before adding.
-/// - **Unmodifiable projection**: If the local tissue is unmodifiable, the
-///   incoming event is automatically projected as unmodifiable before
-///   processing – this ensures deep immutability for read‑only deputies.
-/// - **No pulse emission**: This mixin modifies the container but does **not**
-///   emit new pulses. It only syncs state. The original event (or a partial
-///   representation) is then passed to the user's pipeline for further
-///   processing.
-/// - **Partial sync**: If a validation rule on the deputy rejects some
-///   elements, only the accepted subset is applied. The returned event
-///   contains only the changes that were actually committed, so downstream
-///   observers see a truthful representation of what changed.
 ///
 /// ### Example (internal flow)
 /// ```dart
@@ -415,7 +358,9 @@ mixin _TissueReceptorBaseStack {
   /// // If add2 fails validation, result will be a partial batch containing
   /// // only add1 and remove1.
   /// ```
-  TissuePulseBase? _tissueStack<E>({required covariant Tissue tissue, required covariant TissuePulseBase event}) {
+  TissuePulseBase? _tissueStack<E>(
+      {required covariant Tissue tissue,
+      required covariant TissuePulseBase event}) {
     TissuePulseBase? out;
 
     out = tissue is Unmodifiable ? event.unmodifiable : event;
@@ -429,18 +374,54 @@ mixin _TissueReceptorBaseStack {
       void process(TissuePulse event) {
         final payload = event.payload;
 
+        // A pulse whose element type does not line up with this deputy's E
+        // is skipped by the `is TissuePulse<E>` checks below. Assert in
+        // debug builds so generic-boundary evolutions surface during
+        // development instead of vanishing silently.
+        if (event is! TissuePulse<E>) {
+          assert(
+              false,
+              'TissuePulse element type does not match the '
+              'deputy sync type parameter');
+        }
+
+        // Live views share the principal's store. The delta is already
+        // applied there; re-applying it into the same store would
+        // double-apply (zero-copy sync, not copy-then-mirror).
+        final sharedStore = event.source is Tissue &&
+            identical(container.store,
+                (event.source as Tissue)._nucleus.container.store);
+
+        if (sharedStore) {
+          (events ??= <TissuePulse<E>>[]).add(event as TissuePulse<E>);
+          return;
+        }
+
         if (event.type == Tissue.elementAdded) {
-          if (payload != null && event is TissuePulse<E>) {
-            if (container.add(tissue, payload)) {
-              (events ??= <TissuePulse<E>>[]).add(event);
+          // Null payloads are legitimate for nullable element types.
+          if (event is TissuePulse<E>) {
+            // Honor the deputy's own element rules — the documented
+            // "partial sync" contract applies only the accepted subset.
+            if (tissue.validate.element(payload, host: tissue, action: null) ==
+                true) {
+              if (container.add(tissue, payload)) {
+                (events ??= <TissuePulse<E>>[]).add(event);
+              } else {
+                partial = true;
+              }
             } else {
               partial = true;
             }
           }
         } else if (event.type == Tissue.elementRemoved) {
-          if (payload != null && event is TissuePulse<E>) {
-            if (container.remove(tissue, payload)) {
-              (events ??= <TissuePulse<E>>[]).add(event);
+          if (event is TissuePulse<E>) {
+            if (tissue.validate.element(payload, host: tissue, action: null) ==
+                true) {
+              if (container.remove(tissue, payload)) {
+                (events ??= <TissuePulse<E>>[]).add(event);
+              } else {
+                partial = true;
+              }
             } else {
               partial = true;
             }
@@ -452,8 +433,8 @@ mixin _TissueReceptorBaseStack {
               (events ??= <TissuePulse<E>>[]).add(event as TissuePulse<E>);
             } else {
               if (container.add(tissue, e)) {
-                (events ??= <TissuePulse<E>>[])
-                    .add(_TissuePulse<E>(payload: e as E, type: Tissue.elementAdded));
+                (events ??= <TissuePulse<E>>[]).add(_TissuePulse<E>(
+                    payload: e as E, type: Tissue.elementAdded));
               } else {
                 partial = true;
               }

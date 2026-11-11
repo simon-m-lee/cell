@@ -95,27 +95,6 @@ ingestion respects it – if the initial elements exceed the capacity,
 the behaviour depends on the container's <code>_queueAdd</code> strategy
 (typically dropping the oldest elements to make room).</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Nucleus cloning</strong>: The <code>nucleus</code> is automatically <strong>cloned</strong> if it
-is already activated (bound to another queue). This prevents two
-independent queues from accidentally sharing the same synchronisation
-lock or observer registry.</li>
-<li><strong>Validation per element</strong>: The <code>testRule</code> is applied to <strong>each</strong>
-individual element during ingestion. If some elements are invalid, they
-are silently dropped – no event is emitted for rejected elements.</li>
-<li><strong>Initial state is silent</strong>: The initial population does <strong>not</strong>
-trigger any <a href="../../mitosis/TissuePulse-class.html">TissuePulse</a> pulses. Observers see the populated queue as
-if it had always been that way. Events are only emitted for mutations
-that happen <em>after</em> construction.</li>
-<li><strong>Linking is idempotent</strong>: If the same <a href="../../mitosis/Cell-class.html">Cell</a> appears multiple times
-in the initial elements, it is linked only once – the link is
-deduplicated.</li>
-<li><strong>Bounded queue behaviour</strong>: For a queue with a fixed capacity,
-ingestion of more elements than the capacity will cause the oldest
-elements to be dropped <strong>silently</strong> – no event is emitted for the
-dropped elements during initialisation.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>nucleus</code>: <strong>Required</strong>. The immutable blueprint that defines the
@@ -170,7 +149,7 @@ final queue = TissueQueueBase&lt;int, TissueQueue&lt;int&gt;&gt;(
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -85,22 +85,6 @@ invoked.</li>
 <li><strong>Future Propagation</strong>: The chain supports asynchronous continuation
 via the <a href="../cell_tissue/InstructionBase/InstructionBase.future.html">future</a> callback mechanism.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Short-circuiting</strong>: If any instruction returns <code>null</code>, the remaining
-stages are skipped, and the entire chain returns <code>null</code>.</li>
-<li><strong>Resilience</strong>: The chain is designed to be "non-breaking." If an
-instruction fails (throws an exception), the chain captures the error
-and attempts to continue using the last valid pulse state.</li>
-<li><strong>Compositionality</strong>: Because it implements the <a href="../cell_tissue/Instruction-class.html">Instruction</a> interface,
-chains can be nested inside other chains, allowing for complex,
-hierarchical processing trees.</li>
-<li><strong>Memory Efficiency</strong>: It uses a flyweight-like record system to store
-its configuration, making even deeply nested chains lightweight.</li>
-<li><strong>Synchronous Pipeline</strong>: The entire chain executes synchronously. For
-asynchronous processing within a chain, use <a href="../cell_tissue/Instruction/Instruction.future.html">Instruction.future</a> at the
-individual instruction level.</li>
-</ul>
 <h3 id="type-parameters">Type Parameters:</h3>
 <ul>
 <li><code>C</code>: The type of the host <a href="../cell_tissue/Cell-class.html">Cell</a>.</li>
@@ -295,7 +279,7 @@ individual instruction level.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

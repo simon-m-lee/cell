@@ -72,14 +72,6 @@ compact record that omits default values.</li>
 isn't found locally, it walks up the chain.</li>
 <li>Provides low-level getters for all nucleus properties.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The internal record is immutable; changes create a new nucleus.</li>
-<li>The <code>forceLock</code> parameter in the primary constructor defaults to <code>true</code>,
-but in <code>evolve</code> it's typically inherited from the principal.</li>
-<li>The <code>mask</code> static method is the engine behind flyweight storage.</li>
-</ul>
-<p>See also: <a href="../cell_tissue/Nucleus-class.html">Nucleus</a>, <code>_Nucleus</code>, <a href="../cell_tissue/Nucleolus-class.html">Nucleolus</a>.</p>
 </section>
 
 
@@ -119,13 +111,6 @@ but in <code>evolve</code> it's typically inherited from the principal.</li>
         <dd>
           The primary constructor for <a href="../cell_tissue/NucleusBase-class.html">NucleusBase</a>, initializing a memory-optimized
 tiered property storage for a reactive <a href="../cell_tissue/Cell-class.html">Cell</a>.
-        </dd>
-        <dt id="NucleusBase.evolve" class="callable">
-          <span class="name"><a href="../cell_tissue/NucleusBase/NucleusBase.evolve.html">NucleusBase.evolve</a></span><span class="signature">({<span class="parameter" id="evolve-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="evolve-param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="evolve-param-context"><span class="type-annotation"><a href="../cell_tissue/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="evolve-param-receptor"><span class="type-annotation"><a href="../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span><span class="parameter" id="evolve-param-testRule"><span class="type-annotation"><a href="../cell_tissue/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">testRule</span>, </span><span class="parameter" id="evolve-param-synapses"><span class="type-annotation"><a href="../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span><span class="parameter" id="evolve-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="evolve-param-override"><span class="type-annotation"><a href="../cell_tissue/Nucleus-class.html">Nucleus</a>?</span> <span class="parameter-name">override</span>, </span><span class="parameter" id="evolve-param-principal"><span>required</span> <span class="type-annotation"><a href="../cell_tissue/Nucleus-class.html">Nucleus</a></span> <span class="parameter-name">principal</span></span>})</span>
-        </dt>
-        <dd>
-          Creates a specialized <strong>Architectural Extension</strong> of an existing <a href="../cell_tissue/Nucleus-class.html">Nucleus</a> to
-support hierarchical property inheritance and contextual overrides.
         </dd>
         <dt id="NucleusBase.fromRecord" class="callable">
           <span class="name"><a href="../cell_tissue/NucleusBase/NucleusBase.fromRecord.html">NucleusBase.fromRecord</a></span><span class="signature">(<span class="parameter" id="fromRecord-param-record"><span class="type-annotation">dynamic</span> <span class="parameter-name">record</span></span>)</span>
@@ -488,7 +473,7 @@ fundamental state and behavior definition for a <a href="../cell_tissue/Nucleus-
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -46,13 +46,6 @@ part of '../cell_flow.dart';
 ///    which provides both the **Anchor Node** (via the `cell` field) and
 ///    the **Signal Ingress** controls (`emit`, `emitAsync`, and `ingest`).
 ///
-/// ### Non‑obvious
-/// - **Stateless Blueprinting**: The operators themselves do not store
-///   state; they merely define the blueprint for how pulses should
-///   traverse the newly created topographical branch.
-/// - **Chain Continuation**: Once a [FlowHandle] is returned, further
-///   evolution is managed by the sibling [FlowOperators] extension.
-///
 /// ### See Also
 /// * [Flow]: The authoritative registry of orchestration factories.
 /// * [FlowOperators]: Extensions for continuing evolution from a handle.
@@ -80,13 +73,6 @@ extension CellFlowOperators on Cell {
   ///    collection synchronously.
   /// 3. **Pulse Materialization**: Each item in the collection is
   ///    emitted as a distinct pulse, preserving the order of the source.
-  ///
-  /// ### Non‑obvious
-  /// - **Synchronous Exhaustion**: The entire collection is materialized
-  ///   immediately. If the collection is large and the topography is
-  ///   complex, this may block the current execution frame.
-  /// - **One-Time Trigger**: Once the initial sequence is evolved, the
-  ///   bridge remains idle unless the source cell triggers a re-ingress.
   ///
   /// ### Parameters:
   /// - [values]: The **Static Payload Collection** to be evolved as pulses.
@@ -119,13 +105,6 @@ extension CellFlowOperators on Cell {
   /// 3. **Pulse Evolution**: Each payload is emitted sequentially,
   ///    inheriting the priority and provenance of the trigger pulse,
   ///    tagged with the `'FromIterable'` step.
-  ///
-  /// ### Non‑obvious
-  /// - **Synchronous Blocking**: The iteration occurs synchronously. If the
-  ///   [iterable] is extremely large or infinite, it will block the
-  ///   reactive engine's evolution cycle.
-  /// - **Pulse Distinction**: Every item in the iterable results in a unique
-  ///   pulse; they are not batched into a single downstream materialization.
   ///
   /// ### Parameters:
   /// - [iterable]: The **Dynamic Sequence** of payloads to be evolved.
@@ -162,13 +141,6 @@ extension CellFlowOperators on Cell {
   ///    incrementing by [step].
   /// 3. **Pulse Evolution**: Each integer is materialized as a new pulse,
   ///    inheriting the provenance and priority of the trigger.
-  ///
-  /// ### Non‑obvious
-  /// - **Immediate Exhaustion**: The entire range is evolved synchronously.
-  ///   For extremely large counts, this will occupy the execution frame
-  ///   until completion.
-  /// - **Directional Step**: The [step] can be negative to evolve a
-  ///   descending sequence.
   ///
   /// ### Parameters:
   /// - [start]: The **Initial Payload** of the sequence.
@@ -208,13 +180,6 @@ extension CellFlowOperators on Cell {
   /// 3. **Pulse Evolution**: Each instance is materialized as a new pulse,
   ///    inheriting the provenance and priority of the trigger, tagged
   ///    with the `'Repeat'` step.
-  ///
-  /// ### Non‑obvious
-  /// - **Payload Override**: Unlike [range], which derives its values from
-  ///   a start point, [repeat] completely ignores the trigger stimulus
-  ///   payload in favor of the provided [value].
-  /// - **Synchronous Emission**: All [count] pulses are evolved
-  ///   synchronously within the same execution frame.
   ///
   /// ### Parameters:
   /// - [value]: The **Fixed Payload** to be materialized.
@@ -256,13 +221,6 @@ extension CellFlowOperators on Cell {
   /// 5. **Error Propagation**: If the future fails or times out, the
   ///    [onError] handler is invoked and the error is optionally
   ///    materialized as an error pulse.
-  ///
-  /// ### Non‑obvious
-  /// - **Single Pulse Lifecycle**: This bridge materializes exactly
-  ///   one pulse per trigger. It does not stay active for subsequent
-  ///   results unless re-triggered by the source.
-  /// - **Timeout Preemption**: Providing a [timeout] ensures the
-  ///   topography does not hang indefinitely on a stalled resource.
   ///
   /// ### Type Parameters
   /// * [S]: **Stimulus Payload Type**. The type of data yielded by
@@ -323,14 +281,6 @@ extension CellFlowOperators on Cell {
   ///    [emitErrorPulse], they are either evolved as error-tagged pulses
   ///    or silenced after the [onError] callback.
   ///
-  /// ### Non‑obvious
-  /// - **Lifecycle Synchronization**: The bridge automatically cancels the
-  ///   stream subscription if the anchored node is disposed or if a
-  ///   new trigger pulse re-activates the gate.
-  /// - **Backpressure**: This bridge performs immediate materialization;
-  ///   downstream nodes should use `buffer` or `throttle` if the stream
-  ///   frequency exceeds evolution capacity.
-  ///
   /// ### Type Parameters
   /// * [S]: **Stimulus Payload Type**. The type of data yielded by
   ///   the continuous stream source.
@@ -384,14 +334,6 @@ extension CellFlowOperators on Cell {
   ///    in a new pulse, inheriting the **Provenance** of the original
   ///    trigger and tagged with the `'Map'` step.
   ///
-  /// ### Non‑obvious
-  /// - **Synchronous Integrity**: The projection occurs within the same
-  ///   execution frame as the ingress. Heavy logic here will block the
-  ///   reactive engine's evolution cycle.
-  /// - **Type Integrity**: If the projection throws an error, the
-  ///   evolution is aborted, and the error is routed to the [onError]
-  ///   orchestrator.
-  ///
   /// ### Type Parameters
   /// * [S]: **Source Stimulus Type**. The type of the payload arriving
   ///   at the gate.
@@ -442,15 +384,6 @@ extension CellFlowOperators on Cell {
   ///    - If `false`: The pulse is discarded, and no evolution occurs
   ///      for this stimulus.
   ///
-  /// ### Non‑obvious
-  /// - **Provenance Preservation**: Unlike `map`, which creates a new
-  ///   evolved pulse, [filter] passes the *exact* original stimulus forward.
-  ///   This preserves the original source, priority, and trace history
-  ///   without modification.
-  /// - **Synchronous Efficiency**: The check occurs in the ingress frame.
-  ///   Logic within [test] should be high-performance to avoid stalling
-  ///   the reactive engine.
-  ///
   /// ### Type Parameters
   /// * [S]: **Stimulus Payload Type**. The type of the payload arriving
   ///   at the gate for evaluation.
@@ -491,14 +424,6 @@ extension CellFlowOperators on Cell {
   /// 3. **Provenance Preservation**: The original pulse—maintaining its
   ///    full trace history, source, and priority—is propagated to
   ///    downstream synapses.
-  ///
-  /// ### Non‑obvious
-  /// - **Synchronous Blocking**: The side-effect occurs within the same
-  ///   execution frame as the ingress. Heavy logic here will block the
-  ///   reactive engine's evolution cycle.
-  /// - **Integrity Safeguard**: If the observation logic throws an error,
-  ///   the evolution is aborted, and the error is routed to the [onError]
-  ///   orchestrator.
   ///
   /// ### Type Parameters
   /// * [S]: **Stimulus Payload Type**. The type of the payload arriving
@@ -542,14 +467,6 @@ extension CellFlowOperators on Cell {
 ///    to that cell, creating a new downstream node.
 /// 3. **Handle Materialization**: Returns a new [FlowHandle] representing
 ///     the next stage of the topography.
-///
-/// ### Non‑obvious
-/// - **Stateless Continuation**: Chaining operators does not preserve
-///   transient pulse state; each step defines a new, stateless logic gate
-///   within the graph.
-/// - **Provenance Flow**: Provenance data and priorities automatically
-///   traverse these chained gates unless an operator explicitly
-///   intercepts or resets them.
 ///
 /// ### See Also
 /// * [CellFlowOperators]: The entry point for starting a pipeline from a Cell.

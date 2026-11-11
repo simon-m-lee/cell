@@ -108,16 +108,6 @@ adopts the context of the bound cell.</li>
 <li><strong>Global Default</strong>: If no context is found in the lineage or bindings,
 it defaults to <a href="../../cell_flow/Context/system-constant.html">Context.system</a>.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Immutability</strong>: The context is established during the <strong>Reciprocal
-Handshake</strong> at the node's synthesis and cannot be changed.</li>
-<li><strong>Deputy Restrictions</strong>: While a principal cell and its deputies share
-the same internal state, they each possess a unique <a href="../../cell_flow/Nucleolus/context.html">context</a>, allowing
-for authority attenuation (e.g., a "Guest" deputy of a "System" cell).</li>
-<li><strong>Trace Stamping</strong>: Every <a href="../../cell_flow/Pulse-class.html">Pulse</a> emitted by this cell is stamped with
-this context in the forensic <a href="../../cell_flow/Pulse/trace.html">Pulse.trace</a>.</li>
-</ul>
 <h3 id="returns">Returns:</h3>
 <p>The <a href="../../cell_flow/Context-class.html">Context</a> instance representing the forensic anchor and authority
 tier of this node.</p>
@@ -157,7 +147,7 @@ Context get context =&gt; Context.system;</code></pre>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

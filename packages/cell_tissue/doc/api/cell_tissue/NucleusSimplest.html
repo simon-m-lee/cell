@@ -87,17 +87,6 @@ reactive property walk.</li>
 <li><strong>Flyweight Reification</strong>: It enables the framework to share a single
 pre-compiled memory address for every "simplest" node in the graph.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Statelessness</strong>: A nucleus of this type contains no local
-bindings (<code>Cell.bind</code>) or egress synapses, ensuring it consumes
-minimal resources even in massive dependency graphs.</li>
-<li><strong>Constant-Time Resolution</strong>: Property access on this type bypasses
-the record-masking logic used in <a href="../cell_tissue/NucleusBase-class.html">NucleusBase</a>, achieving native
-O(1) resolution speed.</li>
-<li><strong>Structural Purity</strong>: It represents a "Naked Blueprint" devoid of
-ad-hoc metadata, user-defined records, or specialized locks.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <p>(None)</p>
 <h3 id="returns">Returns:</h3>
@@ -139,7 +128,7 @@ ad-hoc metadata, user-defined records, or specialized locks.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

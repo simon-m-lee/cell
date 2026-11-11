@@ -82,13 +82,6 @@ used to arm the instruction.</p>
 <li>Pulses from all <code>sources</code> are forwarded with step <code>Merge</code>.</li>
 <li>The arming pulse is not forwarded (by default).</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Arming Only</strong>: The first source pulse is only used to arm.</li>
-<li><strong>Interleaved</strong>: Pulses from different sources are interleaved.</li>
-<li><strong>No Source Forwarding</strong>: The arming pulse is not forwarded.</li>
-<li><strong>Error Handling</strong>: Type errors are reported via <code>onError</code>.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the trigger.</li>
@@ -159,7 +152,7 @@ right.emit(20); // emitted
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

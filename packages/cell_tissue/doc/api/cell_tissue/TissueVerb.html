@@ -112,20 +112,6 @@ A downstream instruction (in <code>ai_tissue_command.dart</code>) materialises
 that reply as a pulse. A still-further-downstream dispatch
 instruction (in the demo) consults <code>TissueSet.modifiable</code> and
 invokes the tear-off.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<ul>
-<li><strong>The verb list is closed.</strong> The model cannot invent a verb.
-If it returns a string that is not a key in <a href="../cell_tissue/verbByName-constant.html">verbByName</a>, the
-port synthesises a <a href="../cell_tissue/Reject-class.html">Reject</a> with reason <code>'unknown-verb'</code>.</li>
-<li><strong>The port never executes code.</strong> It parses a verb string and
-an args array; it never evaluates Dart.</li>
-<li><strong>The domain is portable.</strong> It can be reused by a CLI tool, a
-test harness, or a scripted replay without any reactive
-framework dependency.</li>
-<li><strong><code>AiConfig</code> is the explicit source of AI settings.</strong> When a
-config is supplied, the interpreter reads only the config.
-Environment variables are not consulted.</li>
-</ul>
 <h3 id="see-also">See Also</h3>
 <ul>
 <li><code>ai_tissue_command.dart</code> — the three instructions that consume
@@ -151,21 +137,6 @@ no enums.</li>
 <li>A verb string that does not resolve is treated as a <a href="../cell_tissue/Reject-class.html">Reject</a>,
 not as an executable command.</li>
 </ol>
-<h3 id="non-obvious-2">Non-obvious</h3>
-<ul>
-<li><strong>The string → enum conversion is the boundary.</strong> It is the
-only place a model's reply becomes a typed verb. That is why
-it lives in this file: the port cannot return a verb outside
-the enum.</li>
-<li><strong>Not every verb is driven by the demo.</strong> <code>removeWhere</code> and
-<code>retainWhere</code> are listed so the closed vocabulary is complete,
-but the demo's dispatch instruction rejects them. Predicates
-are not safe to take from a model — see the individual value
-docs.</li>
-<li><strong>Extending the list is manual.</strong> Adding a verb to the enum
-and to <a href="../cell_tissue/verbByName-constant.html">verbByName</a> are two separate edits. A future build
-could generate one from the other.</li>
-</ul>
 <h3 id="values">Values</h3>
 <p>See the individual value docs for the args shape each verb
 expects.</p>
@@ -309,12 +280,6 @@ array of values.</p>
 <dd>
   <p><code>TissueSet.removeWhere(bool Function(E))</code> — not driven by
 this demo.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<p>Predicates are not safe to take from a model: a model that
-produced <code>(x) =&gt; x &gt; 5</code> would be returning code, which the
-instruction refuses to execute. The verb is listed so the
-closed vocabulary is complete; the dispatch instruction
-rejects it if the model ever returns it.</p>
   
 
 </dd>
@@ -496,7 +461,7 @@ this demo.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

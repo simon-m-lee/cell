@@ -120,18 +120,6 @@ the tear-off in its registry, and invokes it.</li>
 the tear-off's expected parameter type. If the cast fails, the
 dispatch throws and the exception is caught inside
 <code>_runDispatch</code>.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<ul>
-<li><strong>A <a href="../cell_tissue/TissueCommand-class.html">TissueCommand</a> does not mutate a tissue.</strong> It is a
-declarative record of a verb and its args. The mutation
-happens only when a downstream dispatch instruction reads the
-command and invokes the tear-off. That separation is what
-makes the command inspectable, loggable, and testable without
-any collection involvement.</li>
-<li><strong>Confidence is not enforced.</strong> The demo carries it for
-auditing. A production system could route low-confidence
-commands to a supervised approval queue.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// The interpreter produced this after reading "add 3"
 final cmd = TissueCommand(
@@ -338,7 +326,7 @@ if (cmd.ok) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

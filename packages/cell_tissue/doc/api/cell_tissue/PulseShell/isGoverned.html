@@ -86,16 +86,6 @@ stricter handling in custom code.</li>
 and/or a <a href="../../cell_tissue/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a>. The <code>isGoverned</code> flag is set in the
 record at construction time and resolved by walking up the parent chain
 if not found locally.</p>
-<h3 id="nonobvious-governance-is-determined-by-context-or-policy">Non‑obvious: governance is determined by Context or Policy</h3>
-<p>A pulse is considered governed when either:</p>
-<ul>
-<li>A non‑default <a href="../../cell_tissue/PulseContext-class.html">PulseContext</a> is provided (e.g., with actor, reason,
-sensitivity, or compliance metadata).</li>
-<li>A <a href="../../cell_tissue/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a> is provided (TTL, hop limit, or callbacks).</li>
-</ul>
-<p>Governed pulses undergo additional validation, TTL checks, and auditing
-during propagation. Ungoverned pulses are lightweight and bypass these
-checks.</p>
 <h3 id="returns">Returns:</h3>
 <p><code>true</code> if the pulse has explicit governance (Context or Policy),
 <code>false</code> otherwise.</p>
@@ -135,7 +125,7 @@ bool get isGoverned =&gt; _kernal.isGoverned;</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

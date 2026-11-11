@@ -83,19 +83,6 @@ the command gateway.</li>
 synchronization <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> to prevent "torn states" in high-frequency
 reactive waves.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Zero-Cost Immutability</strong>: By returning an empty whitelist, an
-object becomes effectively immutable while remaining a first-class
-member of the reactive graph.</li>
-<li><strong>Proxying Infrastructure</strong>: It provides the base logic needed for
-<a href="../cell_tissue/Cell/deputy.html">Cell.deputy</a> to intercept and delegate calls safely.</li>
-<li><strong>Flyweight Architecture</strong>: The use of a <code>const</code> constructor allows
-the system to manage unmodifiable views with minimal heap pressure.</li>
-<li><strong>State Isolation</strong>: Subclasses are responsible for ensuring that
-modifications trigger the appropriate reactive pulses to maintain graph
-consistency.</li>
-</ul>
 <h3 id="see-also">See Also:</h3>
 <ul>
 <li><a href="../cell_tissue/Cell/apply.html">Cell.apply</a>: The primary method for executing commands on a
@@ -236,7 +223,7 @@ these modifications.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -84,14 +84,6 @@ need full control over every dimension.</p>
 <p>Each named parameter corresponds to a <a href="../../mitosis/Provenance.html">Provenance</a> dimension. The context
 is built as an immutable record, and if a <code>baseContext</code> is provided,
 it inherits from it.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>traceId</code> is auto‑generated if not provided.</li>
-<li>The <code>parentTraceId</code> must be set manually if you're linking to a
-previous pulse.</li>
-<li>The <code>integrity</code> dimension is not set here – it's computed by the
-framework when the pulse is created.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>baseContext</code>: Ancestral <a href="../../mitosis/Context-class.html">Context</a> for inheritance.</li>
@@ -177,7 +169,7 @@ framework when the pulse is created.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

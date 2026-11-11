@@ -69,17 +69,6 @@ a maximum number of elements.</p>
 <p>The code generator creates validation code that checks the length of the
 field (or its host container) against the specified limits. The validation
 runs at runtime when setting the field.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The rule supports <strong>host‑aware validation</strong> via the optional <a href="../cell_tissue/MaxLength/hostLength.html">hostLength</a>
-parameter. This allows you to restrict the length of a container (like a
-list) from an annotation on its elements.</li>
-<li>For <code>String</code> fields, it checks <code>object.length</code>. For <code>Iterable</code> fields,
-it checks <code>object.length</code> (element count).</li>
-<li>The <code>.host()</code> constructor disables direct length checking and only
-validates the host container – useful for annotations on child elements.</li>
-<li>Non‑string/iterable objects pass validation (the rule does not apply).</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <h4 id="1-direct-field-limit">1. Direct Field Limit</h4>
 <pre class="language-dart"><code class="language-dart">@MaxLength(50)
@@ -317,7 +306,7 @@ container (<a href="../cell_tissue/MaxLength/MaxLength.host.html">host</a>) duri
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

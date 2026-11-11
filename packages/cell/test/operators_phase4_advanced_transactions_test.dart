@@ -168,10 +168,11 @@ void main() {
           },
         );
 
-        // emit() has no sensitivity, so redaction does not run.
+        // emit() carries no sensitivity metadata. Fail closed: the
+        // unclassified pulse is redacted, not passed through.
         ingress.emit('Hello World');
         await delay(10);
-        expect(receivedValue, 'Hello World');
+        expect(receivedValue, 'Hel...');
 
         await ingress.ingest(
           taggedPulse(
@@ -200,10 +201,11 @@ void main() {
           },
         );
 
-        // state.update has no sensitivity → pass-through.
+        // state.update has no sensitivity metadata. Fail closed: the
+        // unclassified pulse is redacted, not passed through.
         source.update('Secret Data');
         await delay(10);
-        expect(receivedValue, 'Secret Data');
+        expect(receivedValue, '***');
         observer.stop();
       });
 
@@ -482,7 +484,7 @@ void main() {
               openCell.emit,
               openCell.ingest,
               openCell.link,
-              openCell.apply,
+              openCell.apply<dynamic>,
             ]));
       });
 
@@ -566,7 +568,7 @@ void main() {
 
         source.update('Secret Data');
         await delay(10);
-        expect(receivedValue, 'Secret Data');
+        expect(receivedValue, '***');
         observer.stop();
       });
 
@@ -633,19 +635,33 @@ void main() {
         await tx.execute(
           participants: [source, target],
           body: (scope) {
-            source.apply(
-              source.debit,
-              positionalArguments: [5],
+            source.apply<Object?>(
+              (
+                function: source.debit,
+                arguments:
+                    (positionalArguments: [5], namedArguments: null),
+                compensation: (
+                  function: source.credit,
+                  arguments:
+                      (positionalArguments: [5], namedArguments: null),
+                  cell: null,
+                ),
+              ),
               tx: scope,
-              compensate: source.credit,
-              compensatePositional: [5],
             );
-            target.apply(
-              target.credit,
-              positionalArguments: [5],
+            target.apply<Object?>(
+              (
+                function: target.credit,
+                arguments:
+                    (positionalArguments: [5], namedArguments: null),
+                compensation: (
+                  function: target.debit,
+                  arguments:
+                      (positionalArguments: [5], namedArguments: null),
+                  cell: null,
+                ),
+              ),
               tx: scope,
-              compensate: target.debit,
-              compensatePositional: [5],
             );
           },
         );
@@ -656,7 +672,7 @@ void main() {
     });
 
     group('Edge Cases & Error Handling', () {
-      test('sanitized with missing sensitivity passes through', () async {
+      test('sanitized with missing sensitivity redacts (fail closed)', () async {
         final source = Cell.ingress<String>();
         final sanitized = Cell.sanitized(
           source.cell,
@@ -667,7 +683,7 @@ void main() {
 
         source.emit('test@email.com');
         await delay(10);
-        expect(rec.payloads, ['test@email.com']);
+        expect(rec.payloads, ['REDACTED']);
       });
 
       test('open with disabled synapses', () async {

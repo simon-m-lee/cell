@@ -85,19 +85,6 @@ a different validation rule or context.</li>
 <li>Equality (<code>==</code>) and <code>hashCode</code> are based on the container's content, so
 tissues behave like normal Dart collections in sets and maps.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The constructor is <strong>not</strong> public – it's intended for internal use by
-subclasses. You create tissues via the factory methods like <code>TissueList()</code>.</li>
-<li>The container is initialised lazily: if no initial elements are provided,
-the container may not be allocated until the first access.</li>
-<li>The <code>_nucleus</code> is final and immutable – all behavioural changes require
-creating a new tissue (or deputy).</li>
-<li>The <code>principal</code> chain in the nucleus allows hierarchical inheritance for
-deputies – a deputy inherits most properties but can override specific ones.</li>
-<li>The <code>async</code> getter returns a <a href="../mitosis/TissueModifiableAsync-class.html">TissueModifiableAsync</a> which wraps the
-tissue for non‑blocking operations.</li>
-</ul>
 <h3 id="type-parameters">Type Parameters:</h3>
 <ul>
 <li><code>E</code>: The type of elements contained within the tissue.</li>
@@ -147,6 +134,7 @@ in receptors and deputies.</li>
         
   <dt>Available extensions</dt>
   <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="../mitosis/ApplyCommandDSL.html">ApplyCommandDSL</a></li>
       <li><a href="../mitosis/CellFlowOperators.html">CellFlowOperators</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/EnumByName.html">EnumByName</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/FutureIterable.html">FutureIterable</a></li>
@@ -397,7 +385,7 @@ sequence and is currently in the process of being neutralized.
 </dt>
 <dd class="inherited">
   Defines the exhaustive whitelist of functions and commands authorized for
-execution on this node via the dynamic <a href="../mitosis/CellBase/apply.html">apply</a> method.
+execution on this node via the dynamic <a href="../mitosis/TissueBase/apply.html">apply</a> method.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -520,16 +508,16 @@ execution on this node via the dynamic <a href="../mitosis/CellBase/apply.html">
 
 </dd>
 
-        <dt id="apply" class="callable inherited">
-  <span class="name"><a href="../mitosis/CellBase/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../mitosis/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
-    <span class="returntype parameter">&#8594; dynamic</span>
+        <dt id="apply" class="callable">
+  <span class="name"><a href="../mitosis/TissueBase/apply.html">apply</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="apply-param-command"><span class="type-annotation"><a href="../mitosis/ApplyCommand.html">ApplyCommand</a></span> <span class="parameter-name">command</span>, {</span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../mitosis/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span>
   </span>
   
 
 </dt>
-<dd class="inherited">
-  Executes a <strong>State Transition</strong> or arbitrary logic via the <strong>Command Pattern</strong> gateway.
-  <div class="features"><span class="feature">inherited</span></div>
+<dd>
+  Submits a first-class <a href="../mitosis/ApplyCommand.html">ApplyCommand</a> through the tissue dispatch engine.
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
@@ -615,6 +603,23 @@ metadata attached.
 
 </dd>
 
+        <dt id="command" class="callable">
+  <span class="name"><a href="../mitosis/ApplyCommandDSL/command.html">command</a></span><span class="signature">(<wbr><span class="parameter" id="command-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../mitosis/ApplyCommandRunner-class.html">ApplyCommandRunner</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/Cell-class.html">Cell</a>,
+        provided by the <a href="../mitosis/ApplyCommandDSL.html">ApplyCommandDSL</a> extension</span>
+      </p>
+  Begins assembling a command that invokes <code>function</code> on this cell.
+  
+
+</dd>
+
         <dt id="contains" class="callable inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/contains.html">contains</a></span><span class="signature">(<wbr><span class="parameter" id="contains-param-element"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">element</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
@@ -639,6 +644,19 @@ metadata attached.
   Synthesizes a specialised <strong>Mandate Handle</strong> (Deputy) of this collection,
 providing a scoped, authoritative interface to the underlying state.
   <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="dispatch" class="callable">
+  <span class="name"><a href="../mitosis/TissueBase/dispatch.html">dispatch</a></span><span class="signature">(<wbr><span class="parameter" id="dispatch-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="dispatch-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="dispatch-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span></span>})
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd>
+  The internal mutation dispatch engine, implemented by each tissue mixin.
+  
 
 </dd>
 
@@ -864,19 +882,6 @@ element of the collection with an existing value
 
 </dd>
 
-        <dt id="map" class="callable inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/map.html">map</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="map-param-toElement"><span class="type-annotation">T</span> <span class="parameter-name">toElement</span>(<span class="parameter" id="param-e"><span class="type-annotation">E</span> <span class="parameter-name">e</span></span>)</span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
-  </span>
-  
-
-</dt>
-<dd class="inherited">
-  The current elements of this iterable modified by <code>toElement</code>.
-  <div class="features"><span class="feature">inherited</span></div>
-
-</dd>
-
         <dt id="map" class="callable">
   <span class="name"><a href="../mitosis/CellFlowOperators/map.html">map</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="map-param-project"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="map-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
     <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
@@ -892,6 +897,19 @@ element of the collection with an existing value
   Materializes a <strong>Projective Evolution Gate</strong>—a fundamental instruction
 designed to transform stimulus payloads as they traverse the topography.
   
+
+</dd>
+
+        <dt id="map" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/map.html">map</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="map-param-toElement"><span class="type-annotation">T</span> <span class="parameter-name">toElement</span>(<span class="parameter" id="param-e"><span class="type-annotation">E</span> <span class="parameter-name">e</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The current elements of this iterable modified by <code>toElement</code>.
+  <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -1210,7 +1228,7 @@ collection.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

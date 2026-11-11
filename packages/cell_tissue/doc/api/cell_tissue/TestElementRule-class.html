@@ -79,16 +79,6 @@ mutation action (e.g., <code>add</code>, <code>remove</code>), and optional user
 <li>Return <code>true</code> to allow the element, <code>false</code> to block it.</li>
 <li>Rules are composed with <code>+</code> (via the base <a href="../cell_tissue/TestRule-class.html">TestRule</a>).</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The rule is only evaluated when the object is of type <code>E</code> and the
-action is a function. This prevents it from accidentally blocking
-other types of validation (like pulses or links).</li>
-<li>The <code>action</code> parameter enables <strong>action‑aware validation</strong>. For example,
-you might allow a value in a <code>contains</code> check but forbid it in an <code>add</code>.</li>
-<li>Like all <a href="../cell_tissue/TestRule-class.html">TestRule</a>s, it supports asynchronous validation via
-<code>FutureOr&lt;bool&gt;</code>.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final elementRule = TestElementRule&lt;String, TissueList&lt;String&gt;&gt;(
   (element, {host, action, user}) {
@@ -308,7 +298,7 @@ a structural transition within the host <a href="../cell_tissue/Tissue-class.htm
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

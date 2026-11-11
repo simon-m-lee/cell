@@ -75,16 +75,6 @@ and rejects all mutations.</li>
 defaults, but since the type is <code>Never</code>, no signals can actually be
 posted to it.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is a <code>const</code> singleton – all empty tissue nuclei point to the
-exact same instance, making it extremely memory‑efficient.</li>
-<li>Attempting to call mutation methods on a collection built from this
-nucleus will either throw or be silently ignored (depending on the
-implementation).</li>
-<li>It serves as the <strong>root of the inheritance chain</strong> for any nucleus
-that has no explicit <code>principal</code>.</li>
-</ul>
 <h3 id="example-internal">Example (Internal)</h3>
 <pre class="language-dart"><code class="language-dart">final emptyNucleus = TissueNucleusNever();
 final emptyList = Tissue.fromNucleus(emptyNucleus);
@@ -494,7 +484,7 @@ custom property extensions for the associated <a href="../cell_tissue/Cell-class
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

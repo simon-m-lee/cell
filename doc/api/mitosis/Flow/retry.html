@@ -91,15 +91,6 @@ number of attempts.</p>
 <li>If <code>emitErrorPulse</code> is <code>true</code>, an error pulse is emitted
 when all retries fail.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Total Attempts</strong>: The task runs up to <code>count + 1</code> times.</li>
-<li><strong>No Delay</strong>: Retries are immediate.</li>
-<li><strong>Error Swallowing</strong>: Errors are caught and don't crash the flow.</li>
-<li><strong>Error Pulse</strong>: The error pulse has type <code>'error'</code> for routing.</li>
-<li><strong>Provenance Preservation</strong>: Success and error pulses preserve
-the source cell, type, and priority from the trigger pulse.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -132,6 +123,23 @@ final handle = Flow.retry&lt;int, UserProfile&gt;(
 <li><a href="../../mitosis/Flow/retry.html">retry</a>: For retries with a fixed delay.</li>
 <li><a href="../../mitosis/Flow/retry.html">retry</a>: For retries with exponential backoff.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Flow — control operator. Not a Cell factory, not a Tissue book.
+<strong>When to use:</strong> flaky RTU / issuer — retry a <code>FutureOr</code> task up to <code>count</code> times on the <strong>outbound pump Cell</strong>.
+<strong>When NOT to use:</strong> inside <code>riskOf</code> (policy is pure); a harness <code>_driveAlert</code> retry-once is the usual v1 alternative.
+<strong>Live signature:</strong> <code>Flow.retry&lt;S, T&gt;(Cell source, {required RetryTask&lt;S, T&gt; task, int count = 3, RetryErrorHandler? onError, bool emitErrorPulse = true})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Flow.exhaustMap</code> (prevents overlap; retry re-attempts failures).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.7 "Collect / control" (#flow-collect-control)
+<strong>Example:</strong> <code>example/retry_timeout_flaky_network_demo.dart</code>
+<strong>Cross-layer:</strong> the enqueue history is a <code>TissueQueue</code> book.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final h = Flow.retry&lt;int, int&gt;(src.cell, task: (v) async =&gt; v, count: 2);
+final o = Cell.observe(source: h.cell, effect: (Pulse p) =&gt; print(p.payload));
+src.emit(1);
+await Future&lt;void&gt;.delayed(const Duration(milliseconds: 20));
+o.stop();
+</code></pre>
 </section>
 
 
@@ -179,7 +187,7 @@ final handle = Flow.retry&lt;int, UserProfile&gt;(
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

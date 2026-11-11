@@ -79,7 +79,7 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 void removeWhere(bool Function(K key, V value) predicate) =&gt;
-    apply(removeWhere, positionalArguments: [predicate]);</code></pre>
+    dispatch(removeWhere, positionalArguments: [predicate]);</code></pre>
 </section>
 
 
@@ -107,7 +107,7 @@ void removeWhere(bool Function(K key, V value) predicate) =&gt;
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

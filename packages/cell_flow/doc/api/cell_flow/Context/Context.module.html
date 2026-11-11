@@ -90,16 +90,6 @@ This aligns with <code>Pulse.type</code> for routing and filtering.</li>
 <li><code>priority</code>: set to <code>10</code> – standard priority for application logic,
 lower than infrastructure (0) but higher than background tasks.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>type</code> parameter is required – it provides the semantic category of
-the module, which is used for routing and policy enforcement.</li>
-<li>The <code>priority</code> of <code>10</code> means these cells execute after core infrastructure
-but before background or telemetry tasks.</li>
-<li>The <code>taxonomy</code> and <code>domains</code> are static pillars – they cannot be evolved.</li>
-<li>If you need to add custom metadata (e.g., feature flags, versioning),
-use the <code>others</code> map.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final paymentContext = Context.module(
   type: 'PaymentEngine',
@@ -177,7 +167,7 @@ feature flags, version tags, or environment‑specific configuration).</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -86,13 +86,6 @@ before giving up.</p>
 <li>The instruction continues with the next input.</li>
 <li>Each emitted value gets the step <code>'AsyncMapWithRetry'</code> for provenance.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Total Attempts</strong>: The operation may run <code>count + 1</code> times.</li>
-<li><strong>No Delay</strong>: Retries are immediate.</li>
-<li><strong>Error Reporting</strong>: Only the final failure is reported.</li>
-<li><strong>Sequential</strong>: Operations run one after another.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -164,7 +157,7 @@ final handle = Flow.asyncMapWithRetry&lt;String, String&gt;(
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -70,14 +70,6 @@ constructor directly.</p>
 <p>The mandate defines what a deputy can do (authority), its identity (role),
 its autonomy (sovereignty), its structural rank (clearance), its temporal
 validity (lease), and its operational guardrails (constraints).</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>Some dimensions are static (immutable) while others are evolvable.</li>
-<li>The <a href="../mitosis/Mandate/evolvable.html">evolvable</a> flag controls whether a dimension can be refined when
-you call <code>evolve()</code> on a <a href="../mitosis/DeputyContext-class.html">DeputyContext</a>.</li>
-<li>Static pillars (like <code>role</code>) prevent identity drift.</li>
-</ul>
-<p>See also: <a href="../mitosis/DeputyContext-class.html">DeputyContext</a>, <a href="../mitosis/Clearance.html">Clearance</a>, <a href="../mitosis/Isolation.html">Isolation</a>, <a href="../mitosis/Sovereignty.html">Sovereignty</a>.</p>
 </section>
 
 
@@ -140,12 +132,6 @@ least privilege at the functional level.</p>
 <p>During the mutual authorization handshake, the framework compares the
 deputy's authority string against the receptor's requirements. If the
 required verb isn't present, the pulse is neutralised.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is an evolvable dimension – a deputy can further restrict its own
-authority when spawning child deputies.</li>
-<li>Multiple verbs can be comma-separated (e.g., <code>'READ, WRITE'</code>).</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <ul>
 <li><code>'PRUNE_EXPIRED_RECORDS'</code> – only allowed to delete stale data.</li>
@@ -180,13 +166,6 @@ policies. It's the semantic identity of the agent.</p>
 <p>The role is used by <code>TestCell</code> rules and monitoring tools to apply
 group‑based policies or filter logs. It is scrutinised during the mutual
 handshake.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is a static pillar – once set, it cannot be changed. This prevents
-"role creep".</li>
-<li>A role like <code>'Auditor'</code> signals diagnostic intent, even if the deputy
-has write authority.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <ul>
 <li><code>'Auditor'</code> – diagnostic, even with write permissions.</li>
@@ -221,11 +200,6 @@ a simulation without affecting production state.</p>
 <li><code>restricted</code>: zero‑trust filtering.</li>
 <li><code>sandboxed</code>: virtualized, no side‑effects.</li>
 <li><code>total</code>: air‑gapped, only ingests.</li>
-</ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is evolvable – a deputy can tighten isolation for child tasks.</li>
-<li><code>sandboxed</code> mutations are not committed to the principal state.</li>
 </ul>
 <h3 id="examples">Examples</h3>
 <ul>
@@ -262,12 +236,6 @@ committed:</p>
 <li><code>sovereign</code>: fully autonomous.</li>
 <li><code>preemptive</code>: can override others for system safety.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is evolvable – a deputy can be promoted (e.g., from supervised to
-sovereign) based on trust.</li>
-<li>High‑sensitivity operations are blocked if sovereignty is insufficient.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <ul>
 <li><code>Sovereignty.supervised</code> – suggests changes, waits for principal.</li>
@@ -298,12 +266,6 @@ changes with <code>observational</code> clearance.</p>
 <p>Clearance is a ranked integer. The framework compares the deputy's
 clearance against the required level for an operation. If it's lower,
 the pulse is neutralised.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is evolvable – a deputy can downgrade clearance for child tasks.</li>
-<li><code>observational</code> blocks all state mutations.</li>
-<li><code>administrative</code> allows structural refactoring.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <ul>
 <li><code>Clearance.observational</code> – read‑only.</li>
@@ -333,12 +295,6 @@ none for high‑frequency telemetry.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The audit level determines how much trace data is preserved. Higher levels
 capture more metadata but cost more performance.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is evolvable – a supervisor can increase audit rigour for risky
-tasks.</li>
-<li>Some high‑integrity cells reject pulses with low audit levels.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <ul>
 <li><code>AuditLevel.full</code> – forensics.</li>
@@ -369,11 +325,6 @@ Explainable AI (XAI).</p>
 <p>The justification is stored as a string and included in the causal trace.
 Receptors can use it to verify that the action aligns with the stated
 mission.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is evolvable – a deputy can refine the justification for sub‑tasks.</li>
-<li>It provides the "why" for forensic analysis.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <ul>
 <li><code>'Optimizing database indices due to high latency.'</code></li>
@@ -403,11 +354,6 @@ resource limits.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The framework checks these constraints in real time during the validation
 phase. If a pulse would exceed a limit, it's neutralised.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is evolvable – a deputy can tighten constraints for child tasks.</li>
-<li>Constraints are enforced at the integrity gate level.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <ul>
 <li><code>{ 'max_hop_count': 5, 'timeout_ms': 500 }</code></li>
@@ -654,7 +600,7 @@ fluid dimensions of the <a href="../mitosis/Mandate.html">Mandate</a> ontology.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -78,20 +78,6 @@ logic blueprints across different cell instances.</li>
 <li><strong>Governance</strong>: When governed, it applies architectural policies and
 forensic trace information.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Flyweight Architecture</strong>: It utilizes a record-based storage
-strategy to pack all pipeline instructions into a single memory block.</li>
-<li><strong>Traceability</strong>: Every propagation step is logged to the pulse's
-metadata, providing full forensic visibility for debugging.</li>
-<li><strong>Thread-Safe Context</strong>: Activation pins the receptor to a specific
-operational perimeter, ensuring state access is always consistent.</li>
-<li><strong>Synchronous Pipeline</strong>: The pipeline executes synchronously. For
-asynchronous execution, use <a href="../cell_flow/ReceptorAsync-class.html">ReceptorAsync</a>.</li>
-<li><strong>Validation Async Support</strong>: While the pipeline is synchronous,
-validation can return a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;bool&gt;</a> for asynchronous validation
-checks. This is the only async operation in the call path.</li>
-</ul>
 <h3 id="type-parameters">Type Parameters:</h3>
 <ul>
 <li><code>C</code>: The type of the host <a href="../cell_flow/Cell-class.html">Cell</a>.</li>
@@ -154,7 +140,7 @@ pre-compiled <a href="https://api.flutter.dev/flutter/dart-core/Record-class.htm
 </dt>
 <dd>
   Returns an asynchronous adapter for this receptor.
-  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
 
@@ -348,7 +334,7 @@ transformation.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

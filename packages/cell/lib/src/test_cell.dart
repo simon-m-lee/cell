@@ -47,14 +47,6 @@ part of '../cell.dart';
 /// - The `+` operator composes rules into a single [TestCell] that evaluates
 ///   them in sequence (short‑circuiting on `false`).
 ///
-/// ### Non‑obvious
-/// - A deputy (created via [Cell.deputy]) gets its own [TestCell], layered
-///   on top of the principal's rule. You can narrow permissions, never widen.
-/// - If a rule throws an exception, the framework treats it as a `true` (pass)
-///   when the host is ungoverned, or `false` (fail) when governed.
-/// - The [TestCell] is a flyweight – many cells can share the same policy
-///   instance without extra memory.
-///
 /// ### Example: A complete policy
 /// ```dart
 /// final rangeRule = TestCell<int>((value, ...) => value >= 0 && value <= 100);
@@ -74,6 +66,25 @@ part of '../cell.dart';
 ///   custom validation policies and integrity gates.
 ///
 /// {@category Testing & Validation}
+///
+/// ### AI Agent Guide
+/// **Layer:** Cell — the integrity gate for Cell nodes. Not an operator (Flow), not a book (Tissue).
+/// **When to use:** `testRule: TestCell(...)` on **ingress / state / toHandle** only, when a BRD quality rule names that field.
+/// **When NOT to use:**
+///   {@macro ai-do-not-testcell-on-tissue}
+/// **Live signature:** `TestCell<C extends Cell>(...)` — chain with `+`; `TestCell.allowAll` / `TestCell.readOnly` constants — pinned at `cell: 1.1.0`
+/// **Do NOT confuse with:** `TestTissue` (`cell_tissue`, for Tissue books). They are not subtypes.
+/// **Guide:** `guide/HowTo-TestCell.md` (integrity gates)
+/// **Example:** `example/ingress_demo.dart`
+/// **Cross-layer:** every Tissue book takes `TestTissue`, never `TestCell`.
+/// **Minimal compilable example**
+/// ```dart
+/// final gate = TestCell((v, {arguments, host, user}) => v is int && v >= 0);
+/// final c = Cell.ingress<int>(testRule: gate);
+/// c.emit(1);
+/// c.emit(-1); // rejected by the gate
+/// print('ok');
+/// ```
 class TestCell<C extends Cell> extends TestRule<C>
     implements TestActionRule<C>, TestLinkRule<C>, TestPulseRule<C> {
   /// A policy that allows everything – the default.
@@ -86,19 +97,13 @@ class TestCell<C extends Cell> extends TestRule<C>
   /// ```
   static const allowAll = TestPasses();
 
-  /// A policy that blocks all mutations – read‑only.
+  /// A policy that blocks mutations through the [Cell.apply] gateway –
+  /// read‑only.
   ///
-  /// Use this to create a view that can observe but not change state.
+  /// Use this to create a view that can observe but not change state through
+  /// whitelisted actions.
   ///
-  /// ```dart
-  /// final data = ValueCell<int>(value: 42);
-  /// final readOnly = data.deputy(testRule: TestCell.readOnly);
-  /// print(readOnly.value); // 42
-  /// // readOnly.emit(100); // blocked
-  /// ```
-  ///
-  /// See also [allowAll].
-  static const readOnly = _TestCellReadOnly();
+  static const readOnly = _TestCellReadOnly<Cell>();
 
   // ignore: prefer_typing_uninitialized_variables, strict_top_level_inference
   final _record;
@@ -176,12 +181,6 @@ class TestCell<C extends Cell> extends TestRule<C>
   ///   (e.g., "at least one of these rules must pass").
   /// - The [parent] link continues the chain after the local rules.
   ///
-  /// ### Non‑obvious
-  /// - If a rule returns a `Future`, the chain automatically becomes
-  ///   asynchronous and waits for it.
-  /// - The default strategy is **fail‑fast** – any rule returning `false`
-  ///   stops the pipeline immediately.
-  ///
   /// ### Example
   /// ```dart
   /// final policy = TestCell.chain([
@@ -227,7 +226,13 @@ class TestCell<C extends Cell> extends TestRule<C>
                 : user != null
                     ? (rules: rules, rule: strategy, user: user)
                     : (rules: rules, rule: strategy)
-            : (rules: rules));
+            : parent != null
+                ? user != null
+                    ? (rules: rules, parent: parent, user: user)
+                    : (rules: rules, parent: parent)
+                : user != null
+                    ? (rules: rules, user: user)
+                    : (rules: rules));
 
   /// Creates a [TestCell] instance directly from a raw [Record] blueprint.
   ///
@@ -244,10 +249,6 @@ class TestCell<C extends Cell> extends TestRule<C>
   /// the normal parameter validation. This is a performance optimisation for
   /// cases where the record is already known to be valid.
   ///
-  /// ### Non‑obvious
-  /// - The record's shape is internal; don't rely on it.
-  /// - This constructor is used by the `+` operator and by deputies
-  ///   to efficiently compose rules.
   const TestCell.fromRecord(super.record)
       : _record = record,
         super.fromRecord();
@@ -268,13 +269,8 @@ class TestCell<C extends Cell> extends TestRule<C>
   /// - It evaluates the local rules (and optionally a custom [strategy]).
   /// - If all pass, it delegates to the [TestCell.parent] (if any).
   /// - If a rule returns a `Future`, it waits for it.
-  /// - If an exception occurs and the host is governed, the validation fails
-  ///   (returns `false`); if ungoverned, it passes (`true`).
-  ///
-  /// ### Non‑obvious
-  /// - The exception handling differs between governed and ungoverned cells
-  ///   to avoid breaking the system when policies are misconfigured.
-  /// - The `arguments` parameter is only used for action validation.
+  /// - If a rule throws, the validation **fails closed** and returns
+  ///   `false` — a throwing integrity gate must never authorize anything.
   ///
   /// ### Parameters:
   /// - [object]: The data, signal, or state change candidate being verified.
@@ -287,10 +283,20 @@ class TestCell<C extends Cell> extends TestRule<C>
   @override
   FutureOr<bool> call(dynamic object, {covariant C? host, dynamic arguments}) {
     try {
-      return super.call(object, host: host, arguments: arguments);
+      final result = super.call(object, host: host, arguments: arguments);
+      if (result is Future<bool>) {
+        // The sync try/catch above cannot see exceptions thrown inside an
+        // async rule — the rejection lands in the future. An integrity
+        // gate fails CLOSED on a throwing rule, governed host or not.
+        return result.catchError((Object e, StackTrace st) {
+          if (e is! Exception) return Error.throwWithStackTrace(e, st);
+          return false;
+        });
+      }
+      return result;
     } on Exception {
-      if (host != null && host.isGoverned) return false;
-      return true;
+      // Fail closed: a throwing rule must never authorize an operation.
+      return false;
     }
   }
 
@@ -345,15 +351,6 @@ class TestCell<C extends Cell> extends TestRule<C>
   /// 4. **Short‑Circuit**: If any validation returns `false`, the whole
   ///    action is rejected.
   ///
-  /// ### Non‑obvious
-  /// - The arguments are validated using the same `call()` method, so they
-  ///   can be subject to the same policies as state changes.
-  /// - The [TestActionRule]s are only those that are explicitly added via
-  ///   `TestActionRule` instances; other rules are ignored for action
-  ///   validation.
-  /// - The method returns `FutureOr<bool>`, so it can be synchronous or
-  ///   asynchronous depending on the rules.
-  ///
   /// ### Example
   /// ```dart
   /// final policy = TestCell<Cell>((object, {host, arguments, user}) {
@@ -378,7 +375,7 @@ class TestCell<C extends Cell> extends TestRule<C>
   /// `true` if the action is authorized; `false` otherwise.
   @override
   FutureOr<bool> action(Function action,
-      {required C host, Arguments? arguments}) {
+      {required C host, Arguments? arguments, ApplyCommand? command}) {
     // Phase A: Argument Integrity
     if (arguments != null) {
       final elements = [
@@ -394,7 +391,7 @@ class TestCell<C extends Cell> extends TestRule<C>
       if (argResult is Future<bool>) {
         return argResult.then((passed) {
           if (!passed) return false;
-          return _checkActionRules(action, host, arguments);
+          return _checkActionRules(action, host, arguments, command);
         });
       }
 
@@ -402,7 +399,7 @@ class TestCell<C extends Cell> extends TestRule<C>
     }
 
     // Phase B: Action Specialization
-    return _checkActionRules(action, host, arguments);
+    return _checkActionRules(action, host, arguments, command);
   }
 
   /// Internal recursive evaluator for argument integrity that handles FutureOr branching.
@@ -425,13 +422,29 @@ class TestCell<C extends Cell> extends TestRule<C>
 
   /// Internal evaluator for TestActionRules that handles FutureOr branching and parent delegation.
   FutureOr<bool> _checkActionRules(
-      Function action, C host, Arguments? arguments) {
-    final rules = _rules.whereType<TestActionRule<C>>().toList();
+      Function action, C host, Arguments? arguments, ApplyCommand? command) {
+    // Specialized [TestActionRule]s receive the action (and the surrounding
+    // ApplyCommand) through `action(...)`. Every OTHER rule is consulted
+    // generically with the action object — mirroring `_checkArguments`,
+    // which invokes the full chain for each argument. Without this, the
+    // Function-checking branch of a generic rule in a composed policy is
+    // silently skipped during action validation.
+    final rules = _rules.toList();
 
     FutureOr<bool> runRules(int index) {
       for (var i = index; i < rules.length; i++) {
-        final result =
-            rules[i].action(action, host: host, arguments: arguments);
+        final rule = rules[i];
+        // `TestCell` implements every specialized rule interface, so a
+        // runtime `is TestActionRule` check cannot tell the two apart.
+        // Nested TestCells go through `call` (which evaluates their
+        // generic rule with the action object); only true TestActionRule
+        // instances use the specialized path.
+        final result = rule is TestCell<C>
+            ? rule.call(action, host: host, arguments: arguments)
+            : rule is TestActionRule<C>
+                ? rule.action(action,
+                    host: host, arguments: arguments, command: command)
+                : rule.call(action, host: host, arguments: arguments);
 
         if (result is Future<bool>) {
           return result.then((passed) {
@@ -444,7 +457,9 @@ class TestCell<C extends Cell> extends TestRule<C>
       }
 
       // All local rules passed, delegate to parent
-      return _parent?.action(action, host: host, arguments: arguments) ?? true;
+      return _parent?.action(action,
+              host: host, arguments: arguments, command: command) ??
+          true;
     }
 
     return runRules(0);
@@ -468,12 +483,6 @@ class TestCell<C extends Cell> extends TestRule<C>
   /// 2. Each rule is given the candidate link and the host.
   /// 3. If any rule returns `false`, the link is rejected.
   /// 4. If all pass, it delegates to the [TestCell.parent].
-  ///
-  /// ### Non‑obvious
-  /// - The link rule is only evaluated for `Cell` objects – other objects
-  ///   always pass.
-  /// - This validation occurs **before** the link is added to the synapses
-  ///   registry, so a rejected link never becomes visible.
   ///
   /// ### Example
   /// ```dart
@@ -510,7 +519,13 @@ class TestCell<C extends Cell> extends TestRule<C>
 
     FutureOr<bool> runRules(int index) {
       for (var i = index; i < rules.length; i++) {
-        final result = rules[i].link(link, host: host);
+        final rule = rules[i];
+        // Nested TestCells implement TestLinkRule, so dispatch them through
+        // `call` — their generic rule must see the link object. Only true
+        // TestLinkRule instances use the specialized path.
+        final result = rule is TestCell<C>
+            ? rule.call(link, host: host)
+            : rule.link(link, host: host);
 
         if (result is Future<bool>) {
           return result.then((passed) {
@@ -548,49 +563,6 @@ class TestCell<C extends Cell> extends TestRule<C>
   /// 3. If any rule returns `false`, the pulse is dropped.
   /// 4. If all pass, it delegates to the [TestCell.parent].
   ///
-  /// ### Non‑obvious
-  /// - The pulse validation is the first gate a pulse meets – it happens
-  ///   before the pulse reaches the receptor's transformation logic.
-  /// - Rules can inspect the pulse's context, type, and payload to make
-  ///   authorisation decisions.
-  /// - If a rule returns a `Future`, the pulse processing is suspended
-  ///   until the rule completes.
-  ///
-  /// Example
-  /// ```dart
-  /// final policy = TestCell<Cell>((object, {host, arguments, user}) {
-  ///   if (object is Pulse) {
-  ///     // Only accept pulses with priority > 50
-  ///     return object.priority > 50;
-  ///   }
-  ///   return true;
-  /// });
-  ///
-  /// // Pulse Validation
-  /// final pulsePolicy = TestCell<Cell>((object, {host, arguments, user}) {
-  ///   if (object is Pulse) {
-  ///     final ctx = object.context;
-  ///     // Only accept pulses from admin actors
-  ///     return ctx.actor == 'admin';
-  ///   }
-  ///   return true;
-  /// });
-  ///
-  /// final cell = Cell(testRule: pulsePolicy);
-  ///
-  /// // Allowed pulse
-  /// final adminPulse = Pulse.governed<int>(
-  ///   context: PulseContext(actor: 'admin'),
-  /// );
-  /// cell._nucleus.receptor(adminPulse); // Accepted
-  ///
-  /// // Blocked pulse
-  /// final userPulse = Pulse.governed<int>(
-  ///   context: PulseContext(actor: 'user'),
-  /// );
-  /// cell._nucleus.receptor(userPulse); // Rejected
-  /// ```
-  ///
   /// ### Parameters:
   /// - [pulse]: The incoming [Pulse] to be validated.
   /// - [host]: The target [Cell] that will process the pulse if accepted.
@@ -603,7 +575,13 @@ class TestCell<C extends Cell> extends TestRule<C>
 
     FutureOr<bool> runRules(int index) {
       for (var i = index; i < rules.length; i++) {
-        final result = rules[i].pulse(pulse, host: host);
+        final rule = rules[i];
+        // Nested TestCells implement TestPulseRule, so dispatch them through
+        // `call` — their generic rule must see the pulse object. Only true
+        // TestPulseRule instances use the specialized path.
+        final result = rule is TestCell<C>
+            ? rule.call(pulse, host: host)
+            : rule.pulse(pulse, host: host);
 
         if (result is Future<bool>) {
           return result.then((passed) {
@@ -638,13 +616,6 @@ class TestCell<C extends Cell> extends TestRule<C>
   /// The operator creates a new [TestCell] that evaluates the `other` rule
   /// first, and if that passes, evaluates `this` rule next (as the parent).
   /// This creates a left‑to‑right chain where all rules must pass.
-  ///
-  /// ### Non‑obvious
-  /// - The order matters: `ruleA + ruleB` means ruleA is evaluated first,
-  ///   then ruleB. If ruleA fails, ruleB is never called.
-  /// - The resulting chain is still a [TestCell] and can be further composed.
-  /// - The `other` rule is wrapped as the "first" rule, and `this` becomes
-  ///   its parent, so the evaluation order is `other` then `this`.
   ///
   /// ### Example
   /// ```dart
@@ -707,12 +678,6 @@ class TestPulseRule<C extends Cell> extends TestRule<C> {
   /// ### How it works
   /// The rule is wrapped into a generic [TestRule] that only triggers if
   /// the object is a [Pulse] and the host is non‑null.
-  ///
-  /// ### Non‑obvious
-  /// - The rule receives the `host` cell, which you can use to check the
-  ///   cell's context or state.
-  /// - The optional [parent] allows chaining to another pulse rule.
-  /// - The [user] parameter can carry configuration data to the rule.
   ///
   /// ### Example
   /// ```dart
@@ -788,12 +753,6 @@ class TestPulseRule<C extends Cell> extends TestRule<C> {
   /// It delegates to the base `call` method, which handles the actual rule
   /// evaluation and parent delegation.
   ///
-  /// ### Non‑obvious
-  /// - The method returns `FutureOr<bool>`, so it can be synchronous or
-  ///   asynchronous depending on the rule implementation.
-  /// - The `host` is required; if it's `null`, the validation passes
-  ///   (safety default).
-  ///
   /// ### Parameters:
   /// - [pulse]: The [Pulse] instance being validated.
   /// - [host]: The [Cell] that is the intended destination.
@@ -824,13 +783,6 @@ class TestPulseRule<C extends Cell> extends TestRule<C> {
 /// - The [rule] function receives the candidate link cell, the host cell,
 ///   and optional user data.
 /// - Return `true` to allow the link, `false` to block it.
-///
-/// ### Non‑obvious
-/// - The rule is only evaluated for [Cell] objects; other objects are
-///   automatically allowed.
-/// - The rule can be asynchronous; if it returns a `Future<bool>`, the link
-///   establishment waits for it.
-/// - This rule is composable with other [TestRule]s via `+`.
 ///
 /// ### Example
 /// ```dart
@@ -903,11 +855,6 @@ class TestLinkRule<C extends Cell> extends TestRule<C> {
   /// The provided [rule] function is called whenever a link is attempted.
   /// It receives the candidate link, the host cell, and optional user data.
   ///
-  /// ### Non‑obvious
-  /// - The rule is only called when the object being validated is a [Cell].
-  /// - The `host` is the cell that owns the synapses, not the candidate.
-  /// - The optional [parent] allows chaining with another link rule.
-  ///
   /// ### Example
   /// ```dart
   /// final domainRule = TestLinkRule<Cell>((link, {host, user}) {
@@ -943,11 +890,6 @@ class TestLinkRule<C extends Cell> extends TestRule<C> {
   /// It delegates to the base `call` method, which evaluates the rule and
   /// parent chain.
   ///
-  /// ### Non‑obvious
-  /// - The method returns `FutureOr<bool>`, so it can be sync or async.
-  /// - The `host` is required; if `null`, the validation passes.
-  /// - The `link` parameter is the cell that wants to observe the host.
-  ///
   /// ### Parameters:
   /// - [link]: The candidate [Cell] attempting to establish a dependency.
   /// - [host]: The target [Cell] that would be observed.
@@ -979,14 +921,6 @@ class TestLinkRule<C extends Cell> extends TestRule<C> {
 /// - The [rule] function receives the action (a [Function]), the host cell,
 ///   the arguments (positional and named), and optional user data.
 /// - Return `true` to allow the action, `false` to block it.
-///
-/// ### Non‑obvious
-/// - The rule is only evaluated for [Function] objects; other objects are
-///   automatically allowed.
-/// - The rule can inspect the arguments to enforce parameter constraints.
-/// - The rule can be asynchronous; if it returns a `Future<bool>`, the
-///   action is delayed until the rule completes.
-/// - This rule is composable with other [TestRule]s via `+`.
 ///
 /// ### Example
 /// ```dart
@@ -1050,12 +984,6 @@ class TestActionRule<C extends Cell> extends TestRule<C> {
   /// The provided [rule] function is called whenever [Cell.apply] is invoked.
   /// It receives the action, the host, the arguments, and optional user data.
   ///
-  /// ### Non‑obvious
-  /// - The rule is only called when the object being validated is a [Function].
-  /// - The `arguments` parameter (of type [Arguments]) contains both positional
-  ///   and named arguments; you can validate them individually.
-  /// - The optional [parent] allows chaining with another action rule.
-  ///
   /// ### Example
   /// ```dart
   /// final actionRule = TestActionRule<Cell>((action, {host, arguments, user}) {
@@ -1099,11 +1027,6 @@ class TestActionRule<C extends Cell> extends TestRule<C> {
   /// It delegates to the base `call` method, which evaluates the rule and
   /// parent chain.
   ///
-  /// ### Non‑obvious
-  /// - The method returns `FutureOr<bool>`, so it can be sync or async.
-  /// - The `host` is required; if `null`, the validation passes.
-  /// - The `arguments` can be inspected to enforce parameter constraints.
-  ///
   /// ### Parameters:
   /// - [action]: The [Function] being requested.
   /// - [host]: The [Cell] on which the action is to be performed.
@@ -1112,7 +1035,7 @@ class TestActionRule<C extends Cell> extends TestRule<C> {
   /// ### Returns:
   /// `true` if the action is authorized; `false` otherwise.
   FutureOr<bool> action(Function action,
-      {required C host, Arguments? arguments}) {
+      {required C host, Arguments? arguments, ApplyCommand? command}) {
     return call(action, host: host, arguments: arguments);
   }
 }

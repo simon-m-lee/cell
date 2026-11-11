@@ -85,13 +85,6 @@ sequential execution, allowing you to implement more complex logic
 (e.g., "at least one of these rules must pass").</li>
 <li>The <code>parent</code> link continues the chain after the local rules.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>If a rule returns a <code>Future</code>, the chain automatically becomes
-asynchronous and waits for it.</li>
-<li>The default strategy is <strong>fail‑fast</strong> – any rule returning <code>false</code>
-stops the pipeline immediately.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final policy = TestCell.chain([
   isPositive,
@@ -143,7 +136,13 @@ is bypassed.</li>
               : user != null
                   ? (rules: rules, rule: strategy, user: user)
                   : (rules: rules, rule: strategy)
-          : (rules: rules));</code></pre>
+          : parent != null
+              ? user != null
+                  ? (rules: rules, parent: parent, user: user)
+                  : (rules: rules, parent: parent)
+              : user != null
+                  ? (rules: rules, user: user)
+                  : (rules: rules));</code></pre>
 </section>
 
 
@@ -171,7 +170,7 @@ is bypassed.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

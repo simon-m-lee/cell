@@ -75,18 +75,6 @@ well-formed reply. The parsers in <code>HttpInterpreter._parse</code> and
 <code>StubInterpreter._parseEnvelope</code> guarantee this; the instruction
 tolerates the edge case where both are null by synthesising a
 <code>Reject(reason: 'empty-reply')</code>.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<ul>
-<li><strong>Why a record.</strong> A Dart record <code>({command, reject})</code> is
-immutable, cheap to allocate, and pattern-matchable. A sealed
-class hierarchy would be slightly more type-safe but heavier
-at the call site. The demo's filter matches on
-<code>v is TissueCommand</code> and <code>v is Reject</code> directly, so the record
-serves the same purpose with less ceremony.</li>
-<li><strong>Both null is possible.</strong> A misbehaving port may return
-<code>(command: null, reject: null)</code>. The instruction synthesises a
-Reject so the pipeline stays well-formed.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final reply = await interpreter.complete(
   text: 'add 3',
@@ -130,7 +118,7 @@ if (reply.command != null) {
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

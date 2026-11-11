@@ -79,22 +79,6 @@ is not to build a robust NLU; it is to show the seam between
 interpretation and dispatch. A live model would be far more
 forgiving with phrasing; the stub is deliberately not, so the
 demo's console output is deterministic.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<ul>
-<li><strong>The stub honours the verb set.</strong> If the caller excludes a
-verb, the stub will not return it, and the sentence falls
-through to the <code>reject</code> case. That is how the demo proves
-the closed-vocabulary contract works even in offline mode.</li>
-<li><strong>The stub prints synthetic traffic.</strong> Every <code>complete</code> call
-logs a system prompt, a synthetic request body, and a
-synthetic OpenAI-shaped response body, so the console output
-is identical in structure whether the demo is running
-offline or live.</li>
-<li><strong><code>latency</code> is configurable.</strong> The default is 1ms so the
-async pipeline is exercised. Set to <a href="https://api.flutter.dev/flutter/dart-core/Duration/zero-constant.html">Duration.zero</a> in the
-production-shaped demo so the console output is
-deterministic.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final stub = StubInterpreter(latency: Duration.zero);
 
@@ -348,7 +332,7 @@ print(reply.command!.args);       // [3]
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

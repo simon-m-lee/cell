@@ -61,6 +61,11 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Captures the current buffer position as a rollback target.</p>
+<p>The returned object is opaque and must be passed to <a href="../../mitosis/ApplyTransactionScope/rollback.html">rollback</a> on the
+<strong>same</strong> scope. Passing it to another scope raises <a href="https://api.flutter.dev/flutter/dart-core/ArgumentError-class.html">ArgumentError</a>.</p>
+</section>
 
 
     
@@ -94,7 +99,7 @@
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

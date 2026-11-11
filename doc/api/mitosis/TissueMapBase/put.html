@@ -69,11 +69,11 @@
     </section>
     
 <section class="desc markdown">
-  <p>Upserts the <code>key</code>/<code>value</code> pair through the reactive <a href="../../mitosis/TissueMapMixin/apply.html">apply</a> gateway.</p>
+  <p>Upserts the <code>key</code>/<code>value</code> pair through the reactive <a href="../../mitosis/TissueBase/apply.html">apply</a> gateway.</p>
 <p>Replaces the value of an existing key (emitting <code>Tissue.entryUpdated</code>)
 or inserts a new entry (emitting <code>Tissue.elementAdded</code>). This is the
 named counterpart of the <code>[]=</code> operator and the whitelisted "set"
-command for <a href="../../mitosis/TissueMapMixin/apply.html">apply</a>/<a href="../../mitosis/TissueMapMixin/modifiable.html">modifiable</a>.</p>
+command for <a href="../../mitosis/TissueBase/apply.html">apply</a>/<a href="../../mitosis/TissueMapMixin/modifiable.html">modifiable</a>.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>key</code>: The key to associate.</li>
@@ -86,7 +86,7 @@ command for <a href="../../mitosis/TissueMapMixin/apply.html">apply</a>/<a href=
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-void put(K key, V value) =&gt; apply(put, positionalArguments: [key, value]);</code></pre>
+void put(K key, V value) =&gt; dispatch(put, positionalArguments: [key, value]);</code></pre>
 </section>
 
 
@@ -114,7 +114,7 @@ void put(K key, V value) =&gt; apply(put, positionalArguments: [key, value]);</c
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

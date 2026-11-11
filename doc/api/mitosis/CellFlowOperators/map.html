@@ -90,15 +90,6 @@ synchronously with the pulse payload.</li>
 in a new pulse, inheriting the <strong>Provenance</strong> of the original
 trigger and tagged with the <code>'Map'</code> step.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Synchronous Integrity</strong>: The projection occurs within the same
-execution frame as the ingress. Heavy logic here will block the
-reactive engine's evolution cycle.</li>
-<li><strong>Type Integrity</strong>: If the projection throws an error, the
-evolution is aborted, and the error is routed to the <code>onError</code>
-orchestrator.</li>
-</ul>
 <h3 id="type-parameters">Type Parameters</h3>
 <ul>
 <li><code>S</code>: <strong>Source Stimulus Type</strong>. The type of the payload arriving
@@ -157,7 +148,7 @@ violates topographical integrity.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

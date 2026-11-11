@@ -74,16 +74,6 @@ For multiple rules, compose them with <code>+</code> or use <a href="../../mitos
 the object being validated (element, pulse, or function), the host
 collection, optional arguments, and optional user data. Return <code>true</code> to
 allow, <code>false</code> to block.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>rule</code> is polymorphic – it can handle elements (for membership),
-functions (for actions), and pulses (for signals). The framework
-routes the call appropriately.</li>
-<li>If the <code>rule</code> throws an exception, the behaviour depends on whether
-the host is governed (fail) or ungoverned (pass).</li>
-<li>The optional <code>parent</code> allows policy inheritance – the parent rule is
-checked after this rule (if this rule passes).</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final positiveRule = TestTissue&lt;int, TissueList&lt;int&gt;&gt;(
   (value, {host, ...}) =&gt; value &gt; 0,
@@ -106,14 +96,18 @@ final policy = positiveRule + adminRule;
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">const TestTissue(
-    FutureOr&lt;bool&gt; Function(dynamic object, {C? host, dynamic arguments, dynamic user}) rule, {
-      TestTissue&lt;E, C&gt;? parent,
-      dynamic user
-    }) : this.fromRecord(parent != null
+    FutureOr&lt;bool&gt; Function(dynamic object,
+            {C? host, dynamic arguments, dynamic user})
+        rule,
+    {TestTissue&lt;E, C&gt;? parent,
+    dynamic user})
+    : this.fromRecord(parent != null
           ? user != null
               ? (rule: rule, parent: parent, user: user)
               : (rule: rule, parent: parent)
-          : (rule: rule));</code></pre>
+          : user != null
+              ? (rule: rule, user: user)
+              : (rule: rule));</code></pre>
 </section>
 
 
@@ -141,7 +135,7 @@ final policy = positiveRule + adminRule;
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

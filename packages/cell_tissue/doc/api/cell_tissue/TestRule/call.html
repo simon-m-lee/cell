@@ -93,17 +93,6 @@ global invariants are maintained.</li>
 complete at native speed, while asynchronous checks (e.g., DB lookups)
 safely suspend the reactive wave until completion.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Fail-Safe Resilience</strong>: Unhandled exceptions within a validator are
-caught by the framework and treated as a <strong>Pass</strong> (<code>true</code>) to prevent
-a single faulty rule from paralyzing the reactive system.</li>
-<li><strong>Execution Context</strong>: The <code>host</code> and <code>arguments</code> parameters provide
-causal metadata, allowing rules to make decisions based on <em>who</em> or
-<em>what</em> triggered the update.</li>
-<li><strong>Atomicity</strong>: When called via a <a href="../../cell_tissue/Cell-class.html">Cell</a>, this method is automatically
-protected by the node's conactive lock.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final ageRule = TestRule&lt;int&gt;((val, {host, arguments, user}) =&gt; val &gt;= 18);
 
@@ -167,7 +156,13 @@ by policy, and <code>false</code> indicates it is <strong>Rejected</strong>.</p>
         return parent.call(object, host: host, arguments: arguments);
       });
     }
-    return result.catchError((e) =&gt; e);
+    &#47;&#47; Re-throw the original error so `TestCell.call`&#39;s exception handler
+    &#47;&#47; treats async failures uniformly with the sync path. Returning the
+    &#47;&#47; caught error here (`catchError((e) =&gt; e)`) resolves the future with
+    &#47;&#47; an Object instead of a bool, producing a TypeError in the caller.
+    return result.then((value) =&gt; value,
+        onError: (Object e, StackTrace st) =&gt;
+            Error.throwWithStackTrace(e, st));
   } else if (!result) {
     return false;
   }
@@ -202,7 +197,7 @@ by policy, and <code>false</code> indicates it is <strong>Rejected</strong>.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

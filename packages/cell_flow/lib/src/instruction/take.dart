@@ -68,9 +68,6 @@ Pulse _mark(Pulse pulse, String step) => pulse.withStep(step);
 /// ### Fields:
 /// - [open]: Whether the gate is open (values can pass through).
 ///
-/// ### Non‑obvious
-/// - **Stateful**: The flag persists across pulses.
-/// - **Once Closed**: The flag is typically set once and never reopened.
 class _OpenState {
   bool open = true;
 }
@@ -126,16 +123,6 @@ class _OpenState {
 ///    pulses are dropped.
 /// 5. Results are emitted in input order.
 /// 6. Each emitted value gets the step `'Take'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Terminal State**: Once the count is reached, the stream closes.
-/// - **State Persistence**: The instruction maintains a counter.
-/// - **Order Preservation**: Results are emitted in the same order as inputs.
-/// - **No Completion Signal**: The source cell is not completed.
-/// - **Error Handling**: Type errors are reported via [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Memory Efficiency**: Only an integer counter is stored.
-/// - **Count Zero**: If [count] is 0, no values are emitted.
 ///
 /// ### Example: Take First 3 Values
 /// ```dart
@@ -211,8 +198,8 @@ class Take<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     int count, {
     TakeErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             var remaining = count < 0 ? 0 : count;
             return (pulse, {cell, user}) {
               if (remaining <= 0) return null;
@@ -221,7 +208,7 @@ class Take<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               remaining--;
               return _mark(typed, 'Take');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -265,16 +252,6 @@ class Take<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 6. Results are emitted in input order.
 /// 7. Success emissions get the step `'TakeWhile'`.
 /// 8. Inclusive emissions get the step `'TakeWhile.inclusive'`.
-///
-/// ### Non‑obvious
-/// - **Terminal State**: Once the predicate returns `false`, the stream
-///   closes and no further values are emitted.
-/// - **Inclusive Mode**: The failing value can be included with [inclusive].
-/// - **State Persistence**: The instruction maintains an `open` flag.
-/// - **Order Preservation**: Results are emitted in the same order as inputs.
-/// - **Error Handling**: Errors in the predicate close the stream.
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Memory Efficiency**: Only a boolean flag is stored.
 ///
 /// ### Example: Take Until Value >= 5
 /// ```dart
@@ -363,8 +340,8 @@ class TakeWhile<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool inclusive = false,
     TakeErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             var open = true;
             return (pulse, {cell, user}) {
               if (!open) return null;
@@ -383,7 +360,7 @@ class TakeWhile<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               open = false;
               return inclusive ? _mark(typed, 'TakeWhile.inclusive') : null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -416,14 +393,6 @@ class TakeWhile<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. When the [notifier] emits a value, the stream closes.
 /// 4. After the notifier emits, all subsequent source values are dropped.
 /// 5. Each emitted value gets the step `'TakeUntil'` for provenance.
-///
-/// ### Non‑obvious
-/// - **State**: The instruction maintains an `open` flag.
-/// - **Once Closed**: The stream cannot be opened again.
-/// - **First Value**: The notifier's value is not passed through.
-/// - **Memory Efficiency**: Only a boolean flag is stored.
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Notifier Observation**: The notifier is observed once and persists.
 ///
 /// ### Example: Take Until Stop
 /// ```dart
@@ -494,22 +463,31 @@ class TakeUntil<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Cell notifier, {
     TakeErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             final state = _OpenState();
-            Cell.observe(
+            Cell? host;
+            late final dynamic obs;
+            obs = Cell.observe(
               source: notifier,
               effect: (Pulse _) {
+                // Lifecycle: stop the observer once the handle is dead.
+                if ((host != null && host!.isInvalidated) ||
+                    notifier.isInvalidated) {
+                  obs.stop();
+                  return;
+                }
                 state.open = false;
               },
             );
             return (pulse, {cell, user}) {
+              host = cell;
               if (!state.open) return null;
               final typed = _typedOrError<S>(pulse, onError: onError);
               if (typed == null) return null;
               return _mark(typed, 'TakeUntil');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -542,14 +520,6 @@ class TakeUntil<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. When the timer expires, the stream closes.
 /// 4. All subsequent values are dropped.
 /// 5. Each emitted value gets the step `'TakeUntilTime'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Timer**: The timer starts on the first pulse, not at creation.
-/// - **Once Closed**: The stream cannot be opened again.
-/// - **Time Window**: There is a limited time window for values.
-/// - **Memory Efficiency**: Only a timer and flag are stored.
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Timer Cleanup**: The timer is automatically cleaned up.
 ///
 /// ### Example: Take First 40ms of Values
 /// ```dart
@@ -620,23 +590,26 @@ class TakeUntilTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Duration duration, {
     TakeErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             final state = _OpenState();
             var armed = false;
             return (pulse, {cell, user}) {
+              // A dead handle must not arm timers or mutate state.
+              if (cell != null && cell.isInvalidated) return null;
               final typed = _typedOrError<S>(pulse, onError: onError);
               if (typed == null) return null;
               if (!armed) {
                 armed = true;
                 Timer(duration, () {
+                  if (cell != null && cell.isInvalidated) return;
                   state.open = false;
                 });
               }
               if (!state.open) return null;
               return _mark(typed, 'TakeUntilTime');
             };
-          })(),
+          },
           user: user,
         );
 }

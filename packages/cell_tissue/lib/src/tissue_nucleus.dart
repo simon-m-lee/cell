@@ -46,20 +46,6 @@ part of '../cell_tissue.dart';
 /// - The nucleus is a **flyweight** – many tissues can share the same nucleus
 ///   without duplicating memory.
 ///
-/// ### Non‑obvious
-/// - The [container] getter returns the **live** physical storage instance.
-///   It is resolved lazily and is shared across all deputies of the same
-///   principal.
-/// - The [containerType] is **structural** – it is fixed at creation and
-///   inherited by all deputies. You cannot change a List into a Set through
-///   a deputy.
-/// - The [clone] getter creates a fresh copy of the nucleus with its own
-///   [Lock] and [Synapses]. This is used internally to avoid sharing locks
-///   when a nucleus is already activated.
-/// - The `principal` chain allows hierarchical inheritance – a deputy nucleus
-///   can override only specific properties (like `testRule`) while inheriting
-///   the rest from its principal.
-///
 /// ### Example: Reusing a validated nucleus
 /// ```dart
 /// final validNucleus = TissueNucleus.create<int, List<int>, TissueList<int>>(
@@ -100,15 +86,6 @@ abstract interface class TissueNucleus<E> implements Nucleus {
   /// - The resulting nucleus can be used to instantiate multiple tissues that
   ///   share the same logic but hold separate data.
   ///
-  /// ### Non‑obvious
-  /// - If you omit the [testRule], it defaults to [TestTissue.allowAll] – no
-  ///   restrictions.
-  /// - The [receptor] defaults to [TissueReceptor.passThrough] – mutations are
-  ///   applied directly.
-  /// - The [context] defaults to [Context.system] – system‑level authority.
-  /// - The [synapses] default to [Synapses.enabled] – observers receive pulses.
-  /// - The [container] must be specified – there is no default container type.
-  ///
   /// ### Parameters:
   /// - [bind]: Optional upstream [Cell] to observe.
   /// - [context]: Operational environment (default: [Context.system]).
@@ -131,77 +108,77 @@ abstract interface class TissueNucleus<E> implements Nucleus {
       EphemeralPolicy? ephemeralPolicy,
       Record? user}) = _TissueNucleus<E, Iterable<E>, Tissue<E>>;
 
-  /// Creates a derived [TissueNucleus] by mutating or extending
-  /// an existing [principal] configuration.
+  /// Creates a specialized **Architectural Extension** of an existing [TissueNucleus]
+  /// to support hierarchical property inheritance and contextual overrides for collections.
   ///
   /// This factory is the primary architectural implementation of **Prototypal
   /// Inheritance** and **Behavioural Shadowing** within the collection ecosystem.
-  /// It allows for the creation of specialised "Deputy" configurations that
-  /// logically inherit the structural DNA and baseline rules of a [principal]
-  /// while selectively overriding specific operational traits.
+  /// In the framework's biological meta-language, it creates a **Deputy**
+  /// configuration that inherits the structural "DNA" and baseline rules of a
+  /// [principal] while selectively applying directed **Genetic Mutations**.
   ///
   /// ### When to use
-  /// This is the engine behind the `deputy()` method on [Tissue]. You
-  /// rarely call it directly. Use it when you need a restricted view of a
-  /// collection that shares the same storage but applies different validation
-  /// or context.
+  /// - **Access Control**: Creating a restricted "Read-Only" view of a shared
+  ///   storage pool by overriding the [testRule].
+  /// - **Contextual Isolation**: Moving a collection into a different [Context]
+  ///   (e.g., from `background` to `ui`) to change its processing priority.
+  /// - **Transformation Overrides**: Swapping a [receptor] to apply different
+  ///   mutation logic to the same underlying data.
   ///
   /// ### How it works
-  /// - The new nucleus inherits all properties from [principal] unless
-  ///   explicitly overridden.
-  /// - You can override the [testRule] (to narrow permissions), [context] (to
-  ///   change authority), [receptor] (to transform mutations), or [synapses].
-  /// - The [container] strategy is always inherited and cannot be changed.
-  /// - The new nucleus shares the same [Lock] and physical storage as the
-  ///   principal (unless you provide an [override] that introduces a new lock).
-  ///
-  /// ### Non‑obvious
-  /// - The [override] parameter allows you to layer a complete pre‑configured
-  ///   nucleus on top of the principal. This is useful for composing complex
-  ///   deputies.
-  /// - The resulting nucleus does **not** copy the principal's data – it shares
-  ///   it via the inheritance chain.
-  /// - If you override the [synapses], the deputy gets its own observer
-  ///   registry, so listeners attached to the deputy are separate from those
-  ///   attached to the principal.
-  /// - The [container] strategy is structural and cannot be overridden – a
-  ///   deputy cannot change a List into a Set.
-  ///
-  /// ### Example
-  /// ```dart
-  /// final principal = TissueNucleus.create<int, List<int>, TissueList<int>>(
-  ///   container: Container.list,
-  /// );
-  /// final readOnlyNucleus = TissueNucleus.evolve(
-  ///   principal: principal,
-  ///   testRule: TestTissue.readOnly,
-  /// );
-  /// final readOnlyList = Tissue.fromNucleus(readOnlyNucleus);
-  /// ```
+  /// The constructor utilizes a **Tiered Resolution Hierarchy** to determine the
+  /// final state of any collection property:
+  /// 1. **Local Override**: Values explicitly passed to this factory.
+  /// 2. **Prototype Inheritance**: Values inherited from the [principal].
+  /// 3. **Causal Binding**: Values derived from the upstream [bind] dependency.
+  /// 4. **Global Default**: Framework-level constants (e.g., [Context.system]).
   ///
   /// ### Parameters:
-  /// - [principal]: **Required**. The base nucleus to extend.
-  /// - [override]: Optional. A complete nucleus whose properties are layered
-  ///   on top of the principal.
-  /// - [bind]: Optional override for the upstream cell.
-  /// - [context]: Optional override for the execution context.
-  /// - [receptor]: Optional override for the mutation processor.
-  /// - [testRule]: Optional override for the validation rule.
-  /// - [synapses]: Optional override for propagation behaviour.
+  /// - [principal]: **Required**. The source nucleus from which this instance
+  ///   derives its structural DNA and inheritance chain.
+  /// - [ephemeralPolicy]: **Lifecycle Governance.** Defines the TTL for the
+  ///   collection state.
+  /// - [bind]: **Ingress Link.** An optional upstream [Cell] to observe.
+  /// - [context]: **Operational Authority.** Defines the execution tier
+  ///   (default: inherits from [principal]).
+  /// - [receptor]: **Command Engine.** The logic used to process mutations
+  ///   (default: inherits from [principal]).
+  /// - [testRule]: **Integrity Gate.** Validation rules that guard the
+  ///   collection (default: inherits from [principal]).
+  /// - [synapses]: **Signal Distribution.** Manages egress connectivity
+  ///   (default: inherits from [principal]).
+  /// - [override]: **Composite Shadowing.** An optional, complete nucleus
+  ///   whose internal record is adopted directly as the `local` tier.
   ///
   /// ### Returns:
-  /// A new [TissueNucleus<E>] instance that acts as a specialised
-  /// behavioral layer over the [principal].
-  factory TissueNucleus.evolve(
-          {Cell? bind,
-          Context? context,
-          TissueReceptor<E, Tissue<E>>? receptor,
-          TestTissue<E, Tissue<E>>? testRule,
-          Synapses? synapses,
-          EphemeralPolicy? ephemeralPolicy,
-          TissueNucleus<E>? override,
-          required TissueNucleus<E> principal}) =
-      _TissueNucleus<E, Iterable<E>, Tissue<E>>.evolve;
+  /// A new [TissueNucleus<E>] instance acting as a specialized behavioral
+  /// layer over the [principal].
+  factory TissueNucleus.evolve(TissueNucleus<E> principal, {
+    EphemeralPolicy? ephemeralPolicy,
+    Cell? bind,
+    Context? context,
+    TissueReceptor<E, Tissue<E>>? receptor,
+    TestTissue<E, Tissue<E>>? testRule,
+    Synapses? synapses,
+    TissueNucleus<E>? override
+  }) {
+    return _TissueNucleus.fromRecord((
+      local: override != null
+          ? (override as NucleusBase).record.local
+          : TissueNucleusBase.mask<E, Iterable<E>, Tissue<E>>(
+              bind: bind,
+              context: context,
+              receptor: receptor,
+              testRule: testRule,
+              synapses: synapses,
+              forceLock: true,
+              ephemeralPolicy: ephemeralPolicy,
+            ),
+      principal: principal,
+    ));
+  }
+
+
 
   /// A specialised, terminal factory for creating a **Null Nucleus**—a stateless,
   /// immutable configuration representing a collection that can never contain
@@ -223,12 +200,6 @@ abstract interface class TissueNucleus<E> implements Nucleus {
   /// - This nucleus has no storage, no synapses, and a testRule that rejects
   ///   all mutations.
   /// - It is the most memory‑efficient nucleus possible.
-  ///
-  /// ### Non‑obvious
-  /// - The resulting nucleus is **not** a deputy – it is a root nucleus with
-  ///   no principal.
-  /// - Any tissue created from this nucleus will be empty and immutable.
-  /// - It is a singleton – all calls return the same instance.
   ///
   /// ### Example
   /// ```dart
@@ -265,13 +236,6 @@ abstract interface class TissueNucleus<E> implements Nucleus {
   /// - If a [principal] is provided, it creates an evolved nucleus that
   ///   inherits from that principal.
   /// - The [container] parameter determines the storage strategy.
-  ///
-  /// ### Non‑obvious
-  /// - The [forceLock] flag, when `true`, allows sharing the principal's lock.
-  ///   This is typically used for deputies to maintain a single atomic boundary.
-  /// - The type parameters [E], [I], and [C] must be consistent – the storage
-  ///   type [I] must be an `Iterable<E>`, and the interface [C] must extend
-  ///   [Tissue<E>].
   ///
   /// ### Parameters:
   /// - [bind]: Optional upstream cell.
@@ -431,12 +395,6 @@ abstract interface class TissueNucleus<E> implements Nucleus {
   /// - It allocates a brand‑new [Lock] and [Synapses] registry.
   /// - The clone is initially **inactive** – it must be activated by being
   ///   bound to a tissue instance.
-  ///
-  /// ### Non‑obvious
-  /// - The clone does **not** share the same `principal` – it is a root nucleus
-  ///   (no parent). This means it does not inherit from the original.
-  /// - Cloning is a zero‑copy operation for the logic – the logic is shared
-  ///   via the flyweight record, but the state (lock, synapses) is new.
   ///
   /// ### Returns:
   /// A new [TissueNucleus<E>] instance with identical behavioural

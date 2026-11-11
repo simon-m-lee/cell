@@ -46,21 +46,6 @@ part of '../cell.dart';
 ///    For asynchronous behavior, use the [Instruction.future] factory or
 ///    the [Receptor.async] execution path.
 ///
-/// ### Non‑obvious
-/// - **Composition**: The `+` operator creates an [InstructionChain], which
-///   maintains strict execution order.
-/// - **Resilience**: Instructions are wrapped in a safety boundary. If an
-///   exception occurs, it is caught, logged to the pulse's forensic trace,
-///   and the original pulse is returned as a fallback.
-/// - **Flyweight Pattern**: Instructions are designed to be extremely
-///   lightweight, often sharing the same underlying logic record to minimize
-///   memory overhead in large graphs.
-/// - **Context vs Metadata**: The `user` parameter is external metadata
-///   passed during invocation; it is not persisted in the [Pulse.context].
-/// - **Synchronous Only**: Instructions execute synchronously. For
-///   asynchronous pulse processing, use [Instruction.future] or call
-///   through [Receptor.async] which handles the asynchronous coordination.
-///
 /// ### Example: Validation & Sanitization Pipeline
 /// ```dart
 /// final trim = Instruction<Cell, String, String>((pulse, {cell, user}) {
@@ -106,17 +91,6 @@ abstract interface class Instruction<C extends Cell, I extends Pulse,
   /// any [user] data passed during construction. The return value determines
   /// the next state of the signal: a new [Pulse] continues propagation, while
   /// `null` drops it.
-  ///
-  /// ### Non‑obvious
-  /// - **Safety Wrap**: The function is automatically wrapped in a resilience
-  ///   layer. Exceptions are caught, logged, and the original pulse is
-  ///   returned as a fallback to prevent pipeline crashes.
-  /// - **Static Metadata**: The [user] parameter provided here acts as a
-  ///   default configuration that is passed to every invocation of this
-  ///   specific instruction instance.
-  /// - **Synchronous Execution**: The instruction executes synchronously.
-  ///   For asynchronous processing, use [Instruction.future] or call through
-  ///   [Receptor.async].
   ///
   /// ### Parameters:
   /// - [instruction]: The function that transforms an input pulse [I] to an
@@ -165,17 +139,6 @@ abstract interface class Instruction<C extends Cell, I extends Pulse,
   /// final result, developers should attach observers to the host cell
   /// rather than attempting to await the instruction's completion.
   ///
-  /// ### Non‑obvious
-  /// - **Token Integrity**: The [token] is a unique identifier for the
-  ///   instruction's position in a chain. Passing it back to the `future`
-  ///   callback ensures the graph sequencer knows exactly where to resume.
-  /// - **Suspension**: Returning `null` is mandatory to suspend propagation;
-  ///   returning a [Pulse] will cause immediate synchronous propagation,
-  ///   likely leading to double-emissions if `future` is also called.
-  /// - **Memory Safety**: If the host [Cell] is disposed before the
-  ///   asynchronous operation finishes, the [future] callback becomes a
-  ///   no-op to prevent memory leaks and ghost updates.
-  ///
   /// ### Example:
   /// ```dart
   /// final futureInstruction = Instruction<Cell, Pulse, Pulse>.future(
@@ -205,13 +168,9 @@ abstract interface class Instruction<C extends Cell, I extends Pulse,
   /// - **HowTo**: See `guide/HowTo-Instruction.md` for a guide on implementing
   ///   custom asynchronous instructions and scheduling logic.
   const factory Instruction.future(
-      O? Function(I pulse,
-              {C? cell,
-              dynamic user,
-              void Function({required Pulse? result, required dynamic token})?
-                  future,
-              dynamic token})
-          instruction,
+      O? Function(I pulse, {C? cell, dynamic user,
+      void Function({required Pulse? result, required dynamic token})? future,
+      dynamic token}) instruction,
       {dynamic user}) = _Instruction<C, I, O>.future;
 
   /// Creates an [InstructionChain] that orchestrates multiple instructions.
@@ -238,19 +197,6 @@ abstract interface class Instruction<C extends Cell, I extends Pulse,
   /// 4. All executions are synchronous. For asynchronous orchestration,
   ///    use [Instruction.future] within individual instructions or use
   ///    [Receptor.async] for the overall pipeline.
-  ///
-  /// ### Non‑obvious
-  /// - **Short-circuiting**: In the default strategy, if any instruction in
-  ///   the chain returns `null`, the entire process terminates immediately
-  ///   and the result is `null`.
-  /// - **Error Recovery**: The chain maintains the resilience of its parts.
-  ///   If an instruction fails, the chain recovers with the last "good"
-  ///   pulse state rather than crashing the pipeline.
-  /// - **Recursive Composition**: Since the resulting chain is itself an
-  ///   [Instruction], you can nest chains within other chains to build
-  ///   hierarchical processing trees.
-  /// - **Synchronous Pipeline**: The chain executes synchronously. Each
-  ///   instruction must complete before the next begins.
   ///
   /// ### Parameters:
   /// - [instructions]: The ordered collection of logic units to execute.
@@ -296,20 +242,6 @@ abstract interface class Instruction<C extends Cell, I extends Pulse,
   /// 4. The [future] callback, if provided, enables asynchronous continuation
   ///    of the pipeline.
   ///
-  /// ### Non‑obvious
-  /// - **Resilience**: The execution is shielded by a safety boundary. Any
-  ///   unhandled exception is captured, logged to the pulse's forensic
-  ///   metadata, and the original [pulse] is returned to prevent graph
-  ///   deadlocks or total pipeline failure.
-  /// - **Synchronous Execution**: This method executes synchronously and
-  ///   returns the result immediately. It does not return a [Future].
-  /// - **Future Propagation**: If the instruction was created with
-  ///   [Instruction.future], the [future] callback is provided to enable
-  ///   asynchronous continuation of the pipeline.
-  /// - **Side Effects**: While instructions should ideally be pure, manual
-  ///   calls can be used to trigger side effects while preserving the
-  ///   underlying signal's metadata and context.
-  ///
   /// ### Parameters:
   /// - [pulse]: The incoming pulse to transform.
   /// - [cell]: The host cell context.
@@ -343,15 +275,6 @@ abstract interface class Instruction<C extends Cell, I extends Pulse,
   /// 2. The output of `this` is passed as the input to the [other] instruction.
   /// 3. The resulting chain is itself an [Instruction], allowing for
   ///    continuous, multi-stage composition.
-  ///
-  /// ### Non‑obvious
-  /// - **Short-circuiting**: If `this` instruction returns `null`, the [other]
-  ///   instruction is skipped entirely, and the chain terminates with `null`.
-  /// - **Left-Associativity**: The operator is left-associative.
-  ///   `a + b + c` creates a logical sequence that preserves the `a -> b -> c`
-  ///   data flow.
-  /// - **Synchronous Composition**: Both instructions execute synchronously
-  ///   in sequence. The result of the first is immediately passed to the second.
   ///
   /// ### Parameters:
   /// - [other]: The instruction to append to the processing chain.
@@ -401,21 +324,6 @@ abstract interface class Instruction<C extends Cell, I extends Pulse,
 ///    invoked.
 /// 5. **Future Propagation**: The chain supports asynchronous continuation
 ///    via the [future] callback mechanism.
-///
-/// ### Non‑obvious
-/// - **Short-circuiting**: If any instruction returns `null`, the remaining
-///   stages are skipped, and the entire chain returns `null`.
-/// - **Resilience**: The chain is designed to be "non-breaking." If an
-///   instruction fails (throws an exception), the chain captures the error
-///   and attempts to continue using the last valid pulse state.
-/// - **Compositionality**: Because it implements the [Instruction] interface,
-///   chains can be nested inside other chains, allowing for complex,
-///   hierarchical processing trees.
-/// - **Memory Efficiency**: It uses a flyweight-like record system to store
-///   its configuration, making even deeply nested chains lightweight.
-/// - **Synchronous Pipeline**: The entire chain executes synchronously. For
-///   asynchronous processing within a chain, use [Instruction.future] at the
-///   individual instruction level.
 ///
 /// ### Type Parameters:
 /// * [C]: The type of the host [Cell].
@@ -510,17 +418,6 @@ class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse>
   /// 5. **Future Propagation**: The [future] callback is passed through
   ///    to enable asynchronous continuation.
   ///
-  /// ### Non‑obvious
-  /// - **Terminal Failures**: If an error occurs during orchestration itself,
-  ///   this implementation returns `null` to ensure that corrupted logic
-  ///   does not propagate invalid states.
-  /// - **Monitoring**: It supports optional callbacks for external
-  ///   monitoring of the chain's final output.
-  /// - **Dynamic Resolution**: It retrieves execution logic dynamically,
-  ///   maintaining high memory efficiency even for complex graphs.
-  /// - **Synchronous Execution**: The chain executes synchronously and
-  ///   returns the result immediately.
-  ///
   /// ### Parameters:
   /// - [pulse]: The incoming pulse to transform.
   /// - [cell]: The host cell context.
@@ -543,15 +440,17 @@ class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse>
 
     try {
       Pulse? result;
-      final strategy = _instruction;
-      if (strategy != null) {
-        try {
-          result = strategy(pulse, cell: cell, user: _user, future: future_);
-        } catch (_) {
-          result = strategy(pulse, cell: cell, user: _user);
-        }
+      final custom =
+          get<Function?>(() => _record.instruction, orElse: null);
+      if (custom != null) {
+        // User-provided strategy: its documented type is
+        // `O? Function(I, {cell, user})` — it has no `future` parameter.
+        // Invoke it exactly once; a throwing strategy is contained below,
+        // never re-run (re-running would execute side effects twice).
+        result = custom(pulse, cell: cell, user: _user);
       } else {
-        result = _chainRule(pulse, cell: cell, user: _user);
+        // Default sequential rule: it accepts the `future` continuation.
+        result = _chainRule(pulse, cell: cell, user: _user, future: future_);
       }
 
       if (result == null) return null;
@@ -587,7 +486,7 @@ class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse>
     final instructions = _instructions;
     if (instructions != null) {
       void future_({required Pulse? result, required dynamic token}) {
-        if (token is Function) {
+        if (token is Function || token is Instruction) {
           Instruction instruction;
           for (int i = 0; i < instructions.length; i++) {
             instruction = instructions.elementAt(i);
@@ -597,14 +496,16 @@ class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse>
             }
 
             try {
-              result = instruction.call(result as Pulse,
+              if (result == null) return;
+              result = instruction.call(result,
                   cell: cell,
                   future: future_,
                   token: (i + 1) < instructions.length
                       ? instructions.elementAt(i + 1)
                       : null);
-            } catch (_) {
-              result = instruction.call(result as Pulse, cell: cell);
+            } catch (e, stackTrace) {
+              (pulse as PulseBase)._fail(e, stackTrace: stackTrace);
+              result = null;
             }
 
             if (result == null) {
@@ -629,12 +530,11 @@ class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse>
                   ? instructions.elementAt(i + 1)
                   : null);
         } catch (e, stackTrace) {
-          try {
-            result = instruction.call(result as Pulse, cell: cell);
-          } catch (_) {
-            (pulse as PulseBase)._fail(e, stackTrace: stackTrace);
-            result = null;
-          }
+          // Every [Instruction] accepts the same `call` signature — do not
+          // re-run the stage. Re-invoking after a failure would execute
+          // side effects twice.
+          (pulse as PulseBase)._fail(e, stackTrace: stackTrace);
+          result = null;
         }
         if (result == null) return null;
       }
@@ -672,21 +572,6 @@ class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse>
 ///    the signal conforms to the expected output type.
 /// 5. **Future Propagation**: It manages the [future] callback chain for
 ///    asynchronous continuation.
-///
-/// ### Non‑obvious
-/// - **Resilience**: The internal evaluator is "fault-tolerant." If a
-///   specific instruction fails, the mixin captures the error and attempts
-///   to continue the pipeline using the last valid signal state.
-/// - **Execution Efficiency**: Standard synchronous pipelines are processed
-///   using an optimized path to minimize overhead.
-/// - **Short-circuiting**: The default behavior is to treat `null` as a
-///   terminal signal. If any stage returns `null`, the entire chain
-///   terminates immediately.
-/// - **Metadata Integrity**: The mixin ensures that user context and cell
-///   references are correctly propagated through every stage of the chain.
-/// - **Synchronous Only**: This mixin executes instructions synchronously.
-///   It does not handle [Future] results. For asynchronous processing,
-///   individual instructions should use [Instruction.future].
 ///
 /// ### Type Parameters:
 /// * [C]: The type of the host [Cell].
@@ -734,17 +619,6 @@ mixin InstructionChainMixin<C extends Cell, I extends Pulse, O extends Pulse>
   /// 5. **Future Propagation**: The [future] callback is passed through
   ///    to enable asynchronous continuation.
   ///
-  /// ### Non‑obvious
-  /// - **Terminal Failures**: If an error occurs during orchestration itself,
-  ///   this implementation returns `null` to ensure that corrupted logic
-  ///   does not propagate invalid states.
-  /// - **Monitoring**: It supports optional callbacks for external
-  ///   monitoring of the chain's final output.
-  /// - **Dynamic Resolution**: It retrieves execution logic dynamically,
-  ///   maintaining high memory efficiency even for complex graphs.
-  /// - **Synchronous Execution**: The chain executes synchronously and
-  ///   returns the result immediately.
-  ///
   /// ### Parameters:
   /// - [pulse]: The incoming pulse to transform.
   /// - [cell]: The host cell context.
@@ -767,15 +641,17 @@ mixin InstructionChainMixin<C extends Cell, I extends Pulse, O extends Pulse>
 
     try {
       Pulse? result;
-      final strategy = _instruction;
-      if (strategy != null) {
-        try {
-          result = strategy(pulse, cell: cell, user: _user, future: future_);
-        } catch (_) {
-          result = strategy(pulse, cell: cell, user: _user);
-        }
+      final custom =
+          get<Function?>(() => _record.instruction, orElse: null);
+      if (custom != null) {
+        // User-provided strategy: its documented type is
+        // `O? Function(I, {cell, user})` — it has no `future` parameter.
+        // Invoke it exactly once; a throwing strategy is contained below,
+        // never re-run (re-running would execute side effects twice).
+        result = custom(pulse, cell: cell, user: _user);
       } else {
-        result = _chainRule(pulse, cell: cell, user: _user);
+        // Default sequential rule: it accepts the `future` continuation.
+        result = _chainRule(pulse, cell: cell, user: _user, future: future_);
       }
 
       if (result == null) return null;
@@ -811,7 +687,7 @@ mixin InstructionChainMixin<C extends Cell, I extends Pulse, O extends Pulse>
     final instructions = _instructions;
     if (instructions != null) {
       void future_({required Pulse? result, required dynamic token}) {
-        if (token is Function) {
+        if (token is Function || token is Instruction) {
           Instruction instruction;
           for (int i = 0; i < instructions.length; i++) {
             instruction = instructions.elementAt(i);
@@ -821,14 +697,16 @@ mixin InstructionChainMixin<C extends Cell, I extends Pulse, O extends Pulse>
             }
 
             try {
-              result = instruction.call(result as Pulse,
+              if (result == null) return;
+              result = instruction.call(result,
                   cell: cell,
                   future: future_,
                   token: (i + 1) < instructions.length
                       ? instructions.elementAt(i + 1)
                       : null);
-            } catch (_) {
-              result = instruction.call(result as Pulse, cell: cell);
+            } catch (e, stackTrace) {
+              (pulse as PulseBase)._fail(e, stackTrace: stackTrace);
+              result = null;
             }
 
             if (result == null) {
@@ -853,12 +731,11 @@ mixin InstructionChainMixin<C extends Cell, I extends Pulse, O extends Pulse>
                   ? instructions.elementAt(i + 1)
                   : null);
         } catch (e, stackTrace) {
-          try {
-            result = instruction.call(result as Pulse, cell: cell);
-          } catch (_) {
-            (pulse as PulseBase)._fail(e, stackTrace: stackTrace);
-            result = null;
-          }
+          // Every [Instruction] accepts the same `call` signature — do not
+          // re-run the stage. Re-invoking after a failure would execute
+          // side effects twice.
+          (pulse as PulseBase)._fail(e, stackTrace: stackTrace);
+          result = null;
         }
         if (result == null) return null;
       }
@@ -909,21 +786,6 @@ mixin InstructionChainMixin<C extends Cell, I extends Pulse, O extends Pulse>
 /// 5. **Activation**: A receptor is a stateless template until bound to a
 ///    specific cell via [activate].
 ///
-/// ### Non‑obvious
-/// - **Activation**: A receptor is a stateless template until bound to a
-///   specific cell. Once activated, it is pinned to that cell's context.
-///   To use the same logic on a different cell, use the [clone] method.
-/// - **Pass‑through Efficiency**: The default behavior uses a singleton
-///   instance, allowing millions of cells to share the same logic without
-///   memory overhead.
-/// - **Filtering vs. Errors**: Returning `null` is the standard way to
-///   filter signals (e.g., ignoring out-of-range values). It is not treated
-///   as an error path.
-/// - **Synchronous vs Asynchronous**: The [call] method executes
-///   synchronously. Use [Receptor.async] for asynchronous pulse injection.
-/// - **Governance**: When [Cell.isGoverned] is `true`, the receptor applies
-///   architectural policies and appends forensic trace information.
-///
 /// ### Type Parameters:
 /// * [C]: The type of the host [Cell] that this receptor serves.
 ///
@@ -961,10 +823,6 @@ abstract interface class Receptor<C extends Cell> {
   /// The receptor returns the input pulse unchanged. It performs no
   /// validation or transformation.
   ///
-  /// ### Non‑obvious
-  /// - **Memory**: This is a singleton shared across the entire project.
-  /// - **Security**: It provides no protection against invalid data. Use a
-  ///   custom receptor if you need to sanitize or validate inputs.
   static const passThrough = _PassThroughReceptor._singleton;
 
   /// The primary factory for creating a functional pulse processor for a [Cell].
@@ -988,20 +846,6 @@ abstract interface class Receptor<C extends Cell> {
   /// 3. If the function returns a [Pulse], the signal continues downstream.
   /// 4. If the function returns `null`, the signal is dropped.
   /// 5. The function executes synchronously.
-  ///
-  /// ### Non‑obvious
-  /// - **Resilience**: The provided function is executed within a safety
-  ///   boundary. If it throws an exception, the error is logged to the
-  ///   pulse's forensic metadata, and the signal is terminated (`null`)
-  ///   to prevent graph instability.
-  /// - **Stateless Template**: The receptor created is a blueprint. It
-  ///   does not hold state and only becomes "active" when bound to a
-  ///   specific cell context.
-  /// - **Type Safety**: While the factory takes a generic [Pulse], the
-  ///   internal logic maintains the type integrity of the payload
-  ///   during transformation.
-  /// - **Synchronous Execution**: The instruction executes synchronously.
-  ///   For asynchronous processing, use [Receptor.async].
   ///
   /// ### Parameters:
   /// - [instruction]: The transformation or filtering function. Returning
@@ -1039,19 +883,6 @@ abstract interface class Receptor<C extends Cell> {
   ///    and passed to the instruction during every invocation.
   /// 3. The receptor inherits the transformation, filtering, and error
   ///    handling behavior defined in the instruction.
-  ///
-  /// ### Non‑obvious
-  /// - **Metadata Precedence**: The [user] data passed to this factory is
-  ///   passed to the instruction's call method. If the instruction already
-  ///   has internal metadata, this [user] parameter acts as the execution-time
-  ///   context.
-  /// - **Template State**: Like all receptor factories, this returns a
-  ///   stateless blueprint. It only acquires a concrete execution context
-  ///   when bound to a cell.
-  /// - **Short-circuiting**: If the instruction is a chain, the receptor
-  ///   respects the chain's terminal logic (returning `null` stops the
-  ///   signal).
-  /// - **Synchronous Execution**: The instruction executes synchronously.
   ///
   /// ### Parameters:
   /// - [instruction]: The logic unit to use for pulse processing.
@@ -1097,15 +928,6 @@ abstract interface class Receptor<C extends Cell> {
   /// 4. **Resilience**: Each stage is independently shielded; an error in one
   ///    stage is logged, and the pipeline recovers to the last valid state.
   /// 5. **Synchronous Pipeline**: All stages execute synchronously.
-  ///
-  /// ### Non‑obvious
-  /// - **Optionality**: All stages are optional. If a stage is omitted, the
-  ///   pulse passes through that layer unchanged.
-  /// - **Identity Logic**: If no parameters are provided, this factory
-  ///   effectively creates a [passThrough] receptor.
-  /// - **Synchronous Execution**: The pipeline executes synchronously. For
-  ///   asynchronous processing, use [Instruction.future] within stages or
-  ///   use [Receptor.async] for the overall execution.
   ///
   /// ### Parameters:
   /// - [instruction]: The core transformation logic (the "Reasoning" phase).
@@ -1159,16 +981,6 @@ abstract interface class Receptor<C extends Cell> {
   /// 3. Activating the clone binds it to a specific [Cell] instance without
   ///    affecting the original receptor's state.
   ///
-  /// ### Non‑obvious
-  /// - **Isolation**: The clone is a distinct object. Activating the original
-  ///   or changing its configuration will not impact the cloned instance.
-  /// - **Shallow Efficiency**: It copies references to the instructions.
-  ///   Because instructions are flyweights, this operation is extremely fast
-  ///    and memory-efficient.
-  /// - **Nucleus Integrity**: This method is the mechanical key to how a
-  ///   single nucleus can spawn multiple independent cell instances, each
-  ///   maintaining its own private operational perimeter.
-  ///
   /// ### Returns:
   /// A new unactivated [Receptor] instance with the same logic.
   Receptor<C> get clone;
@@ -1197,18 +1009,6 @@ abstract interface class Receptor<C extends Cell> {
   /// 2. It wraps this logic into a [Receptor] instance bound to cell type [C].
   /// 3. The resulting receptor performs the transformation while maintaining
   ///    the internal type integrity of the signal.
-  ///
-  /// ### Non‑obvious
-  /// - **Generics**: This is a static method rather than a factory because
-  ///   Dart factories cannot introduce new generic parameters ([I] and [O])
-  ///   independent of the class.
-  /// - **Downstream Consistency**: Even though the resulting receptor is
-  ///   typed as `Receptor<C>`, the internal logic ensures that pulses produced
-  ///   will conform to the [O] payload type.
-  /// - **Resilience**: The transformation is protected by the same safety
-  ///   boundaries as all other receptors; exceptions are caught and
-  ///   trace-logged.
-  /// - **Synchronous Execution**: The instruction executes synchronously.
   ///
   /// ### Type Parameters:
   /// - [C]: The concrete [Cell] type that will host this receptor.
@@ -1253,23 +1053,6 @@ abstract interface class Receptor<C extends Cell> {
   /// 4. **Result**: It returns the final transformed [Pulse] to be committed
   ///    to state, or `null` if the signal was dropped/filtered.
   ///
-  /// ### Non‑obvious
-  /// - **Operational Perimeter**: The execution is bound to the host cell's
-  ///   context. Accessing state or context during the call is guaranteed to
-  ///   be consistent with the cell's current operational phase.
-  /// - **Resilience**: The entire execution is shielded. Exceptions are
-  ///   caught, logged to the pulse's forensic metadata, and the signal is
-  ///   terminated (`null`) to protect graph stability.
-  /// - **Synchronous Execution**: The method executes synchronously and
-  ///   returns the result immediately. For asynchronous execution, use
-  ///   [Receptor.async].
-  /// - **Short-circuiting**: If the host cell is invalidated or the signal
-  ///   fails a security check, the method returns `null` immediately without
-  ///   running the transformation logic.
-  /// - **Validation Async Support**: While the pipeline is synchronous,
-  ///   validation can return a [Future<bool>] for asynchronous validation
-  ///   checks. This is the only async operation in the call path.
-  ///
   /// ### Parameters:
   /// - [pulse]: The incoming pulse to process.
   ///
@@ -1298,18 +1081,6 @@ abstract interface class Receptor<C extends Cell> {
   /// 3. It exposes advanced synchronization options, such as waiting for
   ///    serialized completion across the entire downstream graph.
   ///
-  /// ### Non‑obvious
-  /// - **Lightweight View**: The async adapter is a stateless view of the
-  ///   primary receptor; it consumes negligible memory and shares all
-  ///   underlying instruction metadata.
-  /// - **Full Propagation**: While a standard `await call()` only waits for
-  ///    the immediate transformation, `async.call(..., serializedCompletion: true)`
-  ///   waits for every downstream side-effect to settle.
-  /// - **Atomic Integrity**: It maintains the integrity of the cell's
-  ///   transaction boundary even when invoked from an asynchronous loop.
-  /// - **Queueing**: Pulses are queued and processed sequentially to preserve
-  ///   causal order.
-  ///
   /// ### Returns:
   /// A [ReceptorAsync] handle for asynchronous pulse injection.
   ///
@@ -1335,14 +1106,6 @@ abstract interface class Receptor<C extends Cell> {
   ///    host's state.
   /// 3. It transitions the receptor's state so that [isActivated] returns `true`.
   ///
-  /// ### Non‑obvious
-  /// - **One-Way Transition**: Once activated, a receptor is permanently
-  ///   pinned to its cell. It cannot be re-activated or moved to a different
-  ///   cell; use [clone] if you need a fresh template.
-  /// - **Safety Checks**: Returns `true` on successful binding. It returns
-  ///   `false` if the receptor was already activated or if the provided
-  ///   cell instance is incompatible.
-  ///
   /// ### Parameters:
   /// - [cell]: The cell to bind this receptor to.
   ///
@@ -1363,12 +1126,6 @@ abstract interface class Receptor<C extends Cell> {
   /// getter returns `true` only after the [activate] method has been
   /// successfully invoked by the host [Cell] during its initialization.
   ///
-  /// ### Non‑obvious
-  /// - **Immutable State**: Once a receptor is activated, it remains
-  ///   activated for its entire lifetime.
-  /// - **Prerequisite**: Many other members, such as the [cell] getter,
-  ///   require this to be `true` before they can be safely accessed.
-  ///
   /// ### Returns:
   /// `true` if the receptor is activated and bound to a cell.
   bool get isActivated;
@@ -1383,13 +1140,6 @@ abstract interface class Receptor<C extends Cell> {
   /// ### How it works
   /// It returns a reference to the [Cell] that successfully called
   /// [activate] on this receptor.
-  ///
-  /// ### Non‑obvious
-  /// - **Late-Bound Property**: Accessing this getter before [isActivated]
-  ///   is `true` will throw a [StateError].
-  /// - **Type Integrity**: The returned cell is guaranteed to match the
-  ///   generic type [C] specified during the receptor's construction,
-  ///   ensuring compile-time safety for host-specific logic.
   ///
   /// ### Returns:
   /// The host cell instance.
@@ -1424,10 +1174,6 @@ abstract interface class Receptor<C extends Cell> {
 /// ### How it works
 /// The [call] method returns the input pulse unchanged.
 ///
-/// ### Non‑obvious
-/// - **Singleton Pattern**: This is typically used as a singleton instance
-///   to minimize memory overhead.
-/// - **Identity Transformation**: The operation is O(1) and has no side effects.
 class _PulseRulePassThrough implements Instruction<Cell, Pulse, Pulse> {
   /// Creates a pass-through instruction.
   ///

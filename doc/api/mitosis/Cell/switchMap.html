@@ -55,10 +55,15 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../mitosis/Cell-class.html">Cell</a></span>
-<span class="name ">switchMap</span>&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="switchMap-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span></li>
+<span class="name ">switchMap</span>&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="switchMap-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span></li>
 <li><span class="parameter" id="switchMap-param-mapper"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">mapper</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span></li>
-</ol>)</span></li>
-</ol>)
+</ol>), {</span></li>
+<li><span class="parameter" id="switchMap-param-ephemeralPolicy"><span class="type-annotation"><a href="../../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
+<li><span class="parameter" id="switchMap-param-context"><span class="type-annotation"><a href="../../mitosis/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span></li>
+<li><span class="parameter" id="switchMap-param-testRule"><span class="type-annotation"><a href="../../mitosis/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span></li>
+<li><span class="parameter" id="switchMap-param-synapses"><span class="type-annotation"><a href="../../mitosis/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span></li>
+<li><span class="parameter" id="switchMap-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span></li>
+</ol>})
 
       
 
@@ -89,18 +94,6 @@ inner cell and links to the new one.</li>
 <li><strong>Relaying</strong>: Every pulse from the currently active inner cell is
 forwarded to the output cell's synapses.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Relay Only</strong>: This cell does not emit the values from the <code>source</code>;
-it only emits values from the cell returned by the <code>mapper</code>.</li>
-<li><strong>Automatic Cleanup</strong>: When the source changes, the link to the
-previous inner cell is severed automatically, preventing signal leaks
-from inactive sources.</li>
-<li><strong>Termination</strong>: If <code>mapper</code> returns a cell that is currently silent,
-this switch will also be silent until that inner cell emits.</li>
-<li><strong>Causal Integrity</strong>: Forwarded pulses preserve their forensic history,
-tracing back through the inner cell to the switch trigger.</li>
-</ul>
 <h3 id="design-note-source-selection-vs-background-enrichment">Design Note: Source Selection vs. Background Enrichment</h3>
 <ul>
 <li><strong><a href="../../mitosis/Cell/switchMap.html">Cell.switchMap</a></strong> is for <strong>Source Selection</strong>. The <code>mapper</code> must
@@ -130,7 +123,7 @@ change the data source.</li>
 selection and returns the next <a href="../../mitosis/Cell-class.html">Cell</a> to listen to.</li>
 <li><code>ephemeralPolicy</code>: <strong>Lifecycle Management.</strong> Defines how the node
 is cleaned up when it is no longer in use.</li>
-<li><a href="../../mitosis/Cell/context.html">context</a>: <strong>Operational Authority.</strong> The security and priority tier
+<li><code>context</code>: <strong>Operational Authority.</strong> The security and priority tier
 governing the switch.</li>
 <li><code>testRule</code>: <strong>Integrity Gate.</strong> A validation check that must pass
 before a switch or a forwarded pulse is broadcast.</li>
@@ -155,6 +148,26 @@ of dynamic dependency injection.</li>
 on using switching and routing operators.
 {@category Core 16 Operators}</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> dynamic source selection — the mapper returns a <code>Cell</code> and the graph rebinds to it ("latest reservation / flight only").
+<strong>When NOT to use:</strong> background enrichment where the mapper returns a <code>Future</code> — that is <code>Cell.asyncMap</code>.
+<strong>Live signature:</strong> <code>Cell.switchMap&lt;S, T&gt;(Cell source, Cell Function(S value) mapper, {ephemeralPolicy, context, testRule, synapses, forceLock})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.asyncMap</code> (Future per pulse, not source rebinding).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)
+<strong>Example:</strong> <code>example/instruction_pipeline_walkthrough.dart</code>
+<strong>Cross-layer:</strong> the orchestration equivalent is <code>Flow.switchMap</code> / <code>Flow.asyncMapLatest</code> in <code>cell_flow</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;String&gt;();
+final sm = Cell.switchMap&lt;String, int&gt;(
+  src.cell,
+  (v) =&gt; Cell.state&lt;int&gt;(initial: v.length).cell,
+);
+final o = Cell.observe(source: sm, effect: (Pulse p) =&gt; print(p.payload));
+src.emit('abc');
+await Future&lt;void&gt;.delayed(const Duration(milliseconds: 20));
+o.stop();
+</code></pre>
 </section>
 
 
@@ -163,9 +176,22 @@ on using switching and routing operators.
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static Cell switchMap&lt;S, T&gt;(
   Cell source,
-  Cell Function(S value) mapper,
-) =&gt;
-    _switchMap(source, mapper);</code></pre>
+  Cell Function(S value) mapper, {
+  EphemeralPolicy? ephemeralPolicy,
+  Context context = Context.system,
+  TestCell testRule = TestCell.allowAll,
+  Synapses synapses = Synapses.enabled,
+  bool forceLock = false,
+}) =&gt;
+    _switchMap(
+      source,
+      mapper,
+      ephemeralPolicy: ephemeralPolicy,
+      context: context,
+      testRule: testRule,
+      synapses: synapses,
+      forceLock: forceLock,
+    );</code></pre>
 </section>
 
 
@@ -193,7 +219,7 @@ on using switching and routing operators.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

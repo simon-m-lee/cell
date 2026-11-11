@@ -88,32 +88,6 @@ remains silent unless invalidated and recreated.</li>
 </ol>
 <p>The factory returns a normal <a href="../../mitosis/Cell-class.html">Cell</a>; you can freely <code>bind</code> it, observe it,
 or compose it with any other factory.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Terminal Bridge</strong>: This cell emits <strong>at most once</strong>. If the resulting
-value needs to remain available for late subscribers, you should pipe
-this result into a <a href="../../mitosis/Cell/state.html">Cell.state</a> or use a <a href="../../mitosis/Synapses-class.html">Synapses</a> configuration with
-<code>PropagationStrategy.persistent</code>.</li>
-<li><strong>Error Ingress</strong>: If the future completes with an error, the cell
-captures the failure. It emits a pulse where the <code>type</code> is set to
-<code>'error'</code> and the <code>payload</code> contains the error object, allowing
-downstream observers to handle failures reactively.</li>
-<li><strong>Signal Neutralization</strong>: If this cell is invalidated (via its
-<a href="../../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a>) before the future completes, the bridge is
-immediately severed. The eventual result is discarded, and no pulse
-is emitted to the graph.</li>
-<li><strong>Forensic Provenance</strong>: The resulting pulse’s <code>source</code> is
-automatically set to this bridge instance. This maintains the
-<strong>Chain of Evidence</strong>, allowing you to trace the asynchronous
-origin of a signal during debugging or auditing.</li>
-<li><strong>Lifecycle Governance</strong>: The cell remains in the reactive graph after
-its single emission until it is explicitly neutralized or reclaimed
-by its governing policy.</li>
-<li><strong>Flow Control</strong>: While the factory signature is a simple bridge, the
-underlying implementation respects <a href="../../mitosis/Synapses-class.html">Synapses</a> configurations for
-throttling or debouncing if the bridge is part of a complex
-re-synthesis.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">Future&lt;String&gt; loadUserName() async {
   await Future.delayed(const Duration(milliseconds: 300));
@@ -143,6 +117,21 @@ Cell.observe(
 of bridging legacy async APIs into forensic pipelines.
 {@category Core 16 Operators}</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> bridge a single <code>Future</code> result into the graph (one config load, one AODB lookup); emits at most once.
+<strong>When NOT to use:</strong> continuous sources — that is <code>Cell.fromStream</code>; imperative callbacks — that is <code>Cell.ingress</code>.
+<strong>Live signature:</strong> <code>Cell.fromFuture&lt;T&gt;(Future&lt;T&gt; future)</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.fromStream</code> (sequence, not a single value).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.1 "Create" (#flow-create)
+<strong>Example:</strong> <code>test/receptor_instruction_future_test.dart</code>
+<strong>Cross-layer:</strong> the orchestration equivalent is <code>Flow.fromFuture</code> in <code>cell_flow</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final f = Cell.fromFuture&lt;int&gt;(Future.value(7));
+final o = Cell.observe(source: f, effect: (Pulse p) =&gt; print(p.payload));
+await Future&lt;void&gt;.delayed(const Duration(milliseconds: 10));
+o.stop();
+</code></pre>
 </section>
 
 
@@ -177,7 +166,7 @@ of bridging legacy async APIs into forensic pipelines.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

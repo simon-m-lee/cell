@@ -85,13 +85,6 @@ into batches by count.</p>
 <li>When the row reaches <code>width</code>, it's emitted as a list.</li>
 <li>The row is cleared.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Batching</strong>: Values are batched by count.</li>
-<li><strong>Single Source</strong>: Only one source is used.</li>
-<li><strong>No Overlap</strong>: Each value appears in exactly one batch.</li>
-<li><strong>Memory Usage</strong>: Only holds up to <code>width</code> values at a time.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -165,7 +158,7 @@ input.emit(6); // -&gt; [4, 5, 6]
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

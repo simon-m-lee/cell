@@ -70,13 +70,6 @@ pulse to multiple specialised handlers based on <a href="../cell_flow/Pulse/type
 <p>The handle contains a <code>root</code> cell (the ingress) and a set of <code>spokes</code>
 (the handlers). When you <code>emit</code> or <code>ingest</code> a pulse, it's routed to
 the appropriate spoke(s) based on the hub's configuration.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>If you provide a custom <code>relay</code>, the default routing is bypassed – you
-must manually deliver pulses to the spokes.</li>
-<li>The hub's <code>ingest</code> with <code>serializedCompletion: true</code> waits for all
-spokes to finish processing before completing the Future.</li>
-</ul>
 </section>
 
     
@@ -150,7 +143,7 @@ spokes to finish processing before completing the Future.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

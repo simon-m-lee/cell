@@ -84,15 +84,6 @@ properties (memory optimisation).</li>
 <li>The resulting nucleus can be used to instantiate multiple sets that
 share the same logic but hold separate data.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>If you omit the <code>testRule</code>, it defaults to <a href="../../mitosis/TestTissue/allowAll-constant.html">TestTissue.allowAll</a> – no
-restrictions.</li>
-<li>The <code>receptor</code> defaults to <a href="../../mitosis/TissueReceptor/passThrough-constant.html">TissueReceptor.passThrough</a> – mutations are
-applied directly.</li>
-<li>The <code>context</code> defaults to <a href="../../mitosis/Context/system-constant.html">Context.system</a> – system‑level authority.</li>
-<li>The <code>synapses</code> default to <a href="../../mitosis/Synapses/enabled-constant.html">Synapses.enabled</a> – observers receive pulses.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>bind</code>: Optional upstream <a href="../../mitosis/Cell-class.html">Cell</a> to observe.</li>
@@ -148,7 +139,7 @@ according to the provided reactive blueprint.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

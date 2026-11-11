@@ -44,16 +44,290 @@
       
 <section class="desc markdown">
   <h1 id="cell">cell</h1>
-<p>Reactive state for Dart. A <strong>cell</strong> holds a value or relays a signal. A <strong>pulse</strong> is the immutable message that moves a change. Operators (<code>Cell.state</code>, <code>Cell.observe</code>, …) wire cells together.</p>
+<h2 id="install-and-import">Install and import</h2>
+<pre class="language-bash"><code class="language-bash">dart pub add cell cell_flow cell_tissue
+</code></pre>
+<pre class="language-dart"><code class="language-dart">import 'package:cell/cell.dart';                 // Cell layer only
+import 'package:cell_flow/cell_flow.dart';       // re-exports package:cell
+import 'package:cell_tissue/cell_tissue.dart';
+</code></pre>
+<h2 id="ai-agents-start-here">AI agents start here</h2>
+<p>Read this before opening any other page.</p>
+<p><code>cell</code> is designed with AI coding agents in mind. Every top public symbol
+carries a machine-readable <code>### AI Agent Guide</code> block, and the surfaces below
+let an agent reliably pick the right factory and generate code that compiles
+against the live API.</p>
+<ol>
+<li><strong>Version pin:</strong> <code>cell 1.1.0</code>, <code>cell_flow 1.0.0</code>, <code>cell_tissue 1.0.0</code>.</li>
+<li><strong>Preflight:</strong> <code>dart run tool/ai_preflight.dart</code> — prints the resolved versions and any stale pins.</li>
+<li><strong>API chooser:</strong> <code>lib/doc/api_chooser.dart</code> (generated from the <code>### AI Agent Guide</code> doc blocks).</li>
+<li><strong>Layer guides:</strong>
+<ul>
+<li><code>guide/HowTo-Mitose-Cell.md</code> — Cell factory choices</li>
+<li><code>guide/HowTo-Mitose-Flow.md</code> — Flow operator choices</li>
+<li><code>guide/HowTo-Mitose-Tissue.md</code> — Tissue collection choices</li>
+</ul>
+</li>
+<li><strong>The seam sentence:</strong> <em>The instruction decides, the chain assembles, the observer glues.</em></li>
+</ol>
+<h2 id="if-you-have-a-brd-sentence-that-says">If you have a BRD sentence that says…</h2>
+<table>
+<thead>
+<tr>
+<th>BRD sentence</th>
+<th>First factory</th>
+<th>Do NOT</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"capture X" / "record X entering"</td>
+<td><code>Cell.ingress</code></td>
+<td>create a custom Cell</td>
+</tr>
+<tr>
+<td>"record every Y" (history)</td>
+<td><code>Cell.observe</code> + <code>TissueList</code></td>
+<td>put in instruction</td>
+</tr>
+<tr>
+<td>"reserve N units"</td>
+<td><code>TissueValue</code> + invariant</td>
+<td>use <code>Cell.state&lt;int&gt;</code></td>
+</tr>
+<tr>
+<td>"flag when Y happens"</td>
+<td><code>FlowInstructionBase</code> subclass in Flow</td>
+<td>put in <code>Cell.observe</code></td>
+</tr>
+<tr>
+<td>"two facts move together"</td>
+<td><code>Cell.txApply</code> on Tissue</td>
+<td><code>Cell.transaction</code></td>
+</tr>
+<tr>
+<td>"wait for silence"</td>
+<td><code>Debounce</code> in <code>cell_flow</code></td>
+<td>roll your own <code>Timer</code></td>
+</tr>
+</tbody>
+</table>
+<p>(The full matrix lives in <code>lib/doc/api_chooser.dart</code>; this is the 6-row elevator version.)</p>
+<hr>
+<blockquote>
+<p><strong>Reactive State for Dart</strong> — transaction-ready, observable, validated,
+synchronized, auditable, and zero-copy deputy-able cells, pulses, and
+operators. Plain Dart state, plus a governance contract.</p>
+</blockquote>
 <p><a href="https://dart.dev"><img src="https://img.shields.io/badge/Dart-3.5%2B-blue.svg" alt="Dart"></a>
 <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/LICENSE"><img src="https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg" alt="License"></a>
-<a href="#status"><img src="https://img.shields.io/badge/Mitosis-1.0.0--rc.9-blue.svg" alt="Version"></a>
-<a href="#status"><img src="https://img.shields.io/badge/Status-RC-yellow.svg" alt="Status"></a></p>
-<p>Validation, deputies, provenance, and timing control are available when you need them. Defaults are pass-through and allow-all — you can ship a counter without learning <code>Nucleus</code>.</p>
+<a href="#status"><img src="https://img.shields.io/badge/cell-1.1.0-blue.svg" alt="Version"></a>
+<a href="#status"><img src="https://img.shields.io/badge/Status-Stable-green.svg" alt="Status"></a></p>
 <p>This is the foundation package of the Cell Framework (Mitosis). Sibling packages add collections, relations, stream combinators, persistence, and codegen.</p>
 <blockquote>
 <p><strong>Mitose pipeline — the umbrella feature.</strong> The root repository ships an AI-executable pipeline that turns a business requirement into a working Cell + Flow + Tissue solution with its BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES documents. An AI prompt agent follows <a href="https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose.md"><code>guide/HowTo-Mitose.md</code></a>; this package supplies the <strong>Cell layer</strong> rules via <a href="https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Cell.md"><code>guide/HowTo-Mitose-Cell.md</code></a>. See the <a href="https://github.com/simon-m-lee/cell#readme">root README</a>.</p>
 </blockquote>
+<hr>
+<h2 id="overview">Overview</h2>
+<p>A <strong>cell</strong> holds a value or relays a signal. A <strong>pulse</strong> is the immutable
+message that moves a change. Operators (<code>Cell.state</code>, <code>Cell.observe</code>, …) wire
+cells together into a reactive graph — and that graph is governed:</p>
+<ul>
+<li><strong>Transaction ready, built into the foundation</strong> — <code>Cell.txApply</code> (staged
+commands with Saga compensation and rollback) and <code>Cell.transaction</code>
+(buffered multi-cell atomic commits) are core factories of the <code>cell</code>
+package itself — an integral part of the reactive graph, not an add-on
+layer. Every mutation request is a first-class, auditable command
+(<code>apply</code> + <code>ApplyCommand</code> → sealed <code>ApplyOutcome</code>). Plain Dart state —
+and most reactive frameworks — have no equivalent: a multi-step update
+that throws halfway through leaves permanent, partial state; here it
+rolls back through recorded compensation.</li>
+<li><strong>Observable</strong> — every change emits a typed <code>Pulse</code> that downstream cells
+react to; plain Dart requires hand-rolled listener or <code>Stream</code> plumbing.</li>
+<li><strong>Validated</strong> — a <code>TestCell</code> gate runs on every write, so validation is
+enforced by the framework instead of being an <code>if</code> you remember to call.</li>
+<li><strong>Deputy-able</strong> — hand out zero-copy read-only views (<code>.unmodifiable</code>) or
+restricted proxies (<code>.deputy()</code>); a deputy <em>is</em> the principal
+(<code>cell == cell.deputy()</code> is <code>true</code>) and its rules can only narrow what the
+principal already allows.</li>
+<li><strong>Auditable</strong> — <code>ApplyReceipt</code> forensics, causal trace, and provenance
+metadata ride every pulse; <code>Cell.sanitized</code> redacts before egress.</li>
+<li><strong>Synchronized</strong> — transactional writes serialize through the ledger, and
+governed cells carry synchronization locks for high-integrity paths.</li>
+<li><strong>Timing control</strong> — <code>debounce</code>, <code>throttle</code>, and <code>distinct</code> are
+library behavior, not ad-hoc <code>Timer</code>s.</li>
+<li><strong>Composable</strong> — 16 core operators cover state, events, projection,
+fan-in, async mapping (<code>asyncMap</code> with concurrency control), routing
+(<code>hub</code>), and switching (<code>switchMap</code>); <code>fromFuture</code> / <code>fromStream</code> bridge
+<code>dart:async</code>.</li>
+<li><strong>Extensible</strong> — <code>Receptor</code> / <code>Instruction</code> transform pipelines,
+<code>Synapses</code> + <code>PropagationPolicy</code> control delivery, <code>Context</code> carries
+authority, and <code>Nucleus</code> / <code>Cell.governed</code> unlock high-integrity nodes.</li>
+</ul>
+<p>Where plain Dart gives you a field, <code>cell</code> gives you a field <strong>with a
+governance contract</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Plain Dart (<code>setState</code> / <code>ValueNotifier</code> / <code>Stream</code>)</th>
+<th><code>cell</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Change notification</td>
+<td>Manual listener or stream wiring</td>
+<td>Built-in pulse graph — every change emits</td>
+</tr>
+<tr>
+<td><strong>Transactions</strong></td>
+<td>None — failures leave partial state</td>
+<td>Built-in <code>Cell.transaction</code> / <code>Cell.txApply</code>: commands with compensation, atomic staging, and rollback</td>
+</tr>
+<tr>
+<td>Validation</td>
+<td>Manual <code>if</code> checks at call sites</td>
+<td><code>TestCell</code> gate on every write</td>
+</tr>
+<tr>
+<td>Restricted views</td>
+<td>None, or copying the data</td>
+<td>Zero-copy <code>unmodifiable</code> / <code>deputy</code> proxies</td>
+</tr>
+<tr>
+<td>Audit trail</td>
+<td>None</td>
+<td><code>ApplyReceipt</code>, causal trace, provenance</td>
+</tr>
+<tr>
+<td>Timing operators</td>
+<td>Hand-rolled <code>Timer</code>s</td>
+<td><code>debounce</code> / <code>throttle</code> / <code>distinct</code></td>
+</tr>
+<tr>
+<td>Async combinators</td>
+<td>Hand-rolled <code>Future</code>/<code>Stream</code> plumbing</td>
+<td><code>asyncMap</code> (concurrency/latest/exhaust), <code>switchMap</code>, <code>fromFuture</code>/<code>fromStream</code></td>
+</tr>
+<tr>
+<td>Multi-source aggregation</td>
+<td>Manual bookkeeping</td>
+<td><code>Cell.synthesis</code> fan-in</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Transaction ready, in one breath:</strong></p>
+<pre class="language-dart"><code class="language-dart">final counter = Cell.state&lt;int&gt;(initial: 0);
+
+// One audited, compensable command:
+final outcome = await counter.cell.command(increment)
+    .args([5])
+    .undo(decrement, args: [5])
+    .run(); // ApplyAccepted with a receipt — or ApplyRejected, never a throw
+
+// Stage commands with recorded compensation inside a transaction ledger:
+final tx = Cell.txApply();
+await tx.execute(participants: [counter.cell], body: (scope) {
+  counter.cell.apply&lt;dynamic&gt;(
+    (
+      function: increment,
+      arguments: (positionalArguments: [5], namedArguments: null),
+      compensation: (
+        function: decrement,
+        arguments: (positionalArguments: [5], namedArguments: null),
+        cell: counter.cell,
+      ),
+    ),
+    tx: scope,
+  ); // buffered — invisible to readers until the transaction commits
+});
+
+// Or buffer several cells into one atomic commit:
+final tx2 = Cell.transaction();
+await tx2.begin([counter.cell, settings.cell]);
+tx2.update(counter.cell, 5);      // buffered
+tx2.update(settings.cell, theme); // buffered
+await tx2.commit();               // both land together — or neither does
+</code></pre>
+</blockquote>
+<p>Defaults are pass-through and allow-all — you can ship a counter without
+learning <code>Nucleus</code>. Validation, deputies, provenance, and timing control are
+available when you need them.</p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#whats-new-in-11">What's new in 1.1</a></li>
+<li><a href="#when-it-fits">When it fits</a></li>
+<li><a href="#install">Install</a></li>
+<li><a href="#quick-example">Quick example</a></li>
+<li><a href="#core-operators">Core operators</a></li>
+<li><a href="#how-much-you-need-to-know">How much you need to know</a></li>
+<li><a href="#documentation">Documentation</a></li>
+<li><a href="#ecosystem">Ecosystem</a></li>
+<li><a href="#status">Status</a></li>
+<li><a href="#license">License</a></li>
+</ul>
+<h2 id="whats-new-in-11">What's new in 1.1</h2>
+<p>Two headline changes shipped with the stable release.</p>
+<h3 id="forensic-cellapply">Forensic <code>Cell.apply</code></h3>
+<p>Every mutation request is now a first-class, auditable command — not a bag of positional parameters.</p>
+<pre class="language-dart"><code class="language-dart">final outcome = await userCell.command(updateProfile)
+    .args(['Simon'])
+    .named({#active: true})
+    .undo(updateProfile, args: ['Original Name'])
+    .run();
+
+switch (outcome) {
+  case ApplyAccepted(result: final user):
+    print('Update successful: ${user.name}');
+  case ApplyRejected(reason: final error):
+    print('Safety gate blocked the change: $error');
+  case ApplyStaged():
+    print('Staged in the transaction ledger');
+}
+</code></pre>
+<p><code>apply&lt;R&gt;(ApplyCommand, {tx})</code> is the only gateway: sealed <code>ApplyOutcome&lt;R&gt;</code> results, <code>ApplyReceipt</code> forensics, the <code>cell.command(...)</code> builder DSL, vetted/trusted <code>modifiable</code> whitelists, and Saga compensation through <code>Cell.txApply</code> — with validation running through the deputy's full <code>testRule</code> chain. The complete list is in <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/CHANGELOG.md">CHANGELOG.md</a>.</p>
+<h3 id="performance">Performance</h3>
+<p>Six optimization phases, tracked by a committed benchmark suite with a regression gate (<a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell/benchmark"><code>benchmark/</code></a>):</p>
+<table>
+<thead>
+<tr>
+<th>Shape</th>
+<th>Before</th>
+<th>1.1.0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Single-hop emit (<code>ingress</code> → observer)</td>
+<td>~170 µs</td>
+<td><strong>~5–6 µs</strong> (~30×)</td>
+</tr>
+<tr>
+<td><code>Cell.distinct</code>, duplicate-heavy</td>
+<td>~1.7 ms</td>
+<td><strong>~8 µs</strong> (~210×)</td>
+</tr>
+<tr>
+<td>Chain depth 50</td>
+<td>~8.3 s (exponential)</td>
+<td><strong>~12.7 ms</strong> (linear)</td>
+</tr>
+<tr>
+<td><code>Cell()</code> construction</td>
+<td>~3.7 µs</td>
+<td><strong>~2.1 µs</strong></td>
+</tr>
+<tr>
+<td><code>Cell()</code> heap footprint</td>
+<td>~2.7 KB</td>
+<td><strong>~1.1 KB</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Run <code>dart run benchmark/runner.dart --out current.json</code> and compare against <code>benchmark/baseline.json</code>; the honest comparison story is feature-accounted in <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/benchmark/README.md">benchmark/README.md</a>.</p>
 <hr>
 <h2 id="when-it-fits">When it fits</h2>
 <p>Cell is a good match if you want:</p>
@@ -63,14 +337,14 @@
 <li>Validation that is a gate, not a callback you remember to call</li>
 <li>Restricted views of the same data without copying it (<code>deputy</code>, <code>unmodifiable</code>)</li>
 <li>Multi-cell commits (<code>transaction</code>) or staged commands with undo (<code>txApply</code>)</li>
-<li>Debounce / throttle / batch as library behavior rather than ad-hoc <code>Timer</code>s</li>
+<li>Debounce / throttle as library behavior rather than ad-hoc <code>Timer</code>s</li>
 </ul>
 <p>It is more machinery than you need for a couple of flags, a basic form, or a single <code>Future</code>. For Rx-style combinators (<code>merge</code>, <code>zip</code>, <code>scan</code>, windows), use <strong>cell_flow</strong>.</p>
 <hr>
 <h2 id="install">Install</h2>
 <p>The package is on pub.dev. From this monorepo:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
-  cell: ^1.0.0-rc.9
+  cell: ^1.1.0   # stable
 </code></pre>
 <p>From git:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
@@ -91,13 +365,13 @@ void main() {
     initial: 0,
     evolve: (host, input) {
       final delta = input.payload as int? ?? 1;
-      return Pulse(host.value + delta);
+      return Pulse((host.value ?? 0) + delta);
     },
   );
 
   final observer = Cell.observe(
     source: counter.cell,
-    effect: (pulse) =&gt; print('Counter: ${pulse.payload}'),
+    effect: (Pulse pulse) =&gt; print('Counter: ${pulse.payload}'),
   );
 
   counter.update(5); // prints: Counter: 5
@@ -200,7 +474,7 @@ void main() {
 </tr>
 </tbody>
 </table>
-<p>Also implemented, outside that numbered set: <strong><code>Cell.valve</code></strong> (predicate gate). Fan-in of several sources is <code>Cell.synthesis</code> (or combinators in cell_flow).</p>
+<p>Also implemented, outside that numbered set: <strong><code>Cell.valve</code></strong> (predicate gate) and <strong><code>Cell.apply</code> / <code>cell.command(...)</code></strong> (audited mutations with receipts and Saga compensation). Fan-in of several sources is <code>Cell.synthesis</code> (or combinators in cell_flow).</p>
 <p>Learning order: get data in → hold state → react → shape streams → go async → combine → isolate writes. Operators 1–4 are enough for a first app.</p>
 <hr>
 <h2 id="how-much-you-need-to-know">How much you need to know</h2>
@@ -271,6 +545,10 @@ void main() {
 <td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Advanced.md">HowTo-Advanced.md</a></td>
 <td>Index of optional governance machinery</td>
 </tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/benchmark/README.md">benchmark/README.md</a></td>
+<td>Benchmark suite, pass criteria, and the feature-accounted comparison story</td>
+</tr>
 </tbody>
 </table>
 <p>Guides use <code>HowTo-*.md</code> (hyphens). Generate API docs with <code>dart doc .</code> and open <code>doc/api/index.html</code>.</p>
@@ -306,16 +584,18 @@ void main() {
 <p>Flutter has no dedicated widgets here. Bind with <code>Cell.observe</code> (or an adapter) and drive <code>setState</code> or your existing state library.</p>
 <hr>
 <h2 id="status">Status</h2>
-<p><strong>RC</strong> (Mitosis <code>1.0.0-rc.9</code>, Release Candidate). Public APIs for cells, pulses, operators, and transactions are exercised by a passing unit-test suite. Breaking changes remain possible before a versioned 1.0 stable.</p>
-<p>A fuller developer list is in <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/KNOWN_ISSUES.md">KNOWN_ISSUES.md</a>. Known limits, so this page does not over-promise:</p>
+<p><strong>Stable on pub.dev</strong> (<code>1.1.0</code>). Public APIs for cells, pulses, operators, transactions, and the integrity-gated <code>apply</code>/<code>txApply</code> command model are exercised by a passing unit-test suite.</p>
+<p>Release verification:</p>
 <ul>
-<li>Published to pub.dev.</li>
+<li><code>cell</code> <strong>1174/1174</strong>, <code>cell_flow</code> <strong>1091/1091</strong>, <code>cell_tissue</code> <strong>362/362</strong> unit tests pass.</li>
+<li><code>dart analyze lib</code> reports <strong>no issues</strong>; the test files carry a few pre-existing informational lints.</li>
+<li><code>dart doc .</code> completes with <strong>zero warnings</strong>; <code>doc/api</code> is generated.</li>
+<li>The benchmark suite's 60 tracked results pass the 15% regression gate (<code>benchmark/compare.dart</code>).</li>
 <li><code>Context</code>, <code>PulseContext</code>, and <code>Sensitivity</code> let you <em>attach</em> classification, actor, and purpose. They do not implement or certify GDPR, HIPAA, PCI-DSS, or any other regulation. <code>Context.describe('…')</code> stores text; it is not a legal basis or an audit log.</li>
 </ul>
 <p>Feedback and issues are useful at this stage.</p>
 <pre class="language-bash"><code class="language-bash">dart analyze lib
-# Files are test_*.dart — bare `dart test` finds nothing. See TEST_VERIFICATION.md.
-dart test @(Get-ChildItem test/test_*.dart | ForEach-Object { "test/$($_.Name)" })
+dart test
 dart format .
 dart doc .
 </code></pre>
@@ -330,6 +610,22 @@ dart doc .
       <section class="summary">
           <h2>Libraries</h2>
         <dl>
+          <dt id="cell_ai_anti_patterns">
+  <span class="name"><a href="cell_ai_anti_patterns/">doc\ai_anti_patterns</a></span> 
+
+</dt>
+<dd>Doc-only library holding the shared <code>{@template}</code> dartdoc definitions
+expanded by the <code>{@macro}</code> references in the <code>### AI Agent Guide</code> blocks
+of <code>package:cell</code>.
+</dd>
+
+          <dt id="cell_api_chooser">
+  <span class="name"><a href="cell_api_chooser/">doc\api_chooser</a></span> 
+
+</dt>
+<dd>API Chooser — <code>cell</code>
+</dd>
+
           <h3>Features</h3>
           <p>Cell Framework — Feature Catalog</p>
             <dt id="cell">
@@ -360,21 +656,23 @@ dart doc .
         <li><a href="topics/Features-topic.html">Features</a></li>
         <li><a href="topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
         <li><a href="topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
+        <li><a href="topics/Transactions-topic.html">Transactions</a></li>
+        <li><a href="topics/Apply + Transactions-topic.html">Apply&nbsp;+&nbsp;Transactions</a></li>
         <li><a href="topics/Pulse-topic.html">Pulse</a></li>
         <li><a href="topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
         <li><a href="topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
         <li><a href="topics/Instructions-topic.html">Instructions</a></li>
         <li><a href="topics/Advanced-topic.html">Advanced</a></li>
         <li><a href="topics/Demo: aircraft-topic.html">Demo:aircraft</a></li>
-        <li><a href="topics/Demo: hotel-topic.html">Demo:hotel</a></li>
         <li><a href="topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></li>
         <li><a href="topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></li>
         <li><a href="topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></li>
         <li><a href="topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></li>
-        <li><a href="topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></li>
         <li><a href="topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></li>
         <li><a href="topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></li>
       <li class="section-title">Libraries</li>
+      <li><a href="cell_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
+      <li><a href="cell_api_chooser/">doc\api_chooser</a></li>
       <li class="section-subtitle">Features</li>
         <li class="section-subitem"><a href="cell/">cell</a></li>
 </ol>
@@ -386,7 +684,7 @@ dart doc .
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

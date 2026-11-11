@@ -55,6 +55,30 @@ void main() {
         expect(debounced, isA<Cell>());
       });
 
+      test('a throwing downstream in the trailing timer is contained',
+          () async {
+        var zoneErrors = 0;
+        await runZonedGuarded(() async {
+          final source = Cell.ingress<int>();
+          final debounced = Cell.debounce(
+            source.cell,
+            Duration(milliseconds: 10),
+          );
+          Cell.observe(
+              source: debounced,
+              effect: (Pulse pulse) {
+                throw StateError('debounced boom');
+              });
+          source.emit(1);
+          await Future<void>.delayed(Duration(milliseconds: 40));
+        }, (e, st) {
+          zoneErrors++;
+        });
+        expect(zoneErrors, 0,
+            reason: 'a receptor failure inside a Timer callback must be '
+                'contained by the pulse fail path, not the zone');
+      });
+
       test('debounce delays delivery until silence', () async {
         final source = Cell.ingress<int>();
         final debounced = Cell.debounce(
@@ -194,6 +218,32 @@ void main() {
           Duration(milliseconds: 50),
         );
         expect(throttled, isA<Cell>());
+      });
+
+      test('a throwing downstream in the trailing timer is contained',
+          () async {
+        var zoneErrors = 0;
+        await runZonedGuarded(() async {
+          final source = Cell.ingress<int>();
+          final throttled = Cell.throttle(
+            source.cell,
+            Duration(milliseconds: 10),
+            leading: false,
+            trailing: true,
+          );
+          Cell.observe(
+              source: throttled,
+              effect: (Pulse pulse) {
+                throw StateError('throttled boom');
+              });
+          source.emit(1);
+          await Future<void>.delayed(Duration(milliseconds: 40));
+        }, (e, st) {
+          zoneErrors++;
+        });
+        expect(zoneErrors, 0,
+            reason: 'a receptor failure inside a Timer callback must be '
+                'contained by the pulse fail path, not the zone');
       });
 
       test('throttle with leading true emits first immediately', () async {

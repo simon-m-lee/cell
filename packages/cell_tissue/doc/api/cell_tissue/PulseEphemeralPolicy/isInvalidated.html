@@ -82,7 +82,7 @@ and <code>onInvalidate</code> is called.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">bool get isInvalidated {
-  return get&lt;bool&gt;(() =&gt; _record.invalidated.value, orElse: false);
+  return _record.invalidated.value ?? false;
 }</code></pre>
 </section>
 
@@ -113,7 +113,7 @@ and <code>onInvalidate</code> is called.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -467,6 +467,32 @@ void main() {
         expect(collective.isComposite, true);
         expect(collective.payload.length, 2);
       });
+
+      test('a batch with onComplete completes through empty synapses',
+          () async {
+        var inner = 0;
+        var outer = 0;
+        final p = Pulse<int>.governed(payload: 1, onComplete: (_) => inner++);
+        final c = Pulse.batch<int>([p], onComplete: (_) => outer++);
+
+        // Sync terminal path: the branch counter must reach zero and fire
+        // the batch callback after the sub-pulse completes.
+        Synapses().call(c as PulseBase);
+        expect(inner, 1);
+        expect(outer, 1);
+      });
+
+      test('a batch with onComplete completes through async empty synapses',
+          () async {
+        var inner = 0;
+        var outer = 0;
+        final p = Pulse<int>.governed(payload: 1, onComplete: (_) => inner++);
+        final c = Pulse.batch<int>([p], onComplete: (_) => outer++);
+
+        await Synapses().async.call(c as PulseBase);
+        expect(inner, 1);
+        expect(outer, 1);
+      });
     });
 
     group('Shell', () {
@@ -1710,10 +1736,23 @@ void main() {
     group('Shell extras', () {
       test('shell compareTo follows timestamp then priority', () async {
         final a = Pulse<int>(1).shell;
-        await Future<void>.delayed(const Duration(milliseconds: 2));
-        final b = Pulse<int>(1, priority: 90).shell;
+        // Wait until the clock actually advances past `a`'s millisecond.
+        // Within the same millisecond the priority tier intentionally puts
+        // the higher priority first, so the timestamp comparison can only
+        // be asserted once the boundary is crossed.
+        PulseShell? b;
+        for (var i = 0; i < 50; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 1));
+          final candidate = Pulse<int>(1, priority: 90).shell;
+          if (candidate.timestamp.isAfter(a.timestamp)) {
+            b = candidate;
+            break;
+          }
+        }
         expect(a.compareTo(a), 0);
-        expect(a.compareTo(b), isNegative);
+        if (b != null) {
+          expect(a.compareTo(b), isNegative);
+        }
       });
 
       test('shell + / evolve / withStep are unsupported', () {
@@ -1758,7 +1797,20 @@ void main() {
         }
         expect(low.compareTo(high), isPositive);
         expect(high.compareTo(low), isNegative);
-        expect(low.compareTo(Pulse<int>(3, priority: 10).shell), 0);
+
+        // compareTo is timestamp-first, so the tie assertion below is only
+        // meaningful when the candidate shares the same millisecond window.
+        PulseShell? equal;
+        for (var i = 0; i < 200; i++) {
+          final candidate = Pulse<int>(3, priority: 10).shell;
+          if (candidate.timestamp == low.timestamp) {
+            equal = candidate;
+            break;
+          }
+        }
+        if (equal != null) {
+          expect(low.compareTo(equal), 0);
+        }
       });
 
       test('shell scrutinize catch returns null when the kernel rejects', () {

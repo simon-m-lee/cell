@@ -247,7 +247,7 @@ tagged `{@category …}` with the **same string** as the YAML map key.
 Advanced HowTos are listed after the entry topics; see
 `guide/HowTo-Advanced.md`.
 
-The 17 example files do not map 1:1 onto the factory list (pipelines and
+The 20 example files do not map 1:1 onto the factory list (pipelines and
 valve extra; some operators have no demo). That mismatch is a release
 checklist item, not a secret extra product.
 
@@ -255,8 +255,9 @@ checklist item, not a secret extra product.
 
 ## 8. Status and known gaps
 
-Public preview / RC — not a frozen beta. Verify guarantees against
-current source.
+Stable (package version `1.1.0`). Verify guarantees against current
+source; the published pub.dev package remains `1.0.0-rc.9` until the
+stable release is published.
 
 Known gaps:
 

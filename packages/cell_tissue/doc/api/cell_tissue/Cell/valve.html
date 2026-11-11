@@ -98,20 +98,6 @@ to the <code>synapses</code> layer.</li>
 <li><strong>Egress</strong>: Pulses that pass the gate are subject to the <code>synapses</code>
 configuration (e.g., <a href="../../cell_tissue/Cell/debounce.html">Cell.debounce</a>) before reaching observers.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Statelessness</strong>: A valve is a reactive conduit, not a state holder.
-It does not remember the last passed value. To filter based on
-value history, use <a href="../../cell_tissue/Cell/distinct.html">Cell.distinct</a>.</li>
-<li><strong>Early Termination</strong>: Because the valve sits upstream of its own
-synapses, a closed gate prevents propagation strategies (like
-debounce timers) from even being triggered.</li>
-<li><strong>Forensic Audit</strong>: Even suppressed pulses remain visible to the
-switching fabric's forensic hooks if the <a href="../../cell_tissue/Context-class.html">Context</a> is configured
-for full observability.</li>
-<li><strong>Type Safety</strong>: The <code>gate</code> function is generic over <code>P</code>, allowing
-specialized inspection of custom <a href="../../cell_tissue/Pulse-class.html">Pulse</a> subclasses or metadata.</li>
-</ul>
 <h3 id="example-content-based-filter">Example: Content-Based Filter</h3>
 <pre class="language-dart"><code class="language-dart">// Only allow non-empty search strings to reach the API caller
 final searchValve = Cell.valve&lt;Pulse&lt;String&gt;&gt;(
@@ -139,6 +125,23 @@ distribution behavior for pulses that survive the gate.</li>
 of conditional signal suppression.
 {@category Core 16 Operators}</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> a pure predicate gate that passes or suppresses pulses before expensive downstream work.
+<strong>When NOT to use:</strong> named business policy (clause-ordered, latch, product filter) — that is a <code>cell_flow</code> instruction, not a Cell predicate.
+<strong>Live signature:</strong> <code>Cell.valve&lt;P extends Pulse&gt;(Cell source, bool Function(P pulse) gate, {Synapses synapses = Synapses.enabled})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.distinct</code> (history-based; valve is stateless per pulse).
+<strong>Guide:</strong> <code>guide/HowTo-16_Essential_Operators.md</code> (valve)
+<strong>Example:</strong> <code>example/valve_demo.dart</code>
+<strong>Cross-layer:</strong> the rich policy version is <code>Filter</code> / <code>FlowInstructionBase</code> in <code>cell_flow</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final gated = Cell.valve&lt;Pulse&lt;int&gt;&gt;(src.cell, (p) =&gt; (p.payload ?? 0) &gt; 0);
+final o = Cell.observe(source: gated, effect: (Pulse p) =&gt; print(p.payload));
+src.emit(1);
+src.emit(-1); // blocked by the gate
+o.stop();
+</code></pre>
 </section>
 
 
@@ -178,7 +181,7 @@ of conditional signal suppression.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

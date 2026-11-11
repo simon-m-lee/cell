@@ -75,22 +75,6 @@ the signal conforms to the expected output type.</li>
 <li><strong>Future Propagation</strong>: It manages the <code>future</code> callback chain for
 asynchronous continuation.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Resilience</strong>: The internal evaluator is "fault-tolerant." If a
-specific instruction fails, the mixin captures the error and attempts
-to continue the pipeline using the last valid signal state.</li>
-<li><strong>Execution Efficiency</strong>: Standard synchronous pipelines are processed
-using an optimized path to minimize overhead.</li>
-<li><strong>Short-circuiting</strong>: The default behavior is to treat <code>null</code> as a
-terminal signal. If any stage returns <code>null</code>, the entire chain
-terminates immediately.</li>
-<li><strong>Metadata Integrity</strong>: The mixin ensures that user context and cell
-references are correctly propagated through every stage of the chain.</li>
-<li><strong>Synchronous Only</strong>: This mixin executes instructions synchronously.
-It does not handle <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> results. For asynchronous processing,
-individual instructions should use <a href="../cell_flow/Instruction/Instruction.future.html">Instruction.future</a>.</li>
-</ul>
 <h3 id="type-parameters">Type Parameters:</h3>
 <ul>
 <li><code>C</code>: The type of the host <a href="../cell_flow/Cell-class.html">Cell</a>.</li>
@@ -258,7 +242,7 @@ individual instructions should use <a href="../cell_flow/Instruction/Instruction
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

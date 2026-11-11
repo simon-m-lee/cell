@@ -89,20 +89,6 @@ the current context.</li>
 use <a href="../../cell_flow/Instruction/Instruction.future.html">Instruction.future</a> within individual instructions or use
 <a href="../../cell_flow/Receptor/async.html">Receptor.async</a> for the overall pipeline.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Short-circuiting</strong>: In the default strategy, if any instruction in
-the chain returns <code>null</code>, the entire process terminates immediately
-and the result is <code>null</code>.</li>
-<li><strong>Error Recovery</strong>: The chain maintains the resilience of its parts.
-If an instruction fails, the chain recovers with the last "good"
-pulse state rather than crashing the pipeline.</li>
-<li><strong>Recursive Composition</strong>: Since the resulting chain is itself an
-<a href="../../cell_flow/Instruction-class.html">Instruction</a>, you can nest chains within other chains to build
-hierarchical processing trees.</li>
-<li><strong>Synchronous Pipeline</strong>: The chain executes synchronously. Each
-instruction must complete before the next begins.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>instructions</code>: The ordered collection of logic units to execute.</li>
@@ -161,7 +147,7 @@ logic.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -84,20 +84,6 @@ immutable, enforcing a write-once contract.</li>
 activation phase, bridging the gap between a stateless blueprint and
 a crystallized instance.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Flyweight Strategy</strong>: As a final object within a <a href="../cell/Nucleus-class.html">Nucleus</a> record, it
-supports memory-efficient sharing of structural metadata while allowing
-per-instance constant initialization.</li>
-<li><strong>Runtime Enforcement</strong>: Attempting to re-initialize the box or evolve
-its value after the first assignment triggers a runtime error, acting
-as an internal <strong>Integrity Gate</strong>.</li>
-<li><strong>Synchronized Access</strong>: Like a standard box, it provides a <a href="../cell/SyncBox-class.html">SyncBox</a>
-proxy via the <a href="../cell/FinalBox/async.html">async</a> property for thread-safe initialization from
-background tasks.</li>
-<li><strong>Nullable Support</strong>: The internal <a href="../cell/FinalBox/value.html">value</a> is nullable by design,
-allowing the "crystallized" state to be a null constant if required.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// Defined within an immutable nucleus record
 final config = (id: FinalBox&lt;String&gt;(), category: 'Secure');
@@ -206,8 +192,8 @@ asynchronous access to the underlying state.
 
 </dt>
 <dd>
-  The immutable state value held by this container, initialized late.
-  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">override</span></div>
+  The immutable state value held by this container.
+  <div class="features"><span class="feature">getter/setter pair</span><span class="feature">override</span></div>
 
 </dd>
 
@@ -296,7 +282,7 @@ asynchronous access to the underlying state.
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

@@ -53,6 +53,12 @@
 </h1></div>
 
     
+<section class="desc markdown">
+  <p>Configuration for <a href="../mitosis/Cell/txApply.html">Cell.txApply</a>.</p>
+<p>All fields are optional; the default configuration is safe for most
+ordinary use cases (single-attempt compensation, best-effort error
+handling, fail-fast on the first forward-path rejection).</p>
+</section>
 
 
 
@@ -82,7 +88,7 @@
 
 </dt>
 <dd>
-  
+  <strong>Reserved for future use.</strong>
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -94,7 +100,8 @@
 
 </dt>
 <dd>
-  
+  If <code>true</code>, compensation functions are invoked for staged commands that
+were <strong>not</strong> executed — i.e., commands after the failure point.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -106,7 +113,7 @@
 
 </dt>
 <dd>
-  
+  Delay strategy between compensation attempts.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -118,7 +125,7 @@
 
 </dt>
 <dd>
-  
+  How to handle compensation failures. See <a href="../mitosis/CompensationErrorPolicy.html">CompensationErrorPolicy</a>.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -130,7 +137,7 @@
 
 </dt>
 <dd>
-  
+  Maximum attempts per compensation, including the initial attempt.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -154,7 +161,7 @@
 
 </dt>
 <dd>
-  
+  Predicate deciding whether a compensation error is retryable.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -166,7 +173,7 @@
 
 </dt>
 <dd>
-  
+  Optional hook receiving the complete list of compensation failures.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -178,7 +185,7 @@
 
 </dt>
 <dd>
-  
+  Called for each lifecycle event — see <a href="../mitosis/TxApplyEvent-class.html">TxApplyEvent</a>.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -202,7 +209,8 @@
 
 </dt>
 <dd>
-  
+  If <code>true</code> (default), a forward-path rejection or veto stops the commit
+loop and triggers compensation of previously-executed commands.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -292,7 +300,7 @@
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

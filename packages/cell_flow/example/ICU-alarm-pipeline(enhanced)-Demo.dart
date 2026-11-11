@@ -776,13 +776,13 @@ FlowInstruction buildWarnGate() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// The PAGE handle — emits only PAGE severity alarms.
-FlowHandle<Pulse<dynamic>>? pageHandle;
+FlowHandle? pageHandle;
 
 /// The WARN handle — emits only WARN severity alarms.
-FlowHandle<Pulse<dynamic>>? warnHandle;
+FlowHandle? warnHandle;
 
 /// The PAGER handle — async I/O with retry.
-FlowHandle<Pulse<dynamic>>? pagerHandle;
+FlowHandle? pagerHandle;
 
 /// Number of pager attempts (for retry tracking).
 var pagerAttempts = 0;

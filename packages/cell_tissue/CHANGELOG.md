@@ -1,3 +1,67 @@
+# Changelog
+All notable changes to **cell_tissue** are documented in this file.
+
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+Version numbers follow [SemVer](https://semver.org/). **Tissue** is the
+release codename; it is not part of the SemVer string.
+
+## Tissue (1.0.0) - Stable Release
+
+Stable release formalizing the **Forensic Application Layer** for reactive collections. This version establishes the audit-ready command model, finalizes factory signatures, and completes reactive engine hardening.
+
+### Added
+
+- **`### AI Agent Guide` doc blocks**: `Tissue`, `TissueList`, `TissueSet`, `TissueMap`, `TissueQueue`, `TissueValue`, `TestTissue`, `UnmodifiableTissue`, and `TissuePulse` now carry the standardized AI-facing doc block: layer assertion, when to use / when NOT to use (with `{@macro}` anti-patterns), a `Live signature:` pin, sibling disambiguation, a `Guide:` pointer with a stable HowTo anchor, cross-layer guidance, stability, self-verification steps, and a minimal compilable example.
+- **Anti-pattern templates**: new `lib/doc/ai_anti_patterns.dart` (`ai-do-not-testcell-on-tissue`, `ai-do-not-dart-list-as-system-of-record`, `ai-do-not-drain-tissuequeue`, …).
+- **API chooser**: new generated `lib/doc/api_chooser.dart` — the full BRD-sentence → book decision matrix, rendered on pub.dev and generated from the guide blocks.
+- **AI preflight**: new `tool/ai_preflight.dart` — a one-line check for every `Live signature:` pin and the HowTo version pins; prints a paste-ready Demo-header provenance block; exits non-zero on drift.
+- **Executable doc examples**: new `tool/generate_ai_examples.dart` + `test/ai_guide_examples_test.dart` — every `Minimal compilable example` is generated, compiled with `dart analyze`, executed, and asserted to exit 0 in CI.
+- **Seam rules in-package**: new `test/seam_test.dart` — no `testRule: TestCell` on any Tissue constructor in `example/`; no `TestTissue` on Cell factories.
+- **Matrix freshness + failure log**: new `tool/generate_api_chooser.dart` + `test/api_chooser_up_to_date_test.dart`, and `tool/ai_failure_log.dart` + `tool/ai_failure_log.jsonl` for structured, quarterly-reviewed AI failure records.
+- **Forensic command model bridge**: `TissueBase.apply<R>` routes `ApplyCommand` records through the tissue mutation dispatch engine and returns auditable `ApplyOutcome`s (`ApplyAccepted` / `ApplyRejected` / `ApplyStaged`), with transaction staging via `ApplyTransactionScope.enqueueCommand`. Read-only async projections reject commands.
+- **`tissue_apply_command_test.dart`**: New coverage for the command model on collections: dispatch routing, atomic staging, compensation rollback, and unmodifiable rejection.
+
+- **Semantic fitness suite** (`test/tissue/fitness/`): seven contract tests asserting the documented tissue contracts the benchmarks depend on — live unmodifiable views, deep element projection, batch metadata preservation, `TestTissue` user propagation, growable defaults, unknown-dispatch rejection, and public-nucleus casts.
+
+- **Benchmark suite**: New `benchmark/` directory mirroring the `cell` package's suite — per-shape construction and mutation micro benchmarks with plain-collection controls, end-to-end observer-delivery benchmarks with listener-callback controls, a VM-service per-tissue footprint benchmark, a feature-fair `vs_plain_collections` comparison, a PR-suite runner (`benchmark/runner.dart`), a 15% regression gate (`benchmark/compare.dart`), and a checked-in `baseline.json` (30 tracked results).
+
+### Changed
+
+- **Library docs**: the `cell_tissue` library doc now opens with the layer-contract public-surface top table (the five collection types and their Demo roles) and an explicit "Do NOT use this package for" list.
+- **README**: opens with the AI-starter preamble (Install and import → "AI agents start here" → a six-row BRD elevator table) before the existing content.
+- **Curated examples**: `cell_tissue_example.dart` carries a fixed AI-facing header (`What it demonstrates` / `Which BRD sentence picks it`).
+- **Docs**: new `CONTRIBUTING-AI-DOC.md` (normative block spec) and `CONTRIBUTING.md`.
+- **`evolve` factory signatures**: The `principal` parameter of `TissueNucleus.evolve`, `TissueListNucleus.evolve`, `TissueMapNucleus.evolve`, `TissueQueueNucleus.evolve`, `TissueSetNucleus.evolve`, and `TissueValueNucleus.evolve` is now a positional argument instead of a named parameter - e.g., `TissueListNucleus.evolve(principal, ...)`. All other overrides remain named parameters.
+- **`Tissue.apply` retired**: The loosely typed dynamic `apply` gateway has been removed from the public surface. Mutation routing now lives in an internal `dispatch` engine invoked by `apply<R>(ApplyCommand)`.
+- **Dependency alignment**: Tightened constraints to `cell` `^1.1.0` and `cell_flow` `^1.0.0`.
+
+- **Unmodifiable map seeding**: `UnmodifiableTissueMapBase` now seeds its container from the `entries` parameter and links cell-valued entries — the factory, `fromNucleus`, and `create` entry points previously returned empty maps.
+
+### Fixed
+
+- **`TissueQueue` hardening**: Corrected `capacity: 0` handling in `_queueAdd` to return `false` (reject) instead of throwing `StateError` on empty-queue eviction. Implemented `>=` defensive checks for overflow prevention.
+- **Sentinel link hooks**: `TestTissue.allowAll` and the `never` sentinel now return `true` from their `link` hooks, matching the documented "every hook returns true" contract (the previous `false` reversed allow-all semantics for direct `validate.link` callers).
+- **Deputy sync validation**: `_tissueStack` now honors the deputy's own `validate.element` rules during principal sync (partial sync applies only the accepted subset, per the documented contract) and no longer drops legitimate `null` elements for nullable element types.
+- **Structural equality for tissue events**: `TissueEvent` implements `==`/`hashCode` on its event bitmask, so composite events compare equal when their flags match.
+- **Safe event source casts**: `TissueEventShell.source` and `TissuePulseBase.source` return `null` for non-tissue kernel sources instead of throwing a `TypeError`.
+- **List resize goes through dispatch**: `TissueList.length =` now routes through the dispatch engine (validation + unmodifiable enforcement) instead of mutating the store directly; resizes are structural and emit no per-element pulses (documented).
+- **TissuePulse type slot**: The `TissueEvent` classification is now stored in the pulse's `type` slot directly (`PulseBase.mask` accepts dynamic type tags); the `user` slot is no longer overloaded, so user metadata survives and is inherited cleanly.
+- **Container/queue hardening**: `TissueNucleusBase.container` resolves via an explicit type test and principal walk instead of an exception-driven fallback; `_queueAdd` no longer downcasts to `TissueQueueBase` (custom implementations are treated as unbounded).
+- **Deputy sync diagnostics**: `_tissueStack` asserts in debug builds when a pulse's element type does not line up with the deputy's type parameter, and documents that `container.remove` tears down linked element egress.
+- **API contract documentation**: `TissueList.operator +` documents the left-operand-wins asymmetry; `sort`/shuffle document sync-validation-only semantics; `TissueValue.set` documents that `false` covers both rejection and no-op updates; `TissueValueMixin.dispatch` documents the trusted non-whitelisted execution path; `_TestTissueAllowAll._run` drops the `dynamic` dispatch casts.
+- **Nucleus downcast**: `_TissueSet.fromNucleus` casts to the abstract `TissueSetNucleusBase` instead of the private concrete class, so custom nucleus implementations no longer crash at construction.
+- **Live unmodifiable views**: The list/set/map/queue/value view factories no longer pass a container strategy (which materialized a fresh store and seeded a stale snapshot) — views inherit the bind's store through the principal chain, and `_tissueStack` skips re-applying deltas into a shared store. Views are now truly zero-copy and live (the historical copy bug).
+- **Deep immutability projection**: Unmodifiable views project child `Cell`s as their `.unmodifiable` deputies in `elementAt`, `operator []`, `iterator`, and `toSet` (the projection was documented but not implemented in most read paths).
+- **`TissuePulse.batch` metadata**: The batch factory now forwards `policy`/`context`/`type`/`source`/`step`/`priority`/`onComplete`/`onError`/`onProgress`/`scrutinize` to the collective (all were silently dropped), and collectives report `isComposite: true` per their docstring.
+- **`TestTissue` user metadata**: The constructor now stores `user` even when no `parent` is supplied (previously dropped); user metadata reaches rules as documented.
+- **`TissueValueMixin.dispatch`**: Non-whitelisted functions are rejected (return `null`) instead of executing unvetted — unmodifiable values can no longer be mutated through `apply` with an unknown function.
+
+### Tests
+
+- Updated the nucleus factory tests (`tissue_list_test.dart`, `tissue_map_test.dart`, `tissue_queue_test.dart`, `tissue_set_test.dart`, `tissue_value_test.dart`) to the new positional `principal` signature.
+- Migrated the collection, pulse, receptor, and txApply integration tests from the retired dynamic gateway to `apply<R>(ApplyCommand)` / `enqueueCommand`.
+
+
 ## Tissue (1.0.0-rc.9) - Release Candidate
 
 Docs and dependency-alignment release. No public API changes.
@@ -132,4 +196,3 @@ This release formalizes the **Application Layer Governance** and introduces the 
 
 - **Integrity Verified**: Confirmed that `TissueCommand` evolution preserves `Pulse.trace` metadata from the core layer across asynchronous boundaries.
 - **Coverage**: Maintained 95%+ coverage on reactive collection mutation logic and the new AI command infrastructure.
-

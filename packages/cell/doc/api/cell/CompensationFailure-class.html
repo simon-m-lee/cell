@@ -53,6 +53,12 @@
 </h1></div>
 
     
+<section class="desc markdown">
+  <p>Describes a single failed compensation attempt.</p>
+<p>Aggregated by <a href="../cell/TxApplyCompensationException-class.html">TxApplyCompensationException</a> when the compensation policy
+allows failures to accumulate. Each instance captures enough forensic
+information to reproduce or diagnose the failure.</p>
+</section>
 
 
 
@@ -82,7 +88,7 @@
 
 </dt>
 <dd>
-  
+  The cell on which the compensation was attempted.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -94,7 +100,7 @@
 
 </dt>
 <dd>
-  
+  The error raised by the compensation attempt.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -106,7 +112,7 @@
 
 </dt>
 <dd>
-  
+  The compensation function, if the failure could be attributed to one.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -142,7 +148,7 @@
 
 </dt>
 <dd>
-  
+  Optional stack trace captured at the failure site.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -232,7 +238,7 @@
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

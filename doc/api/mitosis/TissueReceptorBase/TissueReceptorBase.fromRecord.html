@@ -84,15 +84,6 @@ multi‑stage pipeline:
 it is wrapped into a <a href="../../mitosis/Instruction-class.html">Instruction</a> internally.</li>
 <li>The pipeline is stored in a memory‑optimised record using bitmasking.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>receptor</code> is automatically cloned if it is already activated
-(bound to another cell), ensuring that each nucleus starts with a
-clean logic instance.</li>
-<li>If <code>rule</code> is <code>null</code>, the receptor behaves like <code>passThrough</code> for that stage.</li>
-<li>The <code>user</code> parameter is passed to the rule functions and can be used
-for configuration, but it's not part of the pulse's context.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>rule</code>: The primary <a href="../../mitosis/Instruction-class.html">Instruction</a> defining the core transformation logic.</li>
@@ -121,15 +112,6 @@ assumed to be correct and complete.</li>
 <li>This bypasses the bitmask optimisation of the primary constructor,
 which is why it is only safe to use when the record shape is
 guaranteed.</li>
-</ul>
-<h3 id="nonobvious-2">Non‑obvious</h3>
-<ul>
-<li>The record must contain all necessary fields for a receptor,
-including the <code>rule</code>, <code>preProcess</code>, <code>postProcess</code>, and <code>user</code> metadata.</li>
-<li>If the record is malformed, the resulting receptor may behave
-unpredictably – use with extreme caution.</li>
-<li>This constructor is <code>const</code>‑friendly, enabling compile‑time
-instantiation of static receptors.</li>
 </ul>
 <h3 id="example-internal">Example (Internal)</h3>
 <pre class="language-dart"><code class="language-dart">final record = (rule: myRule, preProcess: myPre, user: null);
@@ -174,7 +156,7 @@ Dart <code>Record</code> containing all receptor fields.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

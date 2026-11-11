@@ -34,30 +34,8 @@ class _TissueListNucleus<E, C extends TissueList<E>>
     super.forceLock,
     super.user,
     super.growable,
+    super.principal,
   }) : super();
-
-  _TissueListNucleus.evolve(
-      {Cell? bind,
-      Context? context,
-      TissueReceptor<E, C>? receptor,
-      TestTissue<E, C>? testRule,
-      Synapses? synapses,
-      EphemeralPolicy? ephemeralPolicy,
-      bool forceLock = true,
-      TissueListNucleus<E>? override,
-      required super.principal})
-      : super.evolve(
-            override: override ??
-                _TissueListNucleus<E, C>.fromRecord((
-                  local: TissueNucleusBase.mask<E, List<E>, C>(
-                      bind: bind,
-                      context: context,
-                      receptor: receptor,
-                      testRule: testRule,
-                      synapses: synapses,
-                      forceLock: forceLock,
-                      ephemeralPolicy: ephemeralPolicy)
-                )));
 
   _TissueListNucleus.fromRecord(super.record) : super.fromRecord();
 
@@ -124,15 +102,6 @@ class _TissueListNucleus<E, C extends TissueList<E>>
 ///   nucleus with a fresh lock and synapses, essential for creating new
 ///   list instances from a template.
 ///
-/// ### Non‑obvious
-/// - The `growable` flag is **structural** – it is fixed at creation and
-///   cannot be changed via a deputy. All deputies of a list share the
-///   same growability status.
-/// - The nucleus is a **flyweight** – many lists can share the same nucleus
-///   without duplicating memory.
-/// - The [clone] getter creates a root nucleus (no principal) with its own
-///   lock, making it safe to use for independent list instances.
-///
 /// ### Parameters (constructor):
 /// - [bind]: Optional upstream cell.
 /// - [context]: Execution environment (default: [Context.system]).
@@ -147,46 +116,52 @@ class _TissueListNucleus<E, C extends TissueList<E>>
 /// A nucleus instance that governs a reactive list.
 abstract class TissueListNucleusBase<E, C extends TissueList<E>>
     extends TissueNucleusBase<E, List<E>, C> implements TissueListNucleus<E> {
-  /// Primary constructor for a [TissueListNucleusBase] configuration.
+  /// **Primary Blueprint Constructor** – Defines the immutable behaviour and
+  /// storage strategy for a reactive list.
   ///
-  /// This constructor initializes the behavioral and structural metadata
-  /// required for a reactive [TissueList]. It bridges the generic
-  /// collection framework with [List]-specific constraints, most notably
-  /// the physical storage strategy defined by [growable].
+  /// In the framework's biological metaphor, this constructor synthesizes the
+  /// **Initial DNA** of a list. It establishes the structural constraints
+  /// (growable vs. fixed-length) and the foundational integrity gates that
+  /// will govern all cells derived from this nucleus.
+  ///
+  /// ### When to use
+  /// - **Internal Implementation**: This constructor is `public` specifically
+  ///   to allow concrete subclasses (like `_TissueListNucleus`) to invoke it
+  ///   via `super()`.
+  /// - **Custom List Nuclei**: Use this if you are extending the framework to
+  ///   create a specialized list type with unique storage needs.
+  ///
+  /// **Note**: Standard application code should use [TissueListNucleus.create]
+  /// or [TissueListNucleus.evolve] instead of calling this directly.
   ///
   /// ### How it works
-  /// 1. The [growable] flag determines the physical container:
-  ///    - `true` → [Container.growableTrue] – an ordinary, resizable list.
-  ///    - `false` → [Container.growableFalse] – a fixed‑length list.
-  /// 2. All other parameters are passed to the super‑constructor, which
-  ///    stores them in a memory‑optimised record using bitmasking.
-  /// 3. The resulting nucleus is immutable – you cannot change its
-  ///    configuration after creation.
-  ///
-  /// ### Non‑obvious
-  /// - The [growable] flag is **structural** – once set, it cannot be changed
-  ///   by a deputy. If you need a growable and a fixed‑length view of the
-  ///   same data, you must create two separate nuclei (or use a deputy with
-  ///   a different container type, which is not allowed – deputies inherit
-  ///   the container type).
-  /// - The [receptor] is automatically cloned if it is already activated
-  ///   (bound to another cell), ensuring that each nucleus starts with a
-  ///   clean logic instance.
-  /// - If [synapses] is [Synapses.enabled], a fresh, empty registry is
-  ///   created for the new list. If you pass [Synapses.disabled], the list
-  ///   will be terminal (no broadcasts).
+  /// 1. **Structural Selection**: The [growable] flag determines the
+  ///    physical [Container] strategy:
+  ///    - `true` → [Container.growableTrue]: An ordinary, resizable list.
+  ///    - `false` → [Container.growableFalse]: A fixed‑length list.
+  /// 2. **Bitmask Encoding**: All governance parameters are passed to the
+  ///    [TissueNucleusBase] super-constructor, where they are packed into
+  ///    a memory-optimized, bitmask-enabled record.
+  /// 3. **Immutability**: Once constructed, the structural strategy is locked.
+  ///    Any future [TissueListNucleus.evolve] operations will maintain this core DNA.
   ///
   /// ### Parameters:
-  /// - [bind]: Optional upstream [Cell] – the list will automatically
-  ///   mirror changes from this source (deputy pattern).
-  /// - [context]: Security tier and execution domain (default: [Context.system]).
-  /// - [receptor]: Mutation processor – defaults to [TissueReceptor.passThrough].
-  /// - [testRule]: Validation gate – defaults to [TestTissue.allowAll].
-  /// - [synapses]: Distribution configuration – defaults to [Synapses.enabled].
-  /// - [growable]: `true` for a resizable list, `false` for fixed length.
-  /// - [forceLock]: If `true`, shares the principal's lock (optimisation
-  ///   for deputies); if `false` (default), allocates a new lock.
-  /// - [user]: Optional custom metadata (e.g., UI hints, serialisation tags).
+  /// - [bind]: **Ingress Link.** An optional upstream [Cell] for the list to
+  ///   observe and mirror.
+  /// - [context]: **Operational Authority.** The security tier and priority
+  ///   domain (default: [Context.system]).
+  /// - [receptor]: **Command Engine.** The logic used to process mutations.
+  /// - [testRule]: **Integrity Gate.** Validation rules that guard elements.
+  /// - [synapses]: **Signal Distribution.** Manages egress connectivity and
+  ///   event broadcasting.
+  /// - [growable]: If `true`, the list can change size. Defaults to `true`.
+  /// - [ephemeralPolicy]: **Lifecycle Governance.** Defines the TTL for
+  ///   the collection state.
+  /// - [forceLock]: If `true`, shares the [principal]'s synchronization lock;
+  ///   otherwise, allocates a new one.
+  /// - [user]: **Extension Metadata.** Optional record for domain-specific tags.
+  /// - [principal]: **Prototype Source.** The parent nucleus from which this
+  ///   instance inherits its structural DNA.
   TissueListNucleusBase(
       {super.bind,
       super.context,
@@ -196,7 +171,8 @@ abstract class TissueListNucleusBase<E, C extends TissueList<E>>
       bool growable = true,
       super.ephemeralPolicy,
       super.forceLock,
-      super.user})
+      super.user,
+      super.principal})
       : super(
             container:
                 growable ? Container.growableTrue : Container.growableFalse);
@@ -228,15 +204,6 @@ abstract class TissueListNucleusBase<E, C extends TissueList<E>>
   ///   which is why it is only safe to use when the record shape is
   ///   guaranteed.
   ///
-  /// ### Non‑obvious
-  /// - The record must contain all necessary fields for a [List] nucleus,
-  ///   including the `container` (of type [Container<List<E>>]) and a
-  ///   synchronisation [Lock] (unless sharing one via a principal).
-  /// - If the record is malformed, the resulting nucleus may behave
-  ///   unpredictably – use with caution.
-  /// - This constructor is `const`‑friendly, enabling compile‑time
-  ///   instantiation of static nuclei for zero‑cost default configurations.
-  ///
   /// ### Example (Internal)
   /// ```dart
   /// final record = (mask: (container: Container.growableTrue, ...), principal: null);
@@ -247,69 +214,6 @@ abstract class TissueListNucleusBase<E, C extends TissueList<E>>
   /// - [record]: The internal property record – an implementation‑specific
   ///   Dart `Record` containing all nucleus fields.
   const TissueListNucleusBase.fromRecord(super.record) : super.fromRecord();
-
-  /// **Evolution Constructor** – creates a specialised deputy nucleus by
-  /// extending an existing [principal].
-  ///
-  /// This is the engine behind `deputy()` calls on [TissueList]. It allows
-  /// you to create a new nucleus that inherits most of its configuration
-  /// from a parent (the principal) while overriding specific properties
-  /// like the [testRule] or [context] – all while sharing the same
-  /// physical list data.
-  ///
-  /// ### When to use
-  /// You rarely call this directly – use [TissueList.deputy] instead.
-  /// This constructor is exposed for advanced cases where you need to
-  /// create a deputy nucleus programmatically.
-  ///
-  /// ### How it works
-  /// 1. The [principal] provides the baseline configuration (including the
-  ///    container type and growable flag).
-  /// 2. If [override] is provided, its entire record is used as the local
-  ///    base – any individual parameters (bind, context, etc.) are ignored.
-  /// 3. If [override] is `null`, a new local record is built from the
-  ///    individual parameters, falling back to the principal's values for
-  ///    any omitted property.
-  /// 4. The new nucleus links to the [principal] via its `principal` chain,
-  ///    so property lookups walk up the chain.
-  /// 5. The resulting nucleus shares the same [Lock] as the principal
-  ///    (unless [override] introduces its own lock).
-  ///
-  /// ### Non‑obvious
-  /// - The [growable] flag is **always inherited** from the principal.
-  ///   You cannot change a fixed‑length list into a growable one, or
-  ///   vice versa, through a deputy.
-  /// - If you override the [synapses], the deputy gets its own observer
-  ///   registry – observers attached to the deputy are separate from
-  ///   those on the principal.
-  /// - The [testRule] passed here is **layered on top** of the principal's
-  ///   testRule (via `+`). You can only narrow permissions, never widen.
-  ///
-  /// ### Example
-  /// ```dart
-  /// final principal = TissueListNucleus.create<int>(growable: true);
-  /// final readOnlyNucleus = TissueListNucleusBase.evolve(
-  ///   principal: principal,
-  ///   testRule: TestTissue.readOnly,
-  /// );
-  /// final readOnlyList = TissueList.fromNucleus(readOnlyNucleus);
-  /// ```
-  ///
-  /// ### Parameters:
-  /// - [principal]: **Required**. The source nucleus to inherit from.
-  /// - [override]: Optional. A complete nucleus whose record will replace
-  ///   the local base. If provided, individual parameters are ignored.
-  /// - [bind]: Optional override for the upstream cell.
-  /// - [context]: Optional override for the execution context.
-  /// - [receptor]: Optional override for the mutation processor.
-  /// - [testRule]: Optional override for the validation rule (layered
-  ///   on top of the principal's).
-  /// - [synapses]: Optional override for propagation behaviour.
-  /// - (Other parameters like [forceLock] and [user] are typically
-  ///   inherited from the principal or taken from [override]).
-  TissueListNucleusBase.evolve(
-      {super.override, required TissueListNucleus<E> super.principal})
-      : super.evolve();
 
   /// Retrieves the hierarchical principal configuration of this list's properties.
   ///
@@ -337,15 +241,6 @@ abstract class TissueListNucleusBase<E, C extends TissueList<E>>
   /// - This is the engine behind zero‑copy deputies: they reuse the principal's
   ///   logic and storage without duplicating anything.
   ///
-  /// ### Non‑obvious
-  /// - The type is overridden to `TissueListNucleusBase<E, C>?` instead of the
-  ///   generic `Nucleus?`. This is a covariant override that ensures you get a
-  ///   properly typed principal when you need to access list‑specific methods.
-  /// - The chain ends when this getter returns `null` – that's the "root" nucleus.
-  /// - Even though the getter is `public`, it's intended for internal framework
-  ///   use. Mutating or replacing the principal after construction is not
-  ///   supported – the nucleus is immutable.
-  ///
   /// ### Example (Internal)
   /// ```dart
   /// final list = TissueList<int>();
@@ -371,11 +266,6 @@ abstract class TissueListNucleusBase<E, C extends TissueList<E>>
   /// Read this to conditionally enable or disable UI controls (e.g., an "Add"
   /// button) based on the list's growability.
   ///
-  /// ### Non‑obvious
-  /// - This is a **structural** property – it is fixed at creation and
-  ///   inherited by all deputies. A deputy cannot change a fixed‑length list
-  ///   into a growable one.
-  /// - Defaults to [Container.growableTrue] if not set.
   @override
   Container get containerType {
     return get<Container>(() => record.local.inheritable.container,
@@ -474,6 +364,9 @@ class _TissueList<E, C extends TissueList<E>> extends TissueListBase<E, C> {
   /// A new [TissueList] containing all elements from both lists.
   @override
   TissueList<E> operator +(covariant TissueList<E> other) {
+    // Asymmetric by design: the left operand wins. The result reuses this
+    // list's nucleus (testRule, context, receptor, synapses); the right
+    // operand contributes its elements only.
     return _TissueList.fromNucleus(_nucleus.clone,
         elements: [...this, ...other]);
   }
@@ -514,17 +407,6 @@ class _TissueList<E, C extends TissueList<E>> extends TissueListBase<E, C> {
 ///   3.  Dispatched as a [TissuePulse] to all observers.
 /// - The underlying storage type is strictly [List<E>], ensuring index‑based
 ///   access and positional integrity.
-///
-/// ### Non‑obvious
-/// - **The Mixin Magic**: `ListMixin` provides hundreds of methods for free,
-///   but relies on the implementing class to correctly handle mutations.
-///   `TissueListMixin` ensures that *every* mutation is intercepted.
-/// - **The `apply` Gateway**: All mutations are funnelled through `apply`.
-///   This is a security boundary – deputies override `modifiable` to return
-///   an empty set, rejecting any mutation attempt.
-/// - **Growability**: The list's ability to change size (`growable` flag)
-///   is a structural property determined by the underlying [Container].
-///   A fixed‑length list cannot be turned into a growable one via a deputy.
 ///
 /// ### Example (Internal Usage)
 /// While you never instantiate this directly, understanding it helps you
@@ -616,14 +498,18 @@ class _TissueListDeputy<E, C extends TissueList<E>> extends _TissueList<E, C>
       TestTissue<E, C> testRule = TestTissue.allowAll,
       EphemeralPolicy? ephemeralPolicy,
       Synapses synapses = Synapses.enabled})
-      : super.fromNucleus(_TissueListNucleus<E, C>.evolve(
+      : super.fromNucleus(_TissueListNucleus<E, C>.fromRecord((
+          local: TissueNucleusBase.mask<E, List<E>, C>(
             bind: bind,
             testRule: bind._nucleus.testRule + testRule,
             synapses: bind._nucleus.synapses != Synapses.disabled
                 ? synapses
                 : Synapses.disabled,
+            forceLock: true,
             ephemeralPolicy: ephemeralPolicy,
-            principal: bind._nucleus));
+          ),
+          principal: bind._nucleus,
+        )));
 
   @override
   FutureOr<TissueList<E>> deputy(
@@ -676,17 +562,17 @@ class _UnmodifiableTissueList<E, C extends TissueList<E>>
       : this.fromNucleus(
             TissueListNucleus.create<E, C>(
                 bind: bind,
-                container:
-                    unmodifiableElement ? bind._nucleus.containerType : null,
+                // No local container: the view inherits the bind's store
+                // through the principal chain — zero-copy and live. Passing
+                // a container strategy here would materialize a fresh store
+                // and seed a stale snapshot (the historical copy bug).
                 context: context,
                 synapses: bind._nucleus.synapses == Synapses.disabled
                     ? Synapses.disabled
                     : Synapses.enabled,
                 principal: bind._nucleus as TissueListNucleusBase<E, C>),
             unmodifiableElement: unmodifiableElement,
-            elements: unmodifiableElement
-                ? bind.map<E>((e) => e is Cell ? e.unmodifiable as E : e)
-                : null);
+            elements: null);
 
   _UnmodifiableTissueList.fromNucleus(TissueListNucleus<E> properties,
       {super.unmodifiableElement, super.elements})
@@ -741,16 +627,6 @@ class _UnmodifiableTissueList<E, C extends TissueList<E>>
 /// - If `unmodifiableElement` is `true`, iterating over the list yields
 ///   unmodifiable deputies of any child [Cell]s, ensuring deep immutability.
 ///
-/// ### Non‑obvious
-/// - **It is not a snapshot**: The view is live – changes to the mutable
-///   source are immediately reflected.
-/// - **Equality**: `source == source.unmodifiable` is `true` – they are
-///   considered the same logical entity.
-/// - **Recursive projection**: The iterator wraps child cells in their
-///   `.unmodifiable` deputies, preventing side‑door mutations.
-/// - **Own observer registry**: The view has its own [Synapses] registry,
-///   so observers attached to the view are separate from those on the source.
-///
 /// ### Example (Internal)
 /// ```dart
 /// final source = TissueList<int>([1, 2, 3]);
@@ -778,6 +654,17 @@ abstract class UnmodifiableTissueListBase<E, C extends TissueList<E>>
   @override
   Iterable<Function> get modifiable => <Function>{};
 
+  /// Deep immutability: child cells are projected as their unmodifiable
+  /// deputies when the view was created with unmodifiableElement: true.
+  @override
+  E operator [](int index) {
+    final element = _nucleus.container.elementAt(index);
+    if (unmodifiableElement && element is Cell) {
+      return element.unmodifiable as E;
+    }
+    return element;
+  }
+
   /// Initializes a new [UnmodifiableTissueListBase] instance, anchoring
   /// a read-only reactive list to its behavioral and structural blueprint.
   ///
@@ -800,18 +687,6 @@ abstract class UnmodifiableTissueListBase<E, C extends TissueList<E>>
   ///    overhead.
   /// 4. The resulting instance enters the reactive graph with a read‑only
   ///    barrier – all mutation methods are disabled.
-  ///
-  /// ### Non‑obvious
-  /// - The [unmodifiableElement] flag is **not** stored in the nucleus – it
-  ///   is a behaviour of the view itself. The view applies it during
-  ///   iteration and element access.
-  /// - The [elements] parameter is only used when the underlying container
-  ///   is not already populated (e.g., when creating a fresh unmodifiable
-  ///   list from scratch). For deputies (views), the storage is shared with
-  ///   the source, so [elements] should be `null` to avoid overwriting.
-  /// - The view's `modifiable` getter returns an empty set, so the
-  ///   [TissueListMixin] will never execute mutations – they are rejected
-  ///   at the `apply` gate.
   ///
   /// ### Parameters:
   /// - [properties]: **Required**. The [TissueListNucleusBase] defining
@@ -891,18 +766,6 @@ abstract class UnmodifiableTissueListBase<E, C extends TissueList<E>>
 ///   the [TissueReceptor], which notifies listeners and propagates changes
 ///   through the reactive graph.
 ///
-/// ### Non‑obvious
-/// - The mixin relies on the host class to provide `_nucleus` and `validate`.
-///   It does not hold any state itself – all state is in the nucleus.
-/// - The `apply` method uses a large `if`‑`else` chain to dispatch to the
-///   appropriate private `_` method (e.g., `_add`, `_remove`). This is an
-///   optimisation that avoids reflection overhead.
-/// - The private methods (e.g., `_add`) are responsible for actually
-///   updating the container and generating the corresponding `TissueEvent`.
-/// - If the host class is [Unmodifiable], the mutation methods are bypassed
-///   (the host's `modifiable` is empty), so the mixin's mutation logic is
-///   never reached.
-///
 /// ### Required Host Members:
 /// - `TissueListNucleusBase<E, C> get _nucleus`
 /// - `TestTissue<E, C> get validate`
@@ -910,7 +773,7 @@ abstract class UnmodifiableTissueListBase<E, C extends TissueList<E>>
 ///
 /// ### Example (Internal)
 /// When you call `list.add(42)`, the following chain occurs:
-/// 1. `list.add` (from `ListMixin`) calls `apply(add, [42])`.
+/// 1. `list.add` (from `ListMixin`) calls `dispatch(add, [42])`.
 /// 2. `apply` checks `modifiable.contains(add)` (true for mutable lists).
 /// 3. It calls `_add(42)`, which validates the element, updates the container,
 ///    and emits a [Tissue.elementAdded] pulse.
@@ -937,7 +800,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
         add, addAll, clear, remove, removeWhere,
         retainWhere, fillRange, insert, insertAll, removeAt,
         removeLast, removeRange, replaceRange,
-        setValueAt, setFirst, setAll, setRange, sort, shuffle,
+        setValueAt, setFirst, setAll, setRange, sort, shuffle, _length,
         // ...super.modifiable
       };
 
@@ -965,9 +828,24 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [newLength]: The desired new size for the list.
   @override
   set length(int newLength) {
-    if (this is! Unmodifiable) {
+    dispatch(_length, positionalArguments: [newLength]);
+  }
+
+  /// Structural resize. Validated like every other mutation and blocked on
+  /// unmodifiable views. A resize has no dedicated event flag, so it emits
+  /// no per-element pulses — a documented structural operation, not a
+  /// bypass of the reactive contract.
+  TissuePulse? _length(int newLength,
+      {bool notification = true, Tissue<E>? deputy}) {
+    if (this is! Unmodifiable &&
+        validate.action(_length, host: this as C, arguments: (
+              positionalArguments: [newLength],
+              namedArguments: null,
+            )) ==
+            true) {
       _nucleus.container.store.length = newLength;
     }
+    return null;
   }
 
   /// Returns the current number of elements in the reactive list.
@@ -984,14 +862,14 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [value]: The new value to be stored at that position.
   @override
   void setValueAt(int index, E value) =>
-      apply(setValueAt, positionalArguments: [index, value]);
+      dispatch(setValueAt, positionalArguments: [index, value]);
 
   /// Sets the first element of the list to [value] after validation.
   ///
   /// ### Parameters:
   /// - [value]: The new element for index 0.
   @override
-  void setFirst(E value) => apply(setFirst, positionalArguments: [value]);
+  void setFirst(E value) => dispatch(setFirst, positionalArguments: [value]);
 
   /// The standard Dart index assignment operator.
   ///
@@ -1004,7 +882,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [value]: The new element to store.
   @override
   void operator []=(int index, E value) =>
-      apply(setValueAt, positionalArguments: [index, value]);
+      dispatch(setValueAt, positionalArguments: [index, value]);
 
   /// Appends [element] to the end of the list through the reactive system.
   ///
@@ -1015,7 +893,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// ### Parameters:
   /// - [element]: The item to be added.
   @override
-  void add(E element) => apply(add, positionalArguments: [element]);
+  void add(E element) => dispatch(add, positionalArguments: [element]);
 
   /// Appends all items in [iterable] to the end of this list.
   ///
@@ -1023,14 +901,14 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [iterable]: The collection of elements to add.
   @override
   void addAll(Iterable<E> iterable) =>
-      apply(addAll, positionalArguments: [iterable]);
+      dispatch(addAll, positionalArguments: [iterable]);
 
   /// Removes all elements from the list.
   ///
   /// This effectively resets the list to an empty state (length 0)
   /// after passing validation.
   @override
-  void clear() => apply(clear);
+  void clear() => dispatch(clear);
 
   /// Removes the first occurrence of [object] from the list.
   ///
@@ -1042,7 +920,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// otherwise `false`.
   @override
   bool remove(Object? object) =>
-      (apply(remove, positionalArguments: [object])?.isNotEmpty) ?? false;
+      (dispatch(remove, positionalArguments: [object])?.isNotEmpty) ?? false;
 
   /// Removes all elements that satisfy the given [test] predicate.
   ///
@@ -1050,7 +928,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [test]: A function returning `true` for items to be removed.
   @override
   void removeWhere(bool Function(E element) test) =>
-      apply(removeWhere, positionalArguments: [test]);
+      dispatch(removeWhere, positionalArguments: [test]);
 
   /// Retains only the elements that satisfy the given [test] predicate.
   ///
@@ -1058,7 +936,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [test]: A function returning `true` for items to keep.
   @override
   void retainWhere(bool Function(E element) test) =>
-      apply(retainWhere, positionalArguments: [test]);
+      dispatch(retainWhere, positionalArguments: [test]);
 
   /// Replaces a range of elements with [fillValue].
   ///
@@ -1068,7 +946,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [fillValue]: The value used to overwrite the range.
   @override
   void fillRange(int start, int end, [E? fillValue]) =>
-      apply(fillRange, positionalArguments: [start, end, fillValue]);
+      dispatch(fillRange, positionalArguments: [start, end, fillValue]);
 
   /// Inserts [element] at the specified [index].
   ///
@@ -1079,7 +957,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [element]: The element to insert.
   @override
   void insert(int index, E element) =>
-      apply(insert, positionalArguments: [index, element]);
+      dispatch(insert, positionalArguments: [index, element]);
 
   /// Inserts a collection of elements starting at the specified [index].
   ///
@@ -1088,7 +966,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [iterable]: The elements to insert.
   @override
   void insertAll(int index, Iterable<E> iterable) =>
-      apply(insertAll, positionalArguments: [index, iterable]);
+      dispatch(insertAll, positionalArguments: [index, iterable]);
 
   /// Removes the element at the given [index] and returns it.
   ///
@@ -1099,7 +977,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// The element that was removed.
   @override
   E removeAt(int index) {
-    final result = apply(removeAt, positionalArguments: [index]);
+    final result = dispatch(removeAt, positionalArguments: [index]);
     if (result == null) {
       throw UnsupportedError('Unmodifiable operation');
     }
@@ -1112,7 +990,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// The removed element.
   @override
   E removeLast() {
-    final result = apply(removeLast);
+    final result = dispatch(removeLast);
     if (result == null) {
       throw UnsupportedError('Unmodifiable operation');
     }
@@ -1126,7 +1004,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [end]: The ending index (exclusive).
   @override
   void removeRange(int start, int end) =>
-      apply(removeRange, positionalArguments: [start, end]);
+      dispatch(removeRange, positionalArguments: [start, end]);
 
   /// Replaces a specified range of elements with the contents of [newContents].
   ///
@@ -1136,7 +1014,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [newContents]: The iterable providing the new elements.
   @override
   void replaceRange(int start, int end, Iterable<E> newContents) =>
-      apply(replaceRange, positionalArguments: [start, end, newContents]);
+      dispatch(replaceRange, positionalArguments: [start, end, newContents]);
 
   /// Overwrites elements with the objects of [iterable] starting at [index].
   ///
@@ -1145,7 +1023,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [iterable]: The source elements.
   @override
   void setAll(int index, Iterable<E> iterable) =>
-      apply(setAll, positionalArguments: [index, iterable]);
+      dispatch(setAll, positionalArguments: [index, iterable]);
 
   /// Writes some elements of [iterable] into a range of this list.
   ///
@@ -1156,7 +1034,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [skipCount]: How many elements to skip in the source [iterable].
   @override
   void setRange(int start, int end, Iterable<E> iterable, [int skipCount = 0]) {
-    apply(setRange, positionalArguments: [start, end, iterable, skipCount]);
+    dispatch(setRange, positionalArguments: [start, end, iterable, skipCount]);
   }
 
   /// Shuffles the elements of this list randomly.
@@ -1165,7 +1043,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [random]: An optional [Random] number generator to use.
   @override
   void shuffle([Random? random]) =>
-      apply(shuffle, positionalArguments: [random]);
+      dispatch(shuffle, positionalArguments: [random]);
 
   /// Sorts this list according to the order specified by the [compare] function.
   ///
@@ -1173,34 +1051,18 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [compare]: An optional comparison function.
   @override
   void sort([int Function(E a, E b)? compare]) =>
-      apply(sort, positionalArguments: [compare]);
+      dispatch(sort, positionalArguments: [compare]);
 
   // ... (private mutation methods _setValueAt, _add, _addAll, _clear, etc.)
   // These methods follow the same pattern and are documented in the mixin
   // overview above.
 
   @override
-  dynamic apply(
+  dynamic dispatch(
     Function function, {
     List? positionalArguments,
     Map<Symbol, dynamic>? namedArguments,
-    ApplyTransactionScope? tx,
-    Function? compensate,
-    List? compensatePositional,
-    Map<Symbol, dynamic>? compensateNamed,
-    Cell? compensateCell,
   }) {
-    if (tx != null) {
-      return super.apply(function,
-          positionalArguments: positionalArguments,
-          namedArguments: namedArguments,
-          tx: tx,
-          compensate: compensate,
-          compensatePositional: compensatePositional,
-          compensateNamed: compensateNamed,
-          compensateCell: compensateCell);
-    }
-
     if (modifiable.contains(function)) {
       try {
         if (validate.action(function, host: this as C, arguments: (
@@ -1268,6 +1130,9 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
           } else if (function == shuffle) {
             return Function.apply(_shuffle, positionalArguments,
                 {#notification: notification, #deputy: deputy});
+          } else if (function == _length) {
+            return Function.apply(_length, positionalArguments,
+                {#notification: notification, #deputy: deputy});
           }
         }
       } catch (e) {
@@ -1280,7 +1145,8 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return null;
   }
 
-  TissuePulse<E>? _add(E element, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse<E>? _add(E element,
+      {bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable &&
         validate.element(element, host: this as C, action: add) == true) {
       _nucleus.container.store.add(element);
@@ -1288,7 +1154,8 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
       if (cell is Cell) {
         _nucleus.synapses.link(cell, downstreamCell: this);
       }
-      final event = _TissuePulse<E>(source: deputy ?? this, payload: element, type: Tissue.elementAdded);
+      final event = _TissuePulse<E>(
+          source: deputy ?? this, payload: element, type: Tissue.elementAdded);
       if (notification) {
         _nucleus.receptor(event);
       }
@@ -1297,7 +1164,8 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return null;
   }
 
-  TissuePulse? _addAll(Iterable<E> iterable, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _addAll(Iterable<E> iterable,
+      {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
       final added = <E>[];
@@ -1313,9 +1181,11 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
       }
       if (added.isNotEmpty) {
         final events = added
-            .map((e) => _TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementAdded))
+            .map((e) => _TissuePulse<E>(
+                source: deputy ?? this, payload: e, type: Tissue.elementAdded))
             .toList();
-        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        result =
+            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification && events.length == 1) {
           _nucleus.receptor(result);
         }
@@ -1332,11 +1202,13 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
       for (final e in snapshot) {
         if (validate.element(e, host: this as C, action: remove) == true) {
           _nucleus.container.store.remove(e);
-          events.add(_TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementRemoved));
+          events.add(_TissuePulse<E>(
+              source: deputy ?? this, payload: e, type: Tissue.elementRemoved));
         }
       }
       if (events.isNotEmpty) {
-        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        result =
+            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification) {
           _nucleus.receptor(result);
         }
@@ -1345,12 +1217,17 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return result;
   }
 
-  TissuePulse<E>? _remove(Object? object, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse<E>? _remove(Object? object,
+      {bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable && object is E) {
       final index = _nucleus.container.store.indexOf(object);
-      if (index >= 0 && validate.element(object, host: this as C, action: remove) == true) {
+      if (index >= 0 &&
+          validate.element(object, host: this as C, action: remove) == true) {
         _nucleus.container.store.removeAt(index);
-        final event = _TissuePulse<E>(source: deputy ?? this, payload: object, type: Tissue.elementRemoved);
+        final event = _TissuePulse<E>(
+            source: deputy ?? this,
+            payload: object,
+            type: Tissue.elementRemoved);
         if (notification) {
           _nucleus.receptor(event);
         }
@@ -1360,7 +1237,8 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return null;
   }
 
-  TissuePulse? _removeWhere(bool Function(E element) test, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _removeWhere(bool Function(E element) test,
+      {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
       final events = <TissuePulse<E>>[];
@@ -1368,11 +1246,13 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
       for (final e in snapshot) {
         if (validate.element(e, host: this as C, action: remove) == true) {
           _nucleus.container.store.remove(e);
-          events.add(_TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementRemoved));
+          events.add(_TissuePulse<E>(
+              source: deputy ?? this, payload: e, type: Tissue.elementRemoved));
         }
       }
       if (events.isNotEmpty) {
-        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        result =
+            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification) {
           _nucleus.receptor(result);
         }
@@ -1381,17 +1261,22 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return result;
   }
 
-  TissuePulse? _retainWhere(bool Function(E element) test, {bool notification = true, Tissue<E>? deputy}) {
-    return _removeWhere((e) => !test(e), notification: notification, deputy: deputy);
+  TissuePulse? _retainWhere(bool Function(E element) test,
+      {bool notification = true, Tissue<E>? deputy}) {
+    return _removeWhere((e) => !test(e),
+        notification: notification, deputy: deputy);
   }
 
-  TissuePulse<E>? _setValueAt(int index, E value, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse<E>? _setValueAt(int index, E value,
+      {bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable &&
         index >= 0 &&
         index < _nucleus.container.store.length) {
-      if (validate.element(value, host: this as C, action: setValueAt) == true) {
+      if (validate.element(value, host: this as C, action: setValueAt) ==
+          true) {
         _nucleus.container.store[index] = value;
-        final event = _TissuePulse<E>(source: deputy ?? this, payload: value, type: Tissue.elementAdded);
+        final event = _TissuePulse<E>(
+            source: deputy ?? this, payload: value, type: Tissue.elementAdded);
         if (notification) {
           _nucleus.receptor(event);
         }
@@ -1401,19 +1286,25 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return null;
   }
 
-  TissuePulse<E>? _setFirst(E value, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse<E>? _setFirst(E value,
+      {bool notification = true, Tissue<E>? deputy}) {
     if (_nucleus.container.store.isEmpty) {
       return null;
     }
     return _setValueAt(0, value, notification: notification, deputy: deputy);
   }
 
-  TissuePulse<E>? _fillRange(int start, int end, E? fillValue, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse<E>? _fillRange(int start, int end, E? fillValue,
+      {bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable &&
         fillValue != null &&
-        validate.element(fillValue, host: this as C, action: fillRange) == true) {
+        validate.element(fillValue, host: this as C, action: fillRange) ==
+            true) {
       _nucleus.container.store.fillRange(start, end, fillValue);
-      final event = _TissuePulse<E>(source: deputy ?? this, payload: fillValue, type: Tissue.elementAdded);
+      final event = _TissuePulse<E>(
+          source: deputy ?? this,
+          payload: fillValue,
+          type: Tissue.elementAdded);
       if (notification) {
         _nucleus.receptor(event);
       }
@@ -1422,7 +1313,8 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return null;
   }
 
-  TissuePulse<E>? _insert(int index, E element, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse<E>? _insert(int index, E element,
+      {bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable &&
         validate.element(element, host: this as C, action: insert) == true) {
       _nucleus.container.store.insert(index, element);
@@ -1430,7 +1322,8 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
       if (cell is Cell) {
         _nucleus.synapses.link(cell, downstreamCell: this);
       }
-      final event = _TissuePulse<E>(source: deputy ?? this, payload: element, type: Tissue.elementAdded);
+      final event = _TissuePulse<E>(
+          source: deputy ?? this, payload: element, type: Tissue.elementAdded);
       if (notification) {
         _nucleus.receptor(event);
       }
@@ -1439,7 +1332,8 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return null;
   }
 
-  TissuePulse? _insertAll(int index, Iterable<E> iterable, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _insertAll(int index, Iterable<E> iterable,
+      {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
       final added = <E>[];
@@ -1450,9 +1344,10 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
         }
       }
       if (added.isNotEmpty) {
-        final events = added
-            .map((e) => _TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementAdded));
-        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        final events = added.map((e) => _TissuePulse<E>(
+            source: deputy ?? this, payload: e, type: Tissue.elementAdded));
+        result =
+            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification && events.length == 1) {
           _nucleus.receptor(result);
         }
@@ -1462,11 +1357,14 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   }
 
   E? _removeAt(int index, {bool notification = true, Tissue<E>? deputy}) {
-    if (this is! Unmodifiable && index >= 0 && index < _nucleus.container.store.length) {
+    if (this is! Unmodifiable &&
+        index >= 0 &&
+        index < _nucleus.container.store.length) {
       final e = _nucleus.container.store[index];
       if (validate.element(e, host: this as C, action: removeAt) == true) {
         _nucleus.container.store.removeAt(index);
-        final event = _TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementRemoved);
+        final event = _TissuePulse<E>(
+            source: deputy ?? this, payload: e, type: Tissue.elementRemoved);
         if (notification) {
           _nucleus.receptor(event);
         }
@@ -1478,12 +1376,14 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
 
   E? _removeLast({bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable && _nucleus.container.store.isNotEmpty) {
-      return _removeAt(_nucleus.container.store.length - 1, notification: notification, deputy: deputy);
+      return _removeAt(_nucleus.container.store.length - 1,
+          notification: notification, deputy: deputy);
     }
     return null;
   }
 
-  TissuePulse? _removeRange(int start, int end, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _removeRange(int start, int end,
+      {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
       final events = <TissuePulse<E>>[];
@@ -1491,11 +1391,13 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
       for (final e in snapshot) {
         if (validate.element(e, host: this as C, action: remove) == true) {
           _nucleus.container.store.remove(e);
-          events.add(_TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementRemoved));
+          events.add(_TissuePulse<E>(
+              source: deputy ?? this, payload: e, type: Tissue.elementRemoved));
         }
       }
       if (events.isNotEmpty) {
-        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        result =
+            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification) {
           _nucleus.receptor(result);
         }
@@ -1504,18 +1406,22 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return result;
   }
 
-  TissuePulse? _replaceRange(int start, int end, Iterable<E> newContents, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _replaceRange(int start, int end, Iterable<E> newContents,
+      {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
       final replacement = newContents
-          .where((e) => validate.element(e, host: this as C, action: add) == true)
+          .where(
+              (e) => validate.element(e, host: this as C, action: add) == true)
           .toList();
       _nucleus.container.store.replaceRange(start, end, replacement);
       if (replacement.isNotEmpty) {
         final events = replacement
-            .map((e) => _TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementAdded))
+            .map((e) => _TissuePulse<E>(
+                source: deputy ?? this, payload: e, type: Tissue.elementAdded))
             .toList();
-        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        result =
+            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification && events.length == 1) {
           _nucleus.receptor(result);
         }
@@ -1524,7 +1430,8 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return result;
   }
 
-  TissuePulse? _setAll(int index, Iterable<E> iterable, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _setAll(int index, Iterable<E> iterable,
+      {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
       final values = iterable
@@ -1533,9 +1440,10 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
           .toList();
       _nucleus.container.store.setAll(index, values);
       if (values.isNotEmpty) {
-        final events = values
-            .map((e) => _TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementAdded));
-        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        final events = values.map((e) => _TissuePulse<E>(
+            source: deputy ?? this, payload: e, type: Tissue.elementAdded));
+        result =
+            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification && events.length == 1) {
           _nucleus.receptor(result);
         }
@@ -1544,18 +1452,19 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return result;
   }
 
-  TissuePulse? _setRange(int start, int end, Iterable<E> iterable, int skipCount, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _setRange(
+      int start, int end, Iterable<E> iterable, int skipCount,
+      {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
-      final values = iterable
-          .skip(skipCount)
-          .take(end - start)
-          .where((e) => validate.element(e, host: this as C, action: add) == true);
+      final values = iterable.skip(skipCount).take(end - start).where(
+          (e) => validate.element(e, host: this as C, action: add) == true);
       _nucleus.container.store.setRange(start, end, values, skipCount);
       if (values.isNotEmpty) {
-        final events = values
-            .map((e) => _TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementAdded));
-        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        final events = values.map((e) => _TissuePulse<E>(
+            source: deputy ?? this, payload: e, type: Tissue.elementAdded));
+        result =
+            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification && events.length == 1) {
           _nucleus.receptor(result);
         }
@@ -1564,13 +1473,15 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return result;
   }
 
-  TissuePulse<E>? _sort(int Function(E a, E b)? compare, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse<E>? _sort(int Function(E a, E b)? compare,
+      {bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable) {
       _nucleus.container.store.sort(compare);
       if (_nucleus.container.store.isEmpty) {
         return null;
       }
-      final event = _TissuePulse<E>(source: deputy ?? this, payload: _nucleus.container.store.first);
+      final event = _TissuePulse<E>(
+          source: deputy ?? this, payload: _nucleus.container.store.first);
       if (notification) {
         _nucleus.receptor(event);
       }
@@ -1579,13 +1490,15 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return null;
   }
 
-  TissuePulse<E>? _shuffle(Random? random, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse<E>? _shuffle(Random? random,
+      {bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable) {
       _nucleus.container.store.shuffle(random);
       if (_nucleus.container.store.isEmpty) {
         return null;
       }
-      final event = _TissuePulse<E>(source: deputy ?? this, payload: _nucleus.container.store.first);
+      final event = _TissuePulse<E>(
+          source: deputy ?? this, payload: _nucleus.container.store.first);
       if (notification) {
         _nucleus.receptor(event);
       }
@@ -1624,16 +1537,6 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
 /// - The underlying synchronous method is called within the `Future`'s
 ///   execution, so all validation and pulse emission happen exactly as they
 ///   would in a synchronous call.
-///
-/// ### Non‑obvious
-/// - The async wrapper does **not** change the validation or reactivity – it's
-///   the same pipeline as synchronous calls, just non‑blocking.
-/// - If the tissue is unmodifiable, the async methods will throw
-///   `UnsupportedError`.
-/// - The `await` ensures that all downstream observers have been notified
-///   before the Future resolves.
-/// - The [ModifiableListAsync] extends [TissueModifiableAsync] which provides
-///   the common `apply` method for dynamic command execution.
 ///
 /// ### Example
 /// ```dart
@@ -1698,10 +1601,6 @@ class ModifiableListAsync<E> extends TissueModifiableAsync<E, TissueList<E>> {
   /// [element] passes the DNA integrity checks (`testRule`), a new [Pulse]
   /// is emitted containing a [Tissue.elementAdded] event.
   ///
-  /// ### Non‑obvious
-  /// If the addition is rejected by validation, the [Future] will resolve
-  /// without modifying the state, and no forensic trace will be generated
-  /// for the collection.
   Future<void> add(E element) => Future<void>(() => _tissue.add(element));
 
   /// Asynchronously appends all [elements] to the end of this list.
@@ -1730,10 +1629,6 @@ class ModifiableListAsync<E> extends TissueModifiableAsync<E, TissueList<E>> {
 
   /// Asynchronously removes all elements that satisfy the [test] predicate.
   ///
-  /// ### Non‑obvious
-  /// The removal happens within a single transaction scope. Observers will
-  /// see the final state of the list after all satisfying elements have
-  /// been purged.
   Future<void> removeWhere(bool Function(E element) test) =>
       Future<void>(() => _tissue.removeWhere(test));
 
@@ -1792,9 +1687,6 @@ class ModifiableListAsync<E> extends TissueModifiableAsync<E, TissueList<E>> {
 
   /// Asynchronously shuffles the elements of this list.
   ///
-  /// ### Non‑obvious
-  /// Although the order changes, this triggers a forensic update to notify
-  /// observers that the structural sequence has been randomized.
   Future<void> shuffle([Random? random]) =>
       Future<void>(() => _tissue.shuffle(random));
 
@@ -1823,6 +1715,12 @@ class ModifiableListAsync<E> extends TissueModifiableAsync<E, TissueList<E>> {
 ///   synchronous view.
 class _UnmodifiableModifiableListAsync<E> implements ModifiableListAsync<E> {
   const _UnmodifiableModifiableListAsync();
+
+  /// The read-only async projection has no command surface.
+  @override
+  Future<ApplyOutcome<R>> apply<R>(ApplyCommand command,
+          {ApplyTransactionScope? tx}) =>
+      Future<ApplyOutcome<R>>.error(UnsupportedError('Unmodifiable operation'));
 
   /// Async sets the value at the given [index] in the list to [value].
   @override
@@ -1923,18 +1821,4 @@ class _UnmodifiableModifiableListAsync<E> implements ModifiableListAsync<E> {
 
   @override
   TissueList<E> get _tissue => throw UnimplementedError();
-
-  @override
-  Future apply(
-    Function function, {
-    List? positionalArguments,
-    Map<Symbol, dynamic>? namedArguments,
-    ApplyTransactionScope? tx,
-    Function? compensate,
-    List? compensatePositional,
-    Map<Symbol, dynamic>? compensateNamed,
-    Cell? compensateCell,
-  }) async {
-    return Future.error(UnsupportedError('Unmodifiable operation'));
-  }
 }

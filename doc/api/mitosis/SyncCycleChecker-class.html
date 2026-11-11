@@ -85,19 +85,6 @@ across all concurrent tasks associated with a single <a href="../mitosis/Pulse-c
 <li><strong>Async Interface</strong>: Provides a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>-based API to align with the
 framework's non-blocking concurrency model.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Lifecycle</strong>: Typically accessed via the <code>async</code> property of a base
-<a href="../mitosis/CycleChecker-class.html">CycleChecker</a>. It is an ephemeral proxy that lasts for the duration
-of a single propagation wave.</li>
-<li><strong>Principal Proxy</strong>: It does not own the visited set itself but merely
-coordinates synchronized access to its principal <a href="../mitosis/CycleChecker-class.html">CycleChecker</a>.</li>
-<li><strong>Zero-Blocking</strong>: Uses the framework's internal <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> to ensure the
-calling thread remains available for other tasks while waiting for
-registry access.</li>
-<li><strong>Forensic Integrity</strong>: Maintains the causal path of a pulse even when
-execution is deferred, parallelized, or moved to different execution tiers.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; asyncPropagate(Pulse pulse, Cell node) async {
   // Access the synchronized checker for async flows
@@ -277,7 +264,7 @@ the current asynchronous stimulus.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

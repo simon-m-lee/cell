@@ -83,7 +83,29 @@ part of '../cell.dart';
 /// {@category Core}
 /// {@category Core 16 Operators}
 /// {@category Demo: aircraft}
-/// {@category Demo: hotel}
+/// {@category Transactions}
+/// {@category Apply + Transactions}
+///
+/// ### AI Agent Guide
+/// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+/// **When to use:** Read this page when a BRD sentence names an external fact, a retained value, or a side effect; then pick one static factory below.
+/// **When NOT to use:**
+///   {@macro ai-do-not-create-cell-as-policy}
+///   {@macro ai-do-not-invent-cell-factories}
+/// **Live signature:** `abstract interface class Cell` — pinned at `cell: 1.1.0`
+/// **Do NOT confuse with:** `ValueCell` (the concrete stateful type returned by `Cell.state`).
+/// **Guide:** `HowTo-Mitose-Cell.md` §2 "Cell.* factories this HowTo covers" (#cell-factories)
+/// **Example:** `example/cell_example.dart`
+/// **Cross-layer:** decision logic moves to `cell_flow`; collection history moves to `cell_tissue`.
+/// **Minimal compilable example**
+/// ```dart
+/// final inGate = Cell.ingress<int>();
+/// final seen = <int>[];
+/// final o = Cell.observe(source: inGate.cell, effect: (Pulse p) => seen.add(p.payload as int));
+/// inGate.emit(1);
+/// o.stop();
+/// print(seen); // [1]
+/// ```
 abstract interface class Cell {
   /// Internal evolve of the cell, encapsulating its configuration.
   /// This typically includes its [Receptor], [TestCell], [Synapses], and
@@ -116,13 +138,6 @@ abstract interface class Cell {
   ///   validating data before it reaches the receptor.
   /// - **Egress Network**: The [synapses] determine how the resulting update
   ///   is broadcast to downstream observers.
-  ///
-  /// ### Non‑obvious
-  /// - **Flyweight Logic**: By default, a cell created here uses
-  ///   [DeputyContext.system]. This means it operates with root-level
-  ///   authority unless explicitly attenuated later via [Cell.deputy].
-  /// - **Receptor Defaults**: If no [receptor] is provided, it defaults to
-  ///   [Receptor.passThrough], effectively creating a transparent "Relay Node."
   ///
   /// ### Example: A Reactive Transformation Node
   /// ```dart
@@ -227,6 +242,21 @@ abstract interface class Cell {
   /// ### Returns:
   /// A fully managed [Cell] instance with a dedicated policy perimeter and
   /// explicit lifecycle configuration.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** infrastructure nodes needing a TTL ([EphemeralPolicy]), explicit [Context], or a private lock.
+  /// **When NOT to use:** ordinary application state — `Cell.state` / `Cell.ingress` cover it.
+  /// **Live signature:** `Cell.governed({ephemeralPolicy, context, bind, receptor, testRule, synapses, forceLock})` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Cell` (the ungoverned default factory).
+  /// **Guide:** `guide/HowTo-EphemeralPolicy.md` (governance)
+  /// **Example:** `example/open_cell_demo.dart`
+  /// **Cross-layer:** policy clauses are still a `cell_flow` concern; governance here is lifecycle/authority, not business policy.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final g = Cell.governed(context: Context.system);
+  /// print(g.isGoverned); // true
+  /// ```
   factory Cell.governed(
       {EphemeralPolicy? ephemeralPolicy,
       Context context,
@@ -273,23 +303,12 @@ abstract interface class Cell {
   ///
   /// ### Synchronization & Atomic Integrity
   /// The resulting instance inherits the optional synchronization domain
-  /// (the [Lock]) defined within the nucleus. If a lock is provided, it
-  /// ensures that the cell enters the **Directed Acyclic Graph (DAG)**
-  /// as a thread-safe, atomically consistent node. This mechanism
-  /// allows developers to group multiple cells into a single
-  /// **Atomic Transaction Domain** by sharing a common lock.
-  ///
-  /// ### Non‑obvious
-  /// - If the provided nucleus is already activated, it is **automatically
-  ///   cloned** to prevent state sharing conflicts between cells.
-  /// - After hydration, the cell automatically links to any [bind] cell
-  ///   specified in the nucleus, establishing its position in the reactive
-  ///   graph. If linking fails, the cell still initialises to maintain
-  ///   graph availability.
-  /// - The nucleus's [Synapses] configuration is inherited as-is; if
-  ///   `Synapses.enabled` is set, a fresh registry is created per cell.
-  /// - The [Lock] is inherited from the nucleus; if the nucleus uses a
-  ///   shared lock, multiple cells can operate in the same atomic domain.
+  /// (the [Lock]) defined within the nucleus. When a lock is present, the
+  /// cell's mutating operations are serialized through it, so several
+  /// cells sharing one lock form a single **Atomic Transaction Domain**.
+  /// This is a re-entrancy and ordering guarantee inside one Dart
+  /// isolate — it is not a cross-thread memory fence; there are no
+  /// threads in the Dart runtime's shared-memory sense.
   ///
   /// ### Example: Hydrating from a Pre-configured Nucleus
   /// ```dart
@@ -325,7 +344,36 @@ abstract interface class Cell {
   /// * [Cell.deputy] – For creating restricted views of a cell.
   /// * [Cell.governed] – For explicit governance configuration.
   /// * [Cell.fromNucleus] – The entry point for this factory.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** infrastructure only — hydrate a cell from a persisted / cloned [Nucleus] blueprint.
+  /// **When NOT to use:** application state — use `Cell.state` / `Cell.ingress` / `Cell.derive` first.
+  /// **Live signature:** `Cell.fromNucleus(Nucleus nucleus)` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Nucleus.evolve` (builds the blueprint; this activates it).
+  /// **Guide:** `guide/HowTo-Nucleus.md` (nucleus blueprints)
+  /// **Example:** `example/open_cell_demo.dart`
+  /// **Cross-layer:** `Flow.toHandle` builds a Receptor so application code never hand-rolls one.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final blueprint = Nucleus(
+  ///   receptor: Receptor((cell, pulse, {user}) {
+  ///     final token = pulse.payload as String;
+  ///     return Pulse(token.isNotEmpty ? 'Valid' : 'Invalid');
+  ///   }),
+  ///   testRule: TestCell((value, {host, arguments, user}) => value is String),
+  /// );
+  /// final authCell = Cell.fromNucleus(blueprint);
+  /// print(authCell);
+  /// ```
   factory Cell.fromNucleus(Nucleus nucleus) = _Cell.fromNucleus;
+
+  /// The propagation step label used by `ReceptorBase._proceed`.
+  ///
+  /// The value is constant per cell (it only depends on the cell's context
+  /// role), so it is computed once instead of calling [toString] for every
+  /// pulse that visits the cell.
+  String get _stepString;
 
   /// Synthesizes a **Stateless Event Gateway**—the primary entry point for
   /// bridging imperative signals into the reactive graph.
@@ -361,18 +409,6 @@ abstract interface class Cell {
   ///   read for a "current" value.
   /// - **[Cell.state]** is a **Storage Primitive**. It is designed for
   ///   persistent data that evolves over time and can be read at any time.
-  ///
-  /// ### Non‑obvious
-  /// - **No State Storage**: An ingress cell is a "pass-through" node. It
-  ///   consumes zero storage memory for values.
-  /// - **Pulse Transparency**: Pulses passing through an ingress node
-  ///   preserve their forensic history, allowing downstream nodes to
-  ///   trace events back to the original imperative trigger.
-  /// - **Graph Stabilization**: The `ingest` handle with
-  ///   `serializedCompletion: true` allows your imperative code to `await`
-  ///   the completion of the entire reactive cascade triggered by the event.
-  /// - **Integrity Gate**: All inputs must pass the [testRule] and
-  ///   [context] authorization checks before being broadcast.
   ///
   /// ### Example: Clean, transformed ingress
   /// ```dart
@@ -430,6 +466,26 @@ abstract interface class Cell {
   /// - **HowTo**: See `guide/HowTo-Start.md` for a guide on bridging
   ///   imperative and reactive code.
   /// {@category Core 16 Operators}
+///
+/// ### AI Agent Guide
+/// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+/// **When to use:** A BRD says "capture X" (an external fact enters the system) — identity, class, quantity, location, tick bus, ACK.
+/// **When NOT to use:**
+///   {@macro ai-do-not-create-cell-as-policy}
+/// **Live signature:** `Cell.ingress<I>({refine, ephemeralPolicy, source, context, receptor, testRule, synapses, forceLock})` — pinned at `cell: 1.1.0`
+/// **Do NOT confuse with:** `Cell.state` (retained value, not stateless entry).
+/// **Guide:** `HowTo-Mitose-Cell.md` §3.1 "Cell.ingress — how the desk enters the graph" (#cell-ingress)
+/// **Example:** `example/ingress_demo.dart`
+/// **Cross-layer:** moves to `cell_flow` if the BRD says "wait for silence" or "rate-limit".
+/// **Minimal compilable example**
+/// ```dart
+/// final gate = Cell.ingress<int>(
+///   testRule: TestCell((v, {arguments, host, user}) => v is int && v >= 0),
+/// );
+/// gate.emit(1);
+/// gate.emit(-1); // rejected by the TestCell gate
+/// print('ok');
+/// ```
   static IngressHandle<I> ingress<I>({
     Pulse<I?>? Function(Cell host, Pulse<I> input)? refine,
     EphemeralPolicy? ephemeralPolicy,
@@ -478,19 +534,6 @@ abstract interface class Cell {
   /// 5. **Commitment**: If `evolve` returns a new [Pulse], the state is
   ///    updated and immediately broadcast via [Synapses].
   ///
-  /// ### Non‑obvious
-  /// - **Initial Seed**: The [initial] value is written directly to storage,
-  ///   bypassing the transformation and validation cycle.
-  /// - **Testing & Integrity**: The [testRule] acts as an **Integrity Gate**,
-  ///   allowing you to enforce constraints (e.g., "value must never be negative")
-  ///   or inject mock behaviors during unit testing without altering production
-  ///   transformation logic.
-  /// - **Null Filtering**: If [evolve] returns `null`, the update is
-  ///   rejected, the storage remains unchanged, and no propagation occurs.
-  /// - **Atomic Isolation**: By default, state updates are serialized
-  ///   through an internal [Lock] to prevent race conditions during
-  ///   concurrent async operations.
-  ///
   /// ### Example: Validated Counter
   /// ```dart
   /// final counter = Cell.state<int>(
@@ -527,6 +570,23 @@ abstract interface class Cell {
   /// - **HowTo**: See `guide/HowTo-Start.md` for a comprehensive guide on
   ///   state management and reactive patterns.
   /// {@category Core 16 Operators}
+///
+/// ### AI Agent Guide
+/// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+/// **When to use:** A BRD says "retain X" and the WalkThrough named **no** Tissue book; a setting read at any time (not a governed reserve).
+/// **When NOT to use:**
+///   {@macro ai-do-not-create-cell-to-hold-a-collection}
+/// **Live signature:** `Cell.state<V>({initial, evolve, testRule})` — pinned at `cell: 1.1.0`
+/// **Do NOT confuse with:** `Cell.ingress` (stateless entry) and `TissueValue` (governed reserve book in `cell_tissue`).
+/// **Guide:** `HowTo-Mitose-Cell.md` §2 "Cell.* factories this HowTo covers" (#cell-factories)
+/// **Example:** `example/state_demo.dart`
+/// **Cross-layer:** prefer `TissueValue<V>` from `cell_tissue` when the WalkThrough named a reserve / pool book.
+/// **Minimal compilable example**
+/// ```dart
+/// final counter = Cell.state<int>(initial: 0);
+/// counter.update(5);
+/// print(counter.cell.value); // 5
+/// ```
   static StateHandle<V> state<V>({
     V? initial,
     Pulse<V>? Function(ValueCell<V> host, Pulse input)? evolve,
@@ -565,14 +625,6 @@ abstract interface class Cell {
   /// 4. The returned [EgressHandle] allows you to `start` or `stop` the observer
   ///    manually, providing complete lifecycle control.
   ///
-  /// ### Non‑obvious
-  /// - **Terminal Nature**: This node is a "sink"—it has no downstream
-  ///   observers and never propagates pulses further, effectively preventing
-  ///   causal loops.
-  /// - **Dormancy**: Observers can be created in a dormant state if
-  ///   [initiallyStarted] is `false`, meaning they will ignore pulses until
-  ///   `.start()` is called on the handle.
-  ///
   /// ### Example: UI Update Observer
   /// ```dart
   /// final counter = Cell.state<int>(initial: 0);
@@ -606,6 +658,27 @@ abstract interface class Cell {
   /// - **Example**: See `example/observe_demo.dart` for a complete executable
   ///   walkthrough of UI side-effects, terminal lifecycle management, and forensic logging.
   /// {@category Core 16 Operators}
+///
+/// ### AI Agent Guide
+/// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+/// **When to use:** A pulse has already been *decided* and a book / side effect must move — the **only** Flow → Tissue glue in a Mitose Demo.
+/// **When NOT to use:**
+///   {@macro ai-do-not-observe-to-decide}
+/// **Live signature:** `Cell.observe<P extends Pulse>({required Cell source, required void Function(P) effect, bool initiallyStarted = true})` — pinned at `cell: 1.1.0`
+/// **Do NOT confuse with:** `Cell.ingress` (entry into the graph, not exit from it).
+/// **Guide:** `HowTo-Mitose-Cell.md` §3.2 "Cell.observe — the only Flow → Tissue glue" (#cell-observe)
+/// **Example:** `example/observe_demo.dart`
+/// **Cross-layer:** the decision itself lives in a `cell_flow` instruction; the books live in `cell_tissue`.
+/// **Minimal compilable example**
+/// ```dart
+/// final events = Cell.ingress<String>();
+/// final o = Cell.observe(
+///   source: events.cell,
+///   effect: (Pulse p) => print('got ${p.payload}'),
+/// );
+/// events.emit('x');
+/// o.stop();
+/// ```
   static EgressHandle<P> observe<P extends Pulse>({
     required Cell source,
     required void Function(P pulse) effect,
@@ -651,20 +724,6 @@ abstract interface class Cell {
   ///    immediately. If it returns a pulse of type [O], the signal continues
   ///    its lineage to downstream observers.
   ///
-  /// ### Non‑obvious
-  /// - **Stateless Nature**: A derived cell does not possess its own [Box] or
-  ///   persistent storage. It is a functional transformer that operates lazily;
-  ///   it only synthesizes a value when a stimulus flows through from the [source].
-  /// - **Causal Integrity**: To maintain the **Chain of Evidence**, the
-  ///   [project] function should return a pulse created via `input.evolve()`.
-  ///   This preserves the **Contextual Lineage**, allowing the framework to
-  ///   trace the resulting signal back to its primordial root for debugging
-  ///   and security auditing.
-  /// - **The Valve Pattern**: Returning `null` is the framework's idiomatic way
-  ///   to implement **Signal Neutralization**. This stops the propagation
-  ///   immediately, ensuring that downstream observers are never notified
-  ///   of irrelevant or unauthorized state transitions.
-  ///
   /// ### Example: Transforming and Filtering
   /// ```dart
   /// // Derives a count, but only pulses if the text is not empty
@@ -685,6 +744,27 @@ abstract interface class Cell {
   /// ### Returns:
   /// A new [Cell] instance representing the reactive projection of the [source].
   /// {@category Core 16 Operators}
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** A BRD says "show X derived from Y" — pure projection, no policy branches.
+  /// **When NOT to use:** policy clauses (that is a `cell_flow` instruction); retained storage (that is `Cell.state`).
+  /// **Live signature:** `Cell.derive<I extends Pulse, O extends Pulse>({required Cell source, required O? Function(I) project})` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Cell.synthesis` (fan-in from many sources, not 1-to-1).
+  /// **Guide:** `HowTo-Mitose-Cell.md` §2 "Cell.* factories this HowTo covers" (#cell-factories)
+  /// **Example:** `example/derive_demo.dart`
+  /// **Cross-layer:** a projection of a rich `*Decision` onto a seam enum is `MapValue` in `cell_flow`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final dbl = Cell.derive<Pulse<int>, Pulse<int>>(
+  ///   source: src.cell,
+  ///   project: (p) => Pulse<int>((p.payload ?? 0) * 2),
+  /// );
+  /// final o = Cell.observe(source: dbl, effect: (Pulse p) => print(p.payload));
+  /// src.emit(21);
+  /// o.stop();
+  /// ```
   static Cell derive<I extends Pulse, O extends Pulse>({
     required Cell source,
     required O? Function(I input) project,
@@ -729,15 +809,6 @@ abstract interface class Cell {
   /// 3. Matching spokes are sorted by their defined priority.
   /// 4. The signal is dispatched either to the highest-priority match (Standard)
   ///    or all matches (Multicast).
-  ///
-  /// ### Non‑obvious
-  /// - **Longest-Match Wins**: In [HubRouting.prefix] mode, the router
-  ///   automatically selects the spoke with the most specific key.
-  /// - **CBAC Enforcement**: [governedSpokes] allow you to restrict specific
-  ///   routes to callers holding a required [DeputyContext] mandate.
-  /// - **Audit Trail**: The hub maintains the **Causal Provenance** of routed
-  ///   signals, allowing you to trace a spoke's execution back to the
-  ///   original hub injection.
   ///
   /// ### Example – fallback + priority
   /// ```dart
@@ -806,6 +877,23 @@ abstract interface class Cell {
   /// - **Example**: See `example/hub_demo.dart` for a complete executable
   ///   walkthrough of pattern matching, priority ordering, and multicast routing.
   /// {@category Core 16 Operators}
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** One bus with many pulse types routed by `Pulse.type` (pattern / prefix / multicast).
+  /// **When NOT to use:** v1 product lanes — two `Cell.ingress` lanes are simpler; do not replace a policy instruction.
+  /// **Live signature:** `Cell.hub({spokes, governedSpokes, registrations, routing, multicast, fallback, distribution, relay, source})` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Cell.ingress` (single-path entry, no routing).
+  /// **Guide:** `HowTo-Mitose-Cell.md` §2 "Cell.* factories this HowTo covers" (#cell-factories)
+  /// **Example:** `example/hub_demo.dart`
+  /// **Cross-layer:** the routed decision still belongs to `cell_flow`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final hub = Cell.hub(spokes: {
+  ///   'echo': (cell, pulse, {user}) => Pulse('echo:${pulse.payload}'),
+  /// });
+  /// print(hub.root);
+  /// ```
   static HubHandle hub({
     Map<String, Pulse? Function(Cell cell, Pulse pulse, {dynamic user})>?
         spokes,
@@ -858,17 +946,6 @@ abstract interface class Cell {
   ///    the [redact] logic is applied.
   /// 4. The "cleansed" pulse is then propagated to downstream observers.
   ///
-  /// ### Non‑obvious
-  /// - **Targeted Sanitization**: Redaction happens during the propagation
-  ///   phase; the original source cell remains completely intact and
-  ///   retains the raw data for authorized internal use.
-  /// - **Causal Integrity**: Redacted pulses are generated as `EvolvedPulse`
-  ///   instances. This means they preserve their forensic history, allowing
-  ///   auditors to see *when* and *why* a value was sanitized.
-  /// - **Compliance Defaults**: If a pulse lacks sensitivity metadata, it
-  ///   is treated as [Sensitivity.public] and bypasses redaction unless
-  ///   configured otherwise.
-  ///
   /// ### Example: Email Masking
   /// ```dart
   /// final userView = Cell.sanitized<UserPulse>(
@@ -902,6 +979,27 @@ abstract interface class Cell {
   /// - **Example**: See `example/sanitized_demo.dart` for a complete
   ///   walkthrough of automated PII redaction and audit trails.
   /// {@category Core 16 Operators}
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** A BRD says "no name on the extract" — redact PII before a log / UI cell, or omit the field at the source.
+  /// **When NOT to use:** as a substitute for never writing PII into Tissue rows; sanitize the *view*, keep the book clean.
+  /// **Live signature:** `Cell.sanitized<P extends Pulse>(Cell source, {required P Function(P) redact, Sensitivity minSensitivity = Sensitivity.confidential})` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Cell.derive` (projection without the sensitivity gate).
+  /// **Guide:** `HowTo-Mitose-Cell.md` §2 "Cell.* factories this HowTo covers" (#cell-factories)
+  /// **Example:** `example/sanitized_demo.dart`
+  /// **Cross-layer:** GDPR row shapes also belong to `cell_tissue` TestTissue rules.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final clean = Cell.sanitized<Pulse<int>>(
+  ///   src.cell,
+  ///   redact: (p) => Pulse(p.payload, type: 'redacted'),
+  /// );
+  /// final o = Cell.observe(source: clean, effect: (Pulse p) => print(p.type));
+  /// src.emit(42);
+  /// o.stop();
+  /// ```
   static Cell sanitized<P extends Pulse>(
     Cell source, {
     required P Function(P pulse) redact,
@@ -909,11 +1007,13 @@ abstract interface class Cell {
   }) {
     final receptor = _Receptor(reaction: (pulse, cell, {user}) {
       final p = pulse as P;
+      // Fail closed: a privacy primitive must not let unclassified data
+      // through. A pulse without sensitivity metadata (e.g. a plain
+      // ingress pulse with PulseContext.system) is redacted, not passed.
       final sensitivity = p.context.sensitivity;
-      if (sensitivity != null && sensitivity.index >= minSensitivity.index) {
-        return redact(p);
-      }
-      return p;
+      final mustRedact =
+          sensitivity == null || sensitivity.index >= minSensitivity.index;
+      return mustRedact ? redact(p) : p;
     });
     return Cell(bind: source, receptor: receptor);
   }
@@ -924,6 +1024,14 @@ abstract interface class Cell {
   /// atomic unit – either all changes are applied, or none are. This is
   /// essential for maintaining consistency across related cells when
   /// a logical operation spans multiple state atoms.
+  ///
+  /// **Notification model:** writes are validated first, then applied
+  /// sequentially while the participants' locks are held. A failure during
+  /// the apply phase restores the prior values of the cells already written
+  /// by this commit before the rollback is reported. Observers may still
+  /// see the intermediate states of a multi-cell commit as each write lands;
+  /// the commit's own `onCommit`/`onRollback` events fire exactly once,
+  /// after the whole batch has settled.
   ///
   /// ### When to use
   /// Use this when you need to update several cells together atomically.
@@ -950,17 +1058,6 @@ abstract interface class Cell {
   /// 3. **Read**: Observe values according to the isolation level.
   /// 4. **Commit**: Acquire locks, validate, apply all changes atomically.
   /// 5. **Rollback**: Discard buffered changes.
-  ///
-  /// ### Non‑obvious
-  /// - Locks are held **only during commit**, not across begin→commit.
-  ///   This means you can perform long-running logic between begin and
-  ///   commit without holding locks.
-  /// - Validation happens during commit, not during update. This allows
-  ///   you to stage changes and then decide whether to commit.
-  /// - If any validation fails, the entire transaction is rolled back
-  ///   automatically – no partial updates.
-  /// - The transaction scope is not reentrant – you must commit or
-  ///   rollback before starting another transaction.
   ///
   /// ### Parameters:
   /// - [options]: Configuration for isolation level, lock ordering,
@@ -1040,6 +1137,28 @@ abstract interface class Cell {
   /// - **Example**: See `example/transaction_demo.dart` for a complete executable walkthrough.
   /// {@category Advanced}
   /// {@category Transactions}
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** Coordinating multiple `ValueCell`s atomically (money, forms) **outside** a Mitose Demo.
+  /// **When NOT to use:**
+  ///   {@macro ai-do-not-use-cell-transaction-for-tissue}
+  /// **Live signature:** `Cell.transaction([TransactionOptions options = const TransactionOptions()])` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Cell.txApply` (the Mitose commit; participants are Tissue books).
+  /// **Guide:** `HowTo-Mitose-Cell.md` §3.3 "Cell.transaction — not the Mitose commit" (#cell-transaction)
+  /// **Example:** `example/transaction_demo.dart`
+  /// **Cross-layer:** in a Mitose Demo, record it as deferred: `transaction deferred txApply on Tissue`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final a = Cell.state<int>(initial: 1);
+  /// final b = Cell.state<int>(initial: 10);
+  /// final tx = Cell.transaction();
+  /// await tx.begin([a.cell, b.cell]);
+  /// tx.update(a.cell, 2);
+  /// tx.update(b.cell, 20);
+  /// await tx.commit();
+  /// print('${a.cell.value},${b.cell.value}'); // 2,20
+  /// ```
   static TransactionScope transaction([
     TransactionOptions options = const TransactionOptions(),
   ]) =>
@@ -1062,16 +1181,6 @@ abstract interface class Cell {
   /// changes committed and propagated through the reactive graph. If an error
   /// occurs, the staged pulses are discarded (rolled back).
   ///
-  /// ### Non‑obvious:
-  /// - **Pulse Consolidation**: Downstream cells only observe the *final*
-  ///   state of the graph at the end of the transaction, effectively
-  ///   debouncing intermediate transitions.
-  /// - **Forensic Framing**: All evolutions within the scope are tagged
-  ///   with a `TransactionID`, allowing forensic tracers to identify
-  ///   mutations belonging to the same atomic block.
-  /// - **Reentrancy**: If called inside an existing transaction, it joins
-  ///   the parent scope rather than creating a nested one.
-  ///
   /// ### Parameters:
   /// - [options]: Configuration including the `action` closure, security
   ///   `context`, conflict `policy`, and whether to `wait` for stabilization.
@@ -1087,6 +1196,25 @@ abstract interface class Cell {
   ///   walkthrough of bank transfer logic and multi-node consistency.
   /// {@category Advanced}
   /// {@category txApply}
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** The BRD says two retained facts move together or not at all, or an external act can fail after a local write — participants are **Tissue books**, with `apply` + `compensate`.
+  /// **When NOT to use:** one book with no undo (an ordinary Tissue write from `Cell.observe`); never wrap `riskOf` (policy is pure).
+  /// **Live signature:** `Cell.txApply([TxApplyOptions options = const TxApplyOptions()])` → `ApplyTransactionScope` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Cell.transaction` (coordinates `ValueCell`, not Tissue).
+  /// **Guide:** `HowTo-Mitose-Cell.md` §3.4 "Cell.txApply — the only atomic commit, on Tissue" (#cell-txapply)
+  /// **Example:** `example/atomic_multi_update.dart`
+  /// **Cross-layer:** the books written inside the commands are `cell_tissue` collections.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final counter = Cell.state<int>(initial: 0);
+  /// final tx = Cell.txApply();
+  /// await tx.execute(participants: [counter.cell], body: (scope) {
+  ///   counter.update(5); // staged — committed when execute completes
+  /// });
+  /// print(counter.cell.value);
+  /// ```
   static ApplyTransactionScope txApply([
     TxApplyOptions options = const TxApplyOptions(),
   ]) =>
@@ -1122,21 +1250,6 @@ abstract interface class Cell {
   /// 4. **Tracking History**: Any data pushed through the receptor is
   ///    recorded with its origin, allowing you to trace the cause of changes
   ///    back to this specific gateway.
-  ///
-  /// ### Non‑obvious
-  /// - **Security Rules Apply**: Even though this node is "Open," it is not
-  ///   a backdoor. All manual data entries must match the [context]
-  ///   permissions and pass the safety checks in the [testRule].
-  /// - **Connection Authority**: Linking and unlinking other nodes are
-  ///   protected actions. A caller must have the correct [Context]
-  ///   authority to change the network structure.
-  /// - **Hybrid Mode**: If a [bind] source is provided, the cell will relay
-  ///   data from that source automatically while *also* accepting your
-  ///   manual inputs.
-  /// - **Flow Control**: Use the [synapses] parameter to attach a
-  ///   [PropagationPolicy]. This allows you to debounce state emissions,
-  ///   throttle high-frequency updates, or batch multiple state changes
-  ///   into a single downstream pulse.
   ///
   /// ### Example: System Command Gateway
   /// ```dart
@@ -1177,6 +1290,21 @@ abstract interface class Cell {
   /// * [Cell.ingress]: For standard, single-path entry points.
   /// * [Cell.hub]: For routing manual signals to multiple specific handlers.
   /// {@category Core 16 Operators}
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** Late-bind a device / module after boot, or manually manage link/unlink topology.
+  /// **When NOT to use:** standard external facts — use `Cell.ingress`; rare in v1 Demos.
+  /// **Live signature:** `Cell.open({ephemeralPolicy, context, source, receptor, testRule, synapses, forceLock})` → `OpenCell` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Cell.ingress` (fixed single-path entry).
+  /// **Guide:** `HowTo-Mitose-Cell.md` §2 "Cell.* factories this HowTo covers" (#cell-factories)
+  /// **Example:** `example/open_cell_demo.dart`
+  /// **Cross-layer:** dynamic routing decisions remain `cell_flow` concerns.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final o = Cell.open();
+  /// o.emit(Pulse('hello'));
+  /// ```
   static OpenCell open({
     EphemeralPolicy? ephemeralPolicy,
     Context context = Context.system,
@@ -1205,6 +1333,15 @@ abstract interface class Cell {
   /// synthesis cell reacts, aggregates the current state of the network,
   /// and propagates a new converged pulse.
   ///
+  /// > **Diamond-dependency limitation.** The propagation engine visits
+  /// > each cell at most once per pulse wave (`Pulse` cycle checking). In a
+  /// > diamond (`A → B → D` and `A → C → D`) the second arrival at `D`
+  /// > within the same wave is treated as a cycle and dropped, so `D` is
+  /// > computed from the first arrival only — possibly with a stale value
+  /// > of the other input. If the last arrival must win, aggregate in a
+  /// > single combiner cell fed through one path (e.g. a `Cell.hub` or a
+  /// > hand-rolled receptor cell) instead of a diamond-shaped fan-in.
+  ///
   /// ### When to use
   /// - **Data Fusion**: Combining multiple sensor readings (e.g., Temperature,
   ///   Humidity, Pressure) into a single "EnvironmentStatus" object.
@@ -1225,16 +1362,6 @@ abstract interface class Cell {
   ///    specific `emit` pulse that triggered the current update cycle.
   /// 4. **Convergence**: The resulting pulse from the aggregator is
   ///    broadcast to all downstream [Synapses].
-  ///
-  /// ### Non‑obvious
-  /// - **Pulse Awareness**: The `aggregator` has access to the specific
-  ///   `emit` pulse, allowing logic to differ based on *which* source
-  ///   triggered the update or what metadata that source provided.
-  /// - **Transaction Safety**: If multiple sources are updated within a
-  ///   single [Cell.transaction], the [aggregator] fires exactly once at
-  ///   the end of the transaction, preventing intermediate "glitches."
-  /// - **Statelessness**: A synthesis cell does not store its own history;
-  ///   it acts as a functional projection of its sources' current values.
   ///
   /// ### Example: Total Price Calculation
   /// ```dart
@@ -1266,6 +1393,29 @@ abstract interface class Cell {
   /// - **HowTo**: See `guide/HowTo-Start.md` for patterns on managing
   ///   complex information convergence.
   /// {@category Core 16 Operators}
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** "one screen / one status from many feeds" — aggregate current values whenever any source pulses.
+  /// **When NOT to use:** a policy decision on the merged tick; and never use it *and* a custom instruction on the same tick without saying which decides.
+  /// **Live signature:** `Cell.synthesis<P extends Pulse>(Iterable<Cell> sources, {required P? Function(Iterable<Cell> cells, Pulse emit) aggregator})` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Cell.derive` (single-source projection).
+  /// **Guide:** `HowTo-Mitose-Cell.md` §2 "Cell.* factories this HowTo covers" (#cell-factories)
+  /// **Example:** `example/synthesis_demo.dart`
+  /// **Cross-layer:** multi-source *decision* logic belongs to `cell_flow` Combine operators or a harness-assembled Tick.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final a = Cell.state<int>(initial: 2);
+  /// final b = Cell.state<int>(initial: 3);
+  /// final sum = Cell.synthesis<Pulse<int>>([a.cell, b.cell], aggregator: (cells, emit) {
+  ///   final total = cells.fold<int>(0, (acc, c) => acc + (((c as ValueCell).value as int?) ?? 0));
+  ///   return Pulse<int>(total);
+  /// });
+  /// final o = Cell.observe(source: sum, effect: (Pulse p) => print(p.payload));
+  /// a.update(4);
+  /// b.update(5);
+  /// o.stop();
+  /// ```
   static Cell synthesis<P extends Pulse>(
     Iterable<Cell> sources, {
     required P? Function(Iterable<Cell> cells, Pulse emit) aggregator,
@@ -1307,19 +1457,6 @@ abstract interface class Cell {
   /// 4. **Egress**: Pulses that pass the gate are subject to the [synapses]
   ///    configuration (e.g., [Cell.debounce]) before reaching observers.
   ///
-  /// ### Non‑obvious
-  /// - **Statelessness**: A valve is a reactive conduit, not a state holder.
-  ///   It does not remember the last passed value. To filter based on
-  ///   value history, use [Cell.distinct].
-  /// - **Early Termination**: Because the valve sits upstream of its own
-  ///   synapses, a closed gate prevents propagation strategies (like
-  ///   debounce timers) from even being triggered.
-  /// - **Forensic Audit**: Even suppressed pulses remain visible to the
-  ///   switching fabric's forensic hooks if the [Context] is configured
-  ///   for full observability.
-  /// - **Type Safety**: The [gate] function is generic over [P], allowing
-  ///   specialized inspection of custom [Pulse] subclasses or metadata.
-  ///
   /// ### Example: Content-Based Filter
   /// ```dart
   /// // Only allow non-empty search strings to reach the API caller
@@ -1345,6 +1482,25 @@ abstract interface class Cell {
   /// - **Example**: See `example/valve_demo.dart` for a complete walkthrough
   ///   of conditional signal suppression.
   /// {@category Core 16 Operators}
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** a pure predicate gate that passes or suppresses pulses before expensive downstream work.
+  /// **When NOT to use:** named business policy (clause-ordered, latch, product filter) — that is a `cell_flow` instruction, not a Cell predicate.
+  /// **Live signature:** `Cell.valve<P extends Pulse>(Cell source, bool Function(P pulse) gate, {Synapses synapses = Synapses.enabled})` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Cell.distinct` (history-based; valve is stateless per pulse).
+  /// **Guide:** `guide/HowTo-16_Essential_Operators.md` (valve)
+  /// **Example:** `example/valve_demo.dart`
+  /// **Cross-layer:** the rich policy version is `Filter` / `FlowInstructionBase` in `cell_flow`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final gated = Cell.valve<Pulse<int>>(src.cell, (p) => (p.payload ?? 0) > 0);
+  /// final o = Cell.observe(source: gated, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// src.emit(-1); // blocked by the gate
+  /// o.stop();
+  /// ```
   static Cell valve<P extends Pulse>(Cell source, bool Function(P pulse) gate,
       {Synapses synapses = Synapses.enabled}) {
     final receptor = _Receptor(
@@ -1380,16 +1536,6 @@ abstract interface class Cell {
   /// 3. **Settling**: Only when the timer reaches the end of the [duration]
   ///    window without interruption is the latest pulse propagated.
   ///
-  /// ### Non‑obvious
-  /// - **Leading Edge**: If [leading] is `true`, the *first* pulse in a burst
-  ///   is emitted immediately, and subsequent pulses are debounced until the
-  ///   silence window is met.
-  /// - **Wait vs Throttle**: Unlike [Cell.throttle] (which limits frequency),
-  ///   `debounce` requires a specific period of *silence* before emission.
-  /// - **Graph Stabilization**: The debounce gate effectively introduces a
-  ///   delay in the reactive graph, so downstream nodes will observe changes
-  ///   later than they occur at the source.
-  ///
   /// ### Parameters:
   /// * [source]: **The Ingress Source.** The upstream [Cell] to be monitored
   ///   for stability.
@@ -1412,6 +1558,26 @@ abstract interface class Cell {
   /// - **HowTo**: See `guide/HowTo-Start.md` for a comprehensive guide on
   ///   reactive patterns and scheduling.
   /// {@category Core 16 Operators}
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** wait for silence on a feed (belt chatter, search input, 15 s snapshots) — feed shaping **before** `publishTick`.
+  /// **When NOT to use:** as the policy gate; Time operators shape feeds, they never *decide*. A "wait for silence" decision is still a `cell_flow` instruction concern.
+  /// **Live signature:** `Cell.debounce(Cell source, Duration duration, {bool leading = false, EphemeralPolicy? ephemeralPolicy})` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Cell.throttle` (frequency limit; leading defaults true).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.6 "Time" (#flow-time)
+  /// **Example:** `example/stability_search_demo.dart`
+  /// **Cross-layer:** identical semantics available as `Flow.debounce` in `cell_flow`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<String>();
+  /// final db = Cell.debounce(src.cell, const Duration(milliseconds: 50));
+  /// final o = Cell.observe(source: db, effect: (Pulse p) => print(p.payload));
+  /// src.emit('a');
+  /// src.emit('b');
+  /// await Future<void>.delayed(const Duration(milliseconds: 80));
+  /// o.stop();
+  /// ```
   static Cell debounce(
     Cell source,
     Duration duration, {
@@ -1455,14 +1621,6 @@ abstract interface class Cell {
   /// 4. **Reset**: Once the window closes (and the optional trailing pulse is
   ///    sent), the cycle resets.
   ///
-  /// ### Non‑obvious:
-  /// * **Leading vs. Trailing**: By default, `leading` is true and `trailing`
-  ///   is false. This ensures immediate feedback for the first user action
-  ///   while suppressing the subsequent burst.
-  /// * **Resource Management**: The internal timer is automatically managed
-  ///   and cleaned up when the cell is disposed or its context is revoked.
-  ///
-  ///
   /// ### Example:
   /// See `example/throttle_demo.dart` for a practical executable walkthrough.
   ///
@@ -1481,6 +1639,26 @@ abstract interface class Cell {
   /// - **Example**: See `example/throttle_demo.dart` for a
   ///   walkthrough of frequency-based rate limiting.
   /// {@category Core 16 Operators}
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** limit a feed to at most one pulse per duration (leading immediate, trailing optional) — feed shaping **before** `publishTick`.
+  /// **When NOT to use:** as the policy gate; the decision belongs to the `cell_flow` instruction, and Time operators shape feeds, not decisions.
+  /// **Live signature:** `Cell.throttle(Cell source, Duration duration, {bool leading = true, bool trailing = false})` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Cell.debounce` (waits for silence; leading defaults false).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.6 "Time" (#flow-time)
+  /// **Example:** `example/throttle_demo.dart`
+  /// **Cross-layer:** identical semantics available as `Flow.throttle` in `cell_flow`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final th = Cell.throttle(src.cell, const Duration(milliseconds: 50));
+  /// final o = Cell.observe(source: th, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// src.emit(2); // throttled
+  /// await Future<void>.delayed(const Duration(milliseconds: 80));
+  /// o.stop();
+  /// ```
   static Cell throttle(
     Cell source,
     Duration duration, {
@@ -1510,18 +1688,6 @@ abstract interface class Cell {
   ///    termination).
   /// 4. If the check returns `false`, the new value is stored and the
   ///    pulse is forwarded.
-  ///
-  /// ### Non‑obvious
-  /// - **Consecutive Only**: Suppression only applies to back-to-back
-  ///   duplicates. A sequence `1, 2, 1` will emit three times.
-  /// - **Initial Emission**: The first pulse is always allowed as there is
-  ///   no previous value for comparison.
-  /// - **Payload Scoped**: Equality checks apply strictly to the `payload`;
-  ///   forensic metadata (timestamps, sources) is ignored.
-  /// - **Custom Equality**: Providing an [equals] function allows for deep
-  ///   equality, case-insensitive comparison, or numeric tolerance bands.
-  /// - **Null Handling**: Consecutive `null` payloads are treated as
-  ///   duplicates by the default `==` operator.
   ///
   /// ### Example
   /// ```dart
@@ -1558,6 +1724,28 @@ abstract interface class Cell {
   /// - **HowTo**: See `guide/HowTo-17_Essential_Operators.md` for best
   ///   practices on filtering and flow control.
   /// {@category Core 16 Operators}
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** skip *consecutive* equal payloads (heartbeats, no-change ticks) before downstream work.
+  /// **When NOT to use:** a latch that an ACK must reset — `Cell.distinct` has no `reset()`, so use a custom `cell_flow` instruction; global dedupe is `cell_flow`'s `Distinct`.
+  /// **Live signature:** `Cell.distinct(Cell source, {bool Function(dynamic previous, dynamic next)? equals})` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Distinct` (Flow, global seen-set) and `DistinctUntilChanged` (Flow, consecutive only) — both in `cell_flow`.
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.3 "Filter / take / skip" (#flow-filter-take-skip)
+  /// **Example:** `example/distinct_demo.dart`
+  /// **Cross-layer:** policy latching is a Flow instruction concern, not this factory.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final d = Cell.distinct(src.cell);
+  /// final seen = <int>[];
+  /// final o = Cell.observe(source: d, effect: (Pulse p) => seen.add(p.payload as int));
+  /// src.emit(1);
+  /// src.emit(1); // suppressed
+  /// src.emit(2);
+  /// o.stop();
+  /// print(seen); // [1, 2]
+  /// ```
   static Cell distinct(
     Cell source, {
     bool Function(dynamic previous, dynamic next)? equals,
@@ -1604,17 +1792,6 @@ abstract interface class Cell {
   /// * **Switching**: Set [latestOnly] to `true`. If a new signal arrives
   ///   while a future is still running, the old future is ignored and only
   ///    the most recent one will emit.
-  ///
-  /// ### Non‑obvious
-  /// - **Causal Integrity**: Even though the result arrives later, the
-  ///   [EvolvedPulse] tracks the original stimulus, preserving the forensic
-  ///   trail across the asynchronous boundary.
-  /// - **Error Handling**: If the [mapper] throws an error or the future fails,
-  ///   the signal is terminated to prevent corrupted data from entering the
-  ///   reactive network.
-  /// - **Order Preservation**: In parallel mode ([concurrency] `0`), results
-  ///   might arrive out of order if the second task finishes faster than the
-  ///   first. Use [concurrency] `1` if order is critical.
   ///
   /// ### Choosing Between Transformations: asyncMap vs. switchMap
   /// While both factories handle asynchronous logic, they serve different
@@ -1677,6 +1854,25 @@ abstract interface class Cell {
   /// * [Cell.switchMap]: To switch to a different source cell entirely.
   /// * [Cell.fromFuture]: To bridge a single, one-time async result.
   /// {@category asyncMap}
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** a background `Future` per pulse with concurrency control (`concurrency`, `latestOnly`, `exhaust`).
+  /// **When NOT to use:** source selection (mapper returns a `Cell`) — that is `Cell.switchMap`; and never inside the policy decision itself.
+  /// **Live signature:** `Cell.asyncMap<S, T>(Cell source, Future<T> Function(S value) mapper, {int concurrency = 0, bool latestOnly = false, bool exhaust = false})` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Cell.switchMap` (dynamic source rebinding, mapper returns `Cell`).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.4 "Flatten (inner sequences)" (#flow-flatten)
+  /// **Example:** `example/async_map_demo.dart`
+  /// **Cross-layer:** the orchestration equivalents are `Flow.asyncMap` / `Flow.asyncMapLatest` / `Flow.asyncMapConcurrent` in `cell_flow`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final am = Cell.asyncMap<int, String>(src.cell, (v) async => 'v=$v');
+  /// final o = Cell.observe(source: am, effect: (Pulse p) => print(p.payload));
+  /// src.emit(3);
+  /// await Future<void>.delayed(const Duration(milliseconds: 30));
+  /// o.stop();
+  /// ```
   static Cell asyncMap<S, T>(
     Cell source,
     Future<T> Function(S value) mapper, {
@@ -1725,19 +1921,6 @@ abstract interface class Cell {
   /// The factory returns a normal [Cell]; you can freely `bind` it, observe it,
   /// or compose it with any other factory.
   ///
-  /// ### Non‑obvious
-  /// - **No Replay**: The cell only emits values that arrive *after* it has
-  ///   been created. It does not store or "remember" past stream events.
-  /// - **Causal Origin**: Pulses generated from this factory mark the
-  ///   resulting cell as their forensic `source`, allowing you to trace
-  ///   external events back to this specific bridge.
-  /// - **Error Handling**: By default, stream errors are ignored to prevent
-  ///   breaking the reactive graph. Set [cancelOnError] to `true` to
-  ///   terminate the bridge if the source stream fails.
-  /// - **Backpressure**: Use the [synapses] parameter to apply a
-  ///   [PropagationPolicy] (like `debounce` or `throttle`) if the source
-  ///   stream produces data faster than your application needs to process it.
-  ///
   /// ### Example: Clock Bridge
   /// ```dart
   /// final seconds = Cell.fromStream<int>(
@@ -1768,6 +1951,23 @@ abstract interface class Cell {
   /// - **Example**: See `example/stream_bridge_demo.dart` for a complete
   ///   walkthrough of bridging external real-time data.
   /// {@category Core 16 Operators}
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** bridge an existing Dart `Stream` (PLC belt, WebSocket, `Stream.periodic`) into the graph.
+  /// **When NOT to use:** a single value — that is `Cell.fromFuture`; imperative callbacks — that is `Cell.ingress`.
+  /// **Live signature:** `Cell.fromStream<T>(Stream<T> stream, {bool cancelOnError = false, EphemeralPolicy? ephemeralPolicy})` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Cell.fromFuture` (single value, not a sequence).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.1 "Create" (#flow-create)
+  /// **Example:** `test/operator_from_stream_test.dart`
+  /// **Cross-layer:** the orchestration equivalent is `Flow.fromStream` in `cell_flow`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final s = Cell.fromStream<int>(Stream.fromIterable([1, 2, 3]));
+  /// final o = Cell.observe(source: s, effect: (Pulse p) => print(p.payload));
+  /// await Future<void>.delayed(const Duration(milliseconds: 30));
+  /// o.stop();
+  /// ```
   static Cell fromStream<T>(
     Stream<T> stream, {
     bool cancelOnError = false,
@@ -1805,31 +2005,6 @@ abstract interface class Cell {
   /// The factory returns a normal [Cell]; you can freely `bind` it, observe it,
   /// or compose it with any other factory.
   ///
-  /// ### Non‑obvious
-  /// - **Terminal Bridge**: This cell emits **at most once**. If the resulting
-  ///   value needs to remain available for late subscribers, you should pipe
-  ///   this result into a [Cell.state] or use a [Synapses] configuration with
-  ///   `PropagationStrategy.persistent`.
-  /// - **Error Ingress**: If the future completes with an error, the cell
-  ///   captures the failure. It emits a pulse where the `type` is set to
-  ///   `'error'` and the `payload` contains the error object, allowing
-  ///   downstream observers to handle failures reactively.
-  /// - **Signal Neutralization**: If this cell is invalidated (via its
-  ///   [EphemeralPolicy]) before the future completes, the bridge is
-  ///   immediately severed. The eventual result is discarded, and no pulse
-  ///   is emitted to the graph.
-  /// - **Forensic Provenance**: The resulting pulse’s `source` is
-  ///   automatically set to this bridge instance. This maintains the
-  ///   **Chain of Evidence**, allowing you to trace the asynchronous
-  ///   origin of a signal during debugging or auditing.
-  /// - **Lifecycle Governance**: The cell remains in the reactive graph after
-  ///   its single emission until it is explicitly neutralized or reclaimed
-  ///   by its governing policy.
-  /// - **Flow Control**: While the factory signature is a simple bridge, the
-  ///   underlying implementation respects [Synapses] configurations for
-  ///   throttling or debouncing if the bridge is part of a complex
-  ///   re-synthesis.
-  ///
   /// ### Example
   /// ```dart
   /// Future<String> loadUserName() async {
@@ -1856,6 +2031,23 @@ abstract interface class Cell {
   /// - **Example**: See `example/async_bridge_demo.dart` for a walkthrough
   ///   of bridging legacy async APIs into forensic pipelines.
   /// {@category Core 16 Operators}
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** bridge a single `Future` result into the graph (one config load, one AODB lookup); emits at most once.
+  /// **When NOT to use:** continuous sources — that is `Cell.fromStream`; imperative callbacks — that is `Cell.ingress`.
+  /// **Live signature:** `Cell.fromFuture<T>(Future<T> future)` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Cell.fromStream` (sequence, not a single value).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.1 "Create" (#flow-create)
+  /// **Example:** `test/receptor_instruction_future_test.dart`
+  /// **Cross-layer:** the orchestration equivalent is `Flow.fromFuture` in `cell_flow`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final f = Cell.fromFuture<int>(Future.value(7));
+  /// final o = Cell.observe(source: f, effect: (Pulse p) => print(p.payload));
+  /// await Future<void>.delayed(const Duration(milliseconds: 10));
+  /// o.stop();
+  /// ```
   static Cell fromFuture<T>(Future<T> future) => _fromFuture<T>(future);
 
   /// Synthesizes a **Dynamic Provider Switch**—a specialized node that
@@ -1881,17 +2073,6 @@ abstract interface class Cell {
   ///    inner cell and links to the new one.
   /// 4. **Relaying**: Every pulse from the currently active inner cell is
   ///    forwarded to the output cell's synapses.
-  ///
-  /// ### Non‑obvious
-  /// - **Relay Only**: This cell does not emit the values from the [source];
-  ///   it only emits values from the cell returned by the [mapper].
-  /// - **Automatic Cleanup**: When the source changes, the link to the
-  ///   previous inner cell is severed automatically, preventing signal leaks
-  ///   from inactive sources.
-  /// - **Termination**: If [mapper] returns a cell that is currently silent,
-  ///   this switch will also be silent until that inner cell emits.
-  /// - **Causal Integrity**: Forwarded pulses preserve their forensic history,
-  ///   tracing back through the inner cell to the switch trigger.
   ///
   /// ### Design Note: Source Selection vs. Background Enrichment
   /// * **[Cell.switchMap]** is for **Source Selection**. The [mapper] must
@@ -1944,11 +2125,46 @@ abstract interface class Cell {
   /// - **HowTo**: See `guide/HowTo-17_Essential_Operators.md` for best practices
   ///   on using switching and routing operators.
   /// {@category Core 16 Operators}
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** dynamic source selection — the mapper returns a `Cell` and the graph rebinds to it ("latest reservation / flight only").
+  /// **When NOT to use:** background enrichment where the mapper returns a `Future` — that is `Cell.asyncMap`.
+  /// **Live signature:** `Cell.switchMap<S, T>(Cell source, Cell Function(S value) mapper, {ephemeralPolicy, context, testRule, synapses, forceLock})` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Cell.asyncMap` (Future per pulse, not source rebinding).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.4 "Flatten (inner sequences)" (#flow-flatten)
+  /// **Example:** `example/instruction_pipeline_walkthrough.dart`
+  /// **Cross-layer:** the orchestration equivalent is `Flow.switchMap` / `Flow.asyncMapLatest` in `cell_flow`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<String>();
+  /// final sm = Cell.switchMap<String, int>(
+  ///   src.cell,
+  ///   (v) => Cell.state<int>(initial: v.length).cell,
+  /// );
+  /// final o = Cell.observe(source: sm, effect: (Pulse p) => print(p.payload));
+  /// src.emit('abc');
+  /// await Future<void>.delayed(const Duration(milliseconds: 20));
+  /// o.stop();
+  /// ```
   static Cell switchMap<S, T>(
     Cell source,
-    Cell Function(S value) mapper,
-  ) =>
-      _switchMap(source, mapper);
+    Cell Function(S value) mapper, {
+    EphemeralPolicy? ephemeralPolicy,
+    Context context = Context.system,
+    TestCell testRule = TestCell.allowAll,
+    Synapses synapses = Synapses.enabled,
+    bool forceLock = false,
+  }) =>
+      _switchMap(
+        source,
+        mapper,
+        ephemeralPolicy: ephemeralPolicy,
+        context: context,
+        testRule: testRule,
+        synapses: synapses,
+        forceLock: forceLock,
+      );
 
   /// Creates an **Attenuated Proxy** (Deputy) of this cell with specialized
   /// governance and restricted authority.
@@ -1983,18 +2199,6 @@ abstract interface class Cell {
   ///   grant authority the principal doesn't already possess.
   /// - **Reciprocal Handshake**: The proxy initialization performs a
   ///   cryptographic or logical handshake to ensure the binding is authorized.
-  ///
-  /// ### Non‑obvious
-  /// - **Identity Preservation**: A deputy remains logically consistent with
-  ///   its principal. Comparisons such as `deputy == principal` evaluate to
-  ///   `true` to ensure predictable behavior within the reactive graph.
-  /// - **No-op Optimization**: If the requested parameters match the current
-  ///   configuration, the method returns the current instance (this) to
-  ///   prevent "proxy nesting" and maintain a flat execution stack.
-  /// - **Contextual Authority**: While state is shared, the authority to
-  ///   trigger [apply] is uniquely governed by the deputy's specific
-  ///   [context], enabling granular permission modeling within a single
-  ///   state atom.
   ///
   /// ### Example: Creating a Scoped Read-Only View
   /// ```dart
@@ -2032,6 +2236,22 @@ abstract interface class Cell {
   ///   and context evolution may involve asynchronous authorization, the
   ///   result is wrapped in a [FutureOr] to support both immediate
   ///   synthesis and deferred clearance.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** capability attenuation — read-only or narrowed-write views of a Cell for untrusted callers (UI, auditors).
+  /// **When NOT to use:** to widen permissions (a deputy can only narrow); use `.unmodifiable` for the fixed read-only case.
+  /// **Live signature:** `FutureOr<Cell> deputy({DeputyContext context = DeputyContext.system, TestCell testRule = TestCell.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled})` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Cell.unmodifiable` (fixed read-only deputy).
+  /// **Guide:** `guide/HowTo-DeputyContext.md` (deputies)
+  /// **Example:** `example/cell_example.dart`
+  /// **Cross-layer:** Tissue books expose the same pattern via `.deputy(testRule: …)`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final c = Cell.state<int>(initial: 1);
+  /// final d = await c.cell.deputy(testRule: TestCell.readOnly);
+  /// print(d);
+  /// ```
   FutureOr<Cell> deputy({
     covariant DeputyContext context = DeputyContext.system,
     covariant TestCell testRule = TestCell.allowAll,
@@ -2066,17 +2286,6 @@ abstract interface class Cell {
   ///    it adopts the integrity gate of that source.
   /// 4. **Global Default**: If no rule is found in the lineage or
   ///    bindings, it defaults to [TestCell.allowAll].
-  ///
-  /// ### Non‑obvious
-  /// - **Forensic Rejection**: If validation fails, the mutation is
-  ///   neutralized. The framework records a rejection milestone in the
-  ///   [Pulse.trace] and returns `null`, ensuring the "threat" is logged
-  ///   without crashing the application.
-  /// - **Synchronous Enforcement**: Validation happens before the
-  ///   transformation logic is executed, preventing side-effects from
-  ///   invalid data.
-  /// - **Deputy Narrowing**: A [deputy] handle can only narrow permissions;
-  ///   it can never bypass the root integrity logic of the underlying cell.
   ///
   /// ### Returns:
   /// The [TestCell] validator representing the active security perimeter
@@ -2120,16 +2329,6 @@ abstract interface class Cell {
   /// 4. **Global Default**: If no context is found in the lineage or
   ///    bindings, it defaults to [Context.system].
   ///
-  /// ### Non‑obvious
-  /// - **Immutability**: The context is established during the **Reciprocal
-  ///   Handshake** at the node's synthesis and cannot be changed.
-  /// - **Deputy Restrictions**: While a principal cell and its deputies share
-  ///   the same internal state, they each possess a unique [context],
-  ///   allowing for authority attenuation (e.g., a "Guest" deputy of a
-  ///   "System" cell).
-  /// - **Trace Stamping**: Every [Pulse] emitted by this cell is stamped with
-  ///   this context in the forensic [Pulse.trace].
-  ///
   /// ### Returns:
   /// The [Context] instance representing the forensic anchor and authority
   /// tier of this node.
@@ -2169,15 +2368,6 @@ abstract interface class Cell {
   /// 3. **Memory Efficiency**: Since no observer links are created,
   ///    terminal nodes are easier for the garbage collector to reclaim
   ///    once their parent handle is released.
-  ///
-  /// ### Non‑obvious
-  /// - **One-Way Traffic**: You cannot attach observers to a terminal node.
-  ///   Attempting to listen to a terminal cell's stream will typically
-  ///   throw an exception or result in a no-op, depending on the specific
-  ///   implementation.
-  /// - **Identity**: A terminal node still maintains logical identity and
-  ///   lineage within its [Context], even though it does not propagate
-  ///   signals.
   ///
   /// ### Returns:
   /// * `true`: If this cell is a terminal sink with no outgoing
@@ -2223,16 +2413,6 @@ abstract interface class Cell {
   ///    in memory, `isInvalidated` serves as a semantic lock, preventing
   ///    further state transitions.
   ///
-  /// ### Non‑obvious
-  /// - **Irreversibility**: Invalidation is a **terminal state**. Once a cell
-  ///   is invalidated, it cannot be "revived"; a new [Cell] instance must be
-  ///   synthesized from a `Nucleus` if the logic needs to restart.
-  /// - **Memory Safety**: This state allows the internal [Synapses] to
-  ///   clear their observer registries, breaking strong reference cycles and
-  ///   facilitating proper garbage collection.
-  /// - **Deputy Impact**: When a principal cell is invalidated, all of its
-  ///   attenuated deputies are automatically moved into the neutralization phase.
-  ///
   /// ### Returns:
   /// * `true`: If the cell's governance policy has emitted its termination
   ///   sequence and the node is no longer operational.
@@ -2268,18 +2448,6 @@ abstract interface class Cell {
   /// 3. **Default**: with neither a hosted nor an upstream policy, the node is
   ///    un-governed (`false`).
   ///
-  /// ### Non‑obvious
-  /// - **Cascading Contagion**: Governance propagates down a binding lineage
-  ///   automatically. If a root source cell becomes governed, every node bound
-  ///   downstream reports `isGoverned == true`.
-  /// - **Authority vs. Governance**: A node can enforce strict structural
-  ///   validation rules via a [TestCell] gate, yet still remain un-governed if
-  ///   it hosts no [EphemeralPolicy] and is not bound to a governed source.
-  ///   [Context] alone does **not** make a node governed.
-  /// - **Structural Verification**: This property inspects the structural
-  ///   metadata (the "DNA") of the underlying node configuration rather than
-  ///   tracking dynamic mutations or value modifications.
-  ///
   /// ### Example: Inspecting Governance State
   /// ```dart
   /// final policy = EphemeralPolicy(
@@ -2305,91 +2473,94 @@ abstract interface class Cell {
   /// * [EphemeralPolicy] – Regulates transient survival constraints on governed nodes.
   bool get isGoverned;
 
-  /// Executes a **State Transition** or arbitrary logic via the **Command Pattern** gateway.
+  /// Submits an [ApplyCommand] to trigger a state change or an action within this cell.
   ///
-  /// [apply] serves as the primary enforcement mechanism for a [Cell], bridging the gap
-  /// between compile-time governance and runtime **Integrity Gate** validation.
+  /// [apply] is the primary architectural gateway for every mutation in the framework.
+  /// Instead of calling functions directly, you submit a "Nervous Signal" (a command)
+  /// that the cell must vet, execute, and record in its history.
+  ///
+  /// In the framework's biological metaphor, this represents **Signal Transmission**.
+  /// It sends a nervous impulse through the cell's governance layer to request a
+  /// mutation in its underlying DNA (state).
   ///
   /// ### When to use
-  /// - **Somatic State Transitions**: When you need to perform direct mutations or
-  ///   execute business logic that is whitelisted in [modifiable].
-  /// - **Transaction Orchestration**: When performing multiple, related updates that
-  ///   must succeed or fail as a single atomic unit using an [ApplyTransactionScope].
-  /// - **Compensating Transactions**: Defining reversal logic ([compensate]) for
-  ///   SAGA-like patterns or complex state recovery.
-  /// - **Dynamic Command Injection**: Executing logic that is determined at runtime
-  ///   but must still pass through the node's security perimeter.
+  /// - **State Mutations**: Use this whenever you need to update a cell's value
+  ///   in a way that is traceable and safe.
+  /// - **Governed Actions**: Use this for logic that requires "Integrity Gates"
+  ///   (safety rules) to prevent invalid data transitions.
+  /// - **Grouped Changes**: Use this when multiple actions must happen together
+  ///   as a single "all-or-nothing" transaction.
   ///
   /// ### How it works
-  /// 1. **Capability Scrutiny**: The method verifies if the provided [function] is
-  ///    present in the [modifiable] manifest.
-  /// 2. **Integrity Gate Validation**: The request triggers a **Reciprocal Handshake**
-  ///    with the cell's [TestCell]. The intent is evaluated against the node's
-  ///    security invariants and administrative mandates.
-  /// 3. **Causal Anchor**: A new internal stimulus is synthesized, carrying the
-  ///    **Causal Provenance** (trace ID, timestamp, and operational context).
-  /// 4. **Execution & Propagation**: If authorized, the function is executed within
-  ///    the requested [tx] scope. The result is then broadcast through the
-  ///    **Egress Gateway** to all downstream receptors.
-  /// 5. **Compensate Registration**: If a [compensate] function is provided, it is
-  ///    registered to be invoked if the transaction fails or requires rollback.
+  /// 1. **Permission Check**: The cell verifies if its current state allows
+  ///    mutations by checking the [modifiable] manifest.
+  /// 2. **Integrity Gate**: The cell's safety rules ([TestCell.action]) inspect
+  ///    the command and its data to ensure they are valid.
+  /// 3. **Execution**: If authorized, the function is run. If a transaction scope
+  ///    ([tx]) is provided, the change is "staged" in the ledger and waits for
+  ///    the transaction to finish.
+  /// 4. **Outcome**: The framework returns an [ApplyOutcome], which acts as
+  ///    the official **Forensic Receipt** for the action.
   ///
-  /// ### Non‑obvious
-  /// - **Short-Circuit Rejection**: If the **Integrity Gate** rejects the action,
-  ///   the method returns `null` immediately without triggering any reactive waves.
-  /// - **Transaction Isolation**: Operations within an [ApplyTransactionScope] prevent
-  ///   "Glitch" states by ensuring downstream observers only see the final, committed transition.
-  /// - **Flyweight Strategy**: The framework utilizes Record-based storage for
-  ///   command metadata to minimize heap pressure during high-frequency mutations.
-  /// - **Causal Lineage**: Even failed attempts are recorded in the system audit
-  ///   log (if enabled), preserving the trace of the rejected stimulus.
+  /// ### Parameters
+  /// - **command**: The [ApplyCommand] record. This contains the function you
+  ///   want to run, the data (arguments) it needs, and the optional "undo" logic.
+  /// - **tx**: An optional [ApplyTransactionScope]. Provide this if you want the
+  ///   command to be part of a larger transaction that succeeds or fails as a group.
   ///
+  /// ### Non‑obvious behavior
+  /// - **Causal Binding**: Every receipt contains a unique ID and timestamp. This
+  ///   creates a permanent forensic trail, allowing you to trace any state
+  ///   change back to the exact impulse that triggered it.
+  /// - **Atomic Rollbacks**: If a command includes "compensation" logic, the
+  ///   framework can use it to perform a **Genetic Undo**, restoring the
+  ///   previous state if a complex transaction fails later.
+  /// - **Authority Hierarchy**: Arguments passed directly to [apply] act as a
+  ///   `local override`, taking precedence over inherited defaults.
+  ///
+  /// ### Technical Details
+  /// - **Execution Context**: Returns a [FutureOr]. If the mutation is simple,
+  ///   it returns the result immediately. If the mutation is asynchronous,
+  ///   it returns a [Future].
+  /// - **Memory Efficiency**: The command and receipt use "Flyweight" records
+  ///   to minimize memory overhead, even when tracking thousands of signals.
+  ///
+  /// ### Example: Submitting a Governed Mutation
   /// ```dart
-  /// // Define a whitelisted mutation
-  /// void increment(int amount) => value += amount;
+  /// // 1. Define the mutation logic (the "impulse")
+  /// final updateProfile = (String name, {bool active = true}) {
+  ///   return User(name: name, active: active);
+  /// };
   ///
-  /// // Execute via the Command Pattern gateway
-  /// final result = myCell.apply(
-  ///   increment,
-  ///   positionalArguments: [5],
-  ///   compensate: (int amount) => value -= amount,
-  /// );
+  /// // 2. Assemble the signal using the fluent builder (DSL)
+  /// // This creates the "Nervous Signal" with a built-in "Genetic Undo"
+  /// final outcome = await userCell.command(updateProfile)
+  ///   .args(['Simon'])
+  ///   .named({#active: true})
+  ///   .undo(updateProfile, args: ['Previous Name'], named: {#active: false})
+  ///   .run();
   ///
-  /// if (result == null) {
-  ///   print('Action rejected by Integrity Gate');
+  /// // 3. Handle the Forensic Receipt using modern Dart pattern matching
+  /// switch (outcome) {
+  ///   case ApplyAccepted(result: final user, receipt: final r):
+  ///     print('Mutation successful: ${user.name} (ID: ${r.id})');
+  ///
+  ///   case ApplyRejected(reason: final error):
+  ///     print('Integrity Gate blocked mutation: $error');
+  ///
+  ///   case ApplyStaged(receipt: final r):
+  ///     print('Signal queued in forensic ledger: ${r.id}');
   /// }
   /// ```
   ///
-  /// ### Parameters:
-  /// * [function]: **The Command Anchor.** A reference to the whitelisted function
-  ///   to be executed.
-  /// * [positionalArguments]: Optional arguments passed to the function by index.
-  /// * [namedArguments]: Optional arguments passed to the function by [Symbol] keys.
-  /// * [tx]: **The Transaction Scope.** An optional handle to group multiple
-  ///   operations into an atomic wave.
-  /// * [compensate]: **The Reversal Logic.** A function executed if the transaction
-  ///   needs to be rolled back.
-  /// * [compensatePositional]: Arguments for the compensation function.
-  /// * [compensateNamed]: Named arguments for the compensation function.
-  /// * [compensateCell]: An optional target cell for the compensation logic.
-  ///
-  /// ### Returns:
-  /// The result of the executed [function] if authorized and validated; otherwise `null`.
-  ///
-  /// ### See Also:
-  /// * [modifiable]: The capability manifest defining authorized actions.
-  /// * [TestCell]: The **Integrity Gate** implementation.
-  /// * [ApplyTransactionScope]: The coordinator for atomic multi-step updates.
-  /// - **Example**: See `example/atomic_multi_update.dart` for a
-  ///   walkthrough of bank transfer logic and multi-node consistency.
-  dynamic apply(Function function, {
-    List? positionalArguments,
-    Map<Symbol, dynamic>? namedArguments,
+  /// ### See also:
+  /// - **HowTo**: See `HowTo-Cell.apply.md` for a comprehensive guide on
+  ///   getting started with the Cell architecture and reactive patterns.
+  /// - [ApplyCommand] — The structural blueprint of a signal impulse.
+  /// - [ApplyOutcome] — The sealed hierarchy of transition results.
+  FutureOr<ApplyOutcome<R>> apply<R>(
+    ApplyCommand command, {
     ApplyTransactionScope? tx,
-    Function? compensate,
-    List? compensatePositional,
-    Map<Symbol, dynamic>? compensateNamed,
-    Cell? compensateCell,
   });
 
   /// Defines the exhaustive whitelist of functions and commands authorized for
@@ -2428,14 +2599,6 @@ abstract interface class Cell {
   ///    this getter is hardcoded to return an empty collection, effectively
   ///    disabling the command pattern gateway.
   ///
-  /// ### Non‑obvious
-  /// - **Reference Equality**: Functions are typically compared by reference.
-  ///   Ensure that the functions passed to [apply] are the exact instances
-  ///   defined in this manifest.
-  /// - **Flyweight Optimization**: The manifest is often stored using
-  ///   optimized records to minimize memory overhead when managing thousands
-  ///   of cells.
-  ///
   /// ### Returns:
   /// An [Iterable] of [Function] references that represent the authorized
   /// mutation surface of this node.
@@ -2453,10 +2616,9 @@ abstract interface class Cell {
   /// There is a direct inverse relationship between these two members:
   /// - **[modifiable]**: Represents the **Capability Manifest**—the whitelist
   ///   of functions authorized to mutate the cell via [apply].
-  /// - **[unmodifiable]**: Returns a new [Cell] handle where the [modifiable]
-  ///   list is effectively **shadowed and emptied**. Even if the principal
-  ///   cell defines authorized mutations, the deputy produced by this getter
-  ///   strips away that authority, ensuring [apply] will always fail.
+  /// - **[unmodifiable]**: Returns a read-only projection of this cell.
+  ///   Mutations are rejected by the layered integrity gate, and direct
+  ///   mutation paths (such as [ValueCell.value] assignment) are sealed.
   ///
   /// ### When to use
   /// Use this to follow the **Principle of Least Privilege**. Pass an
@@ -2465,20 +2627,19 @@ abstract interface class Cell {
   /// to trigger them.
   ///
   /// ### How it works
-  /// 1. **Integrity Gate Override**: The deputy is initialized with
-  ///    [TestCell.readOnly], which automatically rejects all incoming [Pulse]s.
-  /// 2. **State Sharing**: The deputy shares the exact same underlying state,
-  ///    lock, and [Synapses] as the principal cell, ensuring zero-latency
-  ///    reactivity without memory duplication.
-  /// 3. **Capability Stripping**: The deputy’s [modifiable] getter is
-  ///    hardcoded to return an empty iterable, removing all entry points for
-  ///    the dynamic command pattern.
-  ///
-  /// ### Non‑obvious
-  /// - **Identity Logic**: While the deputy is a different object instance, it
-  ///   maintains logical identity with the principal for structural comparisons.
-  /// - **Reactivity Flow**: The deputy remains a fully functional reactive
-  ///   node; it simply acts as an "Egress-Only" valve in the topology.
+  /// 1. **Rule Layering**: The projection layers [TestCell.readOnly] on top
+  ///    of the principal's rule through the `validate` seam, so every vetted
+  ///    [apply] action is rejected while pulses (non-Function objects) still
+  ///    propagate.
+  /// 2. **State Sharing**: The projection shares the exact same underlying
+  ///    state, lock, and transformation pipeline as the principal cell,
+  ///    ensuring zero-latency reactivity without memory duplication.
+  /// 3. **Capability Enforcement**: every `apply` — manifest member or not —
+  ///    is vetted by the integrity gate (`validate.action`). [TestCell.readOnly]
+  ///    rejects every Function action, so an unmodifiable projection cannot
+  ///    be made to run code; the [modifiable] manifest remains a capability
+  ///    declaration consumed by rules, not a bypass switch. Direct write
+  ///    paths are sealed separately.
   ///
   /// ### Example: Encapsulating Domain Logic
   /// ```dart
@@ -2498,7 +2659,23 @@ abstract interface class Cell {
   ///
   /// ### Returns:
   /// A [Cell] instance representing a read-only projection of the current
-  /// node, with a nullified [modifiable] manifest.
+  /// node.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** hand a UI / auditor a read-only view of a Cell; least-privilege egress.
+  /// **When NOT to use:** as a copy — it is a live proxy sharing the principal's state.
+  /// **Live signature:** `Cell get unmodifiable` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Cell.deputy` (parameterized attenuation; `unmodifiable` is the fixed read-only case).
+  /// **Guide:** `guide/HowTo-DeputyContext.md` (deputies)
+  /// **Example:** `example/cell_example.dart`
+  /// **Cross-layer:** the Tissue equivalent is `.unmodifiable` on `TissueList` / `TissueMap` / `TissueSet` / `TissueQueue` / `TissueValue`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final c = Cell.state<int>(initial: 1);
+  /// final ro = c.cell.unmodifiable;
+  /// print(ro);
+  /// ```
   Cell get unmodifiable;
 
   /// Provides a high-level, asynchronous interface for interacting with this
@@ -2576,16 +2753,6 @@ abstract interface class Cell {
 /// - `link(cell)`: attach a downstream observer.
 /// - `unlink(cell)`: remove an observer.
 ///
-/// ### Non‑obvious
-/// Even though it's "open", it is still governed by its [testRule] – manual
-/// pulses must pass validation.
-///
-/// See also:
-/// * [Receptor]: The transformation engine used by the `receptor` method.
-/// * [TestCell]: The validator that serves as the node's **Integrity Gate**.
-/// * [Synapses]: The distribution registry managed by the `link` method.
-/// {@category Core}
-/// {@category Core 16 Operators}
 abstract interface class OpenCell implements Cell {
   /// Creates a standard open cell.
   ///

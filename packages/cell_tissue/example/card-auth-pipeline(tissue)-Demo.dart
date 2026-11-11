@@ -596,10 +596,10 @@ class CardAuthHarness {
   // ---------------------------------------------------------------------------
 
   /// The DECLINE gate handle (kept for symmetry — the cell is what we use).
-  FlowHandle<Pulse<dynamic>>? declineHandle;
+  FlowHandle? declineHandle;
 
   /// The STEP-UP gate handle (kept for symmetry — the cell is what we use).
-  FlowHandle<Pulse<dynamic>>? stepUpHandle;
+  FlowHandle? stepUpHandle;
 
   /// The DECLINE gate cell — emits only when `riskOf` returns `decline`
   /// AND the Distinct latch has not seen that decision before.

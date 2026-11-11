@@ -76,11 +76,6 @@ violation is detected.</p>
 <li>Sets <code>sensitivity</code> to <code>secret</code> to isolate the intervention.</li>
 <li>Sets <code>auditLevel</code> to <code>full</code> for forensic capture.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This pulse preempts all other traffic.</li>
-<li>The <code>reason</code> is prefixed with 'SECURITY_SHIELD:' for clarity.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final context = PulseContext.securityIntervention(
   baseContext: violatingPulse.context,
@@ -152,7 +147,7 @@ violation is detected.</p>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

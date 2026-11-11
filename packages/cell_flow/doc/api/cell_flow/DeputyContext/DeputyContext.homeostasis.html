@@ -69,11 +69,6 @@ lease enforcement, or topology optimisation.</p>
 <p>The factory sets the authority to <code>'SYSTEM_MAINTENANCE'</code> and the role to
 <code>'Service_Daemon'</code>. The clearance is <code>standard</code> – it can perform routine
 maintenance but not structural refactoring.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is a background task with low priority.</li>
-<li>It can prune ephemeral nodes but not static pillars.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final daemon = DeputyContext.homeostasis(
   baseContext: context,
@@ -131,7 +126,7 @@ maintenance but not structural refactoring.</p>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

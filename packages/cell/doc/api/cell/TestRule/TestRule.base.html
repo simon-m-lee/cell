@@ -85,18 +85,6 @@ into the reactive graph's validation layer.</li>
 logic by overriding the <a href="../../cell/TestRule/call.html">call</a> method, while relying on <code>base</code> for
 type safety within the governance system.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Statelessness</strong>: Rules extending <code>base</code> should remain strictly
-stateless. They rely purely on the input value and metadata,
-making them safe for global caching and concurrent access.</li>
-<li><strong>Zero-Cost Metadata</strong>: Because it is a <code>const</code> constructor,
-annotation-based rules do not incur runtime overhead unless they are
-explicitly evaluated.</li>
-<li><strong>Visibility</strong>: Annotations are visible to external tools (like code
-generators or documentation engines) that might not have access to
-the runtime reactive graph.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">class MaxLength extends TestRule&lt;Never&gt; {
   final int length;
@@ -160,7 +148,7 @@ A [TestRule] instance acting as a Metadata Blueprint.
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

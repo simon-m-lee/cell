@@ -61,6 +61,12 @@
 
       </section>
       
+<section class="desc markdown">
+  <p>Optional hook receiving the complete list of compensation failures.</p>
+<p>Called before <a href="../../cell_flow/TxApplyCompensationException-class.html">TxApplyCompensationException</a> is thrown (for policies
+that throw), or before <code>commit</code> returns (for <a href="../../cell_flow/CompensationErrorPolicy.html">CompensationErrorPolicy.bestEffort</a>). Use for
+alerting and persistence.</p>
+</section>
 
       
 <section class="summary source-code" id="source">
@@ -95,7 +101,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

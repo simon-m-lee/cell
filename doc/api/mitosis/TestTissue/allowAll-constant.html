@@ -76,13 +76,6 @@ need validation.</p>
 <p>It unconditionally returns <code>true</code> for all validation requests. It is a
 singleton, so millions of collections can share it without memory
 overhead.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>When combined with other rules via <code>+</code>, it acts as a no‑op – the
-other rule's logic is preserved.</li>
-<li>It is the fallback authority in deputy chains: if no restrictive
-rule intercepts an operation, <a href="../../mitosis/TestTissue/allowAll-constant.html">allowAll</a> permits it.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final list = TissueList&lt;int&gt;(); // testRule defaults to allowAll
 </code></pre>
@@ -124,7 +117,7 @@ rule intercepts an operation, <a href="../../mitosis/TestTissue/allowAll-constan
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

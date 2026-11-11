@@ -27,7 +27,7 @@
     <li><a href="../../index.html">cell_flow</a></li>
     <li><a href="../../cell_flow/">cell_flow.dart</a></li>
     <li><a href="../../cell_flow/ModifiableAsync-class.html">ModifiableAsync<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
-    <li class="self-crumb">apply method</li>
+    <li class="self-crumb">apply&lt;<wbr><span class="type-parameter">R</span>&gt; method</li>
   </ol>
   <div class="self-name">apply</div>
   <form class="search navbar-right" role="search">
@@ -49,20 +49,14 @@
     data-above-sidebar="cell_flow&#47;ModifiableAsync-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">apply</span> method 
+<h1><span class="kind-method">apply&lt;<wbr><span class="type-parameter">R</span>&gt;</span> method 
 </h1></div>
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a></span>
-<span class="name ">apply</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span></li>
-<li><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span></li>
-<li><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span></li>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_flow/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span>
+<span class="name ">apply</span>&lt;<wbr><span class="type-parameter">R</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="apply-param-command"><span class="type-annotation"><a href="../../cell_flow/ApplyCommand.html">ApplyCommand</a></span> <span class="parameter-name">command</span>, {</span></li>
 <li><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../../cell_flow/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span></li>
-<li><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span></li>
-<li><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span></li>
-<li><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span></li>
-<li><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../../cell_flow/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span>, </span></li>
 </ol>})
 
       
@@ -70,41 +64,28 @@
     </section>
     
 <section class="desc markdown">
-  <p>Asynchronously applies a function to the wrapped cell.</p>
-<p>This method acquires a lock on the cell's properties to ensure thread safety,
-then delegates to the cell's synchronous <a href="../../cell_flow/Cell/apply.html">Cell.apply</a> method.</p>
-<p>Parameters:</p>
-<ul>
-<li><code>function</code>: The function to execute.</li>
-<li><code>positionalArguments</code>: Arguments passed by position.</li>
-<li><code>namedArguments</code>: Arguments passed by name.</li>
-</ul>
+  <p>Asynchronously submits an <a href="../../cell_flow/ApplyCommand.html">ApplyCommand</a> to the wrapped cell.</p>
+<p>This is the async counterpart of <a href="../../cell_flow/Cell/apply.html">Cell.apply</a> for the command model.
+The whole command — including its compensation blueprint and the
+transaction scope — is forwarded under the cell's lock.</p>
 <p>Returns:
-A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> that completes with the result of the function application.</p>
+A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> completing with the auditable <a href="../../cell_flow/ApplyOutcome-class.html">ApplyOutcome</a> of the
+  submission.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future apply(
-  Function function, {
-  List? positionalArguments,
-  Map&lt;Symbol, dynamic&gt;? namedArguments,
+  <pre class="language-dart"><code class="language-dart">Future&lt;ApplyOutcome&lt;R&gt;&gt; apply&lt;R&gt;(
+  ApplyCommand command, {
   ApplyTransactionScope? tx,
-  Function? compensate,
-  List? compensatePositional,
-  Map&lt;Symbol, dynamic&gt;? compensateNamed,
-  Cell? compensateCell,
 }) async {
   final lock = _cell._nucleus.lock;
-  return lock != null
-      ? lock.synchronized(() =&gt; _cell.apply(function,
-          positionalArguments: positionalArguments,
-          namedArguments: namedArguments))
-      : Future(() =&gt; _cell.apply(function,
-          positionalArguments: positionalArguments,
-          namedArguments: namedArguments));
+  final FutureOr&lt;ApplyOutcome&lt;R&gt;&gt; outcome = lock != null
+      ? await lock.synchronized(() =&gt; _cell.apply&lt;R&gt;(command, tx: tx))
+      : _cell.apply&lt;R&gt;(command, tx: tx);
+  return await outcome;
 }</code></pre>
 </section>
 
@@ -121,7 +102,7 @@ A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</
     <li><a href="../../index.html">cell_flow</a></li>
     <li><a href="../../cell_flow/">cell_flow</a></li>
     <li><a href="../../cell_flow/ModifiableAsync-class.html">ModifiableAsync<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
-    <li class="self-crumb">apply method</li>
+    <li class="self-crumb">apply&lt;<wbr><span class="type-parameter">R</span>&gt; method</li>
 </ol>
 
     <h5>ModifiableAsync class</h5>
@@ -133,7 +114,7 @@ A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

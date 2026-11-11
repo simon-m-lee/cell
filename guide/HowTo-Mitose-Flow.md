@@ -1,5 +1,12 @@
 # HowTo-Mitose-Flow.md
 
+**Verified against (version pin):**
+- `package:cell` — `1.1.0`
+- `package:cell_flow` — `1.0.0`
+- `package:cell_tissue` — `1.0.0`
+- Checked on: 2026-11-10
+- Next review: on any MAJOR/MINOR bump of the above.
+
 
 
 ## Same-directory dependencies
@@ -123,10 +130,12 @@ Key difference from the README: **`+` shares one lock**. Fluent `filter().map()`
 
 ---
 
+<a id="flow-catalog"></a>
 ## 3. Examine the catalog against the BRD
 
 Before writing a custom instruction, walk the families. Use a stock operator when the BRD sentence is *exactly* that operator. Write a custom instruction when several clauses + a resettable latch + a product filter must share one Receptor.
 
+<a id="flow-create"></a>
 ### 3.1 Create
 
 `of`, `fromIterable`, `fromFuture`, `fromStream`, `range`
@@ -139,6 +148,7 @@ Before writing a custom instruction, walk the families. Use a stock operator whe
 
 v1 industry Demos usually **`tickIn.emit`** from the harness instead of Create operators.
 
+<a id="flow-transform"></a>
 ### 3.2 Transform
 
 `map` / `MapValue`, `mapTo`, `pluck`, `scan`, `pairwise`
@@ -151,6 +161,7 @@ v1 industry Demos usually **`tickIn.emit`** from the harness instead of Create o
 
 `MapValue` is the stock projection that must **not** live inside the custom instruction. The instruction emits the rich `*Decision`; `MapValue` narrows it.
 
+<a id="flow-filter-take-skip"></a>
 ### 3.3 Filter / take / skip
 
 `filter` / `Filter`, `distinct` / `Distinct` / `DistinctUntilChanged`, `take`, `skip`
@@ -163,6 +174,7 @@ v1 industry Demos usually **`tickIn.emit`** from the harness instead of Create o
 
 If the BRD needs **ACK to clear the latch**, stock `Distinct` is the wrong tool (no `reset()`). That is the usual reason for `FlowInstructionBase`.
 
+<a id="flow-flatten"></a>
 ### 3.4 Flatten (inner sequences)
 
 | Operator | Policy | BRD trigger |
@@ -174,6 +186,7 @@ If the BRD needs **ACK to clear the latch**, stock `Distinct` is the wrong tool 
 
 Do not put flatten *inside* `riskOf`. Flatten wraps I/O after or beside the decision.
 
+<a id="flow-combine"></a>
 ### 3.5 Combine
 
 `mergeWith`, `zipWith`, `combineLatestWith`, `withLatestFrom`, `race`
@@ -186,6 +199,7 @@ Do not put flatten *inside* `riskOf`. Flatten wraps I/O after or beside the deci
 
 Cell-variant Demos often assemble the Tick in Dart. Say so in Real desk if you skip Combine operators.
 
+<a id="flow-time"></a>
 ### 3.6 Time
 
 `delay`, `debounce`, `throttle`, `sample` / `sampleTime`, `timeout`
@@ -199,6 +213,7 @@ Cell-variant Demos often assemble the Tick in Dart. Say so in Real desk if you s
 
 Do not fake a wall clock with `minRemaining` and then claim Time operators.
 
+<a id="flow-collect-control"></a>
 ### 3.7 Collect / control
 
 `bufferCount`, `bufferTime`, `bufferWithTimeAndCount`, `groupBy`, `startWith`, `retry`, `tap` / `Tap`
@@ -212,6 +227,7 @@ Do not fake a wall clock with `minRemaining` and then claim Time operators.
 
 ---
 
+<a id="flow-custom-instruction"></a>
 ## 4. When the BRD requires a custom `FlowInstruction`
 
 Write `class <Noun>RiskInstruction extends FlowInstructionBase<Cell, Pulse, Pulse>` when **all** of these are true:
@@ -257,6 +273,7 @@ If the BRD has **one** severity, one chain. Say so.
 
 ---
 
+<a id="flow-mix-match"></a>
 ## 5. Mix-and-match rules
 
 | Allowed | Forbidden |

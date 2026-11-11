@@ -87,21 +87,6 @@ to terminate the signal.</li>
 <li>The <code>future</code> callback, if provided, enables asynchronous continuation
 of the pipeline.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Resilience</strong>: The execution is shielded by a safety boundary. Any
-unhandled exception is captured, logged to the pulse's forensic
-metadata, and the original <code>pulse</code> is returned to prevent graph
-deadlocks or total pipeline failure.</li>
-<li><strong>Synchronous Execution</strong>: This method executes synchronously and
-returns the result immediately. It does not return a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>.</li>
-<li><strong>Future Propagation</strong>: If the instruction was created with
-<a href="../../cell/Instruction/Instruction.future.html">Instruction.future</a>, the <code>future</code> callback is provided to enable
-asynchronous continuation of the pipeline.</li>
-<li><strong>Side Effects</strong>: While instructions should ideally be pure, manual
-calls can be used to trigger side effects while preserving the
-underlying signal's metadata and context.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>pulse</code>: The incoming pulse to transform.</li>
@@ -153,7 +138,7 @@ print((result as Pulse).payload); // 20
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

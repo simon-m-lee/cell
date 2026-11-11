@@ -52,27 +52,6 @@
 /// This is the same reactive pipeline you know from [Cell], extended to
 /// collections.
 ///
-/// ### Non‑obvious
-/// - **Deputies are zero‑copy**: Calling `.deputy()` or `.unmodifiable` on a
-///   tissue creates a new view that shares the **same** physical storage.
-///   No data is duplicated – changes to the source are immediately visible
-///   through the view.
-/// - **Unmodifiable is live**: Unlike `List.unmodifiable()` in Dart, the view
-///   returned by `.unmodifiable` is **not a snapshot**. It stays in sync with
-///   the source indefinitely.
-/// - **Deep immutability**: If you set `unmodifiableElement: true` (the
-///   default), any child [Cell] elements are automatically projected as their
-///   `.unmodifiable` deputies, preventing “side‑door” mutations.
-/// - **Validation per element**: When you add multiple elements (e.g., via
-///   `addAll`), each element is validated individually. Invalid elements are
-///   silently skipped – they do **not** cause the entire operation to fail.
-/// - **Initial population is silent**: When you create a tissue with initial
-///   elements (e.g., `TissueList([1, 2, 3])`), no [TissuePulse] is emitted.
-///   Observers only see events for mutations that happen *after* creation.
-/// - **Bounded queues**: For [TissueQueue], setting a `capacity` creates a
-///   circular buffer – when the queue is full, adding a new element drops the
-///   oldest one silently.
-///
 /// ### Example: A validated task list
 /// ```dart
 /// final tasks = TissueList<Task>(
@@ -108,6 +87,27 @@
 /// - To understand how validation works, read [TestTissue].
 /// - To customise mutation processing, explore [TissueReceptor].
 /// - For propagation control (debounce, throttle, batching), see [Synapses].
+///
+/// ## `cell_tissue` — the Tissue layer
+///
+/// **Layer contract** (the seam sentence): the instruction decides, the chain
+/// assembles, the observer glues. Tissue **records**; Flow decides;
+/// `Cell.observe` is the only glue.
+///
+/// **Public surface (five entry points)** — the full catalog is in
+/// `HowTo-Mitose-Tissue.md` §2 and `lib/doc/api_chooser.dart`.
+///
+/// | Type | When to use | Typical Demo name |
+/// |---|---|---|
+/// | `TissueList<E>` | Ordered history; "record of every alert and action" | `events` |
+/// | `TissueSet<E>` | Unique membership; guard / block / protected register | `protectedStreams` |
+/// | `TissueMap<K, V>` | Open incidents / holds keyed by location, belt, stream | `incidentMap` |
+/// | `TissueQueue<E>` | Outbound jobs, FIFO/LIFO, optional capacity / backpressure | `alertQ` / `rtuQ` |
+/// | `TissueValue<V>` | One governed number: reserve, balance, occupancy pool | `reserveMw` |
+///
+/// **Do NOT** use this package for: the decision (that is `cell_flow`), entry
+/// (that is `Cell.ingress`), the glue (that is `Cell.observe`), or a sixth
+/// invented collection type. See `HowTo-Mitose-Tissue.md` §1 and §9.
 ///
 /// {@category Core}
 // ignore: unnecessary_library_name

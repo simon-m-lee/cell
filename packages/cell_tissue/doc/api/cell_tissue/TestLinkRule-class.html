@@ -72,14 +72,6 @@ link is attempted.</li>
 and optional user data.</li>
 <li>Return <code>true</code> to allow the link, <code>false</code> to block it.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The rule is only evaluated for <a href="../cell_tissue/Cell-class.html">Cell</a> objects; other objects are
-automatically allowed.</li>
-<li>The rule can be asynchronous; if it returns a <code>Future&lt;bool&gt;</code>, the link
-establishment waits for it.</li>
-<li>This rule is composable with other <a href="../cell_tissue/TestRule-class.html">TestRule</a>s via <code>+</code>.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// Only allow linking to cells in the same domain
 final sameDomainRule = TestLinkRule&lt;Cell&gt;((link, {host, user}) {
@@ -331,7 +323,7 @@ to connect to the <code>host</code> cell, supporting <strong>Hybrid Convergence<
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

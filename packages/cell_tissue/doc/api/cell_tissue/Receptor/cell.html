@@ -75,14 +75,6 @@ state of the cell or to access its metadata.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>It returns a reference to the <a href="../../cell_tissue/Cell-class.html">Cell</a> that successfully called
 <a href="../../cell_tissue/Receptor/activate.html">activate</a> on this receptor.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Late-Bound Property</strong>: Accessing this getter before <a href="../../cell_tissue/Receptor/isActivated.html">isActivated</a>
-is <code>true</code> will throw a <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a>.</li>
-<li><strong>Type Integrity</strong>: The returned cell is guaranteed to match the
-generic type <code>C</code> specified during the receptor's construction,
-ensuring compile-time safety for host-specific logic.</li>
-</ul>
 <h3 id="returns">Returns:</h3>
 <p>The host cell instance.</p>
 </section>
@@ -120,7 +112,7 @@ ensuring compile-time safety for host-specific logic.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

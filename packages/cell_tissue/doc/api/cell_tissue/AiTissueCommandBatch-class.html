@@ -68,15 +68,6 @@ are collected into a single <code>List&lt;Object&gt;</code> preserving order.</l
 the list is emitted as one <code>Pulse&lt;List&lt;Object&gt;&gt;</code>, tagged
 with <code>'AiTissueCommandBatch'</code>.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>One HTTP call per sentence</strong>: Deliberate, so the traffic
-log can attribute each reply to a specific sentence.</li>
-<li><strong>Mixed replies</strong>: A batch that produces three commands and
-one refusal emits all four in the list.</li>
-<li><strong>Order preservation</strong>: The output list matches the input
-order even if some sentences time out.</li>
-</ul>
 <h3 id="see-also">See Also</h3>
 <ul>
 <li><a href="../cell_tissue/AiTissueCommand-class.html">AiTissueCommand</a>: Single-sentence sibling.</li>
@@ -106,12 +97,6 @@ order even if some sentences time out.</li>
     </ul>
   </dd>
         
-  <dt>Mixed-in types</dt>
-  <dd>
-    <ul class="comma-separated clazz-relationships">
-        <li>FlowInstructionMixin<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></li>
-    </ul>
-  </dd>
 
 
         
@@ -332,7 +317,7 @@ resilience.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -2,6 +2,15 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // MIT or Apache-2.0 license that can be found in the LICENSE file.
 
+// # `example/cell_tissue_example.dart`
+//
+// **What it demonstrates:** The five collection types with validation and deputies.
+// **Which BRD sentence picks it:** "Record every alert; reserve N units; council reads, cannot delete."
+// **Layer:** Tissue (§2 five types, §3 TestTissue, §4 deputies)
+// **API signatures used:** `TissueList`, `TissueSet`, `TissueMap`, `TissueQueue`, `TissueValue`, `TestTissue`, `.unmodifiable`
+// **Run:** `dart run example/cell_tissue_example.dart`
+// **Verify first:** `dart run tool/ai_preflight.dart` exits 0.
+
 import 'package:cell_tissue/cell_tissue.dart';
 
 /// Minimal, runnable quick start for `cell_tissue`.

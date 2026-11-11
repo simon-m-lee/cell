@@ -74,16 +74,6 @@ it walks up the <code>parent</code> chain.</li>
 <li>All state is immutable – to change a context, you create a new one via
 <code>evolve()</code>.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>parent</code> chain is established at construction time and never changes.</li>
-<li>Equality (<code>==</code>) and <code>hashCode</code> are based on the entire record, including
-the parent chain – so two contexts are equal only if they have identical
-metadata and ancestry.</li>
-<li>Even though it's called "base", it's fully functional on its own – you
-can use it directly, but the factory methods are more convenient.</li>
-</ul>
-<p>See also: <a href="../mitosis/Context-class.html">Context</a>, <a href="../mitosis/DeputyContext-class.html">DeputyContext</a>, <a href="../mitosis/PulseContext-class.html">PulseContext</a>, <a href="../mitosis/Ontology.html">Ontology</a>.</p>
 </section>
 
 
@@ -455,7 +445,7 @@ type-level marker, supporting the <strong>Flyweight Pattern</strong> and generic
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -27,7 +27,7 @@
     <li><a href="../../index.html">cell_tissue</a></li>
     <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/OpenSynapsesMixin-mixin.html">OpenSynapsesMixin</a></li>
-    <li class="self-crumb">apply abstract method</li>
+    <li class="self-crumb">apply&lt;<wbr><span class="type-parameter">R</span>&gt; abstract method</li>
   </ol>
   <div class="self-name">apply</div>
   <form class="search navbar-right" role="search">
@@ -49,20 +49,14 @@
     data-above-sidebar="cell_tissue&#47;OpenSynapsesMixin-mixin-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">apply</span> abstract method 
+<h1><span class="kind-method">apply&lt;<wbr><span class="type-parameter">R</span>&gt;</span> abstract method 
 </h1></div>
 
     <section class="multi-line-signature">
       
-<span class="returntype">dynamic</span>
-<span class="name ">apply</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span></li>
-<li><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span></li>
-<li><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span></li>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span>
+<span class="name ">apply</span>&lt;<wbr><span class="type-parameter">R</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="apply-param-command"><span class="type-annotation"><a href="../../cell_tissue/ApplyCommand.html">ApplyCommand</a></span> <span class="parameter-name">command</span>, {</span></li>
 <li><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span></li>
-<li><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span></li>
-<li><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span></li>
-<li><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span></li>
-<li><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span>, </span></li>
 </ol>})
 
       <div class="features"><span class="feature">inherited</span></div>
@@ -70,85 +64,92 @@
     </section>
     
 <section class="desc markdown">
-  <p>Executes a <strong>State Transition</strong> or arbitrary logic via the <strong>Command Pattern</strong> gateway.</p>
-<p><a href="../../cell_tissue/Cell/apply.html">apply</a> serves as the primary enforcement mechanism for a <a href="../../cell_tissue/Cell-class.html">Cell</a>, bridging the gap
-between compile-time governance and runtime <strong>Integrity Gate</strong> validation.</p>
+  <p>Submits an <a href="../../cell_tissue/ApplyCommand.html">ApplyCommand</a> to trigger a state change or an action within this cell.</p>
+<p><a href="../../cell_tissue/Cell/apply.html">apply</a> is the primary architectural gateway for every mutation in the framework.
+Instead of calling functions directly, you submit a "Nervous Signal" (a command)
+that the cell must vet, execute, and record in its history.</p>
+<p>In the framework's biological metaphor, this represents <strong>Signal Transmission</strong>.
+It sends a nervous impulse through the cell's governance layer to request a
+mutation in its underlying DNA (state).</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
-<li><strong>Somatic State Transitions</strong>: When you need to perform direct mutations or
-execute business logic that is whitelisted in <a href="../../cell_tissue/Cell/modifiable.html">modifiable</a>.</li>
-<li><strong>Transaction Orchestration</strong>: When performing multiple, related updates that
-must succeed or fail as a single atomic unit using an <a href="../../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>.</li>
-<li><strong>Compensating Transactions</strong>: Defining reversal logic (<code>compensate</code>) for
-SAGA-like patterns or complex state recovery.</li>
-<li><strong>Dynamic Command Injection</strong>: Executing logic that is determined at runtime
-but must still pass through the node's security perimeter.</li>
+<li><strong>State Mutations</strong>: Use this whenever you need to update a cell's value
+in a way that is traceable and safe.</li>
+<li><strong>Governed Actions</strong>: Use this for logic that requires "Integrity Gates"
+(safety rules) to prevent invalid data transitions.</li>
+<li><strong>Grouped Changes</strong>: Use this when multiple actions must happen together
+as a single "all-or-nothing" transaction.</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
 <ol>
-<li><strong>Capability Scrutiny</strong>: The method verifies if the provided <code>function</code> is
-present in the <a href="../../cell_tissue/Cell/modifiable.html">modifiable</a> manifest.</li>
-<li><strong>Integrity Gate Validation</strong>: The request triggers a <strong>Reciprocal Handshake</strong>
-with the cell's <a href="../../cell_tissue/TestCell-class.html">TestCell</a>. The intent is evaluated against the node's
-security invariants and administrative mandates.</li>
-<li><strong>Causal Anchor</strong>: A new internal stimulus is synthesized, carrying the
-<strong>Causal Provenance</strong> (trace ID, timestamp, and operational context).</li>
-<li><strong>Execution &amp; Propagation</strong>: If authorized, the function is executed within
-the requested <code>tx</code> scope. The result is then broadcast through the
-<strong>Egress Gateway</strong> to all downstream receptors.</li>
-<li><strong>Compensate Registration</strong>: If a <code>compensate</code> function is provided, it is
-registered to be invoked if the transaction fails or requires rollback.</li>
+<li><strong>Permission Check</strong>: The cell verifies if its current state allows
+mutations by checking the <a href="../../cell_tissue/Cell/modifiable.html">modifiable</a> manifest.</li>
+<li><strong>Integrity Gate</strong>: The cell's safety rules (<a href="../../cell_tissue/TestCell/action.html">TestCell.action</a>) inspect
+the command and its data to ensure they are valid.</li>
+<li><strong>Execution</strong>: If authorized, the function is run. If a transaction scope
+(<code>tx</code>) is provided, the change is "staged" in the ledger and waits for
+the transaction to finish.</li>
+<li><strong>Outcome</strong>: The framework returns an <a href="../../cell_tissue/ApplyOutcome-class.html">ApplyOutcome</a>, which acts as
+the official <strong>Forensic Receipt</strong> for the action.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
+<h3 id="parameters">Parameters</h3>
 <ul>
-<li><strong>Short-Circuit Rejection</strong>: If the <strong>Integrity Gate</strong> rejects the action,
-the method returns <code>null</code> immediately without triggering any reactive waves.</li>
-<li><strong>Transaction Isolation</strong>: Operations within an <a href="../../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a> prevent
-"Glitch" states by ensuring downstream observers only see the final, committed transition.</li>
-<li><strong>Flyweight Strategy</strong>: The framework utilizes Record-based storage for
-command metadata to minimize heap pressure during high-frequency mutations.</li>
-<li><strong>Causal Lineage</strong>: Even failed attempts are recorded in the system audit
-log (if enabled), preserving the trace of the rejected stimulus.</li>
+<li><strong>command</strong>: The <a href="../../cell_tissue/ApplyCommand.html">ApplyCommand</a> record. This contains the function you
+want to run, the data (arguments) it needs, and the optional "undo" logic.</li>
+<li><strong>tx</strong>: An optional <a href="../../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>. Provide this if you want the
+command to be part of a larger transaction that succeeds or fails as a group.</li>
 </ul>
-<pre class="language-dart"><code class="language-dart">// Define a whitelisted mutation
-void increment(int amount) =&gt; value += amount;
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Causal Binding</strong>: Every receipt contains a unique ID and timestamp. This
+creates a permanent forensic trail, allowing you to trace any state
+change back to the exact impulse that triggered it.</li>
+<li><strong>Atomic Rollbacks</strong>: If a command includes "compensation" logic, the
+framework can use it to perform a <strong>Genetic Undo</strong>, restoring the
+previous state if a complex transaction fails later.</li>
+<li><strong>Authority Hierarchy</strong>: Arguments passed directly to <a href="../../cell_tissue/Cell/apply.html">apply</a> act as a
+<code>local override</code>, taking precedence over inherited defaults.</li>
+</ul>
+<h3 id="technical-details">Technical Details</h3>
+<ul>
+<li><strong>Execution Context</strong>: Returns a <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a>. If the mutation is simple,
+it returns the result immediately. If the mutation is asynchronous,
+it returns a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>.</li>
+<li><strong>Memory Efficiency</strong>: The command and receipt use "Flyweight" records
+to minimize memory overhead, even when tracking thousands of signals.</li>
+</ul>
+<h3 id="example-submitting-a-governed-mutation">Example: Submitting a Governed Mutation</h3>
+<pre class="language-dart"><code class="language-dart">// 1. Define the mutation logic (the "impulse")
+final updateProfile = (String name, {bool active = true}) {
+  return User(name: name, active: active);
+};
 
-// Execute via the Command Pattern gateway
-final result = myCell.apply(
-  increment,
-  positionalArguments: [5],
-  compensate: (int amount) =&gt; value -= amount,
-);
+// 2. Assemble the signal using the fluent builder (DSL)
+// This creates the "Nervous Signal" with a built-in "Genetic Undo"
+final outcome = await userCell.command(updateProfile)
+  .args(['Simon'])
+  .named({#active: true})
+  .undo(updateProfile, args: ['Previous Name'], named: {#active: false})
+  .run();
 
-if (result == null) {
-  print('Action rejected by Integrity Gate');
+// 3. Handle the Forensic Receipt using modern Dart pattern matching
+switch (outcome) {
+  case ApplyAccepted(result: final user, receipt: final r):
+    print('Mutation successful: ${user.name} (ID: ${r.id})');
+
+  case ApplyRejected(reason: final error):
+    print('Integrity Gate blocked mutation: $error');
+
+  case ApplyStaged(receipt: final r):
+    print('Signal queued in forensic ledger: ${r.id}');
 }
 </code></pre>
-<h3 id="parameters">Parameters:</h3>
+<h3 id="see-also">See also:</h3>
 <ul>
-<li><code>function</code>: <strong>The Command Anchor.</strong> A reference to the whitelisted function
-to be executed.</li>
-<li><code>positionalArguments</code>: Optional arguments passed to the function by index.</li>
-<li><code>namedArguments</code>: Optional arguments passed to the function by <a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a> keys.</li>
-<li><code>tx</code>: <strong>The Transaction Scope.</strong> An optional handle to group multiple
-operations into an atomic wave.</li>
-<li><code>compensate</code>: <strong>The Reversal Logic.</strong> A function executed if the transaction
-needs to be rolled back.</li>
-<li><code>compensatePositional</code>: Arguments for the compensation function.</li>
-<li><code>compensateNamed</code>: Named arguments for the compensation function.</li>
-<li><code>compensateCell</code>: An optional target cell for the compensation logic.</li>
-</ul>
-<h3 id="returns">Returns:</h3>
-<p>The result of the executed <code>function</code> if authorized and validated; otherwise <code>null</code>.</p>
-<h3 id="see-also">See Also:</h3>
-<ul>
-<li><a href="../../cell_tissue/Cell/modifiable.html">modifiable</a>: The capability manifest defining authorized actions.</li>
-<li><a href="../../cell_tissue/TestCell-class.html">TestCell</a>: The <strong>Integrity Gate</strong> implementation.</li>
-<li><a href="../../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>: The coordinator for atomic multi-step updates.</li>
-</ul>
-<ul>
-<li><strong>Example</strong>: See <code>example/atomic_multi_update.dart</code> for a
-walkthrough of bank transfer logic and multi-node consistency.</li>
+<li><strong>HowTo</strong>: See <code>HowTo-Cell.apply.md</code> for a comprehensive guide on
+getting started with the Cell architecture and reactive patterns.</li>
+<li><a href="../../cell_tissue/ApplyCommand.html">ApplyCommand</a> — The structural blueprint of a signal impulse.</li>
+<li><a href="../../cell_tissue/ApplyOutcome-class.html">ApplyOutcome</a> — The sealed hierarchy of transition results.</li>
 </ul>
 </section>
 
@@ -156,14 +157,9 @@ walkthrough of bank transfer logic and multi-node consistency.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">dynamic apply(Function function, {
-  List? positionalArguments,
-  Map&lt;Symbol, dynamic&gt;? namedArguments,
+  <pre class="language-dart"><code class="language-dart">FutureOr&lt;ApplyOutcome&lt;R&gt;&gt; apply&lt;R&gt;(
+  ApplyCommand command, {
   ApplyTransactionScope? tx,
-  Function? compensate,
-  List? compensatePositional,
-  Map&lt;Symbol, dynamic&gt;? compensateNamed,
-  Cell? compensateCell,
 });</code></pre>
 </section>
 
@@ -180,7 +176,7 @@ walkthrough of bank transfer logic and multi-node consistency.</li>
     <li><a href="../../index.html">cell_tissue</a></li>
     <li><a href="../../cell_tissue/">cell_tissue</a></li>
     <li><a href="../../cell_tissue/OpenSynapsesMixin-mixin.html">OpenSynapsesMixin</a></li>
-    <li class="self-crumb">apply abstract method</li>
+    <li class="self-crumb">apply&lt;<wbr><span class="type-parameter">R</span>&gt; abstract method</li>
 </ol>
 
     <h5>OpenSynapsesMixin mixin</h5>
@@ -192,7 +188,7 @@ walkthrough of bank transfer logic and multi-node consistency.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

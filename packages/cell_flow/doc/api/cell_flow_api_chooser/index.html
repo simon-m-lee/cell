@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="cell_flow_api_chooser library API docs, for the Dart programming language.">
+  <title>cell_flow_api_chooser library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li class="self-crumb">doc\api_chooser.dart</li>
+  </ol>
+  <div class="self-name">cell_flow_api_chooser</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar=""
+    data-below-sidebar="cell_flow_api_chooser&#47;cell_flow_api_chooser-library-sidebar.html">
+  
+    <div>
+      
+
+      <h1>
+        <span class="kind-library">doc\api_chooser</span>
+        library 
+ 
+
+      </h1>
+    </div>
+
+    
+<section class="desc markdown">
+  <h2 id="api-chooser--cell_flow-operators">API Chooser — <code>cell_flow</code> operators</h2>
+<p><strong>Layer:</strong> Flow. Owns: <code>riskOf</code> / operators / latch / product filter /
+chain assembly / <code>toHandle</code>. Does <strong>not</strong> own: ingress, observe,
+Transaction, or any Tissue write. See <code>HowTo-Mitose-Flow.md</code> §1.</p>
+<p><strong>Read this file when:</strong> a BRD sentence asks "wait", "rate-limit",
+"cancel", "parallel", "batch", or "combine multiple sources."</p>
+<p>The full decision procedure lives in <code>HowTo-Mitose-Flow.md</code>; this
+matrix is generated from the <code>### AI Agent Guide</code> blocks and cannot
+drift.</p>
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>When to use</th>
+<th>When NOT to use</th>
+<th>Live signature</th>
+<th>Guide</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Distinct</code></td>
+<td>** "do not flood the log" on a 15 s feed — drop any payload seen before (global seen-set, O(1) with default equality).</td>
+<td>** <strong>DON'T</strong> use stock <code>Distinct</code> when an ACK must clear the latch —</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>stock Distinct has no <code>reset()</code>. That is the usual reason for a</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>custom <code>FlowInstructionBase</code>.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>See <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip". With a custom <code>equals</code>, membership degrades to a linear scan over seen values (O(n²) worst case) until the code fix lands — prefer a keyed variant or a TissueSet-backed latch for hot paths.</td>
+<td>** <code>Distinct&lt;S&gt;({bool Function(S previous, S next)? equals, DistinctErrorHandler? onError, dynamic user})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)</td>
+<td>** <code>example/distinct_noise_reduction_demo.dart</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>DistinctUntilChanged</code></td>
+<td>** drop back-to-back duplicates only (heartbeats, no-change ticks) — <code>1, 2, 1</code> still emits three times.</td>
+<td>** global dedupe — that is <code>Distinct</code>; and never when an ACK must reset the latch (no <code>reset()</code>).</td>
+<td>** <code>DistinctUntilChanged&lt;S&gt;({bool Function(S previous, S next)? equals, DistinctErrorHandler? onError, dynamic user})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)</td>
+<td>** <code>example/distinct_noise_reduction_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Filter</code></td>
+<td>** drop <code>none</code> / keep only <code>atRisk</code> on a stock chain, or a single-predicate pass before <code>MapValue</code>.</td>
+<td>** clause-ordered policy with a resettable latch — that is a custom <code>FlowInstructionBase</code> (stock <code>Filter</code> has no <code>reset()</code>).</td>
+<td>** <code>Filter&lt;S&gt;(bool Function(S value) test, {FilterErrorHandler? onError, dynamic user})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)</td>
+<td>** <code>example/filter_data_quality_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow</code></td>
+<td>** walk §3 families of <code>HowTo-Mitose-Flow.md</code> against the BRD before writing a custom instruction; <code>Flow.*</code> covers feed adapters and adjacent journeys.</td>
+<td>** the <strong>decision</strong> gate of a Cell-variant Demo — that is <code>FlowInstructionBase</code> + <code>+</code> + <code>toHandle</code> (one Receptor, one lock).</td>
+<td>** <code>abstract class Flow</code> — static factories return <code>FlowHandle</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3 "Examine the catalog against the BRD" (#flow-catalog)</td>
+<td>** <code>example/cell_flow_example.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.asyncMapLatest</code></td>
+<td>** latest search / latest flight on stand — a new pulse cancels the previous in-flight result.</td>
+<td>** parallel lookups (<code>asyncMapConcurrent</code>) or ordered I/O (<code>asyncMap</code>).</td>
+<td>** <code>Flow.asyncMapLatest&lt;S, T&gt;(Cell source, {required FutureOr&lt;T&gt; Function(S value) mapper, AsyncMapErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)</td>
+<td>** <code>example/async_map_parallel_search_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.combineLatestWith</code></td>
+<td>** "one screen from occupancy + inbound + boarded" — emit whenever any source emits, with the latest of all.</td>
+<td>** index pairing (<code>zipWith</code>) or a Cell-variant Tick that the harness assembles in Dart (say so in Real desk).</td>
+<td>** <code>Flow.combineLatestWith&lt;S, R&gt;(Cell source, {required List&lt;Cell&gt; others, required R Function(S sourceValue, List&lt;Object?&gt; latest) combine, CombineErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.5 "Combine" (#flow-combine)</td>
+<td>** <code>example/combine_latest_sync_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.concatMap</code></td>
+<td>** order of issuer calls matters — each inner sequence finishes before the next starts (queue inners).</td>
+<td>** parallel I/O (mergeMap) or latest-only (switchMap).</td>
+<td>** <code>Flow.concatMap&lt;S, T&gt;(Cell source, {required FutureOr&lt;Object?&gt; Function(S value) project})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)</td>
+<td>** <code>example/cell_flow_example.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.debounce</code></td>
+<td>** belt chatter / 15 s snapshots — emit only after a period of silence on a feed, <strong>before</strong> <code>publishTick</code>.</td>
+<td>** <strong>DON'T</strong> use a Time operator (<code>Debounce</code>, <code>Throttle</code>, <code>Delay</code>) as the</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>policy gate. Time operators shape feeds (belt chatter, search boxes);</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>the decision belongs in a <code>FlowInstructionBase</code> subclass.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>See <code>HowTo-Mitose-Flow.md</code> §3.6 "Time".</td>
+<td>** <code>Flow.debounce&lt;S&gt;(Cell source, {required Duration duration})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.6 "Time" (#flow-time)</td>
+<td>** <code>example/stability_search_demo.dart</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Flow.distinct</code></td>
+<td>** "do not flood the log" on a 15 s feed — drop any payload seen before.</td>
+<td>** an ACK-resettable latch (stock <code>Distinct</code> has no <code>reset()</code> — use a custom instruction).</td>
+<td>** <code>Flow.distinct&lt;S&gt;(Cell source)</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)</td>
+<td>** <code>example/distinct_noise_reduction_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.exhaustMap</code></td>
+<td>** prevent double submit / double checkout / double ACK — triggers while an inner sequence is busy are dropped.</td>
+<td>** a busy-flag pattern hand-rolled in the instruction (known race in <code>ExhaustMapLatest</code>: set the busy flag <strong>before</strong> scheduling the inner work; prefer this operator for outbound pumps).</td>
+<td>** <code>Flow.exhaustMap&lt;S, T&gt;(Cell source, {required FutureOr&lt;Object?&gt; Function(S value) project})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)</td>
+<td>** <code>example/exhaust_map_submit_checkout_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.filter</code></td>
+<td>** drop <code>none</code> / keep only <code>atRisk</code> on a stock chain, or a single-predicate pass before <code>MapValue</code>.</td>
+<td>** clause-ordered policy with a resettable latch — that is a custom <code>FlowInstructionBase</code>.</td>
+<td>** <code>Flow.filter&lt;S&gt;(Cell source, {required bool Function(S value) test})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)</td>
+<td>** <code>example/filter_data_quality_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.fromFuture</code></td>
+<td>** one AODB lookup / config load per arm trigger; emits the single future result.</td>
+<td>** continuous sources — that is <code>Flow.fromStream</code>.</td>
+<td>** <code>Flow.fromFuture&lt;S&gt;(Cell source, {required Future&lt;S&gt; future, Duration? timeout, FutureErrorHandler? onError, bool emitErrorPulse = true})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.1 "Create" (#flow-create)</td>
+<td>** <code>example/from_future_forensic_pipeline_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.fromStream</code></td>
+<td>** the belt PLC is already a Dart <code>Stream</code> — bridge it into the graph.</td>
+<td>** a single value (<code>Flow.fromFuture</code>) or imperative callbacks (<code>Cell.ingress</code>).</td>
+<td>** <code>Flow.fromStream&lt;S&gt;(Cell source, {required Stream&lt;S&gt; stream, StreamErrorHandler? onError, bool emitErrorPulse = true})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.1 "Create" (#flow-create)</td>
+<td>** <code>example/from_stream_realtime_data_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.groupBy</code></td>
+<td>** group bag alerts by belt (FR-08) — emit <code>Grouped(key, value)</code> per pulse.</td>
+<td>** the WalkThrough often chooses a <code>TissueMap</code> key instead; do not run both without saying which is the system of record.</td>
+<td>** <code>Flow.groupBy&lt;S, K&gt;(Cell source, {required K Function(S value) keyOf, GroupErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.7 "Collect / control" (#flow-collect-control)</td>
+<td>** <code>example/cell_flow_example.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.map</code></td>
+<td>** project a payload on a stock chain; the facade over <code>MapValue</code>.</td>
+<td>** the rich-<code>*Decision</code> → seam-enum projection on a Cell-variant chain — use the <code>MapValue</code> class so it can join <code>+</code> chains.</td>
+<td>** <code>Flow.map&lt;S, T&gt;(Cell source, {required T Function(S value) project, MapErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.2 "Transform" (#flow-transform)</td>
+<td>** <code>example/cell_flow_example.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.mergeMap</code></td>
+<td>** parallel CAD lookups / independent I/O per trigger; results in completion order.</td>
+<td>** order matters (concatMap) or only the latest matters (switchMap).</td>
+<td>** <code>Flow.mergeMap&lt;S, T&gt;(Cell source, {required FutureOr&lt;Object?&gt; Function(S value) project})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)</td>
+<td>** <code>example/async_map_parallel_search_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.mergeWith</code></td>
+<td>** interleave pulses from several sources into one gate ("merge clicks from two widgets").</td>
+<td>** value pairing — use <code>zipWith</code> / <code>combineLatestWith</code>; a Cell-variant Tick is usually assembled in the harness instead.</td>
+<td>** <code>Flow.mergeWith&lt;T&gt;(Cell source, {required List&lt;Cell&gt; others})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.5 "Combine" (#flow-combine)</td>
+<td>** <code>example/merge_stream_aggregation_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.of</code></td>
+<td>** replay a fixed fixture list of values on the first trigger (test data, init values).</td>
+<td>** v1 industry Demos usually <code>tickIn.emit</code> from the harness instead of Create operators.</td>
+<td>** <code>Flow.of&lt;T&gt;(Cell source, {required Iterable&lt;T&gt; values})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.1 "Create" (#flow-create)</td>
+<td>** <code>example/cell_flow_example.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.pluck</code></td>
+<td>** extract one named field from a record/map payload.</td>
+<td>** the rich-<code>*Decision</code> → seam-enum projection — that is <code>MapValue</code>.</td>
+<td>** <code>Flow.pluck&lt;T&gt;(Cell source, {required Object key, PluckErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.2 "Transform" (#flow-transform)</td>
+<td>** <code>example/cell_flow_example.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.race</code></td>
+<td>** first feed that answers wins (two lookups, keep the faster).</td>
+<td>** deterministic pairing (<code>zipWith</code>) or all-sources screens (<code>combineLatestWith</code>).</td>
+<td>** <code>Flow.race&lt;T&gt;(Cell source, {required List&lt;Object?&gt; competitors})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.5 "Combine" (#flow-combine)</td>
+<td>** <code>example/retry_timeout_flaky_network_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.retry</code></td>
+<td>** flaky RTU / issuer — retry a <code>FutureOr</code> task up to <code>count</code> times on the <strong>outbound pump Cell</strong>.</td>
+<td>** inside <code>riskOf</code> (policy is pure); a harness <code>_driveAlert</code> retry-once is the usual v1 alternative.</td>
+<td>** <code>Flow.retry&lt;S, T&gt;(Cell source, {required RetryTask&lt;S, T&gt; task, int count = 3, RetryErrorHandler? onError, bool emitErrorPulse = true})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.7 "Collect / control" (#flow-collect-control)</td>
+<td>** <code>example/retry_timeout_flaky_network_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.scan</code></td>
+<td>** running totals / cumulative state emitted per pulse.</td>
+<td>** a retained reserve — that is a <code>TissueValue</code> with an invariant in <code>cell_tissue</code>.</td>
+<td>** <code>Flow.scan&lt;S, A&gt;(Cell source, {required A Function(A acc, S value) accumulate})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.2 "Transform" (#flow-transform)</td>
+<td>** <code>example/start_with_scan_ui_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.skip</code></td>
+<td>** ignore the first N pulses (seed / warm-up / header rows).</td>
+<td>** named policy filtering — that is <code>Flow.filter</code> or a custom instruction.</td>
+<td>** <code>Flow.skip&lt;S&gt;(Cell source, {required int count})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)</td>
+<td>** <code>example/cell_flow_example.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.switchMap</code></td>
+<td>** "latest reservation / flight / search only" — a new trigger cancels the previous inner sequence.</td>
+<td>** parallel CAD lookups (mergeMap) or ordered calls (concatMap).</td>
+<td>** <code>Flow.switchMap&lt;S, T&gt;(Cell source, {required FutureOr&lt;Object?&gt; Function(S value) project})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)</td>
+<td>** <code>example/switch_map_dynamic_dependency_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.take</code></td>
+<td>** first N alerts only; cap a burst; prefetch a page.</td>
+<td>** "first N alerts" in a Cell-variant Demo is usually a book concern (Tissue), not a chain operator.</td>
+<td>** <code>Flow.take&lt;S&gt;(Cell source, {required int count})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)</td>
+<td>** <code>example/cell_flow_example.dart</code></td>
+</tr>
+<tr>
+<td><code>Flow.tap</code></td>
+<td>** logging / metrics / analytics on a stock chain without rewriting the pulse.</td>
+<td>** <strong>DON'T</strong> use <code>Tap</code> to write Tissue on a Cell-variant decision chain.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Tissue writes happen in <code>Cell.observe</code> (or a harness method it calls).</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Tap is legal on Tissue-sibling / card-auth stock chains only.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>See <code>HowTo-Mitose-Flow.md</code> §3.7 "Collect / control".</td>
+<td>** <code>Flow.tap&lt;S&gt;(Cell source, {required void Function(S value) onValue, TapErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.7 "Collect / control" (#flow-collect-control)</td>
+<td>** <code>example/tap_logging_analytics_demo.dart</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Flow.throttle</code></td>
+<td>** supervisor mash on ACK / constant-rate sampling — at most one pulse per duration (leading/trailing), on a feed <strong>before</strong> <code>publishTick</code>.</td>
+<td>** <strong>DON'T</strong> use a Time operator (<code>Debounce</code>, <code>Throttle</code>, <code>Delay</code>) as the</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>policy gate. Time operators shape feeds (belt chatter, search boxes);</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>the decision belongs in a <code>FlowInstructionBase</code> subclass.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>See <code>HowTo-Mitose-Flow.md</code> §3.6 "Time".</td>
+<td>** <code>Flow.throttle&lt;S&gt;(Cell source, {required Duration duration, bool leading = true, bool trailing = false})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.6 "Time" (#flow-time)</td>
+<td>** <code>example/throttle_rate_limiting_demo.dart</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Flow.timeout</code></td>
+<td>** "raise if stopped &gt; 60 s" style deadlines on an adjacent I/O cell — emits an error pulse if silence exceeds the duration.</td>
+<td>** ACK-within-N-minutes journeys in v1 (that is a tick-field / clock concern, not a chain operator); never as the policy gate.</td>
+<td>** <code>Flow.timeout&lt;S&gt;(Cell source, {required Duration duration, TimeoutErrorHandler? onError, bool emitErrorPulse = true})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.6 "Time" (#flow-time)</td>
+<td>** <code>example/retry_timeout_flaky_network_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>FlowHandle</code></td>
+<td>** after <code>chain.toHandle(source: tickIn.cell)</code> — read <code>handle.cell</code> (the gate Cell), inject via <code>handle.emit(...)</code>.</td>
+<td>** <strong>DON'T</strong> call <code>toHandle</code> more than once per product, and never from an</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>ACK observer. One <code>toHandle(source: tickIn.cell)</code> per product, only in</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>installGates()</code>. ACK calls <code>instruction.reset()</code>.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>See <code>HowTo-Mitose-Flow.md</code> §1 and §4.</td>
+<td>** <code>typedef FlowHandle = ({Cell cell, void Function(dynamic) emit, Future&lt;void&gt; Function(dynamic) emitAsync, ...})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §4 "When the BRD requires a custom FlowInstruction" (#flow-custom-instruction)</td>
+<td>** <code>example/cell_flow_example.dart</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>FlowInstruction</code></td>
+<td>** type the chain (<code>FlowInstruction&lt;Cell, Pulse, Pulse&gt;</code>), compose with <code>+</code>, or write a small stateless gate closure.</td>
+<td>** clause-ordered policy with a resettable latch — subclass <code>FlowInstructionBase</code> instead (a bare closure cannot <code>reset()</code>).</td>
+<td>** <code>FlowInstruction&lt;C, I, O&gt;(O? Function(I pulse, {C? cell, dynamic user}) instruction, {dynamic user})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §4 "When the BRD requires a custom FlowInstruction" (#flow-custom-instruction)</td>
+<td>** <code>example/cell_flow_example.dart</code></td>
+</tr>
+<tr>
+<td><code>FlowInstructionBase</code></td>
+<td>** <em>all</em> of: clause-ordered policy, two products sharing policy, ACK must clear a latch (<code>reset()</code>), and the instruction emits a rich <code>*Decision</code>. Imitate <code>GridDecisionInstruction</code>.</td>
+<td>** <strong>DON'T</strong> write a Tissue book inside a <code>FlowInstructionBase</code> subclass.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>The instruction decides; the chain assembles; the observer glues.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>See <code>HowTo-Mitose-Flow.md</code> §5 "Mix-and-match rules". <strong>DON'T</strong> put flatten operators (<code>concatMap</code>, <code>mergeMap</code>, <code>switchMap</code>,</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>exhaustMap</code>) <em>inside</em> <code>riskOf</code>. Flatten wraps I/O after or beside the</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>decision.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>See <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)".</td>
+<td>** <code>class X extends FlowInstructionBase&lt;Cell, Pulse, Pulse&gt; { X(..., {required pass}); static Level riskOf(...); Level? lastDecision; Level get pass; void reset(); }</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §4 "When the BRD requires a custom FlowInstruction" (#flow-custom-instruction)</td>
+<td>** <code>example/ICU-alarm-pipeline-Demo.dart</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>MapValue</code></td>
+<td>** project a rich <code>*Decision</code> onto the narrow seam enum — required on the Cell-variant chain; <strong>never</strong> inside the custom instruction.</td>
+<td>** emitting a level directly from the decision itself (the instruction emits the rich decision; <code>MapValue</code> narrows it).</td>
+<td>** <code>MapValue&lt;S, T&gt;(T Function(S value) project, {MapErrorHandler? onError, dynamic user})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.2 "Transform" (#flow-transform)</td>
+<td>** <code>example/cell_flow_example.dart</code></td>
+</tr>
+<tr>
+<td><code>Tap</code></td>
+<td>** adjacent concerns on a stock chain — logging, metrics, analytics — without rewriting the pulse.</td>
+<td>** <strong>DON'T</strong> use <code>Tap</code> to write Tissue on a Cell-variant decision chain.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Tissue writes happen in <code>Cell.observe</code> (or a harness method it calls).</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Tap is legal on Tissue-sibling / card-auth stock chains only.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>See <code>HowTo-Mitose-Flow.md</code> §3.7 "Collect / control".</td>
+<td>** <code>Tap&lt;S&gt;(void Function(S value) onValue, {TapErrorHandler? onError, dynamic user})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.7 "Collect / control" (#flow-collect-control)</td>
+<td>** <code>example/tap_logging_analytics_demo.dart</code></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="how-this-matrix-stays-fresh">How this matrix stays fresh</h2>
+<ul>
+<li><code>dart run tool/generate_api_chooser.dart</code> — regenerates this file.</li>
+<li><code>test/api_chooser_up_to_date_test.dart</code> — fails CI if stale.</li>
+<li><code>dart run tool/ai_preflight.dart</code> — fails CI if a pin drifts.</li>
+</ul>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li class="self-crumb">doc\api_chooser.dart</li>
+</ol>
+
+    <h5><span class="package-name">cell_flow</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+        <li><a href="../topics/ICU Alarm Pipeline-topic.html">Demo&nbsp;·&nbsp;ICU&nbsp;Alarm&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Pharmacy Dispense-topic.html">Demo&nbsp;·&nbsp;Pharmacy&nbsp;Transactions</a></li>
+        <li><a href="../topics/Search Stability-topic.html">Demo&nbsp;·&nbsp;Search&nbsp;Stability</a></li>
+        <li><a href="../topics/Forensic Pipeline-topic.html">Demo&nbsp;·&nbsp;Forensic&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Instructions-topic.html">HowTo-FlowInstructions</a></li>
+        <li><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_flow/">cell_flow</a></li>
+      <li><a href="../cell_flow_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
+      <li><a href="../cell_flow_api_chooser/">doc\api_chooser</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <h5>cell_flow_api_chooser library</h5>
+  </div><!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

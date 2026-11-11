@@ -92,15 +92,6 @@ nested cell through the view.</li>
 <li>The view has its own <a href="../../mitosis/Synapses-class.html">Synapses</a> registry, so observers attached to the
 view receive pulses independently of observers attached to the source.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The view is <strong>not a snapshot</strong> – it stays in sync with the source.</li>
-<li>Equality (<code>==</code>) between the view and the source returns <code>true</code> – they
-are considered the same logical entity.</li>
-<li>If you override the <code>context</code>, the view runs with that authority tier,
-which affects scheduling and security checks for any observers attached
-to the view.</li>
-</ul>
 <h3 id="example-uisafe-projection">Example: UI‑safe projection</h3>
 <pre class="language-dart"><code class="language-dart">final source = TissueList&lt;String&gt;(['A', 'B']);
 final uiView = UnmodifiableTissue.view(
@@ -156,7 +147,7 @@ as unmodifiable. Prevents nested mutations.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

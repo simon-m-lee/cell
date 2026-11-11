@@ -73,7 +73,8 @@ registering a new visit.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">bool contains(Cell cell) =&gt; _visited.contains(cell);</code></pre>
+  <pre class="language-dart"><code class="language-dart">bool contains(Cell cell) =&gt;
+    identical(_single, cell) || (_visited?.contains(cell) ?? false);</code></pre>
 </section>
 
 
@@ -101,7 +102,7 @@ registering a new visit.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

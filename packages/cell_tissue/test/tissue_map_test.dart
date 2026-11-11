@@ -7,6 +7,33 @@ import 'dart:async';
 import 'package:cell_tissue/cell_tissue.dart';
 import 'package:test/test.dart';
 
+
+// Local builders for the forensic command model.
+ApplyCommand cmd(
+  Function function, [
+  List<Object?>? positionalArguments,
+  ApplyCompensation? compensation,
+]) =>
+    (
+      function: function,
+      arguments:
+          (positionalArguments: positionalArguments, namedArguments: null),
+      compensation: compensation,
+    );
+
+ApplyCompensation undo(
+  Function function, [
+  List<Object?>? positionalArguments,
+  Cell? cell,
+]) =>
+    (
+      function: function,
+      arguments:
+          (positionalArguments: positionalArguments, namedArguments: null),
+      cell: cell,
+    );
+
+
 /// Resolves the [FutureOr] returned by [TissueMap.deputy] into a [TissueMap].
 Future<TissueMap<K, V>> resolveDeputy<K, V>(TissueMap<K, V> source) async {
   final result = source.deputy();
@@ -227,10 +254,10 @@ void main() {
       final map = TissueMap<String, int>();
       expect(map.modifiable, contains(map.put));
 
-      map.apply(map.put, positionalArguments: ['x', 9]);
+      map.apply<Object?>(cmd(map.put, ['x', 9]));
       expect(map['x'], 9);
 
-      map.apply(map.put, positionalArguments: ['x', 10]);
+      map.apply<Object?>(cmd(map.put, ['x', 10]));
       expect(map['x'], 10);
     });
 
@@ -330,11 +357,11 @@ void main() {
     test('add and remove can be invoked through the apply gateway', () {
       final map = TissueMap<String, int>();
 
-      final added = map.apply(map.add, positionalArguments: ['x', 9]);
+      final added = (map.apply<Object?>(cmd(map.add, ['x', 9])) as ApplyAccepted<Object?>).result;
       expect(added, isNotNull);
       expect(map['x'], 9);
 
-      final removed = map.apply(map.remove, positionalArguments: ['x']);
+      final removed = (map.apply<Object?>(cmd(map.remove, ['x'])) as ApplyAccepted<Object?>).result;
       expect(removed, 9);
       expect(map.containsKey('x'), isFalse);
     });
@@ -342,7 +369,7 @@ void main() {
     test('apply rejects functions outside the modifiable whitelist', () {
       final map = TissueMap<String, int>.from({'a': 1});
 
-      expect(map.apply(map.containsKey, positionalArguments: ['a']), isNull);
+      expect(map.apply<Object?>(cmd(map.containsKey, ['a'])), isA<ApplyRejected<Object?>>());
     });
   });
 
@@ -368,7 +395,7 @@ void main() {
       final principal =
           TissueMapNucleus.create<String, int, TissueMap<String, int>>();
       final evolved = TissueMapNucleus<String, int>.evolve(
-        principal: principal,
+        principal,
         testRule: TestTissue<int, TissueMap<String, int>>(
           (object, {host, arguments, user}) => (object as int) > 0,
         ),
@@ -616,7 +643,7 @@ void main() {
       await expectLater(
           async.updateAll((k, v) => v + 1), throwsUnsupportedError);
       await expectLater(
-        async.apply(view.add, positionalArguments: ['q', 1]),
+        async.apply<void>(cmd(view.add, ['q', 1])),
         throwsUnsupportedError,
       );
     });
@@ -632,8 +659,8 @@ void main() {
           participants: [map],
           body: (tx) {
             expect(toMap(map), isEmpty);
-            map.apply(map.add, positionalArguments: ['a', 1], tx: tx);
-            map.apply(map.add, positionalArguments: ['b', 2], tx: tx);
+            map.apply<Object?>(cmd(map.add, ['a', 1]), tx: tx);
+            map.apply<Object?>(cmd(map.add, ['b', 2]), tx: tx);
             expect(toMap(map), isEmpty); // staged, not applied until commit
           });
 
@@ -652,8 +679,8 @@ void main() {
           participants: [map],
           body: (tx) {
             final result =
-                map.apply(map.add, positionalArguments: ['k', 7], tx: tx);
-            expect(result, isNull);
+                map.apply<Object?>(cmd(map.add, ['k', 7]), tx: tx);
+            expect(result, isA<ApplyStaged>());
             expect(toMap(map), isEmpty);
           });
 
@@ -667,7 +694,7 @@ void main() {
       await tx.execute(
           participants: [map],
           body: (tx) {
-            map.apply(map.put, positionalArguments: ['a', 2], tx: tx);
+            map.apply<Object?>(cmd(map.put, ['a', 2]), tx: tx);
             expect(map['a'], 1); // staged, not applied until commit
           });
 
@@ -682,8 +709,8 @@ void main() {
         tx.execute(
             participants: [map],
             body: (tx) {
-              map.apply(map.add, positionalArguments: ['a', 1], tx: tx);
-              map.apply(map.add, positionalArguments: ['b', 2], tx: tx);
+              map.apply<Object?>(cmd(map.add, ['a', 1]), tx: tx);
+              map.apply<Object?>(cmd(map.add, ['b', 2]), tx: tx);
               throw StateError('boom');
             }),
         throwsStateError,
@@ -700,15 +727,10 @@ void main() {
       );
 
       await tx.begin([map]);
-      tx.enqueue(
-        map,
-        map.add,
-        ['a', 1],
-        null,
-        compensateCell: map,
-        compensateFunction: map.remove,
-        compensatePositional: ['a'],
-      );
+      tx.enqueueCommand(
+  map,
+  cmd(map.add, ['a', 1], undo(map.remove, ['a'], map)),
+);
       await tx.rollback();
 
       expect(toMap(map), isEmpty);
@@ -723,7 +745,7 @@ void main() {
         tx.execute(
             participants: [map],
             body: (tx) {
-              map.apply(map.containsKey, positionalArguments: ['a'], tx: tx);
+              map.apply<Object?>(cmd(map.containsKey, ['a']), tx: tx);
             }),
         throwsA(isA<TxApplyException>()),
       );
@@ -739,13 +761,10 @@ void main() {
       await tx.execute(
           participants: [map],
           body: (tx) {
-            map.apply(
-              map.add,
-              positionalArguments: ['x', 5],
-              tx: tx,
-              compensate: map.remove,
-              compensatePositional: ['x'],
-            );
+            map.apply<Object?>(
+  cmd(map.add, ['x', 5], undo(map.remove, ['x'])),
+  tx: tx,
+);
           });
 
       expect(toMap(map), {'x': 5});

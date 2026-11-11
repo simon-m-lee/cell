@@ -78,14 +78,6 @@ Most of the time, you can rely on the default <code>Synapses.enabled</code>.</p>
 <li>It prepares internal buffers and timers if the policy requires them.</li>
 <li>The resulting instance is ready for linking and broadcasting.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>downstreams</code> set is <strong>identity‑based</strong> – deputies and principals
-are distinct entries.</li>
-<li>The <code>filter</code> is applied to <strong>all</strong> outgoing pulses; if you need
-per‑observer filters, use separate synapses.</li>
-<li>The <code>policy</code> is optional; if omitted, propagation is immediate.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>policy</code>: The <a href="../../mitosis/PropagationPolicy-class.html">PropagationPolicy</a> defining temporal flow control and
@@ -110,7 +102,14 @@ strategy across the downstream spokes.</li>
   FilterRule&lt;P&gt;? filter,
   void Function(P pulse)? relay,
 }) : _record = mask(
-        downstreams: downstreams != null ? &lt;C&gt;{...downstreams} : &lt;C&gt;{},
+        &#47;&#47; Identity-based edge set, on purpose: deputies are `==` to their
+        &#47;&#47; principals, but they are distinct graph nodes with their own
+        &#47;&#47; synapses and observers. A value-equality set would silently
+        &#47;&#47; collapse both edges into one (the same rule CycleChecker
+        &#47;&#47; already documents for pulse visitation).
+        downstreams: downstreams != null
+            ? (Set&lt;C&gt;.identity()..addAll(downstreams))
+            : Set&lt;C&gt;.identity(),
         policy: policy,
         filter: filter,
         relay: relay,
@@ -142,7 +141,7 @@ strategy across the downstream spokes.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

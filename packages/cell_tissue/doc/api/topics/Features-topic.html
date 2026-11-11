@@ -47,7 +47,7 @@
 <section class="desc markdown">
   <h1 id="cell_tissue--feature-catalog">cell_tissue — Feature Catalog</h1>
 <p><strong>Package:</strong> <code>cell_tissue</code><br>
-<strong>Version:</strong> 1.0.0-rc.7<br>
+<strong>Version:</strong> 1.0.0 (Stable)<br>
 <strong>SDK:</strong> Dart <code>&gt;=3.5.0 &lt;4.0.0</code><br>
 <strong>License:</strong> MIT or Apache-2.0<br>
 <strong>Author:</strong> Lee Man Hoi Simon (see <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/AUTHORS"><code>AUTHORS</code></a>)<br>
@@ -126,9 +126,12 @@ commit under a lock, and emit a <code>TissuePulse</code>.</p>
 <p>The library re-exports <code>package:cell/cell.dart</code>.</p>
 <hr>
 <h2 id="2-status-and-boundaries">2. Status and Boundaries</h2>
-<p><strong>Alpha.</strong> <code>publish_to: none</code>. No independent audit. The <code>example/</code>
-tree now ships with four end-to-end demos (see §17) plus companion
-docs per demo; the <code>test/</code> directory remains minimal.</p>
+<p><strong>Stable (package version <code>1.0.0</code>).</strong> The published pub.dev package is
+still <code>1.0.0-rc.9</code> until the stable release is published; no independent
+security or correctness audit has been performed. The full test suite
+passes (<strong>362 tests</strong>), <code>dart doc .</code> exits with 0 warnings and 0 errors,
+and <code>dart analyze lib</code> reports two pre-existing info-level style lints
+(<code>curly_braces_in_flow_control_structures</code> in <code>lib/src/tissue_pulse.dart</code>).</p>
 <table>
 <thead>
 <tr>
@@ -143,7 +146,7 @@ docs per demo; the <code>test/</code> directory remains minimal.</p>
 </tr>
 <tr>
 <td>Snapshot unmodifiable</td>
-<td><code>.unmodifiable</code> is a <strong>live</strong> deputy in the general case (some builds may snapshot; see the demo header).</td>
+<td><code>.unmodifiable</code> is a <strong>live</strong> deputy — proven by the <code>unmodifiable_is_live_test.dart</code> fitness test.</td>
 </tr>
 <tr>
 <td>Thread-safe / multi-isolate</td>
@@ -151,7 +154,7 @@ docs per demo; the <code>test/</code> directory remains minimal.</p>
 </tr>
 <tr>
 <td><code>listen</code> on the tissue</td>
-<td>Dartdoc examples; observe with <code>Cell.observe(source: tissue, …)</code>. In some builds, <code>Cell.observe</code> on a <strong>Tissue</strong> cell does not fire effect callbacks; trace prints come from the writers.</td>
+<td>Dartdoc examples; observe with <code>Cell.observe(source: tissue, …)</code> — tissue broadcasts are regular pulses and observer wiring is suite-covered.</td>
 </tr>
 <tr>
 <td><code>TissueList([1, 2, 3])</code></td>
@@ -278,11 +281,11 @@ docs per demo; the <code>test/</code> directory remains minimal.</p>
 </tr>
 <tr>
 <td><code>apply</code> / <code>modifiable</code></td>
-<td>Command whitelist (used by <code>add</code> etc.)</td>
+<td>Integrity-gated <code>apply</code>; <code>modifiable</code> is a capability manifest</td>
 </tr>
 <tr>
 <td><code>async</code></td>
-<td><code>TissueModifiableAsync</code> — Future-based mutations</td>
+<td><code>ModifiableAsync</code> (from cell) — Future-based mutations</td>
 </tr>
 </tbody>
 </table>
@@ -292,8 +295,10 @@ docs per demo; the <code>test/</code> directory remains minimal.</p>
 <li>Deputies share storage; <code>deputy == principal</code>.</li>
 <li>Deputy rules only <strong>narrow</strong>.</li>
 <li><code>addAll</code>: invalid elements skipped individually.</li>
-<li><code>modifiable</code> is the collection's public whitelist — the dispatcher
-or any external agent must consult it before invoking a tear-off.</li>
+<li><code>modifiable</code> is the collection's public capability manifest — a
+dispatcher may consult it before invoking a tear-off (the
+NL-instruction demo does); authorization itself comes from the
+integrity gate.</li>
 </ul>
 <hr>
 <h2 id="5-tissuelist">5. TissueList</h2>
@@ -325,7 +330,7 @@ or any external agent must consult it before invoking a tear-off.</li>
 </tbody>
 </table>
 <p><code>growable: false</code> uses <code>Container.growableFalse</code>. Nucleus:
-<code>TissueListNucleus</code> / <code>.evolve</code>. Async wrapper: <code>ModifiableListAsync</code>.</p>
+<code>TissueListNucleus</code> / <code>.evolve</code>.</p>
 <p><strong>Append-only enforcement pattern</strong> (used in the sibling demos):</p>
 <pre class="language-dart"><code class="language-dart">final eventRule = TestTissue&lt;LedgerEntry, TissueList&lt;LedgerEntry&gt;&gt;(
   (e, {host, arguments, user}) {
@@ -488,8 +493,7 @@ queue's <code>ElementAdded</code> to reconstruct every outbound attempt.</p>
 <p><code>finalValue: true</code> → <code>Container.finalValue</code> (set once). Emits
 <code>ElementUpdated</code> on assignment.</p>
 <p>Prefer <code>Cell.state</code> / <code>ValueCell</code> unless you need tissue validation,
-deep unmodifiable, or nested-cell linking. See
-<code>docs/InDepth-CollectiveValue-vs-ValueCell.md</code>.</p>
+deep unmodifiable, or nested-cell linking.</p>
 <p><strong>Non-negative guard pattern</strong> (used in the sibling demos):</p>
 <pre class="language-dart"><code class="language-dart">final reserveMw = TissueValue&lt;int&gt;(
   800,
@@ -572,7 +576,7 @@ under-frequency / NSF / over-assignment guard.</p>
 </tr>
 <tr>
 <td><code>TestTissue.readOnly</code></td>
-<td>Blocks <code>modifiable</code> actions; used by unmodifiable views</td>
+<td>Blocks every mutation action; used by unmodifiable views</td>
 </tr>
 <tr>
 <td><code>TestTissue.unlimitedLength</code></td>
@@ -685,15 +689,11 @@ if (!host.modifiable.contains(tearOff)) {
 <hr>
 <h2 id="14-observation-and-async">14. Observation and Async</h2>
 <p>Tissues are cells: <code>Cell.observe(source: tissue, effect: …)</code> or
-<code>Flow.observe(bind: tissue, …)</code> if cell_flow is in use.</p>
-<p><strong>Tissue-cell observer caveat.</strong> In this build, <code>Cell.observe</code> on a
-Tissue cell does <strong>not</strong> deliver pulses to observer effects. The
-sibling demos emit trace prints from the writers themselves (the
-observers, <code>_drivePush</code> / <code>_driveRtu</code> / <code>_driveIssuer</code>, <code>placeHold</code>,
-<code>applyShed</code>, <code>accept</code>, etc.).</p>
-<p><code>tissue.async</code> returns a typed async wrapper (<code>ModifiableListAsync</code>,
-<code>ModifiableSetAsync</code>, <code>ModifiableMapAsync</code>, <code>ModifiableQueueAsync</code>,
-<code>ModifiableValueAsync</code>) so mutations can be awaited through the lock.</p>
+<code>Flow.observe(bind: tissue, …)</code> if cell_flow is in use. Tissue
+broadcasts are regular pulses — observer wiring is suite-covered
+(<code>tissue_map_test.dart</code>, AI-guide examples).</p>
+<p><code>tissue.async</code> returns the cell-layer async wrapper (<code>ModifiableAsync</code>)
+so mutations can be awaited through the lock.</p>
 <p>Propagation timing (<code>debounce</code> / <code>throttle</code> / <code>batch</code>) is still
 <code>Synapses</code> + <code>PropagationPolicy</code> from <strong>cell</strong>, attached at construction.</p>
 <hr>
@@ -837,7 +837,7 @@ same seam with a different domain:</p>
 <li><strong>Distinct-before-Filter</strong> — latch records every decision.</li>
 <li><strong>ACK resets</strong> — no graph rebuild.</li>
 <li><strong>Observer writes Tissue</strong> — the only glue.</li>
-<li><strong><code>modifiable</code> gate</strong> — the collection's public contract.</li>
+<li><strong><code>modifiable</code> dispatch gate</strong> — the manifest is consulted before the tear-off.</li>
 <li><strong>Read-only deputy</strong> — the compliance / council / auditor view.</li>
 <li><strong>Append-only log</strong> — the audit trail is never deletable.</li>
 <li><strong>Bounded outbound queue</strong> — capacity limits backpressure.</li>
@@ -854,8 +854,8 @@ value as the <strong>first positional</strong> argument; <code>TissueMap</code> 
 <li>Each <code>TestCell</code> unwraps <code>Pulse.payload</code> before the shape check.</li>
 <li>Outbound pump: <code>addLast</code> is the audit enqueue; a plain Dart working
 list drives the retry.</li>
-<li>Trace prints come from the writers themselves, because
-<code>Cell.observe</code> on a Tissue cell is silent in this build.</li>
+<li>Trace prints come from the writers themselves — a deliberate demo
+style for scenario replay, not a limitation of tissue observers.</li>
 </ul>
 <hr>
 <h2 id="18-use-case-decision-matrix">18. Use-Case Decision Matrix</h2>
@@ -936,7 +936,7 @@ list drives the retry.</li>
 <td>Flow gate + <code>Cell.observe</code> + Tissue write</td>
 </tr>
 <tr>
-<td>LLM verb whitelist enforcement</td>
+<td>LLM verb dispatch gate</td>
 <td><code>host.modifiable.contains(tearOff)</code> before the tear-off</td>
 </tr>
 </tbody>
@@ -944,20 +944,15 @@ list drives the retry.</li>
 <hr>
 <h2 id="19-known-gaps">19. Known Gaps</h2>
 <ol>
-<li>Alpha; not published; <code>test/</code> remains minimal.</li>
+<li>Published package on pub.dev is still <code>1.0.0-rc.9</code>; no independent
+security or correctness audit.</li>
 <li>Dartdoc <code>listen</code> / <code>TissueList([...])</code> snippets vs actual API.</li>
 <li><code>addAll</code> silent skip of invalid elements.</li>
 <li>Queue overflow drops oldest with no dedicated event documented as
 distinct from a normal remove.</li>
-<li><code>tissue_callable.dart</code> is not exported from <code>tissue.dart</code>.</li>
 <li><code>TissueQueue.removeFirst</code> / <code>remove</code> do not drain the container in
 this build. The sibling demos use an audit-side enqueue + a plain
 Dart working list.</li>
-<li><code>Cell.observe</code> on a Tissue cell is silent in this build. Trace
-prints come from the writers.</li>
-<li><code>.unmodifiable</code> is a <strong>snapshot</strong> in some builds (see the NL
-instruction demo trailer: <code>auditorLength=0</code>). Verify the header of
-the demo before asserting liveliness.</li>
 <li>Joint commit across multiple Tissues is not exposed in this build.
 The sibling demos use a v1 compensation ladder; <code>Cell.transaction</code>
 is the migration target.</li>
@@ -1164,6 +1159,8 @@ reactive containers in <code>cell_tissue</code>.
         <li><a href="../topics/Ride Hail-topic.html">Demo&nbsp;·&nbsp;Ride&nbsp;Hail</a></li>
         <li><a href="../topics/Examples-topic.html">Quick&nbsp;Start&nbsp;&&nbsp;Examples</a></li>
       <li class="section-title">Libraries</li>
+      <li><a href="../cell_tissue_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
+      <li><a href="../cell_tissue_api_chooser/">doc\api_chooser</a></li>
       <li class="section-subtitle">Core</li>
         <li class="section-subitem"><a href="../cell_tissue/">cell_tissue</a></li>
 </ol>
@@ -1192,7 +1189,7 @@ reactive containers in <code>cell_tissue</code>.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -94,16 +94,6 @@ for this stimulus.</li>
 </ul>
 </li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Provenance Preservation</strong>: Unlike <code>map</code>, which creates a new
-evolved pulse, <a href="../../cell_flow/CellFlowOperators/filter.html">filter</a> passes the <em>exact</em> original stimulus forward.
-This preserves the original source, priority, and trace history
-without modification.</li>
-<li><strong>Synchronous Efficiency</strong>: The check occurs in the ingress frame.
-Logic within <code>test</code> should be high-performance to avoid stalling
-the reactive engine.</li>
-</ul>
 <h3 id="type-parameters">Type Parameters</h3>
 <ul>
 <li><code>S</code>: <strong>Stimulus Payload Type</strong>. The type of the payload arriving
@@ -155,7 +145,7 @@ may proceed through the gate.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

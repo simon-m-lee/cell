@@ -88,17 +88,6 @@ inheritance</strong> via a <code>parent</code> chain.</li>
 <li>The <code>evolve</code> method creates a refined context, useful when a pulse
 passes through multiple processing stages.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The context is <strong>immutable</strong> – all changes create a new instance.</li>
-<li>The <code>traceId</code> is auto‑generated if not provided, ensuring uniqueness.</li>
-<li>The <code>parentTraceId</code> is automatically linked when you evolve a context
-from an existing one.</li>
-<li>The <code>integrity</code> dimension is computed automatically by the framework
-and is not something you set manually.</li>
-<li>The context is <strong>not</strong> the pulse – it's a separate metadata container
-that travels with the pulse.</li>
-</ul>
 <h3 id="example-creating-a-user-action-context">Example: Creating a User Action Context</h3>
 <pre class="language-dart"><code class="language-dart">final context = PulseContext.userAction(
   actor: 'admin_01',
@@ -760,7 +749,7 @@ telemetric templates for standard internal operations.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

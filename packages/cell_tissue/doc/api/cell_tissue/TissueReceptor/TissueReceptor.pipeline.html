@@ -90,14 +90,6 @@ is committed.</li>
 <li>Each stage is independently shielded; an error in one stage is logged,
 and the pipeline recovers to the last valid state.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>All stages are optional. If a stage is omitted, the pulse passes
-through that layer unchanged.</li>
-<li>The <code>reaction</code> parameter is a simplified functional alternative to
-<code>instruction</code>.</li>
-<li>The <code>init</code> parameter runs once when the receptor is first activated.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>instruction</code>: The core transformation logic (the "Reasoning" phase).</li>
@@ -164,7 +156,7 @@ through that layer unchanged.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

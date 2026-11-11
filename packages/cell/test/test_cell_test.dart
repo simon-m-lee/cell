@@ -18,6 +18,7 @@ class _AsyncActionRule extends TestActionRule<Cell> {
     Function action, {
     required Cell host,
     Arguments? arguments,
+    ApplyCommand? command,
   }) async {
     await Future<void>.delayed(Duration.zero);
     return allow;
@@ -105,18 +106,20 @@ void main() {
 
       test('blocks apply when the action is on the modifiable whitelist', () {
         final host = Cell();
-        expect(host.modifiable.contains(host.apply), isTrue);
+        expect(host.modifiable.contains(host.apply<dynamic>), isTrue);
         expect(
-          TestCell.readOnly.action(host.apply, host: host),
+          TestCell.readOnly.action(host.apply<dynamic>, host: host),
           isFalse,
         );
       });
 
       test('call on a Function consults action', () {
         final host = Cell();
-        expect(TestCell.readOnly.call(host.apply, host: host), isFalse);
+        expect(
+            TestCell.readOnly.call(host.apply<dynamic>, host: host), isFalse);
         void other() {}
-        expect(TestCell.readOnly.call(other, host: host), isTrue);
+        // Read-only blocks every Function — whitelisted or not.
+        expect(TestCell.readOnly.call(other, host: host), isFalse);
       });
 
       test('readOnly + customRule delegates to the custom rule', () {
@@ -147,8 +150,7 @@ void main() {
       });
 
       test(
-          'readOnly action with arguments still allows non-modifiable tear-offs',
-          () {
+          'readOnly action rejects every function — whitelisted or not', () {
         final host = Cell();
         void other() {}
         expect(
@@ -160,7 +162,7 @@ void main() {
               namedArguments: {#k: 2},
             ),
           ),
-          isTrue,
+          isFalse,
         );
       });
     });
@@ -258,6 +260,47 @@ void main() {
         expect(policy.call(11), isFalse);
       });
 
+      test('TestCell.chain honors parent without a strategy', () {
+        final local = TestCell(
+            (object, {host, arguments, user}) => object is int && object > 0);
+        final parent = TestCell<Cell>(
+            (object, {host, arguments, user}) => object is int && object < 10);
+        final policy = TestCell.chain([local], parent: parent);
+        // Local rule runs first; the parent must NOT be dropped just
+        // because no custom strategy was supplied.
+        expect(policy.call(5), isTrue);
+        expect(policy.call(0), isFalse, reason: 'local rule fails');
+        expect(policy.call(11), isFalse, reason: 'parent rule fails');
+      });
+
+      test('composed generic rules are consulted for action validation', () {
+        String write() => 'x';
+        String read() => 'x';
+
+        var functionChecked = false;
+        final isPositive = TestCell<Cell>((object, {host, arguments, user}) {
+          // Defer Function checks to the action-oriented rule.
+          if (object is Function) return true;
+          return object is int && object > 0;
+        });
+        final action = TestCell<Cell>((object, {host, arguments, user}) {
+          if (object is Function) {
+            functionChecked = true;
+            return identical(object, read);
+          }
+          return true;
+        });
+        final policy = isPositive + action;
+        final host = Cell();
+
+        expect(policy.action(write, host: host), isFalse,
+            reason: 'the generic rule\'s Function branch must veto');
+        expect(functionChecked, isTrue);
+        functionChecked = false;
+        expect(policy.action(read, host: host), isTrue);
+        expect(functionChecked, isTrue);
+      });
+
       test('chains nest', () {
         final a = TestCell((object, {host, arguments, user}) => object is int);
         final b = TestCell(
@@ -272,20 +315,20 @@ void main() {
     });
 
     group('Exceptions', () {
-      test('a throwing rule passes when the host is ungoverned', () {
+      test('a throwing rule fails closed when the host is ungoverned', () {
         final rule = TestCell((object, {host, arguments, user}) {
           throw Exception('bad rule');
         });
         final host = Cell();
         expect(host.isGoverned, isFalse);
-        expect(rule.call(1, host: host), isTrue);
+        expect(rule.call(1, host: host), isFalse);
       });
 
-      test('a throwing rule with no host passes', () {
+      test('a throwing rule with no host fails closed', () {
         final rule = TestCell((object, {host, arguments, user}) {
           throw Exception('bad rule');
         });
-        expect(rule.call(1), isTrue);
+        expect(rule.call(1), isFalse);
       });
     });
 
@@ -297,6 +340,40 @@ void main() {
         });
         expect(await rule.call(5), isTrue);
         expect(await rule.call(-1), isFalse);
+      });
+
+      test('an async throwing rule fails cleanly for a governed host',
+          () async {
+        final rule = TestCell((object, {host, arguments, user}) async {
+          await Future<void>.delayed(Duration.zero);
+          throw Exception('async bad rule');
+        });
+        final host = Cell.governed(
+          ephemeralPolicy: EphemeralPolicy(
+            onEvent: (object,
+                {required cell, arguments, required policy, user}) {
+              return (events: policy.events + 1);
+            },
+            onInvalidate: (nucleus) => true,
+          ),
+        );
+        expect(host.isGoverned, isTrue);
+        expect(await rule.call(1, host: host), isFalse,
+            reason: 'the exception must surface to TestCell.call and be '
+                'converted to false, not resolve as a TypeError');
+      });
+
+      test('an async throwing rule fails closed for an ungoverned host',
+          () async {
+        final rule = TestCell((object, {host, arguments, user}) async {
+          await Future<void>.delayed(Duration.zero);
+          throw Exception('async bad rule');
+        });
+        final host = Cell();
+        expect(host.isGoverned, isFalse);
+        expect(await rule.call(1, host: host), isFalse,
+            reason: 'an integrity gate must never authorize on a throwing '
+                'rule, governed host or not');
       });
     });
 

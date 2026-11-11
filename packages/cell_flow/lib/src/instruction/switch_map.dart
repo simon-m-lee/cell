@@ -8,6 +8,8 @@ import 'dart:async';
 
 import 'package:cell_flow/cell_flow.dart';
 
+import 'flow_internal.dart';
+
 // ─────────────────────────────────────────────────────────────
 // Core SwitchMap Operators
 // ─────────────────────────────────────────────────────────────
@@ -72,14 +74,6 @@ typedef SwitchMapper<S> = FutureOr<Object?> Function(S value);
 /// 2. [lastTrigger] is updated with the most recent input.
 /// 3. [lastValue] is updated with the most recent output.
 /// 4. The snapshot is shared between the instruction and external code.
-///
-/// ### Non‑obvious
-/// - **Shared Mutable State**: The snapshot is mutable and shared.
-/// - **Generation Tracking**: The [generation] helps detect updates.
-/// - **External Access**: The snapshot can be accessed externally.
-/// - **Thread Safety**: Not thread-safe; operations are serialized
-///   through the cell's lock.
-/// - **Type Safety**: Generic over [S] (input) and [T] (output).
 ///
 /// ### Example: Coordinated Cancellation
 /// ```dart
@@ -174,46 +168,6 @@ Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
 /// - [onData]: Called for each value drained.
 /// - [stillLive]: Optional callback to check if the operation is still current.
 ///
-/// ### Non‑obvious
-/// - **Recursive Draining**: The function recurses on `Future` and `Iterable`
-///   values, allowing nested structures to be flattened.
-/// - **Cancellation**: The [stillLive] callback is checked at each step,
-///   allowing cancelled operations to stop early.
-/// - **String Special Case**: Strings are treated as values, not iterables,
-///   to avoid character-by-character iteration.
-/// - **Efficiency**: Only processes values from the current generation.
-Future<void> _drain(
-  Object? inner,
-  void Function(dynamic value) onData, {
-  bool Function()? stillLive,
-}) async {
-  if (inner == null) return;
-  if (stillLive != null && !stillLive()) return;
-
-  if (inner is Stream) {
-    await for (final event in inner) {
-      if (stillLive != null && !stillLive()) return;
-      await _drain(event, onData, stillLive: stillLive);
-    }
-    return;
-  }
-
-  if (inner is Future) {
-    final value = await Future<dynamic>.value(inner);
-    await _drain(value, onData, stillLive: stillLive);
-    return;
-  }
-
-  if (inner is Iterable && inner is! String) {
-    for (final event in inner) {
-      if (stillLive != null && !stillLive()) return;
-      await _drain(event, onData, stillLive: stillLive);
-    }
-    return;
-  }
-
-  onData(inner);
-}
 
 /// Internal state for generation tracking.
 ///
@@ -223,9 +177,6 @@ Future<void> _drain(
 /// ### Fields:
 /// - [generation]: The current generation ID.
 ///
-/// ### Non‑obvious
-/// - **Monotonic**: The generation counter only increases.
-/// - **Stateful**: The state persists across pulses.
 class _GenerationState {
   int generation = 0;
 }
@@ -281,20 +232,6 @@ class _GenerationState {
 /// 4. Any previous in-flight inner sequence is effectively cancelled.
 /// 5. Only values from the most recent generation are emitted.
 /// 6. Each emitted value gets the step `'SwitchMap'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Generation Tracking**: Each trigger gets a unique generation ID.
-///   Values from older generations are silently dropped.
-/// - **Silent Cancellation**: Cancelled operations do not throw exceptions.
-///   They simply stop emitting values.
-/// - **Drain Recursion**: The `_drain` function handles nested structures.
-/// - **Type Safety**: The instruction is generic over [S] (input) and
-///   [T] (output), ensuring compile-time type safety.
-/// - **Provenance Preservation**: Every emitted value preserves the source
-///   cell, type, and priority from the trigger pulse.
-/// - **Error Isolation**: Only errors from the current generation are
-///   reported. Errors from cancelled operations are ignored.
-/// - **Memory Efficiency**: Only the latest generation's values are kept.
 ///
 /// ### Example: Search-as-you-Type
 /// ```dart
@@ -390,8 +327,8 @@ class SwitchMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     SwitchMapper<S> mapper, {
     SwitchErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final gen = _GenerationState();
             return (pulse, {cell, user, future, token}) {
               final payload = pulse.payload;
@@ -409,7 +346,7 @@ class SwitchMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 try {
                   final inner = await Future.sync(() => mapper(payload));
                   if (id != gen.generation) return;
-                  await _drain(
+                  await drainInner(
                     inner,
                     (item) {
                       if (id != gen.generation) return;
@@ -430,7 +367,7 @@ class SwitchMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               run();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -464,15 +401,6 @@ class SwitchMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. Any previous in-flight sequence is cancelled.
 /// 5. Only values from the most recent generation are emitted.
 /// 6. Each emitted value gets the step `'SwitchMapTo'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Payload Ignored**: The payload is ignored; only the arrival matters.
-/// - **Reusable Factory**: The same [inner] factory is called for every trigger.
-/// - **Cancellation Works**: Previous sequences are cancelled as expected.
-/// - **Type Safety**: The input type [S] is effectively ignored but kept
-///   for compatibility with the FlowInstruction interface.
-/// - **Provenance Preservation**: Every emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
 ///
 /// ### Example: Retry on Demand
 /// ```dart
@@ -564,8 +492,8 @@ class SwitchMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FutureOr<Object?> Function() inner, {
     SwitchErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final gen = _GenerationState();
             return (pulse, {cell, user, future, token}) {
               final id = ++gen.generation;
@@ -573,7 +501,7 @@ class SwitchMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 try {
                   final seq = await Future.sync(inner);
                   if (id != gen.generation) return;
-                  await _drain(
+                  await drainInner(
                     seq,
                     (item) {
                       if (id != gen.generation) return;
@@ -594,7 +522,7 @@ class SwitchMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               run();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -628,15 +556,6 @@ class SwitchMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. Only values from the most recent payload are emitted.
 /// 5. The payload itself is the sequence to drain.
 /// 6. Each emitted value gets the step `'SwitchLatest'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Payload as Source**: The payload *is* the inner sequence.
-/// - **No Mapping**: There's no mapper function – the payload is used directly.
-/// - **Type Safety**: The instruction is generic over [T] – the output type
-///   must match the payload's element type.
-/// - **Flexibility**: The payload can be any drainable object.
-/// - **Provenance Preservation**: Every emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
 ///
 /// ### Example: Switching Between Data Sources
 /// ```dart
@@ -711,14 +630,14 @@ class SwitchLatest<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   SwitchLatest({
     SwitchErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final gen = _GenerationState();
             return (pulse, {cell, user, future, token}) {
               final id = ++gen.generation;
               Future<void> run() async {
                 try {
-                  await _drain(
+                  await drainInner(
                     pulse.payload,
                     (item) {
                       if (id != gen.generation) return;
@@ -739,7 +658,7 @@ class SwitchLatest<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               run();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -783,17 +702,6 @@ typedef SwitchAll<T> = SwitchLatest<T>;
 /// 4. The [snapshot.lastValue] is updated with each emitted value.
 /// 5. Only values from the most recent generation are emitted.
 /// 6. Each emitted value gets the step `'SwitchMapState'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Shared State**: The snapshot is shared and mutable, allowing
-///   coordination between the mapper and external code.
-/// - **Generation Tracking**: The [generation] is automatically incremented.
-/// - **Last Trigger/Value**: These are automatically updated.
-/// - **Thread Safety**: The snapshot is not thread-safe; operations are
-///   serialized through the cell's lock.
-/// - **Type Safety**: The snapshot is generic over [S] and [T].
-/// - **External Access**: The snapshot can be accessed from outside the
-///   instruction for inspection or coordination.
 ///
 /// ### Example: Coordinated Cancellation
 /// ```dart
@@ -906,8 +814,8 @@ class SwitchMapState<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     this.snapshot,
     SwitchErrorHandler? onError,
     dynamic user,
-  ) : super.future(
-          (() {
+  ) : super.stateful(
+          () {
             final snap = snapshot;
             return (pulse, {cell, user, future, token}) {
               final payload = pulse.payload;
@@ -926,7 +834,7 @@ class SwitchMapState<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 try {
                   final inner = await Future.sync(() => mapper(payload, snap));
                   if (id != snap.generation) return;
-                  await _drain(
+                  await drainInner(
                     inner,
                     (item) {
                       if (id != snap.generation) return;
@@ -948,7 +856,7 @@ class SwitchMapState<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               run();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 

@@ -1,0 +1,34 @@
+name: API docs
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  dartdoc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Resolve workspace
+        run: dart pub get
+
+      - name: Generate docs (fail on warnings)
+        shell: bash
+        run: |
+          for pkg in cell cell_flow cell_tissue; do
+            echo "::group::dart doc packages/$pkg"
+            cd "packages/$pkg"
+            dart doc . 2>&1 | tee doc.log
+            if grep -q "warning:" doc.log; then
+              echo "::error::packages/$pkg: dart doc reported warnings"
+              exit 1
+            fi
+            rm -f doc.log
+            cd ../..
+            echo "::endgroup::"
+          done

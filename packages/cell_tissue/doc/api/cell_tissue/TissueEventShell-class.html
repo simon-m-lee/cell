@@ -77,13 +77,6 @@ passing its own <a href="../cell_tissue/TissueReceptor-class.html">TissueRecepto
 <li>If the receptor is authorised, the shell returns the underlying event.</li>
 <li>If not, it returns <code>null</code> – the signal is neutralised.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The shell is terminal – you cannot <a href="../cell_tissue/TissueEventShell/evolve.html">evolve</a> or <a href="../cell_tissue/TissueEventShell/withStep.html">withStep</a> it.</li>
-<li>The shell is itself an <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> that yields only itself.</li>
-<li>The shell is the primary mechanism for <strong>reciprocal handshake</strong> –
-both the pulse and the receptor validate each other.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final list = TissueList.of([1]);
 final event = list.apply(list.add, positionalArguments: [42]);
@@ -977,8 +970,8 @@ collection.
 
 </dt>
 <dd>
-  Appends a diagnostic stage to the pulse's causal trace without branching
-the causal chain.
+  Appends <code>step</code> to the pulse's causal trace without branching the
+causal chain.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -1046,7 +1039,7 @@ the causal chain.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

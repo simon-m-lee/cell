@@ -81,16 +81,6 @@ first.</li>
 <li>The resulting chain is itself an <a href="../../mitosis/Instruction-class.html">Instruction</a>, allowing for
 continuous, multi-stage composition.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Short-circuiting</strong>: If <code>this</code> instruction returns <code>null</code>, the <code>other</code>
-instruction is skipped entirely, and the chain terminates with <code>null</code>.</li>
-<li><strong>Left-Associativity</strong>: The operator is left-associative.
-<code>a + b + c</code> creates a logical sequence that preserves the <code>a -&gt; b -&gt; c</code>
-data flow.</li>
-<li><strong>Synchronous Composition</strong>: Both instructions execute synchronously
-in sequence. The result of the first is immediately passed to the second.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>other</code>: The instruction to append to the processing chain.</li>
@@ -137,7 +127,7 @@ FlowInstruction&lt;C, I, O&gt; operator +(covariant FlowInstruction other) {
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

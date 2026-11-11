@@ -135,17 +135,6 @@ class _LatestSlot {
 /// 5. Whenever any cell updates, the [combine] function is called again.
 /// 6. The instruction preserves causal provenance.
 ///
-/// ### Non‑obvious
-/// - **All Must Have Value**: Emission only happens after all cells have
-///   at least one value.
-/// - **Latest Values**: Always uses the most recent value from each cell.
-/// - **Any Update Triggers**: Any cell update triggers a new combination.
-/// - **Source Arming**: The first source pulse is required to arm.
-/// - **Error Handling**: Errors in [combine] are reported via [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Type Safety**: The instruction is generic over [S] (source type)
-///   and [R] (result type).
-///
 /// ### Example: Combining Form Fields
 /// ```dart
 /// final username = Cell.ingress<String>();
@@ -212,8 +201,8 @@ class CombineLatestWith<S, R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     R Function(S source, List<Object?> latest) combine, {
     CombineErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final slots = [for (final _ in others) _LatestSlot()];
             final list = others.toList();
             final emit = _EmitState();
@@ -245,9 +234,16 @@ class CombineLatestWith<S, R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 armed = true;
                 for (var i = 0; i < list.length; i++) {
                   final index = i;
-                  Cell.observe(
+                  late final dynamic obs;
+                  obs = Cell.observe(
                     source: list[index],
                     effect: (Pulse incoming) {
+                      // Lifecycle: stop the observer once the handle is dead.
+                      if ((cell != null && cell.isInvalidated) ||
+                          list[index].isInvalidated) {
+                        obs.stop();
+                        return;
+                      }
                       slots[index].value = incoming.payload;
                       slots[index].has = true;
                       publish(incoming, 'CombineLatestWith.other');
@@ -280,7 +276,7 @@ class CombineLatestWith<S, R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 return null;
               }
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -324,16 +320,6 @@ class CombineLatestWith<S, R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// | **Source in Combination** | No | Yes |
 /// | **Arming** | Source is arming gate | Source is also a source |
 /// | **Use Case** | Extra sources only | Source + extras |
-///
-/// ### Non‑obvious
-/// - **Arming Only**: The first source pulse is only used to arm.
-/// - **All Must Have Value**: Emission only happens after all sources have
-///   at least one value.
-/// - **Latest Values**: Always uses the most recent value from each source.
-/// - **Any Update Triggers**: Any source update triggers a new combination.
-/// - **No Source Forwarding**: The arming pulse is not part of the combination.
-/// - **Error Handling**: Errors in [combine] are reported via [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
 ///
 /// ### Example: Combine Multiple Sources
 /// ```dart
@@ -390,8 +376,8 @@ class CombineLatest<R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     R Function(List<Object?> latest) combine, {
     CombineErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final slots = [for (final _ in sources) _LatestSlot()];
             final list = sources.toList();
             final emit = _EmitState();
@@ -418,9 +404,16 @@ class CombineLatest<R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 armed = true;
                 for (var i = 0; i < list.length; i++) {
                   final index = i;
-                  Cell.observe(
+                  late final dynamic obs;
+                  obs = Cell.observe(
                     source: list[index],
                     effect: (Pulse incoming) {
+                      // Lifecycle: stop the observer once the handle is dead.
+                      if ((cell != null && cell.isInvalidated) ||
+                          list[index].isInvalidated) {
+                        obs.stop();
+                        return;
+                      }
                       slots[index].value = incoming.payload;
                       slots[index].has = true;
                       publish(incoming);
@@ -430,7 +423,7 @@ class CombineLatest<R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -470,14 +463,6 @@ class CombineLatest<R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// | **Emit Trigger** | Source only | Any source |
 /// | **Others Update** | No emission | Triggers emission |
 /// | **Use Case** | Source-driven | Any-update-driven |
-///
-/// ### Non‑obvious
-/// - **Source-Driven**: Only source updates trigger emission.
-/// - **Latest Values**: Uses the latest values from others at the time of
-///   source update.
-/// - **Drop on Miss**: Source pulses are dropped if any other cell has no value.
-/// - **Error Handling**: Errors in [combine] are reported via [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
 ///
 /// ### Example: Command with Latest State
 /// ```dart
@@ -544,8 +529,8 @@ class WithLatestFrom<S, R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     R Function(S source, List<Object?> latest) combine, {
     CombineErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final slots = [for (final _ in others) _LatestSlot()];
             final list = others.toList();
             var armed = false;
@@ -554,9 +539,16 @@ class WithLatestFrom<S, R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 armed = true;
                 for (var i = 0; i < list.length; i++) {
                   final index = i;
-                  Cell.observe(
+                  late final dynamic obs;
+                  obs = Cell.observe(
                     source: list[index],
                     effect: (Pulse incoming) {
+                      // Lifecycle: stop the observer once the handle is dead.
+                      if ((cell != null && cell.isInvalidated) ||
+                          list[index].isInvalidated) {
+                        obs.stop();
+                        return;
+                      }
                       slots[index].value = incoming.payload;
                       slots[index].has = true;
                     },
@@ -586,7 +578,7 @@ class WithLatestFrom<S, R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 return null;
               }
             };
-          })(),
+          },
           user: user,
         );
 }

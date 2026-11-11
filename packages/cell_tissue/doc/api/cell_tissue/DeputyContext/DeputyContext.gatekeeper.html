@@ -68,11 +68,6 @@ validators, or ingress filters.</p>
 <p>The factory sets the authority to <code>'GOVERNANCE_ENFORCEMENT'</code> and the
 role to <code>'Gatekeeper'</code>. It uses <a href="../../cell_tissue/Clearance.html">Clearance.observational</a> to ensure it
 can block signals but not mutate state.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The deputy can intercept and block pulses.</li>
-<li>It cannot change the underlying state – it's strictly a firewall.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final gate = DeputyContext.gatekeeper(
   baseContext: context,
@@ -129,7 +124,7 @@ can block signals but not mutate state.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

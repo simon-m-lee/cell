@@ -77,15 +77,6 @@ operational context.</li>
 host's state.</li>
 <li>It transitions the receptor's state so that <a href="../../cell_flow/Receptor/isActivated.html">isActivated</a> returns <code>true</code>.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>One-Way Transition</strong>: Once activated, a receptor is permanently
-pinned to its cell. It cannot be re-activated or moved to a different
-cell; use <a href="../../cell_flow/Receptor/clone.html">clone</a> if you need a fresh template.</li>
-<li><strong>Safety Checks</strong>: Returns <code>true</code> on successful binding. It returns
-<code>false</code> if the receptor was already activated or if the provided
-cell instance is incompatible.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>cell</code>: The cell to bind this receptor to.</li>
@@ -126,7 +117,7 @@ cell instance is incompatible.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

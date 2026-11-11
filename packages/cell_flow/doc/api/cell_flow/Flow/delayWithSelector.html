@@ -85,14 +85,6 @@ is computed from the payload value.</p>
 <li>A timer is started for the computed duration.</li>
 <li>When the timer fires, the pulse is forwarded.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Payload-Dependent</strong>: The delay is computed from the payload.</li>
-<li><strong>Error Handling</strong>: If <code>durationOf</code> throws, the pulse is dropped.</li>
-<li><strong>Provenance Preservation</strong>: The forwarded pulse preserves the
-source cell, type, and priority from the trigger pulse.</li>
-<li><strong>Synchronous Extraction</strong>: <code>durationOf</code> is synchronous.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -164,7 +156,7 @@ input.emit('hello'); // 50ms delay
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

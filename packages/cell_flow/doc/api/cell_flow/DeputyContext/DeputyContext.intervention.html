@@ -68,11 +68,6 @@ compromised node, shutting down a module, or forcing a state reset.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The factory sets <a href="../../cell_flow/Clearance.html">Clearance.administrative</a> and the role to <code>'Sentinel'</code>.
 The deputy can bypass standard constraints and perform structural changes.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The mandate is reflexive – it's designed for immediate action.</li>
-<li>The <code>reason</code> is mandatory and anchors the intervention in the causal trace.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final sentinel = DeputyContext.intervention(
   baseContext: context,
@@ -129,7 +124,7 @@ The deputy can bypass standard constraints and perform structural changes.</p>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

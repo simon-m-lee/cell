@@ -90,25 +90,6 @@ cell changes, this view (and its observers) receive a
 (<code>get</code>) that walks up the principal chain if needed. This means the
 view shares the same physical storage as its source – <strong>zero‑copy</strong>.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>The value is not validated</strong>: Because this is a read‑only projection,
- the constructor assumes the value is already valid (it was validated
- when it was written to the source). No <code>testRule</code> check is performed here.</li>
-<li><strong>Linking the inner cell</strong>: If the value is a <a href="../../mitosis/Cell-class.html">Cell</a> and <code>unmodifiableElement</code>
- is <code>true</code>, the view links itself to that cell. This means changes to
- the inner cell will bubble up to <em>this</em> view's observers, which is
- the correct behaviour for a live projection.</li>
-<li><strong>No pulse emission</strong>: This constructor does <strong>not</strong> emit a pulse.
- The view is initialized silently. Observers will only see changes
- that happen <em>after</em> the view is created.</li>
-<li><strong>The <code>value</code> is stored directly</strong>: It is not projected into an
- unmodifiable deputy at the storage layer. The projection happens
- lazily when the <code>value</code> getter is accessed (via the mixin logic).</li>
-<li><strong>The <code>bind</code> check</strong>: The constructor checks if the nucleus has a
- <code>bind</code> (a principal). If so, and the value is a <a href="../../mitosis/Cell-class.html">Cell</a>, it links
- to ensure the view stays in sync with the principal's child cell.</li>
-</ul>
 <h3 id="example-internal-usage--how-the-framework-creates-a-view">Example (internal usage – how the framework creates a view)</h3>
 <pre class="language-dart"><code class="language-dart">// When you write source.unmodifiable, the framework does something like:
 final source = TissueValue&lt;int&gt;(42);
@@ -179,7 +160,7 @@ This is typically the source's current value.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

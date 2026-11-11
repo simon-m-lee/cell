@@ -75,15 +75,6 @@ to that cell, creating a new downstream node.</li>
 <li><strong>Handle Materialization</strong>: Returns a new <a href="../mitosis/FlowHandle.html">FlowHandle</a> representing
  the next stage of the topography.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Stateless Continuation</strong>: Chaining operators does not preserve
-transient pulse state; each step defines a new, stateless logic gate
-within the graph.</li>
-<li><strong>Provenance Flow</strong>: Provenance data and priorities automatically
-traverse these chained gates unless an operator explicitly
-intercepts or resets them.</li>
-</ul>
 <h3 id="see-also">See Also</h3>
 <ul>
 <li><a href="../mitosis/CellFlowOperators.html">CellFlowOperators</a>: The entry point for starting a pipeline from a Cell.</li>
@@ -1138,7 +1129,7 @@ that waits for all sources to emit before producing a combined pulse.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

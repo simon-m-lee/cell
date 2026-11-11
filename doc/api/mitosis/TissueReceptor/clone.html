@@ -84,12 +84,6 @@ the same logic on multiple tissues.</p>
 <li>The clone copies the rules and metadata but clears any cell binding.</li>
 <li>The clone is in the template state (<a href="../../mitosis/Receptor/isActivated.html">isActivated</a> is <code>false</code>).</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The clone is a new object, so activating it won't affect the original.</li>
-<li>This is essential for sharing a receptor definition across many tissues
-without cross‑contamination.</li>
-</ul>
 <h3 id="returns">Returns:</h3>
 <p>A new <a href="../../mitosis/TissueReceptor-class.html">TissueReceptor&lt;E, C&gt;</a> instance that is functionally
 equivalent to this receptor.</p>
@@ -129,7 +123,7 @@ TissueReceptor&lt;E, C&gt; get clone;</code></pre>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

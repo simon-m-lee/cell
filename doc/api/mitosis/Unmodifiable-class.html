@@ -90,22 +90,6 @@ underlying principal changes.</li>
 delegates "Read" and "Observe" capabilities to the principal but
 intercepts and neutralizes "Write" requests.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Identity Transparency (Zero-Copy)</strong>: Most unmodifiable deputies share
- the exact same physical storage and synchronization <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> as their
- principal. This provides <strong>Zero-Cost Projection</strong> without the memory
- overhead of data duplication.</li>
-<li><strong>Stateless Marker</strong>: As an abstract marker interface, it adds no
- runtime object overhead or heap pressure; it serves purely as a
- type-system hint for the validation and security engines.</li>
-<li><strong>Causal Lineage</strong>: A deputy maintains a transparent link to its
- principal, ensuring that forensic traces correctly attribute state
- changes to the original source of authority.</li>
-<li><strong>Not "Deep" Immutability</strong>: Marking a container as <a href="../mitosis/Unmodifiable-class.html">Unmodifiable</a>
- restricts the container's own structure but does not necessarily
- make the objects <em>inside</em> the container unmodifiable.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// 1. Create a mutable principal
 final settings = ValueCell&lt;String&gt;(value: "Active");
@@ -258,7 +242,7 @@ void process(Cell&lt;String&gt; cell) {
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -84,17 +84,6 @@ When the timer fires, the pulse is invalidated.</li>
 <li>When invalidated, the <code>onInvalidate</code> callback is invoked with the pulse.
 Return <code>true</code> to confirm successful invalidation.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>onEvent</code> function can be used to <strong>reset</strong> the hop counter by
-returning <code>(hops: 0)</code>. This is useful if you want to count only
-certain types of traversals.</li>
-<li>The <code>user</code> parameter is not used by the policy itself but is stored
-in the record for custom logic – you can access it via <code>policy._user</code>
-if needed, though it's recommended to keep logic in <code>onEvent</code>.</li>
-<li>The timer is <strong>not</strong> automatically cancelled when the pulse is invalidated
-by hop limit – it's cancelled in <code>_triggerInvalidation</code> to avoid leaks.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>onEvent</code>: Called on each hop. Returns the updated hop count.</li>
@@ -165,7 +154,7 @@ confirm success.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

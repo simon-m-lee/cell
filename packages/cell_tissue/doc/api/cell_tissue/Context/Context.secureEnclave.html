@@ -116,12 +116,15 @@ processing, or administrative overrides.</p>
       Ontology.subDomains.entry(&#39;integrity-gate&#39;),
       Ontology.compliance.entry(compliances),
       Ontology.isNot.entry(&#39;External_Signals,Unauthenticated_Telemetry&#39;),
+      &#47;&#47; Constraints are a first-class ontology dimension; store them on
+      &#47;&#47; the dimension so `context.constraints` resolves them (previously
+      &#47;&#47; they were tucked into `others` where the getter can&#39;t see them).
+      if (constraints != null) Ontology.constraints.entry(constraints),
     ],
     others: {
       &#39;sensitivity&#39;: Sensitivity.restricted.name,
       &#39;audit_level&#39;: AuditLevel.full.name,
       &#39;priority&#39;: 0, &#47;&#47; Enclaves operate at infrastructure-level precedence
-      ...?constraints,
       ...?others,
     },
   );
@@ -153,7 +156,7 @@ processing, or administrative overrides.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

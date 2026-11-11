@@ -81,12 +81,12 @@ resolution sequence:</p>
 The function attempts to execute the primary <code>fn</code> and cast its result
 to the expected type <code>T</code>.</li>
 <li><strong>Stage 2: Secondary Recovery (<code>fallback</code>)</strong>:
-If Stage 1 fails (due to a runtime exception or a type-cast error),
-the utility attempts to execute the <code>fallback</code> function. This is
-ideal for emitting alternative lookup logic or logging the failure.</li>
+If Stage 1 reports an <em>absent</em> field (see below), the utility
+attempts to execute the <code>fallback</code> function.</li>
 <li><strong>Stage 3: Static Default (<code>orElse</code>)</strong>:
-If both functional attempts fail (or if the <code>fallback</code> throws), the
-utility attempts to return the provided <code>orElse</code> constant.</li>
+If both functional attempts fail (or if the <code>fallback</code> reports an
+absent field), the utility attempts to return the provided <code>orElse</code>
+constant.</li>
 <li><strong>Terminal Failure</strong>:
 If all stages fail and <code>orElse</code> is either null or incompatible with
 type <code>T</code>, the original exception from Stage 1 is rethrown to ensure
@@ -110,9 +110,9 @@ encounters an error.</li>
 <li><code>orElse</code>: A static value of type <code>T</code> to return as the ultimate
 safety net if all functional calls fail.</li>
 </ul>
-<h3 id="example-safe-configuration-parsing">Example: Safe Configuration Parsing</h3>
+<h3 id="example-safe-configuration-lookup">Example: Safe Configuration Lookup</h3>
 <pre class="language-dart"><code class="language-dart">final timeout = get&lt;int&gt;(
-  () =&gt; int.parse(remoteConfig['timeout']),
+  () =&gt; remoteConfig.timeout,
   fallback: () =&gt; localSettings.defaultTimeout,
   orElse: 3000,
 );
@@ -131,14 +131,8 @@ safety net if all functional calls fail.</li>
   try {
     return fn() as T;
   } catch (e) {
-    try {
-      if (fallback != null) return fallback() as T;
-    } catch (_) {}
-    try {
-      return orElse as T;
-    } catch (_) {
-      throw e;
-    }
+    if (!_isAbsence(e)) rethrow;
+    return _recoverAbsent&lt;T&gt;(fallback: fallback, orElse: orElse);
   }
 }</code></pre>
 </section>
@@ -167,7 +161,7 @@ safety net if all functional calls fail.</li>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

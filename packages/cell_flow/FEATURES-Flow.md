@@ -191,19 +191,24 @@ in `filter.dart`; they have their own files.
 
 | File | Intent |
 |---|---|
-| `example_sanitize_text.dart` | trim + drop blanks (`+` chain) |
-| `example_search_query_gate.dart` | search box policy |
-| `example_checkout_quote.dart` | cart → total |
-| `example_moderation_gate.dart` | comment blocklist |
-| `example_sensor_threshold.dart` | °C → °F |
-| `example_form_email.dart` | email field |
-| `example_order_status_tap.dart` | paid/shipped + audit |
-| `example_price_cents.dart` | cents → dollars |
-| `example_feature_flag_iif.dart` | beta preview |
-| `example_take_first_valid_pin.dart` | PIN take 3 |
+| `example/filter_data_quality_demo.dart` | data quality gates |
+| `example/stability_search_demo.dart` | search-as-you-type debounce |
+| `example/exhaust_map_submit_checkout_demo.dart` | prevent double checkout |
+| `example/combine_latest_sync_demo.dart` | combine several sources |
+| `example/buffer_batch_processing_demo.dart` | batch telemetry |
+| `example/retry_timeout_flaky_network_demo.dart` | resilient HTTP |
+| `example/ICU-alarm-pipeline-Demo.dart` | complex event processing |
+| `example/switch_map_dynamic_dependency_demo.dart` | dynamic dependencies |
+| `example/from_future_forensic_pipeline_demo.dart` | forensic pipeline from a `Future` |
+| `example/from_stream_realtime_data_demo.dart` | real-time stream intake |
+| `example/merge_stream_aggregation_demo.dart` | merge aggregation |
+| `example/tap_logging_analytics_demo.dart` | tap logging / analytics |
+| `example/throttle_rate_limiting_demo.dart` | rate limiting |
+| `example/start_with_scan_ui_demo.dart` | UI seed + running fold |
+| `example/cell_flow_example.dart` | the umbrella walkthrough |
 
-Each instruction file also has a `main` demo and a `*_test.dart` where
-tests were requested.
+The operator classes under `lib/src/instruction/` each carry a runnable
+`main` demo in their doc comments for the raw class form.
 
 ---
 

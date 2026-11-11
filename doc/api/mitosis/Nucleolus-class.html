@@ -79,18 +79,6 @@ reactive fabric to share a single instance for every unconfigured node.</li>
 <li><strong>Zero-State Blueprint</strong>: Its internal record is a constant empty unit <code>()</code>,
 satisfying the structural contract of <a href="../mitosis/NucleusBase-class.html">NucleusBase</a> without runtime overhead.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Activation Resistance</strong>: The <code>activate()</code> method always returns <code>false</code>
-because the nucleolus represents an immutable blueprint, not a dynamic
-operational state.</li>
-<li><strong>Constant-Time Resolution</strong>: Property access on this class is O(1)
-native speed, as it bypasses record-masking logic entirely.</li>
-<li><strong>Ontological Purity</strong>: It provides the "naked" state of a reactive node,
-devoid of any metadata, ad-hoc user records, or egress synapses.</li>
-<li><strong>Immutable Integrity</strong>: Being transitively immutable, it ensures that
-the global defaults of the system cannot be altered at runtime.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <p>(None)</p>
 <h3 id="returns">Returns:</h3>
@@ -472,7 +460,7 @@ custom property extensions for the associated <a href="../mitosis/Cell-class.htm
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

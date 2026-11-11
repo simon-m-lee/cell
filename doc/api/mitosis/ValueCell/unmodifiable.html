@@ -79,12 +79,6 @@ should not be able to change it – e.g., UI widgets, external observers.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>It creates a deputy with <code>TestCell.readOnly</code> – any attempt to mutate
 will be blocked by the integrity gate.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The read‑only view still broadcasts changes to its own observers.</li>
-<li>It shares the same state and lock as the principal.</li>
-<li><code>cell == cell.unmodifiable</code> is <code>true</code>.</li>
-</ul>
 </section>
 
     
@@ -121,7 +115,7 @@ ValueCell&lt;V&gt; get unmodifiable =&gt; UnmodifiableValueCell&lt;V&gt;._(this)
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

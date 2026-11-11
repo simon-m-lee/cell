@@ -88,19 +88,6 @@ core transformation logic.</li>
 <li>It exposes advanced synchronization options, such as waiting for
 serialized completion across the entire downstream graph.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Lightweight View</strong>: The async adapter is a stateless view of the
-primary receptor; it consumes negligible memory and shares all
-underlying instruction metadata.</li>
-<li><strong>Full Propagation</strong>: While a standard <code>await call()</code> only waits for
- the immediate transformation, <code>async.call(..., serializedCompletion: true)</code>
-waits for every downstream side-effect to settle.</li>
-<li><strong>Atomic Integrity</strong>: It maintains the integrity of the cell's
-transaction boundary even when invoked from an asynchronous loop.</li>
-<li><strong>Queueing</strong>: Pulses are queued and processed sequentially to preserve
-causal order.</li>
-</ul>
 <h3 id="returns">Returns:</h3>
 <p>A <a href="../../cell_tissue/ReceptorAsync-class.html">ReceptorAsync</a> handle for asynchronous pulse injection.</p>
 <h3 id="example-waiting-for-full-propagation">Example: Waiting for Full Propagation</h3>
@@ -142,7 +129,7 @@ await receptor.async.call(myPulse, serializedCompletion: true);
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

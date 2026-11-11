@@ -35,7 +35,7 @@ class _Probe {
   }
 }
 
-({IngressHandle<T> gate, FlowHandle<T> out, _Probe probe}) bind<T>(
+({IngressHandle<T> gate, FlowHandle out, _Probe probe}) bind<T>(
   FlowInstructionBase<Cell, Pulse, Pulse> op,
 ) {
   final gate = Cell.ingress<T>();

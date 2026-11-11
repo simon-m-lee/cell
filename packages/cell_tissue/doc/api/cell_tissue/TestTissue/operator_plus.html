@@ -77,14 +77,6 @@ reusable rules. It's the most common way to combine rules.</p>
 <p>It returns a new <a href="../../cell_tissue/TestTissue-class.html">TestTissue</a> where the current rule (<code>this</code>) is
 evaluated first, and if it passes, the <code>other</code> rule is evaluated next.
 If <code>this</code> returns <code>false</code>, <code>other</code> is never called (short‑circuit).</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The order matters: <code>ruleA + ruleB</code> means ruleA is evaluated first.</li>
-<li>The resulting policy is still a <a href="../../cell_tissue/TestTissue-class.html">TestTissue</a> and can be further
-composed.</li>
-<li>This is the engine behind <strong>Mandate Attenuation</strong> – a deputy can
-add a restrictive rule on top of the principal's existing policy.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final policy = isPositive + isAuthorized + isInRange;
 </code></pre>
@@ -132,7 +124,7 @@ TestTissue&lt;E, C&gt; operator +(covariant TestRule&lt;C&gt; other) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

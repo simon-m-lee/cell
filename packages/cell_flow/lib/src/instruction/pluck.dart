@@ -47,11 +47,6 @@ typedef PluckErrorHandler = void Function(Object error, StackTrace? stackTrace);
 /// - [FormatException] if the source type is not supported.
 /// - [RangeError] if the key is out of bounds for an iterable.
 ///
-/// ### Non‑obvious
-/// - **Iterable Support**: For iterables, the key must be an integer.
-/// - **List Conversion**: Non-list iterables are converted to lists.
-/// - **Index Operator**: Any object with `[]` can be used.
-/// - **Null Handling**: Returns `null` if the key exists with a null value.
 Object? _read(Object? source, Object key) {
   if (source is Map) return source[key];
   if (source is Iterable && key is int) {
@@ -136,16 +131,6 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// 4. If extraction fails, [onError] is called and the pulse is dropped.
 /// 5. The pulse gets the step `'Pluck'` for provenance.
 /// 6. The emitted value preserves the source, type, and priority.
-///
-/// ### Non‑obvious
-/// - **Type Safety**: The extracted value must match type [T].
-/// - **Error Handling**: Missing keys or type mismatches drop the pulse.
-/// - **Source Types**: Supports Map, List/Iterable, and objects with `[]`.
-/// - **Provenance Preservation**: The emitted pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Extraction**: All extraction is synchronous.
-/// - **Null Values**: If the field exists with a null value, it's
-///   emitted as null (if T is nullable).
 ///
 /// ### Example: Extracting Name
 /// ```dart
@@ -284,15 +269,6 @@ class Pluck<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. The default value always matches type [T].
 /// 5. The pulse gets the step `'PluckOr'` (or `'PluckOr.orElse'` for defaults).
 ///
-/// ### Non‑obvious
-/// - **Always Emits**: A value is always emitted (success or default).
-/// - **Type Safety**: The default must match type [T].
-/// - **Error Handling**: Errors are caught and the default is used.
-/// - **Provenance Preservation**: Default emissions get the step
-///   `'PluckOr.orElse'` to distinguish them.
-/// - **Synchronous Extraction**: All extraction is synchronous.
-/// - **Null Defaults**: If T is nullable, [orElse] can be null.
-///
 /// ### Example: Optional Field
 /// ```dart
 /// final users = Cell.ingress<Map<String, Object>>();
@@ -423,17 +399,6 @@ class PluckOr<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. If [useOrElse] is `false`, missing keys trigger [onError].
 /// 5. The collected key-value pairs are emitted as a map.
 /// 6. The pulse gets the step `'PluckAll'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Map Output**: The output is always a `Map<Object, Object?>`.
-/// - **Partial Success**: Even if some keys fail, successful ones are
-///   included in the output.
-/// - **Error Handling**: Missing keys can either use defaults or trigger
-///   error handlers.
-/// - **Provenance Preservation**: The emitted map preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Extraction**: All extraction is synchronous.
-/// - **Key Order**: The output map preserves the order of [keys].
 ///
 /// ### Example: Projecting Multiple Fields
 /// ```dart
@@ -581,18 +546,6 @@ class PluckAll extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 5. If any step fails, [onError] is called and the pulse is dropped.
 /// 6. If [useOrElse] is `true`, [orElse] is emitted on failure.
 /// 7. The pulse gets the step `'PluckPath'` (or `'PluckPath.orElse'` for defaults).
-///
-/// ### Non‑obvious
-/// - **Path Traversal**: The path is walked left to right.
-/// - **Any Step Failure**: If any step in the path fails, the whole
-///   extraction fails.
-/// - **Type Safety**: The final value must match type [T].
-/// - **Error Handling**: Missing keys or type mismatches can trigger
-///   error handlers or fallbacks.
-/// - **Provenance Preservation**: The emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Extraction**: All extraction is synchronous.
-/// - **Default Path Step**: The default value can be used at any step.
 ///
 /// ### Example: Nested Field
 /// ```dart

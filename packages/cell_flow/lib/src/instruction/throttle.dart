@@ -140,18 +140,6 @@ Pulse<S> _fromPayload<S>(S value, Pulse sourcePulse, Cell? cell, String step) {
 /// - **Both** (`leading: true, trailing: true`): Emit first and last.
 /// - **Neither** (`leading: false, trailing: false`): No emissions during window.
 ///
-/// ### Non‑obvious
-/// - **Fixed Windows**: Windows are fixed duration and do not reset.
-/// - **Leading Emission**: The first pulse in a window is emitted immediately.
-/// - **Trailing Emission**: The last pulse in a window is emitted when the
-///   window closes.
-/// - **Pending Value**: Only the most recent value in the window is kept.
-/// - **State Persistence**: The instruction maintains the pending value and timer.
-/// - **Order Preservation**: Results are emitted in the order of arrival
-///   within each window.
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Memory Efficiency**: Only the pending value and timer are stored.
-///
 /// ### Example: Scroll Event Throttling
 /// ```dart
 /// final scrollEvents = Cell.ingress<ScrollEvent>();
@@ -223,8 +211,13 @@ class Throttle<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool trailing = true,
     ThrottleErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  })  : assert(
+          leading || trailing,
+          'Throttle(leading: false, trailing: false) never emits — '
+          'configure at least one edge',
+        ),
+        super.stateful(
+          () {
             final state = _WindowState<S>();
 
             void armTrailing(
@@ -282,7 +275,7 @@ class Throttle<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -313,14 +306,6 @@ class Throttle<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 2. All subsequent pulses in the window are dropped.
 /// 3. When the window closes, the next pulse starts a new window.
 /// 4. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **Leading-Only**: Only the first pulse in each window is emitted.
-/// - **Drop While Active**: Subsequent pulses are dropped while the window
-///   is open.
-/// - **State Persistence**: The instruction maintains the window state.
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Memory Efficiency**: Only the window state is stored.
 ///
 /// ### Example: Button Click Throttle
 /// ```dart
@@ -404,14 +389,6 @@ class ThrottleLeading<S> extends Throttle<S> {
 /// | **Use Case** | Rate limiting | Periodic sampling |
 /// | **First Pulse** | Not emitted | Not emitted |
 ///
-/// ### Non‑obvious
-/// - **Trailing-Only**: Only the last pulse in each window is emitted.
-/// - **Silent First**: The first pulse in a window is not emitted.
-/// - **Pending Value**: Only the most recent value in the window is kept.
-/// - **State Persistence**: The instruction maintains the pending value and timer.
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Memory Efficiency**: Only the pending value and timer are stored.
-///
 /// ### Example: Periodic Sampling
 /// ```dart
 /// final sensorData = Cell.ingress<SensorReading>();
@@ -466,9 +443,6 @@ class ThrottleTrailing<S> extends Throttle<S> {
 /// candidate, and the armed [Timer]. This is an implementation detail
 /// and is not part of the public API.
 ///
-/// ### Non‑obvious
-/// - **Single Pending**: Only the latest in-window value is kept.
-/// - [clearPending] cancels the timer and drops the candidate.
 class _WindowState<S> {
   S? pending;
   Pulse? pendingPulse;

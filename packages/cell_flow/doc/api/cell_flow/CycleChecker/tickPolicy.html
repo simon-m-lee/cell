@@ -74,7 +74,8 @@ per pulse.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">bool tickPolicy(EphemeralPolicy policy) =&gt; _tickedPolicies.add(policy);</code></pre>
+  <pre class="language-dart"><code class="language-dart">bool tickPolicy(EphemeralPolicy policy) =&gt;
+    (_tickedPolicies ??= &lt;EphemeralPolicy&gt;{}).add(policy);</code></pre>
 </section>
 
 
@@ -102,7 +103,7 @@ per pulse.</p>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -52,7 +52,7 @@
     <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
     <a href="https://dart.dev/language/class-modifiers#interface" class="feature feature-interface" title="This class can only be implemented (not extended or mixed in).">interface</a>
  
-    <span class="category signals-&-synapses cp-6 linked" title="This is part of the Signals & Synapses topic."><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></span>
+    <span class="category signals-&-synapses cp-7 linked" title="This is part of the Signals & Synapses topic."><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></span>
 </h1></div>
 
     
@@ -73,19 +73,6 @@ debouncing or batching) to the delivery of signals at the source.</li>
 the host cell emits a pulse, the synapses intercept it, apply any
 configured <a href="../cell/FilterRule-class.html">FilterRule</a>, and then broadcast it across the network
 according to the timing rules defined in the <a href="../cell/PropagationPolicy-class.html">PropagationPolicy</a>.</p>
-<h3 id="nonobvious">Non‑obvious:</h3>
-<ul>
-<li><strong>Cycle Safety</strong>: The fabric automatically prevents infinite loops
-by tracking the forensic history of every pulse. If a pulse detects
-it is returning to a cell it has already visited, propagation for
-that branch is silently terminated.</li>
-<li><strong>Flyweight Optimization</strong>: Predefined constants like
-<a href="../cell/Synapses/enabled-constant.html">Synapses.enabled</a> and <a href="../cell/Synapses/disabled-constant.html">Synapses.disabled</a> allow the framework to
-avoid allocating registry memory for sink nodes or inactive cells.</li>
-<li><strong>Forensic Tagging</strong>: All signals passing through the fabric are
-implicitly tagged with egress metadata, allowing for complete audit
-trails of how data flowed between specific cell boundaries.</li>
-</ul>
 <h3 id="example-simple-distribution">Example: simple distribution</h3>
 <pre class="language-dart"><code class="language-dart">final synapses = Synapses&lt;String, Cell&gt;(
   downstreams: [logger, analytics, uiUpdater],
@@ -728,7 +715,7 @@ and active synapse network.
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

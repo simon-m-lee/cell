@@ -80,8 +80,10 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 P? get payload {
-  return get&lt;P?&gt;(() =&gt; _record.root.primary.payload,
-      fallback: () =&gt; _pulse?.payload ?? _parent?.payload, orElse: null);
+  if ((_shape &amp; _kPayload) != 0) {
+    return _record.root.primary.payload;
+  }
+  return _pulse?.payload ?? _parent?.payload;
 }</code></pre>
 </section>
 
@@ -112,7 +114,7 @@ P? get payload {
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

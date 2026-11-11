@@ -80,18 +80,6 @@ assumed to be correct and complete.</li>
 which is why it is only safe to use when the record shape is
 guaranteed.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The record must contain all necessary fields for a queue nucleus,
-including the <code>container</code> (of type <a href="../../mitosis/Container-class.html">Container&lt;Queue&lt;E&gt;&gt;</a>) and a
-synchronisation <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> (unless sharing one via a principal).</li>
-<li>The <code>capacity</code> must be present in the <code>others</code> segment if it differs
-from -1.</li>
-<li>If the record is malformed, the resulting nucleus may behave
-unpredictably – use with extreme caution.</li>
-<li>This constructor is <code>const</code>‑friendly, enabling compile‑time
-instantiation of static nuclei for zero‑cost default configurations.</li>
-</ul>
 <h3 id="example-internal">Example (Internal)</h3>
 <pre class="language-dart"><code class="language-dart">final record = (mask: (container: Container.queue, others: (capacity: 10)), principal: null);
 final nucleus = TissueQueueNucleusBase.fromRecord(record: record);
@@ -135,7 +123,7 @@ Dart <code>Record</code> containing all nucleus fields.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

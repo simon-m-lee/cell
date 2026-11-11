@@ -84,21 +84,6 @@ the incoming <code>pulse</code>, and optional <code>user</code> metadata.</li>
 <li>If the function returns <code>null</code>, the signal is dropped.</li>
 <li>The function executes synchronously.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Resilience</strong>: The provided function is executed within a safety
-boundary. If it throws an exception, the error is logged to the
-pulse's forensic metadata, and the signal is terminated (<code>null</code>)
-to prevent graph instability.</li>
-<li><strong>Stateless Template</strong>: The receptor created is a blueprint. It
-does not hold state and only becomes "active" when bound to a
-specific cell context.</li>
-<li><strong>Type Safety</strong>: While the factory takes a generic <a href="../../cell_tissue/Pulse-class.html">Pulse</a>, the
-internal logic maintains the type integrity of the payload
-during transformation.</li>
-<li><strong>Synchronous Execution</strong>: The instruction executes synchronously.
-For asynchronous processing, use <a href="../../cell_tissue/Receptor/async.html">Receptor.async</a>.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>instruction</code>: The transformation or filtering function. Returning
@@ -148,7 +133,7 @@ For asynchronous processing, use <a href="../../cell_tissue/Receptor/async.html"
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

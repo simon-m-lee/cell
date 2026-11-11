@@ -88,13 +88,6 @@ its values.</p>
 <li>If <code>project</code> throws an error, the pulse is dropped.</li>
 <li>The emitted pulse gets the step <code>'MapValues'</code> for provenance.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Map Payload Required</strong>: The payload must be a <code>Map</code>.</li>
-<li><strong>Keys Preserved</strong>: The keys remain unchanged.</li>
-<li><strong>Type Safety</strong>: Generic over key type <code>K</code>, value type <code>V</code>,
-and result type <code>R</code>.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the map payloads.</li>
@@ -165,7 +158,7 @@ input.emit({'a': 1, 'b': 2}); // -&gt; {'a': 2, 'b': 4}
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

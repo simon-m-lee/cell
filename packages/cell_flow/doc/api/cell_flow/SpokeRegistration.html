@@ -87,20 +87,6 @@ and others to use pattern matching within the same hub.</li>
 <code>SpokeRegistrations</code>. It compares the <code>Pulse.type</code> against the <code>key</code>
 (or runs the <code>match</code> predicate). If a match is found, the signal
 is routed to that spoke's internal cell.</p>
-<h3 id="nonobvious-the-key-becomes-the-spokes-role">Non‑obvious: the key becomes the spoke's role</h3>
-<p>The <code>key</code> also becomes the <code>role</code> in the automatically generated
-<a href="../cell_flow/DeputyContext-class.html">DeputyContext</a> if one isn't provided. This means the spoke's
-identity is derived from its routing address.</p>
-<h3 id="nonobvious-exactly-one-of-handler-or-receptor-must-be-provided">Non‑obvious: exactly one of handler or receptor must be provided</h3>
-<p>A spoke can be defined either as a simple function (<code>handler</code>) or as
-a full reactive node (<code>receptor</code>). They are mutually exclusive — you
-must provide exactly one. The <code>handler</code> is wrapped into a <a href="../cell_flow/Receptor-class.html">Receptor</a>
-internally if provided alone.</p>
-<h3 id="nonobvious-priority-determines-evaluation-order">Non‑obvious: priority determines evaluation order</h3>
-<p>Higher <code>priority</code> values are evaluated first. When multiple spokes
-match a signal and the hub is not in multicast mode, the one with the
-highest priority receives the pulse. This is how you ensure specific
-routes are preferred over general ones.</p>
 <h3 id="example-basic-spoke-registration">Example: Basic Spoke Registration</h3>
 <pre class="language-dart"><code class="language-dart">final registration = (
   key: 'auth.success',
@@ -214,7 +200,7 @@ routes are preferred over general ones.</p>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

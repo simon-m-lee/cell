@@ -77,14 +77,6 @@ state changes. You might use it for manual testing.</p>
 <p>It applies the filter (if any), then delivers the pulse to each observer
 in sequence, respecting the propagation policy. If a cycle is detected,
 the branch is silently terminated.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The broadcast is synchronous by default – use the <code>async</code> view for
-non‑blocking delivery.</li>
-<li>If a downstream observer is invalidated, it's skipped.</li>
-<li>The pulse's <code>_branches</code> box is used to track completion across
-multiple observers.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>pulse</code>: The pulse to broadcast.</li>
@@ -113,6 +105,11 @@ void call(covariant P pulse) {
         pulse._complete();
         return;
       }
+      &#47;&#47; Returning here serves two purposes:
+      &#47;&#47; 1. Do not complete a pulse that still has sibling branches.
+      &#47;&#47; 2. Do not fall through into the strategy switch, which would
+      &#47;&#47;    re-enter `_broadcast` and decrement the counter a second time.
+      return;
     } else {
       pulse._complete();
       return;
@@ -158,24 +155,8 @@ void call(covariant P pulse) {
       _audit(p);
       break;
 
-    case PropagationStrategy.exhaust:
-      _exhaust(p);
-      break;
-
-    case PropagationStrategy.sample:
-      _sample(p);
-      break;
-
-    case PropagationStrategy.resilient:
-      _resilient(p);
-      break;
-
     case PropagationStrategy.debounceLeading:
       _debounceLeading(p);
-      break;
-
-    case PropagationStrategy.retry:
-      _retry(p);
       break;
 
     case PropagationStrategy.persistent:
@@ -216,7 +197,7 @@ void call(covariant P pulse) {
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

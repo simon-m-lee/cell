@@ -90,17 +90,6 @@ triggered by this specific pulse.</li>
 through the fabric.</li>
 <li>Once all related side effects are done, the <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> completes.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Full Propagation</strong>: This doesn't just wait for the immediate cell;
-it waits for the <em>entire</em> ripple effect across the network.</li>
-<li><strong>Serialization</strong>: If <code>serializedCompletion</code> is set to <code>true</code>, the
-network ensures this pulse is processed in a strict queue, preventing
-it from overlapping with other incoming signals.</li>
-<li><strong>Error Handling</strong>: If a downstream effect fails, the <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> will
-still complete once the failure is handled, ensuring your code
-doesn't hang indefinitely.</li>
-</ul>
 <h3 id="example-atomic-setup">Example: Atomic Setup</h3>
 <pre class="language-dart"><code class="language-dart">// Inject a setup signal and wait for all modules to initialize
 await systemGate.ingest(Pulse('INIT_ALL'), serializedCompletion: true);
@@ -160,7 +149,7 @@ is settled.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

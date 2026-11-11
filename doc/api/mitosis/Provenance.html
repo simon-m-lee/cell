@@ -90,15 +90,6 @@ refined as the pulse moves through the graph (e.g., <code>reason</code>,
 <li>The framework uses these dimensions during validation (via <a href="../mitosis/TestCell-class.html">TestCell</a>)
 and auditing (via the causal trace).</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <a href="../mitosis/Provenance/evolvable.html">Provenance.evolvable</a> flag is enforced by the engine – you cannot change
-a static pillar via <code>evolve()</code>.</li>
-<li>The <code>compose</code> and <code>evolve</code> static methods are used internally by
-<a href="../mitosis/PulseContext-class.html">PulseContext</a> to build contexts. You rarely call them directly.</li>
-<li>The <a href="../mitosis/Provenance.html">integrity</a> dimension is a cryptographic checksum of the payload,
-ensuring tamper‑proofing – it's automatically handled by the framework.</li>
-</ul>
 <h3 id="example-creating-a-pulse-with-provenance">Example: Creating a Pulse with Provenance</h3>
 <pre class="language-dart"><code class="language-dart">final pulse = Pulse.governed&lt;int&gt;(
   payload: 42,
@@ -191,11 +182,6 @@ need to set it manually.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>During the mutual authorization handshake, the <code>actor</code> is scrutinised
 to verify that the source has the required clearance and authority.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is a <strong>static pillar</strong> – once set, it cannot be changed.</li>
-<li>The framework uses this for identity‑based access control.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <ul>
 <li><code>'user_8823_admin'</code> – direct manual intervention.</li>
@@ -227,12 +213,6 @@ evolving a pulse.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The <code>reason</code> is used for Explainable AI (XAI) and is inspected by
 integrity gates to ensure the mutation is justified.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is an <strong>evolvable</strong> dimension – you can refine it as the pulse
-traverses the graph.</li>
-<li>It should be human‑readable for audit purposes.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <ul>
 <li><code>'Clamping signal to [0,1] range to prevent somatic overflow.'</code></li>
@@ -263,12 +243,6 @@ to <code>'SYSTEM_MAINTENANCE'</code>). You rarely set it manually.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>Receptors can use <code>purpose</code> to filter or prioritise pulses – e.g.,
 dropping analytics pulses when under load.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is <strong>evolvable</strong> – a pulse can be refined to a more specific
-purpose as it moves through the graph.</li>
-<li>It is compared against the cell's <a href="../mitosis/Ontology.html">Ontology.domains</a> during validation.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <ul>
 <li><code>'SYSTEM_MAINTENANCE'</code> – background grooming.</li>
@@ -298,12 +272,6 @@ framework to evaluate the reliability and source logic of a signal.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>Integrity gates can reject pulses that use an unacceptable strategy,
 e.g., a cell might only accept <code>deterministic</code> signals.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is <strong>evolvable</strong> – a <code>probabilistic</code> signal can be upgraded to
-<code>deterministic</code> after validation.</li>
-<li>The strategy influences trust and auditing.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <ul>
 <li><code>ReasoningStrategy.deterministic</code> – hard‑coded business rules.</li>
@@ -333,12 +301,6 @@ the primary metric for <strong>Probabilistic Homeostasis</strong>.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>TestCells can require a minimum confidence; low‑confidence signals
 may be routed for supervised approval.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is <strong>evolvable</strong> – confidence can be adjusted as more evidence
-is gathered.</li>
-<li>The default is 1.0 for deterministic and manual signals.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <ul>
 <li><code>0.65</code> – uncertain AI suggestion.</li>
@@ -368,11 +330,6 @@ factories set it appropriately (e.g., <code>userAction</code> sets 60).</p>
 <p>The dispatcher uses this to prioritise pulses; higher numbers leapfrog
 lower ones. The framework uses standard tiers: background (0-20),
 routine (21-50), high (51-80), critical (81-95), emergency (96-100).</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is <strong>evolvable</strong> – priority can be promoted or demoted.</li>
-<li>The default is 21 (routine) if not set.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <ul>
 <li><code>10</code> – background telemetry.</li>
@@ -409,11 +366,6 @@ dictates how the payload must be treated, stored, and transmitted.</p>
 HIPAA, etc.). The <code>regulated</code> factory sets it automatically.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>Integrity gates can block pulses that lack required compliance markers.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is a <strong>static pillar</strong> – cannot be changed once set.</li>
-<li>The framework enforces compliance constraints automatically.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <ul>
 <li><code>'GDPR'</code> – triggers redaction of PII.</li>
@@ -443,11 +395,6 @@ during observability.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The framework uses sensitivity to enforce redaction, encryption, and
 access control.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is a <strong>static pillar</strong> – cannot be changed.</li>
-<li>Higher sensitivity requires higher clearance to process.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <ul>
 <li><code>Sensitivity.public</code> – safe for logging.</li>
@@ -474,11 +421,6 @@ determines how much causal metadata and payload information is captured.</p>
 <p>This is set by factories – e.g., <code>regulated</code> sets <code>full</code>.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The framework uses this to decide what to log and trace.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is <strong>evolvable</strong> – a pulse can be promoted to <code>full</code> on demand.</li>
-<li>Higher audit levels may impact performance.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <ul>
 <li><code>AuditLevel.none</code> – high‑frequency telemetry, no logging.</li>
@@ -507,11 +449,6 @@ ensures that every state change can be correlated back to its origin.</p>
 manually.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The traceId is used for deduplication and to link parent/child pulses.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is a <strong>static pillar</strong> – immutable.</li>
-<li>It is generated as a UUID v4.</li>
-</ul>
   
 
     <div>
@@ -534,11 +471,6 @@ enabling multi‑step reasoning chains.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The framework uses this to link a child pulse to its parent,
 preserving the full causal chain.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is a <strong>static pillar</strong> – immutable.</li>
-<li>If a parent pulse is invalidated, children may also be invalidated.</li>
-</ul>
   
 
     <div>
@@ -561,11 +493,6 @@ ensuring the pulse's payload has not been tampered with.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The framework hashes the payload and stores the hash; on receipt,
 the hash is re‑computed and compared.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is a <strong>static pillar</strong> – immutable.</li>
-<li>If the payload changes, the integrity signature must be re‑generated.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <ul>
 <li><code>sha256:e3b0c442...</code> – standard hash.</li>
@@ -813,7 +740,7 @@ fluid dimensions of the <a href="../mitosis/Provenance.html">Provenance</a> onto
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

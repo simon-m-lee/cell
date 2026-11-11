@@ -87,12 +87,6 @@ subscription on each trigger pulse.</p>
 <li>If the stream errors, an error pulse is emitted.</li>
 <li>Each emitted event gets the step <code>'DeferStream'</code> for provenance.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>New Stream Each Time</strong>: A fresh stream is created on each trigger.</li>
-<li><strong>Lazy Creation</strong>: The stream is created when triggered.</li>
-<li><strong>Error Handling</strong>: Stream errors are caught and reported.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Trigger Source.</strong> The cell that triggers each stream.</li>
@@ -168,7 +162,7 @@ trigger.emit(null); // Creates and listens to a new stream
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -80,12 +80,6 @@ cleanup tasks.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The context is lightweight and low‑priority, ensuring it doesn't
 interfere with user‑facing operations.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>priority</code> is set to 10 (background) by default, but you can
-override it.</li>
-<li>The <code>auditLevel</code> is <code>minimal</code> to reduce logging overhead.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final context = PulseContext.homeostasis(
   actor: 'Cache_Janitor_Service',
@@ -158,7 +152,7 @@ override it.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

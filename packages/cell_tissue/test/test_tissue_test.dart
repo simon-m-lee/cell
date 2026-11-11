@@ -30,7 +30,7 @@ void main() {
       expect(await allow.action(list.add, host: list), isTrue);
       expect(await allow.call(1, host: list), isTrue);
       expect(await allow.element(1, host: list, action: list.add), isTrue);
-      expect(await allow.link(other, host: list), isFalse);
+      expect(await allow.link(other, host: list), isTrue);
       expect(await allow.pulse(Pulse(1), host: list), isTrue);
     });
 

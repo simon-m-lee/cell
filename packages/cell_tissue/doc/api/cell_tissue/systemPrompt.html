@@ -87,19 +87,6 @@ otherwise guess wrong: single-element verbs use a 1-element
 array, multi-element verbs use a nested array, zero-arg
 verbs use <code>[]</code>, never invent a verb, never return code.</li>
 </ol>
-<h3 id="non-obvious">Non-obvious</h3>
-<ul>
-<li><strong>The prompt is the security contract.</strong> Trimming it would
-weaken the guarantee that the model's reply can be parsed by
-the strict shape the instruction enforces.</li>
-<li><strong>Verbs are listed in sorted order.</strong> Sorting makes the
-prompt deterministic for a given verb set, which is useful
-for caching and diffing. It does not affect the model's
-choice.</li>
-<li><strong>The prompt is bounded by the caller's verb set.</strong> A caller
-that passes <code>{'add'}</code> gets a prompt listing only <code>add</code>. The
-prompt does not leak verbs the caller did not authorise.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final prompt = systemPrompt({'add', 'remove', 'clear'});
 // Prompt lists only these three verbs, in sorted order:
@@ -174,7 +161,7 @@ Rules:
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

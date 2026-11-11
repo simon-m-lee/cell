@@ -88,13 +88,6 @@ timer expires, a <a href="https://api.flutter.dev/flutter/dart-async/TimeoutExce
 <li>The error pulse has type <code>'error'</code> for routing.</li>
 <li>The clock is closed after the first timeout.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Single Timeout</strong>: The clock closes after the first timeout.</li>
-<li><strong>Reset Behavior</strong>: Timer resets on every typed pulse.</li>
-<li><strong>Error Type</strong>: The error is a <a href="https://api.flutter.dev/flutter/dart-async/TimeoutException-class.html">TimeoutException</a>.</li>
-<li><strong>Type Safety</strong>: The instruction is generic over <code>S</code>.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -126,6 +119,23 @@ final handle = Flow.timeout&lt;String&gt;(
 <li><a href="../../cell_flow/Flow/timeoutWithFallback.html">timeoutWithFallback</a>: For fallback on timeout.</li>
 <li><a href="../../cell_flow/Flow/timeout.html">timeout</a>: For overall deadline from first pulse.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Flow — time operator. Not a Cell factory, not a Tissue book.
+<strong>When to use:</strong> "raise if stopped &gt; 60 s" style deadlines on an adjacent I/O cell — emits an error pulse if silence exceeds the duration.
+<strong>When NOT to use:</strong> ACK-within-N-minutes journeys in v1 (that is a tick-field / clock concern, not a chain operator); never as the policy gate.
+<strong>Live signature:</strong> <code>Flow.timeout&lt;S&gt;(Cell source, {required Duration duration, TimeoutErrorHandler? onError, bool emitErrorPulse = true})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Flow.timeoutWithFallback</code> (emits a fallback value instead of an error pulse).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.6 "Time" (#flow-time)
+<strong>Example:</strong> <code>example/retry_timeout_flaky_network_demo.dart</code>
+<strong>Cross-layer:</strong> wall-clock policy stays in the instruction or on the tick field.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final h = Flow.timeout&lt;int&gt;(src.cell, duration: const Duration(milliseconds: 50));
+final o = Cell.observe(source: h.cell, effect: (Pulse p) =&gt; print(p.payload));
+src.emit(1);
+await Future&lt;void&gt;.delayed(const Duration(milliseconds: 20));
+o.stop();
+</code></pre>
 </section>
 
 
@@ -171,7 +181,7 @@ final handle = Flow.timeout&lt;String&gt;(
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

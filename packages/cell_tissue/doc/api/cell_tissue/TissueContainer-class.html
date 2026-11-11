@@ -85,17 +85,6 @@ of a <a href="../cell_tissue/Nucleus-class.html">Nucleus</a>, ensuring atomic in
 collections to defer memory allocation until the first pulse or
 iteration occurs.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The container is <strong>not</strong> itself reactive – it only stores data. Reactivity
-is provided by the <a href="../cell_tissue/Tissue-class.html">Tissue</a> that wraps it.</li>
-<li>The <code>add</code> and <code>remove</code> methods automatically manage synaptic links for
-child cells. When you add a cell, it's linked; when you remove it, it's
-unlinked (if no other references exist).</li>
-<li>The <code>store</code> is <code>late final</code> – it must be initialised before use. The
-<code>init</code> method is called by the tissue during construction.</li>
-<li>Equality of containers is based on the underlying store's equality.</li>
-</ul>
 <h3 id="type-parameters">Type Parameters:</h3>
 <ul>
 <li><code>E</code>: The type of elements managed by the tissue.</li>
@@ -939,7 +928,7 @@ collection.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

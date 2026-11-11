@@ -87,19 +87,6 @@ record structure containing <code>local</code> properties and an optional
 <li><strong>Hydration Logic</strong>: It assumes the <strong>Flyweight Optimization</strong> has
 already been applied to the input, allowing for immediate reification.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Trust Model</strong>: Operates on a "Trusted Input" model; it does not validate
-that mandatory pillars (like <a href="../../mitosis/NucleusBase/testRule.html">testRule</a>) are present if the <a href="../../mitosis/NucleusBase/principal.html">principal</a>
-is missing.</li>
-<li><strong>Deterministic Identity</strong>: By utilizing <code>const</code> records, the framework
-maintains referential equality across the graph, ensuring a
-stable <strong>Causal Provenance</strong>.</li>
-<li><strong>Zero-Cost Path</strong>: Provides a zero-latency path for restoring nuclei
-within performance-critical reactive waves.</li>
-<li><strong>Manual Pillar Resolution</strong>: Property resolution will fall back to the
-<code>principal</code> defined within the record, not an external argument.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// Primarily used internally for structural evolution:
 const optimizedNucleus = NucleusBase.fromRecord(
@@ -156,7 +143,7 @@ as the node's identity and governance configuration.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

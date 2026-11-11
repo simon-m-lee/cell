@@ -262,6 +262,18 @@ void main() {
       expect(q, isEmpty);
     });
 
+    test('remove returns false for an incompatible value type', () {
+      final q = PriorityQueue<int>();
+      q.addAll([1, 2]);
+      // Set.remove/List.remove semantics: a non-E value is absent, not a
+      // TypeError from the cast inside the heap scan.
+      expect(q.remove('not-an-int'), isFalse);
+      expect(q.remove(null), isFalse);
+      expect(q.remove(1.0), isFalse);
+      expect(q.toList(), unorderedEquals([1, 2]));
+      expect(q.remove(2), isTrue);
+    });
+
     test('empty buffer throws on extract', () {
       final q = PriorityQueue<int>();
       expect(() => q.removeFirst(), throwsStateError);
@@ -275,6 +287,26 @@ void main() {
       final last = q.last;
       expect(q.removeLast(), last);
       expect(q.iterator, isA<Iterator<int>>());
+    });
+
+    test('removeLast returns the lowest-precedence element', () {
+      final q = PriorityQueue<int>();
+      q.addAll([5, 1, 9, 3, 7, 2]);
+      expect(q.removeLast(), 9);
+      expect(q.removeLast(), 7);
+      // The remaining heap must still extract in ascending order.
+      expect(q.removeFirst(), 1);
+      expect(q.removeFirst(), 2);
+      expect(q.removeFirst(), 3);
+      expect(q.removeFirst(), 5);
+    });
+
+    test('last peeks the lowest-precedence element', () {
+      final q = PriorityQueue<int>();
+      q.addAll([4, 1, 3, 2]);
+      expect(q.last, 4);
+      q.add(10);
+      expect(q.last, 10);
     });
   });
 
@@ -331,6 +363,16 @@ void main() {
       expect(q.add(2), throwsStateError);
       final q2 = SyncQueue<int>(capacity: 1);
       expect(q2.addAll([1, 2]), throwsStateError);
+    });
+
+    test('addAll is atomic: no partial additions on capacity overflow',
+        () async {
+      final q = SyncQueue<int>(capacity: 2);
+      await expectLater(q.addAll([1, 2, 3]), throwsStateError);
+      expect(await q.length, 0,
+          reason: 'a rejected addAll must not leave partial additions');
+      await q.addAll([1, 2]);
+      expect(await q.length, 2);
     });
 
     test('addFirst, addLast, remove, map, clear', () async {
@@ -413,21 +455,39 @@ void main() {
       expect(get<int>(() => 4), 4);
     });
 
-    test('get uses fallback when primary throws', () {
+    test('get uses fallback when the primary is absence-shaped', () {
+      final dynamic record = (present: 4);
       expect(
-        get<int>(() => throw StateError('x'), fallback: () => 8),
+        get<int>(() => record.missing, fallback: () => 8),
         8,
       );
     });
 
-    test('get uses orElse when primary and fallback throw', () {
+    test('get uses orElse when the primary and fallback are absence-shaped',
+        () {
+      final dynamic record = (present: 4);
       expect(
         get<int>(
-          () => throw StateError('x'),
-          fallback: () => throw StateError('y'),
+          () => record.missing,
+          fallback: () => record.alsoMissing,
           orElse: 3,
         ),
         3,
+      );
+    });
+
+    test('get propagates non-absence exceptions from the primary', () {
+      expect(
+        () => get<int>(() => throw StateError('x'), orElse: 3),
+        throwsStateError,
+      );
+    });
+
+    test('get propagates wrong-typed record fields (TypeError)', () {
+      final record = (present: 'not-an-int');
+      expect(
+        () => get<int>(() => record.present, orElse: 3),
+        throwsA(isA<TypeError>()),
       );
     });
 

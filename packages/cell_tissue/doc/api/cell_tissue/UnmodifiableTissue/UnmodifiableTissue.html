@@ -91,18 +91,6 @@ This prevents "side‑door" mutations through nested mutable cells.</li>
 graph, and it can be used as a source for derived tissues. It simply
 blocks all mutations.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The collection is <strong>not a snapshot</strong> – it is a live, reactive node.
-However, because the data is fixed, it will never emit change pulses.</li>
-<li>The provided <code>nucleus</code> parameter allows you to customise the context,
-synapses, and other governance aspects even for an immutable collection.
-If omitted, a default read‑only nucleus is used.</li>
-<li>The <code>unmodifiableElement</code> flag only affects the behaviour when you access
-elements <em>through this collection</em>. If you hold a direct reference to a
-mutable child cell, it remains mutable – the collection only projects
-it as unmodifiable when you retrieve it via its API.</li>
-</ul>
 <h3 id="example-static-configuration">Example: Static configuration</h3>
 <pre class="language-dart"><code class="language-dart">final countries = UnmodifiableTissue&lt;String&gt;(
   ['US', 'GB', 'DE'],
@@ -160,7 +148,7 @@ strictly immutable.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

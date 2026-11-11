@@ -24,15 +24,6 @@ part of '../cell.dart';
 /// new pulse (to continue propagation) or `null` (to drop it). The filter is
 /// stateless and reusable across multiple synapses.
 ///
-/// ### Non‑obvious
-/// - If a filter throws an exception, the framework catches it and preserves
-///   the original pulse – a single faulty filter doesn't break the chain.
-/// - Filters are composed using `+`; the output of one becomes the input of
-///   the next. If any filter returns `null`, the pipeline short‑circuits and
-///   the pulse is dropped.
-/// - The [FilterRule.base()] constructor creates a no‑op filter that acts as
-///   an identity element for composition.
-///
 /// ### Example: redacting sensitive data
 /// ```dart
 /// final redactFilter = FilterRule<UserData>((pulse, {user}) {
@@ -242,18 +233,6 @@ class FilterRule<P extends Pulse> {
 /// configured [FilterRule], and then broadcast it across the network
 /// according to the timing rules defined in the [PropagationPolicy].
 ///
-/// ### Non‑obvious:
-/// - **Cycle Safety**: The fabric automatically prevents infinite loops
-///   by tracking the forensic history of every pulse. If a pulse detects
-///   it is returning to a cell it has already visited, propagation for
-///   that branch is silently terminated.
-/// - **Flyweight Optimization**: Predefined constants like
-///   [Synapses.enabled] and [Synapses.disabled] allow the framework to
-///   avoid allocating registry memory for sink nodes or inactive cells.
-/// - **Forensic Tagging**: All signals passing through the fabric are
-///   implicitly tagged with egress metadata, allowing for complete audit
-///   trails of how data flowed between specific cell boundaries.
-///
 /// ### Example: simple distribution
 /// ```dart
 /// final synapses = Synapses<String, Cell>(
@@ -318,12 +297,6 @@ abstract interface class Synapses<P extends Pulse, L extends Cell>
   /// throttle, batch, etc.). You can also supply a custom [relay] to take
   /// full control of distribution.
   ///
-  /// ### Non‑obvious
-  /// - If you provide a [relay], the default sequential broadcast is bypassed
-  ///   – you must manually deliver pulses to downstream cells.
-  /// - The [filter] is applied to every outgoing pulse before any observer
-  ///   receives it.
-  ///
   /// ### Example: with debouncing
   /// ```dart
   /// final debouncedSynapses = Synapses<String, Cell>(
@@ -367,10 +340,6 @@ abstract interface class Synapses<P extends Pulse, L extends Cell>
   /// in sequence, respecting the propagation policy. If a cycle is detected,
   /// the branch is silently terminated.
   ///
-  /// ### Non‑obvious
-  /// - The broadcast is synchronous by default – use the `async` view for
-  ///   non‑blocking delivery.
-  /// - If a downstream observer is invalidated, it's skipped.
   void call(covariant P pulse);
 
   /// Provides an asynchronous view of these synapses for non‑blocking
@@ -402,11 +371,6 @@ abstract interface class Synapses<P extends Pulse, L extends Cell>
   /// The method validates the link via the cell's [TestCell], then adds the
   /// downstream cell to the registry. If the cell is already linked, it's a
   /// no‑op. Returns `true` on success, `false` if rejected.
-  ///
-  /// ### Non‑obvious
-  /// - The link is governed by the host cell's validation rules – you can't
-  ///   link to a cell that the host doesn't allow.
-  /// - Deputies and their principals are considered equivalent for linking.
   ///
   /// ### Example
   /// ```dart

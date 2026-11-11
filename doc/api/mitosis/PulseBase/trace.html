@@ -85,9 +85,15 @@ List&lt;String&gt; get trace {
   iterate(PulseBase? p) {
     String? step;
     while (p != null) {
-      step = get&lt;String?&gt;(() =&gt; p!._record.root.secondary.step, orElse: null);
-      if (step != null) {
-        trace.add(step);
+      if (p is _StepPulse) {
+        &#47;&#47; Flat step node: its step lives in a plain field, not a record.
+        trace.add(p._stepValue);
+      } else {
+        step =
+            (p._shape &amp; _kStep) != 0 ? p._record.root.secondary.step : null;
+        if (step != null) {
+          trace.add(step);
+        }
       }
       p = p._parent;
     }
@@ -126,7 +132,7 @@ List&lt;String&gt; get trace {
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

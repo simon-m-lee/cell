@@ -49,14 +49,6 @@ mixin Deputy<C extends Cell> on Cell {
   /// - If all parameters are left at their defaults, the method returns
   ///   `this` – no proxy is created.
   ///
-  /// ### Non‑obvious
-  /// - The deputy's [testRule] is layered *on top* of the principal's rule.
-  ///   You can only narrow permissions, never expand them.
-  /// - Deputies are logically equal to their principal: `deputy == principal`
-  ///   is `true`, so they work seamlessly in [Set]s and [Map]s.
-  /// - The deputy gets its own independent [Synapses] registry by default,
-  ///   so it can have its own observers separate from the principal.
-  ///
   /// ### Common patterns
   /// - **Read‑Only View**: `testRule: TestCell.readOnly`
   /// - **Temporal Lease**: `context` with `lease: Duration(...)`
@@ -67,7 +59,8 @@ mixin Deputy<C extends Cell> on Cell {
   /// ```dart
   /// final readOnly = await cell.deputy(testRule: TestCell.readOnly);
   /// readOnly.value;        // works
-  /// readOnly.apply(...);   // blocked – modifiable whitelist is empty
+  /// readOnly.apply(...);   // blocked – the layered readOnly rule rejects
+  ///                        // whitelisted actions via the validate seam
   /// ```
   ///
   /// ### Example: temporary deputy with lease

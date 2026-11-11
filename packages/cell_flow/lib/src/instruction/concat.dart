@@ -8,6 +8,8 @@ import 'dart:async';
 
 import 'package:cell_flow/cell_flow.dart';
 
+import 'flow_internal.dart';
+
 // ─────────────────────────────────────────────────────────────
 // Core Concat Operators
 // ─────────────────────────────────────────────────────────────
@@ -75,45 +77,6 @@ Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
 /// - [onData]: Called for each value drained.
 /// - [stillLive]: Optional callback to check if the operation is still current.
 ///
-/// ### Non‑obvious
-/// - **Recursive Draining**: The function recurses on `Future` and `Iterable`
-///   values, allowing nested structures to be flattened.
-/// - **Cancellation**: The [stillLive] callback is checked at each step,
-///   allowing cancelled operations to stop early.
-/// - **String Special Case**: Strings are treated as values, not iterables,
-///   to avoid character-by-character iteration.
-Future<void> _drain(
-  Object? inner,
-  void Function(dynamic value) onData, {
-  bool Function()? stillLive,
-}) async {
-  if (inner == null) return;
-  if (stillLive != null && !stillLive()) return;
-
-  if (inner is Stream) {
-    await for (final event in inner) {
-      if (stillLive != null && !stillLive()) return;
-      await _drain(event, onData, stillLive: stillLive);
-    }
-    return;
-  }
-
-  if (inner is Future) {
-    final value = await Future<dynamic>.value(inner);
-    await _drain(value, onData, stillLive: stillLive);
-    return;
-  }
-
-  if (inner is Iterable && inner is! String) {
-    for (final event in inner) {
-      if (stillLive != null && !stillLive()) return;
-      await _drain(event, onData, stillLive: stillLive);
-    }
-    return;
-  }
-
-  onData(inner);
-}
 
 /// Collects all values from an inner into a list.
 ///
@@ -127,7 +90,7 @@ Future<void> _drain(
 /// A list of all values from the inner.
 Future<List<dynamic>> _collect(Object? inner) async {
   final out = <dynamic>[];
-  await _drain(inner, out.add);
+  await drainInner(inner, out.add);
   return out;
 }
 
@@ -176,14 +139,6 @@ Future<List<dynamic>> _collect(Object? inner) async {
 /// 3. All values from each inner are emitted.
 /// 4. The instruction stops after all inners are played.
 /// 5. Each emitted value gets the step `'Concat'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Fixed Inners**: The inners are fixed at construction time.
-/// - **First Pulse Only**: The instruction only arms on the first pulse.
-/// - **Sequential**: Inners are played one after another.
-/// - **Error Isolation**: Errors in one inner don't stop the next.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
 ///
 /// ### Example: Static Sequence Concatenation
 /// ```dart
@@ -260,8 +215,8 @@ class Concat<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Iterable<Object?> inners, {
     ConcatErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             var armed = false;
             return (pulse, {cell, user, future, token}) {
               if (armed) return null;
@@ -269,7 +224,7 @@ class Concat<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               Future<void> run() async {
                 for (final inner in inners) {
                   try {
-                    await _drain(inner, (item) {
+                    await drainInner(inner, (item) {
                       if (item is T) {
                         future!(
                           result: _out<T>(item, cell, pulse, 'Concat'),
@@ -286,7 +241,7 @@ class Concat<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               run();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -331,14 +286,6 @@ class Concat<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. If the queue is empty, the instruction waits.
 /// 5. Each emitted value gets the step `'ConcatAll'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Dynamic Payloads**: The inners come from the source payloads.
-/// - **Queueing**: Inners are queued and processed in order.
-/// - **Sequential**: Inners are played one after another.
-/// - **Error Isolation**: Errors in one inner don't stop the next.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-///
 /// ### Parameters:
 /// - [onError]: **Error Handler.** Optional callback for handling errors.
 /// - [user]: **User Metadata.** Optional metadata.
@@ -370,8 +317,8 @@ class ConcatAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   ConcatAll({
     ConcatErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final queue = <Object?>[];
             var busy = false;
             return (pulse, {cell, user, future, token}) {
@@ -382,7 +329,7 @@ class ConcatAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 while (queue.isNotEmpty) {
                   final inner = queue.removeAt(0);
                   try {
-                    await _drain(inner, (item) {
+                    await drainInner(inner, (item) {
                       if (item is T) {
                         future!(
                           result: _out<T>(item, cell, pulse, 'ConcatAll'),
@@ -400,7 +347,7 @@ class ConcatAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               pump();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -443,15 +390,6 @@ class ConcatAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. The rest of the inner is skipped.
 /// 5. Each emitted value gets the step `'ConcatFirst'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **First Only**: Only the first item of each inner is emitted.
-/// - **Skip Rest**: The rest of the inner is skipped.
-/// - **Queueing**: Inners are queued and processed in order.
-/// - **Sequential**: Inners are played one after another.
-/// - **Error Isolation**: Errors don't stop the next inner.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-///
 /// ### Parameters:
 /// - [onError]: **Error Handler.** Optional callback for handling errors.
 /// - [user]: **User Metadata.** Optional metadata.
@@ -492,8 +430,8 @@ class ConcatFirst<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   ConcatFirst({
     ConcatErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final queue = <Object?>[];
             var busy = false;
             return (pulse, {cell, user, future, token}) {
@@ -505,7 +443,7 @@ class ConcatFirst<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                   final inner = queue.removeAt(0);
                   try {
                     var taken = false;
-                    await _drain(inner, (item) {
+                    await drainInner(inner, (item) {
                       if (taken) return;
                       if (item is T) {
                         taken = true;
@@ -525,7 +463,7 @@ class ConcatFirst<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               pump();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -569,14 +507,6 @@ class ConcatFirst<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. The last typed value of type [T] is emitted.
 /// 5. Each emitted value gets the step `'ConcatLatest'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Last Only**: Only the last item of each inner is emitted.
-/// - **Full Drain**: The entire inner is drained to find the last.
-/// - **Type Filtering**: Only values of type [T] are considered.
-/// - **Memory Usage**: Drains the full inner into memory.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-///
 /// ### Parameters:
 /// - [onError]: **Error Handler.** Optional callback for handling errors.
 /// - [user]: **User Metadata.** Optional metadata.
@@ -617,8 +547,8 @@ class ConcatLatest<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   ConcatLatest({
     ConcatErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final queue = <Object?>[];
             var busy = false;
             return (pulse, {cell, user, future, token}) {
@@ -650,7 +580,7 @@ class ConcatLatest<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               pump();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }

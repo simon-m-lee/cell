@@ -71,12 +71,6 @@ typedef GroupErrorHandler = void Function(Object error, StackTrace? stackTrace);
 /// 2. [value] is the original payload.
 /// 3. The combination preserves both the grouping and the original value.
 ///
-/// ### Non‑obvious
-/// - **Immutable**: [Grouped] is immutable.
-/// - **Type Safety**: Generic over key type [K] and value type [S].
-/// - **Equality**: Implements `==` and `hashCode` for value equality.
-/// - **String Representation**: Provides a readable `toString()`.
-///
 /// ### Example: Accessing Grouped Values
 /// ```dart
 /// final input = Cell.ingress<int>();
@@ -219,16 +213,6 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// 5. If [keyOf] throws an error, the pulse is dropped.
 /// 6. The emitted pulse gets the step `'GroupBy'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **No State**: No state is maintained between pulses.
-/// - **Per-Item Emit**: Emits one [Grouped] for each input.
-/// - **Key Extraction**: [keyOf] is called for each value.
-/// - **Type Safety**: Generic over value type [S] and key type [K].
-/// - **Error Handling**: If [keyOf] throws, the pulse is dropped.
-/// - **Provenance Preservation**: The emitted pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Key Extraction**: [keyOf] is synchronous.
-///
 /// ### Example: Grouping by Parity
 /// ```dart
 /// final input = Cell.ingress<int>();
@@ -366,16 +350,6 @@ class GroupBy<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 5. If [keyOf] throws an error, the pulse is dropped.
 /// 6. The emitted pulse gets the step `'GroupCollect'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Stateful**: Maintains a map of all groups.
-/// - **Running Snapshot**: Emits the complete map after every pulse.
-/// - **Snapshot Copy**: The emitted map is a copy (not the internal map).
-/// - **Monotonic Growth**: Groups only grow; values are never removed.
-/// - **External Access**: The [groups] map can be accessed externally.
-/// - **Provenance Preservation**: The emitted pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Key Extraction**: [keyOf] is synchronous.
-///
 /// ### Parameters:
 /// - [keyOf]: **Key Extraction Function.** Called with each typed
 ///   payload, returns the group key.
@@ -426,8 +400,8 @@ class GroupCollect<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     this.groups,
     GroupErrorHandler? onError,
     dynamic user,
-  ) : super(
-          (() {
+  ) : super.statefulSync(
+          () {
             final bucket = groups;
             return (pulse, {cell, user}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -449,7 +423,7 @@ class GroupCollect<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 'GroupCollect',
               );
             };
-          })(),
+          },
           user: user,
         );
 
@@ -515,15 +489,6 @@ class GroupCollect<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 6. If [keyOf] throws an error, the pulse is dropped.
 /// 7. The emitted pulse gets the step `'GroupByCount'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Stateful**: Maintains groups until they reach the size.
-/// - **Clear on Emit**: Groups are removed after emission.
-/// - **Per-Group Batching**: Each group batches independently.
-/// - **Incomplete Groups**: Groups that never reach the size are kept.
-/// - **Provenance Preservation**: The emitted pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Key Extraction**: [keyOf] is synchronous.
-///
 /// ### Parameters:
 /// - [keyOf]: **Key Extraction Function.** Called with each typed
 ///   payload, returns the group key.
@@ -565,8 +530,8 @@ class GroupByCount<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     int size, {
     GroupErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             final bucket = <K, List<S>>{};
             return (pulse, {cell, user}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -592,7 +557,7 @@ class GroupByCount<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 'GroupByCount',
               );
             };
-          })(),
+          },
           user: user,
         );
 }

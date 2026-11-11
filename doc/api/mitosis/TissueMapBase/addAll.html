@@ -76,7 +76,8 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-void addAll(Map&lt;K, V&gt; other) =&gt; apply(addAll, positionalArguments: [other]);</code></pre>
+void addAll(Map&lt;K, V&gt; other) =&gt;
+    dispatch(addAll, positionalArguments: [other]);</code></pre>
 </section>
 
 
@@ -104,7 +105,7 @@ void addAll(Map&lt;K, V&gt; other) =&gt; apply(addAll, positionalArguments: [oth
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

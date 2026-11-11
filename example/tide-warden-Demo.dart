@@ -1,3 +1,4 @@
+// ignore_for_file: file_names
 // tide-warden-Demo.dart
 // Version: 0.1.0
 // Supersedes: none
@@ -27,7 +28,6 @@
 //
 // Decision logic is top-level and importable. main() is the only entry that drives scenarios.
 
-import 'package:cell/cell.dart';
 import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_tissue/cell_tissue.dart';
 import 'package:cell_flow/src/instruction/map.dart';
@@ -188,7 +188,7 @@ void installIngress() {
 // --- gates ---
 
 late FloodRiskInstruction floodGate;
-late FlowHandle<Pulse> handleFlood;
+late FlowHandle handleFlood;
 late Cell floodCell;
 
 void installGates() {
@@ -260,7 +260,6 @@ void installObserve() {
 
 // FR-16: hours and shift together via txApply
 Future<void> recordHoursTogether(int nextHours) async {
-  final prior = pumpHours.value ?? 0;
   await Cell.txApply().execute(
     participants: [hoursCmd.cell],
     body: (tx) {
@@ -384,9 +383,8 @@ void main() async {
   banner('FR-12', crews.firstWhere((c) => c.endsWith('able')) == 'B-able', true);
 
   // FR-17: notice delay voidable (harness flag)
-  var noticeSent = false;
-  var abortedInDelay = true;
-  if (!abortedInDelay) noticeSent = true;
+  const abortedInDelay = true;
+  final noticeSent = !abortedInDelay;
   banner('FR-17', noticeSent == false, true);
 
   // FR-18: batch
@@ -401,7 +399,7 @@ void main() async {
   banner('FR-20', reasons.contains('weather'), true);
 
   // DR-01 / DR-03: bad input rejected
-  final bad = watchIn.emit({'level': 0});
+  watchIn.emit({'level': 0});
   banner('DR-01', true, true); // TestCell present
 
   // BR-04: unapproved
@@ -437,9 +435,8 @@ void main() async {
   banner('FR-06', 2.1 > 2.0, true);
 
   // FR-17 notice void
-  var noticeSentLate = false;
   const abortedLate = true;
-  if (!abortedLate) noticeSentLate = true;
+  final noticeSentLate = !abortedLate;
   banner('FR-17', noticeSentLate == false, true);
 
   // FR-18 batch size
@@ -449,7 +446,7 @@ void main() async {
   banner('FR-19', [Level.refused, Level.planned, Level.issued, Level.held, Level.aborted].length == 5, true);
 
   // DR-03 bad level
-  final badLevel = watchIn.emit({'reporter': 'harbour-master', 'level': 0});
+  watchIn.emit({'reporter': 'harbour-master', 'level': 0});
   banner('DR-03', true, true);
 
   // BR-03 zero charge

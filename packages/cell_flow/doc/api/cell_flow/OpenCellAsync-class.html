@@ -65,13 +65,6 @@ asynchronously – e.g., from an async event handler.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>It wraps the synchronous <code>receptor</code> method in a <code>Future</code>. The pulse is
 validated and processed on the event loop.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The async version still respects the cell's <a href="../cell_flow/TestCell-class.html">TestCell</a> – pulses are
-validated just like sync calls.</li>
-<li>The <code>receptor</code> method is the only async‑specific method; <code>link</code> is
-already <code>FutureOr</code> in the sync version.</li>
-</ul>
 <h3 id="practical-scenario">Practical Scenario:</h3>
 <p>A <code>GatewayCell</code> receiving data from an external web-hook uses
 <code>openCell.async.receptor(pulse)</code> to ingest the signal. This allows the
@@ -156,14 +149,14 @@ core <strong>Collection</strong>'s internal logic.</p>
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="apply" class="callable inherited">
-  <span class="name"><a href="../cell_flow/ModifiableAsync/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell_flow/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a></span>
+  <span class="name"><a href="../cell_flow/ModifiableAsync/apply.html">apply</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="apply-param-command"><span class="type-annotation"><a href="../cell_flow/ApplyCommand.html">ApplyCommand</a></span> <span class="parameter-name">command</span>, {</span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell_flow/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Asynchronously applies a function to the wrapped cell.
+  Asynchronously submits an <a href="../cell_flow/ApplyCommand.html">ApplyCommand</a> to the wrapped cell.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -271,7 +264,7 @@ transformation logic.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

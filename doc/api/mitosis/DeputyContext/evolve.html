@@ -84,11 +84,6 @@ general delegate spawning a read‑only janitor.</p>
 <p>You provide a resolver that returns new <a href="../../mitosis/GovernanceEntry-class.html">GovernanceEntry</a>s for evolvable
 dimensions. Static pillars are inherited unchanged. The new context
 links back to <code>this</code> as its parent.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>You cannot change static pillars (like <a href="../../mitosis/DeputyContext/role.html">role</a>) – they're immutable.</li>
-<li>The new context is a separate record; the original remains unchanged.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final janitorMission = currentDeputy.evolve((evolvable) {
   return switch (evolvable) {
@@ -107,6 +102,11 @@ evolvable dimension, or <code>null</code> to inherit.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
 <p>A new <a href="../../mitosis/DeputyContext-class.html">DeputyContext</a> with refined fluid boundaries.</p>
+<h3 id="throws">Throws</h3>
+<ul>
+<li><a href="https://api.flutter.dev/flutter/dart-core/ArgumentError-class.html">ArgumentError</a> if the resolver tries to widen <a href="../../mitosis/Mandate.html">Mandate.authority</a>
+beyond the current mandate — authority is attenuation-only.</li>
+</ul>
 <p>See also: <a href="../../mitosis/Mandate/evolve.html">Mandate.evolve</a>.</p>
 </section>
 
@@ -122,6 +122,72 @@ DeputyContext evolve(
     ...Ontology.evolve(resolver),
     ...Mandate.evolve(resolver)
   ];
+
+  &#47;&#47; Attenuation enforcement: a child mandate may only narrow the current
+  &#47;&#47; authority, never widen it. This is the runtime half of the
+  &#47;&#47; &quot;downward-only&quot; contract — the lineage assert in `Cell.deputy` only
+  &#47;&#47; checks the context chain, not the authority contents.
+  final currentAuthority = _resolvedAuthority();
+  if (currentAuthority != null) {
+    for (final entry in entries) {
+      if (entry.key == Mandate.authority &amp;&amp; entry.value is String) {
+        final requested = entry.value as String;
+        if (!_isAuthoritySubset(currentAuthority, requested)) {
+          throw ArgumentError(
+            &#39;DeputyContext.evolve: authority &quot;$requested&quot; is not a subset &#39;
+            &#39;of the current mandate authority &quot;$currentAuthority&quot;. &#39;
+            &#39;Authority is attenuation-only.&#39;,
+          );
+        }
+      }
+    }
+  }
+
+  &#47;&#47; Downward-only enforcement for the remaining safety dimensions: a
+  &#47;&#47; child context may keep or tighten every dimension, never loosen it.
+  &#47;&#47; Index directions follow the enum level orderings:
+  &#47;&#47;   Isolation:   shared(0) &lt; scoped(1) &lt; sandboxed(2) — tighten = higher
+  &#47;&#47;   Sovereignty: supervised(0) &lt; collaborative(1) &lt; sovereign(2)
+  &#47;&#47;                — tighten = lower
+  &#47;&#47;   Clearance:   observational(0) &lt; minimal(1) &lt; standard(2) &lt; ...
+  &#47;&#47;                — tighten = lower
+  &#47;&#47;   AuditLevel:  none(0) &lt; minimal(1) &lt; standard(2) &lt; ...
+  &#47;&#47;                — tighten = higher
+  for (final entry in entries) {
+    final value = entry.value;
+    if (entry.key == Mandate.isolation &amp;&amp; value is Isolation) {
+      if (value.index &lt; isolation.index) {
+        throw ArgumentError(
+          &#39;DeputyContext.evolve: isolation ${value.name} is weaker than &#39;
+          &#39;the current ${isolation.name}. Isolation is attenuation-only.&#39;,
+        );
+      }
+    } else if (entry.key == Mandate.sovereignty &amp;&amp; value is Sovereignty) {
+      if (value.index &gt; sovereignty.index) {
+        throw ArgumentError(
+          &#39;DeputyContext.evolve: sovereignty ${value.name} is stronger &#39;
+          &#39;than the current ${sovereignty.name}. Sovereignty is &#39;
+          &#39;attenuation-only.&#39;,
+        );
+      }
+    } else if (entry.key == Mandate.clearance &amp;&amp; value is Clearance) {
+      if (value.index &gt; clearance.index) {
+        throw ArgumentError(
+          &#39;DeputyContext.evolve: clearance ${value.name} is higher than &#39;
+          &#39;the current ${clearance.name}. Clearance is attenuation-only.&#39;,
+        );
+      }
+    } else if (entry.key == Mandate.auditLevel &amp;&amp; value is AuditLevel) {
+      if (value.index &lt; auditLevel.index) {
+        throw ArgumentError(
+          &#39;DeputyContext.evolve: auditLevel ${value.name} is lower than &#39;
+          &#39;the current ${auditLevel.name}. Audit level is &#39;
+          &#39;attenuation-only.&#39;,
+        );
+      }
+    }
+  }
+
   return DeputyContext.fromEntries(entries, others: others, parent: this);
 }</code></pre>
 </section>
@@ -151,7 +217,7 @@ DeputyContext evolve(
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

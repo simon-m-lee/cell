@@ -8,6 +8,8 @@ import 'dart:async';
 
 import 'package:cell_flow/cell_flow.dart';
 
+import 'flow_internal.dart';
+
 /// Flow instructions that interleave several sources (Rx `merge` family).
 ///
 /// These operators combine multiple sources into a single stream by
@@ -103,45 +105,6 @@ Pulse _mark(Pulse pulse, String step) => pulse.withStep(step);
 /// - [onData]: Called for each value drained.
 /// - [stillLive]: Optional callback to check if the operation is still current.
 ///
-/// ### Non‑obvious
-/// - **Recursive Draining**: The function recurses on `Future` and `Iterable`
-///   values, allowing nested structures to be flattened.
-/// - **Cancellation**: The [stillLive] callback is checked at each step,
-///   allowing cancelled operations to stop early.
-/// - **String Special Case**: Strings are treated as values, not iterables,
-///   to avoid character-by-character iteration.
-Future<void> _drain(
-  Object? inner,
-  void Function(dynamic value) onData, {
-  bool Function()? stillLive,
-}) async {
-  if (inner == null) return;
-  if (stillLive != null && !stillLive()) return;
-
-  if (inner is Stream) {
-    await for (final event in inner) {
-      if (stillLive != null && !stillLive()) return;
-      await _drain(event, onData, stillLive: stillLive);
-    }
-    return;
-  }
-
-  if (inner is Future) {
-    final value = await inner;
-    await _drain(value, onData, stillLive: stillLive);
-    return;
-  }
-
-  if (inner is Iterable && inner is! String) {
-    for (final event in inner) {
-      if (stillLive != null && !stillLive()) return;
-      await _drain(event, onData, stillLive: stillLive);
-    }
-    return;
-  }
-
-  onData(inner);
-}
 
 // ─────────────────────────────────────────────────────────────
 // MergeWith - Source + Others
@@ -191,14 +154,6 @@ Future<void> _drain(
 /// 4. Pulses from [others] are forwarded with step `MergeWith.other`.
 /// 5. Later source pulses pass through (if [forwardSource] is true).
 /// 6. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **Arming**: The first source pulse is required to arm the instruction.
-/// - **Interleaved**: Pulses from different sources are interleaved.
-/// - **Order Preservation**: Within each source, order is preserved.
-/// - **Error Handling**: Type errors are reported via [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Memory Efficiency**: Only the state for emission is stored.
 ///
 /// ### Example: Merge Two UI Components
 /// ```dart
@@ -264,8 +219,8 @@ class MergeWith<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     MergeErrorHandler? onError,
     bool forwardSource = true,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _EmitState();
             var armed = false;
             return (pulse, {cell, user, future, token}) {
@@ -275,9 +230,16 @@ class MergeWith<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               if (!armed) {
                 armed = true;
                 for (final other in others) {
-                  Cell.observe(
+                  late final dynamic obs;
+                  obs = Cell.observe(
                     source: other,
                     effect: (Pulse incoming) {
+                      // Lifecycle: stop the observer once the handle is dead.
+                      if ((cell != null && cell.isInvalidated) ||
+                          other.isInvalidated) {
+                        obs.stop();
+                        return;
+                      }
                       final payload = incoming.payload;
                       if (payload is! S) {
                         onError?.call(
@@ -314,7 +276,7 @@ class MergeWith<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return _mark(pulse, 'MergeWith.source');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -353,14 +315,6 @@ class MergeWith<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// | **Source Forwarding** | No (by default) | Yes (by default) |
 /// | **Arming** | Source is arming gate | Source is also a source |
 /// | **Use Case** | Extra sources only | Source + extras |
-///
-/// ### Non‑obvious
-/// - **Arming Only**: The first source pulse is only used to arm.
-/// - **Interleaved**: Pulses from different sources are interleaved.
-/// - **Order Preservation**: Within each source, order is preserved.
-/// - **No Source Forwarding**: The arming pulse is not forwarded.
-/// - **Error Handling**: Type errors are reported via [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
 ///
 /// ### Example: Merge Multiple Sources
 /// ```dart
@@ -461,14 +415,6 @@ class Merge<S> extends MergeWith<S> {
 /// | **Order** | Completion order | Input order |
 /// | **Use Case** | Parallel processing | Ordered processing |
 ///
-/// ### Non‑obvious
-/// - **Concurrent**: Inner sequences are processed concurrently.
-/// - **Interleaved**: Emissions from different sequences are interleaved.
-/// - **No Order Guarantee**: Results are emitted in completion order.
-/// - **Error Handling**: Errors are reported via [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Type Safety**: The instruction is generic over [T] (output type).
-///
 /// ### Example: Merge Lists
 /// ```dart
 /// final batches = Cell.ingress<Object>();
@@ -522,7 +468,7 @@ class MergeAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
           (pulse, {cell, user, future, token}) {
             Future<void> run() async {
               try {
-                await _drain(pulse.payload, (item) {
+                await drainInner(pulse.payload, (item) {
                   if (item is T) {
                     future!(
                       result: _out<T>(item, cell, pulse, 'MergeAll'),
@@ -561,10 +507,6 @@ class MergeAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 2. The [token] identifies the current emission in the pipeline.
 /// 3. The [cell] is the host cell for the instruction.
 ///
-/// ### Non‑obvious
-/// - **Shared State**: The state is shared across all sources in the merge.
-/// - **Async Pipeline**: The state enables async emission through a single
-///   pipeline for all merged sources.
 class _EmitState {
   /// The continuation callback for the async pipeline.
   void Function({required Pulse? result, required dynamic token})? future;

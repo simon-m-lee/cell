@@ -95,14 +95,6 @@ calculated mask states to a specific <strong>Named Record</strong> shape,
 allowing the Dart compiler to allocate the smallest possible memory
 segment.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>receptor</code> is automatically cloned if it is already activated.</li>
-<li>If <code>synapses</code> is <a href="../../mitosis/Synapses/enabled-constant.html">Synapses.enabled</a>, a fresh, empty registry is created.</li>
-<li>The <code>forceLock</code> flag determines whether a new <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> is allocated.</li>
-<li>The <code>others</code> parameter allows tissue‑specific metadata (e.g., <code>capacity</code>
-for queues) to be injected into the unified record shape.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>container</code>: The physical storage template defining the collection type.</li>
@@ -125,17 +117,18 @@ properties required to initialize a <a href="../../mitosis/TissueNucleusBase-cla
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Record mask&lt;E, I extends Iterable&lt;E&gt;, C extends Tissue&lt;E&gt;&gt;(
-    {Container? container,
-    Cell? bind,
-    Context? context,
-    TissueReceptor&lt;E, C&gt;? receptor,
-    TestTissue&lt;E, C&gt;? testRule,
-    Synapses? synapses,
-    bool forceLock = false,
-    Record? user,
-    dynamic others,
-    EphemeralPolicy? ephemeralPolicy}) {
+  <pre class="language-dart"><code class="language-dart">static Record mask&lt;E, I extends Iterable&lt;E&gt;, C extends Tissue&lt;E&gt;&gt;({
+  Container? container,
+  Cell? bind,
+  Context? context,
+  TissueReceptor&lt;E, C&gt;? receptor,
+  TestTissue&lt;E, C&gt;? testRule,
+  Synapses? synapses,
+  bool forceLock = false,
+  Record? user,
+  dynamic others,
+  EphemeralPolicy? ephemeralPolicy,
+}) {
   if (synapses == Synapses.enabled) {
     synapses = Synapses();
   }
@@ -263,10 +256,25 @@ properties required to initialize a <a href="../../mitosis/TissueNucleusBase-cla
       1 =&gt; (inheritable: inheritable, others: others),
       2 =&gt; (user: user, others: others),
       3 =&gt; (inheritable: inheritable, user: user, others: others),
-      4 =&gt; (lock: Lock(reentrant: true), forceLock: forceLock, others: others),
-      5 =&gt; (lock: Lock(reentrant: true), inheritable: inheritable, forceLock: forceLock, others: others),
-      6 =&gt; (lock: Lock(reentrant: true), user: user, forceLock: forceLock, others: others),
-      7 =&gt; (lock: Lock(reentrant: true),
+      4 =&gt; (
+          lock: Lock(reentrant: true),
+          forceLock: forceLock,
+          others: others
+        ),
+      5 =&gt; (
+          lock: Lock(reentrant: true),
+          inheritable: inheritable,
+          forceLock: forceLock,
+          others: others
+        ),
+      6 =&gt; (
+          lock: Lock(reentrant: true),
+          user: user,
+          forceLock: forceLock,
+          others: others
+        ),
+      7 =&gt; (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -281,20 +289,28 @@ properties required to initialize a <a href="../../mitosis/TissueNucleusBase-cla
           synapses: synapses,
           others: others
         ),
-      12 =&gt; (lock: Lock(reentrant: true), forceLock: forceLock, synapses: synapses, others: others),
-      13 =&gt; (lock: Lock(reentrant: true),
+      12 =&gt; (
+          lock: Lock(reentrant: true),
+          forceLock: forceLock,
+          synapses: synapses,
+          others: others
+        ),
+      13 =&gt; (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           forceLock: forceLock,
           synapses: synapses,
           others: others
         ),
-      14 =&gt; (lock: Lock(reentrant: true),
+      14 =&gt; (
+          lock: Lock(reentrant: true),
           user: user,
           forceLock: forceLock,
           synapses: synapses,
           others: others
         ),
-      15 =&gt; (lock: Lock(reentrant: true),
+      15 =&gt; (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -310,15 +326,28 @@ properties required to initialize a <a href="../../mitosis/TissueNucleusBase-cla
           bind: bind,
           others: others
         ),
-      20 =&gt; (lock: Lock(reentrant: true), forceLock: forceLock, bind: bind, others: others),
-      21 =&gt; (lock: Lock(reentrant: true),
+      20 =&gt; (
+          lock: Lock(reentrant: true),
+          forceLock: forceLock,
+          bind: bind,
+          others: others
+        ),
+      21 =&gt; (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           forceLock: forceLock,
           bind: bind,
           others: others
         ),
-      22 =&gt; (lock: Lock(reentrant: true), user: user, forceLock: forceLock, bind: bind, others: others),
-      23 =&gt; (lock: Lock(reentrant: true),
+      22 =&gt; (
+          lock: Lock(reentrant: true),
+          user: user,
+          forceLock: forceLock,
+          bind: bind,
+          others: others
+        ),
+      23 =&gt; (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -340,27 +369,31 @@ properties required to initialize a <a href="../../mitosis/TissueNucleusBase-cla
           bind: bind,
           others: others
         ),
-      28 =&gt; (lock: Lock(reentrant: true),
+      28 =&gt; (
+          lock: Lock(reentrant: true),
           forceLock: forceLock,
           synapses: synapses,
           bind: bind,
           others: others
         ),
-      29 =&gt; (lock: Lock(reentrant: true),
+      29 =&gt; (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           forceLock: forceLock,
           synapses: synapses,
           bind: bind,
           others: others
         ),
-      30 =&gt; (lock: Lock(reentrant: true),
+      30 =&gt; (
+          lock: Lock(reentrant: true),
           user: user,
           forceLock: forceLock,
           synapses: synapses,
           bind: bind,
           others: others
         ),
-      31 =&gt; (lock: Lock(reentrant: true),
+      31 =&gt; (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -381,24 +414,28 @@ properties required to initialize a <a href="../../mitosis/TissueNucleusBase-cla
           container: containerStorage,
           others: others
         ),
-      36 =&gt; (lock: Lock(reentrant: true),
+      36 =&gt; (
+          lock: Lock(reentrant: true),
           forceLock: forceLock,
           container: containerStorage,
           others: others
         ),
-      37 =&gt; (lock: Lock(reentrant: true),
+      37 =&gt; (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           forceLock: forceLock,
           container: containerStorage,
           others: others
         ),
-      38 =&gt; (lock: Lock(reentrant: true),
+      38 =&gt; (
+          lock: Lock(reentrant: true),
           user: user,
           forceLock: forceLock,
           container: containerStorage,
           others: others
         ),
-      39 =&gt; (lock: Lock(reentrant: true),
+      39 =&gt; (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -425,27 +462,31 @@ properties required to initialize a <a href="../../mitosis/TissueNucleusBase-cla
           container: containerStorage,
           others: others
         ),
-      44 =&gt; (lock: Lock(reentrant: true),
+      44 =&gt; (
+          lock: Lock(reentrant: true),
           forceLock: forceLock,
           synapses: synapses,
           container: containerStorage,
           others: others
         ),
-      45 =&gt; (lock: Lock(reentrant: true),
+      45 =&gt; (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           forceLock: forceLock,
           synapses: synapses,
           container: containerStorage,
           others: others
         ),
-      46 =&gt; (lock: Lock(reentrant: true),
+      46 =&gt; (
+          lock: Lock(reentrant: true),
           user: user,
           forceLock: forceLock,
           synapses: synapses,
           container: containerStorage,
           others: others
         ),
-      47 =&gt; (lock: Lock(reentrant: true),
+      47 =&gt; (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -473,27 +514,31 @@ properties required to initialize a <a href="../../mitosis/TissueNucleusBase-cla
           container: containerStorage,
           others: others
         ),
-      52 =&gt; (lock: Lock(reentrant: true),
+      52 =&gt; (
+          lock: Lock(reentrant: true),
           forceLock: forceLock,
           bind: bind,
           container: containerStorage,
           others: others
         ),
-      53 =&gt; (lock: Lock(reentrant: true),
+      53 =&gt; (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           forceLock: forceLock,
           bind: bind,
           container: containerStorage,
           others: others
         ),
-      54 =&gt; (lock: Lock(reentrant: true),
+      54 =&gt; (
+          lock: Lock(reentrant: true),
           user: user,
           forceLock: forceLock,
           bind: bind,
           container: containerStorage,
           others: others
         ),
-      55 =&gt; (lock: Lock(reentrant: true),
+      55 =&gt; (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -529,14 +574,16 @@ properties required to initialize a <a href="../../mitosis/TissueNucleusBase-cla
           container: containerStorage,
           others: others
         ),
-      60 =&gt; (lock: Lock(reentrant: true),
+      60 =&gt; (
+          lock: Lock(reentrant: true),
           forceLock: forceLock,
           synapses: synapses,
           bind: bind,
           container: containerStorage,
           others: others
         ),
-      61 =&gt; (lock: Lock(reentrant: true),
+      61 =&gt; (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           forceLock: forceLock,
           synapses: synapses,
@@ -544,7 +591,8 @@ properties required to initialize a <a href="../../mitosis/TissueNucleusBase-cla
           container: containerStorage,
           others: others
         ),
-      62 =&gt; (lock: Lock(reentrant: true),
+      62 =&gt; (
+          lock: Lock(reentrant: true),
           user: user,
           forceLock: forceLock,
           synapses: synapses,
@@ -552,7 +600,8 @@ properties required to initialize a <a href="../../mitosis/TissueNucleusBase-cla
           container: containerStorage,
           others: others
         ),
-      63 =&gt; (lock: Lock(reentrant: true),
+      63 =&gt; (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -571,21 +620,41 @@ properties required to initialize a <a href="../../mitosis/TissueNucleusBase-cla
     2 =&gt; (user: user),
     3 =&gt; (inheritable: inheritable, user: user),
     4 =&gt; (lock: Lock(reentrant: true), forceLock: forceLock),
-    5 =&gt; (lock: Lock(reentrant: true), inheritable: inheritable, forceLock: forceLock),
+    5 =&gt; (
+        lock: Lock(reentrant: true),
+        inheritable: inheritable,
+        forceLock: forceLock
+      ),
     6 =&gt; (lock: Lock(reentrant: true), user: user, forceLock: forceLock),
-    7 =&gt; (lock: Lock(reentrant: true), inheritable: inheritable, user: user, forceLock: forceLock),
+    7 =&gt; (
+        lock: Lock(reentrant: true),
+        inheritable: inheritable,
+        user: user,
+        forceLock: forceLock
+      ),
     8 =&gt; (synapses: synapses),
     9 =&gt; (inheritable: inheritable, synapses: synapses),
     10 =&gt; (user: user, synapses: synapses),
     11 =&gt; (inheritable: inheritable, user: user, synapses: synapses),
-    12 =&gt; (lock: Lock(reentrant: true), forceLock: forceLock, synapses: synapses),
-    13 =&gt; (lock: Lock(reentrant: true),
+    12 =&gt; (
+        lock: Lock(reentrant: true),
+        forceLock: forceLock,
+        synapses: synapses
+      ),
+    13 =&gt; (
+        lock: Lock(reentrant: true),
         inheritable: inheritable,
         forceLock: forceLock,
         synapses: synapses
       ),
-    14 =&gt; (lock: Lock(reentrant: true), user: user, forceLock: forceLock, synapses: synapses),
-    15 =&gt; (lock: Lock(reentrant: true),
+    14 =&gt; (
+        lock: Lock(reentrant: true),
+        user: user,
+        forceLock: forceLock,
+        synapses: synapses
+      ),
+    15 =&gt; (
+        lock: Lock(reentrant: true),
         inheritable: inheritable,
         user: user,
         forceLock: forceLock,
@@ -596,9 +665,20 @@ properties required to initialize a <a href="../../mitosis/TissueNucleusBase-cla
     18 =&gt; (user: user, bind: bind),
     19 =&gt; (inheritable: inheritable, user: user, bind: bind),
     20 =&gt; (lock: Lock(reentrant: true), forceLock: forceLock, bind: bind),
-    21 =&gt; (lock: Lock(reentrant: true), inheritable: inheritable, forceLock: forceLock, bind: bind),
-    22 =&gt; (lock: Lock(reentrant: true), user: user, forceLock: forceLock, bind: bind),
-    23 =&gt; (lock: Lock(reentrant: true),
+    21 =&gt; (
+        lock: Lock(reentrant: true),
+        inheritable: inheritable,
+        forceLock: forceLock,
+        bind: bind
+      ),
+    22 =&gt; (
+        lock: Lock(reentrant: true),
+        user: user,
+        forceLock: forceLock,
+        bind: bind
+      ),
+    23 =&gt; (
+        lock: Lock(reentrant: true),
         inheritable: inheritable,
         user: user,
         forceLock: forceLock,
@@ -613,15 +693,28 @@ properties required to initialize a <a href="../../mitosis/TissueNucleusBase-cla
         synapses: synapses,
         bind: bind
       ),
-    28 =&gt; (lock: Lock(reentrant: true), forceLock: forceLock, synapses: synapses, bind: bind),
-    29 =&gt; (lock: Lock(reentrant: true),
+    28 =&gt; (
+        lock: Lock(reentrant: true),
+        forceLock: forceLock,
+        synapses: synapses,
+        bind: bind
+      ),
+    29 =&gt; (
+        lock: Lock(reentrant: true),
         inheritable: inheritable,
         forceLock: forceLock,
         synapses: synapses,
         bind: bind
       ),
-    30 =&gt; (lock: Lock(reentrant: true), user: user, forceLock: forceLock, synapses: synapses, bind: bind),
-    31 =&gt; (lock: Lock(reentrant: true),
+    30 =&gt; (
+        lock: Lock(reentrant: true),
+        user: user,
+        forceLock: forceLock,
+        synapses: synapses,
+        bind: bind
+      ),
+    31 =&gt; (
+        lock: Lock(reentrant: true),
         inheritable: inheritable,
         user: user,
         forceLock: forceLock,
@@ -632,14 +725,25 @@ properties required to initialize a <a href="../../mitosis/TissueNucleusBase-cla
     33 =&gt; (inheritable: inheritable, container: containerStorage),
     34 =&gt; (user: user, container: containerStorage),
     35 =&gt; (inheritable: inheritable, user: user, container: containerStorage),
-    36 =&gt; (lock: Lock(reentrant: true), forceLock: forceLock, container: containerStorage),
-    37 =&gt; (lock: Lock(reentrant: true),
+    36 =&gt; (
+        lock: Lock(reentrant: true),
+        forceLock: forceLock,
+        container: containerStorage
+      ),
+    37 =&gt; (
+        lock: Lock(reentrant: true),
         inheritable: inheritable,
         forceLock: forceLock,
         container: containerStorage
       ),
-    38 =&gt; (lock: Lock(reentrant: true), user: user, forceLock: forceLock, container: containerStorage),
-    39 =&gt; (lock: Lock(reentrant: true),
+    38 =&gt; (
+        lock: Lock(reentrant: true),
+        user: user,
+        forceLock: forceLock,
+        container: containerStorage
+      ),
+    39 =&gt; (
+        lock: Lock(reentrant: true),
         inheritable: inheritable,
         user: user,
         forceLock: forceLock,
@@ -658,24 +762,28 @@ properties required to initialize a <a href="../../mitosis/TissueNucleusBase-cla
         synapses: synapses,
         container: containerStorage
       ),
-    44 =&gt; (lock: Lock(reentrant: true),
+    44 =&gt; (
+        lock: Lock(reentrant: true),
         forceLock: forceLock,
         synapses: synapses,
         container: containerStorage
       ),
-    45 =&gt; (lock: Lock(reentrant: true),
+    45 =&gt; (
+        lock: Lock(reentrant: true),
         inheritable: inheritable,
         forceLock: forceLock,
         synapses: synapses,
         container: containerStorage
       ),
-    46 =&gt; (lock: Lock(reentrant: true),
+    46 =&gt; (
+        lock: Lock(reentrant: true),
         user: user,
         forceLock: forceLock,
         synapses: synapses,
         container: containerStorage
       ),
-    47 =&gt; (lock: Lock(reentrant: true),
+    47 =&gt; (
+        lock: Lock(reentrant: true),
         inheritable: inheritable,
         user: user,
         forceLock: forceLock,
@@ -691,20 +799,28 @@ properties required to initialize a <a href="../../mitosis/TissueNucleusBase-cla
         bind: bind,
         container: containerStorage
       ),
-    52 =&gt; (lock: Lock(reentrant: true), forceLock: forceLock, bind: bind, container: containerStorage),
-    53 =&gt; (lock: Lock(reentrant: true),
+    52 =&gt; (
+        lock: Lock(reentrant: true),
+        forceLock: forceLock,
+        bind: bind,
+        container: containerStorage
+      ),
+    53 =&gt; (
+        lock: Lock(reentrant: true),
         inheritable: inheritable,
         forceLock: forceLock,
         bind: bind,
         container: containerStorage
       ),
-    54 =&gt; (lock: Lock(reentrant: true),
+    54 =&gt; (
+        lock: Lock(reentrant: true),
         user: user,
         forceLock: forceLock,
         bind: bind,
         container: containerStorage
       ),
-    55 =&gt; (lock: Lock(reentrant: true),
+    55 =&gt; (
+        lock: Lock(reentrant: true),
         inheritable: inheritable,
         user: user,
         forceLock: forceLock,
@@ -731,27 +847,31 @@ properties required to initialize a <a href="../../mitosis/TissueNucleusBase-cla
         bind: bind,
         container: containerStorage
       ),
-    60 =&gt; (lock: Lock(reentrant: true),
+    60 =&gt; (
+        lock: Lock(reentrant: true),
         forceLock: forceLock,
         synapses: synapses,
         bind: bind,
         container: containerStorage
       ),
-    61 =&gt; (lock: Lock(reentrant: true),
+    61 =&gt; (
+        lock: Lock(reentrant: true),
         inheritable: inheritable,
         forceLock: forceLock,
         synapses: synapses,
         bind: bind,
         container: containerStorage
       ),
-    62 =&gt; (lock: Lock(reentrant: true),
+    62 =&gt; (
+        lock: Lock(reentrant: true),
         user: user,
         forceLock: forceLock,
         synapses: synapses,
         bind: bind,
         container: containerStorage
       ),
-    63 =&gt; (lock: Lock(reentrant: true),
+    63 =&gt; (
+        lock: Lock(reentrant: true),
         inheritable: inheritable,
         user: user,
         forceLock: forceLock,
@@ -789,7 +909,7 @@ properties required to initialize a <a href="../../mitosis/TissueNucleusBase-cla
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

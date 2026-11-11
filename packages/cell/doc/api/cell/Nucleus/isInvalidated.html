@@ -93,18 +93,6 @@ This ensures that projections never outlive their prototypes.</li>
 <li><strong>Terminal Living</strong>: If neither a local policy nor an upstream binding
 is present, the node is considered permanent (<code>false</code>).</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>One-Way Transition</strong>: Invalidation is terminal. A node that returns
-<code>true</code> for <a href="../../cell/Nucleus/isInvalidated.html">isInvalidated</a> can never return to a living state; its
-provenance is effectively closed.</li>
-<li><strong>Binding Contagion</strong>: If a root cell in a complex graph is invalidated,
-the status propagates instantly down the entire binding chain, ensuring
-no "zombie" nodes continue to broadcast stale pulses.</li>
-<li><strong>Active vs. Valid</strong>: A node can be <a href="../../cell/Nucleus/isInvalidated.html">isInvalidated</a> but still
-<a href="../../cell/Nucleus/isActivated.html">isActivated</a> if the garbage collector has not yet reclaimed the
-instance. This getter should be used to gate operational logic.</li>
-</ul>
 <h3 id="returns">Returns:</h3>
 <p><code>true</code> if the node has expired or its causal source has been invalidated.</p>
 </section>
@@ -142,7 +130,7 @@ instance. This getter should be used to gate operational logic.</li>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

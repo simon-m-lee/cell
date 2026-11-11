@@ -72,10 +72,11 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; addAll(Iterable&lt;E&gt; iterable) {
   return _lock.synchronized(() {
-    for (final element in iterable) {
-      if (capacity != -1 &amp;&amp; _queue.length &gt;= capacity) {
-        throw StateError(&#39;Metabolic buffer capacity exceeded during addAll&#39;);
-      }
+    final elements = iterable.toList();
+    if (capacity != -1 &amp;&amp; _queue.length + elements.length &gt; capacity) {
+      throw StateError(&#39;Metabolic buffer capacity exceeded during addAll&#39;);
+    }
+    for (final element in elements) {
       _queue.add(element);
     }
   });
@@ -107,7 +108,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

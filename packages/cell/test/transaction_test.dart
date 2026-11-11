@@ -583,6 +583,30 @@ void main() {
         expect(cell.value, 10);
         expect(cell.updateCount, 0);
       });
+
+      test('commit validates the pulse shape so TestPulseRules apply',
+          () async {
+        final cell = TrackedValueCell<int>(
+          initial: 10,
+          testRule: TestCell<Cell>.chain([
+            TestPulseRule<Cell>(
+                (pulse, {required host, user}) => (pulse.payload as int) >= 0),
+          ]),
+        );
+        final tx = Cell.transaction();
+
+        await tx.begin([cell]);
+        tx.update(cell, -1);
+
+        await expectLater(
+          tx.commit(),
+          throwsA(isValidationException(value: -1)),
+          reason: 'a pulse-level rule must gate transactional commits the '
+              'same way it gates direct updates',
+        );
+        expect(cell.value, 10);
+        expect(cell.updateCount, 0);
+      });
     });
 
     group('Custom Apply', () {

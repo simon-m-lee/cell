@@ -201,8 +201,9 @@ transactional rollbacks. See the <code>Advanced</code> topic in generated docs.<
 <h2 id="transactions">Transactions</h2>
 <p><a href="../cell/Cell/transaction.html">Cell.transaction</a> buffers <code>update</code>/<code>read</code> and applies them together.
 Locks are taken at <strong>commit</strong>, not for the whole <code>begin</code>…<code>commit</code> window.</p>
-<p><a href="../cell/Cell/txApply.html">Cell.txApply</a> stages <code>cell.apply(fn, tx: tx, compensate: undo)</code>. It is not
-a second syntax for assigning <code>value</code>.</p>
+<p><a href="../cell/Cell/txApply.html">Cell.txApply</a> stages commands — <code>cell.apply(command, tx: tx)</code> with the
+forensic <a href="../cell/ApplyCommand.html">ApplyCommand</a> model. It is not a second syntax
+for assigning <code>value</code>.</p>
 <h2 id="governance-opt-in">Governance (opt-in)</h2>
 <p><a href="../cell/Context-class.html">Context</a>, <a href="../cell/DeputyContext-class.html">DeputyContext</a>, <a href="../cell/PulseContext-class.html">PulseContext</a>, <a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a>, and
 <a href="../cell/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a> record who / why / how and can enforce TTL or
@@ -210,18 +211,112 @@ clearance <strong>if</strong> a <a href="../cell/TestCell-class.html">TestCell</
 <p><a href="../cell/Context/Context.describe.html">Context.describe</a> stores a description. It is not a legal basis, a
 retention schedule, or an audit log.</p>
 <p>Guides live in <code>guide/</code> (<code>HowTo-Start.md</code>, <code>HowTo-Transaction.md</code>, …).</p>
+<h2 id="cell--the-cell-layer"><code>cell</code> — the Cell layer</h2>
+<p><strong>Layer contract</strong> (the seam sentence): the instruction decides, the chain
+assembles, the observer glues.</p>
+<p><strong>Public surface (top entry points)</strong> — the full catalog is in
+<code>HowTo-Mitose-Cell.md</code> §2–§3 and <code>lib/doc/api_chooser.dart</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Entry point</th>
+<th>When to use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Entry</td>
+<td><code>Cell.ingress</code></td>
+<td>Every external fact the BRD names (identity, class, quantity, tick, ACK)</td>
+</tr>
+<tr>
+<td>State</td>
+<td><code>Cell.state</code></td>
+<td>Retained setting read at any time; no Tissue book named</td>
+</tr>
+<tr>
+<td>Egress</td>
+<td><code>Cell.observe</code></td>
+<td>The <strong>only</strong> Flow → Tissue glue; books and side effects move here</td>
+</tr>
+<tr>
+<td>Projection</td>
+<td><code>Cell.derive</code> / <code>Cell.synthesis</code></td>
+<td>"show X derived from Y" / one screen from many feeds</td>
+</tr>
+<tr>
+<td>Governance</td>
+<td><code>Cell.sanitized</code>, <code>Cell.deputy</code>, <code>Cell.unmodifiable</code></td>
+<td>PII redaction and least-privilege views</td>
+</tr>
+<tr>
+<td>Commit</td>
+<td><code>Cell.txApply</code></td>
+<td>Two retained facts or a command and its undo commit together, <strong>on Tissue books</strong></td>
+</tr>
+<tr>
+<td>Deferred</td>
+<td><code>Cell.transaction</code></td>
+<td>Coordinates <code>ValueCell</code>; <strong>not</strong> the Mitose commit — defer it in a Demo</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Do NOT</strong> use this package for: the decision (that is <code>cell_flow</code>), the
+books (that is <code>cell_tissue</code>), or invented factories (<code>Cell.gate</code>,
+<code>Cell.book</code>, <code>Cell.policy</code> do not exist). See <code>HowTo-Mitose-Cell.md</code> §1.</p>
 </section>
 
 
     <section class="summary offset-anchor" id="classes">
       <h2>Classes</h2>
       <dl>
-          <dt id="ApplyRejected">
-  <span class="name "><a href="../cell/ApplyRejected-class.html">ApplyRejected</a></span> 
+          <dt id="ApplyAccepted">
+  <span class="name "><a href="../cell/ApplyAccepted-class.html">ApplyAccepted</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span> 
 
 </dt>
 <dd>
-  Explicit soft-reject from <a href="../cell/Cell/apply.html">Cell.apply</a> (not the same as void → null).
+  The command was authorized, safety-checked, and successfully executed.
+</dd>
+
+          <dt id="ApplyCommandRunner">
+  <span class="name "><a href="../cell/ApplyCommandRunner-class.html">ApplyCommandRunner</a></span> 
+
+</dt>
+<dd>
+  A helper class used to set up and execute an action on a cell.
+</dd>
+
+          <dt id="ApplyLedger">
+  <span class="name "><a href="../cell/ApplyLedger-class.html">ApplyLedger</a></span> 
+
+</dt>
+<dd>
+  The framework's internal <strong>Record Keeper</strong> and receipt generator.
+</dd>
+
+          <dt id="ApplyOutcome">
+  <span class="name "><a href="../cell/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The official, auditable result of submitting an <a href="../cell/ApplyCommand.html">ApplyCommand</a>.
+</dd>
+
+          <dt id="ApplyRejected">
+  <span class="name "><a href="../cell/ApplyRejected-class.html">ApplyRejected</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The command was denied by the framework's safety rules (the Integrity Gate).
+</dd>
+
+          <dt id="ApplyStaged">
+  <span class="name "><a href="../cell/ApplyStaged-class.html">ApplyStaged</a></span> 
+
+</dt>
+<dd>
+  The command was accepted and placed into a transaction to be run later.
 </dd>
 
           <dt id="ApplyTransactionScope">
@@ -229,7 +324,16 @@ retention schedule, or an audit log.</p>
 
 </dt>
 <dd>
-  
+  Handle for a <strong>staged command transaction</strong> — the mechanism behind
+<a href="../cell/Cell/txApply.html">Cell.txApply</a>.
+</dd>
+
+          <dt id="ApplyVeto">
+  <span class="name "><a href="../cell/ApplyVeto-class.html">ApplyVeto</a></span> 
+
+</dt>
+<dd>
+  A special signal used by a function to cancel its own operation.
 </dd>
 
           <dt id="Async">
@@ -279,8 +383,9 @@ anchor within the framework's immutable <a href="https://api.flutter.dev/flutter
   <span class="name "><a href="../cell/Cell-class.html">Cell</a></span> 
     <span class="category getting-started cp-1 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
     <span class="category core-16-operators cp-2 linked" title="This is part of the Core 16 Operators topic."><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></span>
-    <span class="category demo:aircraft cp-3 linked" title="This is part of the Demo:aircraft topic."><a href="../topics/Demo: aircraft-topic.html">Demo:aircraft</a></span>
-    <span class="category demo:hotel cp-4 linked" title="This is part of the Demo:hotel topic."><a href="../topics/Demo: hotel-topic.html">Demo:hotel</a></span>
+    <span class="category transactions cp-3 linked" title="This is part of the Transactions topic."><a href="../topics/Transactions-topic.html">Transactions</a></span>
+    <span class="category apply-+-transactions cp-4 linked" title="This is part of the Apply + Transactions topic."><a href="../topics/Apply + Transactions-topic.html">Apply&nbsp;+&nbsp;Transactions</a></span>
+    <span class="category demo:aircraft cp-5 linked" title="This is part of the Demo:aircraft topic."><a href="../topics/Demo: aircraft-topic.html">Demo:aircraft</a></span>
 
 </dt>
 <dd>
@@ -319,13 +424,13 @@ together as a single atomic wave.
 
 </dt>
 <dd>
-  
+  Describes a single failed compensation attempt.
 </dd>
 
           <dt id="Context">
   <span class="name "><a href="../cell/Context-class.html">Context</a></span> 
-    <span class="category advanced cp-10 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
-    <span class="category advanced-·-context cp-13 linked" title="This is part of the Advanced · Context topic."><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></span>
+    <span class="category advanced cp-11 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-context cp-14 linked" title="This is part of the Advanced · Context topic."><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></span>
 
 </dt>
 <dd>
@@ -364,8 +469,6 @@ fields in a model class.
 
           <dt id="DeputyContext">
   <span class="name "><a href="../cell/DeputyContext-class.html">DeputyContext</a></span> 
-    <span class="category advanced cp-10 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
-    <span class="category advanced-·-deputy-context cp-14 linked" title="This is part of the Advanced · Deputy Context topic."><a href="../topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></span>
 
 </dt>
 <dd>
@@ -392,7 +495,7 @@ whether a string input matches a specific Regular Expression (<a href="https://a
 
           <dt id="EphemeralPolicy">
   <span class="name "><a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
-    <span class="category advanced cp-10 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced cp-11 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
     <span class="category advanced-·-ephemeral-policy cp-16 linked" title="This is part of the Advanced · Ephemeral Policy topic."><a href="../topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></span>
 
 </dt>
@@ -419,7 +522,7 @@ step — a causal link in the signal's journey.
 
           <dt id="FilterRule">
   <span class="name "><a href="../cell/FilterRule-class.html">FilterRule</a><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
-    <span class="category signals-&-synapses cp-6 linked" title="This is part of the Signals & Synapses topic."><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></span>
+    <span class="category signals-&-synapses cp-7 linked" title="This is part of the Signals & Synapses topic."><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></span>
 
 </dt>
 <dd>
@@ -490,8 +593,8 @@ governance within the framework's <strong>Scene-Driven Ontology</strong>.
 
           <dt id="Instruction">
   <span class="name "><a href="../cell/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
-    <span class="category instructions cp-8 linked" title="This is part of the Instructions topic."><a href="../topics/Instructions-topic.html">Instructions</a></span>
-    <span class="category pipelines-&-receptors cp-9 linked" title="This is part of the Pipelines & Receptors topic."><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></span>
+    <span class="category instructions cp-9 linked" title="This is part of the Instructions topic."><a href="../topics/Instructions-topic.html">Instructions</a></span>
+    <span class="category pipelines-&-receptors cp-10 linked" title="This is part of the Pipelines & Receptors topic."><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></span>
 
 </dt>
 <dd>
@@ -569,7 +672,7 @@ the framework's "zero-state" and <strong>Ontological Root</strong>.
 
           <dt id="Nucleus">
   <span class="name "><a href="../cell/Nucleus-class.html">Nucleus</a></span> 
-    <span class="category advanced cp-10 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced cp-11 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
     <span class="category advanced-·-nucleus cp-15 linked" title="This is part of the Advanced · Nucleus topic."><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></span>
 
 </dt>
@@ -590,7 +693,6 @@ a memory-optimized storage engine for reactive cell properties.
 
           <dt id="OpenCell">
   <span class="name "><a href="../cell/OpenCell-class.html">OpenCell</a></span> 
-    <span class="category core-16-operators cp-2 linked" title="This is part of the Core 16 Operators topic."><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></span>
 
 </dt>
 <dd>
@@ -626,8 +728,8 @@ serving as a specialized <strong>Ranked Execution Buffer</strong> for the reacti
 
           <dt id="Pulse">
   <span class="name "><a href="../cell/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
-    <span class="category pulse cp-5 linked" title="This is part of the Pulse topic."><a href="../topics/Pulse-topic.html">Pulse</a></span>
-    <span class="category signals-&-synapses cp-6 linked" title="This is part of the Signals & Synapses topic."><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></span>
+    <span class="category pulse cp-6 linked" title="This is part of the Pulse topic."><a href="../topics/Pulse-topic.html">Pulse</a></span>
+    <span class="category signals-&-synapses cp-7 linked" title="This is part of the Signals & Synapses topic."><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></span>
 
 </dt>
 <dd>
@@ -639,13 +741,13 @@ serving as a specialized <strong>Ranked Execution Buffer</strong> for the reacti
 
 </dt>
 <dd>
-  
+  The foundational blueprint for all nervous signals within the reactive graph.
 </dd>
 
           <dt id="PulseContext">
   <span class="name "><a href="../cell/PulseContext-class.html">PulseContext</a></span> 
-    <span class="category advanced cp-10 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
-    <span class="category advanced-·-pulse-context cp-11 linked" title="This is part of the Advanced · Pulse Context topic."><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></span>
+    <span class="category advanced cp-11 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-pulse-context cp-12 linked" title="This is part of the Advanced · Pulse Context topic."><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></span>
 
 </dt>
 <dd>
@@ -654,8 +756,8 @@ serving as a specialized <strong>Ranked Execution Buffer</strong> for the reacti
 
           <dt id="PulseEphemeralPolicy">
   <span class="name "><a href="../cell/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a></span> 
-    <span class="category advanced cp-10 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
-    <span class="category advanced-·-pulse-ephemeral-policy cp-12 linked" title="This is part of the Advanced · Pulse Ephemeral Policy topic."><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></span>
+    <span class="category advanced cp-11 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-pulse-ephemeral-policy cp-13 linked" title="This is part of the Advanced · Pulse Ephemeral Policy topic."><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></span>
 
 </dt>
 <dd>
@@ -682,7 +784,7 @@ facilitate pre-execution validation and security gating.
 
           <dt id="Receptor">
   <span class="name "><a href="../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
-    <span class="category pipelines-&-receptors cp-9 linked" title="This is part of the Pipelines & Receptors topic."><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></span>
+    <span class="category pipelines-&-receptors cp-10 linked" title="This is part of the Pipelines & Receptors topic."><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></span>
 
 </dt>
 <dd>
@@ -719,7 +821,7 @@ a formal contract for <strong>Bidirectional Mutual Authorization</strong>.
 
           <dt id="Synapses">
   <span class="name "><a href="../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">L extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
-    <span class="category signals-&-synapses cp-6 linked" title="This is part of the Signals & Synapses topic."><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></span>
+    <span class="category signals-&-synapses cp-7 linked" title="This is part of the Signals & Synapses topic."><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></span>
 
 </dt>
 <dd>
@@ -783,7 +885,7 @@ signals from multiple source cells into a single unified stream.
 
           <dt id="TestActionRule">
   <span class="name "><a href="../cell/TestActionRule-class.html">TestActionRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
-    <span class="category testing-&-validation cp-7 linked" title="This is part of the Testing & Validation topic."><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></span>
+    <span class="category testing-&-validation cp-8 linked" title="This is part of the Testing & Validation topic."><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></span>
 
 </dt>
 <dd>
@@ -793,7 +895,7 @@ functional <a href="../cell/TestActionRule/action.html">action</a> execution wit
 
           <dt id="TestCell">
   <span class="name "><a href="../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
-    <span class="category testing-&-validation cp-7 linked" title="This is part of the Testing & Validation topic."><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></span>
+    <span class="category testing-&-validation cp-8 linked" title="This is part of the Testing & Validation topic."><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></span>
 
 </dt>
 <dd>
@@ -802,7 +904,7 @@ functional <a href="../cell/TestActionRule/action.html">action</a> execution wit
 
           <dt id="TestLinkRule">
   <span class="name "><a href="../cell/TestLinkRule-class.html">TestLinkRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
-    <span class="category testing-&-validation cp-7 linked" title="This is part of the Testing & Validation topic."><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></span>
+    <span class="category testing-&-validation cp-8 linked" title="This is part of the Testing & Validation topic."><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></span>
 
 </dt>
 <dd>
@@ -820,7 +922,7 @@ graph formation within the reactive framework.
 
           <dt id="TestPulseRule">
   <span class="name "><a href="../cell/TestPulseRule-class.html">TestPulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
-    <span class="category testing-&-validation cp-7 linked" title="This is part of the Testing & Validation topic."><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></span>
+    <span class="category testing-&-validation cp-8 linked" title="This is part of the Testing & Validation topic."><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></span>
 
 </dt>
 <dd>
@@ -829,7 +931,7 @@ graph formation within the reactive framework.
 
           <dt id="TestRule">
   <span class="name "><a href="../cell/TestRule-class.html">TestRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></span> 
-    <span class="category testing-&-validation cp-7 linked" title="This is part of the Testing & Validation topic."><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></span>
+    <span class="category testing-&-validation cp-8 linked" title="This is part of the Testing & Validation topic."><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></span>
 
 </dt>
 <dd>
@@ -899,7 +1001,7 @@ invariants across the reactive graph.
 
 </dt>
 <dd>
-  
+  Emitted once, immediately after <a href="../cell/ApplyTransactionScope/begin.html">ApplyTransactionScope.begin</a> succeeds.
 </dd>
 
           <dt id="TxApplyCommitted">
@@ -907,7 +1009,7 @@ invariants across the reactive graph.
 
 </dt>
 <dd>
-  
+  Emitted after a successful <a href="../cell/ApplyTransactionScope/commit.html">ApplyTransactionScope.commit</a>.
 </dd>
 
           <dt id="TxApplyCompensationFailed">
@@ -915,7 +1017,7 @@ invariants across the reactive graph.
 
 </dt>
 <dd>
-  
+  Emitted each time a compensation attempt fails.
 </dd>
 
           <dt id="TxApplyCompensationRetry">
@@ -923,7 +1025,7 @@ invariants across the reactive graph.
 
 </dt>
 <dd>
-  
+  Emitted before each retry of a compensation function.
 </dd>
 
           <dt id="TxApplyEvent">
@@ -931,7 +1033,7 @@ invariants across the reactive graph.
 
 </dt>
 <dd>
-  
+  Base class for all lifecycle events emitted by an <a href="../cell/ApplyTransactionScope-class.html">ApplyTransactionScope</a>.
 </dd>
 
           <dt id="TxApplyOptions">
@@ -939,7 +1041,7 @@ invariants across the reactive graph.
 
 </dt>
 <dd>
-  
+  Configuration for <a href="../cell/Cell/txApply.html">Cell.txApply</a>.
 </dd>
 
           <dt id="TxApplyRejected">
@@ -947,7 +1049,7 @@ invariants across the reactive graph.
 
 </dt>
 <dd>
-  
+  Emitted when a staged command is refused.
 </dd>
 
           <dt id="TxApplyRolledBack">
@@ -955,7 +1057,7 @@ invariants across the reactive graph.
 
 </dt>
 <dd>
-  
+  Emitted after a rollback (full or savepoint-scoped).
 </dd>
 
           <dt id="TxApplyStaged">
@@ -963,7 +1065,7 @@ invariants across the reactive graph.
 
 </dt>
 <dd>
-  
+  Emitted once per successful <a href="../cell/ApplyTransactionScope/enqueueCommand.html">ApplyTransactionScope.enqueueCommand</a>.
 </dd>
 
           <dt id="TypeObject">
@@ -1116,7 +1218,8 @@ reactive operations within the framework.
 
 </dt>
 <dd>
-  
+  Determines how the transaction scope behaves when a compensation attempt
+fails.
 </dd>
 
           <dt id="HubRouting">
@@ -1284,6 +1387,16 @@ use this directly.
     <section class="summary offset-anchor" id="extensions">
       <h2>Extensions</h2>
       <dl>
+          <dt id="ApplyCommandDSL">
+  <span class="name "><a href="../cell/ApplyCommandDSL.html">ApplyCommandDSL</a></span>
+  on <a href="../cell/Cell-class.html">Cell</a>
+  
+
+</dt>
+<dd>
+  A "fluent" shortcut that makes it easier to create and run commands on a cell.
+</dd>
+
           <dt id="PulseExtension">
   <span class="name "><a href="../cell/PulseExtension.html">PulseExtension</a></span>
   on <a href="../cell/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span>
@@ -1382,6 +1495,66 @@ in reverse order (LIFO unwind of nested <code>synchronized</code> sections).
     <section class="summary offset-anchor" id="typedefs">
       <h2>Typedefs</h2>
       <dl>
+          
+  <dt id="ApplyArguments" class="">
+  <span class="name"><a href="../cell/ApplyArguments.html">ApplyArguments</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="field-name">namedArguments</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="field-name">positionalArguments</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A structured container for function arguments that allows for auditing and reversals.
+  
+
+</dd>
+
+
+          
+  <dt id="ApplyCommand" class="">
+  <span class="name"><a href="../cell/ApplyCommand.html">ApplyCommand</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell/ApplyArguments.html">ApplyArguments</a></span> <span class="field-name">arguments</span>, </span><span class="field"><span class="type-annotation"><a href="../cell/ApplyCompensation.html">ApplyCompensation</a>?</span> <span class="field-name">compensation</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="field-name">function</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A complete request to perform an action or change state within a cell.
+  
+
+</dd>
+
+
+          
+  <dt id="ApplyCompensation" class="">
+  <span class="name"><a href="../cell/ApplyCompensation.html">ApplyCompensation</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell/ApplyArguments.html">ApplyArguments</a></span> <span class="field-name">arguments</span>, </span><span class="field"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a>?</span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="field-name">function</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A set of instructions used to undo or "roll back" a change if it fails.
+  
+
+</dd>
+
+
+          
+  <dt id="ApplyReceipt" class="">
+  <span class="name"><a href="../cell/ApplyReceipt.html">ApplyReceipt</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell/ApplyArguments.html">ApplyArguments</a></span> <span class="field-name">arguments</span>, </span><span class="field"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="field-name">function</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="field-name">id</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a></span> <span class="field-name">timestamp</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="field-name">txSequence</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="field-name">vetted</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  The permanent, official record of a specific action taken by a cell.
+  
+
+</dd>
+
+
           
   <dt id="Arguments" class="">
   <span class="name"><a href="../cell/Arguments.html">Arguments</a></span>
@@ -1606,7 +1779,9 @@ functions — the standard way to create and interact with a state atom.
 
 </dt>
 <dd>
-  
+  Raised when one or more compensations fail under
+<a href="../cell/CompensationErrorPolicy.html">CompensationErrorPolicy.collectThenThrow</a> or
+<a href="../cell/CompensationErrorPolicy.html">CompensationErrorPolicy.failFast</a>.
 </dd>
 
           <dt id="TxApplyException">
@@ -1614,7 +1789,9 @@ functions — the standard way to create and interact with a state atom.
 
 </dt>
 <dd>
-  
+  Raised for <strong>control-flow</strong> problems in a <a href="../cell/ApplyTransactionScope-class.html">ApplyTransactionScope</a>: wrong
+phase (e.g. <code>commit</code> before <code>begin</code>), non-modifiable function, non-
+participant cell, or a rejected command at commit time.
 </dd>
 
       </dl>
@@ -1638,21 +1815,23 @@ functions — the standard way to create and interact with a state atom.
         <li><a href="../topics/Features-topic.html">Features</a></li>
         <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
         <li><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
+        <li><a href="../topics/Transactions-topic.html">Transactions</a></li>
+        <li><a href="../topics/Apply + Transactions-topic.html">Apply&nbsp;+&nbsp;Transactions</a></li>
         <li><a href="../topics/Pulse-topic.html">Pulse</a></li>
         <li><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
         <li><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
         <li><a href="../topics/Instructions-topic.html">Instructions</a></li>
         <li><a href="../topics/Advanced-topic.html">Advanced</a></li>
         <li><a href="../topics/Demo: aircraft-topic.html">Demo:aircraft</a></li>
-        <li><a href="../topics/Demo: hotel-topic.html">Demo:hotel</a></li>
         <li><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></li>
         <li><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></li>
         <li><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></li>
         <li><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></li>
-        <li><a href="../topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></li>
         <li><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></li>
         <li><a href="../topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></li>
       <li class="section-title">Libraries</li>
+      <li><a href="../cell_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
+      <li><a href="../cell_api_chooser/">doc\api_chooser</a></li>
       <li class="section-subtitle">Features</li>
         <li class="section-subitem"><a href="../cell/">cell</a></li>
 </ol>
@@ -1665,7 +1844,7 @@ functions — the standard way to create and interact with a state atom.
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

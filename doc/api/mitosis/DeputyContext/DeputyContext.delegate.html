@@ -71,12 +71,6 @@ tasks, user‑driven updates, or data transformation.</p>
 <p>The factory sets the authority to <code>'DELEGATED_TASK'</code> and the role to
 <code>'Delegate'</code>. You provide a <code>task</code> description and optionally a
 <code>clearance</code> level.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is the standard mandate for most active deputies.</li>
-<li>The <code>clearance</code> defaults to <code>standard</code> – raise to <code>administrative</code> for
-structural changes.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final janitor = DeputyContext.delegate(
   baseContext: context,
@@ -136,7 +130,7 @@ structural changes.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

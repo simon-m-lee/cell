@@ -75,14 +75,6 @@ context, if none of the named factories fit.</li>
 <p><a href="../cell_flow/Context-class.html">Context</a> organizes metadata into distinct, type-safe <a href="../cell_flow/Mandate.html">Mandate</a> dimensions.
 It uses a <strong>Prototype-based Inheritance</strong> model where dimensions are
 either <strong>Static Pillars</strong> (invariant) or <strong>Fluid Boundaries</strong> (evolvable).</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<p><strong>Not every field can be changed later.</strong> Fields like <a href="../cell_flow/Context/taxonomy.html">taxonomy</a> and <a href="../cell_flow/Context/topology.html">topology</a>
-are fixed at creation — calling <a href="../cell_flow/Context/evolve.html">evolve</a> can't change them, only fields
-marked evolvable (like <a href="../cell_flow/Context/constraints.html">constraints</a>, <a href="../cell_flow/Context/stakeholders.html">stakeholders</a>, <a href="../cell_flow/Context/compliance.html">compliance</a>) can be
-refined. This is intentional: it stops a cell's fundamental identity from
-silently drifting as it gets passed through <a href="../cell_flow/Context/Context.deputy.html">deputy</a> layers. If <a href="../cell_flow/Context/evolve.html">evolve</a>
-seems to be ignoring a field you passed, check whether that field is
-evolvable at all.</p>
 <h3 id="see-also">See Also</h3>
 <ul>
 <li><a href="../cell_flow/Context/Context.deputy.html">Context.deputy</a>: Returns a <a href="../cell_flow/DeputyContext-class.html">DeputyContext</a> for per‑proxy authority.</li>
@@ -571,7 +563,7 @@ governance model.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

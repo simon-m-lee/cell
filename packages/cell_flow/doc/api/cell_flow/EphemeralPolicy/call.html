@@ -111,14 +111,24 @@ should not call it directly.</p>
   <pre class="language-dart"><code class="language-dart">void call(dynamic object, {required C cell, dynamic arguments}) {
   if (isInvalidated) return;
 
-&#47;&#47; Initialize TTL timer on the first interaction if configured
-  if (duration != null &amp;&amp; _ttlTimer == null) {
+  &#47;&#47; TTL is an INACTIVITY window: every interaction restarts the timer.
+  &#47;&#47; A one-shot timer armed only on the first event would expire a hot
+  &#47;&#47; cell `duration` after its first use, contradicting the documented
+  &#47;&#47; &quot;N minutes of inactivity&quot; semantics.
+  if (duration != null) {
+    _ttlTimer?.cancel();
     _ttlTimer = Timer(duration!, () =&gt; _triggerReclamation(cell));
   }
 
   final onEvent = get&lt;Function&gt;(() =&gt; _record.onEvent);
-  final handle = onEvent(object,
-      cell: cell, policy: this, user: _user, arguments: arguments);
+  final dynamic handle;
+  try {
+    handle = onEvent(object,
+        cell: cell, policy: this, user: _user, arguments: arguments);
+  } catch (_) {
+    &#47;&#47; Policy bookkeeping must not crash the pulse wave.
+    return;
+  }
 
   if (handle.events &gt;= 0) {
     _record.events.value = handle.events;
@@ -127,7 +137,10 @@ should not call it directly.</p>
     final limit = eventLimit;
     if (limit != null &amp;&amp; handle.events &gt;= limit) {
       _triggerReclamation(cell);
-      dispose();
+      &#47;&#47; The invalidation hook may decline the reclamation (it can return
+      &#47;&#47; false). The node then stays live and must keep its TTL timer —
+      &#47;&#47; disposing unconditionally would silently drop the TTL guarantee.
+      if (isInvalidated) dispose();
     }
   }
 }</code></pre>
@@ -158,7 +171,7 @@ should not call it directly.</p>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -347,5 +347,20 @@ void main() {
       expect(pipeline.call(5), isTrue);
       expect(pipeline.call(11), isFalse);
     });
+
+    test('TestRule.chain forwards user to a custom strategy', () {
+      const sentinel = 'chain-user';
+      dynamic seenUser;
+      final chain = TestRule<int>.chain(
+        [TestRule<int>((object, {host, arguments, user}) => true)],
+        strategy: (object, {host, arguments, user}) {
+          seenUser = user;
+          return user == sentinel;
+        },
+        user: sentinel,
+      );
+      expect(chain.call(1), isTrue);
+      expect(seenUser, sentinel);
+    });
   });
 }

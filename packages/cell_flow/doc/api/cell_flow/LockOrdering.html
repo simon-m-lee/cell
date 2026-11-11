@@ -69,16 +69,6 @@ across all transactions.</p>
 <li><code>insertion</code> – uses the order passed to <code>begin</code>.</li>
 <li><code>explicit</code> – uses a custom comparator.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><code>byHashCode</code> is the default and works well for most cases.</li>
-<li><code>insertion</code> preserves the order you specify, which can be useful
-if you have a natural order in your domain.</li>
-<li><code>explicit</code> requires a comparator that is total and consistent.
-If your comparator is not consistent (e.g., depends on mutable state),
-you may encounter deadlocks.</li>
-</ul>
-<p>See also <a href="../cell_flow/TransactionOptions/ordering.html">TransactionOptions.ordering</a>.</p>
 </section>
 
 
@@ -121,11 +111,6 @@ you may encounter deadlocks.</li>
 <p>This is the default and ensures a deterministic order that is
 consistent across all transactions. Deadlocks are prevented because
 all transactions acquire locks in the same order.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>Hash codes are not guaranteed to be unique, but the comparison
-is stable for the lifetime of the cell.</li>
-</ul>
   
 
 </dd>
@@ -140,12 +125,6 @@ is stable for the lifetime of the cell.</li>
   <p>Order locks by the insertion order passed to <code>begin</code>.</p>
 <p>Locks are acquired in the exact order the cells were provided.
 This can be useful if you have a natural order in your domain.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>If different transactions provide cells in different orders,
-deadlocks can still occur. This mode is only safe if all
-transactions use the same order.</li>
-</ul>
   
 
 </dd>
@@ -160,11 +139,6 @@ transactions use the same order.</li>
   <p>Use a custom comparator provided in <a href="../cell_flow/TransactionOptions/comparator.html">TransactionOptions.comparator</a>.</p>
 <p>This gives you full control over lock ordering. The comparator must
 be total and consistent with <code>==</code>.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>If your comparator is not consistent (e.g., depends on mutable state),
-you may encounter deadlocks or non‑deterministic behaviour.</li>
-</ul>
   
 
 </dd>
@@ -332,7 +306,7 @@ you may encounter deadlocks or non‑deterministic behaviour.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

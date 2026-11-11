@@ -786,10 +786,10 @@ class GridDemandResponseHarness {
   ///
   /// Kept for symmetry and possible future use; `main()` reads
   /// [shedCell] directly.
-  FlowHandle<Pulse<dynamic>>? shedHandle;
+  FlowHandle? shedHandle;
 
   /// The WARN gate handle.
-  FlowHandle<Pulse<dynamic>>? warnHandle;
+  FlowHandle? warnHandle;
 
   /// The SHED gate cell — emits only when [actionOf] returns
   /// [Action.shed] **and** the Distinct latch has not seen `shed` since

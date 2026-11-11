@@ -82,14 +82,6 @@ the rule returns <code>true</code> (disallow), effectively blocking the mutation
 A read‑only deputy remains a "Live" node that reflects the source state
 in real time; it simply lacks "Write‑Back" rights.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is a singleton – all unmodifiable collection deputies share the
-exact same validation logic, reducing memory footprint.</li>
-<li>It only blocks <em>structural</em> mutations. If the collection contains
-mutable cells, those cells can still be mutated directly unless
-<code>unmodifiableElement</code> is used.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final source = TissueList&lt;String&gt;(['A', 'B']);
 final readOnly = source.deputy(testRule: TestTissue.readOnly);
@@ -131,7 +123,7 @@ source.add('C');   // allowed – readOnly reflects the change
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

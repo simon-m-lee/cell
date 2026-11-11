@@ -68,11 +68,6 @@ PII processing, or security policy evolution.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The factory sets <a href="../../cell/Clearance.html">Clearance.administrative</a> and the role to <code>'Sentinel'</code>.
 The deputy operates in a secure enclave with strict isolation.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The deputy is isolated from the main reactive graph.</li>
-<li>It can perform privileged mutations but is limited to the enclave.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final enclave = DeputyContext.shielded(
   baseContext: context,
@@ -133,7 +128,7 @@ The deputy operates in a secure enclave with strict isolation.</p>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

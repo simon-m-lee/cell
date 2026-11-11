@@ -83,7 +83,7 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 E removeAt(int index) {
-  final result = apply(removeAt, positionalArguments: [index]);
+  final result = dispatch(removeAt, positionalArguments: [index]);
   if (result == null) {
     throw UnsupportedError(&#39;Unmodifiable operation&#39;);
   }
@@ -116,7 +116,7 @@ E removeAt(int index) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

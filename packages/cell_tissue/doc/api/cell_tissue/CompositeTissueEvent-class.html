@@ -77,19 +77,6 @@ pre-calculated <code>events</code> list.</li>
 <li>Overrides the <a href="../cell_tissue/CompositeTissueEvent/iterator.html">iterator</a> to yield each discrete <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a> directly from
 the unpacked collection.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Eager Unpacking</strong>: Unlike the base <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a> iterator which computes
-matching flags on demand, <a href="../cell_tissue/CompositeTissueEvent-class.html">CompositeTissueEvent</a> caches the unpacked list
-in <code>events</code> for high-performance iteration during frequent UI redraws.</li>
-<li><strong>Immutable Construction</strong>: The internal event list is immutable and
-guarantees that composite flags remain synchronized with the underlying bitmask.</li>
-</ul>
-<p>See also:</p>
-<ul>
-<li><a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a> – The base vocabulary class for collection mutations.</li>
-<li><a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a> – The signal carrying these composite event classifications.</li>
-</ul>
 </section>
 
 
@@ -136,7 +123,7 @@ guarantees that composite flags remain synchronized with the underlying bitmask.
 </dd>
 
         <dt id="hashCode" class="property inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="name"><a href="../cell_tissue/TissueEvent/hashCode.html">hashCode</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
   
 
@@ -602,14 +589,15 @@ predicate <code>test</code>.
 </dd>
 
         <dt id="operator ==" class="callable inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+  <span class="name"><a href="../cell_tissue/TissueEvent/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  The equality operator.
+  Structural equality: composites compare equal whenever their event
+bitmasks match, so <code>(a + b) == (a + b)</code> holds.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -643,7 +631,7 @@ predicate <code>test</code>.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

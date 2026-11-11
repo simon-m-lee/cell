@@ -85,13 +85,6 @@ final displayPulse = countPulse.map((count) =&gt; 'Current count: $count');
 print(displayPulse.payload); // "Current count: 10"
 print(displayPulse.trace);   // Shows the path from countPulse
 </code></pre>
-<h3 id="nonobvious">Non‑obvious</h3>
-<p><a href="../../cell/Pulse-class.html">Pulse</a> is an <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a>, so <code>pulse.map(...)</code> resolves to <a href="https://api.flutter.dev/flutter/dart-core/Iterable/map.html">Iterable.map</a>.
-Call this as <code>PulseExtension(pulse).map(...)</code> (as <a href="../../cell/PulseIterableExtension/mapEach.html">mapEach</a> does).
-The result is an <a href="../../cell/EvolvedPulse-class.html">EvolvedPulse</a> whose <a href="../../cell/EvolvedPulse/parent.html">EvolvedPulse.parent</a> is <code>this</code>.
-Mixed-type mapping (<code>int</code> → <code>String</code>) cannot walk <a href="../../cell/Pulse/root.html">Pulse.root</a>: <code>root</code>
-casts the ancestor as <code>PulseBase&lt;P&gt;</code> of the child type. Use
-<a href="../../cell/EvolvedPulse/parent.html">EvolvedPulse.parent</a> instead. Same-type mapping keeps <code>root</code>.</p>
 </section>
 
 
@@ -137,7 +130,7 @@ casts the ancestor as <code>PulseBase&lt;P&gt;</code> of the child type. Use
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

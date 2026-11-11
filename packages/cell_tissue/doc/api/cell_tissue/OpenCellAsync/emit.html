@@ -87,12 +87,19 @@ initial propagation are complete.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Future&lt;bool&gt; emit(Pulse pulse) async {
-  bool emit(Pulse pulse) =&gt; _cell._nucleus.receptor.call(pulse) != null;
+  Future&lt;bool&gt; process() async {
+    final result = _cell._nucleus.receptor.call(pulse);
+    &#47;&#47; The receptor may be asynchronous: only report success once the
+    &#47;&#47; eventual transformation result is known (and non-null).
+    final out = result is Future&lt;Pulse?&gt; ? await result : result;
+    return out != null;
+  }
+
   final lock = _cell._nucleus.lock;
   if (lock != null) {
-    return lock.synchronized(() =&gt; emit(pulse)).then((value) =&gt; value);
+    return lock.synchronized(process);
   }
-  return Future&lt;bool&gt;(() =&gt; emit(pulse)).then((value) =&gt; value);
+  return process();
 }</code></pre>
 </section>
 
@@ -121,7 +128,7 @@ initial propagation are complete.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

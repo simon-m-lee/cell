@@ -111,11 +111,6 @@ a new <a href="../../mitosis/CollectivePulse-class.html">CollectivePulse</a> whe
 </tr>
 </tbody>
 </table>
-<h3 id="nonobvious-iteration-and-nesting">Non‑obvious: Iteration and Nesting</h3>
-<p>If you chain this operator (e.g., <code>p1 + p2 + p3</code>), you create a nested
-hierarchy. Iterating over the top-level <code>payload</code> will yield a length
-of 2: the first element being the result of <code>(p1 + p2)</code> and the second
-being <code>p3</code>.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final p1 = Pulse('A');
 final p2 = Pulse('B');
@@ -178,7 +173,7 @@ CollectivePulse operator +(covariant Pulse other) {
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

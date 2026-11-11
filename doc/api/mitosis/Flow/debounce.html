@@ -59,7 +59,7 @@
 <li><span class="parameter" id="debounce-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, </span></li>
 </ol>})
 
-      <div class="features"><span class="feature">override</span></div>
+      
 
     </section>
     
@@ -89,13 +89,6 @@ resets the timer.</p>
 <li>When the timer completes without interruption, the latest value is emitted.</li>
 <li>Only the final value in each burst is emitted.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Silence Window</strong>: The timer resets on every new pulse.</li>
-<li><strong>Pending Value</strong>: Only the most recent value is emitted.</li>
-<li><strong>State Persistence</strong>: The instruction maintains the pending value and timer.</li>
-<li><strong>Order Preservation</strong>: Only the final value in each burst is emitted.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -128,6 +121,28 @@ search.emit('hello');
 <li><a href="../../mitosis/Flow/throttle.html">throttle</a>: For rate limiting.</li>
 <li><a href="../../mitosis/Flow/sample.html">sample</a>: For sampling on notifier.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Flow — time operator. Not a Cell factory, not a Tissue book.
+<strong>When to use:</strong> belt chatter / 15 s snapshots — emit only after a period of silence on a feed, <strong>before</strong> <code>publishTick</code>.
+<strong>When NOT to use:</strong>
+  <strong>DON'T</strong> use a Time operator (<code>Debounce</code>, <code>Throttle</code>, <code>Delay</code>) as the
+policy gate. Time operators shape feeds (belt chatter, search boxes);
+the decision belongs in a <code>FlowInstructionBase</code> subclass.
+See <code>HowTo-Mitose-Flow.md</code> §3.6 "Time".
+<strong>Live signature:</strong> <code>Flow.debounce&lt;S&gt;(Cell source, {required Duration duration})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Flow.throttle</code> (leading/trailing rate limit) and <code>Flow.auditTime</code> (one-shot, does not reset on each pulse).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.6 "Time" (#flow-time)
+<strong>Example:</strong> <code>example/stability_search_demo.dart</code>
+<strong>Cross-layer:</strong> the Cell-layer twin is <code>Cell.debounce</code>; neither is a policy gate.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;String&gt;();
+final h = Flow.debounce&lt;String&gt;(src.cell, duration: const Duration(milliseconds: 50));
+final o = Cell.observe(source: h.cell, effect: (Pulse p) =&gt; print(p.payload));
+src.emit('a');
+src.emit('b');
+await Future&lt;void&gt;.delayed(const Duration(milliseconds: 80));
+o.stop();
+</code></pre>
 </section>
 
 
@@ -167,7 +182,7 @@ search.emit('hello');
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

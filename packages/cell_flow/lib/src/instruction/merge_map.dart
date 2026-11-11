@@ -8,6 +8,8 @@ import 'dart:async';
 
 import 'package:cell_flow/cell_flow.dart';
 
+import 'flow_internal.dart';
+
 // ─────────────────────────────────────────────────────────────
 // Core MergeMap Operators
 // ─────────────────────────────────────────────────────────────
@@ -121,47 +123,6 @@ Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
 /// - [onData]: Called for each value drained.
 /// - [stillLive]: Optional callback to check if the operation is still current.
 ///
-/// ### Non‑obvious
-/// - **Recursive Draining**: The function recurses on `Future` and `Iterable`
-///   values, allowing nested structures to be flattened.
-/// - **Cancellation**: The [stillLive] callback is checked at each step,
-///   allowing cancelled operations to stop early.
-/// - **String Special Case**: Strings are treated as values, not iterables,
-///   to avoid character-by-character iteration.
-/// - **Stream Safety**: Streams are drained fully, respecting the stillLive
-///   check at each event.
-Future<void> _drain(
-  Object? inner,
-  void Function(dynamic value) onData, {
-  bool Function()? stillLive,
-}) async {
-  if (inner == null) return;
-  if (stillLive != null && !stillLive()) return;
-
-  if (inner is Stream) {
-    await for (final event in inner) {
-      if (stillLive != null && !stillLive()) return;
-      await _drain(event, onData, stillLive: stillLive);
-    }
-    return;
-  }
-
-  if (inner is Future) {
-    final value = await Future<dynamic>.value(inner);
-    await _drain(value, onData, stillLive: stillLive);
-    return;
-  }
-
-  if (inner is Iterable && inner is! String) {
-    for (final event in inner) {
-      if (stillLive != null && !stillLive()) return;
-      await _drain(event, onData, stillLive: stillLive);
-    }
-    return;
-  }
-
-  onData(inner);
-}
 
 /// Internal queue and concurrency controller for mergeMap operators.
 ///
@@ -179,6 +140,10 @@ Future<void> _drain(
 ///
 /// ### Type Parameters:
 /// - [S]: The type of items in the queue.
+/// A bounded-concurrency pump for MergeMap. This is deliberately distinct
+/// from the shared [SequentialQueue] in flow_internal.dart: it tracks an
+/// active count against a limit and re-pumps on completion instead of
+/// chaining a single tail.
 class _MergeQueue<S> {
   final List<S> queue = <S>[];
   int active = 0;
@@ -268,23 +233,6 @@ class _MergeQueue<S> {
 /// 7. Unlike [SwitchMap], previous inners are NOT cancelled.
 /// 8. All inners run to completion.
 ///
-/// ### Non‑obvious
-/// - **Unordered Output**: Results are emitted in completion order, not
-///   input order. This is the key difference from [AsyncMapSequential].
-/// - **Concurrency Limit**: Default is unlimited (0). Set to a positive
-///   number to limit concurrent operations.
-/// - **Memory Safety**: Each inner sequence is drained fully. Large
-///   sequences may consume memory.
-/// - **Error Isolation**: Errors in one operation don't affect others.
-/// - **Type Safety**: The instruction is generic over [S] (input type) and
-///   [T] (output type), ensuring compile-time type safety.
-/// - **Provenance Preservation**: Every emitted value preserves the source
-///   cell, type, and priority from the trigger pulse.
-/// - **Drain Recursion**: The `_drain` function handles nested structures
-///   (Future of Stream, Iterable of Future, etc.).
-/// - **Backpressure**: Unlike Rx, there's no backpressure mechanism. Use
-///   [concurrency] to control resource usage.
-///
 /// ### Example: Parallel API Calls
 /// ```dart
 /// final userIds = Cell.ingress<int>();
@@ -355,6 +303,14 @@ class MergeMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: **Error Handler.** Optional callback for handling errors.
   /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
   ///
+  /// ### Backpressure
+  /// `concurrency: 0` means "no limit imposed by this operator" — the pump
+  /// keeps starting inner operations while work is queued (capped at
+  /// 1 &lt;&lt; 20 in flight). A synchronous burst of 10k pulses with a small
+  /// concurrency therefore grows the queue to ~10k before any run completes.
+  /// Supply backpressure upstream (e.g. an ingress you control) instead of
+  /// relying on this operator to throttle.
+  ///
   /// ### Example
   /// ```dart
   /// final mergeMap = MergeMap<int, UserProfile>(
@@ -368,8 +324,8 @@ class MergeMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     int concurrency = 0,
     MergeMapErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _MergeQueue<S>();
             final limit = concurrency < 1 ? 1 << 20 : concurrency;
             return (pulse, {cell, user, future, token}) {
@@ -389,7 +345,7 @@ class MergeMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 run: (value) async {
                   try {
                     final inner = await Future.sync(() => mapper(value));
-                    await _drain(inner, (item) {
+                    await drainInner(inner, (item) {
                       if (item is T) {
                         future!(
                           result: _out<T>(item, cell, pulse, 'MergeMap'),
@@ -404,7 +360,7 @@ class MergeMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               );
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -468,14 +424,6 @@ class MergeMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. Values are emitted as each instance completes.
 /// 5. The [concurrency] parameter controls how many instances run at once.
 ///
-/// ### Non‑obvious
-/// - **Payload Ignored**: The payload is ignored; only the arrival matters.
-/// - **Reusable Factory**: The same [inner] factory is called for every trigger.
-/// - **Overlapping Instances**: Multiple instances run concurrently.
-/// - **Type Safety**: The input type [S] is effectively ignored but kept
-///   for compatibility with the FlowInstruction interface.
-/// - **Unlimited Default**: concurrency defaults to 0 (unlimited).
-///
 /// ### Parameters:
 /// - [inner]: **The Fixed Inner Sequence Factory.** A function that returns
 ///   a `FutureOr<Object?>` that can be drained (Future, Stream, or Iterable).
@@ -519,8 +467,8 @@ class MergeMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     int concurrency = 0,
     MergeMapErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _MergeQueue<int>();
             final limit = concurrency < 1 ? 1 << 20 : concurrency;
             var ticket = 0;
@@ -531,7 +479,7 @@ class MergeMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 run: (_) async {
                   try {
                     final seq = await Future.sync(inner);
-                    await _drain(seq, (item) {
+                    await drainInner(seq, (item) {
                       if (item is T) {
                         future!(
                           result: _out<T>(item, cell, pulse, 'MergeMapTo'),
@@ -546,7 +494,7 @@ class MergeMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               );
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -615,22 +563,6 @@ class MergeMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///    but are still emitted.
 /// 8. The accumulator is shared across all concurrent operations.
 ///
-/// ### Non‑obvious
-/// - **Shared State**: The accumulator is shared across all concurrent inners.
-///   This means the order of updates matters.
-/// - **First Value Wins for Accumulation**: Only the first [A] value from
-///   each inner is used to update the accumulator.
-/// - **Subsequent Values Emitted**: All [A] values from an inner are emitted,
-///   but only the first updates the accumulator.
-/// - **Concurrent Updates**: Accumulator updates happen concurrently.
-///   The final value is the result of all updates in completion order.
-/// - **Type Safety**: The accumulator type [A] is independent of the
-///   input type [S] and output type [A] (same as accumulator).
-/// - **Error Handling**: Errors in one operation don't affect others,
-///   but they do prevent that operation from updating the accumulator.
-/// - **Provenance Preservation**: Every emitted value preserves the source
-///   cell, type, and priority from the trigger pulse.
-///
 /// ### Parameters:
 /// - [seed]: **Initial Accumulator Value.** The starting state before any
 ///   operations complete.
@@ -652,7 +584,7 @@ class MergeMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [Scan]: For synchronous accumulation (not yet implemented).
 /// - [fold]: For reducing a sequence to a single value (not yet implemented).
 class MergeScan<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a stateful concurrent accumulation instruction.
+  /// Creates a stateful **serialized** accumulation instruction. Incoming payloads are queued and each inner sequence drains fully before the next one starts, so every [accumulate] call observes the accumulator produced by the previous sequence (race-free, input-ordered).
   ///
   /// ### Parameters
   /// - [seed]: **Initial Accumulator Value.** The starting state before any
@@ -675,9 +607,11 @@ class MergeScan<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FutureOr<Object?> Function(A acc, S value) accumulate, {
     MergeMapErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             var acc = seed;
+            final queue = <S>[];
+            var busy = false;
             return (pulse, {cell, user, future, token}) {
               final payload = pulse.payload;
               if (payload is! S) {
@@ -689,29 +623,40 @@ class MergeScan<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 );
                 return null;
               }
-              final current = acc;
-              Future<void> run() async {
-                try {
-                  final inner =
-                      await Future.sync(() => accumulate(current, payload));
-                  await _drain(inner, (item) {
-                    if (item is A) {
-                      acc = item;
-                      future!(
-                        result: _out<A>(item, cell, pulse, 'MergeScan'),
-                        token: token,
-                      );
-                    }
-                  });
-                } catch (e, stack) {
-                  onError?.call(e, stack);
+              queue.add(payload);
+              Future<void> pump() async {
+                if (busy) return;
+                busy = true;
+                // Serialized accumulation: each inner sequence drains fully
+                // before the next starts, and every accumulate call sees the
+                // accumulator the previous sequence produced. This removes
+                // the historical lost-update race where concurrent runs
+                // computed from the same stale snapshot.
+                while (queue.isNotEmpty) {
+                  final next = queue.removeAt(0);
+                  try {
+                    final inner =
+                        await Future.sync(() => accumulate(acc, next));
+                    await drainInner(inner, (item) {
+                      if (item is A) {
+                        acc = item;
+                        future!(
+                          result: _out<A>(item, cell, pulse, 'MergeScan'),
+                          token: token,
+                        );
+                      }
+                    });
+                  } catch (e, stack) {
+                    onError?.call(e, stack);
+                  }
                 }
+                busy = false;
               }
 
-              run();
+              pump();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }

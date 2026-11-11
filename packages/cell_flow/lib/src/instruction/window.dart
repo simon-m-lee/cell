@@ -101,12 +101,6 @@ Pulse<List<S>> _window<S>(
 /// 2. Stores the [token] for identifying the continuation.
 /// 3. Stores the [cell] context for pulse creation.
 ///
-/// ### Non‑obvious
-/// - **Async Emission**: Used for operators that emit on a timer or
-///   external trigger.
-/// - **Continuation Token**: The token identifies which instruction
-///   should receive the emitted pulse.
-/// - **Cell Context**: The cell provides provenance information.
 class _EmitState {
   void Function({required Pulse? result, required dynamic token})? future;
   dynamic token;
@@ -165,15 +159,6 @@ class _EmitState {
 /// | `skip == size` | Tumbling (no overlap) | [1,2,3], [4,5,6] |
 /// | `skip < size` | Overlapping | [1,2,3], [2,3,4], [3,4,5] |
 /// | `skip > size` | Gaps (items skipped) | [1,2,3], [5,6,7] (4 skipped) |
-///
-/// ### Non‑obvious
-/// - **Tumbling Default**: [skip] defaults to [size] (no overlap).
-/// - **Overlap**: When [skip] < [size], windows overlap.
-/// - **Gaps**: When [skip] > [size], some items are skipped.
-/// - **Type Safety**: The instruction is generic over [S].
-/// - **Provenance Preservation**: Each window preserves the source
-///   cell, type, and priority from the trigger pulse.
-/// - **List Copy**: The emitted list is a copy of the buffer.
 ///
 /// ### Example: Tumbling Windows
 /// ```dart
@@ -268,8 +253,8 @@ class WindowCount<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     int? skip,
     WindowErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             final step = skip == null || skip == size ? size : skip;
             final buf = <S>[];
             // ignore: unused_local_variable
@@ -289,7 +274,7 @@ class WindowCount<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return _window<S>(window, typed, cell, 'WindowCount');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -369,17 +354,6 @@ class WindowSize<S> extends WindowCount<S> {
 /// 5. If [emitEmpty] is `false`, empty windows are skipped.
 /// 6. The timer continues until the instruction is disposed.
 ///
-/// ### Non‑obvious
-/// - **Lazy Start**: The timer starts on the first pulse, not on
-///   instruction creation.
-/// - **Continuous**: The timer continues indefinitely until disposed.
-/// - **Empty Skip**: [emitEmpty] controls whether empty windows are
-///   emitted.
-/// - **Order Preservation**: Values are emitted in the order they
-///   arrived within each window.
-/// - **Provenance Preservation**: Each window preserves the source
-///   cell, type, and priority from the trigger pulse.
-///
 /// ### Parameters:
 /// - [duration]: **Window Duration.** The time interval for each window.
 /// - [emitEmpty]: **Emit Empty Windows.** If `true`, empty windows are
@@ -417,8 +391,8 @@ class WindowTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool emitEmpty = false,
     WindowErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final buf = <S>[];
             final emit = _EmitState();
             var armed = false;
@@ -445,11 +419,20 @@ class WindowTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               buf.add(typed.payload as S);
               if (!armed) {
                 armed = true;
-                Timer.periodic(duration, (_) => flush());
+                late final Timer ticker;
+                ticker = Timer.periodic(duration, (_) {
+                  // Lifecycle: cancel the periodic timer once the handle is
+                  // dead instead of flushing forever.
+                  if (cell != null && cell.isInvalidated) {
+                    ticker.cancel();
+                    return;
+                  }
+                  flush();
+                });
               }
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -496,14 +479,6 @@ class WindowTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. If [emitEmpty] is `true`, empty buffers are emitted.
 /// 4. The closer can be triggered multiple times.
 ///
-/// ### Non‑obvious
-/// - **Multiple Closes**: The closer can be triggered repeatedly.
-/// - **Continuous Batching**: After a close, batching continues.
-/// - **Empty Control**: [emitEmpty] controls empty window emission.
-/// - **Provenance Preservation**: Each window preserves the source
-///   cell, type, and priority from the trigger pulse.
-/// - **Closer Type**: The closer can be any [Cell] that emits pulses.
-///
 /// ### Parameters:
 /// - [closer]: **Closer Cell.** The cell that triggers window emission
 ///   when it pulses.
@@ -541,8 +516,8 @@ class WindowWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool emitEmpty = false,
     WindowErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final buf = <S>[];
             final emit = _EmitState();
             var armed = false;
@@ -568,9 +543,18 @@ class WindowWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               emit.cell = cell;
               if (!armed) {
                 armed = true;
-                Cell.observe(
+                late final dynamic obs;
+                obs = Cell.observe(
                   source: closer,
-                  effect: (Pulse boundary) => flush(boundary),
+                  effect: (Pulse boundary) {
+                    // Lifecycle: stop the observer once the handle is dead.
+                    if ((cell != null && cell.isInvalidated) ||
+                        closer.isInvalidated) {
+                      obs.stop();
+                      return;
+                    }
+                    flush(boundary);
+                  },
                 );
               }
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -579,7 +563,7 @@ class WindowWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               buf.add(typed.payload as S);
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }

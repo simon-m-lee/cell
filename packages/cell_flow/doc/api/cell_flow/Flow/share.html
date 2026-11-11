@@ -82,14 +82,6 @@ observers.</p>
 <li>The <code>seen</code> counter is incremented.</li>
 <li>The pulse gets the step <code>'Share'</code> for provenance.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Pass-through</strong>: Values are not modified or buffered.</li>
-<li><strong>Counting</strong>: The <code>seen</code> counter tracks typed pulses only.</li>
-<li><strong>Type Safety</strong>: Only payloads matching type <code>S</code> are counted.</li>
-<li><strong>Multiple Observers</strong>: Multiple observers share one subscription.</li>
-<li><strong>No Replay</strong>: Late subscribers do not receive past values.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -150,7 +142,7 @@ final obs2 = Cell.observe(source: handle.cell, effect: (p) =&gt; {});
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

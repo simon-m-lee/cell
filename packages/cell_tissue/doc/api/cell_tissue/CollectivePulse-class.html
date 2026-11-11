@@ -83,22 +83,6 @@ each member retains its own identity, trace, and lifecycle.</p>
 <li>Each sub‑pulse retains its independent identity and causal trace.</li>
 <li>The collective's <a href="../cell_tissue/Pulse/isComposite.html">isComposite</a> returns <code>true</code>.</li>
 </ul>
-<h3 id="nonobvious-flat-not-chained">Non‑obvious: flat, not chained</h3>
-<p>A <a href="../cell_tissue/CollectivePulse-class.html">CollectivePulse</a> does <strong>not</strong> create parent‑child relationships between
-its members. Each pulse's <code>parent</code> remains unchanged. The collective's
-<code>root</code> is itself, but each sub‑pulse's <code>root</code> remains its own root.</p>
-<h3 id="nonobvious-callbacks-are-percollective-not-perpulse">Non‑obvious: callbacks are per‑collective, not per‑pulse</h3>
-<p>The <code>onComplete</code>, <code>onError</code>, and <code>onProgress</code> callbacks are taken from the
-itself as a <code>root</code> pulse. They are <strong>not</strong> applied to each individual
-pulse — they fire once for the collective as a whole.</p>
-<h3 id="nonobvious-iterating-over-a-collective">Non‑obvious: iterating over a collective</h3>
-<p>The collective itself is iterable — iterating over it yields the collective
-as a single item, not its constituent pulses. To access individual pulses,
-use the <a href="../cell_tissue/CollectivePulse/payload.html">payload</a> getter:</p>
-<pre class="language-dart"><code class="language-dart">for (final p in collective.payload) {
-  print(p.payload);
-}
-</code></pre>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final p1 = Pulse&lt;int&gt;(1);
 final p2 = Pulse&lt;String&gt;('hello');
@@ -922,8 +906,8 @@ predicate <code>test</code>.
 
 </dt>
 <dd class="inherited">
-  Appends a diagnostic stage to the pulse's causal trace without branching
-the causal chain.
+  Appends <code>step</code> to the pulse's causal trace without branching the
+causal chain.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -1009,7 +993,7 @@ collection.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

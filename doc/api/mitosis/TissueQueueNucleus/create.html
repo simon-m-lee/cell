@@ -94,13 +94,6 @@ inherits from that principal.</li>
 <li>The <code>capacity</code> parameter establishes the resource boundary.</li>
 <li>The <code>container</code> parameter defaults to <a href="../../mitosis/Container/queue-constant.html">Container.queue</a>.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>forceLock</code> flag, when <code>true</code>, allows sharing the principal's lock.
-This is typically used for deputies to maintain a single atomic boundary.</li>
-<li>The <code>capacity</code> is stored in the <code>others</code> segment of the record, keeping
-the core nucleus compact.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>capacity</code>: The maximum element threshold (use -1 for unbounded).</li>
@@ -189,7 +182,7 @@ tissue types.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

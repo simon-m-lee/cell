@@ -52,8 +52,8 @@
     <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
     <a href="https://dart.dev/language/class-modifiers#interface" class="feature feature-interface" title="This class can only be implemented (not extended or mixed in).">interface</a>
  
-    <span class="category advanced cp-10 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
-    <span class="category advanced-·-context cp-13 linked" title="This is part of the Advanced · Context topic."><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></span>
+    <span class="category advanced cp-11 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-context cp-14 linked" title="This is part of the Advanced · Context topic."><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></span>
 </h1></div>
 
     
@@ -77,14 +77,6 @@ context, if none of the named factories fit.</li>
 <p><a href="../cell/Context-class.html">Context</a> organizes metadata into distinct, type-safe <a href="../cell/Mandate.html">Mandate</a> dimensions.
 It uses a <strong>Prototype-based Inheritance</strong> model where dimensions are
 either <strong>Static Pillars</strong> (invariant) or <strong>Fluid Boundaries</strong> (evolvable).</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<p><strong>Not every field can be changed later.</strong> Fields like <a href="../cell/Context/taxonomy.html">taxonomy</a> and <a href="../cell/Context/topology.html">topology</a>
-are fixed at creation — calling <a href="../cell/Context/evolve.html">evolve</a> can't change them, only fields
-marked evolvable (like <a href="../cell/Context/constraints.html">constraints</a>, <a href="../cell/Context/stakeholders.html">stakeholders</a>, <a href="../cell/Context/compliance.html">compliance</a>) can be
-refined. This is intentional: it stops a cell's fundamental identity from
-silently drifting as it gets passed through <a href="../cell/Context/Context.deputy.html">deputy</a> layers. If <a href="../cell/Context/evolve.html">evolve</a>
-seems to be ignoring a field you passed, check whether that field is
-evolvable at all.</p>
 <h3 id="see-also">See Also</h3>
 <ul>
 <li><a href="../cell/Context/Context.deputy.html">Context.deputy</a>: Returns a <a href="../cell/DeputyContext-class.html">DeputyContext</a> for per‑proxy authority.</li>
@@ -591,7 +583,7 @@ governance model.
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

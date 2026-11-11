@@ -53,6 +53,11 @@
 </h1></div>
 
     
+<section class="desc markdown">
+  <p>Emitted once per successful <a href="../cell_tissue/ApplyTransactionScope/enqueueCommand.html">ApplyTransactionScope.enqueueCommand</a>.</p>
+<p>This fires at <strong>staging time</strong>, not at commit time. It signals that the
+command was accepted into the queue — not that it has been executed.</p>
+</section>
 
 
     <section>
@@ -104,7 +109,7 @@
 
 </dt>
 <dd>
-  
+  The cell that will receive the staged command.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -116,7 +121,7 @@
 
 </dt>
 <dd>
-  
+  The function the staged command will invoke.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -230,7 +235,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

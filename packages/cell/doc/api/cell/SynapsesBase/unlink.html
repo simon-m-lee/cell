@@ -103,6 +103,11 @@ by security rules or disabled synapses.</li>
 bool unlink(Cell cell, {required Cell downstreamCell}) {
   final synapses = cell._nucleus.synapses;
   if (identical(synapses, this)) {
+    if (_broadcastDepth &gt; 0) {
+      if (downstreamCell is! C) return false;
+      (_deferredRemoves ??= &lt;C&gt;[]).add(downstreamCell);
+      return true;
+    }
     return _downstreams.remove(downstreamCell);
   }
   return false;
@@ -134,7 +139,7 @@ bool unlink(Cell cell, {required Cell downstreamCell}) {
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

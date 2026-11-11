@@ -97,18 +97,6 @@ consistency.</li>
 <li><strong>Future Propagation</strong>: The <code>future</code> callback is passed through
 to enable asynchronous continuation.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Terminal Failures</strong>: If an error occurs during orchestration itself,
-this implementation returns <code>null</code> to ensure that corrupted logic
-does not propagate invalid states.</li>
-<li><strong>Monitoring</strong>: It supports optional callbacks for external
-monitoring of the chain's final output.</li>
-<li><strong>Dynamic Resolution</strong>: It retrieves execution logic dynamically,
-maintaining high memory efficiency even for complex graphs.</li>
-<li><strong>Synchronous Execution</strong>: The chain executes synchronously and
-returns the result immediately.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>pulse</code>: The incoming pulse to transform.</li>
@@ -138,15 +126,17 @@ O? call(
 
   try {
     Pulse? result;
-    final strategy = _instruction;
-    if (strategy != null) {
-      try {
-        result = strategy(pulse, cell: cell, user: _user, future: future_);
-      } catch (_) {
-        result = strategy(pulse, cell: cell, user: _user);
-      }
+    final custom =
+        get&lt;Function?&gt;(() =&gt; _record.instruction, orElse: null);
+    if (custom != null) {
+      &#47;&#47; User-provided strategy: its documented type is
+      &#47;&#47; `O? Function(I, {cell, user})` — it has no `future` parameter.
+      &#47;&#47; Invoke it exactly once; a throwing strategy is contained below,
+      &#47;&#47; never re-run (re-running would execute side effects twice).
+      result = custom(pulse, cell: cell, user: _user);
     } else {
-      result = _chainRule(pulse, cell: cell, user: _user);
+      &#47;&#47; Default sequential rule: it accepts the `future` continuation.
+      result = _chainRule(pulse, cell: cell, user: _user, future: future_);
     }
 
     if (result == null) return null;
@@ -183,7 +173,7 @@ O? call(
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -1,7 +1,7 @@
 # cell_tissue — Feature Catalog
 
 **Package:** `cell_tissue`  
-**Version:** 1.0.0-rc.7  
+**Version:** 1.0.0 (Stable)  
 **SDK:** Dart `>=3.5.0 <4.0.0`  
 **License:** MIT or Apache-2.0  
 **Author:** Lee Man Hoi Simon (see [`AUTHORS`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/AUTHORS))  
@@ -63,16 +63,19 @@ The library re-exports `package:cell/cell.dart`.
 
 ## 2. Status and Boundaries
 
-**Alpha.** `publish_to: none`. No independent audit. The `example/`
-tree now ships with four end-to-end demos (see §17) plus companion
-docs per demo; the `test/` directory remains minimal.
+**Stable (package version `1.0.0`).** The published pub.dev package is
+still `1.0.0-rc.9` until the stable release is published; no independent
+security or correctness audit has been performed. The full test suite
+passes (**362 tests**), `dart doc .` exits with 0 warnings and 0 errors,
+and `dart analyze lib` reports two pre-existing info-level style lints
+(`curly_braces_in_flow_control_structures` in `lib/src/tissue_pulse.dart`).
 
 | Claim | Reality |
 |-------|---------|
 | Drop-in `List` / `Set` | Implements the interfaces; mutations are gated and may skip invalid items. |
-| Snapshot unmodifiable | `.unmodifiable` is a **live** deputy in the general case (some builds may snapshot; see the demo header). |
+| Snapshot unmodifiable | `.unmodifiable` is a **live** deputy — proven by the `unmodifiable_is_live_test.dart` fitness test. |
 | Thread-safe / multi-isolate | Per-tissue `Lock` on one isolate. Not shared-memory across isolates. |
-| `listen` on the tissue | Dartdoc examples; observe with `Cell.observe(source: tissue, …)`. In some builds, `Cell.observe` on a **Tissue** cell does not fire effect callbacks; trace prints come from the writers. |
+| `listen` on the tissue | Dartdoc examples; observe with `Cell.observe(source: tissue, …)` — tissue broadcasts are regular pulses and observer wiring is suite-covered. |
 | `TissueList([1, 2, 3])` | Not the primary factory. Use `TissueList.of([1, 2, 3])`. |
 | `TissueMap(testRule: …)` | Not the primary factory. Pass a `TissueMapNucleus` via `properties:`. |
 | `TissueQueue.removeFirst` drains | Not guaranteed in this build; demos use an audit-side enqueue + a plain Dart working list for the pump. |
@@ -125,8 +128,8 @@ Defaults: `TestTissue.allowAll`, `TissueReceptor.passThrough`,
 | `validate` | Composed `TestTissue` |
 | `context` | Operational `Context` |
 | `isTerminal` / `isInvalidated` / `isGoverned` | Cell flags |
-| `apply` / `modifiable` | Command whitelist (used by `add` etc.) |
-| `async` | `TissueModifiableAsync` — Future-based mutations |
+| `apply` / `modifiable` | Integrity-gated `apply`; `modifiable` is a capability manifest |
+| `async` | `ModifiableAsync` (from cell) — Future-based mutations |
 
 **Non-obvious**
 
@@ -134,8 +137,10 @@ Defaults: `TestTissue.allowAll`, `TissueReceptor.passThrough`,
 - Deputies share storage; `deputy == principal`.
 - Deputy rules only **narrow**.
 - `addAll`: invalid elements skipped individually.
-- `modifiable` is the collection's public whitelist — the dispatcher
-  or any external agent must consult it before invoking a tear-off.
+- `modifiable` is the collection's public capability manifest — a
+  dispatcher may consult it before invoking a tear-off (the
+  NL-instruction demo does); authorization itself comes from the
+  integrity gate.
 
 ---
 
@@ -151,7 +156,7 @@ Ordered, indexable. Implements `List<E>`.
 | `TissueList.unmodifiable(bind, {context, unmodifiableElement})` | Live view |
 
 `growable: false` uses `Container.growableFalse`. Nucleus:
-`TissueListNucleus` / `.evolve`. Async wrapper: `ModifiableListAsync`.
+`TissueListNucleus` / `.evolve`.
 
 **Append-only enforcement pattern** (used in the sibling demos):
 
@@ -273,8 +278,7 @@ Single scalar that is both `Tissue<V>` and `ValueCell<V>`.
 `ElementUpdated` on assignment.
 
 Prefer `Cell.state` / `ValueCell` unless you need tissue validation,
-deep unmodifiable, or nested-cell linking. See
-`docs/InDepth-CollectiveValue-vs-ValueCell.md`.
+deep unmodifiable, or nested-cell linking.
 
 **Non-negative guard pattern** (used in the sibling demos):
 
@@ -336,7 +340,7 @@ Removed-event payload does **not** include list index.
 | Built-in | Role |
 |----------|------|
 | `TestTissue.allowAll` | Default singleton |
-| `TestTissue.readOnly` | Blocks `modifiable` actions; used by unmodifiable views |
+| `TestTissue.readOnly` | Blocks every mutation action; used by unmodifiable views |
 | `TestTissue.unlimitedLength` | `-1` sentinel for unbounded size |
 
 Custom: `TestTissue((element, {host, action, user}) => …)` and `+` /
@@ -411,17 +415,12 @@ if (!host.modifiable.contains(tearOff)) {
 ## 14. Observation and Async
 
 Tissues are cells: `Cell.observe(source: tissue, effect: …)` or
-`Flow.observe(bind: tissue, …)` if cell_flow is in use.
+`Flow.observe(bind: tissue, …)` if cell_flow is in use. Tissue
+broadcasts are regular pulses — observer wiring is suite-covered
+(`tissue_map_test.dart`, AI-guide examples).
 
-**Tissue-cell observer caveat.** In this build, `Cell.observe` on a
-Tissue cell does **not** deliver pulses to observer effects. The
-sibling demos emit trace prints from the writers themselves (the
-observers, `_drivePush` / `_driveRtu` / `_driveIssuer`, `placeHold`,
-`applyShed`, `accept`, etc.).
-
-`tissue.async` returns a typed async wrapper (`ModifiableListAsync`,
-`ModifiableSetAsync`, `ModifiableMapAsync`, `ModifiableQueueAsync`,
-`ModifiableValueAsync`) so mutations can be awaited through the lock.
+`tissue.async` returns the cell-layer async wrapper (`ModifiableAsync`)
+so mutations can be awaited through the lock.
 
 Propagation timing (`debounce` / `throttle` / `batch`) is still
 `Synapses` + `PropagationPolicy` from **cell**, attached at construction.
@@ -498,7 +497,7 @@ same seam with a different domain:
 4. **Distinct-before-Filter** — latch records every decision.
 5. **ACK resets** — no graph rebuild.
 6. **Observer writes Tissue** — the only glue.
-7. **`modifiable` gate** — the collection's public contract.
+7. **`modifiable` dispatch gate** — the manifest is consulted before the tear-off.
 8. **Read-only deputy** — the compliance / council / auditor view.
 9. **Append-only log** — the audit trail is never deletable.
 10. **Bounded outbound queue** — capacity limits backpressure.
@@ -515,8 +514,8 @@ same seam with a different domain:
 - Each `TestCell` unwraps `Pulse.payload` before the shape check.
 - Outbound pump: `addLast` is the audit enqueue; a plain Dart working
   list drives the retry.
-- Trace prints come from the writers themselves, because
-  `Cell.observe` on a Tissue cell is silent in this build.
+- Trace prints come from the writers themselves — a deliberate demo
+  style for scenario replay, not a limitation of tissue observers.
 
 ---
 
@@ -541,30 +540,25 @@ same seam with a different domain:
 | Read-only projection for a regulator | `.unmodifiable` / `.deputy(TestTissue.readOnly)` |
 | Money invariant across two cells | `TissueValue` + `TissueMap` + v1 compensation ladder |
 | Pure decision + governed book | Flow gate + `Cell.observe` + Tissue write |
-| LLM verb whitelist enforcement | `host.modifiable.contains(tearOff)` before the tear-off |
+| LLM verb dispatch gate | `host.modifiable.contains(tearOff)` before the tear-off |
 
 ---
 
 ## 19. Known Gaps
 
-1. Alpha; not published; `test/` remains minimal.
+1. Published package on pub.dev is still `1.0.0-rc.9`; no independent
+   security or correctness audit.
 2. Dartdoc `listen` / `TissueList([...])` snippets vs actual API.
 3. `addAll` silent skip of invalid elements.
 4. Queue overflow drops oldest with no dedicated event documented as
    distinct from a normal remove.
-5. `tissue_callable.dart` is not exported from `tissue.dart`.
-6. `TissueQueue.removeFirst` / `remove` do not drain the container in
+5. `TissueQueue.removeFirst` / `remove` do not drain the container in
    this build. The sibling demos use an audit-side enqueue + a plain
    Dart working list.
-7. `Cell.observe` on a Tissue cell is silent in this build. Trace
-   prints come from the writers.
-8. `.unmodifiable` is a **snapshot** in some builds (see the NL
-   instruction demo trailer: `auditorLength=0`). Verify the header of
-   the demo before asserting liveliness.
-9. Joint commit across multiple Tissues is not exposed in this build.
+6. Joint commit across multiple Tissues is not exposed in this build.
    The sibling demos use a v1 compensation ladder; `Cell.transaction`
    is the migration target.
-10. Marketing claims in the previous README are not measurements.
+7. Marketing claims in the previous README are not measurements.
 
 ---
 

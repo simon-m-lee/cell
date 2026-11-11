@@ -70,8 +70,9 @@
 /// [Cell.transaction] buffers `update`/`read` and applies them together.
 /// Locks are taken at **commit**, not for the whole `begin`…`commit` window.
 ///
-/// [Cell.txApply] stages `cell.apply(fn, tx: tx, compensate: undo)`. It is not
-/// a second syntax for assigning `value`.
+/// [Cell.txApply] stages commands — `cell.apply(command, tx: tx)` with the
+/// forensic [ApplyCommand] model. It is not a second syntax
+/// for assigning `value`.
 ///
 /// ## Governance (opt-in)
 ///
@@ -83,6 +84,28 @@
 /// retention schedule, or an audit log.
 ///
 /// Guides live in `guide/` (`HowTo-Start.md`, `HowTo-Transaction.md`, …).
+///
+/// ## `cell` — the Cell layer
+///
+/// **Layer contract** (the seam sentence): the instruction decides, the chain
+/// assembles, the observer glues.
+///
+/// **Public surface (top entry points)** — the full catalog is in
+/// `HowTo-Mitose-Cell.md` §2–§3 and `lib/doc/api_chooser.dart`.
+///
+/// | Group | Entry point | When to use |
+/// |---|---|---|
+/// | Entry | `Cell.ingress` | Every external fact the BRD names (identity, class, quantity, tick, ACK) |
+/// | State | `Cell.state` | Retained setting read at any time; no Tissue book named |
+/// | Egress | `Cell.observe` | The **only** Flow → Tissue glue; books and side effects move here |
+/// | Projection | `Cell.derive` / `Cell.synthesis` | "show X derived from Y" / one screen from many feeds |
+/// | Governance | `Cell.sanitized`, `Cell.deputy`, `Cell.unmodifiable` | PII redaction and least-privilege views |
+/// | Commit | `Cell.txApply` | Two retained facts or a command and its undo commit together, **on Tissue books** |
+/// | Deferred | `Cell.transaction` | Coordinates `ValueCell`; **not** the Mitose commit — defer it in a Demo |
+///
+/// **Do NOT** use this package for: the decision (that is `cell_flow`), the
+/// books (that is `cell_tissue`), or invented factories (`Cell.gate`,
+/// `Cell.book`, `Cell.policy` do not exist). See `HowTo-Mitose-Cell.md` §1.
 ///
 /// {@category Features}
 // ignore: unnecessary_library_name
@@ -128,6 +151,7 @@ part 'src/synapses.dart';
 part 'src/nucleus.dart';
 part 'src/test_cell.dart';
 part 'src/value.dart';
+part 'src/apply.dart';
 part 'src/context.dart';
 
 /// Private implementations and internal management logic.

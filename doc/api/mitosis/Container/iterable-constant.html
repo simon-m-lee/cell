@@ -72,12 +72,6 @@ modified. It's used for static projections or external data sources.</p>
 <li>The <code>add</code> and <code>remove</code> functions always return <code>false</code>.</li>
 <li>No reactive linking is performed.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The underlying iterable is not copied – the container holds a reference
-to the original. If the original is mutable, changes will be visible.</li>
-<li>This strategy is often used for <code>Tissue.unmodifiable</code> views.</li>
-</ul>
 </section>
 
       
@@ -113,7 +107,7 @@ to the original. If the original is mutable, changes will be visible.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

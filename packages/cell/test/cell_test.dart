@@ -10,6 +10,24 @@ import 'package:cell/cell.dart';
 
 // ─────────────────────────────────────────────────────────────────────────
 // Test Fixtures
+
+// Local builders for the forensic command model.
+ApplyCommand cmd(Function function, [List<Object?>? positionalArguments]) => (
+      function: function,
+      arguments: (
+        positionalArguments: positionalArguments,
+        namedArguments: null
+      ),
+      compensation: null,
+    );
+
+ApplyCommand cmdNamed(Function function, Map<Symbol, Object?> namedArguments) =>
+    (
+      function: function,
+      arguments: (positionalArguments: null, namedArguments: namedArguments),
+      compensation: null,
+    );
+
 // ─────────────────────────────────────────────────────────────────────────
 
 /// A simple custom cell that extends CellBase for testing purposes.
@@ -131,7 +149,7 @@ void main() {
         expect(cell.isInvalidated, false);
         expect(cell.context, Context.system);
         expect(cell.validate, TestCell.allowAll);
-        expect(cell.modifiable, contains(cell.apply));
+        expect(cell.modifiable, contains(cell.apply<dynamic>));
       });
 
       test('Cell() with custom receptor', () {
@@ -243,7 +261,7 @@ void main() {
           executed = true;
         }
 
-        cell.apply(testFunction);
+        cell.apply<void>(cmd(testFunction));
         expect(executed, true);
       });
 
@@ -255,7 +273,7 @@ void main() {
           result = a + b;
         }
 
-        cell.apply(add, positionalArguments: [3, 5]);
+        cell.apply<void>(cmd(add, [3, 5]));
         expect(result, 8);
       });
 
@@ -271,9 +289,11 @@ void main() {
           ran = true;
         }
 
-        final result = cell.apply(cell.apply, positionalArguments: [ping]);
-        expect(result, isA<Future>());
-        await result;
+        final outcome = cell.apply<Object?>(
+          cmd(cell.apply<dynamic>, [cmd(ping)]),
+        );
+        expect(outcome, isA<Future<ApplyOutcome<Object?>>>());
+        await outcome;
         expect(ran, isTrue);
       });
 
@@ -290,11 +310,10 @@ void main() {
           ran = true;
         }
 
-        final result = await cell.apply(
-          cell.apply,
-          positionalArguments: [ping],
+        final outcome = await cell.apply<Object?>(
+          cmd(cell.apply<dynamic>, [cmd(ping)]),
         );
-        expect(result, isNull);
+        expect(outcome, isA<ApplyRejected<Object?>>());
         expect(ran, isFalse);
       });
 
@@ -306,10 +325,7 @@ void main() {
           result = a * b;
         }
 
-        cell.apply(
-          multiply,
-          namedArguments: {#a: 4, #b: 5},
-        );
+        cell.apply<void>(cmdNamed(multiply, {#a: 4, #b: 5}));
         expect(result, 20);
       });
 
@@ -318,8 +334,9 @@ void main() {
 
         int add(int a, int b) => a + b;
 
-        final result = cell.apply(add, positionalArguments: [10, 20]);
-        expect(result, 30);
+        final outcome =
+            cell.apply<int>(cmd(add, [10, 20])) as ApplyAccepted<int>;
+        expect(outcome.result, 30);
       });
 
       test('apply with testRule blocks unauthorized actions', () {
@@ -331,7 +348,7 @@ void main() {
           executed = true;
         }
 
-        cell.apply(allowedFunction);
+        cell.apply<void>(cmd(allowedFunction));
         expect(executed, true);
       });
     });
@@ -345,7 +362,7 @@ void main() {
         final cell = CustomCell();
         final modifiable = cell.modifiable.toList();
         expect(modifiable, isNotEmpty);
-        expect(modifiable.any((f) => f == cell.apply), true);
+        expect(modifiable.any((f) => f == cell.apply<dynamic>), true);
       });
 
       test('read-only cell has modifiable list', () {
@@ -479,7 +496,7 @@ void main() {
           executed = true;
         }
 
-        await cell.async.apply(testFunction);
+        await cell.async.apply<void>(cmd(testFunction));
         expect(executed, true);
       });
 
@@ -491,7 +508,7 @@ void main() {
           result = a + b;
         }
 
-        await cell.async.apply(add, positionalArguments: [3, 5]);
+        await cell.async.apply<void>(cmd(add, [3, 5]));
         expect(result, 8);
       });
 
@@ -503,10 +520,7 @@ void main() {
           result = a * b;
         }
 
-        await cell.async.apply(
-          multiply,
-          namedArguments: {#a: 4, #b: 5},
-        );
+        await cell.async.apply<void>(cmdNamed(multiply, {#a: 4, #b: 5}));
         expect(result, 20);
       });
 
@@ -515,9 +529,8 @@ void main() {
 
         int add(int a, int b) => a + b;
 
-        final result =
-            await cell.async.apply(add, positionalArguments: [10, 20]);
-        expect(result, 30);
+        final outcome = await cell.async.apply<int>(cmd(add, [10, 20]));
+        expect((outcome as ApplyAccepted<int>).result, 30);
       });
 
       test('async.apply without a lock still completes', () async {
@@ -527,7 +540,7 @@ void main() {
           ran = true;
         }
 
-        await cell.async.apply(ping);
+        await cell.async.apply<void>(cmd(ping));
         expect(ran, isTrue);
       });
 
@@ -540,9 +553,9 @@ void main() {
         }
 
         final futures = [
-          cell.async.apply(increment),
-          cell.async.apply(increment),
-          cell.async.apply(increment),
+          cell.async.apply<void>(cmd(increment)),
+          cell.async.apply<void>(cmd(increment)),
+          cell.async.apply<void>(cmd(increment)),
         ];
 
         await Future.wait(futures);
@@ -559,10 +572,26 @@ void main() {
         expect(const Modifiable(), isA<Modifiable>());
       });
 
-      test('unmodifiable returns the same cell instance for CustomCell', () {
+      test('unmodifiable returns a read-only deputy for CustomCell', () async {
         final cell = CustomCell();
         final unmodifiable = cell.unmodifiable;
-        expect(unmodifiable, same(cell));
+        expect(unmodifiable, isNot(same(cell)));
+        expect(unmodifiable, equals(cell));
+
+        // The read-only view must reject whitelisted actions.
+        final outcome = await unmodifiable.apply<Object?>(
+          (
+            function: cell.apply<dynamic>,
+            arguments: (
+              positionalArguments: [
+                cmd((Object? x) => x),
+              ],
+              namedArguments: null,
+            ),
+            compensation: null,
+          ),
+        );
+        expect(outcome, isA<ApplyRejected<Object?>>());
       });
 
       test('unmodifiable for value cell is read-only', () {
@@ -576,6 +605,139 @@ void main() {
         final deputy = await cell.deputy(testRule: TestCell.readOnly);
         final unmodifiable = deputy.unmodifiable;
         expect(unmodifiable, isA<Cell>());
+      });
+    });
+
+    // ─────────────────────────────────────────────────────────────
+    // §3 read-only enforcement via the `validate` seam
+    //
+    // Note on the command functions used below: `apply<dynamic>` is the
+    // function whitelisted in `modifiable` (the explicit instantiation
+    // matters — a bare `u.apply` tear-off is not `==` to the whitelist
+    // entry). Submitting it as the command function exercises
+    // `CellBase.apply`'s vetted path and, through it,
+    // `validate.action(...)`. A non-manifest function would be treated as a
+    // trusted internal call and bypass the gate by contract
+    // (see apply_command_test.dart: 'unvetted functions execute...').
+    // ─────────────────────────────────────────────────────────────
+
+    group('§3 unmodifiable', () {
+      test('value setter throws; principal unchanged', () {
+        final h = Cell.state<int>(initial: 0);
+        final u = h.cell.unmodifiable;
+
+        expect(() => u.value = 5, throwsUnsupportedError);
+        expect(h.cell.value, 0);
+      });
+
+      test('apply() on unmodifiable is rejected', () async {
+        final h = Cell.state<int>(initial: 0);
+        final u = h.cell.unmodifiable;
+
+        final outcome = await u.apply<Object?>(
+          (
+            function: u.apply<dynamic>,
+            arguments: (
+              positionalArguments: [cmd((int x) => x)],
+              namedArguments: null,
+            ),
+            compensation: null,
+          ),
+        );
+
+        expect(outcome, isA<ApplyRejected<Object?>>());
+        expect(h.cell.value, 0, reason: 'principal state not mutated');
+      });
+
+      test(
+          'read-only deputy still accepts observations and produces '
+          'ApplyRejected', () async {
+        final h = Cell.state<int>(initial: 0);
+        final deputy = await h.cell.deputy(testRule: TestCell.readOnly);
+
+        var observed = 0;
+        Cell.observe(source: deputy, effect: (_) => observed++);
+
+        h.update(42); // principal mutation still propagates
+        expect(observed, 1);
+
+        final outcome = await deputy.apply<Object?>(
+          (
+            function: deputy.apply<dynamic>,
+            arguments: (
+              positionalArguments: [cmd((int x) => x)],
+              namedArguments: null,
+            ),
+            compensation: null,
+          ),
+        );
+        expect(outcome, isA<ApplyRejected<Object?>>());
+      });
+
+      test('_CellDeputy no longer bypasses chained testRule', () async {
+        // A deputy with a strict action rule must enforce it — previously
+        // `_CellDeputy.apply` forwarded to the principal and never consulted
+        // the deputy's own rule.
+        final strict = TestCell<Cell>.chain([
+          TestActionRule<Cell>(
+            (action, {required host, arguments, user}) => false,
+          ),
+        ]);
+        final h = Cell.state<int>(initial: 0);
+        final deputy = await h.cell.deputy(testRule: strict);
+
+        final outcome = await deputy.apply<Object?>(
+          (
+            function: deputy.apply<dynamic>,
+            arguments: (
+              positionalArguments: [cmd((int x) => x)],
+              namedArguments: null,
+            ),
+            compensation: null,
+          ),
+        );
+        expect(outcome, isA<ApplyRejected<Object?>>());
+      });
+
+      test(
+          'read-only deputy gates apply and seals direct value writes; '
+          'unmodifiable seals them too', () async {
+        final h = Cell.state<int>(initial: 0);
+        final deputy = await h.cell.deputy(testRule: TestCell.readOnly);
+
+        // TestCell.readOnly blocks whitelisted apply actions...
+        final outcome = await deputy.apply<Object?>(
+          (
+            function: deputy.apply<dynamic>,
+            arguments: (
+              positionalArguments: [cmd((int x) => x)],
+              namedArguments: null,
+            ),
+            compensation: null,
+          ),
+        );
+        expect(outcome, isA<ApplyRejected<Object?>>());
+
+        // ...and the direct value setter is sealed on a read-only deputy:
+        // the shared-receptor write path would otherwise bypass the
+        // additive gate entirely.
+        expect(() => deputy.value = 42, throwsUnsupportedError);
+        expect(h.cell.value, 0);
+
+        expect(() => h.cell.unmodifiable.value = 7, throwsUnsupportedError);
+        expect(h.cell.value, 0);
+      });
+
+      test('unmodifiable projection is wired into the graph', () async {
+        final h = Cell.state<int>(initial: 0);
+        var seen = 0;
+        Cell.observe(
+            source: h.cell.unmodifiable, effect: (Pulse p) => seen++);
+        h.update(1);
+        h.update(2);
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        expect(seen, 2);
+        expect(h.cell.unmodifiable.value, 2);
       });
     });
 

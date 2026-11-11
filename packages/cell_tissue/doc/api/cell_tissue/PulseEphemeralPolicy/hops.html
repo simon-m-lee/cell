@@ -73,19 +73,13 @@
 <h3 id="how-it-works">How it works</h3>
 <p>This value is updated by <code>onEvent</code> and stored in the policy record.
 It starts at 0 and is only meaningful if you increment it in <code>onEvent</code>.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The value is not automatically incremented; you must explicitly return
-a new count in <code>onEvent</code>.</li>
-<li>If you never increment it, it remains 0, and hopLimit is never reached.</li>
-</ul>
 </section>
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">int get hops {
-  return get&lt;int&gt;(() =&gt; _record.hops.value, orElse: 0);
+  return _record.hops.value ?? 0;
 }</code></pre>
 </section>
 
@@ -116,7 +110,7 @@ a new count in <code>onEvent</code>.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

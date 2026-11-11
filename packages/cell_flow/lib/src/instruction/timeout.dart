@@ -112,12 +112,6 @@ Pulse<T> _ok<T>(T value, Pulse trigger, Cell? cell, String step) {
 ///    emitting the timeout pulse.
 /// 4. [cancel] cancels the active timer.
 ///
-/// ### Non‑obvious
-/// - **Single Timer**: Only one timer is active at a time.
-/// - **Closed State**: When closed, the clock no longer fires.
-/// - **Last Pulse**: The last pulse is stored for provenance.
-/// - **Continuation Context**: Stores the callback and token for
-///    asynchronous emission.
 class _Clock {
   Timer? timer;
   bool closed = false;
@@ -155,11 +149,6 @@ class _Clock {
 ///    existing timer and starts a new one.
 /// 4. The timer executes [onTimeout] after [duration].
 ///
-/// ### Non‑obvious
-/// - **Reset Behavior**: [resetOnPulse] controls whether the timer
-///   resets on each pulse.
-/// - **Closed Clock**: Once closed, no further timeouts are triggered.
-/// - **Provenance**: The [pulse] and [cell] are stored for provenance.
 void _arm<S>({
   required _Clock clock,
   required Duration duration,
@@ -171,11 +160,13 @@ void _arm<S>({
       future,
   required dynamic token,
 }) {
+  // Once the clock has closed (already timed out), no later pulse may
+  // repoint its callbacks — the closed state is permanent.
+  if (clock.closed) return;
   clock.future = future;
   clock.token = token;
   clock.cell = cell;
   clock.last = pulse;
-  if (clock.closed) return;
   if (clock.timer == null || resetOnPulse) {
     clock.cancel();
     clock.timer = Timer(duration, onTimeout);
@@ -230,15 +221,6 @@ void _arm<S>({
 /// 4. The error pulse has type `'error'` for routing.
 /// 5. The pulse is passed through unchanged.
 /// 6. The clock is closed after the first timeout.
-///
-/// ### Non‑obvious
-/// - **Single Timeout**: The clock closes after the first timeout.
-/// - **Reset Behavior**: Timer resets on every typed pulse.
-/// - **Error Type**: The error is a [TimeoutException].
-/// - **Type Safety**: The instruction is generic over [S].
-/// - **Provenance Preservation**: The error pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Step Tracking**: Passed-through pulses get the `'Timeout'` step.
 ///
 /// ### Example: Idle Detection
 /// ```dart
@@ -314,8 +296,8 @@ class Timeout<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool emitErrorPulse = true,
     bool resetOnPulse = true,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final clock = _Clock();
             return (pulse, {cell, user, future, token}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -346,7 +328,7 @@ class Timeout<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               );
               return typed.withStep('Timeout');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -403,14 +385,6 @@ class Timeout<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. If neither is provided, falls back to [TimeoutException].
 /// 5. Errors in [errorOf] are caught and reported via [onError].
 ///
-/// ### Non‑obvious
-/// - **Error Priority**: [errorOf] takes precedence over [error].
-/// - **Fallback**: If neither [error] nor [errorOf] is provided,
-///   falls back to [TimeoutException].
-/// - **Error Handling**: Errors in [errorOf] are caught and reported.
-/// - **Provenance Preservation**: The error pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-///
 /// ### Parameters:
 /// - [duration]: **Timeout Duration.** The maximum gap between pulses.
 /// - [error]: **Fixed Error Payload.** The error to emit on timeout.
@@ -455,8 +429,8 @@ class TimeoutWithError<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     TimeoutErrorHandler? onError,
     bool emitErrorPulse = true,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final clock = _Clock();
             return (pulse, {cell, user, future, token}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -497,7 +471,7 @@ class TimeoutWithError<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               );
               return typed.withStep('TimeoutWithError');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -553,14 +527,6 @@ class TimeoutWithError<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. If [once] is `false`, the fallback is emitted on every timeout.
 /// 5. The pulse is passed through unchanged.
 ///
-/// ### Non‑obvious
-/// - **Once vs Continuous**: [once] controls whether the fallback is
-///   emitted repeatedly.
-/// - **No Error**: No error pulse is emitted.
-/// - **Provenance Preservation**: The fallback pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Type Safety**: The fallback must match the payload type [S].
-///
 /// ### Parameters:
 /// - [duration]: **Timeout Duration.** The maximum gap between pulses.
 /// - [fallback]: **Fallback Value.** The value to emit on timeout.
@@ -601,8 +567,8 @@ class TimeoutWithFallback<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool once = true,
     TimeoutErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final clock = _Clock();
             return (pulse, {cell, user, future, token}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -632,7 +598,7 @@ class TimeoutWithFallback<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               );
               return typed.withStep('TimeoutWithFallback');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -677,13 +643,6 @@ class TimeoutWithFallback<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 2. Later pulses do not reset the timer.
 /// 3. If the timer expires, a timeout is emitted.
 /// 4. The clock closes after the timeout.
-///
-/// ### Non‑obvious
-/// - **No Reset**: Later pulses do not reset the timer.
-/// - **Overall Deadline**: The timeout is from the first pulse.
-/// - **Single Timeout**: Only one timeout is emitted.
-/// - **Provenance Preservation**: The error pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
 ///
 /// ### Parameters:
 /// - [duration]: **Timeout Duration.** The maximum time from the
@@ -759,11 +718,6 @@ class TimeoutFirst<S> extends Timeout<S> {
 ///
 /// ### How it works
 /// Identical to [Timeout] with `resetOnPulse: true`.
-///
-/// ### Non‑obvious
-/// - **Alias**: This is exactly the same as [Timeout].
-/// - **Semantic Name**: The name emphasizes "idle after last pulse".
-/// - **Identical Behavior**: Same behavior as [Timeout].
 ///
 /// ### Parameters:
 /// Same as [Timeout].

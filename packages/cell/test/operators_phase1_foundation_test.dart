@@ -97,6 +97,23 @@ void main() {
         expect(handle.cell.value, 42);
       });
 
+      test('updateAsync resolves false when async validation rejects',
+          () async {
+        final handle = Cell.state<int>(
+          initial: 0,
+          testRule: TestCell((object, {host, arguments, user}) async {
+            await Future<void>.delayed(Duration.zero);
+            return false;
+          }),
+        );
+        final updated = await handle.updateAsync(1);
+        // The pipeline result must be awaited: an async rejection is not a
+        // committed mutation, so updateAsync resolves false (not the
+        // premature `Future != null` true).
+        expect(updated, isFalse);
+        expect(handle.cell.value, 0);
+      });
+
       test('updateAsync with multiple concurrent updates', () async {
         final handle = Cell.state<int>(initial: 0);
         final futures = [

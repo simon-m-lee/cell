@@ -86,13 +86,6 @@ a receptor before revealing its payload.</li>
 receptor's host cell, its governed status, and its context. If the
 receptor passes scrutiny, the pulse unlocks and returns its kernel
 (payload). If not, it returns <code>null</code> — the signal is neutralised.</p>
-<h3 id="nonobvious-the-handshake-is-reciprocal">Non‑obvious: the handshake is reciprocal</h3>
-<p>This is <strong>not</strong> a one‑way permission check. Both the pulse and the
-receptor validate each other. A pulse can refuse to reveal its payload
-to a receptor it doesn't trust.</p>
-<h3 id="nonobvious-this-is-how-pulseshell-works">Non‑obvious: this is how <a href="../../cell_flow/PulseShell-class.html">PulseShell</a> works</h3>
-<p>A <a href="../../cell_flow/PulseShell-class.html">PulseShell</a> is a defensive proxy that wraps a pulse and forces any
-receiver to go through this scrutiny process before accessing the payload.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>receptor</code>: The entity requesting access to the pulse's internal state.</li>
@@ -147,7 +140,7 @@ dynamic scrutinize(covariant Receptor receptor, List? positionalArguments,
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

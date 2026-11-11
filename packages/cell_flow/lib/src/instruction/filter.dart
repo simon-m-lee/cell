@@ -8,6 +8,8 @@ import 'dart:async';
 
 import 'package:cell_flow/cell_flow.dart';
 
+import 'flow_internal.dart';
+
 /// Flow instructions that keep or drop pulses (Rx `filter` and family).
 ///
 /// | Operator | Input → Output | Async | Notes |
@@ -155,6 +157,25 @@ Pulse<S> _fromPayload<S>(S value, Pulse sourcePulse, Cell? cell, String step) {
 ///
 /// ### See Also:
 /// [AsyncFilter], [FilterNotNull], [FilterType]
+///
+/// ### AI Agent Guide
+/// **Layer:** Flow — predicate operator (Rx `filter`). Not a Cell factory, not a Tissue book.
+/// **When to use:** drop `none` / keep only `atRisk` on a stock chain, or a single-predicate pass before `MapValue`.
+/// **When NOT to use:** clause-ordered policy with a resettable latch — that is a custom `FlowInstructionBase` (stock `Filter` has no `reset()`).
+/// **Live signature:** `Filter<S>(bool Function(S value) test, {FilterErrorHandler? onError, dynamic user})` — pinned at `cell_flow: 1.0.0`
+/// **Do NOT confuse with:** `Cell.valve` (Cell-layer pulse gate; this is a chain instruction).
+/// **Guide:** `HowTo-Mitose-Flow.md` §3.3 "Filter / take / skip" (#flow-filter-take-skip)
+/// **Example:** `example/filter_data_quality_demo.dart`
+/// **Cross-layer:** policy that reads a live TissueSet belongs in a custom instruction, not a stock filter.
+/// **Minimal compilable example**
+/// ```dart
+/// final src = Cell.ingress<int>();
+/// final h = Filter<int>((v) => v > 0).toHandle(source: src.cell);
+/// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+/// src.emit(1);
+/// src.emit(-1); // dropped
+/// o.stop();
+/// ```
 class Filter<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// Creates a synchronous filter instruction.
   ///
@@ -220,9 +241,9 @@ class AsyncFilter<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FutureOr<bool> Function(S value) predicate, {
     FilterErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
-            final state = _AsyncQueueState();
+  }) : super.stateful(
+          () {
+            final state = SequentialQueue();
             return (pulse, {cell, user, future, token}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
               if (typed == null) return null;
@@ -238,7 +259,7 @@ class AsyncFilter<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -335,8 +356,8 @@ class AsyncFilterLatest<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FutureOr<bool> Function(S value) predicate, {
     FilterErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _GenerationState();
             return (pulse, {cell, user, future, token}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -357,7 +378,7 @@ class AsyncFilterLatest<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -403,9 +424,9 @@ class AsyncFilterWithRetry<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Duration delay = const Duration(milliseconds: 50),
     FilterErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
-            final state = _AsyncQueueState();
+  }) : super.stateful(
+          () {
+            final state = SequentialQueue();
             final attempts = maxAttempts < 1 ? 1 : maxAttempts;
             return (pulse, {cell, user, future, token}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -435,7 +456,7 @@ class AsyncFilterWithRetry<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -479,9 +500,9 @@ class AsyncFilterWithTimeout<S>
     required Duration timeout,
     FilterErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
-            final state = _AsyncQueueState();
+  }) : super.stateful(
+          () {
+            final state = SequentialQueue();
             return (pulse, {cell, user, future, token}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
               if (typed == null) return null;
@@ -505,7 +526,7 @@ class AsyncFilterWithTimeout<S>
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -550,9 +571,9 @@ class AsyncFilterWithFallback<S>
     bool fallback = false,
     FilterErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
-            final state = _AsyncQueueState();
+  }) : super.stateful(
+          () {
+            final state = SequentialQueue();
             return (pulse, {cell, user, future, token}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
               if (typed == null) return null;
@@ -577,7 +598,7 @@ class AsyncFilterWithFallback<S>
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -817,8 +838,8 @@ class FilterByTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Duration duration, {
     FilterErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _TimeGateState<S>();
             return (pulse, {cell, user, future, token}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -860,7 +881,7 @@ class FilterByTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -913,18 +934,6 @@ class _GenerationState {
 /// Internal state for sequential async queues.
 ///
 /// Ensures that async operations are processed one at a time.
-class _AsyncQueueState {
-  /// The tail of the async queue.
-  Future<void> tail = Future<void>.value();
-
-  /// Enqueues a job to run after the current tail completes.
-  ///
-  /// ### Parameters
-  /// - [job]: A function that returns a [Future] to execute.
-  void enqueue(Future<void> Function() job) {
-    tail = tail.then((_) => job()).catchError((_) {});
-  }
-}
 
 // ─────────────────────────────────────────────────────────────
 // Demo

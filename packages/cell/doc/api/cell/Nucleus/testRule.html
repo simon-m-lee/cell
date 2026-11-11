@@ -96,19 +96,6 @@ it adopts the integrity gate of the bound cell to ensure causal parity.</li>
 <li><strong>Global Default</strong>: If no rule is found in the lineage or bindings,
 it defaults to <a href="../../cell/TestCell/allowAll-constant.html">TestCell.allowAll</a>.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Forensic Rejection</strong>: When a <a href="../../cell/Nucleus/testRule.html">testRule</a> rejects a stimulus, the
-mutation is aborted. The framework records a <strong>Rejection Milestone</strong> in
-the forensic <a href="../../cell/Pulse/trace.html">Pulse.trace</a> and returns <code>null</code> rather than throwing a
-runtime exception, allowing for graceful self-healing logic.</li>
-<li><strong>Causal Consistency</strong>: The automatic inheritance from the <a href="../../cell/Nucleus/bind.html">bind</a>
-target ensures that derived cells (projections) respect the same
-integrity constraints as their data sources by default.</li>
-<li><strong>Short-circuiting</strong>: The rule is evaluated synchronously <em>before</em> the
-<a href="../../cell/Receptor-class.html">Receptor</a> processes the pulse, preventing unnecessary computation or
-side-effects from invalid stimuli.</li>
-</ul>
 <h3 id="see-also">See also:</h3>
 <ul>
 <li><a href="../../cell/TestCell-class.html">TestCell</a> – The functional interface for defining integrity gates.</li>
@@ -150,7 +137,7 @@ side-effects from invalid stimuli.</li>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

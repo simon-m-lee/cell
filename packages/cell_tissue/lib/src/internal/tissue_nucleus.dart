@@ -20,33 +20,9 @@ class _TissueNucleus<E, I extends Iterable<E>, C extends Tissue<E>>
     super.ephemeralPolicy,
     super.forceLock,
     super.user,
+    super.principal,
     Container? container,
   }) : super(container: container ?? Container.create<E, I>());
-
-  _TissueNucleus.evolve(
-      {Container? container,
-      Cell? bind,
-      Context? context,
-      TissueReceptor<E, C>? receptor,
-      TestTissue<E, C>? testRule,
-      Synapses? synapses,
-      EphemeralPolicy? ephemeralPolicy,
-      bool forceLock = true,
-      TissueNucleus<E>? override,
-      required super.principal})
-      : super.evolve(
-            override: override ??
-                _TissueNucleus<E, I, C>.fromRecord((
-                  local: TissueNucleusBase.mask(
-                      container: container,
-                      bind: bind,
-                      context: context,
-                      receptor: receptor,
-                      testRule: testRule,
-                      synapses: synapses,
-                      forceLock: forceLock,
-                      ephemeralPolicy: ephemeralPolicy)
-                )));
 
   _TissueNucleus.fromRecord(super.record) : super.fromRecord();
 
@@ -101,16 +77,6 @@ class _TissueNucleus<E, I extends Iterable<E>, C extends Tissue<E>>
 ///   the `principal` chain, allowing a deputy to override specific properties
 ///   (like `testRule`) while inheriting others.
 ///
-/// ### Non‑obvious
-/// - **Bitmask Optimization**: The static [mask] method is the engine behind the
-///   framework's **record‑based optimization**. It stores only non‑default
-///   properties in a `local` record field, eliminating the "nullable field tax"
-///   typical of large configuration objects.
-/// - **Tiered Resolution**: Authority is resolved via a high-integrity forensic
-///   chain: `local` override > prototype inheritance > global default.
-/// - **Hosted Policies**: The [ephemeralPolicy] is hosted directly in this
-///   nucleus, making any tissue built from it governed (`isGoverned == true`).
-///
 /// ### Example: Reusing a validated nucleus
 /// ```dart
 /// final validNucleus = TissueNucleus.create<int, List<int>, TissueList<int>>(
@@ -158,17 +124,6 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
   /// 3. The resulting nucleus is immutable – you cannot change its
   ///    configuration after creation.
   ///
-  /// ### Non‑obvious
-  /// - The [receptor] is automatically cloned if it is already activated
-  ///   (bound to another cell), ensuring that each nucleus starts with a
-  ///   clean logic instance.
-  /// - If [synapses] is [Synapses.enabled], a fresh, empty registry is
-  ///   created for the new collection. If you pass [Synapses.disabled],
-  ///   the collection will be terminal (no broadcasts).
-  /// - The [forceLock] flag controls whether a new synchronization lock is
-  ///   allocated. `false` (default) creates a new lock; `true` shares the
-  ///   principal's lock (used for deputies).
-  ///
   /// ### Example (Internal – how the framework uses it)
   /// ```dart
   /// class _MyCustomNucleus<E> extends TissueNucleusBase<E, List<E>, TissueList<E>> {
@@ -205,20 +160,36 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
       Synapses synapses = Synapses.enabled,
       bool forceLock = false,
       Record? user,
-      Record? others})
-      : super.fromRecord((
-          local: mask<E, I, C>(
-              container: container,
-              bind: bind,
-              context: context,
-              receptor: receptor,
-              testRule: testRule,
-              synapses: synapses,
-              forceLock: forceLock,
-              user: user,
-              others: others,
-              ephemeralPolicy: ephemeralPolicy)
-        ));
+      Record? others,
+      TissueNucleusBase<E, I, C>? principal})
+      : super.fromRecord(principal != null
+            ? (
+                local: mask<E, I, C>(
+                    container: container,
+                    bind: bind,
+                    context: context,
+                    receptor: receptor,
+                    testRule: testRule,
+                    synapses: synapses,
+                    forceLock: forceLock,
+                    user: user,
+                    others: others,
+                    ephemeralPolicy: ephemeralPolicy),
+                principal: principal
+              )
+            : (
+                local: mask<E, I, C>(
+                    container: container,
+                    bind: bind,
+                    context: context,
+                    receptor: receptor,
+                    testRule: testRule,
+                    synapses: synapses,
+                    forceLock: forceLock,
+                    user: user,
+                    others: others,
+                    ephemeralPolicy: ephemeralPolicy)
+              ));
 
   /// **Low‑level Record Constructor** – instantiates a nucleus from a
   /// pre‑packed property record.
@@ -242,15 +213,6 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
   ///   which is why it is only safe to use when the record shape is
   ///   guaranteed.
   ///
-  /// ### Non‑obvious
-  /// - The record must contain all necessary fields for a collection nucleus,
-  ///   including the `container` (of type [Container<I>]) and a
-  ///   synchronisation [Lock] (unless sharing one via a principal).
-  /// - If the record is malformed, the resulting nucleus may behave
-  ///   unpredictably – use with extreme caution.
-  /// - This constructor is `const`‑friendly, enabling compile‑time
-  ///   instantiation of static nuclei for zero‑cost default configurations.
-  ///
   /// ### Example (Internal)
   /// ```dart
   /// final record = (mask: (container: Container.list, ...), principal: null);
@@ -261,69 +223,6 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
   /// - [record]: The internal property record – an implementation‑specific
   ///   Dart `Record` containing all nucleus fields.
   const TissueNucleusBase.fromRecord(super.record) : super.fromRecord();
-
-  /// **Evolution Constructor** – creates a specialised deputy nucleus by
-  /// extending an existing [principal].
-  ///
-  /// ### Who should call this
-  /// This constructor is part of the **internal deputy machinery**. While it
-  /// is `public`, it is intended to be called only by the framework when
-  /// you invoke `deputy()` on a [Tissue]. **Application code should use
-  /// `Tissue.deputy()` or [TissueNucleus.evolve] instead.**
-  ///
-  /// ### When to use (as a framework extender)
-  /// You are building a custom deputy implementation and need to control
-  /// exactly how a child nucleus inherits from its principal.
-  ///
-  /// ### How it works
-  /// 1. The [principal] provides the baseline configuration (including the
-  ///    container type and all structural properties).
-  /// 2. If [override] is provided, its entire record is used as the local
-  ///    base – any individual parameters (bind, context, etc.) are ignored.
-  /// 3. If [override] is `null`, a new local record is built from the
-  ///    individual parameters, falling back to the principal's values for
-  ///    any omitted property.
-  /// 4. The new nucleus links to the [principal] via its `principal` chain,
-  ///    so property lookups walk up the chain.
-  /// 5. The resulting nucleus shares the same [Lock] as the principal
-  ///    (unless [override] introduces its own lock).
-  ///
-  /// ### Non‑obvious
-  /// - The [container] type is **always inherited** from the principal.
-  ///   You cannot change a List into a Set through a deputy.
-  /// - If you override the [synapses], the deputy gets its own observer
-  ///   registry – observers attached to the deputy are separate from
-  ///   those on the principal.
-  /// - The [testRule] passed here is **layered on top** of the principal's
-  ///   testRule (via `+`). You can only narrow permissions, never widen.
-  ///
-  /// ### Example (Internal)
-  /// ```dart
-  /// final principal = TissueNucleus.create<int, List<int>, TissueList<int>>(
-  ///   container: Container.list,
-  /// );
-  /// final readOnlyNucleus = TissueNucleusBase.evolve(
-  ///   principal: principal,
-  ///   testRule: TestTissue.readOnly,
-  /// );
-  /// final readOnlyList = Tissue.fromNucleus(readOnlyNucleus);
-  /// ```
-  ///
-  /// ### Parameters:
-  /// - [principal]: **Required**. The source nucleus to inherit from.
-  /// - [override]: Optional. A complete nucleus whose record will replace
-  ///   the local base. If provided, individual parameters are ignored.
-  /// - [bind]: Optional override for the upstream cell.
-  /// - [context]: Optional override for the execution context.
-  /// - [receptor]: Optional override for the mutation processor.
-  /// - [testRule]: Optional override for the validation rule (layered
-  ///   on top of the principal's).
-  /// - [synapses]: Optional override for propagation behaviour.
-  /// - (Other parameters like [forceLock] and [user] are typically
-  ///   inherited from the principal or taken from [override]).
-  TissueNucleusBase.evolve(
-      {super.override, required TissueNucleus<E> super.principal})
-      : super.evolve();
 
   /// The [EphemeralPolicy] hosted by this nucleus or by an ancestor in the
   /// [principal] chain. Unlike the effective policy resolution, this does not
@@ -361,13 +260,6 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
   ///    allowing the Dart compiler to allocate the smallest possible memory
   ///    segment.
   ///
-  /// ### Non‑obvious
-  /// - The [receptor] is automatically cloned if it is already activated.
-  /// - If [synapses] is [Synapses.enabled], a fresh, empty registry is created.
-  /// - The [forceLock] flag determines whether a new [Lock] is allocated.
-  /// - The [others] parameter allows tissue‑specific metadata (e.g., `capacity`
-  ///   for queues) to be injected into the unified record shape.
-  ///
   /// ### Parameters:
   /// - [container]: The physical storage template defining the collection type.
   /// - [bind]: Optional upstream [Cell] for reactive lifecycle tethering.
@@ -383,17 +275,18 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
   /// ### Returns:
   /// A specialised [Record] containing the minimal set of non‑default
   /// properties required to initialize a [TissueNucleusBase].
-  static Record mask<E, I extends Iterable<E>, C extends Tissue<E>>(
-      {Container? container,
-      Cell? bind,
-      Context? context,
-      TissueReceptor<E, C>? receptor,
-      TestTissue<E, C>? testRule,
-      Synapses? synapses,
-      bool forceLock = false,
-      Record? user,
-      dynamic others,
-      EphemeralPolicy? ephemeralPolicy}) {
+  static Record mask<E, I extends Iterable<E>, C extends Tissue<E>>({
+    Container? container,
+    Cell? bind,
+    Context? context,
+    TissueReceptor<E, C>? receptor,
+    TestTissue<E, C>? testRule,
+    Synapses? synapses,
+    bool forceLock = false,
+    Record? user,
+    dynamic others,
+    EphemeralPolicy? ephemeralPolicy,
+  }) {
     if (synapses == Synapses.enabled) {
       synapses = Synapses();
     }
@@ -521,10 +414,25 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
         1 => (inheritable: inheritable, others: others),
         2 => (user: user, others: others),
         3 => (inheritable: inheritable, user: user, others: others),
-        4 => (lock: Lock(reentrant: true), forceLock: forceLock, others: others),
-        5 => (lock: Lock(reentrant: true), inheritable: inheritable, forceLock: forceLock, others: others),
-        6 => (lock: Lock(reentrant: true), user: user, forceLock: forceLock, others: others),
-        7 => (lock: Lock(reentrant: true), 
+        4 => (
+            lock: Lock(reentrant: true),
+            forceLock: forceLock,
+            others: others
+          ),
+        5 => (
+            lock: Lock(reentrant: true),
+            inheritable: inheritable,
+            forceLock: forceLock,
+            others: others
+          ),
+        6 => (
+            lock: Lock(reentrant: true),
+            user: user,
+            forceLock: forceLock,
+            others: others
+          ),
+        7 => (
+            lock: Lock(reentrant: true),
             inheritable: inheritable,
             user: user,
             forceLock: forceLock,
@@ -539,20 +447,28 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
             synapses: synapses,
             others: others
           ),
-        12 => (lock: Lock(reentrant: true), forceLock: forceLock, synapses: synapses, others: others),
-        13 => (lock: Lock(reentrant: true), 
+        12 => (
+            lock: Lock(reentrant: true),
+            forceLock: forceLock,
+            synapses: synapses,
+            others: others
+          ),
+        13 => (
+            lock: Lock(reentrant: true),
             inheritable: inheritable,
             forceLock: forceLock,
             synapses: synapses,
             others: others
           ),
-        14 => (lock: Lock(reentrant: true), 
+        14 => (
+            lock: Lock(reentrant: true),
             user: user,
             forceLock: forceLock,
             synapses: synapses,
             others: others
           ),
-        15 => (lock: Lock(reentrant: true), 
+        15 => (
+            lock: Lock(reentrant: true),
             inheritable: inheritable,
             user: user,
             forceLock: forceLock,
@@ -568,15 +484,28 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
             bind: bind,
             others: others
           ),
-        20 => (lock: Lock(reentrant: true), forceLock: forceLock, bind: bind, others: others),
-        21 => (lock: Lock(reentrant: true), 
+        20 => (
+            lock: Lock(reentrant: true),
+            forceLock: forceLock,
+            bind: bind,
+            others: others
+          ),
+        21 => (
+            lock: Lock(reentrant: true),
             inheritable: inheritable,
             forceLock: forceLock,
             bind: bind,
             others: others
           ),
-        22 => (lock: Lock(reentrant: true), user: user, forceLock: forceLock, bind: bind, others: others),
-        23 => (lock: Lock(reentrant: true), 
+        22 => (
+            lock: Lock(reentrant: true),
+            user: user,
+            forceLock: forceLock,
+            bind: bind,
+            others: others
+          ),
+        23 => (
+            lock: Lock(reentrant: true),
             inheritable: inheritable,
             user: user,
             forceLock: forceLock,
@@ -598,27 +527,31 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
             bind: bind,
             others: others
           ),
-        28 => (lock: Lock(reentrant: true), 
+        28 => (
+            lock: Lock(reentrant: true),
             forceLock: forceLock,
             synapses: synapses,
             bind: bind,
             others: others
           ),
-        29 => (lock: Lock(reentrant: true), 
+        29 => (
+            lock: Lock(reentrant: true),
             inheritable: inheritable,
             forceLock: forceLock,
             synapses: synapses,
             bind: bind,
             others: others
           ),
-        30 => (lock: Lock(reentrant: true), 
+        30 => (
+            lock: Lock(reentrant: true),
             user: user,
             forceLock: forceLock,
             synapses: synapses,
             bind: bind,
             others: others
           ),
-        31 => (lock: Lock(reentrant: true), 
+        31 => (
+            lock: Lock(reentrant: true),
             inheritable: inheritable,
             user: user,
             forceLock: forceLock,
@@ -639,24 +572,28 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
             container: containerStorage,
             others: others
           ),
-        36 => (lock: Lock(reentrant: true), 
+        36 => (
+            lock: Lock(reentrant: true),
             forceLock: forceLock,
             container: containerStorage,
             others: others
           ),
-        37 => (lock: Lock(reentrant: true), 
+        37 => (
+            lock: Lock(reentrant: true),
             inheritable: inheritable,
             forceLock: forceLock,
             container: containerStorage,
             others: others
           ),
-        38 => (lock: Lock(reentrant: true), 
+        38 => (
+            lock: Lock(reentrant: true),
             user: user,
             forceLock: forceLock,
             container: containerStorage,
             others: others
           ),
-        39 => (lock: Lock(reentrant: true), 
+        39 => (
+            lock: Lock(reentrant: true),
             inheritable: inheritable,
             user: user,
             forceLock: forceLock,
@@ -683,27 +620,31 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
             container: containerStorage,
             others: others
           ),
-        44 => (lock: Lock(reentrant: true), 
+        44 => (
+            lock: Lock(reentrant: true),
             forceLock: forceLock,
             synapses: synapses,
             container: containerStorage,
             others: others
           ),
-        45 => (lock: Lock(reentrant: true), 
+        45 => (
+            lock: Lock(reentrant: true),
             inheritable: inheritable,
             forceLock: forceLock,
             synapses: synapses,
             container: containerStorage,
             others: others
           ),
-        46 => (lock: Lock(reentrant: true), 
+        46 => (
+            lock: Lock(reentrant: true),
             user: user,
             forceLock: forceLock,
             synapses: synapses,
             container: containerStorage,
             others: others
           ),
-        47 => (lock: Lock(reentrant: true), 
+        47 => (
+            lock: Lock(reentrant: true),
             inheritable: inheritable,
             user: user,
             forceLock: forceLock,
@@ -731,27 +672,31 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
             container: containerStorage,
             others: others
           ),
-        52 => (lock: Lock(reentrant: true), 
+        52 => (
+            lock: Lock(reentrant: true),
             forceLock: forceLock,
             bind: bind,
             container: containerStorage,
             others: others
           ),
-        53 => (lock: Lock(reentrant: true), 
+        53 => (
+            lock: Lock(reentrant: true),
             inheritable: inheritable,
             forceLock: forceLock,
             bind: bind,
             container: containerStorage,
             others: others
           ),
-        54 => (lock: Lock(reentrant: true), 
+        54 => (
+            lock: Lock(reentrant: true),
             user: user,
             forceLock: forceLock,
             bind: bind,
             container: containerStorage,
             others: others
           ),
-        55 => (lock: Lock(reentrant: true), 
+        55 => (
+            lock: Lock(reentrant: true),
             inheritable: inheritable,
             user: user,
             forceLock: forceLock,
@@ -787,14 +732,16 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
             container: containerStorage,
             others: others
           ),
-        60 => (lock: Lock(reentrant: true), 
+        60 => (
+            lock: Lock(reentrant: true),
             forceLock: forceLock,
             synapses: synapses,
             bind: bind,
             container: containerStorage,
             others: others
           ),
-        61 => (lock: Lock(reentrant: true), 
+        61 => (
+            lock: Lock(reentrant: true),
             inheritable: inheritable,
             forceLock: forceLock,
             synapses: synapses,
@@ -802,7 +749,8 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
             container: containerStorage,
             others: others
           ),
-        62 => (lock: Lock(reentrant: true), 
+        62 => (
+            lock: Lock(reentrant: true),
             user: user,
             forceLock: forceLock,
             synapses: synapses,
@@ -810,7 +758,8 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
             container: containerStorage,
             others: others
           ),
-        63 => (lock: Lock(reentrant: true), 
+        63 => (
+            lock: Lock(reentrant: true),
             inheritable: inheritable,
             user: user,
             forceLock: forceLock,
@@ -829,21 +778,41 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
       2 => (user: user),
       3 => (inheritable: inheritable, user: user),
       4 => (lock: Lock(reentrant: true), forceLock: forceLock),
-      5 => (lock: Lock(reentrant: true), inheritable: inheritable, forceLock: forceLock),
+      5 => (
+          lock: Lock(reentrant: true),
+          inheritable: inheritable,
+          forceLock: forceLock
+        ),
       6 => (lock: Lock(reentrant: true), user: user, forceLock: forceLock),
-      7 => (lock: Lock(reentrant: true), inheritable: inheritable, user: user, forceLock: forceLock),
+      7 => (
+          lock: Lock(reentrant: true),
+          inheritable: inheritable,
+          user: user,
+          forceLock: forceLock
+        ),
       8 => (synapses: synapses),
       9 => (inheritable: inheritable, synapses: synapses),
       10 => (user: user, synapses: synapses),
       11 => (inheritable: inheritable, user: user, synapses: synapses),
-      12 => (lock: Lock(reentrant: true), forceLock: forceLock, synapses: synapses),
-      13 => (lock: Lock(reentrant: true), 
+      12 => (
+          lock: Lock(reentrant: true),
+          forceLock: forceLock,
+          synapses: synapses
+        ),
+      13 => (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           forceLock: forceLock,
           synapses: synapses
         ),
-      14 => (lock: Lock(reentrant: true), user: user, forceLock: forceLock, synapses: synapses),
-      15 => (lock: Lock(reentrant: true), 
+      14 => (
+          lock: Lock(reentrant: true),
+          user: user,
+          forceLock: forceLock,
+          synapses: synapses
+        ),
+      15 => (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -854,9 +823,20 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
       18 => (user: user, bind: bind),
       19 => (inheritable: inheritable, user: user, bind: bind),
       20 => (lock: Lock(reentrant: true), forceLock: forceLock, bind: bind),
-      21 => (lock: Lock(reentrant: true), inheritable: inheritable, forceLock: forceLock, bind: bind),
-      22 => (lock: Lock(reentrant: true), user: user, forceLock: forceLock, bind: bind),
-      23 => (lock: Lock(reentrant: true), 
+      21 => (
+          lock: Lock(reentrant: true),
+          inheritable: inheritable,
+          forceLock: forceLock,
+          bind: bind
+        ),
+      22 => (
+          lock: Lock(reentrant: true),
+          user: user,
+          forceLock: forceLock,
+          bind: bind
+        ),
+      23 => (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -871,15 +851,28 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
           synapses: synapses,
           bind: bind
         ),
-      28 => (lock: Lock(reentrant: true), forceLock: forceLock, synapses: synapses, bind: bind),
-      29 => (lock: Lock(reentrant: true), 
+      28 => (
+          lock: Lock(reentrant: true),
+          forceLock: forceLock,
+          synapses: synapses,
+          bind: bind
+        ),
+      29 => (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           forceLock: forceLock,
           synapses: synapses,
           bind: bind
         ),
-      30 => (lock: Lock(reentrant: true), user: user, forceLock: forceLock, synapses: synapses, bind: bind),
-      31 => (lock: Lock(reentrant: true), 
+      30 => (
+          lock: Lock(reentrant: true),
+          user: user,
+          forceLock: forceLock,
+          synapses: synapses,
+          bind: bind
+        ),
+      31 => (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -890,14 +883,25 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
       33 => (inheritable: inheritable, container: containerStorage),
       34 => (user: user, container: containerStorage),
       35 => (inheritable: inheritable, user: user, container: containerStorage),
-      36 => (lock: Lock(reentrant: true), forceLock: forceLock, container: containerStorage),
-      37 => (lock: Lock(reentrant: true), 
+      36 => (
+          lock: Lock(reentrant: true),
+          forceLock: forceLock,
+          container: containerStorage
+        ),
+      37 => (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           forceLock: forceLock,
           container: containerStorage
         ),
-      38 => (lock: Lock(reentrant: true), user: user, forceLock: forceLock, container: containerStorage),
-      39 => (lock: Lock(reentrant: true), 
+      38 => (
+          lock: Lock(reentrant: true),
+          user: user,
+          forceLock: forceLock,
+          container: containerStorage
+        ),
+      39 => (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -916,24 +920,28 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
           synapses: synapses,
           container: containerStorage
         ),
-      44 => (lock: Lock(reentrant: true), 
+      44 => (
+          lock: Lock(reentrant: true),
           forceLock: forceLock,
           synapses: synapses,
           container: containerStorage
         ),
-      45 => (lock: Lock(reentrant: true), 
+      45 => (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           forceLock: forceLock,
           synapses: synapses,
           container: containerStorage
         ),
-      46 => (lock: Lock(reentrant: true), 
+      46 => (
+          lock: Lock(reentrant: true),
           user: user,
           forceLock: forceLock,
           synapses: synapses,
           container: containerStorage
         ),
-      47 => (lock: Lock(reentrant: true), 
+      47 => (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -949,20 +957,28 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
           bind: bind,
           container: containerStorage
         ),
-      52 => (lock: Lock(reentrant: true), forceLock: forceLock, bind: bind, container: containerStorage),
-      53 => (lock: Lock(reentrant: true), 
+      52 => (
+          lock: Lock(reentrant: true),
+          forceLock: forceLock,
+          bind: bind,
+          container: containerStorage
+        ),
+      53 => (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           forceLock: forceLock,
           bind: bind,
           container: containerStorage
         ),
-      54 => (lock: Lock(reentrant: true), 
+      54 => (
+          lock: Lock(reentrant: true),
           user: user,
           forceLock: forceLock,
           bind: bind,
           container: containerStorage
         ),
-      55 => (lock: Lock(reentrant: true), 
+      55 => (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -989,27 +1005,31 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
           bind: bind,
           container: containerStorage
         ),
-      60 => (lock: Lock(reentrant: true), 
+      60 => (
+          lock: Lock(reentrant: true),
           forceLock: forceLock,
           synapses: synapses,
           bind: bind,
           container: containerStorage
         ),
-      61 => (lock: Lock(reentrant: true), 
+      61 => (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           forceLock: forceLock,
           synapses: synapses,
           bind: bind,
           container: containerStorage
         ),
-      62 => (lock: Lock(reentrant: true), 
+      62 => (
+          lock: Lock(reentrant: true),
           user: user,
           forceLock: forceLock,
           synapses: synapses,
           bind: bind,
           container: containerStorage
         ),
-      63 => (lock: Lock(reentrant: true), 
+      63 => (
+          lock: Lock(reentrant: true),
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -1047,16 +1067,6 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
   ///    a local override for the [context] or [testRule].
   /// 3. **Termination**: The chain ends when this getter returns `null` –
   ///    that's the "root" nucleus.
-  ///
-  /// ### Non‑obvious
-  /// - The type is overridden to `TissueNucleusBase<E, I, C>?` – a covariant
-  ///   override that ensures you get a properly typed principal when you need
-  ///   to access collection‑specific methods (like `containerType`).
-  /// - Even though the getter is `public`, it's intended for internal
-  ///   framework use. Mutating or replacing the principal after construction
-  ///   is not supported – the nucleus is immutable.
-  /// - The principal chain determines the `containerType` and all other
-  ///   structural properties; deputies cannot change the storage type.
   ///
   /// ### Example (Internal)
   /// ```dart
@@ -1101,14 +1111,6 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
   ///    This ensures that all derived views (deputies) share the same
   ///    underlying data instance.
   ///
-  /// ### Non‑obvious
-  /// - The container is resolved lazily – it is only instantiated when first
-  ///   accessed, saving memory for collections that are never used.
-  /// - For deputies, the container is always inherited from the principal –
-  ///   a deputy never has its own container.
-  /// - The container's type (List, Set, Map, Queue, etc.) is fixed at the
-  ///   root nucleus and cannot be changed by deputies.
-  ///
   /// ### Example (Internal)
   /// ```dart
   /// final container = list._nucleus.container;
@@ -1119,8 +1121,20 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
   /// The resolved [TissueContainer<E, I>] associated with this property set.
   @override
   TissueContainer<E, I> get container {
-    return get<TissueContainer<E, I>>(() => record.local.container,
-        fallback: () => principal?.container);
+    TissueContainer<E, I>? local;
+    try {
+      final raw = record.local.container;
+      // A deputy's record can hold the principal's container with its
+      // original (un-erased) generic type; such a container is not a
+      // `TissueContainer<E, I>` at runtime, so fall back to the principal.
+      if (raw is TissueContainer<E, I>) local = raw;
+    } on NoSuchMethodError {
+      // The local record has no container field — inherit.
+    }
+    return local ??
+        principal?.container ??
+        (throw StateError(
+            'Tissue nucleus has neither a local container nor a principal'));
   }
 
   /// The physical storage strategy (e.g., List, Set, Map, Queue) used by this
@@ -1134,10 +1148,6 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
   /// Read this to understand what kind of storage the collection uses.
   /// This is useful for conditional logic or debugging.
   ///
-  /// ### Non‑obvious
-  /// - This is a **structural** property – it is fixed at the root nucleus
-  ///   and inherited by all deputies. A deputy cannot change a List into a Set.
-  /// - Defaults to [Container.create<E, I>()] if not set.
   @override
   Container get containerType {
     return get<Container>(() => record.local.inheritable.container,
@@ -1175,14 +1185,6 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
   ///    the `principal` chain to find the rule from an ancestor.
   /// 3. **Default Fallback**: If the root is reached without finding a rule,
   ///    it defaults to [TestTissue.allowAll] – no restrictions.
-  ///
-  /// ### Non‑obvious
-  /// - For deputies, the [testRule] is **layered on top** of the principal's
-  ///   rule (via `+`). You can only narrow permissions, never widen.
-  /// - The rule is invoked for **every** mutation attempt – it is a hot path,
-  ///   so keep it efficient.
-  /// - The rule can be asynchronous ([FutureOr<bool>]) – the framework
-  ///   suspends the mutation until the future completes.
   ///
   /// ### Example
   /// ```dart
@@ -1223,15 +1225,6 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
   /// 3. **Default Fallback**: If the root is reached without finding a
   ///    custom receptor, it defaults to [TissueReceptor.passThrough].
   ///
-  /// ### Non‑obvious
-  /// - The receptor is **activated** when the nucleus is bound to a live
-  ///   tissue – this is when it becomes aware of the specific collection
-  ///   instance.
-  /// - If you pass an already‑activated receptor to a new nucleus, the
-  ///   framework automatically clones it to prevent state leakage.
-  /// - For deputies, the receptor is typically inherited from the principal
-  ///   unless explicitly overridden.
-  ///
   /// ### Example (Internal)
   /// ```dart
   /// final receptor = list._nucleus.receptor;
@@ -1271,15 +1264,6 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
 /// - It uses [TestTissue.allowAll] and [TissueReceptor.passThrough] as
 ///   defaults, but since the type is [Never], no signals can actually be
 ///   posted to it.
-///
-/// ### Non‑obvious
-/// - This is a `const` singleton – all empty tissue nuclei point to the
-///   exact same instance, making it extremely memory‑efficient.
-/// - Attempting to call mutation methods on a collection built from this
-///   nucleus will either throw or be silently ignored (depending on the
-///   implementation).
-/// - It serves as the **root of the inheritance chain** for any nucleus
-///   that has no explicit `principal`.
 ///
 /// ### Example (Internal)
 /// ```dart

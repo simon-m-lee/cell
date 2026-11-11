@@ -68,11 +68,6 @@ internally for blueprint hydration.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>It binds the nucleus to the cell and optionally seeds an initial state
 directly (bypassing the transform).</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The initial state is written directly to the Box without validation.</li>
-<li>The nucleus is cloned if it's already activated (to avoid sharing).</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>nucleus</code>: <strong>Required.</strong> The <a href="../../mitosis/ValueNucleus-class.html">ValueNucleus</a> that defines the behavior,
@@ -122,7 +117,7 @@ previous data in the nucleus's associated <a href="../../mitosis/Box-class.html"
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

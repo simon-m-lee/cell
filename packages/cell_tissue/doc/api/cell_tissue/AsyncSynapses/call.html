@@ -95,20 +95,6 @@ the delivery strategy (e.g., <a href="../../cell_tissue/PropagationStrategy.html
 handler (like <code>_debounced</code> or <code>_batched</code>) which manages timers,
 buffers, and final delivery.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Early Termination</strong>: If the filter returns <code>null</code>, propagation
-terminates immediately for <em>all</em> observers, effectively acting as a
-centralized "Output Valve."</li>
-<li><strong>Branch Synchronization</strong>: The branch counter logic ensures that
-complex graph updates involving multiple paths can detect when the
-entire reactive wave has settled.</li>
-<li><strong>Causal Provenance</strong>: Propagation strategies like <code>debounced</code> or
-<code>throttled</code> preserve the original pulse's forensic metadata, even
-though delivery is delayed.</li>
-<li><strong>Empty Optimization</strong>: If a cell has no listeners, it quickly
-short-circuits to avoid unnecessary filtering or strategy overhead.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>pulse</code>: <strong>The Stimulus.</strong> The <a href="../../cell_tissue/Pulse-class.html">Pulse</a> instance to be distributed.
@@ -141,6 +127,11 @@ Future&lt;void&gt; call(covariant P pulse) async {
         pulse._complete();
         return;
       }
+      &#47;&#47; Returning here serves two purposes:
+      &#47;&#47; 1. Do not complete a pulse that still has sibling branches.
+      &#47;&#47; 2. Do not fall through into the strategy switch, which would
+      &#47;&#47;    re-enter `_broadcast` and decrement the counter a second time.
+      return;
     } else {
       pulse._complete();
       return;
@@ -186,24 +177,8 @@ Future&lt;void&gt; call(covariant P pulse) async {
       await _audit(p);
       break;
 
-    case PropagationStrategy.exhaust:
-      await _exhaust(p);
-      break;
-
-    case PropagationStrategy.sample:
-      await _sample(p);
-      break;
-
-    case PropagationStrategy.resilient:
-      await _resilient(p);
-      break;
-
     case PropagationStrategy.debounceLeading:
       await _debounceLeading(p);
-      break;
-
-    case PropagationStrategy.retry:
-      await _retry(p);
       break;
 
     case PropagationStrategy.persistent:
@@ -244,7 +219,7 @@ Future&lt;void&gt; call(covariant P pulse) async {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

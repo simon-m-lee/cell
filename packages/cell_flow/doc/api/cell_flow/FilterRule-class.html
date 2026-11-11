@@ -68,16 +68,6 @@ conditionally suppressing events.</p>
 <p>You provide a function that receives the outgoing pulse and can return a
 new pulse (to continue propagation) or <code>null</code> (to drop it). The filter is
 stateless and reusable across multiple synapses.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>If a filter throws an exception, the framework catches it and preserves
-the original pulse – a single faulty filter doesn't break the chain.</li>
-<li>Filters are composed using <code>+</code>; the output of one becomes the input of
-the next. If any filter returns <code>null</code>, the pipeline short‑circuits and
-the pulse is dropped.</li>
-<li>The <a href="../cell_flow/FilterRule/FilterRule.base.html">FilterRule.base()</a> constructor creates a no‑op filter that acts as
-an identity element for composition.</li>
-</ul>
 <h3 id="example-redacting-sensitive-data">Example: redacting sensitive data</h3>
 <pre class="language-dart"><code class="language-dart">final redactFilter = FilterRule&lt;UserData&gt;((pulse, {user}) {
   final data = pulse.payload;
@@ -269,7 +259,7 @@ an identity element for composition.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

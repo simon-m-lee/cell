@@ -76,14 +76,6 @@ functions — the standard way to create and interact with a state atom.</p>
 mutation functions (keep them private to the owner). This enforces a
 strict write‑privilege model – observers can only read, the owner can
 write.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><code>ingest</code> with <code>serializedCompletion: true</code> waits for the entire graph
-to stabilise before the Future completes – useful for sequential
-reasoning steps.</li>
-<li><code>updateAsync</code> queues the mutation through the cell's <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>, so it's
-safe even under high concurrency.</li>
-</ul>
 <h3 id="type-parameters">Type Parameters:</h3>
 <ul>
 <li><code>V</code>: The type of the value managed by this state handle.</li>
@@ -98,7 +90,11 @@ safe even under high concurrency.</li>
   ValueCell&lt;V&gt; cell,
 
   &#47;&#47;&#47; Synchronously emits a state transition.
-  &#47;&#47;&#47; Returns `true` if the value was successfully committed.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; Returns `true` if the value was successfully committed. A no-op
+  &#47;&#47;&#47; update (a value `identical` to or `==` the current state) is
+  &#47;&#47;&#47; deduplicated: nothing is emitted and `false` is returned — a skipped
+  &#47;&#47;&#47; update is deliberately not a commit.
   bool Function(V? value) update,
 
   &#47;&#47;&#47; Asynchronously emits a state transition, ensuring atomic
@@ -136,7 +132,7 @@ safe even under high concurrency.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

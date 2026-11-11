@@ -76,12 +76,6 @@ when <a href="../../mitosis/Synapses/link.html">Synapses.link</a> is called. It 
 <h3 id="how-it-works">How it works</h3>
 <p>It delegates to the base <code>call</code> method, which evaluates the rule and
 parent chain.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The method returns <code>FutureOr&lt;bool&gt;</code>, so it can be sync or async.</li>
-<li>The <code>host</code> is required; if <code>null</code>, the validation passes.</li>
-<li>The <code>link</code> parameter is the cell that wants to observe the host.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>link</code>: The candidate <a href="../../mitosis/Cell-class.html">Cell</a> attempting to establish a dependency.</li>
@@ -125,7 +119,7 @@ parent chain.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

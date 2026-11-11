@@ -430,6 +430,22 @@ void main() {
     });
 
     group('Cell.switchMap', () {
+      test('a mapper may link new cells into the source mid-broadcast', () {
+        final source = Cell.ingress<int>();
+        final switched = Cell.switchMap<int, int>(source.cell, (v) {
+          // Binding the inner to the source links it into the source's
+          // downstream set while `_broadcast` is iterating that set. The
+          // sync broadcast must iterate a snapshot, not the live set.
+          final inner = Cell.ingress<int>(source: source.cell);
+          inner.emit(v);
+          return inner.cell;
+        });
+        Cell.observe(source: switched, effect: (Pulse pulse) {});
+
+        expect(() => source.emit(1), returnsNormally);
+        expect(() => source.emit(2), returnsNormally);
+      });
+
       test('switchMap switches to new cell on source change', () async {
         final source = Cell.ingress<int>();
         final switched = Cell.switchMap<int, String>(
@@ -500,6 +516,65 @@ void main() {
         source.emit(null);
         await delay(20);
         expect(rec.payloads, ['1']);
+      });
+
+      test('switchMap contains a throwing async link gate', () async {
+        var zoneErrors = 0;
+        await runZonedGuarded(() async {
+          final source = Cell.ingress<int>();
+          final switched = Cell.switchMap<int, int>(source.cell, (v) {
+            return Cell(
+              testRule: TestCell((object, {host, arguments, user}) async {
+                await Future<void>.delayed(Duration.zero);
+                // The link gate throws asynchronously; the operator must
+                // contain the rejection instead of leaking it to the zone.
+                if (object is Cell) throw StateError('async link boom');
+                return true;
+              }),
+            );
+          });
+          expect(switched, isA<Cell>());
+          source.emit(1);
+          await Future<void>.delayed(Duration(milliseconds: 20));
+        }, (e, st) {
+          zoneErrors++;
+        });
+        expect(zoneErrors, 0,
+            reason: 'an async link-gate rejection must be routed to the '
+                'pulse fail path, not the zone');
+      });
+
+      test('invalidation unlinks the inner cell from the output', () async {
+        final source = Cell.ingress<int>();
+        late Synapses innerSynapses;
+        final switched = Cell.switchMap<int, int>(
+          source.cell,
+          (v) {
+            innerSynapses = Synapses();
+            return Cell(synapses: innerSynapses);
+          },
+          ephemeralPolicy: EphemeralPolicy<Cell>(
+            eventLimit: 2,
+            onEvent: (object,
+                    {required cell, required policy, arguments, user}) =>
+                (events: policy.events + 1),
+            onInvalidate: (nucleus) => true,
+          ),
+        );
+
+        source.emit(1);
+        // The inner cell is linked to the output during the switch; the
+        // first interaction is below the event limit, so it stays linked.
+        expect(innerSynapses.contains(switched), isTrue);
+        expect(switched.isInvalidated, isFalse);
+
+        source.emit(2);
+        await delay(20);
+        // The second interaction triggers reclamation, which must tear the
+        // inner link down — without it, the inner's synapse keeps the
+        // invalidated output (and its closure) alive forever.
+        expect(switched.isInvalidated, isTrue);
+        expect(innerSynapses.contains(switched), isFalse);
       });
     });
 

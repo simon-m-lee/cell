@@ -64,6 +64,13 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Runs <code>body</code> between <a href="../../cell_flow/ApplyTransactionScope/begin.html">begin</a> and <a href="../../cell_flow/ApplyTransactionScope/commit.html">commit</a>, rolling back on any error.</p>
+<p>Convenience wrapper for the common begin/body/commit pattern. If <code>body</code>
+throws, the scope is rolled back before the error propagates. If
+<a href="../../cell_flow/ApplyTransactionScope/commit.html">commit</a> itself throws, the scope is already finished and is <strong>not</strong>
+rolled back again.</p>
+</section>
 
 
     
@@ -100,7 +107,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

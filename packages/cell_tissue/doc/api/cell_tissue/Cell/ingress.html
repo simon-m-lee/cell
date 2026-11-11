@@ -108,19 +108,6 @@ read for a "current" value.</li>
 <li><strong><a href="../../cell_tissue/Cell/state.html">Cell.state</a></strong> is a <strong>Storage Primitive</strong>. It is designed for
 persistent data that evolves over time and can be read at any time.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>No State Storage</strong>: An ingress cell is a "pass-through" node. It
-consumes zero storage memory for values.</li>
-<li><strong>Pulse Transparency</strong>: Pulses passing through an ingress node
-preserve their forensic history, allowing downstream nodes to
-trace events back to the original imperative trigger.</li>
-<li><strong>Graph Stabilization</strong>: The <code>ingest</code> handle with
-<code>serializedCompletion: true</code> allows your imperative code to <code>await</code>
-the completion of the entire reactive cascade triggered by the event.</li>
-<li><strong>Integrity Gate</strong>: All inputs must pass the <code>testRule</code> and
-<code>context</code> authorization checks before being broadcast.</li>
-</ul>
 <h3 id="example-clean-transformed-ingress">Example: Clean, transformed ingress</h3>
 <pre class="language-dart"><code class="language-dart">final IngressHandle&lt;String&gt; searchGate = Cell.ingress&lt;String&gt;(
   refine: (Cell host, Pulse&lt;String&gt; input) {
@@ -179,6 +166,27 @@ walkthrough of utilizing <a href="../../cell_tissue/IngressHandle.html">IngressH
 imperative and reactive code.
 {@category Core 16 Operators}</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> A BRD says "capture X" (an external fact enters the system) — identity, class, quantity, location, tick bus, ACK.
+<strong>When NOT to use:</strong>
+  <strong>DON'T</strong> create a custom Cell type to encode business policy.
+Policy belongs in a <code>FlowInstructionBase</code> subclass in <code>cell_flow</code>,
+not in a Cell receptor.
+See <code>HowTo-Mitose-Flow.md</code> §4 "When the BRD requires a custom FlowInstruction".
+<strong>Live signature:</strong> <code>Cell.ingress&lt;I&gt;({refine, ephemeralPolicy, source, context, receptor, testRule, synapses, forceLock})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.state</code> (retained value, not stateless entry).
+<strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §3.1 "Cell.ingress — how the desk enters the graph" (#cell-ingress)
+<strong>Example:</strong> <code>example/ingress_demo.dart</code>
+<strong>Cross-layer:</strong> moves to <code>cell_flow</code> if the BRD says "wait for silence" or "rate-limit".
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final gate = Cell.ingress&lt;int&gt;(
+  testRule: TestCell((v, {arguments, host, user}) =&gt; v is int &amp;&amp; v &gt;= 0),
+);
+gate.emit(1);
+gate.emit(-1); // rejected by the TestCell gate
+print('ok');
+</code></pre>
 </section>
 
 
@@ -231,7 +239,7 @@ imperative and reactive code.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -79,13 +79,6 @@ the reactive graph.</p>
 <li><code>emitAsync</code>: asynchronous, lock-protected update.</li>
 <li><code>ingest</code>: full <a href="../cell_tissue/Pulse-class.html">Pulse</a> injection with provenance.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>If the cell has a <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> (via <code>forceLock: true</code>), <code>emitAsync</code> queues
-the update to prevent race conditions.</li>
-<li>The <code>ingest</code> method with <code>serializedCompletion: true</code> waits for the
-entire graph to stabilise before the Future completes.</li>
-</ul>
 <h3 id="type-parameters">Type Parameters:</h3>
 <ul>
 <li><code>I</code>: The raw input data type accepted by this gateway.</li>
@@ -147,7 +140,7 @@ entire graph to stabilise before the Future completes.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

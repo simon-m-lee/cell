@@ -88,21 +88,6 @@ returned <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">F
 interpreter should implement its own timeout (see
 <a href="../mitosis/HttpInterpreter/timeout.html">HttpInterpreter.timeout</a>).</li>
 </ul>
-<h3 id="non-obvious">Non-obvious</h3>
-<ul>
-<li><strong>The port never executes Dart code returned by the model.</strong>
-It only parses a verb string and an args array, then looks the
-verb up in <a href="../mitosis/verbByName-constant.html">verbByName</a>. A model that returned
-<code>"verb": "(x) =&gt; x.clear()"</code> would be rejected with
-<code>reason: 'unknown-verb'</code>.</li>
-<li><strong>The transport label is advisory.</strong> <a href="../mitosis/Interpreter/transport.html">transport</a> is used by
-the demo to distinguish live from offline in the banner. It is
-not used by the instruction.</li>
-<li><strong>Timeout injection is one-shot.</strong> <a href="../mitosis/Interpreter/injectTimeoutOnce.html">injectTimeoutOnce</a> fires
-on the next call and clears itself. To exercise a retry loop
-that needs <code>count + 1</code> consecutive failures, call it
-<code>count + 1</code> times.</li>
-</ul>
 <h3 id="see-also">See Also</h3>
 <ul>
 <li><a href="../mitosis/HttpInterpreter-class.html">HttpInterpreter</a> — the live HTTP implementation.</li>
@@ -269,7 +254,7 @@ that needs <code>count + 1</code> consecutive failures, call it
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

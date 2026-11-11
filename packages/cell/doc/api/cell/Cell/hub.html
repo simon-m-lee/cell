@@ -99,16 +99,6 @@ using the chosen <a href="../../cell/HubRouting.html">HubRouting</a> strategy.</
 <li>The signal is dispatched either to the highest-priority match (Standard)
 or all matches (Multicast).</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Longest-Match Wins</strong>: In <a href="../../cell/HubRouting.html">HubRouting.prefix</a> mode, the router
-automatically selects the spoke with the most specific key.</li>
-<li><strong>CBAC Enforcement</strong>: <code>governedSpokes</code> allow you to restrict specific
-routes to callers holding a required <a href="../../cell/DeputyContext-class.html">DeputyContext</a> mandate.</li>
-<li><strong>Audit Trail</strong>: The hub maintains the <strong>Causal Provenance</strong> of routed
-signals, allowing you to trace a spoke's execution back to the
-original hub injection.</li>
-</ul>
 <h3 id="example--fallback--priority">Example – fallback + priority</h3>
 <pre class="language-dart"><code class="language-dart">final hub = Cell.hub(
   registrations: [
@@ -176,6 +166,21 @@ automatically feeds the hub.</li>
 walkthrough of pattern matching, priority ordering, and multicast routing.
 {@category Core 16 Operators}</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> One bus with many pulse types routed by <code>Pulse.type</code> (pattern / prefix / multicast).
+<strong>When NOT to use:</strong> v1 product lanes — two <code>Cell.ingress</code> lanes are simpler; do not replace a policy instruction.
+<strong>Live signature:</strong> <code>Cell.hub({spokes, governedSpokes, registrations, routing, multicast, fallback, distribution, relay, source})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.ingress</code> (single-path entry, no routing).
+<strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)
+<strong>Example:</strong> <code>example/hub_demo.dart</code>
+<strong>Cross-layer:</strong> the routed decision still belongs to <code>cell_flow</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final hub = Cell.hub(spokes: {
+  'echo': (cell, pulse, {user}) =&gt; Pulse('echo:${pulse.payload}'),
+});
+print(hub.root);
+</code></pre>
 </section>
 
 
@@ -232,7 +237,7 @@ walkthrough of pattern matching, priority ordering, and multicast routing.
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

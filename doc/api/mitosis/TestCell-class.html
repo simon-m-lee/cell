@@ -92,15 +92,6 @@ for every validation, but you can supply your own when creating a cell:</p>
 <li>The <code>+</code> operator composes rules into a single <a href="../mitosis/TestCell-class.html">TestCell</a> that evaluates
 them in sequence (short‑circuiting on <code>false</code>).</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>A deputy (created via <a href="../mitosis/Cell/deputy.html">Cell.deputy</a>) gets its own <a href="../mitosis/TestCell-class.html">TestCell</a>, layered
-on top of the principal's rule. You can narrow permissions, never widen.</li>
-<li>If a rule throws an exception, the framework treats it as a <code>true</code> (pass)
-when the host is ungoverned, or <code>false</code> (fail) when governed.</li>
-<li>The <a href="../mitosis/TestCell-class.html">TestCell</a> is a flyweight – many cells can share the same policy
-instance without extra memory.</li>
-</ul>
 <h3 id="example-a-complete-policy">Example: A complete policy</h3>
 <pre class="language-dart"><code class="language-dart">final rangeRule = TestCell&lt;int&gt;((value, ...) =&gt; value &gt;= 0 &amp;&amp; value &lt;= 100);
 final actionRule = TestActionRule&lt;Cell&gt;((action, ...) =&gt; action is ReadAction);
@@ -120,6 +111,25 @@ final policy = rangeRule + actionRule + linkRule + pulseRule;
 <li><strong>HowTo</strong>: See <code>guide/HowTo-TestCell.md</code> for a guide on implementing
 custom validation policies and integrity gates.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — the integrity gate for Cell nodes. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> <code>testRule: TestCell(...)</code> on <strong>ingress / state / toHandle</strong> only, when a BRD quality rule names that field.
+<strong>When NOT to use:</strong>
+  <strong>DON'T</strong> put <code>testRule: TestCell</code> on any <code>TissueList</code> / <code>TissueMap</code> /
+<code>TissueSet</code> / <code>TissueQueue</code> / <code>TissueValue</code> constructor. Use <code>TestTissue</code>.
+This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-test.dart</code>.
+<strong>Live signature:</strong> <code>TestCell&lt;C extends Cell&gt;(...)</code> — chain with <code>+</code>; <code>TestCell.allowAll</code> / <code>TestCell.readOnly</code> constants — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>TestTissue</code> (<code>cell_tissue</code>, for Tissue books). They are not subtypes.
+<strong>Guide:</strong> <code>guide/HowTo-TestCell.md</code> (integrity gates)
+<strong>Example:</strong> <code>example/ingress_demo.dart</code>
+<strong>Cross-layer:</strong> every Tissue book takes <code>TestTissue</code>, never <code>TestCell</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final gate = TestCell((v, {arguments, host, user}) =&gt; v is int &amp;&amp; v &gt;= 0);
+final c = Cell.ingress&lt;int&gt;(testRule: gate);
+c.emit(1);
+c.emit(-1); // rejected by the gate
+print('ok');
+</code></pre>
 </section>
 
 
@@ -222,7 +232,7 @@ specialized rules into a single, unified <strong>Integrity Gate</strong>.
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="action" class="callable">
-  <span class="name"><a href="../mitosis/TestCell/action.html">action</a></span><span class="signature">(<wbr><span class="parameter" id="action-param-action"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">action</span>, {</span><span class="parameter" id="action-param-host"><span>required</span> <span class="type-annotation">C</span> <span class="parameter-name">host</span>, </span><span class="parameter" id="action-param-arguments"><span class="type-annotation"><a href="../mitosis/Arguments.html">Arguments</a>?</span> <span class="parameter-name">arguments</span></span>})
+  <span class="name"><a href="../mitosis/TestCell/action.html">action</a></span><span class="signature">(<wbr><span class="parameter" id="action-param-action"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">action</span>, {</span><span class="parameter" id="action-param-host"><span>required</span> <span class="type-annotation">C</span> <span class="parameter-name">host</span>, </span><span class="parameter" id="action-param-arguments"><span class="type-annotation"><a href="../mitosis/Arguments.html">Arguments</a>?</span> <span class="parameter-name">arguments</span>, </span><span class="parameter" id="action-param-command"><span class="type-annotation"><a href="../mitosis/ApplyCommand.html">ApplyCommand</a>?</span> <span class="parameter-name">command</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span>
   </span>
   
@@ -361,12 +371,13 @@ using the <strong>Compositional Algebra</strong> of the framework.
 
         <dt id="readOnly" class="constant">
     <span class="name "><a href="../mitosis/TestCell/readOnly-constant.html">readOnly</a></span>
-  <span class="signature">&#8594; const _TestCellReadOnly</span>
+  <span class="signature">&#8594; const _TestCellReadOnly<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span>
   
 
 </dt>
 <dd>
-  A policy that blocks all mutations – read‑only.
+  A policy that blocks mutations through the <a href="../mitosis/Cell/apply.html">Cell.apply</a> gateway –
+read‑only.
   
 
 </dd>
@@ -396,7 +407,7 @@ using the <strong>Compositional Algebra</strong> of the framework.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

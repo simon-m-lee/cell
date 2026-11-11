@@ -84,18 +84,6 @@ agent's perception state for auditing and debugging.</li>
 <li><strong>Resource Management</strong>: Assigns a background priority (20) and <code>internal</code>
 sensitivity to prevent interference with high-priority user waves.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Confidence Gates</strong>: The <code>confidence</code> value allows <a href="../../mitosis/TestCell-class.html">TestCell</a> integrity
-gates to neutralize low-probability inferences before they trigger
-expensive downstream side-effects.</li>
-<li><strong>Reciprocal Handshake</strong>: Probabilistic signals are subject to the
-framework's mutual authorization protocol, evaluating agent certainty
-against the target node's stability requirements.</li>
-<li><strong>XAI Integration</strong>: The <code>detailed</code> audit level is specifically intended
-to record the "Why" behind an autonomous transition, making the AI
-reasoning observable.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final inference = PulseContext.inference(
   baseContext: appOntology,
@@ -183,7 +171,7 @@ representing the agent's certainty.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -83,16 +83,6 @@ action (e.g., <code>add</code>, <code>remove</code>).</li>
 <li>If any rule returns <code>false</code>, the element is rejected.</li>
 <li>If all pass, the element is authorised.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>action</code> parameter allows <strong>differentiated validation</strong> – a rule
-might permit an element for a <code>contains</code> check but forbid it for an
-<code>add</code> mutation.</li>
-<li>If a rule returns a <code>Future</code>, the validation suspends until the
-future completes.</li>
-<li>Unhandled exceptions default to <code>true</code> (pass) to preserve system
-liveness.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final policy = TestTissue&lt;String, TissueList&lt;String&gt;&gt;(
   (element, {host, action, ...}) {
@@ -136,7 +126,7 @@ FutureOr&lt;bool&gt; element(covariant E? element,
   &#47;&#47; Internal recursive evaluator to handle FutureOr branching
   FutureOr&lt;bool&gt; runRules(int index) {
     for (var i = index; i &lt; rules.length; i++) {
-      final result = rules[i].element(element, host: host);
+      final result = rules[i].element(element, host: host, action: action);
 
       &#47;&#47; Branching: If a rule returns a Future, chain the rest of the stack
       if (result is Future&lt;bool&gt;) {
@@ -181,7 +171,7 @@ FutureOr&lt;bool&gt; element(covariant E? element,
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -64,12 +64,6 @@ directly.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>It shares the same <code>Box</code> and lock as the principal, but its <code>testRule</code>
 is set to <code>TestCell.readOnly</code>, so any mutation is rejected.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>It recursively projects nested <code>Cell</code> values as unmodifiable.</li>
-<li>It is logically equal to its principal (<code>==</code> is <code>true</code>).</li>
-</ul>
-<p>See also: <a href="../mitosis/ValueCell/unmodifiable.html">ValueCell.unmodifiable</a>.</p>
 </section>
 
 
@@ -99,6 +93,7 @@ is set to <code>TestCell.readOnly</code>, so any mutation is rejected.</p>
         
   <dt>Available extensions</dt>
   <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="../mitosis/ApplyCommandDSL.html">ApplyCommandDSL</a></li>
       <li><a href="../mitosis/CellFlowOperators.html">CellFlowOperators</a></li>
   </ul></dd>
         
@@ -240,16 +235,15 @@ execution on this node via the dynamic <a href="../mitosis/CellBase/apply.html">
 
 </dd>
 
-        <dt id="validate" class="property inherited">
-  <span class="name"><a href="../mitosis/CellBase/validate.html">validate</a></span>
+        <dt id="validate" class="property">
+  <span class="name"><a href="../mitosis/UnmodifiableValueCell/validate.html">validate</a></span>
   <span class="signature">&#8594; <a href="../mitosis/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span>
   
 
 </dt>
-<dd class="inherited">
-  The authoritative <strong>Integrity Gate</strong> governing this node's structural
-boundaries and operational authority.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+<dd>
+  Layers <code>TestCell.readOnly</code> atop the principal's integrity gate.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
 
@@ -262,7 +256,7 @@ boundaries and operational authority.
 <dd>
   Retrieves the current state, projecting any nested <code>Cell</code> as
 unmodifiable.
-  <div class="features"><span class="feature">getter/setter pair</span><span class="feature">inherited-setter</span><span class="feature">override-getter</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span><span class="feature">override</span></div>
 
 </dd>
 
@@ -271,34 +265,50 @@ unmodifiable.
 
     
   <section
-      class="summary offset-anchor inherited"
+      class="summary offset-anchor"
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="apply" class="callable inherited">
-  <span class="name"><a href="../mitosis/CellBase/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../mitosis/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
-    <span class="returntype parameter">&#8594; dynamic</span>
+  <span class="name"><a href="../mitosis/CellBase/apply.html">apply</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="apply-param-command"><span class="type-annotation"><a href="../mitosis/ApplyCommand.html">ApplyCommand</a></span> <span class="parameter-name">command</span>, {</span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../mitosis/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Executes a <strong>State Transition</strong> or arbitrary logic via the <strong>Command Pattern</strong> gateway.
+  Submits an <a href="../mitosis/ApplyCommand.html">ApplyCommand</a> to trigger a state change or an action within this cell.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
-        <dt id="deputy" class="callable inherited">
-  <span class="name"><a href="../mitosis/CellBase/deputy.html">deputy</a></span><span class="signature">(<wbr>{<span class="parameter" id="deputy-param-ephemeralPolicy"><span class="type-annotation"><a href="../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="deputy-param-context"><span>covariant</span> <span class="type-annotation"><a href="../mitosis/DeputyContext-class.html">DeputyContext</a></span> <span class="parameter-name">context</span> = <span class="default-value">DeputyContext.system</span>, </span><span class="parameter" id="deputy-param-testRule"><span>covariant</span> <span class="type-annotation"><a href="../mitosis/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span><span class="parameter" id="deputy-param-synapses"><span class="type-annotation"><a href="../mitosis/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span>
+        <dt id="command" class="callable">
+  <span class="name"><a href="../mitosis/ApplyCommandDSL/command.html">command</a></span><span class="signature">(<wbr><span class="parameter" id="command-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../mitosis/ApplyCommandRunner-class.html">ApplyCommandRunner</a></span>
   </span>
   
 
 </dt>
-<dd class="inherited">
-  Creates an <strong>Attenuated Proxy</strong> (Deputy) of this cell with specialized
-governance and restricted authority.
-  <div class="features"><span class="feature">inherited</span></div>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/Cell-class.html">Cell</a>,
+        provided by the <a href="../mitosis/ApplyCommandDSL.html">ApplyCommandDSL</a> extension</span>
+      </p>
+  Begins assembling a command that invokes <code>function</code> on this cell.
+  
+
+</dd>
+
+        <dt id="deputy" class="callable">
+  <span class="name"><a href="../mitosis/UnmodifiableValueCell/deputy.html">deputy</a></span><span class="signature">(<wbr>{<span class="parameter" id="deputy-param-ephemeralPolicy"><span class="type-annotation"><a href="../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="deputy-param-context"><span>covariant</span> <span class="type-annotation"><a href="../mitosis/DeputyContext-class.html">DeputyContext</a></span> <span class="parameter-name">context</span> = <span class="default-value">DeputyContext.system</span>, </span><span class="parameter" id="deputy-param-testRule"><span>covariant</span> <span class="type-annotation"><a href="../mitosis/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span><span class="parameter" id="deputy-param-synapses"><span class="type-annotation"><a href="../mitosis/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns itself for any parameter set.
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
@@ -536,7 +546,7 @@ instruction designed to perform side-effects without altering pulse evolution.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

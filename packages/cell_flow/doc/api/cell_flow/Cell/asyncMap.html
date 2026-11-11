@@ -110,18 +110,6 @@ limit how many background tasks run simultaneously.</li>
 while a future is still running, the old future is ignored and only
  the most recent one will emit.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Causal Integrity</strong>: Even though the result arrives later, the
-<a href="../../cell_flow/EvolvedPulse-class.html">EvolvedPulse</a> tracks the original stimulus, preserving the forensic
-trail across the asynchronous boundary.</li>
-<li><strong>Error Handling</strong>: If the <code>mapper</code> throws an error or the future fails,
-the signal is terminated to prevent corrupted data from entering the
-reactive network.</li>
-<li><strong>Order Preservation</strong>: In parallel mode (<code>concurrency</code> <code>0</code>), results
-might arrive out of order if the second task finishes faster than the
-first. Use <code>concurrency</code> <code>1</code> if order is critical.</li>
-</ul>
 <h3 id="choosing-between-transformations-asyncmap-vs-switchmap">Choosing Between Transformations: asyncMap vs. switchMap</h3>
 <p>While both factories handle asynchronous logic, they serve different
 purposes in the reactive graph:</p>
@@ -185,6 +173,23 @@ and ordered sequential background tasks..</li>
 <li><a href="../../cell_flow/Cell/fromFuture.html">Cell.fromFuture</a>: To bridge a single, one-time async result.
 {@category asyncMap}</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> a background <code>Future</code> per pulse with concurrency control (<code>concurrency</code>, <code>latestOnly</code>, <code>exhaust</code>).
+<strong>When NOT to use:</strong> source selection (mapper returns a <code>Cell</code>) — that is <code>Cell.switchMap</code>; and never inside the policy decision itself.
+<strong>Live signature:</strong> <code>Cell.asyncMap&lt;S, T&gt;(Cell source, Future&lt;T&gt; Function(S value) mapper, {int concurrency = 0, bool latestOnly = false, bool exhaust = false})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.switchMap</code> (dynamic source rebinding, mapper returns <code>Cell</code>).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)
+<strong>Example:</strong> <code>example/async_map_demo.dart</code>
+<strong>Cross-layer:</strong> the orchestration equivalents are <code>Flow.asyncMap</code> / <code>Flow.asyncMapLatest</code> / <code>Flow.asyncMapConcurrent</code> in <code>cell_flow</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final am = Cell.asyncMap&lt;int, String&gt;(src.cell, (v) async =&gt; 'v=$v');
+final o = Cell.observe(source: am, effect: (Pulse p) =&gt; print(p.payload));
+src.emit(3);
+await Future&lt;void&gt;.delayed(const Duration(milliseconds: 30));
+o.stop();
+</code></pre>
 </section>
 
 
@@ -232,7 +237,7 @@ and ordered sequential background tasks..</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

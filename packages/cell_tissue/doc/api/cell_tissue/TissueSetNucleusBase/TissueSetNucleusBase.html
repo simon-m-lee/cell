@@ -63,6 +63,7 @@
 <li><span class="parameter" id="-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
 <li><span class="parameter" id="-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span></li>
+<li><span class="parameter" id="-param-principal"><span class="type-annotation"><a href="../../cell_tissue/TissueNucleusBase-class.html">TissueNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>, <span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">principal</span>, </span></li>
 </ol>})
     </section>
     
@@ -92,21 +93,6 @@ stores them in a memory‑optimised record using bitmasking.</li>
 <li>The resulting nucleus is immutable – you cannot change its
 configuration after creation.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>identitySet</code> flag is <strong>structural</strong> – once set, it cannot be
-changed by a deputy. If you need both identity‑based and value‑based
-views of the same data, you must create two separate nuclei.</li>
-<li>The <code>receptor</code> is automatically cloned if it is already activated
-(bound to another cell), ensuring that each nucleus starts with a
-clean logic instance.</li>
-<li>If <code>synapses</code> is <a href="../../cell_tissue/Synapses/enabled-constant.html">Synapses.enabled</a>, a fresh, empty registry is
-created for the new set. If you pass <a href="../../cell_tissue/Synapses/disabled-constant.html">Synapses.disabled</a>, the set
-will be terminal (no broadcasts).</li>
-<li>The <code>forceLock</code> flag controls whether a new synchronization lock is
-allocated. <code>false</code> (default) creates a new lock; <code>true</code> shares the
-principal's lock (used for deputies).</li>
-</ul>
 <h3 id="example-internal--how-the-framework-uses-it">Example (Internal – how the framework uses it)</h3>
 <pre class="language-dart"><code class="language-dart">class _MyCustomSetNucleus&lt;E&gt; extends TissueSetNucleusBase&lt;E, TissueSet&lt;E&gt;&gt; {
   _MyCustomSetNucleus({super.identitySet = false, ...}) : super();
@@ -142,6 +128,7 @@ for deputies); if <code>false</code> (default), allocates a new lock.</li>
   super.ephemeralPolicy,
   super.forceLock,
   super.user,
+  super.principal,
 }) : super(container: identitySet ? Container.identitySet : Container.set);</code></pre>
 </section>
 
@@ -170,7 +157,7 @@ for deputies); if <code>false</code> (default), allocates a new lock.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

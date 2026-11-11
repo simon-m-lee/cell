@@ -133,15 +133,6 @@ Future<T> _call<S, T>(AsyncMapper<S, T> map, S value) {
 ///    continues with the next input.
 /// 6. Each emitted value gets the step `'AsyncMap'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Sequential Processing**: Operations run one after another.
-/// - **Queueing**: Inputs are queued while processing.
-/// - **No Cancellation**: Previous operations are not cancelled.
-/// - **Error Isolation**: Errors don't stop the queue.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Single Value**: Unlike [AsyncExpand], collections are not flattened.
-///
 /// ### Example: Sequential API Calls
 /// ```dart
 /// final ids = Cell.ingress<int>();
@@ -245,8 +236,8 @@ class AsyncMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     AsyncMapper<S, T> map, {
     AsyncMapErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final queue = <S>[];
             var busy = false;
             return (pulse, {cell, user, future, token}) {
@@ -282,7 +273,7 @@ class AsyncMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               pump();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -384,15 +375,6 @@ class AsyncMapSequential<S, T> extends AsyncMap<S, T> {
 /// 4. Order is not preserved.
 /// 5. If [map] throws an error, it's reported independently.
 /// 6. Each emitted value gets the step `'AsyncMapConcurrent'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Unordered**: Results are emitted in completion order.
-/// - **Unlimited Concurrency**: All operations start immediately.
-/// - **No Queuing**: No queuing; operations start immediately.
-/// - **Error Isolation**: Errors are reported independently.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Resource Usage**: May use significant resources with many inputs.
 ///
 /// ### Parameters:
 /// - [map]: **Mapping Function.** Called with each typed payload,
@@ -542,15 +524,6 @@ class AsyncMapConcurrent<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///    generation.
 /// 6. Each emitted value gets the step `'AsyncMapLatest'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Generation Tracking**: Each operation gets a unique ID.
-/// - **Silent Cancellation**: Cancelled operations don't emit errors.
-/// - **Latest Only**: Only the most recent operation emits values.
-/// - **Error Isolation**: Only errors from the current generation are
-///   reported.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-///
 /// ### Parameters:
 /// - [map]: **Mapping Function.** Called with each typed payload,
 ///   returns a `FutureOr<T>`.
@@ -632,8 +605,8 @@ class AsyncMapLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     AsyncMapper<S, T> map, {
     AsyncMapErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             var generation = 0;
             return (pulse, {cell, user, future, token}) {
               final payload = pulse.payload;
@@ -663,7 +636,7 @@ class AsyncMapLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               run();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -708,14 +681,6 @@ class AsyncMapLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///    continues with the next input.
 /// 5. The index is only incremented on successful completions.
 /// 6. Each emitted value gets the step `'AsyncMapWithIndex'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Index Type**: The index is a 0-based integer.
-/// - **Typed Only**: Only typed pulses increment the index.
-/// - **Sequential**: Operations run one after another.
-/// - **Error Handling**: If [map] throws, the index is not incremented.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
 ///
 /// ### Parameters:
 /// - [map]: **Indexed Mapping Function.** Called with each typed
@@ -794,8 +759,8 @@ class AsyncMapWithIndex<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FutureOr<T> Function(S value, int index) map, {
     AsyncMapErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             var index = 0;
             final queue = <S>[];
             var busy = false;
@@ -834,7 +799,7 @@ class AsyncMapWithIndex<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               pump();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -875,12 +840,6 @@ class AsyncMapWithIndex<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 2. If all retries fail, the error is reported.
 /// 3. The instruction continues with the next input.
 /// 4. Each emitted value gets the step `'AsyncMapWithRetry'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Total Attempts**: The operation may run `count + 1` times.
-/// - **No Delay**: Retries are immediate (use [RetryWithDelay] for delays).
-/// - **Error Reporting**: Only the final failure is reported.
-/// - **Sequential**: Operations run one after another.
 ///
 /// ### Parameters:
 /// - [map]: **Mapping Function.** Called with each typed payload,
@@ -963,8 +922,8 @@ class AsyncMapWithRetry<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     int count = 3,
     AsyncMapErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final queue = <S>[];
             var busy = false;
             return (pulse, {cell, user, future, token}) {
@@ -1007,7 +966,7 @@ class AsyncMapWithRetry<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               pump();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -1047,12 +1006,6 @@ class AsyncMapWithRetry<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. The error is reported via [onError].
 /// 4. The instruction continues with the next input.
 /// 5. Each emitted value gets the step `'AsyncMapWithTimeout'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Timer Precision**: Timers are based on the event loop.
-/// - **Cancellation**: Timed-out operations are cancelled.
-/// - **Error Reporting**: Timeouts are reported via [onError].
-/// - **Sequential**: Operations run one after another.
 ///
 /// ### Parameters:
 /// - [map]: **Mapping Function.** Called with each typed payload,
@@ -1139,8 +1092,8 @@ class AsyncMapWithTimeout<S, T>
     required Duration duration,
     AsyncMapErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final queue = <S>[];
             var busy = false;
             return (pulse, {cell, user, future, token}) {
@@ -1177,7 +1130,7 @@ class AsyncMapWithTimeout<S, T>
               pump();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -1220,13 +1173,6 @@ class AsyncMapWithTimeout<S, T>
 /// 4. The instruction always emits a value.
 /// 5. Each emitted value gets the step `'AsyncMapWithFallback'` or
 ///    `'AsyncMapWithFallback.fallback'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Always Emits**: A value is always emitted (success or fallback).
-/// - **Error Isolation**: Errors are caught and handled gracefully.
-/// - **Type Safety**: The fallback must return the same type [T].
-/// - **Performance**: Fallback may be used frequently on failure.
-/// - **Sequential**: Operations run one after another.
 ///
 /// ### Parameters:
 /// - [map]: **Mapping Function.** Called with each typed payload,
@@ -1316,8 +1262,8 @@ class AsyncMapWithFallback<S, T>
     required T fallback,
     AsyncMapErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final queue = <S>[];
             var busy = false;
             return (pulse, {cell, user, future, token}) {
@@ -1363,7 +1309,7 @@ class AsyncMapWithFallback<S, T>
               pump();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }

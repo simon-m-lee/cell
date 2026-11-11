@@ -75,13 +75,6 @@ multiple state cells.</p>
 <p>It pairs the provided <code>instruction</code> with <a href="../../mitosis/ValueCell/postProcessRule.html">ValueCell.postProcessRule</a> to form
 a complete commitment pipeline. The nucleus gets a fresh <code>Box</code> and
 lock.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>If you omit the rule and provide a custom <code>receptor</code>, you must
-ensure state commitment is handled.</li>
-<li>The <code>forceLock</code> is set to <code>false</code> here (shared with principal),
-unlike the primary constructor which forces a lock by default.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>instruction</code>: <strong>The Transformation Blueprint.</strong> A formal <a href="../../mitosis/Instruction-class.html">Instruction</a> defining
@@ -161,7 +154,7 @@ traits carried by the nucleus blueprint.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

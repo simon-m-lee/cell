@@ -33,7 +33,7 @@ class _Probe {
   }
 }
 
-({IngressHandle<T> gate, FlowHandle<T> out, _Probe probe}) bind<T>(
+({IngressHandle<T> gate, FlowHandle out, _Probe probe}) bind<T>(
   FlowInstructionBase<Cell, Pulse, Pulse> op,
 ) {
   final gate = Cell.ingress<T>();
@@ -233,6 +233,30 @@ void main() {
       await b.gate.emitAsync(3);
       await b.probe.settle(const Duration(milliseconds: 100));
       expect(b.probe.payloads, ['1-a', '1-b', '3-a', '3-b']);
+    });
+
+    test('two synchronous triggers never start two concurrent inners',
+        () async {
+      // Regression for the same-frame race: the busy gate must be set
+      // BEFORE the async runner is scheduled, so the second synchronous
+      // trigger lands in the pending slot instead of starting in parallel.
+      var active = 0;
+      var maxActive = 0;
+      final b = bind(ExhaustMapLatest<int, String>((n) async* {
+        active++;
+        if (active > maxActive) maxActive = active;
+        yield '$n-start';
+        await Future<void>.delayed(const Duration(milliseconds: 30));
+        yield '$n-end';
+        active--;
+      }));
+      addTearDown(b.probe.stop);
+      b.gate.emit(1);
+      b.gate.emit(2); // same synchronous frame as emit(1)
+      await b.probe.settle(const Duration(milliseconds: 100));
+      expect(maxActive, 1,
+          reason: 'exhaust must never run two inners concurrently');
+      expect(b.probe.payloads, ['1-start', '1-end', '2-start', '2-end']);
     });
 
     test('with a single trigger behaves like ExhaustMap', () async {

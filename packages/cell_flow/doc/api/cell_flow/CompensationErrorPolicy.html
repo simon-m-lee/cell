@@ -58,6 +58,13 @@
     </div>
 
     
+<section class="desc markdown">
+  <p>Determines how the transaction scope behaves when a compensation attempt
+fails.</p>
+<p>The policy only governs the <strong>rollback path</strong>. Forward-path failures
+(command execution errors) always trigger compensation regardless of this
+value.</p>
+</section>
 
 
       <section>
@@ -95,7 +102,13 @@
 
 </dt>
 <dd>
-  
+  <p>Continue attempting the remaining compensations, collect all failures,
+and <strong>return normally</strong>. The transaction's <a href="../cell_flow/ApplyTransactionScope/commit.html">ApplyTransactionScope.commit</a>
+will subsequently throw the <em>forward-path</em> error, not the compensation
+error — the compensation failures are emitted as events but discarded
+from the thrown exception.</p>
+<p>Use when compensation failures are low-stakes and must not mask the
+original forward-path error.</p>
   
 
 </dd>
@@ -107,7 +120,11 @@
 
 </dt>
 <dd>
-  
+  <p>Abort the compensation loop on the <strong>first</strong> compensation failure.</p>
+<p>A <a href="../cell_flow/TxApplyCompensationException-class.html">TxApplyCompensationException</a> is thrown immediately with the failures
+collected so far. Remaining compensations are <strong>not attempted</strong> —
+earlier effects may remain un-reverted. Use when a compensation failure
+is so severe that continued attempts risk cascading damage.</p>
   
 
 </dd>
@@ -119,7 +136,12 @@
 
 </dt>
 <dd>
-  
+  <p>Attempt all compensations, collect every failure, and <strong>throw</strong>
+<a href="../cell_flow/TxApplyCompensationException-class.html">TxApplyCompensationException</a> at the end if any failed.</p>
+<p>The original forward-path error becomes the <code>cause</code> of the compensation
+exception, so the caller sees both the trigger and the leftover damage.
+Use in financial or invariant-critical systems where the operator must
+be notified that state may be inconsistent.</p>
   
 
 </dd>
@@ -287,7 +309,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

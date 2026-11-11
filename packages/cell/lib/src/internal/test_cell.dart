@@ -33,15 +33,6 @@ part of '../../cell.dart';
 ///   identity** – the other rule's logic is preserved, and this rule is
 ///   effectively a no‑op in the chain.
 ///
-/// ### Non‑obvious
-/// - Because it implements `TestCell<Never>`, it is host‑agnostic and can be
-///   assigned to any cell type without type variance issues.
-/// - When used with `+`, the operator wraps the other rule into a new
-///   [TestCell] that delegates to it, ensuring that `allowAll + customRule`
-///   behaves exactly like `customRule` alone.
-/// - It does not participate in exception handling – since it never throws,
-///   it doesn't affect the governed/ungoverned exception rules.
-///
 /// ### Example
 /// ```dart
 /// // Default policy – no restrictions
@@ -69,15 +60,21 @@ class TestPasses extends TestCell<Never> {
   FutureOr<bool> call(object, {covariant Cell? host, arguments}) => true;
 
   @override
-  FutureOr<bool> action(Function action, {required Cell host, Arguments? arguments}) {
+  FutureOr<bool> action(Function action,
+      {required Cell host, Arguments? arguments, ApplyCommand? command}) {
     final elements = [
       if (arguments?.positionalArguments != null)
         ...arguments!.positionalArguments!,
       if (arguments?.namedArguments != null)
         ...arguments!.namedArguments!.values,
     ];
-    _checkArguments(elements, 0, host, action);
-    return _checkActionRules(action, host, arguments);
+    final argResult = _checkArguments(elements, 0, host, action);
+    FutureOr<bool> finish() =>
+        _checkActionRules(action, host, arguments, command);
+    if (argResult is Future<bool>) {
+      return argResult.then((passed) => passed ? finish() : false);
+    }
+    return argResult ? finish() : false;
   }
 
   @override
@@ -95,7 +92,7 @@ class TestPasses extends TestCell<Never> {
 
   @override
   FutureOr<bool> _checkActionRules(
-      Function action, Cell host, Arguments? arguments) {
+      Function action, Cell host, Arguments? arguments, ApplyCommand? command) {
     return true;
   }
 
@@ -106,32 +103,30 @@ class TestPasses extends TestCell<Never> {
   }
 }
 
-class _TestCellReadOnly extends TestCell<Never> {
+class _TestCellReadOnly<C extends Cell> extends TestCell<C> {
   const _TestCellReadOnly() : super.fromRecord(());
 
   @override
-  TestCell<Never> operator +(covariant TestRule<Cell> other) {
-    return TestCell<Never>((object,
-        {Cell? host, dynamic arguments, dynamic user}) {
+  TestCell<C> operator +(covariant TestRule<Cell> other) {
+    return TestCell<C>((object, {Cell? host, dynamic arguments, dynamic user}) {
       return other.call(object, host: host, arguments: arguments);
     });
   }
 
   @override
-  FutureOr<bool> action(Function action, {required Cell host, Arguments? arguments}) {
-    if (host.modifiable.contains(action)) return false;
-    final elements = [
-      if (arguments?.positionalArguments != null)
-        ...arguments!.positionalArguments!,
-      if (arguments?.namedArguments != null)
-        ...arguments!.namedArguments!.values,
-    ];
-    _checkArguments(elements, 0, host, action);
-    return _checkActionRules(action, host, arguments);
+  FutureOr<bool> action(Function action,
+      {required C host, Arguments? arguments, ApplyCommand? command}) {
+    // Read-only blocks EVERY function action. Gating by whitelist
+    // membership (`host.modifiable.contains(action)`) is dead in practice:
+    // a caller-supplied function is never in the freshly allocated
+    // tear-off set, so that check only ever saw the framework's own
+    // `apply` forwarding tear-off. The read-only contract is simpler:
+    // functions are mutations, pulses (non-Function objects) are not.
+    return false;
   }
 
   @override
-  FutureOr<bool> call(object, {covariant Cell? host, arguments}) {
+  FutureOr<bool> call(object, {covariant C? host, arguments}) {
     if (object is Function && host != null) {
       return action(object, host: host);
     }
@@ -150,7 +145,7 @@ class _TestCellReadOnly extends TestCell<Never> {
 
   @override
   FutureOr<bool> _checkActionRules(
-      Function action, Cell host, Arguments? arguments) {
+      Function action, Cell host, Arguments? arguments, ApplyCommand? command) {
     return true;
   }
 

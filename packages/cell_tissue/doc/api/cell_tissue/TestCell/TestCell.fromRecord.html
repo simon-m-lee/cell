@@ -70,12 +70,6 @@ Deserialization</strong> or when moving rules across memory boundaries.</p>
 <p>It directly assigns the provided record to internal storage, bypassing
 the normal parameter validation. This is a performance optimisation for
 cases where the record is already known to be valid.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The record's shape is internal; don't rely on it.</li>
-<li>This constructor is used by the <code>+</code> operator and by deputies
-to efficiently compose rules.</li>
-</ul>
 </section>
 
 
@@ -112,7 +106,7 @@ to efficiently compose rules.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

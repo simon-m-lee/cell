@@ -51,6 +51,12 @@ typedef DistinctErrorHandler = void Function(
 /// - [onError]: Optional error handler for type mismatches.
 /// - [allowNull]: If true, allows null payloads when `null is S`.
 ///
+/// ### Null payloads
+/// A `null` payload for a non-nullable [S] is dropped silently (returns
+/// `null` without calling [onError]) — treating `null` as "no value to
+/// evolve" rather than a type violation. This is consistent across all
+/// operators that use the helper.
+///
 /// ### Returns:
 /// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
@@ -129,19 +135,6 @@ bool _defaultEquals(Object? a, Object? b) => a == b;
 /// 4. Values that fail the type check never update the previous slot.
 /// 5. The instruction preserves causal provenance.
 ///
-/// ### Non‑obvious
-/// - **Consecutive Only**: Only back-to-back duplicates are suppressed.
-///   A sequence `1, 2, 1` will emit three times.
-/// - **Initial Emission**: The first pulse is always allowed as there is
-///   no previous value for comparison.
-/// - **Custom Comparator**: Providing an [equals] function allows for deep
-///   equality, case-insensitive comparison, or numeric tolerance bands.
-/// - **State Persistence**: The instruction maintains the previous value
-///   across multiple inputs.
-/// - **Memory Efficiency**: Only the previous value is stored (O(1) memory).
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Composability**: Can be chained with other operators.
-///
 /// ### Example: Unique Consecutive Values
 /// ```dart
 /// final ticks = Cell.ingress<int>();
@@ -191,6 +184,25 @@ bool _defaultEquals(Object? a, Object? b) => a == b;
 /// - [DistinctUntilKeyChanged]: For deduplication by key.
 /// - [Distinct]: For global deduplication.
 /// - [DistinctKey]: For global key-based deduplication.
+///
+/// ### AI Agent Guide
+/// **Layer:** Flow — consecutive dedupe operator. Not a Cell factory, not a Tissue book.
+/// **When to use:** drop back-to-back duplicates only (heartbeats, no-change ticks) — `1, 2, 1` still emits three times.
+/// **When NOT to use:** global dedupe — that is `Distinct`; and never when an ACK must reset the latch (no `reset()`).
+/// **Live signature:** `DistinctUntilChanged<S>({bool Function(S previous, S next)? equals, DistinctErrorHandler? onError, dynamic user})` — pinned at `cell_flow: 1.0.0`
+/// **Do NOT confuse with:** `Distinct` (global seen-set; this is consecutive-only).
+/// **Guide:** `HowTo-Mitose-Flow.md` §3.3 "Filter / take / skip" (#flow-filter-take-skip)
+/// **Example:** `example/distinct_noise_reduction_demo.dart`
+/// **Cross-layer:** the Cell-layer twin is `Cell.distinct`.
+/// **Minimal compilable example**
+/// ```dart
+/// final src = Cell.ingress<int>();
+/// final h = DistinctUntilChanged<int>().toHandle(source: src.cell);
+/// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+/// src.emit(1);
+/// src.emit(1); // suppressed
+/// o.stop();
+/// ```
 class DistinctUntilChanged<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// Creates a [DistinctUntilChanged] instruction.
   ///
@@ -211,9 +223,9 @@ class DistinctUntilChanged<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool Function(S previous, S next)? equals,
     DistinctErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
-            final state = _ConsecutiveState<S>();
+  }) : super.statefulSync(
+          () {
+            final state = _PreviousValueState<S>();
             final cmp = equals ?? (S a, S b) => _defaultEquals(a, b);
             return (pulse, {cell, user}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -231,7 +243,7 @@ class DistinctUntilChanged<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               state.hasPrevious = true;
               return _mark(typed, 'DistinctUntilChanged');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -263,15 +275,6 @@ class DistinctUntilChanged<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. If the keys are equal, the pulse is dropped.
 /// 5. If the keys differ, the pulse passes through and the key is updated.
 /// 6. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **Key-Based**: Only the key is compared, not the full payload.
-/// - **Consecutive Only**: Only back-to-back key duplicates are suppressed.
-/// - **Payload Preserved**: The original payload is forwarded, not the key.
-/// - **State Persistence**: The instruction maintains the previous key.
-/// - **Memory Efficiency**: Only the previous key is stored (O(1) memory).
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Composability**: Can be chained with other operators.
 ///
 /// ### Example: By ID
 /// ```dart
@@ -339,9 +342,9 @@ class DistinctUntilKeyChanged<S, K>
     bool Function(K previous, K next)? equals,
     DistinctErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
-            final state = _ConsecutiveState<K>();
+  }) : super.statefulSync(
+          () {
+            final state = _PreviousValueState<K>();
             final cmp = equals ?? (K a, K b) => _defaultEquals(a, b);
             return (pulse, {cell, user}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -366,7 +369,7 @@ class DistinctUntilKeyChanged<S, K>
               state.hasPrevious = true;
               return _mark(typed, 'DistinctUntilKeyChanged');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -405,17 +408,6 @@ class DistinctUntilKeyChanged<S, K>
 /// - **Unbounded Growth**: Memory grows with the number of unique values.
 /// - **Use [DistinctUntilChanged]** when only consecutive repeats matter
 ///   to avoid unbounded memory growth.
-///
-/// ### Non‑obvious
-/// - **Global Scope**: Any previously seen value is dropped, even if it
-///   appeared long ago.
-/// - **Memory Growth**: The instruction stores all seen values, so memory
-///   grows with the number of unique values.
-/// - **Custom Comparator**: Providing an [equals] function allows for
-///   custom comparison logic.
-/// - **State Persistence**: The instruction maintains a list of all seen values.
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Composability**: Can be chained with other operators.
 ///
 /// ### Example: Unique Values
 /// ```dart
@@ -458,6 +450,27 @@ class DistinctUntilKeyChanged<S, K>
 /// - [DistinctUntilChanged]: For consecutive-only deduplication (O(1) memory).
 /// - [DistinctKey]: For global key-based deduplication.
 /// - [DistinctUntilKeyChanged]: For consecutive key-based deduplication.
+///
+/// ### AI Agent Guide
+/// **Layer:** Flow — global dedupe operator. Not a Cell factory, not a Tissue book.
+/// **When to use:** "do not flood the log" on a 15 s feed — drop any payload seen before (global seen-set, O(1) with default equality).
+/// **When NOT to use:**
+///   {@macro ai-do-not-stock-distinct-when-reset-needed}
+///   With a custom `equals`, membership degrades to a linear scan over seen values (O(n²) worst case) until the code fix lands — prefer a keyed variant or a TissueSet-backed latch for hot paths.
+/// **Live signature:** `Distinct<S>({bool Function(S previous, S next)? equals, DistinctErrorHandler? onError, dynamic user})` — pinned at `cell_flow: 1.0.0`
+/// **Do NOT confuse with:** `DistinctUntilChanged` (consecutive-only, O(1) memory; this is global).
+/// **Guide:** `HowTo-Mitose-Flow.md` §3.3 "Filter / take / skip" (#flow-filter-take-skip)
+/// **Example:** `example/distinct_noise_reduction_demo.dart`
+/// **Cross-layer:** an ACK-resettable latch is a custom instruction; a guarded register is a TissueSet.
+/// **Minimal compilable example**
+/// ```dart
+/// final src = Cell.ingress<int>();
+/// final h = Distinct<int>().toHandle(source: src.cell);
+/// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+/// src.emit(1);
+/// src.emit(1); // suppressed
+/// o.stop();
+/// ```
 class Distinct<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// Creates a [Distinct] instruction.
   ///
@@ -478,26 +491,38 @@ class Distinct<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool Function(S previous, S next)? equals,
     DistinctErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
-            final seen = <S>[];
+  }) : super.statefulSync(
+          () {
+            // Default equality gets a Set fast path (O(1) membership);
+            // custom comparators fall back to the linear scan.
+            final seenSet = equals == null ? <S>{} : null;
+            final seenList = equals == null ? null : <S>[];
             final cmp = equals ?? (S a, S b) => _defaultEquals(a, b);
             return (pulse, {cell, user}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
               if (typed == null) return null;
               final value = typed.payload as S;
               try {
-                for (final prior in seen) {
-                  if (cmp(prior, value)) return null;
+                final set = seenSet;
+                if (set != null) {
+                  if (set.contains(value)) return null;
+                  set.add(value);
+                } else {
+                  final list = seenList;
+                  if (list != null) {
+                    for (final prior in list) {
+                      if (cmp(prior, value)) return null;
+                    }
+                    list.add(value);
+                  }
                 }
               } catch (e, stack) {
                 onError?.call(e, stack);
                 return null;
               }
-              seen.add(value);
               return _mark(typed, 'Distinct');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -536,15 +561,6 @@ class Distinct<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Unbounded Growth**: Memory grows with the number of unique keys.
 /// - **Use [DistinctUntilKeyChanged]** when only consecutive repeats matter
 ///   to avoid unbounded memory growth.
-///
-/// ### Non‑obvious
-/// - **Global Scope**: Any previously seen key is dropped, even if it
-///   appeared long ago.
-/// - **Key-Based**: Only the key is compared, not the full payload.
-/// - **Payload Preserved**: The original payload is forwarded, not the key.
-/// - **Memory Growth**: The instruction stores all seen keys in a set.
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Composability**: Can be chained with other operators.
 ///
 /// ### Example: First Record per ID
 /// ```dart
@@ -608,8 +624,8 @@ class DistinctKey<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     K Function(S value) keyOf, {
     DistinctErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             final seen = <K>{};
             return (pulse, {cell, user}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -625,7 +641,7 @@ class DistinctKey<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               if (!seen.add(key)) return null;
               return _mark(typed, 'DistinctKey');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -635,7 +651,7 @@ class DistinctKey<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 // ─────────────────────────────────────────────────────────────
 
 /// Internal state for [DistinctUntilChanged] and [DistinctUntilKeyChanged].
-class _ConsecutiveState<T> {
+class _PreviousValueState<T> {
   T? previous;
   bool hasPrevious = false;
 }

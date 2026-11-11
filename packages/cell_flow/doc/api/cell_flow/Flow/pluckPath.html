@@ -91,15 +91,6 @@ from a complex object.</p>
 <li>If <code>useOrElse</code> is <code>true</code>, <code>orElse</code> is emitted on failure.</li>
 <li>The pulse gets the step <code>'PluckPath'</code> (or <code>'PluckPath.orElse'</code> for defaults).</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Path Traversal</strong>: The path is walked left to right.</li>
-<li><strong>Any Step Failure</strong>: If any step in the path fails, the whole
-extraction fails.</li>
-<li><strong>Type Safety</strong>: The final value must match type <code>T</code>.</li>
-<li><strong>Error Handling</strong>: Missing keys or type mismatches can trigger
-error handlers or fallbacks.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the payloads.</li>
@@ -187,7 +178,7 @@ users.emit({
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -38,14 +38,6 @@ part of '../../cell.dart';
 /// - The framework uses these dimensions during validation (via [TestCell])
 ///   and auditing (via the causal trace).
 ///
-/// ### Non‑obvious
-/// - The [Provenance.evolvable] flag is enforced by the engine – you cannot change
-///   a static pillar via `evolve()`.
-/// - The `compose` and `evolve` static methods are used internally by
-///   [PulseContext] to build contexts. You rarely call them directly.
-/// - The [integrity] dimension is a cryptographic checksum of the payload,
-///   ensuring tamper‑proofing – it's automatically handled by the framework.
-///
 /// ### Example: Creating a Pulse with Provenance
 /// ```dart
 /// final pulse = Pulse.governed<int>(
@@ -95,10 +87,6 @@ enum Provenance<V>
   /// During the mutual authorization handshake, the `actor` is scrutinised
   /// to verify that the source has the required clearance and authority.
   ///
-  /// ### Non‑obvious
-  /// - This is a **static pillar** – once set, it cannot be changed.
-  /// - The framework uses this for identity‑based access control.
-  ///
   /// ### Examples
   /// * `'user_8823_admin'` – direct manual intervention.
   /// * `'service_cache_manager'` – background maintenance.
@@ -120,11 +108,6 @@ enum Provenance<V>
   /// The `reason` is used for Explainable AI (XAI) and is inspected by
   /// integrity gates to ensure the mutation is justified.
   ///
-  /// ### Non‑obvious
-  /// - This is an **evolvable** dimension – you can refine it as the pulse
-  ///   traverses the graph.
-  /// - It should be human‑readable for audit purposes.
-  ///
   /// ### Examples
   /// * `'Clamping signal to [0,1] range to prevent somatic overflow.'`
   /// * `'Refactoring topology to meet current Resource constraints.'
@@ -145,11 +128,6 @@ enum Provenance<V>
   /// Receptors can use `purpose` to filter or prioritise pulses – e.g.,
   /// dropping analytics pulses when under load.
   ///
-  /// ### Non‑obvious
-  /// - This is **evolvable** – a pulse can be refined to a more specific
-  ///   purpose as it moves through the graph.
-  /// - It is compared against the cell's [Ontology.domains] during validation.
-  ///
   /// ### Examples
   /// * `'SYSTEM_MAINTENANCE'` – background grooming.
   /// * `'USER_TRANSACTION'` – user‑driven updates.
@@ -168,11 +146,6 @@ enum Provenance<V>
   /// ### How it works
   /// Integrity gates can reject pulses that use an unacceptable strategy,
   /// e.g., a cell might only accept `deterministic` signals.
-  ///
-  /// ### Non‑obvious
-  /// - This is **evolvable** – a `probabilistic` signal can be upgraded to
-  ///   `deterministic` after validation.
-  /// - The strategy influences trust and auditing.
   ///
   /// ### Examples
   /// * `ReasoningStrategy.deterministic` – hard‑coded business rules.
@@ -193,11 +166,6 @@ enum Provenance<V>
   /// TestCells can require a minimum confidence; low‑confidence signals
   /// may be routed for supervised approval.
   ///
-  /// ### Non‑obvious
-  /// - This is **evolvable** – confidence can be adjusted as more evidence
-  ///   is gathered.
-  /// - The default is 1.0 for deterministic and manual signals.
-  ///
   /// ### Examples
   /// * `0.65` – uncertain AI suggestion.
   /// * `0.98` – high‑confidence sensor fusion.
@@ -216,10 +184,6 @@ enum Provenance<V>
   /// The dispatcher uses this to prioritise pulses; higher numbers leapfrog
   /// lower ones. The framework uses standard tiers: background (0-20),
   /// routine (21-50), high (51-80), critical (81-95), emergency (96-100).
-  ///
-  /// ### Non‑obvious
-  /// - This is **evolvable** – priority can be promoted or demoted.
-  /// - The default is 21 (routine) if not set.
   ///
   /// ### Examples
   /// * `10` – background telemetry.
@@ -246,10 +210,6 @@ enum Provenance<V>
   /// ### How it works
   /// Integrity gates can block pulses that lack required compliance markers.
   ///
-  /// ### Non‑obvious
-  /// - This is a **static pillar** – cannot be changed once set.
-  /// - The framework enforces compliance constraints automatically.
-  ///
   /// ### Examples
   /// * `'GDPR'` – triggers redaction of PII.
   /// * `'PCI-DSS'` – forces encryption and full audit.
@@ -269,10 +229,6 @@ enum Provenance<V>
   /// The framework uses sensitivity to enforce redaction, encryption, and
   /// access control.
   ///
-  /// ### Non‑obvious
-  /// - This is a **static pillar** – cannot be changed.
-  /// - Higher sensitivity requires higher clearance to process.
-  ///
   /// ### Examples
   /// * `Sensitivity.public` – safe for logging.
   /// * `Sensitivity.secret` – restricted to secure enclaves.
@@ -288,10 +244,6 @@ enum Provenance<V>
   ///
   /// ### How it works
   /// The framework uses this to decide what to log and trace.
-  ///
-  /// ### Non‑obvious
-  /// - This is **evolvable** – a pulse can be promoted to `full` on demand.
-  /// - Higher audit levels may impact performance.
   ///
   /// ### Examples
   /// * `AuditLevel.none` – high‑frequency telemetry, no logging.
@@ -311,9 +263,6 @@ enum Provenance<V>
   /// ### How it works
   /// The traceId is used for deduplication and to link parent/child pulses.
   ///
-  /// ### Non‑obvious
-  /// - This is a **static pillar** – immutable.
-  /// - It is generated as a UUID v4.
   traceId<String>(false),
 
   /// The [traceId] of the [Pulse] that logically preceded or triggered this one.
@@ -328,9 +277,6 @@ enum Provenance<V>
   /// The framework uses this to link a child pulse to its parent,
   /// preserving the full causal chain.
   ///
-  /// ### Non‑obvious
-  /// - This is a **static pillar** – immutable.
-  /// - If a parent pulse is invalidated, children may also be invalidated.
   parentTraceId<String>(false),
 
   /// The cryptographic or checksum‑based **Verification Signature**
@@ -344,10 +290,6 @@ enum Provenance<V>
   /// ### How it works
   /// The framework hashes the payload and stores the hash; on receipt,
   /// the hash is re‑computed and compared.
-  ///
-  /// ### Non‑obvious
-  /// - This is a **static pillar** – immutable.
-  /// - If the payload changes, the integrity signature must be re‑generated.
   ///
   /// ### Examples
   /// * `sha256:e3b0c442...` – standard hash.
@@ -376,17 +318,6 @@ enum Provenance<V>
   ///   attributes (e.g., [Provenance.priority], [Provenance.reason]). They
   ///   can be redefined or specialized to reflect the specific task a cell
   ///   is performing as a pulse propagates.
-  ///
-  /// ### Non‑obvious
-  /// - **Security Invariant**: Prevents "metadata tampering" downstream. A
-  ///   pulse's compliance tier or causal actor cannot be downgraded or spoofed
-  ///   via evolution once the pulse is in flight.
-  /// - **Flyweight Optimization**: Evolution logic uses this flag to pre-filter
-  ///   update maps, minimizing the overhead of record synthesis during
-  ///   high-frequency reactive waves.
-  /// - **Integrity Enforcement**: The framework ensures that capability-based
-  ///   access checks are anchored in non-evolvable dimensions, preventing
-  ///   accidental authority elevation.
   ///
   /// ### Example
   /// ```dart
@@ -448,15 +379,6 @@ enum Provenance<V>
   /// - The result is an iterable of entries that can be used to build a
   ///   [PulseContext] via `PulseContext.fromEntries()`.
   ///
-  /// ### Non‑obvious
-  /// - This method includes **all** dimensions – both static and evolvable.
-  ///   It's used for creating a new pulse from scratch, not for evolving
-  ///   an existing one.
-  /// - The resolver is called for every dimension, so you must handle each
-  ///   one explicitly or let it return `null` to omit it.
-  /// - The result is intended to be consumed by [PulseContext.fromEntries],
-  ///   which performs type validation and record packing.
-  ///
   /// ### Example
   /// ```dart
   /// // Internal use – building a user action context
@@ -510,15 +432,6 @@ enum Provenance<V>
   ///   value is preserved).
   /// - Static pillars (like `actor`, `traceId`, `compliance`, `sensitivity`)
   ///   are **excluded** from the evolution, preserving the pulse's identity.
-  ///
-  /// ### Non‑obvious
-  /// - This method only processes **evolvable** dimensions. It deliberately
-  ///   ignores static pillars to prevent identity spoofing.
-  /// - The result is a **delta** – it only contains dimensions that have
-  ///   changed. Dimensions not provided in the resolver are inherited from
-  ///   the parent context.
-  /// - The result is intended to be consumed by [PulseContext.fromEntries]
-  ///   with the parent context passed in, so inheritance works correctly.
   ///
   /// ### Example
   /// ```dart
@@ -584,16 +497,6 @@ enum Provenance<V>
 /// - The `evolve` method creates a refined context, useful when a pulse
 ///   passes through multiple processing stages.
 ///
-/// ### Non‑obvious
-/// - The context is **immutable** – all changes create a new instance.
-/// - The `traceId` is auto‑generated if not provided, ensuring uniqueness.
-/// - The `parentTraceId` is automatically linked when you evolve a context
-///   from an existing one.
-/// - The `integrity` dimension is computed automatically by the framework
-///   and is not something you set manually.
-/// - The context is **not** the pulse – it's a separate metadata container
-///   that travels with the pulse.
-///
 /// ### Example: Creating a User Action Context
 /// ```dart
 /// final context = PulseContext.userAction(
@@ -639,13 +542,6 @@ class PulseContext extends ContextBase {
   /// Each named parameter corresponds to a [Provenance] dimension. The context
   /// is built as an immutable record, and if a `baseContext` is provided,
   /// it inherits from it.
-  ///
-  /// ### Non‑obvious
-  /// - The `traceId` is auto‑generated if not provided.
-  /// - The `parentTraceId` must be set manually if you're linking to a
-  ///   previous pulse.
-  /// - The `integrity` dimension is not set here – it's computed by the
-  ///   framework when the pulse is created.
   ///
   /// ### Parameters:
   /// - [baseContext]: Ancestral [Context] for inheritance.
@@ -717,11 +613,6 @@ class PulseContext extends ContextBase {
   /// [Provenance]), and the framework constructs a context record from them.
   /// You can optionally specify a [parent] to inherit from.
   ///
-  /// ### Non‑obvious
-  /// - The entries are validated against their `isType` guard at construction
-  ///   time, so you can't build a context with mismatched types.
-  /// - The `parent` chain is immutable.
-  ///
   /// ### Parameters:
   /// - [entries]: An iterable of [GovernanceEntry] objects defining the
   ///   telemetric pillars.
@@ -747,11 +638,6 @@ class PulseContext extends ContextBase {
   /// The factory populates all necessary provenance dimensions to ensure
   /// compliance. The resulting pulse will be fully audited and carry the
   /// required legal markers.
-  ///
-  /// ### Non‑obvious
-  /// - The `auditLevel` is forced to `full` – you cannot reduce it.
-  /// - The `strategy` is set to `deterministic` to avoid probabilistic
-  ///   reasoning on regulated data.
   ///
   /// ### Example
   /// ```dart
@@ -815,11 +701,6 @@ class PulseContext extends ContextBase {
   /// The context is lightweight and low‑priority, ensuring it doesn't
   /// interfere with user‑facing operations.
   ///
-  /// ### Non‑obvious
-  /// - The `priority` is set to 10 (background) by default, but you can
-  ///   override it.
-  /// - The `auditLevel` is `minimal` to reduce logging overhead.
-  ///
   /// ### Example
   /// ```dart
   /// final context = PulseContext.homeostasis(
@@ -876,10 +757,6 @@ class PulseContext extends ContextBase {
   /// and `priority` to 35 (routine). The context is optimised for low‑latency
   /// validation.
   ///
-  /// ### Non‑obvious
-  /// - The `actor` is fixed to `system_daemon` – you cannot change it.
-  /// - The `confidence` is 1.0, as system tasks are assumed reliable.
-  ///
   /// ### Example
   /// ```dart
   /// final context = PulseContext.systemInternal(
@@ -933,11 +810,6 @@ class PulseContext extends ContextBase {
   /// - Sets `strategy` to `manual` (human intervention).
   /// - Sets `confidence` to 1.0 (human intent is treated as absolute).
   /// - Sets `priority` to 60 (high, for UI responsiveness).
-  ///
-  /// ### Non‑obvious
-  /// - The `confidence` is 1.0 – the framework trusts human actions unless
-  ///   explicitly overridden.
-  /// - The `purpose` defaults to `USER_INTERACTION`.
   ///
   /// ### Example
   /// ```dart
@@ -998,10 +870,6 @@ class PulseContext extends ContextBase {
   /// - Sets `compliance` to the specified framework.
   /// - Uses `deterministic` strategy for reproducibility.
   ///
-  /// ### Non‑obvious
-  /// - The `priority` is 35 (routine) – audits are important but not urgent.
-  /// - The `sensitivity` is `confidential` to protect the audit data.
-  ///
   /// ### Example
   /// ```dart
   /// final context = PulseContext.complianceAudit(
@@ -1061,10 +929,6 @@ class PulseContext extends ContextBase {
   /// - Sets `auditLevel` to `detailed` for XAI transparency.
   /// - Defaults `priority` to 20 (background) to avoid interfering with
   ///   user actions.
-  ///
-  /// ### Non‑obvious
-  /// - The `confidence` is a required parameter; it must be between 0.0 and 1.0.
-  /// - Integrity gates may reject low‑confidence signals.
   ///
   /// ### Example
   /// ```dart
@@ -1127,11 +991,6 @@ class PulseContext extends ContextBase {
   /// - Sets `priority` to 85 (very high, to preempt further drift).
   /// - Sets `auditLevel` to `detailed` for traceability.
   ///
-  /// ### Non‑obvious
-  /// - The `targetField` is included in the `reason` for context.
-  /// - The default `confidence` is 0.9 – repairs are usually reliable but
-  ///   not absolute.
-  ///
   /// ### Example
   /// ```dart
   /// final context = PulseContext.selfCorrection(
@@ -1191,10 +1050,6 @@ class PulseContext extends ContextBase {
   /// - Sets `priority` to 40 (moderate, to ensure orderliness).
   /// - Sets `sensitivity` to `internal` to avoid leaking structural metadata.
   ///
-  /// ### Non‑obvious
-  /// - The `reason` is required and should explain the refactor.
-  /// - The `confidence` is 1.0 – structural changes are mandated.
-  ///
   /// ### Example
   /// ```dart
   /// final context = PulseContext.infrastructureChange(
@@ -1249,10 +1104,6 @@ class PulseContext extends ContextBase {
   /// - Sets `priority` to 100 (absolute maximum).
   /// - Sets `sensitivity` to `secret` to isolate the intervention.
   /// - Sets `auditLevel` to `full` for forensic capture.
-  ///
-  /// ### Non‑obvious
-  /// - This pulse preempts all other traffic.
-  /// - The `reason` is prefixed with 'SECURITY_SHIELD:' for clarity.
   ///
   /// ### Example
   /// ```dart
@@ -1309,10 +1160,6 @@ class PulseContext extends ContextBase {
   /// - Sets `priority` to 10 (background).
   /// - Sets `sensitivity` to `public`.
   /// - Uses `deterministic` strategy.
-  ///
-  /// ### Non‑obvious
-  /// - These pulses are never audited – they are pure telemetry.
-  /// - They are low priority and will not interfere with critical operations.
   ///
   /// ### Example
   /// ```dart
@@ -1378,17 +1225,6 @@ class PulseContext extends ContextBase {
   ///    agent's perception state for auditing and debugging.
   /// 4. **Resource Management**: Assigns a background priority (20) and `internal`
   ///    sensitivity to prevent interference with high-priority user waves.
-  ///
-  /// ### Non‑obvious
-  /// - **Confidence Gates**: The [confidence] value allows [TestCell] integrity
-  ///   gates to neutralize low-probability inferences before they trigger
-  ///   expensive downstream side-effects.
-  /// - **Reciprocal Handshake**: Probabilistic signals are subject to the
-  ///   framework's mutual authorization protocol, evaluating agent certainty
-  ///   against the target node's stability requirements.
-  /// - **XAI Integration**: The `detailed` audit level is specifically intended
-  ///   to record the "Why" behind an autonomous transition, making the AI
-  ///   reasoning observable.
   ///
   /// ### Example
   /// ```dart
@@ -1462,10 +1298,6 @@ class PulseContext extends ContextBase {
   /// - Sets `sensitivity` to `private` (inter‑agent metadata).
   /// - The `reason` includes the target agent and task description.
   ///
-  /// ### Non‑obvious
-  /// - The `auditLevel` is `full` to track delegation chains.
-  /// - The `strategy` is `deterministic` – delegation is a formal handoff.
-  ///
   /// ### Example
   /// ```dart
   /// final context = PulseContext.collaboration(
@@ -1521,11 +1353,6 @@ class PulseContext extends ContextBase {
   /// - Sets `strategy` to `stochastic` (exploratory).
   /// - Sets `auditLevel` to `none` (simulations are not audited).
   /// - Sets `priority` to 20.
-  ///
-  /// ### Non‑obvious
-  /// - Receptors will treat this pulse as a dry‑run and route it to a
-  ///   virtual buffer.
-  /// - The `theory` is included in the `reason`.
   ///
   /// ### Example
   /// ```dart
@@ -1585,11 +1412,6 @@ class PulseContext extends ContextBase {
   /// - Sets `auditLevel` to `full`.
   /// - The `directive` is included in the `reason`.
   ///
-  /// ### Non‑obvious
-  /// - Manual overrides have very high priority – they preempt almost
-  ///   everything.
-  /// - The `sensitivity` is `public` because these are administrative actions.
-  ///
   /// ### Example
   /// ```dart
   /// final context = PulseContext.instruction(
@@ -1645,12 +1467,6 @@ class PulseContext extends ContextBase {
   /// You provide a resolver function that returns a new [GovernanceEntry]
   /// for any evolvable dimension you want to change. Dimensions you don't
   /// touch are inherited from the current context.
-  ///
-  /// ### Non‑obvious
-  /// - Only dimensions marked `evolvable` in [Provenance] can be changed.
-  /// - Static pillars (e.g., `actor`, `traceId`) are preserved.
-  /// - The new context links back to `this` as its parent, preserving the
-  ///   causal chain.
   ///
   /// ### Example
   /// ```dart

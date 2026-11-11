@@ -154,14 +154,6 @@ void _fail({
 /// 5. The instruction stops after the first trigger.
 /// 6. Each emitted event gets the step `'FromStream'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **First Trigger Only**: The stream only starts on the first trigger.
-/// - **Single Subscription**: Only one subscription is created.
-/// - **Error Handling**: Stream errors are caught and reported.
-/// - **Provenance Preservation**: Each emitted event preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Memory Management**: The subscription is managed automatically.
-///
 /// ### Example: Bridging a Timer Stream
 /// ```dart
 /// final arm = Cell.ingress<void>();
@@ -206,6 +198,10 @@ void _fail({
 class FromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// Creates a [FromStream] instruction with the specified [source].
   ///
+  /// There is no `cancelOnError` parameter (unlike `Cell.fromStream` in
+  /// the core package): a stream error reports through [onError] and the
+  /// subscription keeps consuming subsequent events.
+  ///
   /// ### Parameters:
   /// - [source]: **The Stream Source.** The stream to bridge into the
   ///   reactive graph.
@@ -226,8 +222,8 @@ class FromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     StreamErrorHandler? onError,
     bool emitErrorPulse = true,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             var started = false;
             return (pulse, {cell, user, future, token}) {
               if (started) return null;
@@ -258,7 +254,7 @@ class FromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               run();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -300,14 +296,6 @@ class FromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. Each event is emitted as a pulse.
 /// 4. If the stream errors, an error pulse is emitted.
 /// 5. Each emitted event gets the step `'DeferStream'` for provenance.
-///
-/// ### Non‑obvious
-/// - **New Stream Each Time**: A fresh stream is created on each trigger.
-/// - **Lazy Creation**: The stream is created when triggered.
-/// - **Error Handling**: Stream errors are caught and reported.
-/// - **Provenance Preservation**: Each emitted event preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Memory Management**: Each stream is managed independently.
 ///
 /// ### Parameters:
 /// - [create]: **Stream Factory.** Called on each trigger to create
@@ -419,14 +407,6 @@ class DeferStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. If a stream errors, an error pulse is emitted.
 /// 5. Each emitted event gets the step `'ConcatFromStream'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Payload Must Be Stream**: The payload must be a `Stream<S>`.
-/// - **Ordered**: Streams are played in arrival order.
-/// - **Queueing**: Streams are queued while playing.
-/// - **Error Handling**: Stream errors are caught and reported.
-/// - **Provenance Preservation**: Each emitted event preserves the
-///   source cell, type, and priority from the trigger pulse.
-///
 /// ### Parameters:
 /// - [onError]: **Error Handler.** Optional callback for handling errors.
 /// - [emitErrorPulse]: **Emit Error Pulse.** Defaults to `true`.
@@ -461,8 +441,8 @@ class ConcatFromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     StreamErrorHandler? onError,
     bool emitErrorPulse = true,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final queue = <Stream<S>>[];
             var busy = false;
             return (pulse, {cell, user, future, token}) {
@@ -515,7 +495,7 @@ class ConcatFromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               pump();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -556,14 +536,6 @@ class ConcatFromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. Events are emitted as they arrive from any stream.
 /// 4. If a stream errors, an error pulse is emitted.
 /// 5. Each emitted event gets the step `'MergeFromStream'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Payload Must Be Stream**: The payload must be a `Stream<S>`.
-/// - **Concurrent**: All streams are listened to in parallel.
-/// - **Unordered**: Events are emitted in arrival order.
-/// - **Error Handling**: Stream errors are caught and reported.
-/// - **Provenance Preservation**: Each emitted event preserves the
-///   source cell, type, and priority from the trigger pulse.
 ///
 /// ### Parameters:
 /// - [onError]: **Error Handler.** Optional callback for handling errors.
@@ -684,15 +656,6 @@ class MergeFromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. Only events from the latest stream are emitted.
 /// 5. Each emitted event gets the step `'SwitchFromStream'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Payload Must Be Stream**: The payload must be a `Stream<S>`.
-/// - **Cancellation**: Previous streams are cancelled on new triggers.
-/// - **Latest Only**: Only the latest stream emits events.
-/// - **Generation Tracking**: Each stream gets a generation ID.
-/// - **Error Handling**: Errors are reported only for the current stream.
-/// - **Provenance Preservation**: Each emitted event preserves the
-///   source cell, type, and priority from the trigger pulse.
-///
 /// ### Parameters:
 /// - [onError]: **Error Handler.** Optional callback for handling errors.
 /// - [emitErrorPulse]: **Emit Error Pulse.** Defaults to `true`.
@@ -727,8 +690,8 @@ class SwitchFromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     StreamErrorHandler? onError,
     bool emitErrorPulse = true,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             var generation = 0;
             return (pulse, {cell, user, future, token}) {
               final payload = pulse.payload;
@@ -776,7 +739,7 @@ class SwitchFromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               run();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -820,14 +783,6 @@ class SwitchFromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. If a stream errors, an error pulse is emitted.
 /// 5. Each emitted event gets the step `'MapToStream'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Sequential**: Streams are played one after another.
-/// - **Queueing**: Streams are queued while playing.
-/// - **Error Handling**: Stream errors are caught and reported.
-/// - **Provenance Preservation**: Each emitted event preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Type Safety**: Generic over input type [S] and output type [T].
-///
 /// ### Parameters:
 /// - [project]: **Stream Projection.** Called with each typed payload,
 ///   returns a `Stream<T>`.
@@ -870,8 +825,8 @@ class MapToStream<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     StreamErrorHandler? onError,
     bool emitErrorPulse = true,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final queue = <S>[];
             var busy = false;
             return (pulse, {cell, user, future, token}) {
@@ -924,7 +879,7 @@ class MapToStream<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               pump();
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }

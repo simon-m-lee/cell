@@ -87,19 +87,6 @@ and output <code>O</code>.</li>
 <li>The resulting receptor performs the transformation while maintaining
 the internal type integrity of the signal.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Generics</strong>: This is a static method rather than a factory because
-Dart factories cannot introduce new generic parameters (<code>I</code> and <code>O</code>)
-independent of the class.</li>
-<li><strong>Downstream Consistency</strong>: Even though the resulting receptor is
-typed as <code>Receptor&lt;C&gt;</code>, the internal logic ensures that pulses produced
-will conform to the <code>O</code> payload type.</li>
-<li><strong>Resilience</strong>: The transformation is protected by the same safety
-boundaries as all other receptors; exceptions are caught and
-trace-logged.</li>
-<li><strong>Synchronous Execution</strong>: The instruction executes synchronously.</li>
-</ul>
 <h3 id="type-parameters">Type Parameters:</h3>
 <ul>
 <li><code>C</code>: The concrete <a href="../../cell_flow/Cell-class.html">Cell</a> type that will host this receptor.</li>
@@ -152,7 +139,7 @@ trace-logged.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

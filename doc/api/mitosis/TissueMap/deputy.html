@@ -94,13 +94,6 @@ distinct layer of governance, validation rules, and execution context.</p>
 its own observers.</li>
 <li>If all parameters are left at default, <code>deputy()</code> returns <code>this</code>.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The deputy is logically equal to its principal (<code>deputy == principal</code>).</li>
-<li>The deputy's <code>context</code> can be overridden to change priority or security.</li>
-<li>The <code>ephemeralPolicy</code> controls the deputy's lifetime independently of
-the principal.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final source = TissueMap&lt;String, int&gt;();
 final readOnly = await source.deputy(testRule: TestTissue.readOnly);
@@ -147,7 +140,7 @@ FutureOr&lt;TissueMap&lt;K, V&gt;&gt; deputy({
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

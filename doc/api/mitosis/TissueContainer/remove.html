@@ -82,14 +82,6 @@ elsewhere in the collection. If not, it invokes <code>synapses.unlink</code> to
 sever the dependency.</li>
 <li>The operation is atomic within the tissue's lock.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The duplicate check is important for non‑unique collections like Lists.
-If the same <a href="../../mitosis/Cell-class.html">Cell</a> instance appears multiple times, the link is
-preserved until the last reference is removed.</li>
-<li>If the element is not found, the method returns <code>false</code> without
-attempting to unlink.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>tissue</code>: The <a href="../../mitosis/Tissue-class.html">Tissue</a> instance that owns this container.</li>
@@ -146,7 +138,7 @@ bool remove(Tissue&lt;E&gt; tissue, E e) {
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

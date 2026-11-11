@@ -95,9 +95,11 @@ ValueNucleus&lt;V&gt; get clone {
       receptor: handle.receptor.clone,
       testRule: handle.testRule,
       ephemeralPolicy: handle.ephemeralPolicy,
-      synapses: synapses != Synapses.disabled
-          ? Synapses.enabled
-          : Synapses.disabled,
+      &#47;&#47; Materialize a working egress registry: the `enabled` flyweight
+      &#47;&#47; rejects every `link`, which would silently orphan the clone&#39;s
+      &#47;&#47; observers.
+      synapses:
+          synapses != Synapses.disabled ? Synapses() : Synapses.disabled,
       user: user,
       forceLock: lock != null,
     ),
@@ -133,7 +135,7 @@ ValueNucleus&lt;V&gt; get clone {
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

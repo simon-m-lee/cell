@@ -47,11 +47,17 @@ Cell _throttle(
 
   void emitOut(Pulse pulse) {
     if (outputCell.isInvalidated) return;
+    // Preserve the originating pulse's provenance: regulated pulses keep
+    // their compliance context and priority across the timing operator.
+    // `pulse.type` is dynamic — an enum-typed pulse must not throw a
+    // TypeError at the `type:` boundary, so only string types are kept.
     outputCell._nucleus.receptor.call(
       Pulse.governed(
+        context: (pulse as PulseBase).context,
         payload: pulse.payload,
-        type: pulse.type,
+        type: pulse.type is String ? pulse.type : null,
         source: outputCell,
+        priority: pulse.priority,
       ),
     );
   }
@@ -67,9 +73,19 @@ Cell _throttle(
         state.hasTrailing = false;
         state.trailingPulse = null;
         if (pending != null) {
-          emitOut(pending);
-          // After trailing emit, start a new mute window (Rx-like)
-          openWindow();
+          try {
+            emitOut(pending);
+          } catch (e, st) {
+            // A throwing downstream receptor must not become an
+            // unhandled zone error: fail the originating pulse cleanly.
+            (pending as PulseBase)._fail(e, stackTrace: st);
+          } finally {
+            // After the trailing emit, always start a new mute window
+            // (Rx-like) — including when the downstream threw. Without
+            // this the window never reopens and the throttle degenerates
+            // into an unthrottled pass-through for the rest of its life.
+            openWindow();
+          }
         }
       }
     });
@@ -83,7 +99,10 @@ Cell _throttle(
     receptor: Receptor(
       (cell, pulse, {user}) {
         if (outputCell.isInvalidated) return null;
-        if (pulse.source != source) return null;
+        // This bridge is bound to exactly one source, so every pulse that
+        // arrives here came from it. A `pulse.source == source` guard is
+        // wrong: state cells and derived cells emit pulses without a source
+        // stamp, which the guard silently dropped.
 
         if (!state.muted) {
           if (leading) {

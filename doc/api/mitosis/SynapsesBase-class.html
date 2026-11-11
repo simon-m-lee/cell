@@ -89,19 +89,6 @@ strategy.</li>
 by the cell's <code>TestCell.link</code> rule.</li>
 <li>The <code>async</code> getter provides a thread‑safe asynchronous version.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Identity‑based linking</strong>: The set of downstreams is identity‑based,
-so deputies and principals are treated as distinct observers.</li>
-<li><strong>Cycle detection</strong>: The pulse's <code>_checker</code> prevents infinite loops.</li>
-<li><strong>Filtering</strong>: The <code>filter</code> is applied to the pulse <strong>before</strong> it is
-delivered; if the filter returns <code>null</code>, the pulse is dropped for all
-observers.</li>
-<li><strong>Propagation strategies</strong> are applied at the egress point; they do not
-affect the pulse's internal state.</li>
-<li>The synapses is <strong>not</strong> itself a cell – it's a component of a cell's
-nucleus.</li>
-</ul>
 <h3 id="example-basic-synapses-setup">Example: Basic Synapses Setup</h3>
 <pre class="language-dart"><code class="language-dart">final synapses = Synapses&lt;String, Cell&gt;(
   downstreams: [logger, analytics],
@@ -209,27 +196,27 @@ signal distribution.
 
 </dd>
 
-        <dt id="isEmpty" class="property inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/isEmpty.html">isEmpty</a></span>
+        <dt id="isEmpty" class="property">
+  <span class="name"><a href="../mitosis/SynapsesBase/isEmpty.html">isEmpty</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
-<dd class="inherited">
+<dd>
   Whether this collection has no elements.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
 
-        <dt id="isNotEmpty" class="property inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/isNotEmpty.html">isNotEmpty</a></span>
+        <dt id="isNotEmpty" class="property">
+  <span class="name"><a href="../mitosis/SynapsesBase/isNotEmpty.html">isNotEmpty</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
-<dd class="inherited">
+<dd>
   Whether this collection has at least one element.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
 
@@ -740,7 +727,7 @@ predicate <code>test</code>.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -63,66 +63,70 @@
 <li><span class="parameter" id="-param-ephemeralPolicy"><span class="type-annotation"><a href="../../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
 <li><span class="parameter" id="-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span></li>
+<li><span class="parameter" id="-param-principal"><span class="type-annotation"><a href="../../mitosis/TissueNucleusBase-class.html">TissueNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter"><a href="../../mitosis/ValueContainer-class.html">ValueContainer</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">principal</span>, </span></li>
 </ol>})
     </section>
     
 <section class="desc markdown">
-  <p><strong>Primary Constructor</strong> – defines the immutable behaviour and storage
-strategy for a reactive single value.</p>
+  <p><strong>Primary Blueprint Constructor</strong> – Synthesizes the immutable DNA and
+storage strategy for a reactive single-value cell.</p>
+<p>In the framework's biological metaphor, this constructor defines the
+<strong>Initial DNA</strong> of a value container. It establishes whether the cell
+represents a mutable state or a write-once forensic constant, setting
+the foundation for all behavioral deputies derived from this nucleus.</p>
 <h3 id="when-to-use">When to use</h3>
-<p><strong>Internal framework use only.</strong> This constructor is <code>public</code> only so
-that concrete subclasses (like <code>_TissueValueNucleus</code>) can invoke it via
-<code>super()</code>. <strong>Application code should never call this directly.</strong></p>
-<p>If you need a nucleus, use <a href="../../mitosis/TissueValueNucleus/create.html">TissueValueNucleus.create</a> to create one
-from scratch, or <a href="../../mitosis/TissueValueNucleus/TissueValueNucleus.evolve.html">TissueValueNucleus.evolve</a> to derive one from an
-existing principal.</p>
-<p>You are writing a custom value implementation that extends
-<code>TissueValueNucleusBase</code> and need to pass configuration up to the base.</p>
+<ul>
+<li><strong>Internal Implementation</strong>: This constructor is <code>public</code> specifically
+to allow concrete subclasses (like <code>_TissueValueNucleus</code>) to invoke it
+via <code>super()</code>.</li>
+<li><strong>Custom Value Nuclei</strong>: Use this if you are extending the framework to
+create a specialized value type with unique storage or lifecycle needs.</li>
+</ul>
+<p><strong>Note</strong>: Standard application code should use <a href="../../mitosis/TissueValueNucleus/create.html">TissueValueNucleus.create</a>
+or <a href="../../mitosis/TissueValueNucleus/TissueValueNucleus.evolve.html">TissueValueNucleus.evolve</a> instead of calling this directly.</p>
 <h3 id="how-it-works">How it works</h3>
 <ol>
-<li>The <code>finalValue</code> flag determines the physical container:
+<li><strong>Structural Selection</strong>: The <code>finalValue</code> flag determines the
+physical <a href="../../mitosis/Container-class.html">Container</a> strategy:
 <ul>
-<li><code>true</code> → <a href="../../mitosis/Container/finalValue-constant.html">Container.finalValue</a> – the value can be set only once.</li>
-<li><code>false</code> → <a href="../../mitosis/Container/value-constant.html">Container.value</a> – the value is mutable.</li>
+<li><code>true</code> → <a href="../../mitosis/Container/finalValue-constant.html">Container.finalValue</a>: The value is a write-once constant.</li>
+<li><code>false</code> → <a href="../../mitosis/Container/value-constant.html">Container.value</a>: The value is mutable.</li>
 </ul>
 </li>
-<li>All other parameters are passed to the super‑constructor, which
-stores them in a memory‑optimised record using bitmasking.</li>
-<li>The resulting nucleus is immutable – you cannot change its
-configuration after creation.</li>
+<li><strong>Bitmask Encoding</strong>: All governance parameters are passed to the
+<a href="../../mitosis/TissueNucleusBase-class.html">TissueNucleusBase</a> super-constructor, where they are packed into
+a memory-optimized, bitmask-enabled record.</li>
+<li><strong>Immutability</strong>: Once constructed, the storage strategy is locked.
+Any future <a href="../../mitosis/TissueValueNucleus/TissueValueNucleus.evolve.html">TissueValueNucleus.evolve</a> operations will maintain this core DNA.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>finalValue</code> flag is <strong>structural</strong> – once set, it cannot be
-changed by a deputy. If you need both mutable and write‑once views
-of the same data, you must create two separate nuclei.</li>
-<li>The <code>receptor</code> is automatically cloned if it is already activated
-(bound to another cell), ensuring that each nucleus starts with a
-clean logic instance.</li>
-<li>If <code>synapses</code> is <a href="../../mitosis/Synapses/enabled-constant.html">Synapses.enabled</a>, a fresh, empty registry is
-created for the new value. If you pass <a href="../../mitosis/Synapses/disabled-constant.html">Synapses.disabled</a>, the value
-will be terminal (no broadcasts).</li>
-<li>The <code>forceLock</code> flag controls whether a new synchronization lock is
-allocated. <code>false</code> (default) creates a new lock; <code>true</code> shares the
-principal's lock (used for deputies).</li>
-</ul>
-<h3 id="example-internal--how-the-framework-uses-it">Example (Internal – how the framework uses it)</h3>
-<pre class="language-dart"><code class="language-dart">class _MyCustomValueNucleus&lt;V&gt; extends TissueValueNucleusBase&lt;V, TissueValue&lt;V&gt;&gt; {
-  _MyCustomValueNucleus({super.finalValue = false, ...}) : super();
+<h3 id="example-internal-subclass">Example (Internal Subclass)</h3>
+<pre class="language-dart"><code class="language-dart">class MyCustomValueNucleus&lt;V&gt; extends TissueValueNucleusBase&lt;V, TissueValue&lt;V&gt;&gt; {
+  MyCustomValueNucleus({
+    super.finalValue = false,
+    super.testRule,
+    // ...other params
+  }) : super();
 }
 </code></pre>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>bind</code>: Optional upstream <a href="../../mitosis/Cell-class.html">Cell</a> – the value will automatically
-mirror changes from this source (deputy pattern).</li>
-<li><code>context</code>: Security tier and execution domain (default: <a href="../../mitosis/Context/system-constant.html">Context.system</a>).</li>
-<li><code>receptor</code>: Mutation processor – defaults to <a href="../../mitosis/TissueReceptor/passThrough-constant.html">TissueReceptor.passThrough</a>.</li>
-<li><code>testRule</code>: Validation gate – defaults to <a href="../../mitosis/TestTissue/allowAll-constant.html">TestTissue.allowAll</a>.</li>
-<li><code>synapses</code>: Distribution configuration – defaults to <a href="../../mitosis/Synapses/enabled-constant.html">Synapses.enabled</a>.</li>
-<li><code>finalValue</code>: <code>true</code> for write‑once, <code>false</code> for mutable (default).</li>
-<li><code>forceLock</code>: If <code>true</code>, shares the principal's lock (optimisation
-for deputies); if <code>false</code> (default), allocates a new lock.</li>
-<li><code>user</code>: Optional custom metadata (e.g., UI hints, serialisation tags).</li>
+<li><code>bind</code>: <strong>Ingress Link.</strong> An optional upstream <a href="../../mitosis/Cell-class.html">Cell</a> for the value to
+observe and mirror (Deputy pattern).</li>
+<li><code>context</code>: <strong>Operational Authority.</strong> The security tier and priority
+domain (default: <a href="../../mitosis/Context/system-constant.html">Context.system</a>).</li>
+<li><code>receptor</code>: <strong>Command Engine.</strong> The logic used to process mutations.</li>
+<li><code>testRule</code>: <strong>Integrity Gate.</strong> Validation rules that guard the value.</li>
+<li><code>synapses</code>: <strong>Signal Distribution.</strong> Manages egress connectivity and
+event broadcasting.</li>
+<li><code>finalValue</code>: If <code>true</code>, the value becomes a write-once forensic
+constant. Defaults to <code>false</code> (mutable).</li>
+<li><code>ephemeralPolicy</code>: <strong>Lifecycle Governance.</strong> Defines the TTL for
+the cell state.</li>
+<li><code>forceLock</code>: If <code>true</code>, shares the <code>principal</code>'s synchronization lock;
+otherwise, allocates a new one.</li>
+<li><code>user</code>: <strong>Extension Metadata.</strong> Optional record for domain-specific tags.</li>
+<li><code>principal</code>: <strong>Prototype Source.</strong> The parent nucleus from which this
+instance inherits its structural DNA.</li>
 </ul>
 </section>
 
@@ -130,17 +134,18 @@ for deputies); if <code>false</code> (default), allocates a new lock.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">TissueValueNucleusBase(
-    {super.bind,
-    super.context,
-    super.receptor,
-    super.testRule,
-    super.synapses,
-    bool finalValue = false,
-    super.ephemeralPolicy,
-    super.forceLock,
-    super.user})
-    : super(container: finalValue ? Container.finalValue : Container.value);</code></pre>
+  <pre class="language-dart"><code class="language-dart">TissueValueNucleusBase({
+  super.bind,
+  super.context,
+  super.receptor,
+  super.testRule,
+  super.synapses,
+  bool finalValue = false,
+  super.ephemeralPolicy,
+  super.forceLock,
+  super.user,
+  super.principal,
+}) : super(container: finalValue ? Container.finalValue : Container.value);</code></pre>
 </section>
 
 
@@ -168,7 +173,7 @@ for deputies); if <code>false</code> (default), allocates a new lock.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

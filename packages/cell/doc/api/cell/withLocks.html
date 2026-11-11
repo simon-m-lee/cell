@@ -73,13 +73,6 @@ Callers are responsible for sorting <code>locks</code> deterministically first.<
 <p>Builds a nest of <code>lock.synchronized(...)</code> calls. The innermost
 callback is <code>body</code>. When <code>body</code> finishes (success or error) the
 nested sections unwind and every lock is released.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><code>null</code> entries in <code>locks</code> are skipped (cells without a lock).</li>
-<li>An empty list runs <code>body</code> immediately with no locking.</li>
-<li>Exceptions from <code>body</code> propagate after all locks are released.</li>
-<li>Reentrant <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>s are safe – the same isolate may re-enter.</li>
-</ul>
 </section>
 
 
@@ -119,7 +112,7 @@ nested sections unwind and every lock is released.</p>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

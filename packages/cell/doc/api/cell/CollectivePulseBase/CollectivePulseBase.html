@@ -84,15 +84,6 @@ sub‑pulses.</li>
 <li>The resulting collective is a single unit that moves through the
 graph atomically.</li>
 </ul>
-<h3 id="nonobvious-the-branch-counter-is-critical-for-completion">Non‑obvious: the branch counter is critical for completion</h3>
-<p>The <code>_branches</code> counter is incremented here. Each sub‑pulse
-decrements the counter when it completes. When the counter reaches
-zero, the collective's completion callback fires. This is how the
-framework knows when a composite pulse is fully processed.</p>
-<h3 id="nonobvious-metadata-is-applied-to-the-collective-not-subpulses">Non‑obvious: metadata is applied to the collective, not sub‑pulses</h3>
-<p>The <code>policy</code>, <code>context</code>, <code>type</code>, and other metadata are applied to the
-collective as a whole, not to individual sub‑pulses. Each sub‑pulse
-retains its own metadata.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>pulses</code>: The individual pulses to bundle into a collective.</li>
@@ -144,12 +135,7 @@ final collective = CollectivePulseBase(
     super.scrutinize,
     super.user,
     super.priority})
-    : super(payload: pulses) {
-  final branches = _branches;
-  if (branches != null) {
-    branches.value = branches.value! + 1;
-  }
-}</code></pre>
+    : super(payload: pulses);</code></pre>
 </section>
 
 
@@ -177,7 +163,7 @@ final collective = CollectivePulseBase(
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

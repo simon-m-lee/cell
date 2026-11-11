@@ -464,7 +464,7 @@ FlowInstruction<Cell, Pulse<Reading>, Pulse<Severity>> buildAlarmGate() {
 /// This cell is the output of the alarm gate pipeline. It emits a PAGE
 /// severity pulse whenever the clinical policy determines that a page
 /// is required and the severity has changed from the previous emission.
-late final FlowHandle<Pulse<Reading>> alarms;
+late final FlowHandle alarms;
 
 /// The pager handle — async I/O for sending alerts.
 ///

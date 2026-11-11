@@ -75,7 +75,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Set&lt;E&gt; toSet() =&gt; _nucleus.container.toSet();</code></pre>
+Set&lt;E&gt; toSet() {
+  &#47;&#47; Iterate `this` so unmodifiable views project child cells through the
+  &#47;&#47; same path as iteration; the raw container would bypass the projection.
+  return {for (final e in this) e};
+}</code></pre>
 </section>
 
 
@@ -103,7 +107,7 @@ Set&lt;E&gt; toSet() =&gt; _nucleus.container.toSet();</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

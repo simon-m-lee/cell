@@ -109,6 +109,11 @@ Iterator&lt;E&gt; get iterator {
       () =&gt; _nucleus.record.local.container,
       orElse: null);
   if (container != null) {
+    if (unmodifiableElement) {
+      return (container.store as Iterable)
+          .map((e) =&gt; e is Cell ? e.unmodifiable as E : e as E)
+          .iterator;
+    }
     return (container.store as Iterable).map((e) =&gt; e as E).iterator;
   }
   if (unmodifiableElement) {
@@ -148,7 +153,7 @@ Iterator&lt;E&gt; get iterator {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

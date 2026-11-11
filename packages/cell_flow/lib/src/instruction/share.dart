@@ -101,17 +101,6 @@ Pulse<S> _out<S>(S value, Pulse trigger, Cell? cell, String step) {
 /// 4. [latest] returns the most recent value.
 /// 5. [seen] tracks the total number of values pushed.
 ///
-/// ### Non‑obvious
-/// - **Sliding Window**: When the buffer exceeds [size], the oldest
-///   values are removed.
-/// - **Size 0**: If [size] is 0, no values are retained.
-/// - **Size 1**: Equivalent to [ShareLatest] behavior.
-/// - **Volatile**: The buffer is in-memory only, not persisted.
-/// - **Shared Access**: Multiple observers can read the same buffer.
-/// - **Not a Store**: This is not a database or cache.
-/// - **Mutable**: The buffer contents can be modified externally.
-/// - **Thread Safety**: Not thread-safe by default.
-///
 /// ### Example: Accessing the Buffer
 /// ```dart
 /// final buffer = ShareBuffer<String>(size: 3);
@@ -243,15 +232,6 @@ class _Seen {
 /// 3. The `seen` counter is incremented.
 /// 4. The pulse gets the step `'Share'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Pass-through**: Values are not modified or buffered.
-/// - **Counting**: The [seen] counter tracks typed pulses only.
-/// - **Type Safety**: Only payloads matching type [S] are counted.
-/// - **Provenance Preservation**: The pulse gets the `'Share'` step.
-/// - **Multiple Observers**: Multiple observers share one subscription.
-/// - **No Replay**: Late subscribers do not receive past values.
-/// - **Count Available**: The count is accessible via the [seen] getter.
-///
 /// ### Example: Testing Shared Source
 /// ```dart
 /// final input = Cell.ingress<int>();
@@ -319,8 +299,8 @@ class Share<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     this._seen,
     ShareErrorHandler? onError,
     dynamic user,
-  ) : super(
-          (() {
+  ) : super.statefulSync(
+          () {
             final seen = _seen;
             return (pulse, {cell, user}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -328,7 +308,7 @@ class Share<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               seen.value++;
               return typed.withStep('Share');
             };
-          })(),
+          },
           user: user,
         );
 
@@ -376,14 +356,6 @@ class Share<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. The pulse is passed through unchanged.
 /// 4. The [buffer.latest] getter provides access to the most recent value.
 /// 5. The pulse gets the step `'ShareLatest'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Buffer Size 1**: Only the most recent value is retained.
-/// - **Mutable Buffer**: The buffer is mutable and shared.
-/// - **No Replay**: The operator itself doesn't replay; it just stores.
-/// - **External Access**: The buffer is accessible externally.
-/// - **Provenance Preservation**: The pulse gets the `'ShareLatest'` step.
-/// - **Always Overwrites**: Each new value overwrites the previous one.
 ///
 /// ### Example: Latest Value Access
 /// ```dart
@@ -456,8 +428,8 @@ class ShareLatest<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     this.buffer,
     ShareErrorHandler? onError,
     dynamic user,
-  ) : super(
-          (() {
+  ) : super.statefulSync(
+          () {
             final buf = buffer;
             return (pulse, {cell, user}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -465,7 +437,7 @@ class ShareLatest<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               buf.push(typed.payload as S);
               return typed.withStep('ShareLatest');
             };
-          })(),
+          },
           user: user,
         );
 
@@ -510,15 +482,6 @@ class ShareLatest<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. The pulse is passed through unchanged.
 /// 5. The [buffer.values] getter provides access to buffered values.
 /// 6. The pulse gets the step `'ShareReplay'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Sliding Window**: The buffer maintains exactly [size] values.
-/// - **Size 0**: If size is 0, no values are retained.
-/// - **Mutable Buffer**: The buffer is mutable and shared.
-/// - **No Replay**: The operator itself doesn't replay; it just stores.
-/// - **External Access**: The buffer is accessible externally.
-/// - **Provenance Preservation**: The pulse gets the `'ShareReplay'` step.
-/// - **Min Size**: Size defaults to 16, minimum is 1.
 ///
 /// ### Example: Recent Values Access
 /// ```dart
@@ -601,8 +564,8 @@ class ShareReplay<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     this.buffer,
     ShareErrorHandler? onError,
     dynamic user,
-  ) : super(
-          (() {
+  ) : super.statefulSync(
+          () {
             final buf = buffer;
             return (pulse, {cell, user}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -610,7 +573,7 @@ class ShareReplay<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               buf.push(typed.payload as S);
               return typed.withStep('ShareReplay');
             };
-          })(),
+          },
           user: user,
         );
 
@@ -660,17 +623,6 @@ class ShareReplay<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. The buffer is shared and accessible externally.
 /// 4. Replayed values get the step `'ShareReplayStart.replay'`.
 /// 5. Live values get the step `'ShareReplayStart'`.
-///
-/// ### Non‑obvious
-/// - **Replay Once**: The buffer is replayed only on the first pulse.
-/// - **Buffer Update**: The first pulse's value is added to the buffer.
-/// - **Include Current**: [includeCurrent] controls whether the first
-///   pulse's value is also forwarded.
-/// - **Shared Buffer**: The buffer is shared and can be accessed externally.
-/// - **Provenance Preservation**: Replayed values get the step
-///   `'ShareReplayStart.replay'`, live values get `'ShareReplayStart'`.
-/// - **Late Subscriber Simulation**: This approximates Rx's late
-///   subscriber behavior where new subscribers get the history.
 ///
 /// ### Example: Late Subscriber Simulation
 /// ```dart
@@ -749,8 +701,8 @@ class ShareReplayStart<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool includeCurrent = true,
     ShareErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             var first = true;
             return (pulse, {cell, user, future, token}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -769,7 +721,7 @@ class ShareReplayStart<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               if (!includeCurrent) return null;
               return typed.withStep('ShareReplayStart');
             };
-          })(),
+          },
           user: user,
         );
 }

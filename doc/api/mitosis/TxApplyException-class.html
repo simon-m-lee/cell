@@ -53,6 +53,13 @@
 </h1></div>
 
     
+<section class="desc markdown">
+  <p>Raised for <strong>control-flow</strong> problems in a <a href="../mitosis/ApplyTransactionScope-class.html">ApplyTransactionScope</a>: wrong
+phase (e.g. <code>commit</code> before <code>begin</code>), non-modifiable function, non-
+participant cell, or a rejected command at commit time.</p>
+<p>This is distinct from <a href="../mitosis/TxApplyCompensationException-class.html">TxApplyCompensationException</a>, which describes a
+failure of the <strong>rollback path</strong> rather than the forward path.</p>
+</section>
 
 
     <section>
@@ -101,7 +108,8 @@
 
 </dt>
 <dd>
-  
+  Optional underlying cause, typically the original error that triggered
+the abort.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -125,7 +133,7 @@
 
 </dt>
 <dd>
-  
+  A human-readable description of the failure.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -227,7 +235,7 @@
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

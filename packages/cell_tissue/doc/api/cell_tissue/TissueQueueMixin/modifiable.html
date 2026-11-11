@@ -109,15 +109,6 @@ context or payload.</li>
 this getter is hardcoded to return an empty collection, effectively
 disabling the command pattern gateway.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Reference Equality</strong>: Functions are typically compared by reference.
-Ensure that the functions passed to <a href="../../cell_tissue/TissueQueueMixin/apply.html">apply</a> are the exact instances
-defined in this manifest.</li>
-<li><strong>Flyweight Optimization</strong>: The manifest is often stored using
-optimized records to minimize memory overhead when managing thousands
-of cells.</li>
-</ul>
 <h3 id="returns">Returns:</h3>
 <p>An <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> of <code>Function</code> references that represent the authorized
 mutation surface of this node.</p>
@@ -169,7 +160,7 @@ Iterable&lt;Function&gt; get modifiable =&gt; &lt;Function&gt;{
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

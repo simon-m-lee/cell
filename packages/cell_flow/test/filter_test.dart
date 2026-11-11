@@ -38,7 +38,7 @@ class _Probe {
 ///
 /// Inputs must go through [FlowHandle.emitAsync] / [IngressHandle.emitAsync],
 /// never through [Cell] — `Cell` has no `emit` / `emitAsync`.
-({IngressHandle<T> gate, FlowHandle<T> out, _Probe probe}) bind<T>(
+({IngressHandle<T> gate, FlowHandle out, _Probe probe}) bind<T>(
   FlowInstructionBase<Cell, Pulse, Pulse> op,
 ) {
   final gate = Cell.ingress<T>();

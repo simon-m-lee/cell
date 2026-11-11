@@ -69,11 +69,6 @@ Pulse? _typedOrError<S>(
 /// - [future]: The continuation callback for the async instruction.
 /// - [token]: The token for the async instruction.
 ///
-/// ### Non‑obvious
-/// - **Async Emission**: This state is used for operators that emit
-///   asynchronously (e.g., after a timer or notifier pulse).
-/// - **Shared State**: The same [future] and [token] are used across
-///   multiple source pulses until emission occurs.
 class _Emit {
   void Function({required Pulse? result, required dynamic token})? future;
   dynamic token;
@@ -127,18 +122,6 @@ class _Emit {
 ///    c. If no pending value, nothing is emitted.
 /// 3. Each emitted value gets the step `'Sample'` for provenance.
 /// 4. The emitted value preserves the source, type, and priority.
-///
-/// ### Non‑obvious
-/// - **Pending Only**: Values are only emitted if they arrived since
-///   the last emission.
-/// - **Ignored Ticks**: Notifier ticks with no pending value are ignored.
-/// - **Latest Only**: Only the latest value is held; older values are
-///   overwritten.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **One-Shot Observation**: The notifier is observed once and
-///   continues to trigger emissions.
-/// - **Memory Efficient**: Only the latest value is stored.
 ///
 /// ### Example: Sampling on Notifier
 /// ```dart
@@ -219,8 +202,8 @@ class Sample<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Cell notifier, {
     SampleErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final emit = _Emit();
             Pulse? pending;
             var armed = false;
@@ -232,9 +215,17 @@ class Sample<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               if (typed != null) pending = typed;
               if (!armed) {
                 armed = true;
-                Cell.observe(
+                late final dynamic obs;
+                obs = Cell.observe(
                   source: notifier,
                   effect: (Pulse _) {
+                    // Lifecycle: stop the observer once the handle is dead
+                    // so the notifier no longer retains this activation.
+                    if ((cell != null && cell.isInvalidated) ||
+                        notifier.isInvalidated) {
+                      obs.stop();
+                      return;
+                    }
                     final held = pending;
                     if (held == null) return;
                     pending = null;
@@ -247,7 +238,7 @@ class Sample<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -281,16 +272,6 @@ class Sample<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///    b. The pending value is cleared.
 /// 4. The timer continues indefinitely.
 /// 5. Each emitted value gets the step `'SampleTime'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Lazy Start**: The timer starts on the first pulse.
-/// - **Continuous Timer**: The timer runs until the instruction is disposed.
-/// - **Pending Only**: Values are only emitted if they arrived since
-///   the last emission.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Memory Efficient**: Only the latest value is stored.
-/// - **Timer Cleanup**: The timer is automatically cleaned up.
 ///
 /// ### Example: Periodic Sampling
 /// ```dart
@@ -371,8 +352,8 @@ class SampleTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Duration period, {
     SampleErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final emit = _Emit();
             Pulse? pending;
             var armed = false;
@@ -384,7 +365,14 @@ class SampleTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               if (typed != null) pending = typed;
               if (!armed) {
                 armed = true;
-                Timer.periodic(period, (_) {
+                late final Timer ticker;
+                ticker = Timer.periodic(period, (_) {
+                  // Lifecycle: cancel the periodic timer once the handle is
+                  // dead instead of sampling forever.
+                  if (cell != null && cell.isInvalidated) {
+                    ticker.cancel();
+                    return;
+                  }
                   final held = pending;
                   if (held == null) return;
                   pending = null;
@@ -396,7 +384,7 @@ class SampleTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -432,15 +420,6 @@ class SampleTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. If no source pulse has arrived since the last audit, the
 ///    notifier pulse is ignored.
 /// 5. Each emitted value gets the step `'Audit'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Waiting Flag**: The waiting flag tracks if a source pulse
-///   has arrived since the last audit.
-/// - **One-Time Audit**: Each source pulse can only be audited once.
-/// - **Ignored Ticks**: Notifier ticks with no waiting are ignored.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Pending Clear**: The pending value is cleared after emission.
 ///
 /// ### Example: Audit on Gate
 /// ```dart
@@ -509,8 +488,8 @@ class Audit<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Cell notifier, {
     SampleErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final emit = _Emit();
             Pulse? pending;
             var waiting = false;
@@ -526,9 +505,17 @@ class Audit<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               if (!armed) {
                 armed = true;
-                Cell.observe(
+                late final dynamic obs;
+                obs = Cell.observe(
                   source: notifier,
                   effect: (Pulse _) {
+                    // Lifecycle: stop the observer once the handle is dead
+                    // so the notifier no longer retains this activation.
+                    if ((cell != null && cell.isInvalidated) ||
+                        notifier.isInvalidated) {
+                      obs.stop();
+                      return;
+                    }
                     if (!waiting) return;
                     final held = pending;
                     if (held == null) return;
@@ -543,7 +530,7 @@ class Audit<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -583,15 +570,6 @@ class Audit<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. After [duration], the pending value is emitted.
 /// 4. The timer is a one-shot, not periodic.
 /// 5. Each emitted value gets the step `'AuditTime'` for provenance.
-///
-/// ### Non‑obvious
-/// - **One-Shot Timer**: The timer fires once and stops.
-/// - **No Reset**: Unlike debounce, the timer is not reset on new pulses.
-/// - **Latest in Window**: The latest value in the window is emitted.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Scheduled Flag**: Prevents multiple timers from running.
-/// - **Pending Clear**: The pending value is cleared after emission.
 ///
 /// ### Example: Audit Time
 /// ```dart
@@ -677,8 +655,8 @@ class AuditTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Duration duration, {
     SampleErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final emit = _Emit();
             Pulse? pending;
             var scheduled = false;
@@ -703,7 +681,7 @@ class AuditTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }

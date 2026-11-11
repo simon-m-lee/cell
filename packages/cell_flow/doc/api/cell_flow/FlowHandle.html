@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_flow</a></li>
     <li><a href="../cell_flow/">cell_flow.dart</a></li>
-    <li class="self-crumb">FlowHandle&lt;<wbr><span class="type-parameter">I</span>&gt; typedef</li>
+    <li class="self-crumb">FlowHandle typedef</li>
   </ol>
   <div class="self-name">FlowHandle</div>
   <form class="search navbar-right" role="search">
@@ -48,13 +48,13 @@
       data-above-sidebar="cell_flow&#47;cell_flow-library-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-typedef">FlowHandle&lt;<wbr><span class="type-parameter">I</span>&gt;</span> typedef 
+<h1><span class="kind-typedef">FlowHandle</span> typedef 
  
 </h1></div>
     <section class="multi-line-signature">
         
   
-<span class="name ">FlowHandle</span>&lt;<wbr><span class="type-parameter">I</span>&gt; = (<span class="field">{<span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emit</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emitAsync</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">I</span>&gt;</span></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>}</span>)</span>
+<span class="name ">FlowHandle</span> = (<span class="field">{<span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">dynamic</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emit</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">dynamic</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emitAsync</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>}</span>)</span>
 
 
     </section>
@@ -91,12 +91,36 @@ preservation of complex <strong>Provenance</strong> data, such as trace IDs,
 priorities, and justification metadata.</p>
 </li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Flow — the materialized result of <code>toHandle</code>. Not a Cell factory, not a Tissue book.
+<strong>When to use:</strong> after <code>chain.toHandle(source: tickIn.cell)</code> — read <code>handle.cell</code> (the gate Cell), inject via <code>handle.emit(...)</code>.
+<strong>When NOT to use:</strong>
+  <strong>DON'T</strong> call <code>toHandle</code> more than once per product, and never from an
+ACK observer. One <code>toHandle(source: tickIn.cell)</code> per product, only in
+<code>installGates()</code>. ACK calls <code>instruction.reset()</code>.
+See <code>HowTo-Mitose-Flow.md</code> §1 and §4.
+<strong>Live signature:</strong> <code>typedef FlowHandle = ({Cell cell, void Function(dynamic) emit, Future&lt;void&gt; Function(dynamic) emitAsync, ...})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>IngressHandle</code> (Cell-layer entry; no instruction behind it).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §4 "When the BRD requires a custom FlowInstruction" (#flow-custom-instruction)
+<strong>Example:</strong> <code>example/cell_flow_example.dart</code>
+<strong>Cross-layer:</strong> the gate Cell it exposes is observed by <code>Cell.observe</code> (Cell layer); books live in Tissue.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final h = Flow.filter&lt;int&gt;(src.cell, test: (v) =&gt; true);
+h.emit(1);
+print(h.cell);
+</code></pre>
 </section>
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">typedef FlowHandle&lt;I&gt; = ({
+  <pre class="language-dart"><code class="language-dart">typedef FlowHandle = ({
+  &#47;&#47; The generic parameter was removed deliberately: the factories produce
+  &#47;&#47; untyped handles (input is wrapped as Pulse&lt;dynamic&gt;), so an &lt;I&gt; type
+  &#47;&#47; parameter here would be an aspirational lie. Payload types are enforced
+  &#47;&#47; by the operator&#39;s own type checks, not by the handle record.
+
   &#47;&#47;&#47; The **Anchor Node** within the topography.
   &#47;&#47;&#47;
   &#47;&#47;&#47; This cell represents the live location of the materialized instruction
@@ -153,7 +177,7 @@ priorities, and justification metadata.</p>
   &#47;&#47;&#47; ### Returns
   &#47;&#47;&#47; `true` if the stimulus successfully traverses the node&#39;s
   &#47;&#47;&#47; **Integrity Gate** (e.g., passing access control and type checks).
-  bool Function(I input) emit,
+  bool Function(dynamic input) emit,
 
   &#47;&#47;&#47; Performs **Serialized Ingress**—a specialized mechanism for injecting
   &#47;&#47;&#47; stimuli that require atomic evolution boundaries.
@@ -182,7 +206,7 @@ priorities, and justification metadata.</p>
   &#47;&#47;&#47; ### Returns
   &#47;&#47;&#47; A [Future] resolving to `true` if the stimulus successfully traverses
   &#47;&#47;&#47; the **Integrity Gate** and completes its evolution cycle.
-  Future&lt;bool&gt; Function(I input) emitAsync,
+  Future&lt;bool&gt; Function(dynamic input) emitAsync,
 
   &#47;&#47;&#47; Performs **Forensic Signal Orchestration**—the specialized ingress tier
   &#47;&#47;&#47; designed for direct pulse injection with full provenance control.
@@ -209,14 +233,6 @@ priorities, and justification metadata.</p>
   &#47;&#47;&#47;    the resulting [Future] awaits the resolution of the node&#39;s
   &#47;&#47;&#47;    **Conactive Lock**.
   &#47;&#47;&#47;
-  &#47;&#47;&#47; ### Non‑obvious
-  &#47;&#47;&#47; - **Source Authority**: While you can define the pulse source, the
-  &#47;&#47;&#47;   topography may append evolution steps to the metadata to track
-  &#47;&#47;&#47;   the signal&#39;s path through the gate.
-  &#47;&#47;&#47; - **Concurrency Control**: Setting [serializedCompletion] to `false`
-  &#47;&#47;&#47;   allows the call to return immediately, even if the evolution is
-  &#47;&#47;&#47;   still queued behind a busy lock.
-  &#47;&#47;&#47;
   &#47;&#47;&#47; ### Parameters:
   &#47;&#47;&#47; - [pulse]: The **Stimulus Pulse** containing the payload and provenance.
   &#47;&#47;&#47; - [serializedCompletion]: If `true`, the future resolves only after
@@ -229,7 +245,7 @@ priorities, and justification metadata.</p>
   &#47;&#47;&#47; ### See Also
   &#47;&#47;&#47; * [Pulse]: The container for payload and topographical metadata.
   &#47;&#47;&#47; * [emit]: For standard, low-overhead payload injection.
-  Future&lt;void&gt; Function(Pulse&lt;I&gt; pulse, {bool serializedCompletion}) ingest
+  Future&lt;void&gt; Function(Pulse pulse, {bool serializedCompletion}) ingest
 });</code></pre>
 </section>
 
@@ -244,7 +260,7 @@ priorities, and justification metadata.</p>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../index.html">cell_flow</a></li>
     <li><a href="../cell_flow/">cell_flow</a></li>
-    <li class="self-crumb">FlowHandle&lt;<wbr><span class="type-parameter">I</span>&gt; typedef</li>
+    <li class="self-crumb">FlowHandle typedef</li>
 </ol>
 
     <h5>cell_flow library</h5>
@@ -256,7 +272,7 @@ priorities, and justification metadata.</p>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

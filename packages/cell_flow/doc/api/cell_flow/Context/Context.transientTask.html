@@ -82,10 +82,6 @@ or any operation that should self‑destruct after a defined period.</p>
 <li><code>auto_delete: true</code></li>
 <li><code>priority: 60</code></li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<p>The <code>auto_delete</code> flag instructs the framework to automatically
-clean up the cell once the lease expires – you don't need to
-manually dispose of it.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final taskContext = Context.transientTask(
   partOf: 'System/Maintenance',
@@ -162,7 +158,7 @@ automatic resource reclamation logic.</p>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

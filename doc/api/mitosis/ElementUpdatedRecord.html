@@ -93,24 +93,6 @@ final event = cell.apply(cell.set, positionalArguments: [42]);
 final (:value, :before, :after) = event.payload!;
 print('$value changed from $before to $after');
 </code></pre>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Deep immutability</strong>: If the value (before or after) is itself a <a href="../mitosis/Cell-class.html">Cell</a>,
-and the event was emitted by an unmodifiable view, the record will
-contain the <code>.unmodifiable</code> deputy of that cell – not the mutable original.
-This prevents you from accidentally mutating the source through the event.</li>
-<li><strong>The <code>value</code> field is the cell</strong>: It's not the raw value – it's the
-reactive container that holds the value. This is useful if you need to
-observe or mutate it later (though in an unmodifiable event, you can't).</li>
-<li><strong>Both <code>before</code> and <code>after</code> can be <code>null</code></strong>: This is normal – a cell
-can be uninitialised (<code>before: null</code>) or cleared (<code>after: null</code>). Always
-handle <code>null</code> gracefully.</li>
-<li><strong>The record is not typed with the cell type</strong>: The second type parameter
-<code>E</code> is the concrete <code>TissueValue</code> subtype – you can narrow it to
-a specific cell class if needed.</li>
-<li><strong>Equality</strong>: Because this is a record, equality is value‑based. Two
-records with the same <code>value</code>, <code>before</code>, and <code>after</code> are considered equal.</li>
-</ul>
 <h3 id="example-destructuring-in-an-event-handler">Example: Destructuring in an event handler</h3>
 <pre class="language-dart"><code class="language-dart">final valueCell = TissueValue&lt;int&gt;(0);
 valueCell.listen((event) {
@@ -175,7 +157,7 @@ usually <code>TissueValue&lt;V&gt;</code> or a custom subtype.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

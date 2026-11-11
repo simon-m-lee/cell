@@ -53,6 +53,11 @@
 </h1></div>
 
     
+<section class="desc markdown">
+  <p>Emitted once, immediately after <a href="../cell/ApplyTransactionScope/begin.html">ApplyTransactionScope.begin</a> succeeds.</p>
+<p>Carries the resolved participant set — the cells allowed to receive
+commands or compensations in this scope.</p>
+</section>
 
 
     <section>
@@ -116,7 +121,7 @@
 
 </dt>
 <dd>
-  
+  The participant cells, in the order they were passed to <code>begin</code>.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -218,7 +223,7 @@
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

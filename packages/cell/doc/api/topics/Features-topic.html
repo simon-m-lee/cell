@@ -47,7 +47,7 @@
 <section class="desc markdown">
   <h1 id="cell-framework--feature-catalog">Cell Framework — Feature Catalog</h1>
 <p><strong>Package:</strong> <code>cell</code><br>
-<strong>Version:</strong> <code>1.0.0-rc.9</code> (RC / Mitosis Release Candidate)<br>
+<strong>Version:</strong> <code>1.1.0</code> (Stable)<br>
 <strong>SDK:</strong> Dart <code>&gt;=3.5.0 &lt;4.0.0</code><br>
 <strong>License:</strong> MIT or Apache-2.0<br>
 <strong>Author:</strong> Lee Man Hoi Simon (see <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/AUTHORS"><code>AUTHORS</code></a>)<br>
@@ -97,7 +97,7 @@
 <p>Nothing is authorized, redacted, TTL-limited, or audited unless you pass a rule. Defaults are pass-through and allow-all.</p>
 <hr>
 <h2 id="2-status-and-boundaries">2. Status and Boundaries</h2>
-<p><strong>RC (Release Candidate).</strong> Package version <code>1.0.0-rc.9</code>. The core reactive engine is considered feature-complete. Causal integrity logic is now strictly enforced: <code>withStep</code> operations lengthen lineage without branching (preserving <code>isComposite: false</code>), while <code>evolve</code> operations create explicit parent-child branches via <code>EvolvedPulse</code>.</p>
+<p><strong>Stable.</strong> Package version <code>1.1.0</code>. The core reactive engine is feature-complete. Causal integrity logic is now strictly enforced: <code>withStep</code> operations lengthen lineage without branching (preserving <code>isComposite: false</code>), while <code>evolve</code> operations create explicit parent-child branches via <code>EvolvedPulse</code>.</p>
 <table>
 <thead>
 <tr>
@@ -112,7 +112,7 @@
 </tr>
 <tr>
 <td>Production-ready</td>
-<td><strong>RC Status.</strong> Stable API, but lacks external security or performance audits.</td>
+<td><strong>Stable API.</strong> No external security or performance audits have been performed yet.</td>
 </tr>
 <tr>
 <td>Causal Integrity</td>
@@ -1807,7 +1807,7 @@ Future&lt;T&gt; withCellLocks&lt;T&gt;(
 </tr>
 </tbody>
 </table>
-<p>Also: <code>README.md</code> (overview + status), <code>ARCHITECTURE.md</code> (design intent), <code>TEST_VERIFICATION.md</code> (test inventory and measured <code>lib/</code> coverage), <code>KNOWN_ISSUES.md</code> (RC gaps).</p>
+<p>Also: <code>README.md</code> (overview + status), <code>ARCHITECTURE.md</code> (design intent), <code>TEST_VERIFICATION.md</code> (test inventory and measured <code>lib/</code> coverage), <code>CHANGELOG.md</code> (release history and known gaps).</p>
 <p>Generate API docs: <code>dart doc .</code><br>
 Categories include Getting Started, Core, Core 16 Operators, Transactions, Governance, Advanced, and the primitive-specific topics.</p>
 <h3 id="runnable-examples-example">Runnable examples (<code>example/</code>)</h3>
@@ -2038,10 +2038,10 @@ dart doc .
 <h2 id="24-known-gaps">24. Known Gaps</h2>
 <p>Honest list, so this catalog does not over-promise:</p>
 <ol>
-<li><strong>RC APIs</strong> — operator lists and guide names have moved; treat Core 16 numbering as a learning order, not a stability guarantee.</li>
+<li><strong>API lists</strong> — operator lists and guide names have moved across releases; treat the Core 16 numbering as a learning order, not a stability guarantee.</li>
 <li><strong>Guides vs. code</strong> — still being reconciled. Prefer this file + source over stale comments (e.g. “HowTo-17_Essential_Operators”). HowTo examples may mention private <code>_nucleus</code>; the unit tests use public APIs only.</li>
 <li><strong>Valve</strong> — implemented (<code>Cell.valve</code>, <code>example/valve_demo.dart</code>, tests). Generated <code>doc/api/</code> HTML may still lag until <code>dart doc</code> is regenerated.</li>
-<li><strong>Transaction / compensation internals</strong> have not been independently reviewed end-to-end. Treat as RC for money/inventory until you have your own review.</li>
+<li><strong>Transaction / compensation internals</strong> have not been independently reviewed end-to-end. Treat as unreviewed for money/inventory until you have your own review.</li>
 <li><strong>Remaining lower <code>lib/</code> line coverage</strong> — <code>context.dart</code> 90.3%, <code>internal/pulse.dart</code> 90.4%, <code>receptor.dart</code> 90.5% (InstructionChainMixin). Leftover lines are mostly combinatorial flyweight arms (see <code>TEST_VERIFICATION.md</code>).</li>
 </ol>
 <hr>
@@ -2361,21 +2361,23 @@ dart doc .
         <li><a href="../topics/Features-topic.html">Features</a></li>
         <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
         <li><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
+        <li><a href="../topics/Transactions-topic.html">Transactions</a></li>
+        <li><a href="../topics/Apply + Transactions-topic.html">Apply&nbsp;+&nbsp;Transactions</a></li>
         <li><a href="../topics/Pulse-topic.html">Pulse</a></li>
         <li><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
         <li><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
         <li><a href="../topics/Instructions-topic.html">Instructions</a></li>
         <li><a href="../topics/Advanced-topic.html">Advanced</a></li>
         <li><a href="../topics/Demo: aircraft-topic.html">Demo:aircraft</a></li>
-        <li><a href="../topics/Demo: hotel-topic.html">Demo:hotel</a></li>
         <li><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></li>
         <li><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></li>
         <li><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></li>
         <li><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></li>
-        <li><a href="../topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></li>
         <li><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></li>
         <li><a href="../topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></li>
       <li class="section-title">Libraries</li>
+      <li><a href="../cell_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
+      <li><a href="../cell_api_chooser/">doc\api_chooser</a></li>
       <li class="section-subtitle">Features</li>
         <li class="section-subitem"><a href="../cell/">cell</a></li>
 </ol>
@@ -2404,7 +2406,7 @@ dart doc .
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

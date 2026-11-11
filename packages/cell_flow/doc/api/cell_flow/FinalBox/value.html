@@ -53,32 +53,76 @@
 </h1></div>
 
     
-      <section class="multi-line-signature">
+
+    
         
+  <section id="getter">
+    <section class="multi-line-signature">
+      
   <div>
     <ol class="annotation-list">
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-        T?
-        <span class="name ">value</span>
-        <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">override</span></div>
+      <span class="returntype">T?</span>
+      get
+      <span class="name ">value</span>
+      <div class="features"><span class="feature">override</span></div>
 
-      </section>
-      
+    </section>
+    
 <section class="desc markdown">
-  <p>The immutable state value held by this container, initialized late.</p>
+  <p>The immutable state value held by this container.</p>
+<p>Reading before the first write returns <code>null</code> instead of throwing —
+exception-free reads keep the pulse hot path cheap. Write-once
+semantics are still enforced by the setter.</p>
 </section>
 
-      
+    
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-late final T? value;</code></pre>
+T? get value =&gt; _value;</code></pre>
 </section>
 
+  </section>
+
+
+        
+  <section id="setter">
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+      set
+      <span class="name ">value</span>
+      <span class="signature">(<wbr><span class="parameter" id="value=-param-value"><span class="type-annotation">T?</span> <span class="parameter-name">value</span></span>)</span>
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>The current state value held by this container.</p>
+</section>
 
     
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+set value(T? value) {
+  if (_initialized) {
+    throw StateError(&#39;FinalBox value has already been set.&#39;);
+  }
+  _initialized = true;
+  _value = value;
+}</code></pre>
+</section>
+
+  </section>
+
 </div> <!-- /.main-content -->
 <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
   <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
@@ -103,7 +147,7 @@ late final T? value;</code></pre>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

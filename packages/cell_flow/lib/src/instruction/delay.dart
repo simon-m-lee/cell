@@ -83,11 +83,6 @@ Pulse? _typedOrError<S>(
 /// ### Returns:
 /// A `Future` that completes when the notifier is ready.
 ///
-/// ### Non‑obvious
-/// - **Duration**: Uses `Future.delayed`.
-/// - **Future**: Awaits the future.
-/// - **Stream**: Awaits the first event.
-/// - **Null**: Returns immediately.
 Future<void> _until(Object? notifier) async {
   if (notifier == null) return;
   if (notifier is Duration) {
@@ -151,13 +146,6 @@ Future<void> _until(Object? notifier) async {
 /// 2. A timer is started for [duration].
 /// 3. When the timer fires, the pulse is forwarded.
 /// 4. The pulse gets the step `'Delay'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Fixed Delay**: The delay is the same for all pulses.
-/// - **No Cancellation**: Previous delays are not cancelled.
-/// - **Provenance Preservation**: The forwarded pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Timer Management**: Timers are scheduled and managed automatically.
 ///
 /// ### Example: Fixed Delay
 /// ```dart
@@ -262,13 +250,6 @@ class Delay<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. A timer is started for the computed duration.
 /// 4. When the timer fires, the pulse is forwarded.
 /// 5. The pulse gets the step `'DelayWithSelector'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Payload-Dependent**: The delay is computed from the payload.
-/// - **Error Handling**: If [durationOf] throws, the pulse is dropped.
-/// - **Provenance Preservation**: The forwarded pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Extraction**: [durationOf] is synchronous.
 ///
 /// ### Parameters:
 /// - [durationOf]: **Duration Selector.** Called with each typed
@@ -387,15 +368,6 @@ class DelayWithSelector<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. When the notifier completes, the pulse is forwarded.
 /// 5. The pulse gets the step `'DelayWhen'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Flexible Notifier**: Supports Duration, Future, Stream, null.
-/// - **Async Wait**: The wait is asynchronous.
-/// - **Error Handling**: If [when] throws or the notifier errors,
-///   the error is reported.
-/// - **Provenance Preservation**: The forwarded pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Stream First**: For Stream, waits for the first event only.
-///
 /// ### Parameters:
 /// - [when]: **Notifier Factory.** Called with each typed payload,
 ///   returns a Duration, Future, Stream, or null to wait for.
@@ -491,15 +463,6 @@ class DelayWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. Only the latest pulse is delivered.
 /// 5. The delivered pulse gets the step `'DelayLatest'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Cancellation**: Previous timers are cancelled on new pulses.
-/// - **Latest Only**: Only the latest pulse is delivered.
-/// - **Trailing**: The delay is trailing (after the last pulse).
-/// - **Provenance Preservation**: The delivered pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Generation Tracking**: Each pulse gets a generation ID to
-///   determine if it's still current.
-///
 /// ### Parameters:
 /// - [duration]: **Delay Duration.** The time to wait before
 ///   forwarding the latest pulse.
@@ -528,8 +491,8 @@ class DelayLatest<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Duration duration, {
     DelayErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             var generation = 0;
             return (pulse, {cell, user, future, token}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -544,7 +507,7 @@ class DelayLatest<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -569,11 +532,6 @@ class DelayLatest<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///    materializations.
 /// 3. **Materialization**: The bridge evolves the most recent stimulus
 ///    only after [duration] has passed without new interruptions.
-///
-/// ### Non‑obvious
-/// - **Functional Identity**: This class is functionally identical to
-///   [DelayLatest]. Choosing between them is a matter of topographical
-///   documentation and intent.
 ///
 /// ### Type Parameters
 /// * [S]: **Stimulus Payload Type.** The type of data contained within the
@@ -647,14 +605,6 @@ class DelayWithTrailing<S> extends DelayLatest<S> {
 /// 4. When the timer fires, the pulse is forwarded.
 /// 5. The delivered pulse gets the step `'DelayWithTimeout'` for
 ///    provenance.
-///
-/// ### Non‑obvious
-/// - **Timeout Check**: If [duration] > [timeout], the pulse is
-///   dropped immediately.
-/// - **No Timer**: No timer is started if the delay exceeds the timeout.
-/// - **Error Reporting**: A [TimeoutException] is reported via [onError].
-/// - **Provenance Preservation**: The delivered pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
 ///
 /// ### Parameters:
 /// - [duration]: **Delay Duration.** The time to wait before

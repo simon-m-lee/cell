@@ -88,16 +88,6 @@ pulse transmission.</li>
 pre-compiled, zero-cost path for metadata resolution and security
 checks across the entire reactive wave.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Immutable Anchor</strong>: Unlike specialized contexts, <a href="../../cell_flow/Context/system-constant.html">system</a> cannot be
-fully evolved into a different identity; it defines the shared
-reality of the system.</li>
-<li><strong>Visibility</strong>: Nodes under the <a href="../../cell_flow/Context/system-constant.html">system</a> context are visible to all
-diagnostic and auditing layers by default.</li>
-<li><strong>Zero-Cost Access</strong>: Because it is shared across all nodes, it
-incurs no heap pressure regardless of the graph size.</li>
-</ul>
 <h3 id="example-implicit-vs-explicit-system-context">Example: Implicit vs. Explicit System Context</h3>
 <pre class="language-dart"><code class="language-dart">// Implicitly uses Context.system
 final defaultCell = Cell.ingress(0);
@@ -150,7 +140,7 @@ final loggerCell = Cell.ingress(
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

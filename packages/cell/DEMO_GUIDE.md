@@ -638,16 +638,22 @@ await tx.commit(); // apply all staged changes atomically
 **When to use:** Atomic multi-step updates with automatic rollback/compensation.
 
 ```dart
+// Forensic command model: ApplyCommand records built by local helpers
+// (see the demo's `cmd` / `undo` builders).
 final tx = Cell.txApply();
 await tx.execute(participants: [alice, bob], body: (tx) {
-  alice.apply(alice.setValue, positionalArguments: [70], tx: tx,
-      compensate: alice.setValue, compensatePositional: [100]);
-  bob.apply(bob.setValue, positionalArguments: [80], tx: tx,
-      compensate: bob.setValue, compensatePositional: [50]);
+  alice.apply<Object?>(
+    cmd(aliceAcc.debit, [30], compensation: undo(aliceAcc.credit, [30])),
+    tx: tx,
+  );
+  bob.apply<Object?>(
+    cmd(bobAcc.credit, [30], compensation: undo(bobAcc.debit, [30])),
+    tx: tx,
+  );
 });
 ```
 
-**Key Insight:** Compensations undo already-committed stages if a later stage fails. This is the foundation for resilient multi-node consistency.
+**Key Insight:** Compensations undo already-committed stages if a later stage fails — exactly once, in reverse staging order. Authorization comes from each cell's integrity gate (`validate.action`), the same gate that governs a direct `apply`; a gate rejection (`ApplyRejected`) or a self-veto (`ApplyVeto`) never runs, so it is never compensated. This is the foundation for resilient multi-node consistency.
 
 ---
 

@@ -86,12 +86,6 @@ complex payload.</p>
 <li>If extraction fails, <code>onError</code> is called and the pulse is dropped.</li>
 <li>The pulse gets the step <code>'Pluck'</code> for provenance.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Type Safety</strong>: The extracted value must match type <code>T</code>.</li>
-<li><strong>Error Handling</strong>: Missing keys or type mismatches drop the pulse.</li>
-<li><strong>Source Types</strong>: Supports Map, List/Iterable, and objects with <code>[]</code>.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the payloads.</li>
@@ -121,6 +115,22 @@ users.emit({'id': 2, 'name': 'Bob'});   // -&gt; Bob
 <li><a href="../../mitosis/Flow/pluckAll.html">pluckAll</a>: For extracting multiple fields.</li>
 <li><a href="../../mitosis/Flow/pluckPath.html">pluckPath</a>: For extracting nested fields.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Flow — projection operator. Not a Cell factory, not a Tissue book.
+<strong>When to use:</strong> extract one named field from a record/map payload.
+<strong>When NOT to use:</strong> the rich-<code>*Decision</code> → seam-enum projection — that is <code>MapValue</code>.
+<strong>Live signature:</strong> <code>Flow.pluck&lt;T&gt;(Cell source, {required Object key, PluckErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Flow.pluckOr</code> (fallback when the field is missing).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.2 "Transform" (#flow-transform)
+<strong>Example:</strong> <code>example/cell_flow_example.dart</code>
+<strong>Cross-layer:</strong> the decision itself remains a Flow instruction.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;Map&lt;String, Object&gt;&gt;();
+final h = Flow.pluck&lt;int&gt;(src.cell, key: 'a');
+final o = Cell.observe(source: h.cell, effect: (Pulse p) =&gt; print(p.payload));
+src.emit({'a': 1});
+o.stop();
+</code></pre>
 </section>
 
 
@@ -161,7 +171,7 @@ users.emit({'id': 2, 'name': 'Bob'});   // -&gt; Bob
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

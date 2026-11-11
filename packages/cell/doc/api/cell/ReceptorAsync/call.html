@@ -98,20 +98,6 @@ Because a <a href="../../cell/Receptor-class.html">Receptor</a> is an internal c
 reactive network, the transformed result is automatically propagated
 to the cell's <a href="../../cell/Synapses-class.html">Synapses</a> for broadcast. To capture the result, attach
 an observer, bind a downstream cell, or use the <code>hook</code> parameter.</p>
-<h3 id="nonobvious">Non‑obvious:</h3>
-<ul>
-<li><strong>Lock Acquisition</strong>: The method respects the host cell's
-synchronization lock; if the cell is busy with a transaction, the
-async worker will wait until the lock is released.</li>
-<li><strong>Serialized vs fire-and-forget</strong>: With <code>serializedCompletion</code> <code>true</code>,
-<code>await call(...)</code> waits until this pulse has been processed. With
-<code>false</code>, it only waits for the queue entry.</li>
-<li><strong>Testing Hook</strong>: The <code>hook</code> callback is invoked <em>immediately</em> after
-transformation but <em>before</em> the pulse is passed to <a href="../../cell/Synapses-class.html">Synapses</a>.</li>
-<li><strong>Error Handling</strong>: Exceptions within the transformation pipeline are
-captured and logged; the background worker continues to the next
-pulse in the queue to prevent graph deadlocks.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>incoming</code>: The data signal to be processed.</li>
@@ -154,7 +140,12 @@ and the resulting <code>result</code> pulse (which may be <code>null</code> if f
   if (serializedCompletion == false || hook != null) {
     final user = {
       if (hook != null) #hook: hook,
-      if (serializedCompletion) #serializedCompletion: serializedCompletion,
+      &#47;&#47; Carry the caller&#39;s intent explicitly. The worker uses this value
+      &#47;&#47; as its `wait` flag, so `false` must be transported too — the
+      &#47;&#47; previous code only injected the key when the value was truthy,
+      &#47;&#47; which inverted the flag for the `(false, hook)` and
+      &#47;&#47; `(true, hook)` combinations.
+      #serializedCompletion: serializedCompletion,
     };
     pulse = _Pulse(parent: pulse, user: user);
   }
@@ -162,8 +153,6 @@ and the resulting <code>result</code> pulse (which may be <code>null</code> if f
   await _queue.add(pulse);
 
   Future&lt;void&gt; drain() =&gt; _unawaitedLock.synchronized(() async {
-        Pulse? out;
-
         while (await _queue.isNotEmpty) {
           final p = await _queue.removeFirst();
 
@@ -172,18 +161,19 @@ and the resulting <code>result</code> pulse (which may be <code>null</code> if f
           final user = p._user;
           if (user != null) {
             if (user.containsKey(#serializedCompletion)) {
-              wait = false;
+              wait = user[#serializedCompletion] as bool;
             }
             if (user.containsKey(#hook)) {
               hook = user[#hook] as Function?;
             }
           }
 
-          final validation = cell.validate.call(pulse, host: cell);
+          final validation = cell.validate.call(p, host: cell);
           final passed =
               validation is Future&lt;bool&gt; ? await validation : validation;
-          if (!passed) return;
+          if (!passed) continue;
 
+          Pulse? out;
           final lock = cell._nucleus.lock;
           if (lock != null) {
             out = await lock.synchronized(() async {
@@ -221,7 +211,12 @@ and the resulting <code>result</code> pulse (which may be <code>null</code> if f
   &#47;&#47; until this pulse has been processed, not merely queued.
   if (serializedCompletion) {
     await drain();
-  } else if (_unawaitedLock.canLock) {
+  } else {
+    &#47;&#47; Always schedule a drain: the _unawaitedLock serializes them, and an
+    &#47;&#47; idle drain exits immediately. Gating on `canLock` here can strand a
+    &#47;&#47; pulse that was enqueued while another drain was finishing — the
+    &#47;&#47; running drain may have already passed its final isNotEmpty check,
+    &#47;&#47; and no new drain would be scheduled for the late arrival.
     unawaited(drain());
   }
 }</code></pre>
@@ -252,7 +247,7 @@ and the resulting <code>result</code> pulse (which may be <code>null</code> if f
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

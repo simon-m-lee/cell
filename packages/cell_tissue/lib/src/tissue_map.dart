@@ -38,19 +38,6 @@ part of '../cell_tissue.dart';
 /// - The nucleus is immutable; once created, it cannot be changed. Any
 ///   variation requires creating a new nucleus (or deputy).
 ///
-/// ### Non‑obvious
-/// - The [identityMap] flag is **structural**: it is fixed at creation and
-///   inherited by all deputies. You cannot change a value‑based map into an
-///   identity‑based map through a deputy.
-/// - The nucleus is a **flyweight** – many maps can share the same nucleus
-///   (and thus the same logic) without duplicating memory.
-/// - The [clone] getter creates a fresh copy of the nucleus with its own
-///   [Lock] and [Synapses]. This is used internally when you create a new map
-///   from an already‑activated nucleus to avoid sharing locks.
-/// - The `principal` chain allows hierarchical inheritance – a deputy nucleus
-///   can override only specific properties (like `testRule`) while inheriting
-///   the rest from its principal.
-///
 /// ### Example: Reusing a validated nucleus
 /// ```dart
 /// final validNucleus = TissueMapNucleus.create<String, int>(
@@ -90,14 +77,6 @@ abstract interface class TissueMapNucleus<K, V> implements TissueNucleus<V> {
   /// - The resulting nucleus can be used to instantiate multiple maps that
   ///   share the same logic but hold separate data.
   ///
-  /// ### Non‑obvious
-  /// - If you omit the [testRule], it defaults to [TestTissue.allowAll] – no
-  ///   restrictions.
-  /// - The [receptor] defaults to [TissueReceptor.passThrough] – mutations are
-  ///   applied directly.
-  /// - The [context] defaults to [Context.system] – system‑level authority.
-  /// - The [synapses] default to [Synapses.enabled] – observers receive pulses.
-  ///
   /// ### Parameters:
   /// - [bind]: Optional upstream [Cell] to observe.
   /// - [context]: Operational environment (default: [Context.system]).
@@ -120,71 +99,101 @@ abstract interface class TissueMapNucleus<K, V> implements TissueNucleus<V> {
       EphemeralPolicy? ephemeralPolicy,
       Record? user}) = _TissueMapNucleus<K, V, TissueMap<K, V>>;
 
-  /// Architectural factory for deriving a new [TissueMapNucleus] from a
-  /// [principal] through the **Mutation‑Based Derivation** pattern.
+  /// Creates a specialized **Architectural Extension** of an existing [TissueMapNucleus]
+  /// to support hierarchical property inheritance and contextual overrides for maps.
   ///
-  /// This factory is the primary engine behind the framework's **Deputy Pattern**.
-  /// It allows for the creation of a hierarchical chain of governance where a
-  /// child nucleus inherits the structural "Source of Truth" from a principal
-  /// while layering specific behavioural overrides.
+  /// This factory is the primary architectural implementation of **Prototypal
+  /// Inheritance** and **Behavioural Shadowing** within the map ecosystem.
+  /// In the framework's biological metaphor, it creates a **Deputy**
+  /// configuration that inherits the structural "DNA" and baseline rules of a
+  /// [principal] while selectively applying directed **Genetic Mutations**.
   ///
   /// ### When to use
-  /// This is the engine behind the `deputy()` method on [TissueMap]. You
-  /// rarely call it directly. Use it when you need a restricted view of a map
-  /// that shares the same storage but applies different validation or context.
+  /// - **Access Control**: Creating a restricted "Read-Only" or "Validation-Strict"
+  ///   view of a shared map by overriding the [testRule].
+  /// - **Contextual Isolation**: Moving a map into a different [Context]
+  ///   (e.g., from `background` to `ui`) to change its processing priority.
+  /// - **Transformation Overrides**: Swapping a [receptor] to apply different
+  ///   mutation logic to the same underlying storage pool.
   ///
   /// ### How it works
-  /// - The new nucleus inherits all properties from [principal] unless
-  ///   explicitly overridden.
-  /// - You can override the [testRule] (to narrow permissions), [context] (to
-  ///   change authority), [receptor] (to transform mutations), or [synapses].
-  /// - The [identityMap] status is always inherited and cannot be changed.
-  /// - The new nucleus shares the same [Lock] and physical storage as the
-  ///   principal (unless you provide an [override] that introduces a new lock).
+  /// The constructor utilizes a **Tiered Resolution Hierarchy** to determine the
+  /// final state of any property:
+  /// 1. **Local Override**: Values explicitly passed to this factory.
+  /// 2. **Prototype Inheritance**: Values inherited from the [principal].
+  /// 3. **Causal Binding**: Values derived from the upstream [bind] dependency.
+  /// 4. **Global Default**: Framework-level constants (e.g., [Context.system]).
   ///
-  /// ### Non‑obvious
-  /// - The [override] parameter allows you to layer a complete pre‑configured
-  ///   nucleus on top of the principal. This is useful for composing complex
-  ///   deputies.
-  /// - The resulting nucleus does **not** copy the principal's data – it shares
-  ///   it via the inheritance chain.
-  /// - If you override the [synapses], the deputy gets its own observer
-  ///   registry, so listeners attached to the deputy are separate from those
-  ///   attached to the principal.
-  ///
-  /// ### Example
+  /// ### Example: Evolving a restricted integrity gate
   /// ```dart
-  /// final principal = TissueMapNucleus.create<String, int>();
-  /// final readOnlyNucleus = TissueMapNucleus.evolve(
-  ///   principal: principal,
-  ///   testRule: TestTissue.readOnly,
+  /// // 1. Define the baseline DNA (Principal)
+  /// final baseNucleus = TissueMapNucleus.create<String, int>(
+  ///   testRule: TestTissue<int>((v) => v >= 0),
+  ///   container: Container.map,
   /// );
-  /// final readOnlyMap = TissueMap.fromNucleus(readOnlyNucleus);
+  ///
+  /// // 2. Evolve a Deputy with a stricter integrity gate
+  /// // Shares storage and context, but overrides the validation logic.
+  /// final strictNucleus = TissueMapNucleus.evolve(
+  ///   baseNucleus,
+  ///   testRule: TestTissue<int>((v) => v > 100),
+  /// );
+  ///
+  /// // 3. Instantiate a tissue governed by the evolved DNA
+  /// final myMap = TissueMap.fromNucleus(strictNucleus);
   /// ```
   ///
+  /// ### The [override] Parameter (Composite Shadowing)
+  /// **Note**: If [override] is provided, it triggers an immediate **Record Adoption**.
+  /// The entire internal bitmask record of the [override] nucleus is adopted as
+  /// the `local` tier of the new deputy. In this mode, all other parameters
+  /// (like [context], [receptor], etc.) are **ignored**, as the factory assumes
+  /// you are performing a bulk behavioral swap from a pre-compiled blueprint.
+  ///
   /// ### Parameters:
-  /// - [principal]: **Required**. The base nucleus to extend.
-  /// - [override]: Optional. A complete nucleus whose properties are layered
-  ///   on top of the principal.
-  /// - [bind]: Optional override for the upstream cell.
-  /// - [context]: Optional override for the execution context.
-  /// - [receptor]: Optional override for the mutation processor.
-  /// - [testRule]: Optional override for the validation rule.
-  /// - [synapses]: Optional override for propagation behaviour.
+  /// - [principal]: **Required**. The source nucleus from which this instance
+  ///   derives its structural DNA and inheritance chain.
+  /// - [bind]: **Ingress Link.** An optional upstream [Cell] to observe.
+  /// - [context]: **Operational Authority.** Defines the execution tier
+  ///   (default: inherits from [principal]).
+  /// - [receptor]: **Command Engine.** The logic used to process map mutations
+  ///   (default: inherits from [principal]).
+  /// - [testRule]: **Integrity Gate.** Validation rules that guard the map
+  ///   values (default: inherits from [principal]).
+  /// - [synapses]: **Signal Distribution.** Manages egress connectivity
+  ///   (default: inherits from [principal]).
+  /// - [ephemeralPolicy]: **Lifecycle Governance.** Defines the TTL for the
+  ///   map state.
+  /// - [override]: **Composite Shadowing.** An optional, complete nucleus
+  ///   whose internal record is adopted directly as the `local` tier.
   ///
   /// ### Returns:
-  /// A new [TissueMapNucleus<K, V>] instance that acts as a specialised
-  /// behavioral layer over the [principal].
-  factory TissueMapNucleus.evolve(
-          {Cell? bind,
-          Context? context,
-          TissueReceptor<V, TissueMap<K, V>>? receptor,
-          TestTissue<V, TissueMap<K, V>>? testRule,
-          Synapses? synapses,
-          EphemeralPolicy? ephemeralPolicy,
-          TissueMapNucleus<K, V>? override,
-          required TissueMapNucleus<K, V> principal}) =
-      _TissueMapNucleus<K, V, TissueMap<K, V>>.evolve;
+  /// A new [TissueMapNucleus<K, V>] instance acting as a specialized behavioral
+  /// layer over the [principal].
+  factory TissueMapNucleus.evolve(TissueMapNucleus<K,V> principal, {
+    Cell? bind,
+    Context? context,
+    TissueReceptor<V, TissueMap<K, V>>? receptor,
+    TestTissue<V, TissueMap<K, V>>? testRule,
+    Synapses? synapses,
+    EphemeralPolicy? ephemeralPolicy,
+    TissueMapNucleus<K, V>? override,
+  }) {
+    return _TissueMapNucleus<K, V, TissueMap<K, V>>.fromRecord((
+      local: override != null
+          ? (override as NucleusBase).record.local
+          : TissueNucleusBase.mask<V, MapStore<K, V>, TissueMap<K, V>>(
+              bind: bind,
+              context: context,
+              receptor: receptor,
+              testRule: testRule,
+              synapses: synapses,
+              forceLock: true,
+              ephemeralPolicy: ephemeralPolicy,
+            ),
+      principal: principal,
+    ));
+  }
 
   /// A static utility factory that produces a type‑safe nucleus configuration
   /// for a specific key type [K], value type [V], and a specialised [TissueMap]
@@ -207,12 +216,6 @@ abstract interface class TissueMapNucleus<K, V> implements TissueNucleus<V> {
   ///   inherits from that principal.
   /// - The [container] parameter determines the storage strategy (standard Map
   ///   or IdentityMap).
-  ///
-  /// ### Non‑obvious
-  /// - The [forceLock] flag, when `true`, allows sharing the principal's lock.
-  ///   This is typically used for deputies to maintain a single atomic boundary.
-  /// - The [container] parameter can be used to explicitly set the storage
-  ///   strategy – useful for custom container types.
   ///
   /// ### Parameters:
   /// - [bind]: Optional upstream cell.
@@ -287,12 +290,6 @@ abstract interface class TissueMapNucleus<K, V> implements TissueNucleus<V> {
   /// - The clone is initially **inactive** – it must be activated by being
   ///   bound to a map instance.
   ///
-  /// ### Non‑obvious
-  /// - The clone does **not** share the same `principal` – it is a root nucleus
-  ///   (no parent). This means it does not inherit from the original.
-  /// - Cloning is a zero‑copy operation for the logic – the logic is shared
-  ///   via the flyweight record, but the state (lock, synapses) is new.
-  ///
   /// ### Returns:
   /// A new [TissueMapNucleus<K, V>] instance with identical behavioural
   /// logic and storage strategy, but an isolated lifecycle and an
@@ -317,11 +314,6 @@ abstract interface class TissueMapNucleus<K, V> implements TissueNucleus<V> {
   ///   locally.
   /// - It defaults to [Container.map] if no container type is set.
   ///
-  /// ### Non‑obvious
-  /// - This is a **structural** property – it is fixed and cannot be changed
-  ///   through a deputy. All deputies inherit the same container type.
-  /// - The container type affects how keys are matched (e.g., `identityMap`
-  ///   uses [identical]).
   @override
   Container get containerType;
 }
@@ -365,23 +357,6 @@ abstract interface class TissueMapNucleus<K, V> implements TissueNucleus<V> {
 /// - It supports both value‑based and identity‑based key comparisons.
 /// - It automatically links child [Cell] values when they are added, enabling
 ///   "bubbling" of internal changes.
-///
-/// ### Non‑obvious
-/// - Equality (`==`) is based on the underlying map's content and identity,
-///   so `map1 == map2` works like a normal Dart map.
-/// - The [async] getter returns a [ModifiableMapAsync] for `Future`‑based
-///   operations, useful for network callbacks or background tasks.
-/// - The `unmodifiable` getter is **not a snapshot** – it's a live view that
-///   stays in sync with the source.
-/// - The [modifiable] getter returns the list of functions that can be invoked
-///   via `apply`. For read‑only deputies, this list is empty.
-/// - The map treats its **values** as the primary "elements" for validation
-///   and events. Keys are the structural indices.
-/// - Event contract: inserting a new entry (`add`, `[]=`, `put`, `putIfAbsent`)
-///   emits [Tissue.elementAdded]; replacing an existing entry (`[]=`, `put`,
-///   `update`, `updateAll`) emits [Tissue.entryUpdated] with an
-///   [EntryUpdatedRecord] payload (`key`, `before`, `after`); removals emit
-///   [Tissue.elementRemoved].
 ///
 /// ### Example: Basic usage
 /// ```dart
@@ -436,6 +411,24 @@ abstract interface class TissueMapNucleus<K, V> implements TissueNucleus<V> {
 /// - [Tissue] – the base interface for all reactive collections.
 /// - [TissueMapNucleus] – the blueprint and configuration for the map.
 /// - [UnmodifiableTissueMap] – a read‑only deputy variant.
+///
+/// ### AI Agent Guide
+/// **Layer:** Tissue — open work keyed by location. Not a Cell factory, not a Flow operator.
+/// **When to use:** "open incidents across terminals / streams" — one open row per belt/stream; `incidentMap[key] = ...`, `incidentMap.remove(key)` only from `closeIncident`.
+/// **When NOT to use:**
+///   {@macro ai-do-not-testcell-on-tissue}
+///   A new Map per bag — the payload on `V` carries the many.
+/// **Live signature:** `TissueMap<K, V>({bind, context, testRule, receptor, synapses, ...})` / `TissueMap.of(entries, {...})` / `TissueMap.unmodifiable(bind, {...})` — pinned at `cell_tissue: 1.0.0`
+/// **Do NOT confuse with:** `Map` (dart:core — no validation, no collection pulses).
+/// **Guide:** `HowTo-Mitose-Tissue.md` §2.3 "TissueMap — open work keyed by location" (#tissue-map)
+/// **Example:** `example/cell_tissue_example.dart`
+/// **Cross-layer:** the reserve protocol (Value + Map) is a harness pattern driven from `Cell.observe`.
+/// **Minimal compilable example**
+/// ```dart
+/// final map = TissueMap<String, int>(entries: [MapEntry('a', 1)]);
+/// map['b'] = 2;
+/// print(map.length); // 2
+/// ```
 abstract interface class TissueMap<K, V> implements Tissue<V> {
   @override
   TissueMapNucleus<K, V> get _nucleus;
@@ -734,12 +727,6 @@ abstract interface class TissueMap<K, V> implements Tissue<V> {
   ///   its own observers.
   /// - If all parameters are left at default, `deputy()` returns `this`.
   ///
-  /// ### Non‑obvious
-  /// - The deputy is logically equal to its principal (`deputy == principal`).
-  /// - The deputy's [context] can be overridden to change priority or security.
-  /// - The [ephemeralPolicy] controls the deputy's lifetime independently of
-  ///   the principal.
-  ///
   /// ### Example
   /// ```dart
   /// final source = TissueMap<String, int>();
@@ -941,16 +928,6 @@ abstract interface class TissueMap<K, V> implements Tissue<V> {
 ///   any value that is itself a [Cell] is automatically projected as its
 ///   `.unmodifiable` deputy when accessed. This prevents "side‑door"
 ///   mutations.
-///
-/// ### Non‑obvious
-/// - **It is not a snapshot**: Unlike `Map.unmodifiable` in Dart, this view
-///   is **live**. If the source changes, the view changes with it.
-/// - **Equality**: `source == source.unmodifiable` is `true` – they are
-///   considered the same logical entity.
-/// - **Recursive projection**: Iterating over the view yields unmodifiable
-///   deputies of any child [Cell]s.
-/// - **Own observer registry**: The view has its own [Synapses] registry, so
-///   observers attached to the view are separate from those on the source.
 ///
 /// ### Example: Read‑only UI projection
 /// ```dart

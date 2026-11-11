@@ -67,20 +67,6 @@ distinct.</p>
 <li>Provides the <code>payload</code> getter that returns the bundled pulses.</li>
 <li>Manages the branch counter for completion tracking across all sub‑pulses.</li>
 </ul>
-<h3 id="nonobvious-the-collective-iterates-over-itself-not-its-payload">Non‑obvious: the collective iterates over itself, not its payload</h3>
-<p>The <code>iterator</code> returns an iterator over the collective itself (a single
-element), not over the individual pulses. This is by design — the
-collective is a single unit that happens to contain multiple pulses.
-To access individual pulses, use the <code>payload</code> getter:</p>
-<pre class="language-dart"><code class="language-dart">for (final p in collective.payload) {
-  print(p.payload);
-}
-</code></pre>
-<h3 id="nonobvious-the-branch-counter-tracks-completion">Non‑obvious: the branch counter tracks completion</h3>
-<p>The <code>_branches</code> counter is incremented in the constructor. This counter
-ensures that the collective's completion callback fires only when <strong>all</strong>
-sub‑pulses have finished processing. Without this, the framework wouldn't
-know when a composite pulse is truly complete.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// You never create this directly — the framework does it for you:
 final collective = Pulse.batch([pulse1, pulse2, pulse3]);
@@ -254,15 +240,15 @@ final collective = Pulse.batch([pulse1, pulse2, pulse3]);
 
 </dd>
 
-        <dt id="last" class="property inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/last.html">last</a></span>
-  <span class="signature">&#8594; <a href="../cell_flow/Pulse-class.html">Pulse</a></span>
+        <dt id="last" class="property">
+  <span class="name"><a href="../cell_flow/CollectivePulseBase/last.html">last</a></span>
+  <span class="signature">&#8594; <a href="../cell_flow/PulseBase-class.html">PulseBase</a></span>
   
 
 </dt>
-<dd class="inherited">
+<dd>
   The last element.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
@@ -910,8 +896,8 @@ collection.
 
 </dt>
 <dd class="inherited">
-  Appends a diagnostic stage to the pulse's causal trace without branching
-the causal chain.
+  Appends <code>step</code> to the pulse's causal trace without branching the
+causal chain.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -979,7 +965,7 @@ the causal chain.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

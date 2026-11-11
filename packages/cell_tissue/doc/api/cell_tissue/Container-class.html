@@ -101,21 +101,6 @@ holds the strategy and the actual storage instance.</li>
 <li><a href="../cell_tissue/Container/iterable-constant.html">Container.iterable</a> – read‑only iterable (no mutations).</li>
 <li><a href="../cell_tissue/Container/iterableNever-constant.html">Container.iterableNever</a> – permanently empty iterable.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The strategy is <strong>stateless</strong> – it holds no data. The data is stored
-in a separate <a href="../cell_tissue/TissueContainer-class.html">TissueContainer</a> instance. This allows strategies to
-be shared (flyweight pattern) across millions of collections.</li>
-<li>The <code>add</code> and <code>remove</code> functions are responsible for <strong>reactive
-lifecycle management</strong> – they should not be called directly without
-the appropriate context (tissue, lock, etc.). The framework handles
-this via <a href="../cell_tissue/TissueContainer-class.html">TissueContainer</a>.</li>
-<li>When you create a custom strategy, you must ensure that the <code>add</code> and
-<code>remove</code> functions correctly handle the linking/unlinking of <a href="../cell_tissue/Cell-class.html">Cell</a>
-elements if needed. The framework expects that the container will
-call <code>synapses.link</code>/<code>unlink</code> appropriately, but the strategy itself
-only knows about the storage; the linking is done in <a href="../cell_tissue/TissueContainer-class.html">TissueContainer</a>.</li>
-</ul>
 <h3 id="example-using-a-predefined-strategy">Example: Using a predefined strategy</h3>
 <pre class="language-dart"><code class="language-dart">// Create a container backed by an identity set
 final strategy = Container.identitySet;
@@ -490,7 +475,7 @@ through value equality (<code>==</code>).
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

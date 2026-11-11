@@ -92,10 +92,6 @@ or a custom security context — beyond what individual pulses provide.</li>
 <p>The <code>policy</code> controls the collective's lifetime (TTL/hop limit). The
 <code>context</code> provides provenance metadata for the bundle. Callbacks are
 attached to the collective and fire once when all sub‑pulses complete.</p>
-<h3 id="nonobvious-callbacks-fire-once-not-perpulse">Non‑obvious: callbacks fire once, not per‑pulse</h3>
-<p>The <code>onComplete</code>, <code>onError</code>, and <code>onProgress</code> callbacks are attached to
-the collective itself. They fire once when the collective completes
-(or fails), not once per sub‑pulse.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>pulses</code>: The individual pulses to bundle.</li>
@@ -157,7 +153,7 @@ the collective itself. They fire once when the collective completes
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

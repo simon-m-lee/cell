@@ -91,16 +91,6 @@ value is preserved).</li>
 <li>Static pillars (like <code>actor</code>, <code>traceId</code>, <code>compliance</code>, <code>sensitivity</code>)
 are <strong>excluded</strong> from the evolution, preserving the pulse's identity.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This method only processes <strong>evolvable</strong> dimensions. It deliberately
-ignores static pillars to prevent identity spoofing.</li>
-<li>The result is a <strong>delta</strong> – it only contains dimensions that have
-changed. Dimensions not provided in the resolver are inherited from
-the parent context.</li>
-<li>The result is intended to be consumed by <a href="../../mitosis/PulseContext/PulseContext.fromEntries.html">PulseContext.fromEntries</a>
-with the parent context passed in, so inheritance works correctly.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// Internal use – evolving a context
 final delta = Provenance.evolve((evolvable) {
@@ -164,7 +154,7 @@ entries used to form an evolved pulse context.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

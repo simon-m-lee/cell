@@ -54,88 +54,117 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">TissueValueNucleus&lt;<wbr><span class="type-parameter">V</span>&gt;.evolve</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="evolve-param-bind"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
+      <span class="name ">TissueValueNucleus&lt;<wbr><span class="type-parameter">V</span>&gt;.evolve</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="evolve-param-principal"><span class="type-annotation"><a href="../../mitosis/TissueValueNucleus-class.html">TissueValueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">principal</span>, {</span></li>
+<li><span class="parameter" id="evolve-param-bind"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
 <li><span class="parameter" id="evolve-param-context"><span class="type-annotation"><a href="../../mitosis/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span></li>
 <li><span class="parameter" id="evolve-param-receptor"><span class="type-annotation"><a href="../../mitosis/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter"><a href="../../mitosis/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span></li>
 <li><span class="parameter" id="evolve-param-testRule"><span class="type-annotation"><a href="../../mitosis/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter"><a href="../../mitosis/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">testRule</span>, </span></li>
 <li><span class="parameter" id="evolve-param-synapses"><span class="type-annotation"><a href="../../mitosis/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span></li>
 <li><span class="parameter" id="evolve-param-ephemeralPolicy"><span class="type-annotation"><a href="../../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
 <li><span class="parameter" id="evolve-param-override"><span class="type-annotation"><a href="../../mitosis/TissueValueNucleus-class.html">TissueValueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span>?</span> <span class="parameter-name">override</span>, </span></li>
-<li><span class="parameter" id="evolve-param-principal"><span>required</span> <span class="type-annotation"><a href="../../mitosis/TissueValueNucleus-class.html">TissueValueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">principal</span>, </span></li>
 </ol>})
     </section>
     
 <section class="desc markdown">
-  <p>Creates a specialised extension of <a href="../../mitosis/TissueValueNucleus-class.html">TissueValueNucleus</a> to support
-hierarchical property inheritance and the <strong>Deputy Pattern</strong> for reactive values.</p>
-<p>This factory constructor implements the framework's <strong>Property Cascading</strong>
-architecture. It allows a "child" property set—such as a specialised view,
-a restricted proxy, or a localised projection—to derive its core structural
-configuration (including its physical <a href="../../mitosis/ValueContainer-class.html">ValueContainer</a> storage) from a
-<code>principal</code>, while layering on its own specific behavioural overrides.</p>
+  <p>Creates a specialized <strong>Architectural Extension</strong> of an existing <a href="../../mitosis/TissueValueNucleus-class.html">TissueValueNucleus</a>
+to support hierarchical property inheritance and contextual overrides for
+single-value cells.</p>
+<p>This factory is the primary architectural implementation of <strong>Prototypal
+Inheritance</strong> and <strong>Behavioural Shadowing</strong> within the value ecosystem.
+In the framework's biological metaphor, it creates a <strong>Deputy</strong>
+configuration that inherits the structural "DNA" and baseline rules of a
+<code>principal</code> while selectively applying directed <strong>Genetic Mutations</strong>.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>This is the engine behind the <code>deputy()</code> method on <a href="../../mitosis/TissueValue-class.html">TissueValue</a>. You
-rarely call it directly. Use it when you need a restricted view of a value
-that shares the same storage but applies different validation or context.</p>
+<ul>
+<li><strong>Access Control</strong>: Creating a restricted "Read-Only" or "Validation-Strict"
+view of a shared value by overriding the <code>testRule</code>.</li>
+<li><strong>Contextual Isolation</strong>: Moving a value into a different <a href="../../mitosis/Context-class.html">Context</a>
+(e.g., from <code>background</code> to <code>ui</code>) to change its processing priority.</li>
+<li><strong>Transformation Overrides</strong>: Swapping a <code>receptor</code> to apply different
+transformation logic to the same underlying storage pool.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<ul>
-<li>The new nucleus inherits all properties from <code>principal</code> unless
-explicitly overridden.</li>
-<li>You can override the <code>testRule</code> (to narrow permissions), <code>context</code> (to
-change authority), <code>receptor</code> (to transform mutations), or <code>synapses</code>.</li>
-<li>The <code>finalValue</code> status is always inherited and cannot be changed.</li>
-<li>The new nucleus shares the same <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> and physical storage as the
-principal (unless you provide an <code>override</code> that introduces a new lock).</li>
-</ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>override</code> parameter allows you to layer a complete pre‑configured
-nucleus on top of the principal. This is useful for composing complex
-deputies.</li>
-<li>The resulting nucleus does <strong>not</strong> copy the principal's data – it shares
-it via the inheritance chain.</li>
-<li>If you override the <code>synapses</code>, the deputy gets its own observer
-registry, so listeners attached to the deputy are separate from those
-attached to the principal.</li>
-</ul>
-<h3 id="example">Example</h3>
-<pre class="language-dart"><code class="language-dart">final principal = TissueValueNucleus.create&lt;int&gt;();
-final readOnlyNucleus = TissueValueNucleus.evolve(
-  principal: principal,
-  testRule: TestTissue.readOnly,
+<p>The constructor utilizes a <strong>Tiered Resolution Hierarchy</strong> to determine the
+final state of any property:</p>
+<ol>
+<li><strong>Local Override</strong>: Values explicitly passed to this factory.</li>
+<li><strong>Prototype Inheritance</strong>: Values inherited from the <code>principal</code>.</li>
+<li><strong>Causal Binding</strong>: Values derived from the upstream <code>bind</code> dependency.</li>
+<li><strong>Global Default</strong>: Framework-level constants (e.g., <a href="../../mitosis/Context/system-constant.html">Context.system</a>).</li>
+</ol>
+<h3 id="example-evolving-a-restricted-integrity-gate">Example: Evolving a restricted integrity gate</h3>
+<pre class="language-dart"><code class="language-dart">// 1. Define the baseline DNA (Principal)
+final baseNucleus = TissueValueNucleus.create&lt;int&gt;(
+  testRule: TestTissue&lt;int&gt;((v) =&gt; v &gt;= 0),
 );
-final readOnlyValue = TissueValue.fromNucleus(readOnlyNucleus);
+
+// 2. Evolve a Deputy with a stricter integrity gate
+// Shares storage and context, but overrides the validation logic.
+final strictNucleus = TissueValueNucleus.evolve(
+  baseNucleus,
+  testRule: TestTissue&lt;int&gt;((v) =&gt; v &gt; 100),
+);
+
+// 3. Instantiate a tissue governed by the evolved DNA
+final myValue = TissueValue.fromNucleus(strictNucleus);
 </code></pre>
+<h3 id="the-override-parameter-composite-shadowing">The <code>override</code> Parameter (Composite Shadowing)</h3>
+<p><strong>Note</strong>: If <code>override</code> is provided, it triggers an immediate <strong>Record Adoption</strong>.
+The entire internal bitmask record of the <code>override</code> nucleus is adopted as
+the <code>local</code> tier of the new deputy. In this mode, all other parameters
+(like <code>context</code>, <code>receptor</code>, etc.) are <strong>ignored</strong>, as the factory assumes
+you are performing a bulk behavioral swap from a pre-compiled blueprint.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>principal</code>: <strong>Required</strong>. The base nucleus to extend.</li>
-<li><code>override</code>: Optional. A complete nucleus whose properties are layered
-on top of the principal.</li>
-<li><code>bind</code>: Optional override for the upstream cell.</li>
-<li><code>context</code>: Optional override for the execution context.</li>
-<li><code>receptor</code>: Optional override for the mutation processor.</li>
-<li><code>testRule</code>: Optional override for the validation rule.</li>
-<li><code>synapses</code>: Optional override for propagation behaviour.</li>
+<li><code>principal</code>: <strong>Required</strong>. The source nucleus from which this instance
+derives its structural DNA and inheritance chain.</li>
+<li><code>bind</code>: <strong>Ingress Link.</strong> An optional upstream <a href="../../mitosis/Cell-class.html">Cell</a> to observe.</li>
+<li><code>context</code>: <strong>Operational Authority.</strong> Defines the execution tier
+(default: inherits from <code>principal</code>).</li>
+<li><code>receptor</code>: <strong>Command Engine.</strong> The logic used to process mutations
+(default: inherits from <code>principal</code>).</li>
+<li><code>testRule</code>: <strong>Integrity Gate.</strong> Validation rules that guard the value
+(default: inherits from <code>principal</code>).</li>
+<li><code>synapses</code>: <strong>Signal Distribution.</strong> Manages egress connectivity
+(default: inherits from <code>principal</code>).</li>
+<li><code>ephemeralPolicy</code>: <strong>Lifecycle Governance.</strong> Defines the TTL for the
+cell state.</li>
+<li><code>override</code>: <strong>Composite Shadowing.</strong> If set, adopts this nucleus's
+entire local record, bypassing all other parameters.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
-<p>A new <a href="../../mitosis/TissueValueNucleus-class.html">TissueValueNucleus&lt;V&gt;</a> instance that acts as a specialised
-behavioral layer over the <code>principal</code>.</p>
+<p>A new <a href="../../mitosis/TissueValueNucleus-class.html">TissueValueNucleus&lt;V&gt;</a> instance acting as a specialized behavioral
+layer over the <code>principal</code>.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory TissueValueNucleus.evolve(
-        {Cell? bind,
-        Context? context,
-        TissueReceptor&lt;V, TissueValue&lt;V&gt;&gt;? receptor,
-        TestTissue&lt;V, TissueValue&lt;V&gt;&gt;? testRule,
-        Synapses? synapses,
-        EphemeralPolicy? ephemeralPolicy,
-        TissueValueNucleus&lt;V&gt;? override,
-        required TissueValueNucleus&lt;V&gt; principal}) =
-    _TissueValueNucleus&lt;V, TissueValue&lt;V&gt;&gt;.evolve;</code></pre>
+  <pre class="language-dart"><code class="language-dart">factory TissueValueNucleus.evolve(TissueValueNucleus&lt;V&gt; principal, {
+  Cell? bind,
+  Context? context,
+  TissueReceptor&lt;V, TissueValue&lt;V&gt;&gt;? receptor,
+  TestTissue&lt;V, TissueValue&lt;V&gt;&gt;? testRule,
+  Synapses? synapses,
+  EphemeralPolicy? ephemeralPolicy,
+  TissueValueNucleus&lt;V&gt;? override
+}) {
+  return _TissueValueNucleus&lt;V, TissueValue&lt;V&gt;&gt;.fromRecord((
+    local: override != null
+        ? (override as NucleusBase).record.local
+        : TissueNucleusBase.mask&lt;V, ValueContainer&lt;V&gt;, TissueValue&lt;V&gt;&gt;(
+            bind: bind,
+            context: context,
+            receptor: receptor,
+            testRule: testRule,
+            synapses: synapses,
+            forceLock: true,
+            ephemeralPolicy: ephemeralPolicy,
+          ),
+    principal: principal,
+  ));
+}</code></pre>
 </section>
 
 
@@ -163,7 +192,7 @@ behavioral layer over the <code>principal</code>.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -96,20 +96,6 @@ invalidated (or when the stream closes / errors, depending on
 </ol>
 <p>The factory returns a normal <a href="../../cell_flow/Cell-class.html">Cell</a>; you can freely <code>bind</code> it, observe it,
 or compose it with any other factory.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>No Replay</strong>: The cell only emits values that arrive <em>after</em> it has
-been created. It does not store or "remember" past stream events.</li>
-<li><strong>Causal Origin</strong>: Pulses generated from this factory mark the
-resulting cell as their forensic <code>source</code>, allowing you to trace
-external events back to this specific bridge.</li>
-<li><strong>Error Handling</strong>: By default, stream errors are ignored to prevent
-breaking the reactive graph. Set <code>cancelOnError</code> to <code>true</code> to
-terminate the bridge if the source stream fails.</li>
-<li><strong>Backpressure</strong>: Use the <code>synapses</code> parameter to apply a
-<a href="../../cell_flow/PropagationPolicy-class.html">PropagationPolicy</a> (like <code>debounce</code> or <code>throttle</code>) if the source
-stream produces data faster than your application needs to process it.</li>
-</ul>
 <h3 id="example-clock-bridge">Example: Clock Bridge</h3>
 <pre class="language-dart"><code class="language-dart">final seconds = Cell.fromStream&lt;int&gt;(
   Stream.periodic(Duration(seconds: 1), (i) =&gt; i),
@@ -142,6 +128,21 @@ whenever the source <code>stream</code> produces a new value.</p>
 walkthrough of bridging external real-time data.
 {@category Core 16 Operators}</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> bridge an existing Dart <code>Stream</code> (PLC belt, WebSocket, <code>Stream.periodic</code>) into the graph.
+<strong>When NOT to use:</strong> a single value — that is <code>Cell.fromFuture</code>; imperative callbacks — that is <code>Cell.ingress</code>.
+<strong>Live signature:</strong> <code>Cell.fromStream&lt;T&gt;(Stream&lt;T&gt; stream, {bool cancelOnError = false, EphemeralPolicy? ephemeralPolicy})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.fromFuture</code> (single value, not a sequence).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.1 "Create" (#flow-create)
+<strong>Example:</strong> <code>test/operator_from_stream_test.dart</code>
+<strong>Cross-layer:</strong> the orchestration equivalent is <code>Flow.fromStream</code> in <code>cell_flow</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final s = Cell.fromStream&lt;int&gt;(Stream.fromIterable([1, 2, 3]));
+final o = Cell.observe(source: s, effect: (Pulse p) =&gt; print(p.payload));
+await Future&lt;void&gt;.delayed(const Duration(milliseconds: 30));
+o.stop();
+</code></pre>
 </section>
 
 
@@ -185,7 +186,7 @@ walkthrough of bridging external real-time data.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

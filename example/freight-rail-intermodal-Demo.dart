@@ -320,8 +320,8 @@ void installIngress() {
 
 late RailRiskInstruction atRiskGate;
 late RailRiskInstruction warnGate;
-late FlowHandle<Pulse<dynamic>>? handleAtRisk;
-late FlowHandle<Pulse<dynamic>>? handleWarn;
+late FlowHandle? handleAtRisk;
+late FlowHandle? handleWarn;
 late Cell atRiskCell;
 late Cell warnCell;
 

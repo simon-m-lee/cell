@@ -8,6 +8,8 @@ import 'dart:async';
 
 import 'package:cell_flow/cell_flow.dart';
 
+import 'flow_internal.dart';
+
 /// Flow instructions that admit one inner sequence at a time
 /// (Rx `exhaustMap` family).
 ///
@@ -94,45 +96,6 @@ Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
 /// - [onData]: Called for each value drained.
 /// - [stillLive]: Optional callback to check if the operation is still current.
 ///
-/// ### Non‑obvious
-/// - **Recursive Draining**: The function recurses on `Future` and `Iterable`
-///   values, allowing nested structures to be flattened.
-/// - **Cancellation**: The [stillLive] callback is checked at each step,
-///   allowing cancelled operations to stop early.
-/// - **String Special Case**: Strings are treated as values, not iterables,
-///   to avoid character-by-character iteration.
-Future<void> _drain(
-  Object? inner,
-  void Function(dynamic value) onData, {
-  bool Function()? stillLive,
-}) async {
-  if (inner == null) return;
-  if (stillLive != null && !stillLive()) return;
-
-  if (inner is Stream) {
-    await for (final event in inner) {
-      if (stillLive != null && !stillLive()) return;
-      await _drain(event, onData, stillLive: stillLive);
-    }
-    return;
-  }
-
-  if (inner is Future) {
-    final value = await inner;
-    await _drain(value, onData, stillLive: stillLive);
-    return;
-  }
-
-  if (inner is Iterable && inner is! String) {
-    for (final event in inner) {
-      if (stillLive != null && !stillLive()) return;
-      await _drain(event, onData, stillLive: stillLive);
-    }
-    return;
-  }
-
-  onData(inner);
-}
 
 // ─────────────────────────────────────────────────────────────
 // ExhaustMap - Drop While Busy
@@ -199,17 +162,6 @@ Future<void> _drain(
 /// - **Nested combinations**: `Future<Iterable<T>>`, `Stream<Future<T>>`,
 ///   etc., are recursively expanded.
 ///
-/// ### Non‑obvious
-/// - **Drop While Busy**: Triggers while busy are silently dropped.
-/// - **One at a Time**: Only one sequence can be in flight at a time.
-/// - **Error Handling**: Errors are reported via [onError].
-/// - **Causal Provenance**: Every emitted result is wrapped as an
-///   [EvolvedPulse], preserving the forensic history.
-/// - **Type Safety**: The instruction is generic over [S] (input type) and
-///   [T] (output type), ensuring compile-time type safety.
-/// - **Recursive Draining**: The instruction recursively drains nested
-///   async types.
-///
 /// ### Example: Button Click Protection
 /// ```dart
 /// final clicks = Cell.ingress<void>();
@@ -272,8 +224,8 @@ class ExhaustMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     ExhaustMapper<S> mapper, {
     ExhaustErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _BusyState();
             return (pulse, {cell, user, future, token}) {
               if (state.busy) return null;
@@ -291,7 +243,7 @@ class ExhaustMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               Future<void>(() async {
                 try {
                   final inner = await Future.sync(() => mapper(payload));
-                  await _drain(inner, (item) {
+                  await drainInner(inner, (item) {
                     if (item is T) {
                       future!(
                         result: _out<T>(item, cell, pulse, 'ExhaustMap'),
@@ -307,7 +259,7 @@ class ExhaustMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -337,13 +289,6 @@ class ExhaustMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 2. While the sequence is running, all subsequent triggers are dropped.
 /// 3. When the sequence completes, the instruction is ready for the next trigger.
 /// 4. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **Payload Ignored**: The trigger payload is ignored. Only the trigger
-///   count matters.
-/// - **Same Sequence**: The same inner sequence is flattened for every trigger.
-/// - **Drop While Busy**: Triggers while busy are silently dropped.
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
 ///
 /// ### Example: Repeated Workflow with Exhaust
 /// ```dart
@@ -393,8 +338,8 @@ class ExhaustMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FutureOr<Object?> Function() inner, {
     ExhaustErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _BusyState();
             return (pulse, {cell, user, future, token}) {
               if (state.busy) return null;
@@ -402,7 +347,7 @@ class ExhaustMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               Future<void>(() async {
                 try {
                   final seq = await Future.sync(inner);
-                  await _drain(seq, (item) {
+                  await drainInner(seq, (item) {
                     if (item is T) {
                       future!(
                         result: _out<T>(item, cell, pulse, 'ExhaustMapTo'),
@@ -418,7 +363,7 @@ class ExhaustMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -458,12 +403,6 @@ class ExhaustMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - `T`: The value itself is emitted directly.
 /// - `null`: No emission (the pulse is dropped).
 ///
-/// ### Non‑obvious
-/// - **Payload as Source**: The payload itself is the source of the emissions.
-/// - **Drop While Busy**: New payloads are dropped while draining.
-/// - **Type Safety**: The instruction is generic over [T] (output type).
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-///
 /// ### Example: Batch Processing with Exhaust
 /// ```dart
 /// final batches = Cell.ingress<List<String>>();
@@ -502,15 +441,15 @@ class ExhaustAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   ExhaustAll({
     ExhaustErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _BusyState();
             return (pulse, {cell, user, future, token}) {
               if (state.busy) return null;
               state.busy = true;
               Future<void>(() async {
                 try {
-                  await _drain(pulse.payload, (item) {
+                  await drainInner(pulse.payload, (item) {
                     if (item is T) {
                       future!(
                         result: _out<T>(item, cell, pulse, 'ExhaustAll'),
@@ -526,7 +465,7 @@ class ExhaustAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -558,13 +497,6 @@ class ExhaustAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. Remaining items in the sequence are ignored.
 /// 5. When the sequence completes, the instruction is ready for the next trigger.
 /// 6. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **First Item Only**: Only the first item of each inner sequence is emitted.
-/// - **Drop While Busy**: Triggers while busy are silently dropped.
-/// - **Early Termination**: After the first item, the rest of the sequence
-///   is ignored but still drains in the background.
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
 ///
 /// ### Example: First Response Only
 /// ```dart
@@ -615,8 +547,8 @@ class ExhaustMapFirst<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     ExhaustMapper<S> mapper, {
     ExhaustErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _BusyState();
             return (pulse, {cell, user, future, token}) {
               if (state.busy) return null;
@@ -635,7 +567,7 @@ class ExhaustMapFirst<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 var emitted = false;
                 try {
                   final inner = await Future.sync(() => mapper(payload));
-                  await _drain(
+                  await drainInner(
                     inner,
                     (item) {
                       if (emitted || item is! T) return;
@@ -655,7 +587,7 @@ class ExhaustMapFirst<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -687,14 +619,6 @@ class ExhaustMapFirst<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. When the sequence completes, the remembered trigger is executed.
 /// 4. This process repeats until no more triggers are remembered.
 /// 5. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **Latest Remembered**: Only the last skipped trigger is remembered.
-/// - **Sequential Execution**: The remembered trigger runs after the current
-///   sequence completes.
-/// - **Chain Effect**: This can create a chain of executions if triggers
-///   arrive while processing the remembered one.
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
 ///
 /// ### Example: Last Request Wins
 /// ```dart
@@ -748,8 +672,8 @@ class ExhaustMapLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     ExhaustMapper<S> mapper, {
     ExhaustErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _LatestState<S>();
             Future<void> run(
               S value,
@@ -762,7 +686,7 @@ class ExhaustMapLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               state.busy = true;
               try {
                 final inner = await Future.sync(() => mapper(value));
-                await _drain(inner, (item) {
+                await drainInner(inner, (item) {
                   if (item is T) {
                     future!(
                       result: _out<T>(item, cell, pulse, 'ExhaustMapLatest'),
@@ -797,10 +721,14 @@ class ExhaustMapLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 state.pendingPulse = pulse;
                 return null;
               }
+              // Gate BEFORE scheduling: two pulses in the same synchronous
+              // frame must not both observe busy == false and start
+              // concurrent inner sequences.
+              state.busy = true;
               Future<void>(() => run(payload, pulse, cell, future, token));
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }

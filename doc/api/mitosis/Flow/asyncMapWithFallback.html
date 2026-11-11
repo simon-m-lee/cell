@@ -86,13 +86,6 @@ value on error.</p>
 <li>If the operation fails, <code>fallback</code> is emitted instead.</li>
 <li>The instruction always emits a value.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Always Emits</strong>: A value is always emitted (success or fallback).</li>
-<li><strong>Error Isolation</strong>: Errors are caught and handled gracefully.</li>
-<li><strong>Type Safety</strong>: The fallback must return the same type <code>T</code>.</li>
-<li><strong>Sequential</strong>: Operations run one after another.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -167,7 +160,7 @@ final handle = Flow.asyncMapWithFallback&lt;String, String&gt;(
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

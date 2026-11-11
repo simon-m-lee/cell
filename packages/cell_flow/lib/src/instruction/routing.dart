@@ -176,17 +176,6 @@ class RouteCase<S, T> {
 /// 6. Success emissions get the step `'Iif.then'`; failures get `'Iif.else'`.
 /// 7. The instruction preserves causal provenance.
 ///
-/// ### Non‑obvious
-/// - **Binary Branch**: Only two paths are available: then and else.
-/// - **Type Safety**: The instruction is generic over [S] (input) and
-///   [T] (output), ensuring compile-time type safety.
-/// - **Error Handling**: Errors in the predicate or mappers are reported
-///   via [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Synchronous Execution**: The instruction executes synchronously.
-/// - **Memory Efficiency**: No state is maintained.
-/// - **Step Differentiation**: Different steps distinguish then from else.
-///
 /// ### Example: Status Code Handling
 /// ```dart
 /// final status = Cell.ingress<int>();
@@ -343,16 +332,6 @@ class Iif<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 9. Fallback emissions get the step `'RouteWhen.else'`.
 /// 10. The instruction preserves causal provenance.
 ///
-/// ### Non‑obvious
-/// - **First Match Wins**: Cases are evaluated in order; the first match wins.
-/// - **Fallback**: [orElse] is used when no case matches.
-/// - **Drop on Miss**: If no case matches and no fallback, the pulse is dropped.
-/// - **Error Handling**: Errors in predicates or mappers are reported via
-///   [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Synchronous Execution**: The instruction executes synchronously.
-/// - **Memory Efficiency**: No state is maintained.
-///
 /// ### Example: Range-Based Routing
 /// ```dart
 /// final nums = Cell.ingress<int>();
@@ -499,16 +478,6 @@ class RouteWhen<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 8. Success emissions get the step `'RouteByKey.$key'`.
 /// 9. Fallback emissions get the step `'RouteByKey.else'`.
 /// 10. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **Key-Based**: Routing is based on a key extracted from the payload.
-/// - **Table Lookup**: The [routes] map is used to look up transformations.
-/// - **Fallback**: [orElse] is used when the key is not found.
-/// - **Drop on Miss**: If the key is not found and no fallback, the pulse is dropped.
-/// - **Error Handling**: Errors in [keyOf] or mappers are reported via
-///   [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Synchronous Execution**: The instruction executes synchronously.
 ///
 /// ### Example: HTTP Method Routing
 /// ```dart
@@ -662,18 +631,6 @@ class RouteByKey<S, K, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. Success emissions get the step `'PartitionTag.then'`; failures get
 ///    `'PartitionTag.else'`.
 /// 5. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **Tagging Only**: The stream is not forked; the matched/unmatched
-///   status is tagged on the value.
-/// - **Downstream Filtering**: Downstream can use `Filter` to separate
-///   matched and unmatched values.
-/// - **Error Handling**: Errors in the predicate are reported via
-///   [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Synchronous Execution**: The instruction executes synchronously.
-/// - **Memory Efficiency**: No state is maintained.
-/// - **Record Payload**: The output is a record with `matched` and `value`.
 ///
 /// ### Example: Partition Tagging
 /// ```dart

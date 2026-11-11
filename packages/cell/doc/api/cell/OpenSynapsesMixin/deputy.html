@@ -101,19 +101,6 @@ grant authority the principal doesn't already possess.</li>
 <li><strong>Reciprocal Handshake</strong>: The proxy initialization performs a
 cryptographic or logical handshake to ensure the binding is authorized.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Identity Preservation</strong>: A deputy remains logically consistent with
-its principal. Comparisons such as <code>deputy == principal</code> evaluate to
-<code>true</code> to ensure predictable behavior within the reactive graph.</li>
-<li><strong>No-op Optimization</strong>: If the requested parameters match the current
-configuration, the method returns the current instance (this) to
-prevent "proxy nesting" and maintain a flat execution stack.</li>
-<li><strong>Contextual Authority</strong>: While state is shared, the authority to
-trigger <a href="../../cell/Cell/apply.html">apply</a> is uniquely governed by the deputy's specific
-<code>context</code>, enabling granular permission modeling within a single
-state atom.</li>
-</ul>
 <h3 id="example-creating-a-scoped-read-only-view">Example: Creating a Scoped Read-Only View</h3>
 <pre class="language-dart"><code class="language-dart">// 1. Evolve the context to a specialized scope
 final userContext = currentContext.evolve(reason: 'UI_Binding');
@@ -150,6 +137,20 @@ and context evolution may involve asynchronous authorization, the
 result is wrapped in a <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a> to support both immediate
 synthesis and deferred clearance.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> capability attenuation — read-only or narrowed-write views of a Cell for untrusted callers (UI, auditors).
+<strong>When NOT to use:</strong> to widen permissions (a deputy can only narrow); use <code>.unmodifiable</code> for the fixed read-only case.
+<strong>Live signature:</strong> <code>FutureOr&lt;Cell&gt; deputy({DeputyContext context = DeputyContext.system, TestCell testRule = TestCell.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.unmodifiable</code> (fixed read-only deputy).
+<strong>Guide:</strong> <code>guide/HowTo-DeputyContext.md</code> (deputies)
+<strong>Example:</strong> <code>example/cell_example.dart</code>
+<strong>Cross-layer:</strong> Tissue books expose the same pattern via <code>.deputy(testRule: …)</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final c = Cell.state&lt;int&gt;(initial: 1);
+final d = await c.cell.deputy(testRule: TestCell.readOnly);
+print(d);
+</code></pre>
 </section>
 
 
@@ -189,7 +190,7 @@ synthesis and deferred clearance.</li>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

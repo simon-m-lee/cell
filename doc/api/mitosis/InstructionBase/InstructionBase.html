@@ -84,17 +84,6 @@ a formal <a href="../../mitosis/Instruction-class.html">Instruction</a> interfac
 <li><strong>Record Optimization</strong>: The logic and metadata are stored in a
 compact record to minimize memory footprint.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Atomic Execution</strong>: The logic defined here is strictly synchronous.
-If your transformation requires a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>, use <a href="../../mitosis/InstructionBase/InstructionBase.future.html">InstructionBase.future</a>.</li>
-<li><strong>Deduplication</strong>: As a <code>const</code> constructor, it supports the framework's
-<strong>Flyweight Strategy</strong>, allowing identical logic units to share memory
-addresses.</li>
-<li><strong>Metadata Isolation</strong>: The <code>user</code> parameter allows logic to be
-parameterized by "Mandate" or "Role" data without needing access to
-external variables.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final increment = InstructionBase&lt;CounterCell, Pulse&lt;int&gt;, Pulse&lt;int&gt;&gt;(
   (pulse, {cell, user}) =&gt; pulse.map((v) =&gt; v + 1)
@@ -154,7 +143,7 @@ instruction at runtime to guide its behavior.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

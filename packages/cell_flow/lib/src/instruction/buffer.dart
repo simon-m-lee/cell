@@ -162,15 +162,6 @@ class _Emit {
 /// | `skip < size` | Overlapping | [1,2,3], [2,3,4], [3,4,5] |
 /// | `skip > size` | Gaps (items skipped) | [1,2,3], [5,6,7] (4 skipped) |
 ///
-/// ### Non‑obvious
-/// - **Tumbling Default**: [skip] defaults to [size] (no overlap).
-/// - **Overlap**: When [skip] < [size], buffers overlap.
-/// - **Gaps**: When [skip] > [size], some items are skipped.
-/// - **Type Safety**: The instruction is generic over [S].
-/// - **Provenance Preservation**: Each buffer preserves the source
-///   cell, type, and priority from the trigger pulse.
-/// - **List Copy**: The emitted list is a copy of the buffer.
-///
 /// ### Example: Tumbling Buffers
 /// ```dart
 /// final input = Cell.ingress<int>();
@@ -274,8 +265,8 @@ class BufferCount<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     int? skip,
     BufferErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             final step = skip == null || skip == size ? size : skip;
             final buf = <S>[];
             return (pulse, {cell, user}) {
@@ -292,7 +283,7 @@ class BufferCount<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return _buf<S>(window, typed, cell, 'BufferCount');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -423,17 +414,6 @@ class BufferWithCount<S> extends BufferCount<S> {
 /// 5. If [emitEmpty] is `false`, empty buffers are skipped.
 /// 6. Each emitted buffer gets the step `'BufferTime'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Lazy Start**: The timer starts on the first pulse, not on
-///   instruction creation.
-/// - **Continuous**: The timer continues indefinitely until disposed.
-/// - **Empty Skip**: [emitEmpty] controls whether empty buffers are
-///   emitted.
-/// - **Order Preservation**: Values are emitted in the order they
-///   arrived within each buffer.
-/// - **Provenance Preservation**: Each buffer preserves the source
-///   cell, type, and priority from the trigger pulse.
-///
 /// ### Parameters:
 /// - [duration]: **Buffer Duration.** The time interval for each buffer.
 /// - [emitEmpty]: **Emit Empty Buffers.** If `true`, empty buffers are
@@ -474,13 +454,6 @@ class BufferTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// 5. **Topographical Reset**: The buffer is cleared immediately
   ///    following each materialization cycle.
   ///
-  /// ### Non‑obvious
-  /// - **Timer Materialization**: The timer is not active until the first
-  ///   stimulus enters the topography, preventing unnecessary resource
-  ///   consumption in idle branches.
-  /// - **Vacuum Emission**: If [emitEmpty] is `false`, the gate suppresses
-  ///   materialization if no pulses arrived during the interval.
-  ///
   /// ### Parameters
   /// - [duration]: **Temporal Interval.** The time window between
   ///   materialization cycles.
@@ -507,8 +480,8 @@ class BufferTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool emitEmpty = false,
     BufferErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final buf = <S>[];
             final emit = _Emit();
             var armed = false;
@@ -535,11 +508,20 @@ class BufferTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               buf.add(typed.payload as S);
               if (!armed) {
                 armed = true;
-                Timer.periodic(duration, (_) => flush());
+                late final Timer ticker;
+                ticker = Timer.periodic(duration, (_) {
+                  // Lifecycle: cancel the periodic timer once the handle is
+                  // dead instead of flushing forever.
+                  if (cell != null && cell.isInvalidated) {
+                    ticker.cancel();
+                    return;
+                  }
+                  flush();
+                });
               }
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -575,12 +557,6 @@ class BufferTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///    `'BufferTime'` step.
 /// 5. **Topographical Reset**: The buffer is cleared immediately
 ///    following each materialization cycle.
-///
-/// ### Non‑obvious
-/// - **Resource Efficiency**: The timer is not active until the first
-///   stimulus enters the topography, preventing waste in idle branches.
-/// - **Vacuum Emission**: If [emitEmpty] is `false`, the gate suppresses
-///   materialization if no pulses arrived during the interval.
 ///
 /// ### Type Parameters
 /// * [S]: **Stimulus Payload Type.** The type of data contained within
@@ -657,14 +633,6 @@ class BufferWithTime<S> extends BufferTime<S> {
 /// 7. Each emitted buffer gets the step `'BufferWithTimeAndCount.time'`
 ///    or `'BufferWithTimeAndCount.count'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Two Triggers**: Either time or count can trigger a flush.
-/// - **Timer Reset**: The timer resets after each flush.
-/// - **Count Priority**: Count triggers flush immediately.
-/// - **Provenance Preservation**: Each buffer preserves the source
-///   cell, type, and priority from the trigger pulse.
-/// - **Distinct Steps**: Different provenance steps for time and count.
-///
 /// ### Parameters:
 /// - [duration]: **Time Limit.** The maximum time between flushes.
 /// - [count]: **Size Limit.** The maximum number of items in a buffer.
@@ -705,8 +673,8 @@ class BufferWithTimeAndCount<S>
     bool emitEmpty = false,
     BufferErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final buf = <S>[];
             final emit = _Emit();
             Timer? timer;
@@ -746,7 +714,7 @@ class BufferWithTimeAndCount<S>
               }
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -792,14 +760,6 @@ class BufferWithTimeAndCount<S>
 /// 3. If [emitEmpty] is `true`, empty buffers are emitted.
 /// 4. Each emitted buffer gets the step `'BufferWhen'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Multiple Closes**: The closer can be triggered repeatedly.
-/// - **Continuous Buffering**: After a close, buffering continues.
-/// - **Empty Control**: [emitEmpty] controls empty buffer emission.
-/// - **Provenance Preservation**: Each buffer preserves the source
-///   cell, type, and priority from the trigger pulse.
-/// - **Closer Type**: The closer can be any [Cell] that emits pulses.
-///
 /// ### Parameters:
 /// - [closer]: **Closer Cell.** The cell that triggers buffer emission
 ///   when it pulses.
@@ -836,8 +796,8 @@ class BufferWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool emitEmpty = false,
     BufferErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final buf = <S>[];
             final emit = _Emit();
             var armed = false;
@@ -863,9 +823,18 @@ class BufferWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               emit.cell = cell;
               if (!armed) {
                 armed = true;
-                Cell.observe(
+                late final dynamic obs;
+                obs = Cell.observe(
                   source: closer,
-                  effect: (Pulse boundary) => flush(boundary),
+                  effect: (Pulse boundary) {
+                    // Lifecycle: stop the observer once the handle is dead.
+                    if ((cell != null && cell.isInvalidated) ||
+                        closer.isInvalidated) {
+                      obs.stop();
+                      return;
+                    }
+                    flush(boundary);
+                  },
                 );
               }
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -874,7 +843,7 @@ class BufferWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               buf.add(typed.payload as S);
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -934,14 +903,6 @@ class BufferWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///    c. The buffer is cleared.
 /// 5. Each emitted buffer gets the step `'BufferWithPredicate'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Trigger Inclusion**: [includeTrigger] controls whether the
-///   triggering value is included in the buffer.
-/// - **Empty Skip**: Empty buffers are not emitted.
-/// - **Predicate Evaluation**: The predicate is evaluated on each value.
-/// - **Provenance Preservation**: Each buffer preserves the source
-///   cell, type, and priority from the trigger pulse.
-///
 /// ### Parameters:
 /// - [test]: **Predicate Function.** Called with each typed payload,
 ///   returns `true` to close the buffer.
@@ -983,8 +944,8 @@ class BufferWithPredicate<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool includeTrigger = true,
     BufferErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             final buf = <S>[];
             return (pulse, {cell, user}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -1007,7 +968,7 @@ class BufferWithPredicate<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               buf.add(value);
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }

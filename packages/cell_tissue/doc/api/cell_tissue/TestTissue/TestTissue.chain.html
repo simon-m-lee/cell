@@ -76,16 +76,6 @@ list of rules.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The rules are executed in the order given; if any rule returns <code>false</code>,
 the chain short‑circuits and the whole validation fails.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>You can provide a custom <code>fn</code> that acts as an "Omniscient Guard,"
-executing alongside the specialised <code>rules</code>. If provided, it overrides
-the default sequential evaluation.</li>
-<li>If a rule returns a <code>Future</code>, the chain automatically becomes
-asynchronous and waits for it.</li>
-<li>The default strategy is <strong>fail‑fast</strong> – any rule returning <code>false</code>
-stops the pipeline immediately.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final policy = TestTissue.chain([
   isPositive,
@@ -109,11 +99,13 @@ is bypassed.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const TestTissue.chain(
-    Iterable&lt;TestRule&lt;C&gt;&gt; rules, {
-      TestTissue&lt;E, C&gt;? parent, dynamic user,
-      FutureOr&lt;bool&gt; Function(dynamic object, {C? host, dynamic arguments, dynamic user})? strategy
-    }) : this.fromRecord(strategy != null
+  <pre class="language-dart"><code class="language-dart">const TestTissue.chain(Iterable&lt;TestRule&lt;C&gt;&gt; rules,
+    {TestTissue&lt;E, C&gt;? parent,
+    dynamic user,
+    FutureOr&lt;bool&gt; Function(dynamic object,
+            {C? host, dynamic arguments, dynamic user})?
+        strategy})
+    : this.fromRecord(strategy != null
           ? parent != null
               ? user != null
                   ? (rules: rules, rule: strategy, parent: parent, user: user)
@@ -149,7 +141,7 @@ is bypassed.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

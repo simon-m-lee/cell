@@ -84,14 +84,8 @@ automatically during validation. You might call it for testing.</p>
 <li>It evaluates the local rules (and optionally a custom <code>strategy</code>).</li>
 <li>If all pass, it delegates to the <code>TestCell.parent</code> (if any).</li>
 <li>If a rule returns a <code>Future</code>, it waits for it.</li>
-<li>If an exception occurs and the host is governed, the validation fails
-(returns <code>false</code>); if ungoverned, it passes (<code>true</code>).</li>
-</ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The exception handling differs between governed and ungoverned cells
-to avoid breaking the system when policies are misconfigured.</li>
-<li>The <code>arguments</code> parameter is only used for action validation.</li>
+<li>If a rule throws, the validation <strong>fails closed</strong> and returns
+<code>false</code> — a throwing integrity gate must never authorize anything.</li>
 </ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
@@ -137,7 +131,7 @@ FutureOr&lt;bool&gt; call(object, {covariant Cell? host, arguments}) =&gt; true;
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

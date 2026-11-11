@@ -103,16 +103,6 @@ is effectively sealed. This creates an <strong>Integrity Gate</strong> that prev
 any modification to the current hop's record during the remainder of
 the propagation cycle.</li>
 </ol>
-<h3 id="nonobvious-evolution-is-still-permitted">Non‑obvious: Evolution is still permitted</h3>
-<p>Being "unmodifiable" does not terminate the causal chain. You can still
-call <a href="../../mitosis/TissueEventShell/evolve.html">evolve</a> or <a href="../../mitosis/TissueEventShell/withStep.html">withStep</a> on an unmodifiable pulse. Doing so creates
-a <strong>new, modifiable</strong> pulse instance that targets this unmodifiable
-pulse as its parent. This allows the signal to continue its journey
-while ensuring the historical record of this specific hop remains pristine.</p>
-<h3 id="nonobvious-cells-remain-reactive">Non‑obvious: Cells remain reactive</h3>
-<p>Converting a <a href="../../mitosis/Cell-class.html">Cell</a> payload to its unmodifiable form only prevents
-<strong>setting</strong> its value. The cell remains reactive; observers will still
-receive updates if the original source cell changes.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// But you can still evolve the lineage
 final next = protected.withStep('forwarded');
@@ -154,7 +144,7 @@ TissuePulse&lt;E&gt; get unmodifiable =&gt; this;</code></pre>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

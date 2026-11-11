@@ -80,19 +80,6 @@ suitable – e.g., to avoid UI jank, to batch updates, or to rate‑limit.</li>
 the appropriate buffering, timing, or filtering logic.</li>
 <li>The policy is immutable – you set it once at synapses creation.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The policy is <strong>per‑synapse</strong>, so different branches of the graph can
-have different propagation behaviors.</li>
-<li><code>debounceTime</code> is used for <code>debounced</code> and <code>debounceLeading</code>.</li>
-<li><code>throttleTime</code> is used for <code>throttled</code>, <code>audit</code>, <code>sample</code>, <code>buffered</code>,
-and some others.</li>
-<li><code>batchSize</code> is used for <code>batched</code>, <code>retry</code> (as max retries), and
-<code>buffered</code> (as max buffer size before flush).</li>
-<li>If a strategy doesn't use a parameter, it's simply ignored.</li>
-<li>All durations default to sensible values, so you can omit them if the
-defaults work for you.</li>
-</ul>
 <h3 id="example-debounced-search">Example: Debounced Search</h3>
 <pre class="language-dart"><code class="language-dart">const searchConfig = PropagationPolicy(
   strategy: PropagationStrategy.debounced,
@@ -317,7 +304,7 @@ is committed when using <a href="../mitosis/PropagationStrategy.html">Propagatio
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

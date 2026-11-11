@@ -112,7 +112,18 @@ together as one atomic unit.</p>
       onError,
   void Function(TissuePulse event, Cell cell, {String? message})? onProgress,
   FutureOr&lt;TissuePulse?&gt; Function(TissueReceptor receptor)? scrutinize,
-}) =&gt; _CollectiveTissueEvent&lt;E&gt;(events);</code></pre>
+}) =&gt;
+    _CollectiveTissueEvent&lt;E&gt;(events,
+        policy: policy,
+        context: context,
+        type: type,
+        source: source,
+        step: step,
+        priority: priority,
+        onComplete: onComplete,
+        onError: onError,
+        onProgress: onProgress,
+        scrutinize: scrutinize);</code></pre>
 </section>
 
 
@@ -140,7 +151,7 @@ together as one atomic unit.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

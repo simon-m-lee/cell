@@ -93,18 +93,6 @@ to identify the most recent transformation step.</li>
 <li>It returns the <a href="../../cell_flow/EvolvedPulse/payload.html">payload</a> of that specific terminal pulse, representing
 the cumulative result of the evolution.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Causal Integrity</strong>: While this returns only the <em>last</em> value, the
-entire history remains available for forensics via the <a href="../../cell_flow/Pulse/iterator.html">iterator</a>
-or the <a href="../../cell_flow/Pulse/trace.html">trace</a>.</li>
-<li><strong>CBAC Enforcement</strong>: Access to the terminal payload is subject to
-<strong>Capability-Based Access Control</strong>. If a caller lacks the required
-<a href="../../cell_flow/Mandate.html">Mandate</a> for the final transformation step, this may return <code>null</code>
-even if data exists.</li>
-<li><strong>Efficiency</strong>: Because evolution is a structural wrap, retrieving
-the last payload avoids unnecessary data duplication across the fabric.</li>
-</ul>
 <h3 id="returns">Returns:</h3>
 <p>The payload of the final pulse in the chain, or <code>null</code> if the last step
 was a pure control signal or access is restricted by the governance tier.</p>
@@ -144,7 +132,7 @@ P? get payload;</code></pre>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

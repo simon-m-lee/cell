@@ -78,12 +78,6 @@ state repair.</p>
 <li>Sets <code>priority</code> to 85 (very high, to preempt further drift).</li>
 <li>Sets <code>auditLevel</code> to <code>detailed</code> for traceability.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>targetField</code> is included in the <code>reason</code> for context.</li>
-<li>The default <code>confidence</code> is 0.9 – repairs are usually reliable but
-not absolute.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final context = PulseContext.selfCorrection(
   baseContext: incomingPulse.context,
@@ -159,7 +153,7 @@ not absolute.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

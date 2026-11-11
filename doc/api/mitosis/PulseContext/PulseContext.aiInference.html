@@ -80,11 +80,6 @@ patterns or heuristics.</p>
 <li>Defaults <code>priority</code> to 20 (background) to avoid interfering with
 user actions.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>confidence</code> is a required parameter; it must be between 0.0 and 1.0.</li>
-<li>Integrity gates may reject low‑confidence signals.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final context = PulseContext.aiInference(
   baseContext: clusterOntology,
@@ -161,7 +156,7 @@ user actions.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

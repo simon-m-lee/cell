@@ -68,9 +68,6 @@ Pulse _mark(Pulse pulse, String step) => pulse.withStep(step);
 /// ### Fields:
 /// - [open]: Whether the gate is open (values can pass through).
 ///
-/// ### Non‑obvious
-/// - **Stateful**: The flag persists across pulses.
-/// - **Once Open**: The flag is typically set once and never closed.
 class _GateState {
   bool open = false;
 }
@@ -134,14 +131,6 @@ class _GateState {
 /// 4. If the counter reaches [count], all subsequent values pass through.
 /// 5. Results are emitted in input order.
 /// 6. Each emitted value gets the step `'Skip'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Opening State**: Once the count is reached, the stream opens.
-/// - **State Persistence**: The instruction maintains a counter.
-/// - **Order Preservation**: Results are emitted in the same order as inputs.
-/// - **Error Handling**: Type errors are reported via [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Memory Efficiency**: Only an integer counter is stored.
 ///
 /// ### Example: Skip First 2 Values
 /// ```dart
@@ -215,8 +204,8 @@ class Skip<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     int count, {
     SkipErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             var remaining = count < 0 ? 0 : count;
             return (pulse, {cell, user}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -227,7 +216,7 @@ class Skip<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return _mark(typed, 'Skip');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -270,15 +259,6 @@ class Skip<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///    subsequent values pass through.
 /// 5. Results are emitted in input order.
 /// 6. Each emitted value gets the step `'SkipWhile'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Opening State**: Once the predicate returns `false`, the stream is
-///   opened and all subsequent values pass through.
-/// - **State Persistence**: The instruction maintains a `skipping` flag.
-/// - **Order Preservation**: Results are emitted in the same order as inputs.
-/// - **Error Handling**: Errors in the predicate are reported via [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Memory Efficiency**: Only a boolean flag is stored.
 ///
 /// ### Example: Skip While Value < 5
 /// ```dart
@@ -358,8 +338,8 @@ class SkipWhile<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool Function(S value) predicate, {
     SkipErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             var skipping = true;
             return (pulse, {cell, user}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -376,7 +356,7 @@ class SkipWhile<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return _mark(typed, 'SkipWhile');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -409,13 +389,6 @@ class SkipWhile<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. When the [notifier] emits a value, the stream opens.
 /// 4. After the notifier emits, all subsequent source values pass through.
 /// 5. Each emitted value gets the step `'SkipUntil'` for provenance.
-///
-/// ### Non‑obvious
-/// - **State**: The instruction maintains an `open` flag.
-/// - **Once Opened**: The stream cannot be closed again.
-/// - **First Value**: The notifier's value is not passed through.
-/// - **Memory Efficiency**: Only a boolean flag is stored.
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
 ///
 /// ### Example: Skip Until Ready
 /// ```dart
@@ -484,22 +457,31 @@ class SkipUntil<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Cell notifier, {
     SkipErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             final state = _GateState();
-            Cell.observe(
+            Cell? host;
+            late final dynamic obs;
+            obs = Cell.observe(
               source: notifier,
               effect: (Pulse _) {
+                // Lifecycle: stop the observer once the handle is dead.
+                if ((host != null && host!.isInvalidated) ||
+                    notifier.isInvalidated) {
+                  obs.stop();
+                  return;
+                }
                 state.open = true;
               },
             );
             return (pulse, {cell, user}) {
+              host = cell;
               if (!state.open) return null;
               final typed = _typedOrError<S>(pulse, onError: onError);
               if (typed == null) return null;
               return _mark(typed, 'SkipUntil');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -531,13 +513,6 @@ class SkipUntil<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. When the timer expires, the stream opens.
 /// 4. All subsequent values pass through.
 /// 5. Each emitted value gets the step `'SkipUntilTime'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Timer**: The timer starts on the first pulse, not at creation.
-/// - **Once Opened**: The stream cannot be closed again.
-/// - **Delay**: There is a delay before any values are emitted.
-/// - **Memory Efficiency**: Only a timer and flag are stored.
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
 ///
 /// ### Example: Skip First 5 Seconds
 /// ```dart
@@ -606,8 +581,8 @@ class SkipUntilTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Duration duration, {
     SkipErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             final state = _GateState();
             var armed = false;
             return (pulse, {cell, user}) {
@@ -622,7 +597,7 @@ class SkipUntilTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               if (!state.open) return null;
               return _mark(typed, 'SkipUntilTime');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -721,14 +696,6 @@ class SkipFirst<S> extends Skip<S> {
 /// 3. The last [count] values are never emitted.
 /// 4. Each emitted value gets the step `'SkipLast'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Buffering**: The instruction maintains a buffer of size [count] + 1.
-/// - **Delay**: There is a delay of [count] values before the first emission.
-/// - **Memory**: The buffer stores up to [count] + 1 values.
-/// - **No Flush**: The trailing [count] items are never flushed.
-/// - **Order Preservation**: Results are emitted in the same order as inputs.
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-///
 /// ### Example: Skip Last 2 Values
 /// ```dart
 /// final numbers = Cell.ingress<int>();
@@ -765,6 +732,12 @@ class SkipLast<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// [SkipLast] acts as an **End-Based Skipper**. It buffers the last N values
   /// and only emits values that leave the buffer.
   ///
+  /// **Heads-up:** the trailing N values are NEVER emitted. Cells do not
+  /// "complete", so there is no completion event to flush the buffer — if
+  /// your pipeline's "final result" is the last item, use a different
+  /// operator (e.g. [Debounce] or an explicit end marker) instead of
+  /// counting on a final flush.
+  ///
   /// ### How it works
   /// 1. **Type Check**: The pulse payload is validated against type [S].
   /// 2. **Buffer Management**: Values are buffered in a sliding window.
@@ -794,8 +767,8 @@ class SkipLast<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     int count, {
     SkipErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             final keep = count < 0 ? 0 : count;
             final buffer = <Pulse>[];
             return (pulse, {cell, user}) {
@@ -807,7 +780,7 @@ class SkipLast<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               final ready = buffer.removeAt(0);
               return _mark(ready, 'SkipLast');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -845,14 +818,6 @@ class SkipLast<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. If the predicate returns `false`, the stream is opened and all
 ///    subsequent values pass through.
 /// 5. Each emitted value gets the step `'SkipRepeated'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Consecutive Only**: Only back-to-back duplicates are skipped.
-/// - **No Initial Emission**: The first value is always skipped.
-/// - **State Persistence**: The instruction maintains the previous value.
-/// - **Order Preservation**: Results are emitted in the same order as inputs.
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Custom Comparator**: The [equals] function allows custom comparison.
 ///
 /// ### Example: Skip Consecutive Duplicates
 /// ```dart
@@ -920,8 +885,8 @@ class SkipRepeated<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool Function(S previous, S next)? equals,
     SkipErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             S? previous;
             var hasPrevious = false;
             final cmp = equals ?? (S a, S b) => a == b;
@@ -931,7 +896,11 @@ class SkipRepeated<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               final value = typed.payload as S;
               if (hasPrevious) {
                 try {
-                  if (cmp(previous as S, value)) return null;
+                  // Invariant: previous is non-null whenever hasPrevious is
+                  // true; the explicit null test promotes S? -> S without a
+                  // brittle cast.
+                  final prior = previous;
+                  if (prior != null && cmp(prior, value)) return null;
                 } catch (e, stack) {
                   onError?.call(e, stack);
                   return null;
@@ -941,7 +910,7 @@ class SkipRepeated<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               hasPrevious = true;
               return _mark(typed, 'SkipRepeated');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -977,13 +946,6 @@ class SkipRepeated<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. If the predicate returns `true`, the value is skipped.
 /// 4. If the predicate returns `false`, the value passes through.
 /// 5. Each emitted value gets the step `'SkipWhen'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Per-Value**: The predicate is evaluated for each value independently.
-/// - **Stateless**: The instruction maintains no state.
-/// - **Order Preservation**: Results are emitted in the same order as inputs.
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Memory Efficiency**: No state is stored.
 ///
 /// ### Example: Skip Even Numbers
 /// ```dart

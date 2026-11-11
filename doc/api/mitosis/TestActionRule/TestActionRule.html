@@ -76,13 +76,6 @@ state mutations, illegal function calls, or malformed argument payloads.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The provided <code>rule</code> function is called whenever <a href="../../mitosis/Cell/apply.html">Cell.apply</a> is invoked.
 It receives the action, the host, the arguments, and optional user data.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The rule is only called when the object being validated is a <a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>.</li>
-<li>The <code>arguments</code> parameter (of type <a href="../../mitosis/Arguments.html">Arguments</a>) contains both positional
-and named arguments; you can validate them individually.</li>
-<li>The optional <code>parent</code> allows chaining with another action rule.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final actionRule = TestActionRule&lt;Cell&gt;((action, {host, arguments, user}) {
   return action.toString().contains('read');
@@ -141,7 +134,7 @@ and named arguments; you can validate them individually.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -31,7 +31,7 @@ class _Probe {
   }
 }
 
-({IngressHandle<T> gate, FlowHandle<T> out, _Probe probe}) bind<T>(
+({IngressHandle<T> gate, FlowHandle out, _Probe probe}) bind<T>(
   FlowInstructionBase<Cell, Pulse, Pulse> op,
 ) {
   final gate = Cell.ingress<T>();
@@ -143,7 +143,10 @@ void main() {
       expect(b.probe.payloads, ['pre-hi', 'hi']);
     });
 
-    test('seedOf exceptions call onError and drop the first pulse', () async {
+    test('seedOf exceptions call onError and forward the first pulse',
+        () async {
+      // Contract: a factory failure must not destroy data. The error is
+      // reported, and the first source pulse is forwarded without a prefix.
       final errors = <Object>[];
       final b = bind(StartWithFactory<int>(
         (first) => throw StateError('seed'),
@@ -153,7 +156,7 @@ void main() {
       await b.gate.emitAsync(1);
       await b.gate.emitAsync(2);
       await b.probe.settle();
-      expect(b.probe.payloads, [2]);
+      expect(b.probe.payloads, [1, 2]);
       expect(errors.single, isA<StateError>());
     });
   });

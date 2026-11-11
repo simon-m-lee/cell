@@ -89,14 +89,6 @@ without changing the stream.</p>
 <li>If <code>onValue</code> succeeds, the pulse is passed through unchanged.</li>
 <li>The pulse gets the step <code>'Tap'</code> for provenance.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Error Handling</strong>: If <code>onValue</code> throws, the pulse is dropped.</li>
-<li><strong>Pass-through</strong>: The pulse is not modified.</li>
-<li><strong>Type Safety</strong>: Only typed payloads trigger the callback.</li>
-<li><strong>Provenance Preservation</strong>: The pulse gets the <code>'Tap'</code> step.</li>
-<li><strong>Synchronous Callback</strong>: <code>onValue</code> is synchronous.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -125,6 +117,26 @@ input.emit(42); // Prints: Value: 42
 <li><a href="../../cell_flow/Flow/tapAll.html">tapAll</a>: For side effects on all pulses.</li>
 <li><a href="../../cell_flow/Flow/tapWithIndex.html">tapWithIndex</a>: For indexed side effects.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Flow — side-effect pass-through. Not a Cell factory, not a Tissue book.
+<strong>When to use:</strong> logging / metrics / analytics on a stock chain without rewriting the pulse.
+<strong>When NOT to use:</strong>
+  <strong>DON'T</strong> use <code>Tap</code> to write Tissue on a Cell-variant decision chain.
+Tissue writes happen in <code>Cell.observe</code> (or a harness method it calls).
+Tap is legal on Tissue-sibling / card-auth stock chains only.
+See <code>HowTo-Mitose-Flow.md</code> §3.7 "Collect / control".
+<strong>Live signature:</strong> <code>Flow.tap&lt;S&gt;(Cell source, {required void Function(S value) onValue, TapErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.observe</code> (the Cell-layer glue that writes books; tap lives in the chain).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.7 "Collect / control" (#flow-collect-control)
+<strong>Example:</strong> <code>example/tap_logging_analytics_demo.dart</code>
+<strong>Cross-layer:</strong> book writes happen in <code>Cell.observe</code> on the gate Cell, not in Tap.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final h = Flow.tap&lt;int&gt;(src.cell, onValue: (v) =&gt; print(v));
+final o = Cell.observe(source: h.cell, effect: (Pulse p) =&gt; print(p.payload));
+src.emit(1);
+o.stop();
+</code></pre>
 </section>
 
 
@@ -165,7 +177,7 @@ input.emit(42); // Prints: Value: 42
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

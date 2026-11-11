@@ -27,7 +27,7 @@
     <li><a href="../../index.html">cell_tissue</a></li>
     <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueSetMixin-mixin.html">TissueSetMixin<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueSet&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
-    <li class="self-crumb">apply method</li>
+    <li class="self-crumb">apply&lt;<wbr><span class="type-parameter">R</span>&gt; method</li>
   </ol>
   <div class="self-name">apply</div>
   <form class="search navbar-right" role="search">
@@ -49,7 +49,7 @@
     data-above-sidebar="cell_tissue&#47;TissueSetMixin-mixin-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">apply</span> method 
+<h1><span class="kind-method">apply&lt;<wbr><span class="type-parameter">R</span>&gt;</span> method 
 </h1></div>
 
     <section class="multi-line-signature">
@@ -59,102 +59,24 @@
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-<span class="returntype">dynamic</span>
-<span class="name ">apply</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span></li>
-<li><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span></li>
-<li><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span></li>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span>
+<span class="name ">apply</span>&lt;<wbr><span class="type-parameter">R</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="apply-param-command"><span class="type-annotation"><a href="../../cell_tissue/ApplyCommand.html">ApplyCommand</a></span> <span class="parameter-name">command</span>, {</span></li>
 <li><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span></li>
-<li><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span></li>
-<li><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span></li>
-<li><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span></li>
-<li><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span>, </span></li>
 </ol>})
 
-      <div class="features"><span class="feature">override</span></div>
+      <div class="features"><span class="feature">inherited</span></div>
 
     </section>
     
 <section class="desc markdown">
-  <p>Executes a <strong>State Transition</strong> or arbitrary logic via the <strong>Command Pattern</strong> gateway.</p>
-<p><a href="../../cell_tissue/TissueSetMixin/apply.html">apply</a> serves as the primary enforcement mechanism for a <a href="../../cell_tissue/Cell-class.html">Cell</a>, bridging the gap
-between compile-time governance and runtime <strong>Integrity Gate</strong> validation.</p>
-<h3 id="when-to-use">When to use</h3>
-<ul>
-<li><strong>Somatic State Transitions</strong>: When you need to perform direct mutations or
-execute business logic that is whitelisted in <a href="../../cell_tissue/TissueSetMixin/modifiable.html">modifiable</a>.</li>
-<li><strong>Transaction Orchestration</strong>: When performing multiple, related updates that
-must succeed or fail as a single atomic unit using an <a href="../../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>.</li>
-<li><strong>Compensating Transactions</strong>: Defining reversal logic (<code>compensate</code>) for
-SAGA-like patterns or complex state recovery.</li>
-<li><strong>Dynamic Command Injection</strong>: Executing logic that is determined at runtime
-but must still pass through the node's security perimeter.</li>
-</ul>
-<h3 id="how-it-works">How it works</h3>
-<ol>
-<li><strong>Capability Scrutiny</strong>: The method verifies if the provided <code>function</code> is
-present in the <a href="../../cell_tissue/TissueSetMixin/modifiable.html">modifiable</a> manifest.</li>
-<li><strong>Integrity Gate Validation</strong>: The request triggers a <strong>Reciprocal Handshake</strong>
-with the cell's <a href="../../cell_tissue/TestCell-class.html">TestCell</a>. The intent is evaluated against the node's
-security invariants and administrative mandates.</li>
-<li><strong>Causal Anchor</strong>: A new internal stimulus is synthesized, carrying the
-<strong>Causal Provenance</strong> (trace ID, timestamp, and operational context).</li>
-<li><strong>Execution &amp; Propagation</strong>: If authorized, the function is executed within
-the requested <code>tx</code> scope. The result is then broadcast through the
-<strong>Egress Gateway</strong> to all downstream receptors.</li>
-<li><strong>Compensate Registration</strong>: If a <code>compensate</code> function is provided, it is
-registered to be invoked if the transaction fails or requires rollback.</li>
-</ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Short-Circuit Rejection</strong>: If the <strong>Integrity Gate</strong> rejects the action,
-the method returns <code>null</code> immediately without triggering any reactive waves.</li>
-<li><strong>Transaction Isolation</strong>: Operations within an <a href="../../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a> prevent
-"Glitch" states by ensuring downstream observers only see the final, committed transition.</li>
-<li><strong>Flyweight Strategy</strong>: The framework utilizes Record-based storage for
-command metadata to minimize heap pressure during high-frequency mutations.</li>
-<li><strong>Causal Lineage</strong>: Even failed attempts are recorded in the system audit
-log (if enabled), preserving the trace of the rejected stimulus.</li>
-</ul>
-<pre class="language-dart"><code class="language-dart">// Define a whitelisted mutation
-void increment(int amount) =&gt; value += amount;
-
-// Execute via the Command Pattern gateway
-final result = myCell.apply(
-  increment,
-  positionalArguments: [5],
-  compensate: (int amount) =&gt; value -= amount,
-);
-
-if (result == null) {
-  print('Action rejected by Integrity Gate');
-}
-</code></pre>
-<h3 id="parameters">Parameters:</h3>
-<ul>
-<li><code>function</code>: <strong>The Command Anchor.</strong> A reference to the whitelisted function
-to be executed.</li>
-<li><code>positionalArguments</code>: Optional arguments passed to the function by index.</li>
-<li><code>namedArguments</code>: Optional arguments passed to the function by <a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a> keys.</li>
-<li><code>tx</code>: <strong>The Transaction Scope.</strong> An optional handle to group multiple
-operations into an atomic wave.</li>
-<li><code>compensate</code>: <strong>The Reversal Logic.</strong> A function executed if the transaction
-needs to be rolled back.</li>
-<li><code>compensatePositional</code>: Arguments for the compensation function.</li>
-<li><code>compensateNamed</code>: Named arguments for the compensation function.</li>
-<li><code>compensateCell</code>: An optional target cell for the compensation logic.</li>
-</ul>
-<h3 id="returns">Returns:</h3>
-<p>The result of the executed <code>function</code> if authorized and validated; otherwise <code>null</code>.</p>
-<h3 id="see-also">See Also:</h3>
-<ul>
-<li><a href="../../cell_tissue/TissueSetMixin/modifiable.html">modifiable</a>: The capability manifest defining authorized actions.</li>
-<li><a href="../../cell_tissue/TestCell-class.html">TestCell</a>: The <strong>Integrity Gate</strong> implementation.</li>
-<li><a href="../../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>: The coordinator for atomic multi-step updates.</li>
-</ul>
-<ul>
-<li><strong>Example</strong>: See <code>example/atomic_multi_update.dart</code> for a
-walkthrough of bank transfer logic and multi-node consistency.</li>
-</ul>
+  <p>Submits a first-class <a href="../../cell_tissue/ApplyCommand.html">ApplyCommand</a> through the tissue dispatch engine.</p>
+<p>Collection mutations (<code>add</code>, <code>remove</code>, <code>put</code>, ...) route through the
+specialized dispatch logic of the individual tissue mixins, so the
+command model bridges into that engine and wraps its result in an
+auditable <a href="../../cell_tissue/ApplyOutcome-class.html">ApplyOutcome</a>.</p>
+<p>The dispatch engine reports a rejected mutation with a <code>null</code> result,
+which this bridge maps to <a href="../../cell_tissue/ApplyRejected-class.html">ApplyRejected</a>; non-null results map to
+<a href="../../cell_tissue/ApplyAccepted-class.html">ApplyAccepted</a>.</p>
 </section>
 
 
@@ -162,67 +84,40 @@ walkthrough of bank transfer logic and multi-node consistency.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-dynamic apply(
-  Function function, {
-  List? positionalArguments,
-  Map&lt;Symbol, dynamic&gt;? namedArguments,
+FutureOr&lt;ApplyOutcome&lt;R&gt;&gt; apply&lt;R&gt;(
+  ApplyCommand command, {
   ApplyTransactionScope? tx,
-  Function? compensate,
-  List? compensatePositional,
-  Map&lt;Symbol, dynamic&gt;? compensateNamed,
-  Cell? compensateCell,
 }) {
   if (tx != null) {
-    return super.apply(function,
-        positionalArguments: positionalArguments,
-        namedArguments: namedArguments,
-        tx: tx,
-        compensate: compensate,
-        compensatePositional: compensatePositional,
-        compensateNamed: compensateNamed,
-        compensateCell: compensateCell);
+    final sequence = tx.enqueueCommand(this, command);
+    return ApplyStaged(ApplyLedger.receipt(
+      cell: this,
+      command: command,
+      txSequence: sequence,
+      vetted: modifiable.contains(command.function),
+    ));
   }
 
-  if (modifiable.contains(function)) {
-    try {
-      if (validate.action(function, host: this, arguments: (
-            positionalArguments: positionalArguments,
-            namedArguments: namedArguments
-          )) ==
-          true) {
-        final notification = namedArguments?[#$notification] ?? true;
-        final deputy = namedArguments?[#deputy];
+  final result = dispatch(
+    command.function,
+    positionalArguments: command.arguments.positionalArguments,
+    namedArguments: command.arguments.namedArguments,
+  );
 
-        if (function == add) {
-          return Function.apply(_add, positionalArguments,
-              {#notification: notification, #deputy: deputy});
-        } else if (function == addAll) {
-          return Function.apply(_addAll, positionalArguments,
-              {#notification: notification, #deputy: deputy});
-        } else if (function == clear) {
-          return Function.apply(
-              _clear, null, {#notification: notification, #deputy: deputy});
-        } else if (function == remove) {
-          return Function.apply(_remove, positionalArguments,
-              {#notification: notification, #deputy: deputy});
-        } else if (function == removeAll) {
-          return Function.apply(_removeAll, positionalArguments,
-              {#notification: notification, #deputy: deputy});
-        } else if (function == removeWhere) {
-          return Function.apply(_removeWhere, positionalArguments,
-              {#notification: notification, #deputy: deputy});
-        } else if (function == retainAll) {
-          return Function.apply(_retainAll, positionalArguments,
-              {#notification: notification, #deputy: deputy});
-        } else if (function == retainWhere) {
-          return Function.apply(_retainWhere, positionalArguments,
-              {#notification: notification, #deputy: deputy});
-        }
-      }
-    } catch (_) {}
-    return null;
+  final receipt = ApplyLedger.receipt(
+    cell: this,
+    command: command,
+    vetted: modifiable.contains(command.function),
+  );
+
+  if (result is Future) {
+    return result.then((value) =&gt; value == null
+        ? ApplyRejected&lt;R&gt;(receipt)
+        : ApplyAccepted&lt;R&gt;(value as R, receipt));
   }
-  return null;
+  return result == null
+      ? ApplyRejected&lt;R&gt;(receipt)
+      : ApplyAccepted&lt;R&gt;(result as R, receipt);
 }</code></pre>
 </section>
 
@@ -239,7 +134,7 @@ dynamic apply(
     <li><a href="../../index.html">cell_tissue</a></li>
     <li><a href="../../cell_tissue/">cell_tissue</a></li>
     <li><a href="../../cell_tissue/TissueSetMixin-mixin.html">TissueSetMixin<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueSet&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
-    <li class="self-crumb">apply method</li>
+    <li class="self-crumb">apply&lt;<wbr><span class="type-parameter">R</span>&gt; method</li>
 </ol>
 
     <h5>TissueSetMixin mixin</h5>
@@ -251,7 +146,7 @@ dynamic apply(
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

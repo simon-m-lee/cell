@@ -61,6 +61,13 @@
 
       </section>
       
+<section class="desc markdown">
+  <p>If <code>true</code>, compensation functions are invoked for staged commands that
+were <strong>not</strong> executed — i.e., commands after the failure point.</p>
+<p>Defaults to <code>false</code>. Enable only when a command's <em>staging</em> itself has
+observable side effects (rare). The default matches the intuition that
+"not executed" ⇒ "no effect to reverse".</p>
+</section>
 
       
 <section class="summary source-code" id="source">
@@ -94,7 +101,7 @@
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

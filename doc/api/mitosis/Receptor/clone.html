@@ -87,17 +87,6 @@ to any cell, and <a href="../../mitosis/Receptor/isActivated.html">isActivated</
 <li>Activating the clone binds it to a specific <a href="../../mitosis/Cell-class.html">Cell</a> instance without
 affecting the original receptor's state.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Isolation</strong>: The clone is a distinct object. Activating the original
-or changing its configuration will not impact the cloned instance.</li>
-<li><strong>Shallow Efficiency</strong>: It copies references to the instructions.
-Because instructions are flyweights, this operation is extremely fast
- and memory-efficient.</li>
-<li><strong>Nucleus Integrity</strong>: This method is the mechanical key to how a
-single nucleus can spawn multiple independent cell instances, each
-maintaining its own private operational perimeter.</li>
-</ul>
 <h3 id="returns">Returns:</h3>
 <p>A new unactivated <a href="../../mitosis/Receptor-class.html">Receptor</a> instance with the same logic.</p>
 </section>
@@ -135,7 +124,7 @@ maintaining its own private operational perimeter.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

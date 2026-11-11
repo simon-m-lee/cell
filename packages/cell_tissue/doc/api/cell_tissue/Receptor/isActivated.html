@@ -77,13 +77,6 @@ to verify if a receptor is ready to process signals.</p>
 <p>A receptor starts its life as a stateless template (blueprint). This
 getter returns <code>true</code> only after the <a href="../../cell_tissue/Receptor/activate.html">activate</a> method has been
 successfully invoked by the host <a href="../../cell_tissue/Cell-class.html">Cell</a> during its initialization.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Immutable State</strong>: Once a receptor is activated, it remains
-activated for its entire lifetime.</li>
-<li><strong>Prerequisite</strong>: Many other members, such as the <a href="../../cell_tissue/Receptor/cell.html">cell</a> getter,
-require this to be <code>true</code> before they can be safely accessed.</li>
-</ul>
 <h3 id="returns">Returns:</h3>
 <p><code>true</code> if the receptor is activated and bound to a cell.</p>
 </section>
@@ -121,7 +114,7 @@ require this to be <code>true</code> before they can be safely accessed.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

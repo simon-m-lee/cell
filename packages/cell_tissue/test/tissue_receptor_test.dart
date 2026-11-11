@@ -7,11 +7,38 @@ import 'dart:async';
 import 'package:cell_tissue/cell_tissue.dart';
 import 'package:test/test.dart';
 
+
+// Local builders for the forensic command model.
+ApplyCommand cmd(
+  Function function, [
+  List<Object?>? positionalArguments,
+  ApplyCompensation? compensation,
+]) =>
+    (
+      function: function,
+      arguments:
+          (positionalArguments: positionalArguments, namedArguments: null),
+      compensation: compensation,
+    );
+
+ApplyCompensation undo(
+  Function function, [
+  List<Object?>? positionalArguments,
+  Cell? cell,
+]) =>
+    (
+      function: function,
+      arguments:
+          (positionalArguments: positionalArguments, namedArguments: null),
+      cell: cell,
+    );
+
+
 TissuePulse<int> addedEvent(TissueList<int> list, int value) =>
-    list.apply(list.add, positionalArguments: [value]) as TissuePulse<int>;
+    (list.apply<Object?>(cmd(list.add, [value])) as ApplyAccepted<Object?>).result as TissuePulse<int>;
 
 TissuePulse<int> removedEvent(TissueList<int> list, int value) =>
-    list.apply(list.remove, positionalArguments: [value]) as TissuePulse<int>;
+    (list.apply<Object?>(cmd(list.remove, [value])) as ApplyAccepted<Object?>).result as TissuePulse<int>;
 
 void main() {
   group('TissueReceptor.passThrough', () {
@@ -225,8 +252,9 @@ void main() {
 
     test('synchronises elementUpdated into a list of cells', () {
       final sourceValue = TissueValue<int>(0);
-      final event = sourceValue.apply(sourceValue.set, positionalArguments: [42])
-          as TissuePulse<ElementUpdatedRecord<int, TissueValue<int>>>;
+      final event = (sourceValue.apply<Object?>(cmd(sourceValue.set, [42]))
+              as ApplyAccepted<Object?>)
+          .result as TissuePulse<ElementUpdatedRecord<int, TissueValue<int>>>;
 
       final target = TissueList<dynamic>();
       final receptor = TissueReceptor<dynamic, TissueList<dynamic>>(
@@ -237,8 +265,9 @@ void main() {
       receptor.call(event);
       expect(target.toList(), [sourceValue]);
 
-      final event2 = sourceValue.apply(sourceValue.set, positionalArguments: [43])
-          as TissuePulse<ElementUpdatedRecord<int, TissueValue<int>>>;
+      final event2 = (sourceValue.apply<Object?>(cmd(sourceValue.set, [43]))
+              as ApplyAccepted<Object?>)
+          .result as TissuePulse<ElementUpdatedRecord<int, TissueValue<int>>>;
       receptor.call(event2);
       expect(target.toList(), [sourceValue]);
     });

@@ -50,8 +50,6 @@
     <div>
 <h1><span class="kind-class">DeputyContext</span> class 
  
-    <span class="category advanced cp-10 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
-    <span class="category advanced-·-deputy-context cp-14 linked" title="This is part of the Advanced · Deputy Context topic."><a href="../topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></span>
 </h1></div>
 
     
@@ -79,14 +77,6 @@ operational <a href="../cell/DeputyContext/role.html">role</a>, and the <code>au
 <p>The context holds all the mandate dimensions (authority, clearance, isolation,
 etc.) and is passed to <a href="../cell/Cell/deputy.html">Cell.deputy</a> to create a restricted proxy. The deputy
 shares the same state as the principal but applies these governance rules.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>Some dimensions are static (immutable) while others are evolvable – see
-<a href="../cell/Mandate.html">Mandate</a> for details.</li>
-<li>The context supports prototype-based inheritance: if a dimension isn't set,
-it's resolved from the parent context.</li>
-</ul>
-<p>See also: <a href="../cell/Mandate.html">Mandate</a>, <a href="../cell/Cell/deputy.html">Cell.deputy</a>, <a href="../cell/DeputyContext/system-constant.html">DeputyContext.system</a>.</p>
 </section>
 
 
@@ -638,7 +628,7 @@ type-level marker, supporting the <strong>Flyweight Pattern</strong> and generic
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

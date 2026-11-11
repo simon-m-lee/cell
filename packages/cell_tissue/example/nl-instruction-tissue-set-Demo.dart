@@ -295,7 +295,7 @@ class NlTissueHarness {
 
   /// The materialised handle for the interpret stage. Provides
   /// `.cell` for wiring the downstream dispatch pipeline.
-  late final FlowHandle<String> interpreted;
+  late final FlowHandle interpreted;
 
   /// The dispatch gate cell — receives `Pulse<TissueCommand>` from
   /// [interpreted], runs the dispatch Instruction, mutates [tags].

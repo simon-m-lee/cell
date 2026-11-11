@@ -632,49 +632,69 @@ in <code>filter.dart</code>; they have their own files.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>example_sanitize_text.dart</code></td>
-<td>trim + drop blanks (<code>+</code> chain)</td>
+<td><code>example/filter_data_quality_demo.dart</code></td>
+<td>data quality gates</td>
 </tr>
 <tr>
-<td><code>example_search_query_gate.dart</code></td>
-<td>search box policy</td>
+<td><code>example/stability_search_demo.dart</code></td>
+<td>search-as-you-type debounce</td>
 </tr>
 <tr>
-<td><code>example_checkout_quote.dart</code></td>
-<td>cart → total</td>
+<td><code>example/exhaust_map_submit_checkout_demo.dart</code></td>
+<td>prevent double checkout</td>
 </tr>
 <tr>
-<td><code>example_moderation_gate.dart</code></td>
-<td>comment blocklist</td>
+<td><code>example/combine_latest_sync_demo.dart</code></td>
+<td>combine several sources</td>
 </tr>
 <tr>
-<td><code>example_sensor_threshold.dart</code></td>
-<td>°C → °F</td>
+<td><code>example/buffer_batch_processing_demo.dart</code></td>
+<td>batch telemetry</td>
 </tr>
 <tr>
-<td><code>example_form_email.dart</code></td>
-<td>email field</td>
+<td><code>example/retry_timeout_flaky_network_demo.dart</code></td>
+<td>resilient HTTP</td>
 </tr>
 <tr>
-<td><code>example_order_status_tap.dart</code></td>
-<td>paid/shipped + audit</td>
+<td><code>example/ICU-alarm-pipeline-Demo.dart</code></td>
+<td>complex event processing</td>
 </tr>
 <tr>
-<td><code>example_price_cents.dart</code></td>
-<td>cents → dollars</td>
+<td><code>example/switch_map_dynamic_dependency_demo.dart</code></td>
+<td>dynamic dependencies</td>
 </tr>
 <tr>
-<td><code>example_feature_flag_iif.dart</code></td>
-<td>beta preview</td>
+<td><code>example/from_future_forensic_pipeline_demo.dart</code></td>
+<td>forensic pipeline from a <code>Future</code></td>
 </tr>
 <tr>
-<td><code>example_take_first_valid_pin.dart</code></td>
-<td>PIN take 3</td>
+<td><code>example/from_stream_realtime_data_demo.dart</code></td>
+<td>real-time stream intake</td>
+</tr>
+<tr>
+<td><code>example/merge_stream_aggregation_demo.dart</code></td>
+<td>merge aggregation</td>
+</tr>
+<tr>
+<td><code>example/tap_logging_analytics_demo.dart</code></td>
+<td>tap logging / analytics</td>
+</tr>
+<tr>
+<td><code>example/throttle_rate_limiting_demo.dart</code></td>
+<td>rate limiting</td>
+</tr>
+<tr>
+<td><code>example/start_with_scan_ui_demo.dart</code></td>
+<td>UI seed + running fold</td>
+</tr>
+<tr>
+<td><code>example/cell_flow_example.dart</code></td>
+<td>the umbrella walkthrough</td>
 </tr>
 </tbody>
 </table>
-<p>Each instruction file also has a <code>main</code> demo and a <code>*_test.dart</code> where
-tests were requested.</p>
+<p>The operator classes under <code>lib/src/instruction/</code> each carry a runnable
+<code>main</code> demo in their doc comments for the raw class form.</p>
 <hr>
 <h2 id="13-naming-clashes">13. Naming clashes</h2>
 <table>
@@ -772,6 +792,8 @@ into reactive <a href="../cell_flow/Cell-class.html">Cell</a> topographies.
         <li><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></li>
       <li class="section-title">Libraries</li>
       <li><a href="../cell_flow/">cell_flow</a></li>
+      <li><a href="../cell_flow_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
+      <li><a href="../cell_flow_api_chooser/">doc\api_chooser</a></li>
 </ol>
 
 </div>
@@ -798,7 +820,7 @@ into reactive <a href="../cell_flow/Cell-class.html">Cell</a> topographies.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

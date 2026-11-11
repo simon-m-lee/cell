@@ -82,19 +82,6 @@ a <strong>Circular Dependency</strong> is identified.</li>
 further propagation along the offending branch, allowing the rest of
 the graph to settle normally.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Identity-Based</strong>: Tracking is performed using referential identity of
-the <a href="../cell_flow/Cell-class.html">Cell</a> instances, not their values or states.</li>
-<li><strong>Single-Wave Lifecycle</strong>: Instances are intended to be ephemeral, typically
-mapping 1:1 with the lifespan of a single <a href="../cell_flow/Pulse-class.html">Pulse</a> wave.</li>
-<li><strong>Concurrency Bridge</strong>: While optimized for synchronous execution, it
-seamlessly transitions to thread-safe mode via the <a href="../cell_flow/CycleChecker/async.html">async</a> property
-(<a href="../cell_flow/SyncCycleChecker-class.html">SyncCycleChecker</a>) when crossing asynchronous boundaries.</li>
-<li><strong>Zero-Overhead for Linear Paths</strong>: The internal <code>_visited</code> set is highly
-optimized for small collections, minimizing the latency penalty for
-most propagation paths.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">void propagate(Pulse pulse, Cell node) {
   // Check for cycles before processing
@@ -285,7 +272,7 @@ asynchronous propagation waves.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

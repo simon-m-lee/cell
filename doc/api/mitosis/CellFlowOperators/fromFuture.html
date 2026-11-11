@@ -94,14 +94,6 @@ emitted as a new pulse, tagged with the <code>'FromFuture'</code> step.</li>
 <code>onError</code> handler is invoked and the error is optionally
 materialized as an error pulse.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Single Pulse Lifecycle</strong>: This bridge materializes exactly
-one pulse per trigger. It does not stay active for subsequent
-results unless re-triggered by the source.</li>
-<li><strong>Timeout Preemption</strong>: Providing a <code>timeout</code> ensures the
-topography does not hang indefinitely on a stalled resource.</li>
-</ul>
 <h3 id="type-parameters">Type Parameters</h3>
 <ul>
 <li><code>S</code>: <strong>Stimulus Payload Type</strong>. The type of data yielded by
@@ -169,7 +161,7 @@ topography as error-tagged pulses.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

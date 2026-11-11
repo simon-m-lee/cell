@@ -89,19 +89,6 @@ termination).</li>
 <li>If the check returns <code>false</code>, the new value is stored and the
 pulse is forwarded.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Consecutive Only</strong>: Suppression only applies to back-to-back
-duplicates. A sequence <code>1, 2, 1</code> will emit three times.</li>
-<li><strong>Initial Emission</strong>: The first pulse is always allowed as there is
-no previous value for comparison.</li>
-<li><strong>Payload Scoped</strong>: Equality checks apply strictly to the <code>payload</code>;
-forensic metadata (timestamps, sources) is ignored.</li>
-<li><strong>Custom Equality</strong>: Providing an <code>equals</code> function allows for deep
-equality, case-insensitive comparison, or numeric tolerance bands.</li>
-<li><strong>Null Handling</strong>: Consecutive <code>null</code> payloads are treated as
-duplicates by the default <code>==</code> operator.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final search = Cell.ingress&lt;String&gt;();
 
@@ -137,6 +124,26 @@ of noise reduction.</li>
 practices on filtering and flow control.
 {@category Core 16 Operators}</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> skip <em>consecutive</em> equal payloads (heartbeats, no-change ticks) before downstream work.
+<strong>When NOT to use:</strong> a latch that an ACK must reset — <code>Cell.distinct</code> has no <code>reset()</code>, so use a custom <code>cell_flow</code> instruction; global dedupe is <code>cell_flow</code>'s <code>Distinct</code>.
+<strong>Live signature:</strong> <code>Cell.distinct(Cell source, {bool Function(dynamic previous, dynamic next)? equals})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Distinct</code> (Flow, global seen-set) and <code>DistinctUntilChanged</code> (Flow, consecutive only) — both in <code>cell_flow</code>.
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)
+<strong>Example:</strong> <code>example/distinct_demo.dart</code>
+<strong>Cross-layer:</strong> policy latching is a Flow instruction concern, not this factory.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final d = Cell.distinct(src.cell);
+final seen = &lt;int&gt;[];
+final o = Cell.observe(source: d, effect: (Pulse p) =&gt; seen.add(p.payload as int));
+src.emit(1);
+src.emit(1); // suppressed
+src.emit(2);
+o.stop();
+print(seen); // [1, 2]
+</code></pre>
 </section>
 
 
@@ -175,7 +182,7 @@ practices on filtering and flow control.
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

@@ -79,18 +79,6 @@ tissue, and a full causal <a href="../cell_tissue/PulseBase/trace.html">trace</a
 <li>The event is immutable – it represents a fact that has already occurred.</li>
 <li>You can <a href="../cell_tissue/TissuePulseBase/evolve.html">evolve</a> the event to add a step to its trace or change its context.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The event is a <a href="../cell_tissue/Pulse-class.html">Pulse</a> – it participates in the same reactive propagation
-system as any other signal. It can be evolved, batched, and observed.</li>
-<li>The event is emitted <strong>after</strong> the mutation, not before. If you need to
-capture the before state, records like <a href="../cell_tissue/ElementUpdatedRecord.html">ElementUpdatedRecord</a> or <a href="../cell_tissue/EntryUpdatedRecord.html">EntryUpdatedRecord</a>
-include it in the payload.</li>
-<li>For batch operations (addAll, removeAll), the payload may be an iterable
-of elements, not a single one.</li>
-<li><code>null</code> values are valid payloads – they represent the removal or clearing
-of a value.</li>
-</ul>
 <h3 id="example-observing-changes">Example: Observing changes</h3>
 <pre class="language-dart"><code class="language-dart">final list = TissueList&lt;int&gt;([1, 2, 3]);
 list.observe((event) {
@@ -434,15 +422,15 @@ receiver authenticates itself.
 
 </dd>
 
-        <dt id="type" class="property">
-  <span class="name"><a href="../cell_tissue/TissuePulseBase/type.html">type</a></span>
+        <dt id="type" class="property inherited">
+  <span class="name"><a href="../cell_tissue/PulseBase/type.html">type</a></span>
   <span class="signature">&#8594; dynamic</span>
   
 
 </dt>
-<dd>
-  The semantic classification of this tissue pulse.
-  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+<dd class="inherited">
+  Semantic type classification for pattern matching and routing.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -1085,7 +1073,7 @@ collection.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

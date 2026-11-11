@@ -81,19 +81,6 @@ container strategy to either <a href="../cell_tissue/Container/value-constant.ht
 nucleus with a fresh lock and synapses, essential for creating new
 value instances from a template.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>finalValue</code> flag is <strong>structural</strong> – it is fixed at creation and
-inherited by all deputies. A deputy cannot change a mutable value into
-a write‑once value, or vice versa.</li>
-<li>The nucleus is a <strong>flyweight</strong> – many value cells can share the same
-nucleus without duplicating memory.</li>
-<li>The <a href="../cell_tissue/TissueValueNucleus/clone.html">clone</a> getter creates a root nucleus (no principal) with its own
-lock, making it safe to use for independent value instances.</li>
-<li>The <a href="../cell_tissue/TissueValueNucleusBase/principal.html">principal</a> chain enables <strong>prototype inheritance</strong> – a deputy can
-override only specific properties (like <code>testRule</code>) while inheriting
-the rest from its principal.</li>
-</ul>
 <h3 id="example-reusing-a-validated-nucleus">Example: Reusing a validated nucleus</h3>
 <pre class="language-dart"><code class="language-dart">final validNucleus = TissueValueNucleus.create&lt;int&gt;(
   testRule: TestTissue&lt;int&gt;((v) =&gt; v &gt;= 0),
@@ -146,18 +133,11 @@ allowing for type‑safe pulse processing within the hierarchy.</li>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="TissueValueNucleusBase.new" class="callable">
-          <span class="name"><a href="../cell_tissue/TissueValueNucleusBase/TissueValueNucleusBase.html">TissueValueNucleusBase</a></span><span class="signature">({<span class="parameter" id="-param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span><span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../cell_tissue/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">TissueReceptor.passThrough</span>, </span><span class="parameter" id="-param-testRule"><span class="type-annotation"><a href="../cell_tissue/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestTissue.allowAll</span>, </span><span class="parameter" id="-param-synapses"><span class="type-annotation"><a href="../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span><span class="parameter" id="-param-finalValue"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">finalValue</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span></span>})</span>
+          <span class="name"><a href="../cell_tissue/TissueValueNucleusBase/TissueValueNucleusBase.html">TissueValueNucleusBase</a></span><span class="signature">({<span class="parameter" id="-param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span><span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../cell_tissue/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">TissueReceptor.passThrough</span>, </span><span class="parameter" id="-param-testRule"><span class="type-annotation"><a href="../cell_tissue/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestTissue.allowAll</span>, </span><span class="parameter" id="-param-synapses"><span class="type-annotation"><a href="../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span><span class="parameter" id="-param-finalValue"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">finalValue</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="-param-principal"><span class="type-annotation"><a href="../cell_tissue/TissueNucleusBase-class.html">TissueNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter"><a href="../cell_tissue/ValueContainer-class.html">ValueContainer</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">principal</span></span>})</span>
         </dt>
         <dd>
-          <strong>Primary Constructor</strong> – defines the immutable behaviour and storage
-strategy for a reactive single value.
-        </dd>
-        <dt id="TissueValueNucleusBase.evolve" class="callable">
-          <span class="name"><a href="../cell_tissue/TissueValueNucleusBase/TissueValueNucleusBase.evolve.html">TissueValueNucleusBase.evolve</a></span><span class="signature">({<span class="parameter" id="evolve-param-override"><span class="type-annotation"><a href="../cell_tissue/Nucleus-class.html">Nucleus</a>?</span> <span class="parameter-name">override</span>, </span><span class="parameter" id="evolve-param-principal"><span>required</span> <span class="type-annotation"><a href="../cell_tissue/TissueValueNucleus-class.html">TissueValueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">principal</span></span>})</span>
-        </dt>
-        <dd>
-          <strong>Evolution Constructor</strong> – creates a specialised deputy nucleus by
-extending an existing <code>principal</code>.
+          <strong>Primary Blueprint Constructor</strong> – Synthesizes the immutable DNA and
+storage strategy for a reactive single-value cell.
         </dd>
         <dt id="TissueValueNucleusBase.fromRecord" class="callable">
           <span class="name"><a href="../cell_tissue/TissueValueNucleusBase/TissueValueNucleusBase.fromRecord.html">TissueValueNucleusBase.fromRecord</a></span><span class="signature">(<span class="parameter" id="fromRecord-param-record"><span class="type-annotation">dynamic</span> <span class="parameter-name">record</span></span>)</span>
@@ -525,7 +505,7 @@ custom property extensions for the associated <a href="../cell_tissue/Cell-class
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

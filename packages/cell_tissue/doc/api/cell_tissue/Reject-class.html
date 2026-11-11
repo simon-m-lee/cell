@@ -108,12 +108,6 @@ when the parser could not resolve the reply into a
 </tr>
 </tbody>
 </table>
-<h3 id="non-obvious">Non-obvious</h3>
-<p>A <a href="../cell_tissue/Reject-class.html">Reject</a> is emitted as a <em>value</em>, not as a dropped pulse. The
-downstream filter is what drops it. That means the filter can
-also count it, which is how the demo's <code>rejected</code> counter
-increments. If the instruction dropped the pulse directly, the
-counter could never see it.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// The interpreter produced this after reading "hack the nucleus"
 final rejected = Reject(
@@ -301,7 +295,7 @@ Flow.filter&lt;Object&gt;(
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

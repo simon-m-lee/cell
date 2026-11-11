@@ -92,15 +92,13 @@ breaks on caught exceptions).</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Record mask({
-  Instruction? instruction,
-  Instruction? preProcess,
-  Instruction? postProcess,
-  Function? reaction,
-  Function? user,
-  Function? init
-}) {
-
+  <pre class="language-dart"><code class="language-dart">static Record mask(
+    {Instruction? instruction,
+    Instruction? preProcess,
+    Instruction? postProcess,
+    Function? reaction,
+    Function? user,
+    Function? init}) {
   final userBox = user != null ? (FinalBox()..value = user()) : null;
 
   &#47;&#47; Always return a named-record shape, even when no stages are configured.
@@ -148,7 +146,7 @@ breaks on caught exceptions).</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

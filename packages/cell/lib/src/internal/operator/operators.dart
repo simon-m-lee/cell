@@ -11,6 +11,25 @@ part of '../../../cell.dart';
 // ─────────────────────────────────────────────────────────────
 
 /// Switches to a new dynamic reactive source.
+/// Consumes the result of a fire-and-forget link.
+///
+/// Operator pipelines are synchronous reactors, so their bridge links
+/// assume synchronous [TestCell] rules. When a rule is explicitly async
+/// the returned [Future] is still driven to completion: a rejected gate
+/// is routed to the originating pulse's fail path (when a pulse is in
+/// scope — construction-time links have none and are contained), and a
+/// declined gate simply leaves the connection unestablished.
+void _guardLink(FutureOr<bool> result, [PulseBase? pulse]) {
+  if (result is! Future<bool>) return;
+  unawaited(result.then((_) {}, onError: (Object e, StackTrace st) {
+    if (pulse != null) {
+      pulse._fail(e, stackTrace: st);
+    }
+    // Construction-time links have no pulse to fail; the error is consumed
+    // so it does not become an unhandled zone error.
+  }));
+}
+
 Cell _switchMap<S, T>(
   Cell source,
   Cell Function(S value) mapper, {
@@ -27,18 +46,73 @@ Cell _switchMap<S, T>(
     currentInner: null,
   );
 
+  late final Cell outputCell;
+
+  // Wrap the caller's policy (if any) with an invalidation hook that
+  // unlinks the current inner cell. Without it, the inner's synapse keeps
+  // a strong reference to the invalidated output — the inner keeps calling
+  // its (dead) receptor and the output cell and its closure can never be
+  // collected.
+  final lifecycle = EphemeralPolicy<Cell>(
+    duration: ephemeralPolicy?.duration,
+    eventLimit: ephemeralPolicy?.eventLimit,
+    onEvent: (object, {required Cell cell, required policy, arguments, user}) {
+      // Tick the caller's policy so its own onEvent/limit semantics are
+      // preserved, then mirror ITS counter — including a reset. Counting
+      // the wrapper independently would discard the documented
+      // "return (events: 0) to extend the TTL window" pattern.
+      ephemeralPolicy?.call(object, cell: cell, arguments: arguments);
+      return (events: ephemeralPolicy?.events ?? policy.events + 1);
+    },
+    onInvalidate: (nucleus) {
+      // Delegate the reclamation decision to the caller's hook; only an
+      // accepted invalidation tears the inner link down.
+      // The caller's policy may already have reclaimed itself through its
+      // own quota (the wrapper delegates  to it); an already
+      // invalidated caller means the reclamation is accepted.
+      final accepted = ephemeralPolicy == null ||
+          ephemeralPolicy.isInvalidated ||
+          ephemeralPolicy.invalidate(nucleus.cell);
+      if (accepted) {
+        final inner = state.currentInner;
+        if (inner != null) {
+          inner._nucleus.synapses.unlink(inner, downstreamCell: outputCell);
+          state.currentInner = null;
+        }
+      }
+      return accepted;
+    },
+  );
+
   // Create a custom receptor that handles both source pulses (to switch) and
   // inner pulses (to forward).
   final receptor = _Receptor(
     reaction: (Pulse pulse, Cell cell, {dynamic user}) {
-      final sourcePulse = pulse.source == source;
-      if (sourcePulse) {
-        // Source emitted a new value – switch the inner cell.
-        final payload = pulse.payload as S?;
-        if (payload == null) return null; // Ignore null payloads.
+      // Discriminate by the pulse's immediate source cell identity, not by
+      // `pulse.source == source`: state cells and derived cells emit pulses
+      // without a source stamp, so the old check misread their source
+      // pulses as inner pulses and forwarded them.
+      final inner = state.currentInner;
+      if (inner != null && pulse.source == inner) {
+        // Pulse comes from the current inner cell – forward it.
+        return pulse;
+      }
+      // Source pulse – switch the inner cell.
+      {
+        final rawPayload = pulse.payload;
+        // Drop null payloads and payloads of an unexpected runtime type.
+        // A cast (`as S?`) would throw for mismatched types and tear down
+        // the whole pulse wave; a switch operator should simply ignore
+        // stimuli it cannot switch on.
+        if (rawPayload == null || rawPayload is! S) return null;
+        final payload = rawPayload;
 
         final newInner = state.mapper(payload);
         // if (newInner == null) return null;
+
+        // Bump the generation so older async links can never resurrect
+        // themselves as the active inner after this switch.
+        final generation = ++state.switchGeneration;
 
         // Unlink the old inner cell if it exists.
         if (state.currentInner != null) {
@@ -46,24 +120,36 @@ Cell _switchMap<S, T>(
             state.currentInner!,
             downstreamCell: cell,
           );
+          state.currentInner = null;
         }
 
-        // Link the new inner cell to the output cell.
-        newInner._nucleus.synapses.link(newInner, downstreamCell: cell);
-        state.currentInner = newInner;
+        // Link the new inner cell to the output cell. A declined gate
+        // (sync or async false) must NOT leave a rejected inner looking
+        // active: `currentInner` is set only for accepted links, and an
+        // async acceptance is dropped if a newer switch started first.
+        final linkResult =
+            newInner._nucleus.synapses.link(newInner, downstreamCell: cell);
+        if (linkResult is Future<bool>) {
+          unawaited(linkResult.then((accepted) {
+            if (accepted && state.switchGeneration == generation) {
+              state.currentInner = newInner;
+            }
+          }, onError: (Object e, StackTrace st) {
+            (pulse as PulseBase)._fail(e, stackTrace: st);
+          }));
+        } else if (linkResult == true) {
+          state.currentInner = newInner;
+        }
 
         // Do not forward the source pulse itself.
         return null;
-      } else {
-        // Pulse comes from the current inner cell – forward it.
-        return pulse;
       }
     },
   );
 
   // Create the output cell.
-  final outputCell = Cell.governed(
-    ephemeralPolicy: ephemeralPolicy,
+  outputCell = Cell.governed(
+    ephemeralPolicy: lifecycle,
     context: context,
     receptor: receptor,
     testRule: testRule,
@@ -72,7 +158,9 @@ Cell _switchMap<S, T>(
   );
 
   // Link the source to the output cell so source pulses reach our receptor.
-  source._nucleus.synapses.link(source, downstreamCell: outputCell);
+  // Construction-time links have no pulse to fail; an async gate result is
+  // driven to completion with errors contained (see _guardLink).
+  _guardLink(source._nucleus.synapses.link(source, downstreamCell: outputCell));
 
   return outputCell;
 }
@@ -81,6 +169,9 @@ class _SwitchMapState<S, T> {
   final Cell source;
   final Cell Function(S value) mapper;
   Cell? currentInner;
+  /// Monotonic switch counter: an async link for an older switch must not
+  /// become the active inner after a newer switch has started.
+  int switchGeneration = 0;
 
   _SwitchMapState({
     required this.source,
@@ -110,8 +201,10 @@ Cell _distinct(
 
   final receptor = _Receptor(
     reaction: (pulse, cell, {dynamic user}) {
-      if (pulse.source != source) return null;
-
+      // This bridge is bound to exactly one source, so every pulse that
+      // arrives here came from it. A `pulse.source == source` guard is
+      // wrong: state cells and derived cells emit pulses without a source
+      // stamp, which the guard silently dropped.
       final next = pulse.payload;
       if (state.hasValue && eq(state.last, next)) {
         return null; // duplicate – drop
@@ -132,7 +225,8 @@ Cell _distinct(
     forceLock: forceLock,
   );
 
-  source._nucleus.synapses.link(source, downstreamCell: outputCell);
+  // Construction-time link (see _guardLink).
+  _guardLink(source._nucleus.synapses.link(source, downstreamCell: outputCell));
   return outputCell;
 }
 
@@ -166,8 +260,33 @@ IngressHandle<I> _ingress<I>(
       testRule: testRule,
       synapses: synapses,
       receptor: receptor);
-  bool emit(I input) =>
-      cell._nucleus.receptor.call(Pulse<I>(input, source: cell)) != null;
+
+  bool emit(I input) {
+    final nucleus = cell._nucleus;
+    final receptor = nucleus.receptor;
+    final pulse = _FastPulse<I>(payload: input, source: cell);
+
+    // Fast path: ungoverned ingress with the default pass-through rule and
+    // no pipeline stages. Skipping ReceptorBase.call here only elides the
+    // no-ops it would perform (checker registration, an allowAll validate,
+    // policy checks, progress) — the pulse still travels through the
+    // cell's synapses exactly as before.
+    if (!nucleus.isGoverned &&
+        identical(nucleus.testRule, TestCell.allowAll) &&
+        receptor is _Receptor &&
+        receptor._instruction == null &&
+        receptor._preProcess == null &&
+        receptor._postProcess == null &&
+        receptor._reaction == null) {
+      final synapses = nucleus.synapses;
+      if (synapses != Synapses.disabled) {
+        synapses.call(pulse);
+        return true;
+      }
+    }
+
+    return receptor.call(pulse) != null;
+  }
 
   Future<bool> emitAsync(I input) async {
     final lock = cell._nucleus.lock;
@@ -248,11 +367,16 @@ Cell _fromStream<T>(
     duration: ephemeralPolicy?.duration,
     eventLimit: ephemeralPolicy?.eventLimit,
     onEvent: (object, {required Cell cell, required policy, arguments, user}) {
-      if (ephemeralPolicy == null) return (events: 0);
+      // Tick the caller's policy so its own onEvent/limit/invalidation
+      // semantics are preserved, then report the wrapper's own counter.
+      ephemeralPolicy?.call(object, cell: cell, arguments: arguments);
       return (events: policy.events + 1);
     },
     onInvalidate: (nucleus) {
       cancelSubscription();
+      // Preserve the caller's policy's own invalidation hook — the wrapper
+      // replaced it on the host cell, so it would otherwise never run.
+      ephemeralPolicy?.invalidate(nucleus.cell);
       return true;
     },
   );
@@ -278,8 +402,9 @@ Cell _fromStream<T>(
       host._nucleus.receptor.call(
         Pulse<T>.governed(payload: value, source: host),
       );
-      // passThrough is not governed, so drive the lifecycle policy here.
-      lifecycle(value, cell: host);
+      // Removed: redundant lifecycle(value, cell: host) call.
+      // passThrough is not governed, but the cell is.
+      // ReceptorBase._proceed handles the lifecycle policy tick automatically.
       final limit = lifecycle.eventLimit;
       if (host.isInvalidated || (limit != null && lifecycle.events >= limit)) {
         cancelSubscription();
@@ -360,11 +485,6 @@ Cell _fromFuture<T>(
 /// callback is [body]. When [body] finishes (success or error) the
 /// nested sections unwind and every lock is released.
 ///
-/// ### Non‑obvious
-/// - `null` entries in [locks] are skipped (cells without a lock).
-/// - An empty list runs [body] immediately with no locking.
-/// - Exceptions from [body] propagate after all locks are released.
-/// - Reentrant [Lock]s are safe – the same isolate may re-enter.
 Future<T> withLocks<T>(
   Iterable<Lock?> locks,
   Future<T> Function() body,

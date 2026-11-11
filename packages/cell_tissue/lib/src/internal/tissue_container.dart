@@ -27,17 +27,6 @@ part of '../../cell_tissue.dart';
 ///   strategy.
 /// - The `init`, `add`, and `remove` methods delegate to the stored functions.
 ///
-/// ### Non‑obvious
-/// - When used directly as a `Container`, the `add` and `remove` methods
-///   create a **transient** store via `_init()` and operate on it. This is
-///   different from `TissueContainer.add`, which operates on a persistent store.
-/// - The `_init` function is called with an optional `initialization` parameter
-///   that can be any type – the specific strategy interprets it accordingly
-///   (e.g., as an `Iterable` for lists, or a `Map` for maps).
-/// - The strategy functions are type‑polymorphic – they work with any element
-///   type `E`, which is why they are stored as `Function` rather than
-///   typed closures.
-///
 /// ### Type Parameters:
 /// * [I]: The type of the underlying storage this `_Container` is configured for
 ///   (e.g., `List<E>`, `Set<E>`, `ValueContainer<E>`).
@@ -160,13 +149,6 @@ class _Container implements Container {
   /// - Calls `_add` with the tissue, the transient store, and the element.
   /// - The result is returned to the caller.
   ///
-  /// ### Non‑obvious
-  /// - This operates on a **transient** store, not the persistent store that
-  ///   backs a [Tissue]. For persistent storage, [TissueContainer] calls the
-  ///   `_add` function directly on its own persistent store.
-  /// - The transient store is discarded after the operation – this method is
-  ///   only used when `_Container` is used as a standalone strategy.
-  ///
   /// ### Parameters:
   /// - [tissue]: The [Tissue] instance, passed to `_add`.
   /// - [e]: The element to add, passed to `_add`.
@@ -190,13 +172,6 @@ class _Container implements Container {
   /// - Creates a new transient store via `_init()`.
   /// - Calls `_remove` with the tissue, the transient store, and the element.
   /// - The result is returned to the caller.
-  ///
-  /// ### Non‑obvious
-  /// - This operates on a **transient** store, not the persistent store that
-  ///   backs a [Tissue]. For persistent storage, [TissueContainer] calls the
-  ///   `_remove` function directly on its own persistent store.
-  /// - The transient store is discarded after the operation – this method is
-  ///   only used when `_Container` is used as a standalone strategy.
   ///
   /// ### Parameters:
   /// - [tissue]: The [Tissue] instance, passed to `_remove`.

@@ -73,17 +73,6 @@ and application logic for the transaction.</p>
 <li>Use <code>apply</code> to customize how values are applied to cells.</li>
 <li>Use <code>onEvent</code> for logging and monitoring.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>validate</code> callback is called <strong>in addition</strong> to each cell's
-own <code>testRule</code>. Both must pass for the transaction to commit.</li>
-<li>The <code>apply</code> callback is called <strong>instead of</strong> the default application
-logic. You can use this to add side effects or to apply changes to
-non‑<a href="../cell/ValueCell-class.html">ValueCell</a> cells.</li>
-<li>If a <code>timeout</code> is set, the transaction is automatically rolled back
-and a <a href="../cell/TransactionTimeoutException-class.html">TransactionTimeoutException</a> is thrown.</li>
-</ul>
-<p>See also <a href="../cell/Cell/transaction.html">Cell.transaction</a>.</p>
 </section>
 
 
@@ -300,7 +289,7 @@ and a <a href="../cell/TransactionTimeoutException-class.html">TransactionTimeou
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

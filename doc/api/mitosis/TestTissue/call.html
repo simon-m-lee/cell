@@ -83,13 +83,6 @@ during validation. You might call it for testing.</p>
 <li>Otherwise, it falls back to the base <a href="../../mitosis/TestCell/call.html">TestCell.call</a> logic, which
 handles actions, pulses, and links.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This routing ensures that element‑level validations are only applied
-when an element is actually being added or updated.</li>
-<li>The <code>arguments</code> parameter is typically a mutation function like <code>add</code>
-or <code>remove</code>.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>object</code>: The primary subject (element, pulse, or function).</li>
@@ -138,7 +131,7 @@ FutureOr&lt;bool&gt; call(dynamic object, {covariant C? host, dynamic arguments}
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

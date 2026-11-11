@@ -86,12 +86,6 @@ interleaved fashion.</p>
 <li>The bound source pulse passes through (if <code>forwardSource</code> is true).</li>
 <li>Pulses from <code>others</code> are forwarded with step <code>MergeWith.other</code>.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Interleaved</strong>: Pulses from different sources are interleaved.</li>
-<li><strong>Order Preservation</strong>: Within each source, order is preserved.</li>
-<li><strong>Error Handling</strong>: Type errors are reported via <code>onError</code>.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -121,6 +115,22 @@ button2.emit(2);
 <li><a href="../../cell_flow/Flow/merge.html">merge</a>: For merging extra sources only.</li>
 <li><a href="../../cell_flow/Flow/mergeAll.html">mergeAll</a>: For flattening inner sequences.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Flow — multi-source fan-in. Not a Cell factory, not a Tissue book.
+<strong>When to use:</strong> interleave pulses from several sources into one gate ("merge clicks from two widgets").
+<strong>When NOT to use:</strong> value pairing — use <code>zipWith</code> / <code>combineLatestWith</code>; a Cell-variant Tick is usually assembled in the harness instead.
+<strong>Live signature:</strong> <code>Flow.mergeWith&lt;T&gt;(Cell source, {required List&lt;Cell&gt; others})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Flow.merge</code> (arming source is not forwarded).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.5 "Combine" (#flow-combine)
+<strong>Example:</strong> <code>example/merge_stream_aggregation_demo.dart</code>
+<strong>Cross-layer:</strong> the merged gate Cell is still consumed by <code>Cell.observe</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final h = Flow.mergeWith&lt;int&gt;(src.cell, others: [Cell.ingress&lt;int&gt;().cell]);
+final o = Cell.observe(source: h.cell, effect: (Pulse p) =&gt; print(p.payload));
+src.emit(1);
+o.stop();
+</code></pre>
 </section>
 
 
@@ -160,7 +170,7 @@ button2.emit(2);
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

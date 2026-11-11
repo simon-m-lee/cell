@@ -89,16 +89,6 @@ factories are sufficient.</li>
 <li>The result is an iterable of entries that can be used to build a
 <a href="../../mitosis/PulseContext-class.html">PulseContext</a> via <code>PulseContext.fromEntries()</code>.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This method includes <strong>all</strong> dimensions – both static and evolvable.
-It's used for creating a new pulse from scratch, not for evolving
-an existing one.</li>
-<li>The resolver is called for every dimension, so you must handle each
-one explicitly or let it return <code>null</code> to omit it.</li>
-<li>The result is intended to be consumed by <a href="../../mitosis/PulseContext/PulseContext.fromEntries.html">PulseContext.fromEntries</a>,
-which performs type validation and record packing.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// Internal use – building a user action context
 final entries = Provenance.compose((dimension) {
@@ -157,7 +147,7 @@ every applicable provenance dimension.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

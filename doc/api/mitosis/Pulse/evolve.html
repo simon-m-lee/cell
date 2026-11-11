@@ -88,14 +88,6 @@ pulse's context (<code>context.parent == this.context</code>).</li>
 (root) context, which is permitted to evolve into any specialized context.</li>
 <li>Attempting to "jump" a pulse to an unrelated context will trigger an <a href="https://api.flutter.dev/flutter/dart-core/AssertionError-class.html">AssertionError</a>.</li>
 </ul>
-<h3 id="nonobvious-you-must-provide-at-least-one-parameter">Non‑obvious: you must provide at least one parameter</h3>
-<p>At least one of <code>pulse</code>, <code>step</code>, or <code>context</code> must be non‑null. This
-assertion ensures you don't accidentally create a pointless no‑op
-evolution.</p>
-<h3 id="nonobvious-payload-is-inherited">Non‑obvious: payload is inherited</h3>
-<p>The new pulse's payload is inherited from the root — you can't change
-it here. To change the payload, you'd create a new pulse separately
-and pass it as <code>pulse</code>. This prevents data corruption while preserving the chain.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>pulse</code>: An optional pulse to append to the chain.</li>
@@ -145,7 +137,7 @@ final evolved = root.evolve(step: 'sanitization', context: childContext);
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

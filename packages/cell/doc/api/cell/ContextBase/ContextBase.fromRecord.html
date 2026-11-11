@@ -68,12 +68,6 @@ call it directly – use the <a href="../../cell/Context-class.html">Context</a>
 <p>It directly assigns the provided <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> to the internal storage.
 This bypasses the overhead of map-to-record conversion for maximum
 performance.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The record format is internal – don't rely on its structure.</li>
-<li>This constructor is used by subclasses like <code>DeputyContext</code> and
-<code>PulseContext</code> for efficient instantiation.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>record</code>: The structured Dart Record containing the <code>map</code>, optional
@@ -113,7 +107,7 @@ performance.</p>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

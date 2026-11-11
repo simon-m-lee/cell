@@ -79,7 +79,16 @@ this tissue's synapses.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">TissueMapBase.fromNucleus(TissueMapNucleusBase&lt;K, V, C&gt; super.properties,
     {Iterable&lt;MapEntry&lt;K, V&gt;&gt;? entries})
-    : super();</code></pre>
+    : super() {
+  if (entries != null) {
+    _nucleus.container.store.addEntries(entries);
+    for (final v in _nucleus.container.store.values) {
+      if (v is Cell) {
+        _nucleus.synapses.link(v, downstreamCell: this);
+      }
+    }
+  }
+}</code></pre>
 </section>
 
 
@@ -107,7 +116,7 @@ this tissue's synapses.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

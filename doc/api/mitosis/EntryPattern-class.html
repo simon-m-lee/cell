@@ -67,13 +67,6 @@ phone number, postal code, or custom ID patterns.</p>
 <p>The generated validation code matches the field's value against the <a href="../mitosis/EntryPattern/pattern.html">pattern</a>
 using Dart's <a href="https://api.flutter.dev/flutter/dart-core/RegExp-class.html">RegExp</a>. You can control case sensitivity, allow empty strings,
 and allow null values.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><code>null</code> values are validated based on <a href="../mitosis/EntryPattern/allowNull.html">allowNull</a> – if <code>false</code>, they fail.</li>
-<li>Empty strings are validated based on <a href="../mitosis/EntryPattern/allowEmpty.html">allowEmpty</a> – if <code>false</code>, they fail.</li>
-<li>Non‑string objects always pass (useful for optional or dynamic fields).</li>
-<li>The pattern must be a valid Dart regex string.</li>
-</ul>
 <h3 id="examples">Examples</h3>
 <h4 id="1-standard-format-validation">1. Standard Format Validation</h4>
 <pre class="language-dart"><code class="language-dart">@EntryPattern(pattern: r'^\d{3}-\d{2}-\d{4}$')
@@ -333,7 +326,7 @@ the <a href="../mitosis/EntryPattern/pattern.html">pattern</a>.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

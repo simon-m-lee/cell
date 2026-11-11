@@ -80,14 +80,6 @@ same signal simultaneously.</li>
 <p>When a pulse is <code>HubHandle.emit</code>ted to the hub, the hub looks at the <code>Pulse.type</code>.
 It then loops through its registered spokes and applies the chosen
 routing strategy to find a match.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Priority</strong>: If multiple spokes match in a non-multicast mode, the one
-with the highest priority wins.</li>
-<li><strong>Longest-Prefix</strong>: In <code>prefix</code> mode, the hub automatically selects
-the most specific match (e.g., 'user.login.success' will prefer a spoke
-named 'user.login' over a spoke named 'user').</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// Setting up a prefix-based router
 final router = Cell.hub(
@@ -351,7 +343,7 @@ multicast treats the signal as a broadcast to all interested parties.</p>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

@@ -86,14 +86,6 @@ collection synchronously.</li>
 <li><strong>Pulse Materialization</strong>: Each item in the collection is
 emitted as a distinct pulse, preserving the order of the source.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Synchronous Exhaustion</strong>: The entire collection is materialized
-immediately. If the collection is large and the topography is
-complex, this may block the current execution frame.</li>
-<li><strong>One-Time Trigger</strong>: Once the initial sequence is evolved, the
-bridge remains idle unless the source cell triggers a re-ingress.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>values</code>: The <strong>Static Payload Collection</strong> to be evolved as pulses.</li>
@@ -135,7 +127,7 @@ bridge remains idle unless the source cell triggers a re-ingress.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -1,3 +1,4 @@
+// ignore_for_file: file_names
 // tide-warden-test.dart
 // Version: 0.1.0
 // Supersedes: none
@@ -180,9 +181,8 @@ void main() {
     });
 
     test('FR-17 notice void', () {
-      var sent = false;
       const aborted = true;
-      if (!aborted) sent = true;
+      final sent = !aborted;
       final ok = sent == false;
       print('LEDGER FR-17 ${ok ? "PASS" : "FAIL"} expected=not-sent actual=$sent note=delay');
       expect(ok, isTrue);
@@ -228,13 +228,13 @@ void main() {
 
     test('AR-01 log present', () {
       final ok = true; // events exist after drive
-      print('LEDGER AR-01 ${ok ? "PASS" : "FAIL"} expected=present actual=present note=log');
+      print('LEDGER AR-01 PASS expected=present actual=present note=log');
       expect(ok, isTrue);
     });
 
     test('AR-03 handback list', () {
       final ok = true;
-      print('LEDGER AR-03 ${ok ? "PASS" : "FAIL"} expected=times actual=times note=list');
+      print('LEDGER AR-03 PASS expected=times actual=times note=list');
       expect(ok, isTrue);
     });
 

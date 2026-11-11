@@ -63,6 +63,7 @@
 <span class="name ">action</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="action-param-action"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">action</span>, {</span></li>
 <li><span class="parameter" id="action-param-host"><span>required</span> <span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">host</span>, </span></li>
 <li><span class="parameter" id="action-param-arguments"><span class="type-annotation"><a href="../../cell/Arguments.html">Arguments</a>?</span> <span class="parameter-name">arguments</span>, </span></li>
+<li><span class="parameter" id="action-param-command"><span class="type-annotation"><a href="../../cell/ApplyCommand.html">ApplyCommand</a>?</span> <span class="parameter-name">command</span>, </span></li>
 </ol>})
 
       <div class="features"><span class="feature">override</span></div>
@@ -113,16 +114,6 @@ evaluated.</li>
 <li><strong>Short‑Circuit</strong>: If any validation returns <code>false</code>, the whole
 action is rejected.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The arguments are validated using the same <code>call()</code> method, so they
-can be subject to the same policies as state changes.</li>
-<li>The <a href="../../cell/TestActionRule-class.html">TestActionRule</a>s are only those that are explicitly added via
-<code>TestActionRule</code> instances; other rules are ignored for action
-validation.</li>
-<li>The method returns <code>FutureOr&lt;bool&gt;</code>, so it can be synchronous or
-asynchronous depending on the rules.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final policy = TestCell&lt;Cell&gt;((object, {host, arguments, user}) {
   return object is int &amp;&amp; object &gt; 0;
@@ -151,15 +142,21 @@ print(authorized); // true or false
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-FutureOr&lt;bool&gt; action(Function action, {required Cell host, Arguments? arguments}) {
+FutureOr&lt;bool&gt; action(Function action,
+    {required Cell host, Arguments? arguments, ApplyCommand? command}) {
   final elements = [
     if (arguments?.positionalArguments != null)
       ...arguments!.positionalArguments!,
     if (arguments?.namedArguments != null)
       ...arguments!.namedArguments!.values,
   ];
-  _checkArguments(elements, 0, host, action);
-  return _checkActionRules(action, host, arguments);
+  final argResult = _checkArguments(elements, 0, host, action);
+  FutureOr&lt;bool&gt; finish() =&gt;
+      _checkActionRules(action, host, arguments, command);
+  if (argResult is Future&lt;bool&gt;) {
+    return argResult.then((passed) =&gt; passed ? finish() : false);
+  }
+  return argResult ? finish() : false;
 }</code></pre>
 </section>
 
@@ -188,7 +185,7 @@ FutureOr&lt;bool&gt; action(Function action, {required Cell host, Arguments? arg
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

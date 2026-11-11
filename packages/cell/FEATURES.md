@@ -1,7 +1,7 @@
 # Cell Framework — Feature Catalog
 
 **Package:** `cell`  
-**Version:** `1.0.0-rc.9` (RC / Mitosis Release Candidate)  
+**Version:** `1.1.0` (Stable)  
 **SDK:** Dart `>=3.5.0 <4.0.0`  
 **License:** MIT or Apache-2.0  
 **Author:** Lee Man Hoi Simon (see [`AUTHORS`](https://github.com/simon-m-lee/cell/blob/master/packages/cell/AUTHORS))  
@@ -61,12 +61,12 @@ Nothing is authorized, redacted, TTL-limited, or audited unless you pass a rule.
 
 ## 2. Status and Boundaries
 
-**RC (Release Candidate).** Package version `1.0.0-rc.9`. The core reactive engine is considered feature-complete. Causal integrity logic is now strictly enforced: `withStep` operations lengthen lineage without branching (preserving `isComposite: false`), while `evolve` operations create explicit parent-child branches via `EvolvedPulse`.
+**Stable.** Package version `1.1.0`. The core reactive engine is feature-complete. Causal integrity logic is now strictly enforced: `withStep` operations lengthen lineage without branching (preserving `isComposite: false`), while `evolve` operations create explicit parent-child branches via `EvolvedPulse`.
 
 | Claim | Reality |
 |-------|---------|
 | Published on pub.dev | **Published.** Available as `package:cell`. |
-| Production-ready | **RC Status.** Stable API, but lacks external security or performance audits. |
+| Production-ready | **Stable API.** No external security or performance audits have been performed yet. |
 | Causal Integrity | **Forensic Grade.** Traces are immutable and forward-looking. `root.trace` remains oblivious to descendant steps. |
 | Activation Safety | **Strict.** `Receptor` calls assert `isActivated` status to prevent signal processing on uninitialized or disposed cells. |
 | Regulatory compliance | Metadata fields (`Context.purpose`, `Context.actor`) allow for classification. Compliance (GDPR/HIPAA) is the responsibility of the implementer. |
@@ -1038,7 +1038,7 @@ Flutter: no dedicated widgets. Bind with `Cell.observe` (or any adapter) and cal
 | `HowTo-TransactionOnApply.md` | Staged apply + compensation |
 | `HowTo-Advanced.md` | Index of optional machinery |
 
-Also: `README.md` (overview + status), `ARCHITECTURE.md` (design intent), `TEST_VERIFICATION.md` (test inventory and measured `lib/` coverage), `KNOWN_ISSUES.md` (RC gaps).
+Also: `README.md` (overview + status), `ARCHITECTURE.md` (design intent), `TEST_VERIFICATION.md` (test inventory and measured `lib/` coverage), `CHANGELOG.md` (release history and known gaps).
 
 Generate API docs: `dart doc .`  
 Categories include Getting Started, Core, Core 16 Operators, Transactions, Governance, Advanced, and the primitive-specific topics.
@@ -1136,10 +1136,10 @@ dart doc .
 
 Honest list, so this catalog does not over-promise:
 
-1. **RC APIs** — operator lists and guide names have moved; treat Core 16 numbering as a learning order, not a stability guarantee.
+1. **API lists** — operator lists and guide names have moved across releases; treat the Core 16 numbering as a learning order, not a stability guarantee.
 2. **Guides vs. code** — still being reconciled. Prefer this file + source over stale comments (e.g. “HowTo-17_Essential_Operators”). HowTo examples may mention private `_nucleus`; the unit tests use public APIs only.
 3. **Valve** — implemented (`Cell.valve`, `example/valve_demo.dart`, tests). Generated `doc/api/` HTML may still lag until `dart doc` is regenerated.
-4. **Transaction / compensation internals** have not been independently reviewed end-to-end. Treat as RC for money/inventory until you have your own review.
+4. **Transaction / compensation internals** have not been independently reviewed end-to-end. Treat as unreviewed for money/inventory until you have your own review.
 5. **Remaining lower `lib/` line coverage** — `context.dart` 90.3%, `internal/pulse.dart` 90.4%, `receptor.dart` 90.5% (InstructionChainMixin). Leftover lines are mostly combinatorial flyweight arms (see `TEST_VERIFICATION.md`).
 
 ---

@@ -55,27 +55,23 @@
     
       <section class="multi-line-signature">
         
-        _TestCellReadOnly
+        _TestCellReadOnly<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span>
         const <span class="name ">readOnly</span>
         
 
       </section>
       
 <section class="desc markdown">
-  <p>A policy that blocks all mutations – read‑only.</p>
-<p>Use this to create a view that can observe but not change state.</p>
-<pre class="language-dart"><code class="language-dart">final data = ValueCell&lt;int&gt;(value: 42);
-final readOnly = data.deputy(testRule: TestCell.readOnly);
-print(readOnly.value); // 42
-// readOnly.emit(100); // blocked
-</code></pre>
-<p>See also <a href="../../cell/TestCell/allowAll-constant.html">allowAll</a>.</p>
+  <p>A policy that blocks mutations through the <a href="../../cell/Cell/apply.html">Cell.apply</a> gateway –
+read‑only.</p>
+<p>Use this to create a view that can observe but not change state through
+whitelisted actions.</p>
 </section>
 
       
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static const readOnly = _TestCellReadOnly();</code></pre>
+  <pre class="language-dart"><code class="language-dart">static const readOnly = _TestCellReadOnly&lt;Cell&gt;();</code></pre>
 </section>
 
 
@@ -104,7 +100,7 @@ print(readOnly.value); // 42
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

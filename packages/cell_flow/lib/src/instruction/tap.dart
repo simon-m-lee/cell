@@ -84,13 +84,6 @@ Pulse? _typedOrError<S>(
 /// 2. [seen] is incremented on each typed pulse.
 /// 3. The snapshot is shared between the instruction and external code.
 ///
-/// ### Non‑obvious
-/// - **Volatile**: The snapshot is not persisted across process restarts.
-/// - **In-Memory**: The state lives only in the current process.
-/// - **Shared State**: The snapshot is mutable and shared with the
-///   instruction.
-/// - **Count Tracking**: [seen] tracks how many pulses were processed.
-///
 /// ### Example: Inspecting State
 /// ```dart
 /// final snapshot = TapSnapshot<int>(0);
@@ -168,13 +161,6 @@ class TapSnapshot<A> {
 /// 4. If [onValue] succeeds, the pulse is passed through unchanged.
 /// 5. The pulse gets the step `'Tap'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Error Handling**: If [onValue] throws, the pulse is dropped.
-/// - **Pass-through**: The pulse is not modified.
-/// - **Type Safety**: Only typed payloads trigger the callback.
-/// - **Provenance Preservation**: The pulse gets the `'Tap'` step.
-/// - **Synchronous Callback**: [onValue] is synchronous.
-///
 /// ### Example: Logging
 /// ```dart
 /// final input = Cell.ingress<int>();
@@ -215,6 +201,24 @@ class TapSnapshot<A> {
 /// - [TapAll]: For side effects on all pulses.
 /// - [TapWithIndex]: For indexed side effects.
 /// - [TapState]: For stateful side effects.
+///
+/// ### AI Agent Guide
+/// **Layer:** Flow — side-effect pass-through operator. Not a Cell factory, not a Tissue book.
+/// **When to use:** adjacent concerns on a stock chain — logging, metrics, analytics — without rewriting the pulse.
+/// **When NOT to use:**
+///   {@macro ai-do-not-tap-tissue-on-decision-chain}
+/// **Live signature:** `Tap<S>(void Function(S value) onValue, {TapErrorHandler? onError, dynamic user})` — pinned at `cell_flow: 1.0.0`
+/// **Do NOT confuse with:** `Cell.observe` (the Cell-layer glue that writes books; Tap lives in the chain).
+/// **Guide:** `HowTo-Mitose-Flow.md` §3.7 "Collect / control" (#flow-collect-control)
+/// **Example:** `example/tap_logging_analytics_demo.dart`
+/// **Cross-layer:** book writes happen in `Cell.observe` on the gate Cell, not in Tap.
+/// **Minimal compilable example**
+/// ```dart
+/// final src = Cell.ingress<int>();
+/// final h = Tap<int>((v) => print('tapped $v')).toHandle(source: src.cell);
+/// src.emit(1);
+/// print(h.cell);
+/// ```
 class Tap<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// Synthesizes a **Typed Side-Effect Gate**—a pass-through instruction
   /// that runs [onValue] on every payload of type [S] without rewriting
@@ -289,13 +293,6 @@ class Tap<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. If [onPulse] throws an error, the pulse is dropped.
 /// 4. If [onPulse] succeeds, the pulse is passed through unchanged.
 /// 5. The pulse gets the step `'TapAll'` for provenance.
-///
-/// ### Non‑obvious
-/// - **No Type Check**: The callback receives all pulses.
-/// - **Full Pulse Access**: The callback receives the full [Pulse] object.
-/// - **Error Handling**: If [onPulse] throws, the pulse is dropped.
-/// - **Provenance Preservation**: The pulse gets the `'TapAll'` step.
-/// - **Synchronous Callback**: [onPulse] is synchronous.
 ///
 /// ### Parameters:
 /// - [onPulse]: **Side Effect Callback.** Called with each pulse.
@@ -396,14 +393,6 @@ class TapAll extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 6. The index is incremented after the callback.
 /// 7. The pulse gets the step `'TapWithIndex'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Index Type**: The index is a 0-based integer.
-/// - **Typed Only**: Only typed pulses increment the index.
-/// - **Error Handling**: If [onValue] throws, the pulse is dropped
-///   and the index is not incremented.
-/// - **Provenance Preservation**: The pulse gets the `'TapWithIndex'` step.
-/// - **Synchronous Callback**: [onValue] is synchronous.
-///
 /// ### Parameters:
 /// - [onValue]: **Indexed Side Effect Callback.** Called with each
 ///   typed payload and its index. If it throws, the pulse is dropped.
@@ -435,8 +424,8 @@ class TapWithIndex<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     void Function(S value, int index) onValue, {
     TapErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             var index = 0;
             return (pulse, {cell, user}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -450,7 +439,7 @@ class TapWithIndex<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               index++;
               return typed.withStep('TapWithIndex');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -538,16 +527,6 @@ class TapWithIndex<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 6. If [next] succeeds, the pulse is passed through unchanged.
 /// 7. The pulse gets the step `'TapState'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **State Persistence**: The state persists across all pulses.
-/// - **Pass-through**: The pulse is not modified.
-/// - **Type Safety**: Only typed pulses update the state.
-/// - **Error Handling**: If [next] throws, the pulse is dropped
-///   and the state is not updated.
-/// - **Snapshot Access**: The snapshot can be read externally.
-/// - **Provenance Preservation**: The pulse gets the `'TapState'` step.
-/// - **Synchronous Update**: [next] is synchronous.
-///
 /// ### Parameters:
 /// - [seed]: **Initial State.** The starting value for the accumulator.
 /// - [next]: **State Update Function.** Called with the current state
@@ -599,8 +578,8 @@ class TapState<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     this.snapshot,
     TapErrorHandler? onError,
     dynamic user,
-  ) : super(
-          (() {
+  ) : super.statefulSync(
+          () {
             final snap = snapshot;
             return (pulse, {cell, user}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -614,7 +593,7 @@ class TapState<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return typed.withStep('TapState');
             };
-          })(),
+          },
           user: user,
         );
 

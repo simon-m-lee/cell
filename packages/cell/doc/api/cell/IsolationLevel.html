@@ -84,18 +84,6 @@ the snapshot, the transaction aborts with a conflict.</li>
 If any cell that was read (but not written) has changed, the
 transaction aborts. Commits are globally serialized.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><code>readCommitted</code> does <strong>not</strong> prevent non-repeatable reads – if you
-read the same cell twice, you may see different values.</li>
-<li><code>repeatableRead</code> prevents non-repeatable reads, but does <strong>not</strong>
-prevent phantom reads (if you read a collection, new items may appear).</li>
-<li><code>serializable</code> prevents all anomalies, but requires a global gate
-which can become a bottleneck under high contention.</li>
-<li>The isolation level only affects reads; writes are always applied
-atomically regardless of the level.</li>
-</ul>
-<p>See also <a href="../cell/TransactionOptions/isolation.html">TransactionOptions.isolation</a>.</p>
 </section>
 
 
@@ -144,12 +132,6 @@ the least consistency guarantees.</p>
 <li>High‑throughput scenarios where consistency can be relaxed.</li>
 <li>When you only need atomicity for writes, not isolation for reads.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>If you read a value, then update it based on that read, another
-transaction may have changed the value between your read and update,
-leading to lost updates. Use a higher level if this is a concern.</li>
-</ul>
   
 
 </dd>
@@ -173,13 +155,6 @@ and you want to ensure no other transaction changes them.</li>
 <li>For scenarios like "read balance, then deduct amount" where you
 need consistency.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This level does <strong>not</strong> prevent phantom reads – if you iterate over
-a collection, new items may appear.</li>
-<li>The snapshot is taken at <code>begin</code>, not at the first read.</li>
-<li>Concurrent changes abort the transaction – you must retry.</li>
-</ul>
   
 
 </dd>
@@ -202,13 +177,6 @@ gate, ensuring a total order of all serializable transactions.</p>
 <li>For invariants that span multiple cells (e.g., "sum of accounts
 must be zero").</li>
 <li>When you can tolerate the performance overhead of global ordering.</li>
-</ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The global gate can become a bottleneck under high contention.</li>
-<li>Reads are tracked – even reading a value that hasn't changed
-can cause an abort if another transaction wrote to it.</li>
-<li>This is the safest level but the most expensive.</li>
 </ul>
   
 
@@ -377,7 +345,7 @@ can cause an abort if another transaction wrote to it.</li>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

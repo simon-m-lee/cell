@@ -80,10 +80,6 @@ observer.</p>
 <p>This factory returns a <a href="../../mitosis/DeputyContext-class.html">DeputyContext</a> that extends the base <a href="../../mitosis/Context-class.html">Context</a>
 with mandate‑specific fields. The resulting context can be passed to
 <code>cell.deputy()</code> to create a restricted proxy.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<p>The deputy's authority is always <strong>downward‑only</strong> – you cannot grant
-more privileges than the base context provides. This enforces least
-privilege.</p>
 <h3 id="example-use-of-ontologytype-ontologyidentity-mandaterole-and-mandateauthority-together">Example (Use of <a href="../../mitosis/Ontology.html">Ontology.type</a>, <a href="../../mitosis/Ontology.html">Ontology.identity</a>, <a href="../../mitosis/Mandate.html">Mandate.role</a> and <a href="../../mitosis/Mandate.html">Mandate.authority</a> together)</h3>
 <pre class="language-dart"><code class="language-dart">// The Principal Identity
 final room302 = Context(type: 'RoomController', identity: 'Room_302_Master');
@@ -166,7 +162,7 @@ mandate.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

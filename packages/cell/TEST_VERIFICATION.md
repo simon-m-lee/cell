@@ -1,9 +1,9 @@
 # cell package - Test Verification Report
 
-**Generated:** 2026-11-02
-**Package:** cell (v1.0.0-rc.9)
-**Test Files Analyzed:** 20
-**Total Tests:** 1115 (0 skipped)
+**Generated:** 2026-11-11
+**Package:** cell (v1.1.0)
+**Test Files Analyzed:** 29
+**Total Tests:** 1174 (0 skipped)
 
 ---
 
@@ -14,26 +14,35 @@
   - [Quick Stats](#quick-stats)
 - [Test File Inventory](#test-file-inventory)
 - [Detailed Test Coverage](#detailed-test-coverage)
-  - [cell_policy_test.dart](#file-1-cell_policy_test.dart-38-tests)
-  - [cell_test.dart](#file-2-cell_test.dart-72-tests)
-  - [commons_test.dart](#file-3-commons_test.dart-43-tests)
-  - [context_test.dart](#file-4-context_test.dart-117-tests)
-  - [deputy_test.dart](#file-5-deputy_test.dart-21-tests)
-  - [instruction_test.dart](#file-6-instruction_test.dart-23-tests)
-  - [nucleus_test.dart](#file-7-nucleus_test.dart-39-tests)
-  - [operators_phase1_foundation_test.dart](#file-8-operators_phase1_foundation_test.dart-64-tests)
-  - [operators_phase2_flow_control_test.dart](#file-9-operators_phase2_flow_control_test.dart-43-tests)
-  - [operators_phase3_async_routing_test.dart](#file-10-operators_phase3_async_routing_test.dart-60-tests)
-  - [operators_phase4_advanced_transactions_test.dart](#file-11-operators_phase4_advanced_transactions_test.dart-39-tests)
-  - [propagation_policy_test.dart](#file-12-propagation_policy_test.dart-41-tests)
-  - [pulse_test.dart](#file-13-pulse_test.dart-157-tests)
-  - [receptor_test.dart](#file-14-receptor_test.dart-50-tests)
-  - [synapses_test.dart](#file-15-synapses_test.dart-82-tests)
-  - [synthesis_cell_test.dart](#file-16-synthesis_cell_test.dart-37-tests)
-  - [test_cell_test.dart](#file-17-test_cell_test.dart-41-tests)
-  - [test_rule_meta_test.dart](#file-18-test_rule_meta_test.dart-48-tests)
-  - [transaction_test.dart](#file-19-transaction_test.dart-54-tests)
-  - [tx_apply_test.dart](#file-20-tx_apply_test.dart-46-tests)
+  - [ai_guide_examples_test.dart](#file-1-ai_guide_examples_test.dart-3-tests)
+  - [ai_preflight_test.dart](#file-2-ai_preflight_test.dart-1-tests)
+  - [api_chooser_up_to_date_test.dart](#file-3-api_chooser_up_to_date_test.dart-1-tests)
+  - [apply_command_test.dart](#file-4-apply_command_test.dart-12-tests)
+  - [cell_policy_test.dart](#file-5-cell_policy_test.dart-39-tests)
+  - [cell_test.dart](#file-6-cell_test.dart-78-tests)
+  - [commons_test.dart](#file-7-commons_test.dart-49-tests)
+  - [context_test.dart](#file-8-context_test.dart-117-tests)
+  - [deputy_test.dart](#file-9-deputy_test.dart-26-tests)
+  - [instruction_test.dart](#file-10-instruction_test.dart-23-tests)
+  - [nucleus_test.dart](#file-11-nucleus_test.dart-40-tests)
+  - [operator_async_map_test.dart](#file-12-operator_async_map_test.dart-2-tests)
+  - [operator_from_stream_test.dart](#file-13-operator_from_stream_test.dart-3-tests)
+  - [operators_phase1_foundation_test.dart](#file-14-operators_phase1_foundation_test.dart-65-tests)
+  - [operators_phase2_flow_control_test.dart](#file-15-operators_phase2_flow_control_test.dart-45-tests)
+  - [operators_phase3_async_routing_test.dart](#file-16-operators_phase3_async_routing_test.dart-63-tests)
+  - [operators_phase4_advanced_transactions_test.dart](#file-17-operators_phase4_advanced_transactions_test.dart-39-tests)
+  - [propagation_policy_test.dart](#file-18-propagation_policy_test.dart-37-tests)
+  - [pulse_test.dart](#file-19-pulse_test.dart-159-tests)
+  - [receptor_instruction_future_test.dart](#file-20-receptor_instruction_future_test.dart-2-tests)
+  - [receptor_test.dart](#file-21-receptor_test.dart-54-tests)
+  - [seam_test.dart](#file-22-seam_test.dart-2-tests)
+  - [synapses_test.dart](#file-23-synapses_test.dart-75-tests)
+  - [synthesis_cell_test.dart](#file-24-synthesis_cell_test.dart-37-tests)
+  - [test_cell_test.dart](#file-25-test_cell_test.dart-45-tests)
+  - [test_chain_test.dart](#file-26-test_chain_test.dart-4-tests)
+  - [test_rule_meta_test.dart](#file-27-test_rule_meta_test.dart-49-tests)
+  - [transaction_test.dart](#file-28-transaction_test.dart-55-tests)
+  - [tx_apply_test.dart](#file-29-tx_apply_test.dart-49-tests)
 - [Runtime Verification Status](#runtime-verification-status)
   - [Last `dart test`](#last-dart-test)
   - [Line Coverage (`lib/`)](#line-coverage-lib)
@@ -44,13 +53,13 @@
 
 ## Executive Summary
 
-The cell test suite contains **1115 unit tests** across **20 files** in `test/`. Counts are `test(` declarations.
+The cell test suite contains **1174 unit tests** across **29 files** in `test/`. Counts are `test(` declarations.
 
 This file is **generated**. Edit the script flags or the stub sections at the bottom; do not hand-count `test(`.
 
 ### Snapshot
 
-Last `dart test` is **green**: **1115 passed**, 0 failed (exit 0).
+Last `dart test` is **green**: **1174 passed**, 0 failed (exit 0).
 
 `lib/` line coverage is **93.5%** (3586 / 3836).
 
@@ -60,12 +69,12 @@ No `lib/` file is below 70% in this lcov.
 
 | Metric | Value |
 |--------|-------|
-| **Total Test Files** | 20 |
-| **Total Tests** | 1115 |
+| **Total Test Files** | 29 |
+| **Total Tests** | 1174 |
 | **Skipped** | 0 |
-| **Last full run** | 1115 passed, 0 failed, 0 skipped (exit 0) |
-| **Test Groups** | 251 (`group(` declarations) |
-| **Async-ish tests** | ~349 (heuristic) |
+| **Last full run** | 1174 passed, 0 failed, 0 skipped (exit 0) |
+| **Test Groups** | 256 (`group(` declarations) |
+| **Async-ish tests** | ~394 (heuristic) |
 | **Line coverage (`lib/`)** | **93.5%** (3586 / 3836) |
 
 ---
@@ -74,27 +83,36 @@ No `lib/` file is below 70% in this lcov.
 
 | # | File | Lines | Tests | Size | Focus |
 |---|------|------:|------:|------:|-------|
-| 1 | cell_policy_test.dart | 620 | 38 | 20.8 KB | cell policy test; groups: EphemeralPolicy, Construction, call / events, eventLimit, TTL, combined TTL and eventLimit… |
-| 2 | cell_test.dart | 1,102 | 72 | 38.7 KB | cell test; groups: Cell, Factory Constructors, Identity & Equality, Apply, Modifiable, Terminal & State… |
-| 3 | commons_test.dart | 449 | 43 | 13.6 KB | commons test; groups: mapMerge, SyncSet, QueueList, AsyncQueueList, PriorityQueue, AsyncPriorityQueue… |
-| 4 | context_test.dart | 1,636 | 117 | 60.8 KB | context test; groups: GovernanceEntry, Ontology, Context, system, describe, primary constructor… |
-| 5 | deputy_test.dart | 256 | 21 | 8.3 KB | deputy test; groups: Cell.deputy, identity, testRule layering, apply forwarding, unmodifiable, causal integrity… |
-| 6 | instruction_test.dart | 361 | 23 | 12.4 KB | instruction test; groups: Instruction, Construction, Composition, Instruction.future, Custom Instruction, Receptor integration |
-| 7 | nucleus_test.dart | 353 | 39 | 12.2 KB | nucleus test; groups: Nucleus, empty / Nucleolus, Construction & defaults, Nucleus.create, Activation, evolve… |
-| 8 | operators_phase1_foundation_test.dart | 1,049 | 64 | 36.6 KB | operators phase1 foundation test; groups: Cell.state, Basic State, State with evolve, Ingest, Edge Cases, Cell.ingress… |
-| 9 | operators_phase2_flow_control_test.dart | 769 | 43 | 22.3 KB | operators phase2 flow control test; groups: Phase 2: Flow Control Operators, Cell.debounce, Cell.throttle, Cell.distinct, Cell.synthesis, Combined Operators… |
-| 10 | operators_phase3_async_routing_test.dart | 1,042 | 60 | 30.2 KB | operators phase3 async routing test; groups: Phase 3: Async & Routing Operators, Cell.asyncMap, Cell.hub, Cell.switchMap, Cell.fromFuture, Cell.fromStream… |
-| 11 | operators_phase4_advanced_transactions_test.dart | 784 | 39 | 23.7 KB | operators phase4 advanced transactions test; groups: Phase 4: Advanced & Transactions, Cell.sanitized, Cell.open, Combined Operators, Edge Cases & Error Handling, toString |
-| 12 | propagation_policy_test.dart | 751 | 41 | 28.0 KB | propagation policy test; groups: PropagationPolicy, Construction & Defaults, Strategy: immediate, Strategy: debounced, Strategy: throttled, Strategy: batched… |
-| 13 | pulse_test.dart | 1,856 | 157 | 71.1 KB | pulse test; groups: Pulse, Construction, withStep vs evolve distinction, Evolution, Composition, Shell… |
-| 14 | receptor_test.dart | 688 | 50 | 24.4 KB | receptor test; groups: Receptor, passThrough, Construction, Activation & clone, Pipeline, Instruction composition… |
-| 15 | synapses_test.dart | 1,161 | 82 | 37.6 KB | synapses test; groups: Synapses, disabled, enabled, Construction & broadcast, link / unlink, FilterRule… |
-| 16 | synthesis_cell_test.dart | 627 | 37 | 21.0 KB | synthesis cell test; groups: SynthesisCell, Construction, Aggregation, Source Management, Stop/Start, Edge Cases & Error Handling… |
-| 17 | test_cell_test.dart | 588 | 41 | 19.2 KB | cell test; groups: TestCell, allowAll, readOnly, Construction, Composition, Exceptions… |
-| 18 | test_rule_meta_test.dart | 351 | 48 | 11.8 KB | rule meta test; groups: DefaultValue, MaxLength, direct field limit, hostLength, composite field + container, host-only… |
-| 19 | transaction_test.dart | 1,203 | 54 | 35.9 KB | transaction test; groups: Cell.transaction, Basic Transaction, Isolation Levels, Lock Ordering, Validation, Custom Apply… |
-| 20 | tx_apply_test.dart | 1,106 | 46 | 32.4 KB | tx apply test; groups: Cell.txApply, Basic Operations, Compensation, Error Handling, Stop On First Failure, Savepoint… |
-| **Total** | | **16,752** | **1115** | **561.4 KB** | |
+| 1 | ai_guide_examples_test.dart | 43 | 3 | 1.7 KB | ai guide examples test |
+| 2 | ai_preflight_test.dart | 22 | 1 | 0.8 KB | ai preflight test |
+| 3 | api_chooser_up_to_date_test.dart | 27 | 1 | 1.0 KB | api chooser up to date test |
+| 4 | apply_command_test.dart | 283 | 12 | 8.5 KB | apply command test; groups: Apply command model |
+| 5 | cell_policy_test.dart | 646 | 39 | 21.8 KB | cell policy test; groups: EphemeralPolicy, Construction, call / events, eventLimit, TTL, combined TTL and eventLimit… |
+| 6 | cell_test.dart | 1,264 | 78 | 43.7 KB | cell test; groups: Cell, Factory Constructors, Identity & Equality, Apply, Modifiable, Terminal & State… |
+| 7 | commons_test.dart | 509 | 49 | 15.6 KB | commons test; groups: mapMerge, SyncSet, QueueList, AsyncQueueList, PriorityQueue, AsyncPriorityQueue… |
+| 8 | context_test.dart | 1,636 | 117 | 60.8 KB | context test; groups: GovernanceEntry, Ontology, Context, system, describe, primary constructor… |
+| 9 | deputy_test.dart | 352 | 26 | 11.6 KB | deputy test; groups: Cell.deputy, identity, testRule layering, apply forwarding, unmodifiable, causal integrity… |
+| 10 | instruction_test.dart | 361 | 23 | 12.4 KB | instruction test; groups: Instruction, Construction, Composition, Instruction.future, Custom Instruction, Receptor integration |
+| 11 | nucleus_test.dart | 366 | 40 | 12.6 KB | nucleus test; groups: Nucleus, empty / Nucleolus, Construction & defaults, Nucleus.create, Activation, evolve… |
+| 12 | operator_async_map_test.dart | 98 | 2 | 2.6 KB | operator async map test; groups: Cell.asyncMap latestOnly with concurrency=1 |
+| 13 | operator_from_stream_test.dart | 115 | 3 | 3.3 KB | operator from stream test; groups: Cell.fromStream + EphemeralPolicy |
+| 14 | operators_phase1_foundation_test.dart | 1,066 | 65 | 37.3 KB | operators phase1 foundation test; groups: Cell.state, Basic State, State with evolve, Ingest, Edge Cases, Cell.ingress… |
+| 15 | operators_phase2_flow_control_test.dart | 819 | 45 | 24.0 KB | operators phase2 flow control test; groups: Phase 2: Flow Control Operators, Cell.debounce, Cell.throttle, Cell.distinct, Cell.synthesis, Combined Operators… |
+| 16 | operators_phase3_async_routing_test.dart | 1,117 | 63 | 33.3 KB | operators phase3 async routing test; groups: Phase 3: Async & Routing Operators, Cell.asyncMap, Cell.hub, Cell.switchMap, Cell.fromFuture, Cell.fromStream… |
+| 17 | operators_phase4_advanced_transactions_test.dart | 800 | 39 | 25.1 KB | operators phase4 advanced transactions test; groups: Phase 4: Advanced & Transactions, Cell.sanitized, Cell.open, Combined Operators, Edge Cases & Error Handling, toString |
+| 18 | propagation_policy_test.dart | 680 | 37 | 24.9 KB | propagation policy test; groups: PropagationPolicy, Construction & Defaults, Strategy: immediate, Strategy: debounced, Strategy: throttled, Strategy: batched… |
+| 19 | pulse_test.dart | 1,908 | 159 | 71.2 KB | pulse test; groups: Pulse, Construction, withStep vs evolve distinction, Evolution, Composition, Shell… |
+| 20 | receptor_instruction_future_test.dart | 84 | 2 | 2.5 KB | receptor instruction future test; groups: Receptor.pipeline with Instruction.future + postProcess |
+| 21 | receptor_test.dart | 782 | 54 | 28.1 KB | receptor test; groups: Receptor, passThrough, Construction, Activation & clone, Pipeline, Instruction composition… |
+| 22 | seam_test.dart | 46 | 2 | 1.6 KB | seam test |
+| 23 | synapses_test.dart | 1,136 | 75 | 37.3 KB | synapses test; groups: Synapses, disabled, enabled, Construction & broadcast, link / unlink, FilterRule… |
+| 24 | synthesis_cell_test.dart | 627 | 37 | 21.0 KB | synthesis cell test; groups: SynthesisCell, Construction, Aggregation, Source Management, Stop/Start, Edge Cases & Error Handling… |
+| 25 | test_cell_test.dart | 665 | 45 | 22.4 KB | cell test; groups: TestCell, allowAll, readOnly, Construction, Composition, Exceptions… |
+| 26 | test_chain_test.dart | 84 | 4 | 2.8 KB | chain test; groups: TestCell.chain preserves parent when strategy is null, TestRule.chain preserves user when strategy is set, TestRule.chain preserves parent when strategy is null |
+| 27 | test_rule_meta_test.dart | 366 | 49 | 12.2 KB | rule meta test; groups: DefaultValue, MaxLength, direct field limit, hostLength, composite field + container, host-only… |
+| 28 | transaction_test.dart | 1,227 | 55 | 36.6 KB | transaction test; groups: Cell.transaction, Basic Transaction, Isolation Levels, Lock Ordering, Validation, Custom Apply… |
+| 29 | tx_apply_test.dart | 1,140 | 49 | 34.6 KB | tx apply test; groups: Cell.txApply, Basic Operations, Compensation, Error Handling, Stop On First Failure, Savepoint… |
+| **Total** | | **18,269** | **1174** | **611.5 KB** | |
 
 ---
 
@@ -102,11 +120,65 @@ No `lib/` file is below 70% in this lcov.
 
 Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 
-### File 1: cell_policy_test.dart (38 tests)
+### File 1: ai_guide_examples_test.dart (3 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 38 |
+| *(all groups)* | 3 |
+
+**Tests**
+
+- generated AI guide example file is up to date
+- every minimal example compiles under dart analyze
+- every minimal example runs and exits 0
+
+### File 2: ai_preflight_test.dart (1 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 1 |
+
+**Tests**
+
+- all doc-comment and HowTo pins match resolved versions
+
+### File 3: api_chooser_up_to_date_test.dart (1 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 1 |
+
+**Tests**
+
+- lib/doc/api_chooser.dart is generated and up to date
+
+### File 4: apply_command_test.dart (12 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 12 |
+| Apply command model | |
+
+**Tests**
+
+- execute accepts a command and returns its typed result
+- receipt carries forensic provenance
+- gate rejection returns ApplyRejected
+- the gate receives the complete command including compensation
+- unvetted functions execute but the receipt records it
+- tx staging returns ApplyStaged with a sequence and commits
+- async gate returns a Future outcome
+- builder DSL assembles and runs a command
+- builder DSL attaches a compensation blueprint
+- deputy execute forwards to the principal
+- async execute returns a Future outcome
+- ApplyVeto soft-reject is honored at commit
+
+### File 5: cell_policy_test.dart (39 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 39 |
 | EphemeralPolicy | |
 | Construction | |
 | call / events | |
@@ -141,6 +213,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - reclaims after duration from the first interaction
 - does not restart the TTL on later interactions
 - dispose cancels a pending TTL
+- a declined eventLimit reclamation keeps the TTL timer alive
 - TTL is a no-op if the cell was already reclaimed
 - event quota can reclaim before the TTL
 - TTL can reclaim before the event quota
@@ -157,11 +230,11 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - a deputy without its own policy follows the principal
 - two policies keep independent event counters
 
-### File 2: cell_test.dart (72 tests)
+### File 6: cell_test.dart (78 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 72 |
+| *(all groups)* | 78 |
 | Cell | |
 | Factory Constructors | |
 | Identity & Equality | |
@@ -171,6 +244,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 | Deputy | |
 | Async | |
 | Unmodifiable | |
+| §3 unmodifiable | |
 | Validation | |
 | Context | |
 | Ephemeral Policy | |
@@ -216,9 +290,15 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - async.apply without a lock still completes
 - async.apply with lock serialization
 - Modifiable is a const marker
-- unmodifiable returns the same cell instance for CustomCell
+- unmodifiable returns a read-only deputy for CustomCell
 - unmodifiable for value cell is read-only
 - unmodifiable for deputy returns principal unmodifiable
+- value setter throws; principal unchanged
+- apply() on unmodifiable is rejected
+- read-only deputy still accepts observations and produces 
+- _CellDeputy no longer bypasses chained testRule
+- read-only deputy gates apply and seals direct value writes; 
+- unmodifiable projection is wired into the graph
 - validate allows all by default
 - validate blocks with custom rule
 - validate with pulse and custom rule
@@ -253,11 +333,11 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - cell returns string representation
 - value cell returns string with value
 
-### File 3: commons_test.dart (43 tests)
+### File 7: commons_test.dart (49 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 43 |
+| *(all groups)* | 49 |
 | mapMerge | |
 | SyncSet | |
 | QueueList | |
@@ -294,13 +374,17 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - uses Comparable when no comparator is provided
 - addFirst and addLast still rank by priority
 - remove, removeWhere, retainWhere, and clear
+- remove returns false for an incompatible value type
 - empty buffer throws on extract
 - removeLast pops a leaf and iterator walks the heap
+- removeLast returns the lowest-precedence element
+- last peeks the lowest-precedence element
 - add, peek, and ranked extract
 - addAll, map, toList, toSet, reduce, forEach, replicate
 - orders by comparison and reports emptiness
 - of constructor seeds the heap
 - capacity rejects overflow on add and addAll
+- addAll is atomic: no partial additions on capacity overflow
 - addFirst, addLast, remove, map, clear
 - Box starts null and accepts mutation
 - SyncBox serializes get and set
@@ -310,12 +394,14 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - FunctionTypeObject evaluates lazily
 - FunctionObject stores a record
 - get returns the primary value
-- get uses fallback when primary throws
-- get uses orElse when primary and fallback throw
+- get uses fallback when the primary is absence-shaped
+- get uses orElse when the primary and fallback are absence-shaped
+- get propagates non-absence exceptions from the primary
+- get propagates wrong-typed record fields (TypeError)
 - get rethrows the original error when orElse cannot satisfy T
 - Async and Unmodifiable are usable as type checks
 
-### File 4: context_test.dart (117 tests)
+### File 8: context_test.dart (117 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -477,17 +563,18 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - fromValue maps numeric urgency onto semantic tiers
 - urgent tiers start at critical
 
-### File 5: deputy_test.dart (21 tests)
+### File 9: deputy_test.dart (26 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 21 |
+| *(all groups)* | 26 |
 | Cell.deputy | |
 | identity | |
 | testRule layering | |
 | apply forwarding | |
 | unmodifiable | |
 | causal integrity | |
+| Attenuation enforcement | |
 | OpenCell.deputy | |
 
 **Tests**
@@ -501,20 +588,25 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - a nested deputy remains equal to the root principal
 - unrelated cells are not equal to a deputy
 - the deputy rule is additive on top of the principal
-- readOnly deputy still exposes apply on the principal via forwarding
+- readOnly deputy rejects apply forwarding
 - deputy.apply executes on the principal
 - deputy.unmodifiable is the principal unmodifiable view
 - ValueCell deputy unmodifiable is an UnmodifiableValueCell
 - a nested deputy may use DeputyContext.system
 - a nested deputy may use an evolved descendant context
+- isolation can only tighten
+- sovereignty can only tighten
+- clearance can only tighten
+- auditLevel can only tighten
 - a nested deputy rejects an unrelated DeputyContext
 - returns this when no attenuation is requested
+- rejects a DeputyContext from an unrelated context tree
 - creates an OpenCell proxy that can emit
 - nested OpenCell deputy with defaults returns this
 - OpenCell deputy exposes async handle
 - OpenCell deputy can link a downstream observer
 
-### File 6: instruction_test.dart (23 tests)
+### File 10: instruction_test.dart (23 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -552,11 +644,11 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - a throwing custom stage in a chain terminates with null
 - Receptor.instruction runs the instruction
 
-### File 7: nucleus_test.dart (39 tests)
+### File 11: nucleus_test.dart (40 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 39 |
+| *(all groups)* | 40 |
 | Nucleus | |
 | empty / Nucleolus | |
 | Construction & defaults | |
@@ -588,6 +680,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - timestamp is a DateTime
 - create without principal uses defaults
 - create with principal inherits from it
+- nuclei sharing a root principal agree on == and hashCode
 - unactivated cell getter throws
 - activate returns false for a cell that does not own this nucleus
 - Cell.fromNucleus binds and activates the nucleus
@@ -610,11 +703,36 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - hydrated cell uses the nucleus testRule
 - hydrated cell with disabled synapses is terminal
 
-### File 8: operators_phase1_foundation_test.dart (64 tests)
+### File 12: operator_async_map_test.dart (2 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 64 |
+| *(all groups)* | 2 |
+| Cell.asyncMap latestOnly with concurrency=1 | |
+
+**Tests**
+
+- latest value is emitted despite a superseded in-flight future
+- concurrency=0 latestOnly is unaffected by the change
+
+### File 13: operator_from_stream_test.dart (3 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 3 |
+| Cell.fromStream + EphemeralPolicy | |
+
+**Tests**
+
+- eventLimit trips at the configured count, not half
+- no ephemeralPolicy → no invalidation and events stay at 0
+- the caller policy hooks run exactly once per event
+
+### File 14: operators_phase1_foundation_test.dart (65 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 65 |
 | Cell.state | |
 | Basic State | |
 | State with evolve | |
@@ -641,6 +759,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - update changes the state value
 - update multiple times
 - updateAsync changes the state value
+- updateAsync resolves false when async validation rejects
 - updateAsync with multiple concurrent updates
 - cell.async.state reads through the cell lock
 - unlocked ValueNucleus still supports async state and updateAsync
@@ -700,11 +819,11 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - ingress + derive + observe
 - state + derive + state
 
-### File 9: operators_phase2_flow_control_test.dart (43 tests)
+### File 15: operators_phase2_flow_control_test.dart (45 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 43 |
+| *(all groups)* | 45 |
 | Phase 2: Flow Control Operators | |
 | Cell.debounce | |
 | Cell.throttle | |
@@ -717,6 +836,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 **Tests**
 
 - creates a debounce cell with default leading false
+- a throwing downstream in the trailing timer is contained
 - debounce delays delivery until silence
 - debounce resets timer on each pulse
 - debounce with leading true emits first immediately
@@ -725,6 +845,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - debounce with leading true and zero duration emits immediately
 - debounce with leading true and burst of three
 - creates a throttle cell with defaults
+- a throwing downstream in the trailing timer is contained
 - throttle with leading true emits first immediately
 - throttle suppresses pulses during window
 - throttle with trailing true emits last during window
@@ -760,11 +881,11 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - distinct cell toString
 - synthesis cell toString
 
-### File 10: operators_phase3_async_routing_test.dart (60 tests)
+### File 16: operators_phase3_async_routing_test.dart (63 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 60 |
+| *(all groups)* | 63 |
 | Phase 3: Async & Routing Operators | |
 | Cell.asyncMap | |
 | Cell.hub | |
@@ -795,10 +916,13 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - hub ingest with serialized completion
 - hub with governed spokes uses DeputyContext
 - hub spoke handler can drive a state cell
+- a mapper may link new cells into the source mid-broadcast
 - switchMap switches to new cell on source change
 - switchMap with observe receives switched values
 - switchMap with multiple source changes
 - switchMap with null payload does not switch
+- switchMap contains a throwing async link gate
+- invalidation unlinks the inner cell from the output
 - fromFuture emits future result
 - fromFuture with observe receives value
 - fromFuture with state cell receives value
@@ -838,7 +962,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - fromFuture cell toString
 - fromStream cell toString
 
-### File 11: operators_phase4_advanced_transactions_test.dart (39 tests)
+### File 17: operators_phase4_advanced_transactions_test.dart (39 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -880,7 +1004,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - ingress + open + observe
 - state + transaction + state
 - txApply with state and compensation
-- sanitized with missing sensitivity passes through
+- sanitized with missing sensitivity redacts (fail closed)
 - open with disabled synapses
 - transaction with empty participants throws
 - txApply with empty participants throws
@@ -892,11 +1016,11 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - TransactionConflictException toString
 - TxApplyException toString
 
-### File 12: propagation_policy_test.dart (41 tests)
+### File 18: propagation_policy_test.dart (37 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 41 |
+| *(all groups)* | 37 |
 | PropagationPolicy | |
 | Construction & Defaults | |
 | Strategy: immediate | |
@@ -906,10 +1030,6 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 | Strategy: buffered | |
 | Strategy: audit | |
 | Strategy: debounceLeading | |
-| Strategy: sample | |
-| Strategy: exhaust | |
-| Strategy: resilient | |
-| Strategy: retry | |
 | Policy Composition & Equality | |
 | Edge Cases | |
 | Integration with Synapses | |
@@ -939,10 +1059,6 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - audit delivers the latest pulse at intervals
 - audit with zero throttleTime delivers immediately
 - debounceLeading delivers first pulse immediately
-- sample heartbeats the first pulse then stops when unlinked
-- exhaust delivers pulses to downstreams
-- resilient delivers when the observer accepts the pulse
-- retry delivers when the observer accepts the pulse
 - two identical policies are equal
 - two different policies are not equal
 - policies with different debounce times are not equal
@@ -959,11 +1075,11 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - policy returns string representation
 - policy with immediate strategy toString
 
-### File 13: pulse_test.dart (157 tests)
+### File 19: pulse_test.dart (159 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 157 |
+| *(all groups)* | 159 |
 | Pulse | |
 | Construction | |
 | withStep vs evolve distinction | |
@@ -1029,6 +1145,8 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - Pulse.batch creates collective pulse
 - Pulse.batch with governed pulses
 - Pulse.batch with callback
+- a batch with onComplete completes through empty synapses
+- a batch with onComplete completes through async empty synapses
 - shell hides payload
 - shell scrutinizes receptor
 - shell with governed pulse
@@ -1147,11 +1265,23 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - evolved unmodifiable exposes parent, iterator, and toString
 - Pulse.evolve(pulse:) with step, context, and a completing parent
 
-### File 14: receptor_test.dart (50 tests)
+### File 20: receptor_instruction_future_test.dart (2 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 50 |
+| *(all groups)* | 2 |
+| Receptor.pipeline with Instruction.future + postProcess | |
+
+**Tests**
+
+- postProcess commits ValueCell state on the async path
+- postProcess output is propagated to downstream observers
+
+### File 21: receptor_test.dart (54 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 54 |
 | Receptor | |
 | passThrough | |
 | Construction | |
@@ -1175,7 +1305,8 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - passThroughRule is an identity instruction
 - passThroughRule + other yields the other instruction
 - hashCode is stable on the singleton
-- passThrough == a ReceptorBase is true; the reverse is not
+- passThrough equals only other pass-through receptors
+- receptor equality follows the configuration record
 - empty pipeline getters do not throw NoSuchMethodError
 - closure receptor transforms payload
 - closure receptor returning null drops the pulse
@@ -1206,6 +1337,9 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - hook captures the transformed result
 - hook sees null when the receptor drops the pulse
 - serializedCompletion false still processes via the hook
+- fire-and-forget pulses enqueued mid-drain are all delivered
+- receptor.async is a stable handle
+- receptor.async preserves FIFO under concurrent submits
 - Cell(bind:) delivers transformed pulses to observers
 - testRule on the host can drop pulses before transformation
 - null from the bound receptor suppresses observers
@@ -1217,11 +1351,22 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - a reaction receptor transforms without an instruction chain
 - a hosted EphemeralPolicy is ticked on a governed cell
 
-### File 15: synapses_test.dart (82 tests)
+### File 22: seam_test.dart (2 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 82 |
+| *(all groups)* | 2 |
+
+**Tests**
+
+- no testRule: TestCell on any Tissue constructor in example/
+- no testRule: TestTissue on a Cell factory in example/
+
+### File 23: synapses_test.dart (75 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 75 |
 | Synapses | |
 | disabled | |
 | enabled | |
@@ -1250,6 +1395,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - Cell with default synapses is not terminal
 - empty synapses complete a pulse without observers
 - constructor registers initial downstreams
+- a cell and its deputy are distinct downstream edges
 - call delivers to every downstream in order
 - call delivers successive pulses in order
 - cycle checker skips a downstream already visited by the pulse
@@ -1259,6 +1405,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - duplicate link returns false
 - unlink removes an observer
 - unlink of a missing observer returns false
+- a receptor may unlink a downstream cell mid-broadcast
 - link is rejected when the host testRule denies the observer
 - async testRule Future is awaited on link
 - filter transforms the outgoing payload
@@ -1287,9 +1434,6 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - async.call respects a zero-duration throttle policy
 - async.call batches until batchSize
 - async.call with audit zero throttle delivers immediately
-- async.call with exhaust delivers
-- async.call with resilient delivers
-- async.call with retry delivers
 - async.call with debounceLeading zero throttle delivers
 - async.call uses a custom relay
 - async.call with async strategy delivers
@@ -1302,25 +1446,19 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - async.call persistent delivers to current observers
 - async.call on a revisited pulse does not re-notify
 - async relay is skipped when every downstream already saw the pulse
-- async resilient swallows a throwing relay
-- async retry retries a throwing relay then gives up
-- async.call sample heartbeats the first pulse then stops when unlinked
 - async debounce completes after observers are unlinked
-- exhaust delivers the pulse
-- resilient delivers when downstreams succeed
-- retry delivers when downstreams succeed
+- collective waits for all branches, including dead-end ones
+- a governed pulse with onComplete fires once across two terminals
+- fan-out completion fires only after the last terminal
 - debounceLeading with zero throttle delivers every pulse
 - buffered Duration.zero flushes on the first pulse
-- resilient swallows a throwing relay
-- retry retries a throwing relay then gives up
-- sample heartbeats then stops when unlinked
 - debounced pulse completes after observers are unlinked
 - filter plus relay plus policy is a valid synapses
 - two synapses instances are not identical
 - host synapses broadcast a bound source emission
 - filter on the host synapses redacts before observers
 
-### File 16: synthesis_cell_test.dart (37 tests)
+### File 24: synthesis_cell_test.dart (37 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1375,11 +1513,11 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - synthesis cell returns string representation
 - synthesis cell shows sources in string representation
 
-### File 17: test_cell_test.dart (41 tests)
+### File 25: test_cell_test.dart (45 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 41 |
+| *(all groups)* | 45 |
 | TestCell | |
 | allowAll | |
 | readOnly | |
@@ -1405,17 +1543,21 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - call on a Function consults action
 - readOnly + customRule delegates to the custom rule
 - TestPasses is the allowAll implementation
-- readOnly action with arguments still allows non-modifiable tear-offs
+- readOnly action rejects every function — whitelisted or not
 - custom rule allows matching values
 - custom rule can inspect a Pulse payload
 - user metadata is passed to the rule
 - parent is evaluated after this rule passes
 - + evaluates left to right and short-circuits
 - TestCell.chain is fail-fast like +
+- TestCell.chain honors parent without a strategy
+- composed generic rules are consulted for action validation
 - chains nest
-- a throwing rule passes when the host is ungoverned
-- a throwing rule with no host passes
+- a throwing rule fails closed when the host is ungoverned
+- a throwing rule with no host fails closed
 - an async rule is awaited
+- an async throwing rule fails cleanly for a governed host
+- an async throwing rule fails closed for an ungoverned host
 - accepts pulses that match the predicate
 - non-pulse objects pass the wrapped call
 - TestCell.pulse consults chained TestPulseRules
@@ -1437,11 +1579,27 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - equality and hashCode follow the flyweight record
 - fromRecord reconstitutes a callable rule
 
-### File 18: test_rule_meta_test.dart (48 tests)
+### File 26: test_chain_test.dart (4 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 48 |
+| *(all groups)* | 4 |
+| TestCell.chain preserves parent when strategy is null | |
+| TestRule.chain preserves user when strategy is set | |
+| TestRule.chain preserves parent when strategy is null | |
+
+**Tests**
+
+- parent is evaluated for the chain
+- parent + user are both preserved
+- strategy receives the configured user metadata
+- parent is evaluated
+
+### File 27: test_rule_meta_test.dart (49 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 49 |
 | DefaultValue | |
 | MaxLength | |
 | direct field limit | |
@@ -1505,12 +1663,13 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - accepts a custom pattern
 - MaxLength is a TestRule
 - MaxLength + ValueRange short-circuits on the first failure
+- TestRule.chain forwards user to a custom strategy
 
-### File 19: transaction_test.dart (54 tests)
+### File 28: transaction_test.dart (55 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 54 |
+| *(all groups)* | 55 |
 | Cell.transaction | |
 | Basic Transaction | |
 | Isolation Levels | |
@@ -1549,6 +1708,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - custom validate callback can override
 - multiple cells validation
 - cell testRule rejects negatives at commit
+- commit validates the pulse shape so TestPulseRules apply
 - custom apply callback overrides default
 - custom apply with side effects
 - custom apply with multiple cells
@@ -1582,11 +1742,11 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - TransactionConflictException toString
 - TransactionTimeoutException toString
 
-### File 20: tx_apply_test.dart (46 tests)
+### File 29: tx_apply_test.dart (49 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 46 |
+| *(all groups)* | 49 |
 | Cell.txApply | |
 | Basic Operations | |
 | Compensation | |
@@ -1612,15 +1772,18 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - rollback before commit skips compensation by default
 - compensateIfNotExecuted runs undo on rollback of staged calls
 - txApply throws when participant not included
-- enqueue of a non-modifiable function is rejected
+- enqueue accepts functions outside the modifiable manifest
 - txApply with compensation error policy
 - txApply with failFast compensation policy
 - txApply with collectThenThrow compensation policy
 - stopOnFirstFailure stops execution on first failure
 - stopOnFirstFailure false continues execution
+- a rejected command is not compensated when a later command 
 - txApply savepoint captures state
 - txApply rollback to savepoint
 - txApply rollback all
+- txApply rollback with unknown savepoint throws
+- txApply rollback rejects a savepoint from another scope
 - txApply for bank transfer with compensation
 - oversized transfer rolls back via compensation
 - txApply for multi-step data migration
@@ -1629,7 +1792,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - TxApplyStaged event emitted
 - TxApplyCommitted event emitted
 - TxApplyRolledBack event emitted
-- TxApplyRejected event emitted on rejection
+- TxApplyRejected event emitted on gate rejection
 - txApply with empty participants throws
 - txApply commit without begin throws
 - txApply with null compensation
@@ -1640,9 +1803,9 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - TxApplyException toString
 - TxApplyCompensationException toString
 - enqueue rejects a compensate cell that is not a participant
-- enqueue rejects a compensate function not in modifiable
-- commit rejects a function removed from modifiable
-- commit rejects compensate removed from modifiable
+- enqueue accepts a compensate function outside the manifest
+- commit ignores manifest removal; the gate decides
+- commit ignores compensate manifest removal; the gate decides
 - default compensation backoff retries a transient undo
 - compensation ApplyRejected is not retryable by default
 - ApplyRejected during commit rethrows failFast compensation
@@ -1660,6 +1823,10 @@ no path finds nothing. Pass explicit files:
 ```bash
 dart pub get
 dart test \
+  test/ai_guide_examples_test.dart \
+  test/ai_preflight_test.dart \
+  test/api_chooser_up_to_date_test.dart \
+  test/apply_command_test.dart \
   test/cell_policy_test.dart \
   test/cell_test.dart \
   test/commons_test.dart \
@@ -1667,16 +1834,21 @@ dart test \
   test/deputy_test.dart \
   test/instruction_test.dart \
   test/nucleus_test.dart \
+  test/operator_async_map_test.dart \
+  test/operator_from_stream_test.dart \
   test/operators_phase1_foundation_test.dart \
   test/operators_phase2_flow_control_test.dart \
   test/operators_phase3_async_routing_test.dart \
   test/operators_phase4_advanced_transactions_test.dart \
   test/propagation_policy_test.dart \
   test/pulse_test.dart \
+  test/receptor_instruction_future_test.dart \
   test/receptor_test.dart \
+  test/seam_test.dart \
   test/synapses_test.dart \
   test/synthesis_cell_test.dart \
   test/test_cell_test.dart \
+  test/test_chain_test.dart \
   test/test_rule_meta_test.dart \
   test/transaction_test.dart \
   test/tx_apply_test.dart
@@ -1686,33 +1858,33 @@ dart test \
 
 | Passed | Failed | Skipped | Exit |
 |-------:|-------:|--------:|-----:|
-| 1115 | 0 | 0 | 0 |
+| 1174 | 0 | 0 | 0 |
 
 Status: **green**.
 
 <details><summary>tail of test log</summary>
 
 ```
-0:06 +1103: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
-00:06 +1104: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
-00:06 +1105: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
-00:06 +1106: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
-00:06 +1107: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
-00:06 +1108: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
-00:06 +1109: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
-00:06 +1110: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
-00:06 +1110: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString asyncMap cell toString                                                                         
-00:06 +1111: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString asyncMap cell toString                                                                         
-00:06 +1111: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString hub toString                                                                                   
-00:06 +1112: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString hub toString                                                                                   
-00:06 +1112: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString switchMap cell toString                                                                        
-00:06 +1113: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString switchMap cell toString                                                                        
-00:06 +1113: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromFuture cell toString                                                                       
-00:06 +1114: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromFuture cell toString                                                                       
-00:06 +1114: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                       
-00:06 +1115: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                       
-00:07 +1115: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                       
-00:07 +1115: All tests passed!
+0:06 +1165: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling fromFuture with already completed future                                    
+00:06 +1166: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling fromFuture with already completed future                                    
+00:06 +1166: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling fromStream with error after values (no cancelOnError)                       
+00:06 +1167: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling fromStream with error after values (no cancelOnError)                       
+00:06 +1167: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling hub with multicast and priority                                             
+00:06 +1168: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling hub with multicast and priority                                             
+00:06 +1168: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
+00:06 +1169: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
+00:06 +1169: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString asyncMap cell toString                                                                         
+00:06 +1170: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString asyncMap cell toString                                                                         
+00:06 +1170: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString hub toString                                                                                   
+00:06 +1171: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString hub toString                                                                                   
+00:06 +1171: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString switchMap cell toString                                                                        
+00:06 +1172: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString switchMap cell toString                                                                        
+00:06 +1172: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromFuture cell toString                                                                       
+00:06 +1173: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromFuture cell toString                                                                       
+00:06 +1173: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                       
+00:06 +1174: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                       
+00:07 +1174: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                       
+00:07 +1174: All tests passed!
 ```
 
 </details>
@@ -1773,28 +1945,37 @@ Status: **green**.
 
 ```
 test/
-├── cell_policy_test.dart  (38 tests, 20.8 KB, 620 lines)
-├── cell_test.dart  (72 tests, 38.7 KB, 1,102 lines)
-├── commons_test.dart  (43 tests, 13.6 KB, 449 lines)
+├── ai_guide_examples_test.dart  (3 tests, 1.7 KB, 43 lines)
+├── ai_preflight_test.dart  (1 tests, 0.8 KB, 22 lines)
+├── api_chooser_up_to_date_test.dart  (1 tests, 1.0 KB, 27 lines)
+├── apply_command_test.dart  (12 tests, 8.5 KB, 283 lines)
+├── cell_policy_test.dart  (39 tests, 21.8 KB, 646 lines)
+├── cell_test.dart  (78 tests, 43.7 KB, 1,264 lines)
+├── commons_test.dart  (49 tests, 15.6 KB, 509 lines)
 ├── context_test.dart  (117 tests, 60.8 KB, 1,636 lines)
-├── deputy_test.dart  (21 tests, 8.3 KB, 256 lines)
+├── deputy_test.dart  (26 tests, 11.6 KB, 352 lines)
 ├── instruction_test.dart  (23 tests, 12.4 KB, 361 lines)
-├── nucleus_test.dart  (39 tests, 12.2 KB, 353 lines)
-├── operators_phase1_foundation_test.dart  (64 tests, 36.6 KB, 1,049 lines)
-├── operators_phase2_flow_control_test.dart  (43 tests, 22.3 KB, 769 lines)
-├── operators_phase3_async_routing_test.dart  (60 tests, 30.2 KB, 1,042 lines)
-├── operators_phase4_advanced_transactions_test.dart  (39 tests, 23.7 KB, 784 lines)
-├── propagation_policy_test.dart  (41 tests, 28.0 KB, 751 lines)
-├── pulse_test.dart  (157 tests, 71.1 KB, 1,856 lines)
-├── receptor_test.dart  (50 tests, 24.4 KB, 688 lines)
-├── synapses_test.dart  (82 tests, 37.6 KB, 1,161 lines)
+├── nucleus_test.dart  (40 tests, 12.6 KB, 366 lines)
+├── operator_async_map_test.dart  (2 tests, 2.6 KB, 98 lines)
+├── operator_from_stream_test.dart  (3 tests, 3.3 KB, 115 lines)
+├── operators_phase1_foundation_test.dart  (65 tests, 37.3 KB, 1,066 lines)
+├── operators_phase2_flow_control_test.dart  (45 tests, 24.0 KB, 819 lines)
+├── operators_phase3_async_routing_test.dart  (63 tests, 33.3 KB, 1,117 lines)
+├── operators_phase4_advanced_transactions_test.dart  (39 tests, 25.1 KB, 800 lines)
+├── propagation_policy_test.dart  (37 tests, 24.9 KB, 680 lines)
+├── pulse_test.dart  (159 tests, 71.2 KB, 1,908 lines)
+├── receptor_instruction_future_test.dart  (2 tests, 2.5 KB, 84 lines)
+├── receptor_test.dart  (54 tests, 28.1 KB, 782 lines)
+├── seam_test.dart  (2 tests, 1.6 KB, 46 lines)
+├── synapses_test.dart  (75 tests, 37.3 KB, 1,136 lines)
 ├── synthesis_cell_test.dart  (37 tests, 21.0 KB, 627 lines)
-├── test_cell_test.dart  (41 tests, 19.2 KB, 588 lines)
-├── test_rule_meta_test.dart  (48 tests, 11.8 KB, 351 lines)
-├── transaction_test.dart  (54 tests, 35.9 KB, 1,203 lines)
-├── tx_apply_test.dart  (46 tests, 32.4 KB, 1,106 lines)
+├── test_cell_test.dart  (45 tests, 22.4 KB, 665 lines)
+├── test_chain_test.dart  (4 tests, 2.8 KB, 84 lines)
+├── test_rule_meta_test.dart  (49 tests, 12.2 KB, 366 lines)
+├── transaction_test.dart  (55 tests, 36.6 KB, 1,227 lines)
+├── tx_apply_test.dart  (49 tests, 34.6 KB, 1,140 lines)
 ```
 
-**Total lines of test code:** 16,752
+**Total lines of test code:** 18,269
 
-*Generated 2026-11-02 by generate_test_verification.py*
+*Generated 2026-11-11 by generate_test_verification.py*

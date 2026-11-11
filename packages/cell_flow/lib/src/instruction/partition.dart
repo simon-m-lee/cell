@@ -46,14 +46,6 @@ typedef PartitionErrorHandler = void Function(
 /// 3. The combination preserves both the result and the original value.
 /// 4. The record is immutable and type-safe.
 ///
-/// ### Non‑obvious
-/// - **Immutable**: [Split] is immutable after creation.
-/// - **Type Safety**: Generic over value type [S].
-/// - **Equality**: Implements `==` and `hashCode` for value equality.
-/// - **String Representation**: Provides a readable `toString()`.
-/// - **Zero Overhead**: Simple record with no hidden costs.
-/// - **Composable**: Can be used in downstream transformations.
-///
 /// ### Example: Accessing Split Values
 /// ```dart
 /// final input = Cell.ingress<int>();
@@ -224,17 +216,6 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// 6. The emitted pulse gets the step `'Partition'` for provenance.
 /// 7. Each emitted value preserves the source, type, and priority.
 ///
-/// ### Non‑obvious
-/// - **No State**: No state is maintained between pulses.
-/// - **Per-Item Emit**: Emits one [Split] for each input.
-/// - **Predicate Evaluation**: [test] is called for each value.
-/// - **Type Safety**: Generic over value type [S].
-/// - **Error Handling**: If [test] throws, the pulse is dropped.
-/// - **Provenance Preservation**: The emitted pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Predicate**: [test] is synchronous.
-/// - **Predicate Call Count**: Called exactly once per item.
-///
 /// ### Example: Partitioning by Parity
 /// ```dart
 /// final input = Cell.ingress<int>();
@@ -374,18 +355,6 @@ class Partition<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 6. If [test], [thenMap], or [elseMap] throws, the pulse is dropped.
 /// 7. The emitted pulse gets the step `'PartitionMap.then'` or
 ///    `'PartitionMap.else'` for provenance.
-///
-/// ### Non‑obvious
-/// - **No State**: No state is maintained between pulses.
-/// - **Per-Item Emit**: Emits one value for each input.
-/// - **Different Mappers**: Two different mapping functions.
-/// - **Type Safety**: Generic over value type [S] and output type [T].
-/// - **Error Handling**: If any function throws, the pulse is dropped.
-/// - **Provenance Preservation**: The emitted pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Operations**: All functions are synchronous.
-/// - **Step Differentiation**: Different steps distinguish matched
-///   from unmatched outputs.
 ///
 /// ### Example: Conditional Labeling
 /// ```dart
@@ -539,19 +508,6 @@ class PartitionMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 5. If [test] throws an error, the pulse is dropped.
 /// 6. The emitted pulse gets the step `'PartitionCollect'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Stateful**: Maintains two lists of all values.
-/// - **Running Snapshot**: Emits the complete lists after every pulse.
-/// - **Snapshot Copy**: The emitted lists are copies (not the internal lists).
-/// - **Monotonic Growth**: Lists only grow; values are never removed.
-/// - **External Access**: The [matched] and [other] lists can be accessed
-///   externally.
-/// - **Provenance Preservation**: The emitted pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Predicate**: [test] is synchronous.
-/// - **Memory Growth**: Lists grow indefinitely; use caution for
-///   long-running streams.
-///
 /// ### Example: Running Partition Snapshot
 /// ```dart
 /// final input = Cell.ingress<int>();
@@ -633,8 +589,8 @@ class PartitionCollect<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     this.other,
     PartitionErrorHandler? onError,
     dynamic user,
-  ) : super(
-          (() {
+  ) : super.statefulSync(
+          () {
             final yes = matched;
             final no = other;
             return (pulse, {cell, user}) {
@@ -661,7 +617,7 @@ class PartitionCollect<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 'PartitionCollect',
               );
             };
-          })(),
+          },
           user: user,
         );
 
@@ -670,10 +626,6 @@ class PartitionCollect<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// This list contains all values where the predicate returned `true`.
   /// It grows monotonically and can be accessed externally.
   ///
-  /// ### Non‑obvious
-  /// - **Monotonic**: Values are only added, never removed.
-  /// - **Mutable**: The list is mutable and can be modified externally.
-  /// - **Shared**: All observers see the same list.
   final List<S> matched;
 
   /// The list of unmatched values.
@@ -681,10 +633,6 @@ class PartitionCollect<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// This list contains all values where the predicate returned `false`.
   /// It grows monotonically and can be accessed externally.
   ///
-  /// ### Non‑obvious
-  /// - **Monotonic**: Values are only added, never removed.
-  /// - **Mutable**: The list is mutable and can be modified externally.
-  /// - **Shared**: All observers see the same list.
   final List<S> other;
 }
 
@@ -724,16 +672,6 @@ class PartitionCollect<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. If [test] returns the opposite, the value is dropped.
 /// 5. If [test] throws an error, the pulse is dropped.
 /// 6. The emitted pulse gets the step `'PartitionOnly'` for provenance.
-///
-/// ### Non‑obvious
-/// - **No State**: No state is maintained between pulses.
-/// - **Filtering**: Only values matching the condition are emitted.
-/// - **Inverse Filtering**: With [matched] `false`, keeps non-matching values.
-/// - **Type Safety**: Generic over value type [S].
-/// - **Error Handling**: If [test] throws, the pulse is dropped.
-/// - **Provenance Preservation**: The emitted pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Predicate**: [test] is synchronous.
 ///
 /// ### Example: Only Even Numbers
 /// ```dart

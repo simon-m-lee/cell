@@ -70,6 +70,27 @@
 /// * `FEATURES-Flow.md`: Detailed catalog of every available operator.
 /// * `HowTo-Fluent_Operator.md`: Best practices for method-chaining.
 /// * `HowTo-FlowInstruction-Receptor.md`: Advanced custom gate composition.
+///
+/// ## `cell_flow` — the Flow layer
+///
+/// **Layer contract** (the seam sentence): the instruction decides, the chain
+/// assembles, the observer glues.
+///
+/// **Public surface (top entry points)** — full catalog is in
+/// `FEATURES-Flow.md` and `lib/doc/api_chooser.dart`.
+///
+/// | Group | Entry point | When to use |
+/// |---|---|---|
+/// | Custom instruction | `FlowInstructionBase` | Clause-ordered policy + resettable latch + product filter |
+/// | Projection | `MapValue` | Decision → seam enum; never emits a level directly |
+/// | Time | `Debounce`, `Throttle`, `Delay` | Feed adapters; not for the decision |
+/// | Flatten | `ConcatMap`, `MergeMap`, `SwitchMap`, `ExhaustMap` | Inner sequence per trigger |
+/// | Combine | `MergeWith`, `CombineLatestWith`, `WithLatestFrom`, `ZipWith`, `Race` | Multi-source fan-in |
+/// | Collect | `BufferCount`, `BufferTime`, `WindowCount`, `GroupBy` | Batch / group |
+/// | Control | `StartWith`, `Share`, `ShareReplay`, `Retry`, `Tap` | Adjacent concerns |
+///
+/// **Do NOT** use this package for: ingress (Cell), observe (Cell), Transaction
+/// (Cell.txApply), Tissue collections (cell_tissue). See `HowTo-Mitose-Flow.md` §1.
 library cell_flow;
 
 // -----------------------------------------------------------------------------

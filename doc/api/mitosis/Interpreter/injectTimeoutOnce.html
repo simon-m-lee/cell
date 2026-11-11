@@ -65,12 +65,6 @@
   <p>When called, the NEXT <code>complete</code> call throws once.</p>
 <p>Implemented by both HTTP and stub interpreters so scenario 10
 behaves identically in offline and live modes.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<p>The injection is <strong>one-shot</strong>: it fires once and clears
-itself. To exercise a retry loop that needs <code>count + 1</code>
-consecutive failures, call this method <code>count + 1</code> times
-before the next <code>complete</code>. The demo's
-<code>AiTissueCommandWithRetry</code> demo does exactly that.</p>
 </section>
 
 
@@ -105,7 +99,7 @@ before the next <code>complete</code>. The demo's
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

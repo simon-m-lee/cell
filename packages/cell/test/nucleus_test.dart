@@ -135,6 +135,19 @@ void main() {
         expect(created.principal, principal);
         expect(created.context.type, 'Root');
       });
+
+      test('nuclei sharing a root principal agree on == and hashCode', () {
+        final principal = Nucleus(context: Context.module('Root'));
+        final a = Nucleus.create(principal: principal);
+        final b = Nucleus.create(principal: principal);
+        expect(a, equals(b));
+        expect(a.hashCode, b.hashCode);
+        // The whole point: they must coexist in a Set under the same
+        // equality semantics.
+        final set = {a, b};
+        expect(set.length, 1);
+        expect(set.contains(principal), isTrue);
+      });
     });
 
     group('Activation', () {
@@ -191,7 +204,7 @@ void main() {
           receptor: receptor,
           testRule: rule,
         );
-        final child = Nucleus.evolve(principal: principal);
+        final child = Nucleus.evolve(principal);
 
         expect(child.principal, principal);
         expect(child.context.type, 'Root');
@@ -205,7 +218,7 @@ void main() {
         );
         final override = TestCell((object, {host, arguments, user}) => false);
         final child = Nucleus.evolve(
-          principal: principal,
+          principal,
           testRule: override,
         );
         expect(child.testRule, override);
@@ -215,7 +228,7 @@ void main() {
       test('local context overrides the principal', () {
         final principal = Nucleus(context: Context.module('Root'));
         final child = Nucleus.evolve(
-          principal: principal,
+          principal,
           context: Context.module('Child'),
         );
         expect(child.context.type, 'Child');
@@ -225,21 +238,21 @@ void main() {
       test('bind is not inherited', () {
         final upstream = Cell();
         final principal = Nucleus(bind: upstream);
-        final child = Nucleus.evolve(principal: principal);
+        final child = Nucleus.evolve(principal);
         expect(principal.bind, upstream);
         expect(child.bind, isNull);
       });
 
       test('user is inherited', () {
         final principal = Nucleus(user: (role: 'admin'));
-        final child = Nucleus.evolve(principal: principal);
+        final child = Nucleus.evolve(principal);
         expect(child.user, (role: 'admin'));
       });
 
       test('local user overrides the principal', () {
         final principal = Nucleus(user: (role: 'admin'));
         final child = Nucleus.evolve(
-          principal: principal,
+          principal,
           user: (role: 'guest'),
         );
         expect(child.user, (role: 'guest'));
@@ -248,10 +261,10 @@ void main() {
       test('walks a chain of principals', () {
         final root = Nucleus(context: Context.module('Root'));
         final mid = Nucleus.evolve(
-          principal: root,
+          root,
           context: Context.module('Mid'),
         );
-        final leaf = Nucleus.evolve(principal: mid);
+        final leaf = Nucleus.evolve(mid);
         expect(leaf.context.type, 'Mid');
         expect(leaf.principal, mid);
         expect(mid.principal, root);
@@ -259,7 +272,7 @@ void main() {
 
       test('lock falls back to the principal', () {
         final principal = Nucleus();
-        final child = Nucleus.evolve(principal: principal);
+        final child = Nucleus.evolve(principal);
         expect(child.lock, principal.lock);
       });
     });
@@ -296,8 +309,8 @@ void main() {
 
       test('evolved nuclei that share a root principal compare equal', () {
         final root = Nucleus();
-        final a = Nucleus.evolve(principal: root);
-        final b = Nucleus.evolve(principal: root);
+        final a = Nucleus.evolve(root);
+        final b = Nucleus.evolve(root);
         expect(a == b, isTrue);
         expect(a == root, isTrue);
       });

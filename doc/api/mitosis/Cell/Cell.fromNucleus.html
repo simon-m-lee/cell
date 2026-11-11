@@ -93,24 +93,12 @@ or execution priorities.</li>
 </ul>
 <h3 id="synchronization--atomic-integrity">Synchronization &amp; Atomic Integrity</h3>
 <p>The resulting instance inherits the optional synchronization domain
-(the <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>) defined within the nucleus. If a lock is provided, it
-ensures that the cell enters the <strong>Directed Acyclic Graph (DAG)</strong>
-as a thread-safe, atomically consistent node. This mechanism
-allows developers to group multiple cells into a single
-<strong>Atomic Transaction Domain</strong> by sharing a common lock.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>If the provided nucleus is already activated, it is <strong>automatically
-cloned</strong> to prevent state sharing conflicts between cells.</li>
-<li>After hydration, the cell automatically links to any <code>bind</code> cell
-specified in the nucleus, establishing its position in the reactive
-graph. If linking fails, the cell still initialises to maintain
-graph availability.</li>
-<li>The nucleus's <a href="../../mitosis/Synapses-class.html">Synapses</a> configuration is inherited as-is; if
-<code>Synapses.enabled</code> is set, a fresh registry is created per cell.</li>
-<li>The <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> is inherited from the nucleus; if the nucleus uses a
-shared lock, multiple cells can operate in the same atomic domain.</li>
-</ul>
+(the <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>) defined within the nucleus. When a lock is present, the
+cell's mutating operations are serialized through it, so several
+cells sharing one lock form a single <strong>Atomic Transaction Domain</strong>.
+This is a re-entrancy and ordering guarantee inside one Dart
+isolate — it is not a cross-thread memory fence; there are no
+threads in the Dart runtime's shared-memory sense.</p>
 <h3 id="example-hydrating-from-a-pre-configured-nucleus">Example: Hydrating from a Pre-configured Nucleus</h3>
 <pre class="language-dart"><code class="language-dart">// Define a reusable nucleus blueprint.
 final authNucleus = Nucleus(
@@ -145,6 +133,26 @@ ecosystem, ready to process pulses and notify observers.</p>
 <li><a href="../../mitosis/Cell/Cell.governed.html">Cell.governed</a> – For explicit governance configuration.</li>
 <li><a href="../../mitosis/Cell/Cell.fromNucleus.html">Cell.fromNucleus</a> – The entry point for this factory.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> infrastructure only — hydrate a cell from a persisted / cloned <a href="../../mitosis/Nucleus-class.html">Nucleus</a> blueprint.
+<strong>When NOT to use:</strong> application state — use <code>Cell.state</code> / <code>Cell.ingress</code> / <code>Cell.derive</code> first.
+<strong>Live signature:</strong> <code>Cell.fromNucleus(Nucleus nucleus)</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Nucleus.evolve</code> (builds the blueprint; this activates it).
+<strong>Guide:</strong> <code>guide/HowTo-Nucleus.md</code> (nucleus blueprints)
+<strong>Example:</strong> <code>example/open_cell_demo.dart</code>
+<strong>Cross-layer:</strong> <code>Flow.toHandle</code> builds a Receptor so application code never hand-rolls one.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final blueprint = Nucleus(
+  receptor: Receptor((cell, pulse, {user}) {
+    final token = pulse.payload as String;
+    return Pulse(token.isNotEmpty ? 'Valid' : 'Invalid');
+  }),
+  testRule: TestCell((value, {host, arguments, user}) =&gt; value is String),
+);
+final authCell = Cell.fromNucleus(blueprint);
+print(authCell);
+</code></pre>
 </section>
 
 
@@ -179,7 +187,7 @@ ecosystem, ready to process pulses and notify observers.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

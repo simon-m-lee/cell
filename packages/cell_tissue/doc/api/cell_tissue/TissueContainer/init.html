@@ -83,13 +83,6 @@ construction or when the collection is first used.</p>
 <li>It invokes the <code>_init</code> closure defined in the container's <code>_type</code> strategy.</li>
 <li>The <a href="../../cell_tissue/TissueContainer/store.html">store</a> is assigned exactly once; subsequent calls are no‑ops.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>initialization</code> parameter is polymorphic – it can be an <code>Iterable</code>,
-a <code>Map</code>, or a single value, depending on the storage strategy.</li>
-<li>If the store was already initialised (e.g., by the <a href="../../cell_tissue/TissueContainer/iterator.html">iterator</a> lazy path),
-this method safely returns the existing instance.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>initialization</code>: Optional data used to populate the collection.</li>
@@ -137,7 +130,7 @@ init([initialization]) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

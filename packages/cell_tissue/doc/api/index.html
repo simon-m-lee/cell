@@ -44,31 +44,209 @@
       
 <section class="desc markdown">
   <h1 id="cell_tissue">cell_tissue</h1>
+<h2 id="install-and-import">Install and import</h2>
+<pre class="language-bash"><code class="language-bash">dart pub add cell cell_flow cell_tissue
+</code></pre>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flow/cell_flow.dart';  // re-exports package:cell
+import 'package:cell_tissue/cell_tissue.dart';
+</code></pre>
+<h2 id="ai-agents-start-here">AI agents start here</h2>
+<p>Read this before opening any other page.</p>
+<p><code>cell_tissue</code> is designed with AI coding agents in mind. Every top public
+symbol carries a machine-readable <code>### AI Agent Guide</code> block, and the surfaces
+below let an agent reliably pick the right book and generate code that
+compiles against the live API.</p>
+<ol>
+<li><strong>Version pin:</strong> <code>cell 1.1.0</code>, <code>cell_flow 1.0.0</code>, <code>cell_tissue 1.0.0</code>.</li>
+<li><strong>Preflight:</strong> <code>dart run tool/ai_preflight.dart</code> — prints the resolved versions and any stale pins.</li>
+<li><strong>API chooser:</strong> <code>lib/doc/api_chooser.dart</code> (generated from the <code>### AI Agent Guide</code> doc blocks).</li>
+<li><strong>Layer guides:</strong>
+<ul>
+<li><code>guide/HowTo-Mitose-Tissue.md</code> — Tissue collection choices</li>
+<li><code>guide/HowTo-Mitose-Cell.md</code> — Cell factory choices</li>
+<li><code>guide/HowTo-Mitose-Flow.md</code> — Flow operator choices</li>
+</ul>
+</li>
+<li><strong>The seam sentence:</strong> <em>The instruction decides, the chain assembles, the observer glues.</em></li>
+</ol>
+<h2 id="if-you-have-a-brd-sentence-that-says">If you have a BRD sentence that says…</h2>
+<table>
+<thead>
+<tr>
+<th>BRD sentence</th>
+<th>First book</th>
+<th>Do NOT</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"record of every alert and action"</td>
+<td><code>TissueList</code> + append-only</td>
+<td>plain Dart <code>List</code></td>
+</tr>
+<tr>
+<td>"protected / diplomatic / resus"</td>
+<td><code>TissueSet</code> fed to <code>riskOf</code></td>
+<td>duplicate Dart <code>Set</code></td>
+</tr>
+<tr>
+<td>"open incidents by belt / stream"</td>
+<td><code>TissueMap</code></td>
+<td>new Map per bag</td>
+</tr>
+<tr>
+<td>"alert the supervisor / RTU"</td>
+<td><code>TissueQueue</code> + pump list</td>
+<td>drain the audit queue</td>
+</tr>
+<tr>
+<td>"45,000 bags / 42 trolleys / 800 MW"</td>
+<td><code>TissueValue</code> + invariant</td>
+<td><code>Cell.state&lt;int&gt;</code></td>
+</tr>
+<tr>
+<td>"council reads, cannot delete"</td>
+<td><code>.unmodifiable</code> + COMPLY</td>
+<td>a second "compliance" list</td>
+</tr>
+</tbody>
+</table>
+<p>(The full matrix lives in <code>lib/doc/api_chooser.dart</code>; this is the 6-row elevator version.)</p>
+<hr>
 <blockquote>
-<p><strong>Reactive Collections for the Cell Framework</strong> — observable, validated,
-thread-safe, and deputy-able lists, sets, maps, queues, and single values.</p>
+<p><strong>Reactive Collections for the Cell Framework</strong> — transaction-ready,
+observable, validated, thread-safe, auditable, and zero-copy deputy-able
+lists, sets, maps, queues, and single values. Everything a native Dart
+collection gives you, plus a governance contract.</p>
 </blockquote>
-<p><a href="https://dart.dev"><img src="https://img.shields.io/badge/Dart-%3E%3D3.0-blue.svg" alt="Dart"></a>
+<p><a href="https://dart.dev"><img src="https://img.shields.io/badge/Dart-%3E%3D3.5-blue.svg" alt="Dart"></a>
 <a href="#license"><img src="https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-green.svg" alt="License"></a></p>
 <blockquote>
 <p><strong>Mitose pipeline — the umbrella feature.</strong> The root repository ships an AI-executable pipeline that turns a business requirement into a working Cell + Flow + Tissue solution with its BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES documents. An AI prompt agent follows <a href="https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose.md"><code>guide/HowTo-Mitose.md</code></a>; this package supplies the <strong>Tissue layer</strong> rules via <a href="https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Tissue.md"><code>guide/HowTo-Mitose-Tissue.md</code></a>. See the <a href="https://github.com/simon-m-lee/cell#readme">root README</a>.</p>
 </blockquote>
 <hr>
 <h2 id="overview">Overview</h2>
-<p><code>cell_tissue</code> brings the full power of reactive governance to Dart collections.
-It provides lists, sets, maps, queues, and single-value containers that are:</p>
+<p><code>cell_tissue</code> brings the full power of reactive governance to Dart
+collections. It provides lists, sets, maps, queues, and single-value
+containers that are:</p>
 <ul>
-<li><strong>Observable</strong> — every mutation emits a reactive event that downstream
-observers can react to.</li>
-<li><strong>Validated</strong> — business rules are enforced on every mutation via
-<code>TestTissue</code>.</li>
-<li><strong>Thread-safe</strong> — all operations are serialized through a synchronization
+<li><strong>Transaction ready</strong> — every mutation can run as an auditable,
+compensable command (<code>apply</code> + <code>ApplyCommand</code> → <code>ApplyOutcome</code>), or be
+staged into an atomic transaction (<code>Cell.txApply()</code> /
+<code>Cell.transaction()</code>) that buffers writes until commit and rolls back
+through recorded compensation on failure. Native collections have no
+equivalent: a multi-step mutation that throws halfway through leaves them
+permanently, partially updated.</li>
+<li><strong>Observable</strong> — every mutation emits a typed reactive event that
+downstream observers react to; native collections require hand-rolled
+listener plumbing.</li>
+<li><strong>Validated</strong> — business rules are enforced per element and per mutation
+vector via <code>TestTissue</code> before any write lands.</li>
+<li><strong>Thread-safe</strong> — operations are serialized through a synchronization
 lock, safe for concurrent async flows on one isolate.</li>
-<li><strong>Deputy-able</strong> — share a collection with read-only views or restricted
-proxies (<code>.unmodifiable</code>, <code>.deputy()</code>) without copying data.</li>
+<li><strong>Deputy-able</strong> — share a collection as a zero-copy read-only view
+(<code>.unmodifiable</code>) or a restricted proxy (<code>.deputy(...)</code>); native
+<code>List.unmodifiable</code> copies the data instead of sharing it.</li>
 <li><strong>Auditable</strong> — every change carries a full causal trace with provenance
-metadata.</li>
+metadata for forensic replay.</li>
+<li><strong>Batch-able</strong> — <code>TissuePulse.batch</code> packages many changes into one
+collective notification with a single completion callback.</li>
+<li><strong>Backpressure-ready</strong> — bounded queues drop the oldest element; lists
+support a fixed-length mode.</li>
+<li><strong>Async</strong> — every tissue exposes a serialized <code>.async</code> facade for
+<code>await</code>-able mutations.</li>
+<li><strong>Equality-aware</strong> — sets and maps switch between value and identity
+comparison.</li>
+<li><strong>Flow-seam</strong> — the governed "book" half of the Flow-decides /
+Tissue-records pattern from <code>cell_flow</code>.</li>
 </ul>
+<p>Where native collections give you a container, <code>cell_tissue</code> gives you a
+container <strong>with a governance contract</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Native <code>List</code>/<code>Map</code>/<code>Set</code>/<code>Queue</code></th>
+<th><code>cell_tissue</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Change notification</td>
+<td>Manual listener plumbing</td>
+<td>Built-in — every mutation emits an event</td>
+</tr>
+<tr>
+<td><strong>Transactions</strong></td>
+<td>None — failures leave partial updates</td>
+<td>Commands with compensation, atomic staging, and rollback</td>
+</tr>
+<tr>
+<td>Validation</td>
+<td>None</td>
+<td>Per-element <code>TestTissue</code> rules</td>
+</tr>
+<tr>
+<td>Read-only sharing</td>
+<td><code>List.unmodifiable</code> copies the data</td>
+<td>Zero-copy, live <code>.unmodifiable</code> views</td>
+</tr>
+<tr>
+<td>Restricted proxies</td>
+<td>None</td>
+<td><code>.deputy(...)</code> with per-rule attenuation</td>
+</tr>
+<tr>
+<td>Audit trail</td>
+<td>None</td>
+<td>Causal trace + provenance on every pulse</td>
+</tr>
+<tr>
+<td>Backpressure</td>
+<td>None</td>
+<td>Bounded queue, fixed-length list</td>
+</tr>
+<tr>
+<td>Batch notifications</td>
+<td>None</td>
+<td><code>TissuePulse.batch</code> collective pulses</td>
+</tr>
+<tr>
+<td>Async safety</td>
+<td>None</td>
+<td>Serialized <code>.async</code> facade</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Transaction ready, in one breath:</strong></p>
+<pre class="language-dart"><code class="language-dart">final ledger = TissueList&lt;int&gt;();
+
+// A single audited, compensable command:
+final outcome = await ledger.apply&lt;dynamic&gt;((
+  function: ledger.add,
+  arguments: (positionalArguments: [42], namedArguments: null),
+  compensation: (
+    function: ledger.remove,
+    arguments: (positionalArguments: [42], namedArguments: null),
+    cell: ledger,
+  ),
+)); // ApplyAccepted with a vetted receipt — never a half-applied write
+
+// Or stage many changes and commit them atomically:
+final tx = Cell.txApply();
+await tx.execute(participants: [ledger], body: (scope) {
+  ledger.apply&lt;dynamic&gt;(
+    (
+      function: ledger.add,
+      arguments: (positionalArguments: [7], namedArguments: null),
+      compensation: null,
+    ),
+    tx: scope,
+  ); // buffered — invisible to readers until the transaction commits
+});
+</code></pre>
+</blockquote>
 <p>Every <code>Tissue</code> is a <code>Cell</code> under the hood: it participates in the same
 reactive graph, uses the same <code>Receptor</code>/<code>TestCell</code>/<code>Synapses</code>/<code>Context</code>
 plumbing, and interoperates seamlessly with the rest of the Cell ecosystem.</p>
@@ -111,22 +289,17 @@ void main() {
   // 1. Create a reactive list
   final tasks = TissueList.of(['Buy milk', 'Walk dog']);
 
-  // 2. Observe changes
+  // 2. Observe changes — every mutation emits a TissuePulse
   final observer = Cell.observe(
-    bind: tasks,
-    effect: (pulse) {
-      if (pulse is ElementAdded&lt;String&gt;) {
-        print('Added: ${pulse.payload}');
-      }
-      if (pulse is ElementRemoved&lt;String&gt;) {
-        print('Removed: ${pulse.payload}');
-      }
+    source: tasks,
+    effect: (Pulse pulse) {
+      print('Changed: ${pulse.payload}');
     },
   );
 
   // 3. Mutate — every change flows through the reactive graph
-  tasks.add('Write report'); // prints: Added: Write report
-  tasks.remove('Buy milk');  // prints: Removed: Buy milk
+  tasks.add('Write report'); // prints: Changed: Write report
+  tasks.remove('Buy milk');  // prints: Changed: Buy milk
 
   // 4. Share a read-only view with a UI widget
   final readOnly = tasks.unmodifiable;
@@ -135,6 +308,13 @@ void main() {
   observer.stop();
 }
 </code></pre>
+<blockquote>
+<p>⚠️ <strong>Tissue-cell observer caveat (current build).</strong> <code>Cell.observe</code> on a
+Tissue cell may not deliver pulses to observer effects in some builds. If
+your trace prints come back empty, emit them from the writer (the observer,
+the money method, the pump) instead. The example demos do exactly this and
+document the deviation in their headers.</p>
+</blockquote>
 <blockquote>
 <p><strong><code>TissueList.of</code> not <code>TissueList</code>.</strong> The primary <code>TissueList</code> factory is
 empty; use <code>TissueList.of(iterable)</code> to populate. <code>TissueSet</code> /
@@ -205,29 +385,26 @@ value.set(200);
 </code></pre>
 <hr>
 <h2 id="observability">Observability</h2>
-<p>Every mutation emits a <code>TissuePulse</code>:</p>
+<p>Every mutation emits a <code>TissuePulse&lt;E&gt;</code> — a <code>Pulse</code> whose payload carries the
+changed data and whose provenance keeps the causal trace:</p>
 <table>
 <thead>
 <tr>
-<th>Event</th>
-<th>Payload</th>
+<th>Mutation</th>
 <th>Emitted by</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>ElementAdded&lt;E&gt;</code></td>
-<td>The added element(s)</td>
+<td><code>add</code> / <code>addAll</code> / <code>addFirst</code> / <code>addLast</code> / <code>put</code> / index assignment</td>
 <td>List, Set, Map, Queue</td>
 </tr>
 <tr>
-<td><code>ElementRemoved&lt;E&gt;</code></td>
-<td>The removed element(s)</td>
+<td><code>remove</code> / <code>removeAt</code> / <code>clear</code></td>
 <td>List, Set, Map, Queue</td>
 </tr>
 <tr>
-<td><code>ElementUpdated&lt;V, E&gt;</code></td>
-<td><code>(value, before, after)</code> record</td>
+<td>assignment / <code>set</code></td>
 <td>Value</td>
 </tr>
 </tbody>
@@ -235,18 +412,17 @@ value.set(200);
 <pre class="language-dart"><code class="language-dart">final counter = TissueValue&lt;int&gt;(0);
 
 Cell.observe(
-  bind: counter,
-  effect: (pulse) {
-    if (pulse is ElementUpdated&lt;int, TissueValue&lt;int&gt;&gt;) {
-      final (cell, :before, :after) = pulse.payload!;
-      print('$before → $after');
-    }
+  source: counter,
+  effect: (Pulse pulse) {
+    print('Value changed: ${pulse.payload}');
   },
 );
 
-counter.value = 42; // prints: 0 → 42
+counter.value = 42; // prints: Value changed: 42
 </code></pre>
-<p>Batch events can be bundled with <code>TissuePulse.batch</code> or the <code>+</code> operator:</p>
+<p>Event classification flags live on <code>Tissue</code> (<code>Tissue.elementAdded</code>,
+<code>Tissue.elementRemoved</code>, <code>Tissue.elementUpdated</code>). Batch events can be
+bundled with <code>TissuePulse.batch</code> or the <code>+</code> operator:</p>
 <pre class="language-dart"><code class="language-dart">final batch = event1 + event2 + event3;
 </code></pre>
 <blockquote>
@@ -341,8 +517,8 @@ print(uiView.length); // 3 — the view is live!
 <p>Key properties of unmodifiable views:</p>
 <ul>
 <li><strong>Zero-copy</strong> — share the same physical storage as the source.</li>
-<li><strong>Live</strong> — reflect changes to the source immediately (see snapshot caveat
-below).</li>
+<li><strong>Live</strong> — reflect changes to the source immediately (pinned by the
+fitness suite; see below).</li>
 <li><strong>Recursive</strong> — if <code>unmodifiableElement</code> is <code>true</code> (default), any <code>Cell</code>
 elements are projected as their own unmodifiable deputies, preventing
 side-door mutations.</li>
@@ -350,11 +526,10 @@ side-door mutations.</li>
 independently of the source.</li>
 </ul>
 <blockquote>
-<p><strong>Snapshot caveat.</strong> In some builds <code>.unmodifiable</code> captures the set at
-install time instead of staying live. Verify the docstring of
-<code>.unmodifiable</code> in your build before relying on liveliness; the two
-behaviours are indistinguishable from an observer that subscribes after
-install.</p>
+<p>✅ <strong>Liveliness is verified.</strong> The fitness suite
+(<code>test/tissue/fitness/unmodifiable_is_live_test.dart</code>) pins that <code>.unmodifiable</code>
+views are live in the current build — across list, set, map, queue, and
+value.</p>
 </blockquote>
 <hr>
 <h2 id="deputies-restricted-proxies">Deputies (Restricted Proxies)</h2>
@@ -420,20 +595,21 @@ coords[0] = 1;    // ✅ index assignment still allowed
 <blockquote>
 <p><strong><code>TissueQueue</code> drain caveat.</strong> In some builds, <code>removeFirst</code> / <code>remove</code>
 on a <code>TissueQueue</code> do not drain the container. The example demos use the
-queue as the <strong>audit-side enqueue</strong> (<code>addLast</code> → <code>ElementAdded</code>) and
+queue as the <strong>audit-side enqueue</strong> (<code>addLast</code> → a pulse classified with
+<code>Tissue.elementAdded</code>) and
 drive the pump on a plain Dart working list. A downstream observer can
-still subscribe to the queue's <code>ElementAdded</code> pulses to reconstruct
+still subscribe to the queue's <code>TissuePulse</code> stream to reconstruct
 every outbound attempt.</p>
 </blockquote>
 <hr>
 <h2 id="identity-vs-value-equality">Identity vs. Value Equality</h2>
 <p>By default, sets and maps compare elements/keys by value (<code>==</code> and <code>hashCode</code>).
 For mutable objects or cells, use the identity variants:</p>
-<pre class="language-dart"><code class="language-dart">final idSet = TissueSet.identity&lt;MyMutableKey&gt;();
+<pre class="language-dart"><code class="language-dart">final idSet = TissueSet&lt;MyMutableKey&gt;.identity();
 idSet.add(keyA);
 idSet.add(keyB); // different instance, same value → both kept
 
-final idMap = TissueMap.identity&lt;MyMutableKey, int&gt;();
+final idMap = TissueMap&lt;MyMutableKey, int&gt;.identity();
 </code></pre>
 <p>Use identity variants when:</p>
 <ul>
@@ -480,7 +656,7 @@ final gateCell = gate.toHandle(source: tickIn.cell).cell;
 // Tissue records the decision
 Cell.observe(
   source: gateCell,
-  effect: (pulse) {
+  effect: (Pulse pulse) {
     if (pulse.payload == Decision.fire) {
       ledger.add(LedgerEntry(...));
       outboundQ.addLast(Job(...));
@@ -543,7 +719,8 @@ the call is rejected.</li>
 <li>The receptor runs its pipeline (<code>preProcess → rule → postProcess</code>).</li>
 <li>The container mutates atomically under the tissue's <code>Lock</code>.</li>
 <li>Any <code>Cell</code> elements are automatically linked/unlinked via <code>Synapses</code>.</li>
-<li>An <code>ElementAdded</code> (or <code>ElementRemoved</code>) pulse is emitted.</li>
+<li>A <code>TissuePulse</code> classified with <code>Tissue.elementAdded</code> (or
+<code>Tissue.elementRemoved</code>) is emitted.</li>
 <li>The pulse propagates through the tissue's <code>Synapses</code> to downstream
 observers.</li>
 </ol>
@@ -580,11 +757,7 @@ observers.</li>
 <td>Live read-only projection.</td>
 </tr>
 <tr>
-<td><code>Tissue.create&lt;E, I, C&gt;(...)</code></td>
-<td>Low-level, explicit container.</td>
-</tr>
-<tr>
-<td><code>TissueList(...)</code> / <code>.of(...)</code> / <code>.empty(...)</code> / <code>.identity(...)</code></td>
+<td><code>TissueList(...)</code> / <code>.of(...)</code> / <code>.fromNucleus(...)</code> / <code>.unmodifiable(...)</code></td>
 <td>List-specific.</td>
 </tr>
 <tr>
@@ -661,7 +834,7 @@ observers.</li>
 <li><code>TestTissue&lt;E, C&gt;</code> — validation gate.</li>
 <li><code>TissueReceptor&lt;E, C&gt;</code> — mutation pipeline.</li>
 <li><code>TissuePulse&lt;E&gt;</code> — base event type.</li>
-<li><code>ElementAdded</code> / <code>ElementRemoved</code> / <code>ElementUpdated</code> — concrete events.</li>
+<li><code>TissueEvent</code> / <code>CompositeTissueEvent</code> — event classification flags.</li>
 <li><code>TissueNucleus&lt;E&gt;</code> — immutable blueprint.</li>
 <li><code>TissueContainer&lt;E, I&gt;</code> — physical storage mediator.</li>
 <li><code>Container</code> — strategy object (List, Set, Map, Queue, Value, …).</li>
@@ -775,9 +948,12 @@ the demos, or read the demos themselves in this order:</p>
 </ol>
 <hr>
 <h2 id="status--known-gaps">Status &amp; Known Gaps</h2>
-<p><strong>Release Candidate</strong> — published to pub.dev.</p>
+<p><strong>Release Candidate on pub.dev</strong> (<code>1.0.0-rc.9</code>). The stable release <code>1.0.0</code>
+is prepared in this repository (see
+<a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/CHANGELOG.md">CHANGELOG.md</a>)
+and not yet published.</p>
 <ul>
-<li><code>example/</code> ships four demos; <code>test/</code> remains minimal.</li>
+<li><code>example/</code> ships four demos; <code>test/</code> passes <strong>362/362</strong> tests.</li>
 <li>Some dartdoc snippets are stale — use <code>TissueList.of([...])</code> rather than
 <code>TissueList([...])</code>, and observe with <code>Cell.observe</code> rather than
 <code>tissue.listen</code>.</li>
@@ -790,11 +966,9 @@ distinct from a normal remove.</li>
 builds.</li>
 <li><code>Cell.observe</code> on a Tissue cell may be silent in some builds; emit trace
 prints from the writer.</li>
-<li><code>.unmodifiable</code> may be a snapshot in some builds; verify before relying
-on liveliness.</li>
-<li>No joint commit across multiple Tissues is exposed in this build. The
-example demos use a v1 compensation ladder; <code>Cell.transaction</code> is the
-migration target.</li>
+<li>Joint commits across multiple tissues are staged through
+<code>ApplyTransactionScope.enqueueCommand</code> (<code>Cell.txApply</code>); the example demos
+predate the bridge and use a v1 compensation ladder.</li>
 </ul>
 <p>If you rely on a guarantee here, verify it against the current source and
 the header of the demo that exercises it. See
@@ -845,13 +1019,29 @@ orchestration. Pairs with <code>cell_tissue</code> for the Flow + Tissue seam.</
 <p><strong>Lee Man Hoi Simon</strong> — see <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/AUTHORS">AUTHORS</a> for details.</p>
 <hr>
 <p><em><code>cell_tissue</code> is part of the Cell Framework — a reactive, governable,
-conactive substrate for building resilient Dart applications.</em></p>
+connective substrate for building resilient Dart applications.</em></p>
 </section>
 
 
       <section class="summary">
           <h2>Libraries</h2>
         <dl>
+          <dt id="cell_tissue_ai_anti_patterns">
+  <span class="name"><a href="cell_tissue_ai_anti_patterns/">doc\ai_anti_patterns</a></span> 
+
+</dt>
+<dd>Doc-only library holding the shared <code>{@template}</code> dartdoc definitions
+expanded by the <code>{@macro}</code> references in the <code>### AI Agent Guide</code> blocks
+of <code>package:cell_tissue</code>.
+</dd>
+
+          <dt id="cell_tissue_api_chooser">
+  <span class="name"><a href="cell_tissue_api_chooser/">doc\api_chooser</a></span> 
+
+</dt>
+<dd>API Chooser — <code>cell_tissue</code> operators
+</dd>
+
           <h3>Core</h3>
             <dt id="cell_tissue">
   <span class="name"><a href="cell_tissue/">cell_tissue</a></span> 
@@ -887,6 +1077,8 @@ conactive substrate for building resilient Dart applications.</em></p>
         <li><a href="topics/Ride Hail-topic.html">Demo&nbsp;·&nbsp;Ride&nbsp;Hail</a></li>
         <li><a href="topics/Examples-topic.html">Quick&nbsp;Start&nbsp;&&nbsp;Examples</a></li>
       <li class="section-title">Libraries</li>
+      <li><a href="cell_tissue_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
+      <li><a href="cell_tissue_api_chooser/">doc\api_chooser</a></li>
       <li class="section-subtitle">Core</li>
         <li class="section-subitem"><a href="cell_tissue/">cell_tissue</a></li>
 </ol>
@@ -898,7 +1090,7 @@ conactive substrate for building resilient Dart applications.</em></p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

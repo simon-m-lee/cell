@@ -58,26 +58,6 @@ Map<String, String> get platformEnvironment => Platform.environment;
 /// want to derive the arguments from env vars, do so before
 /// constructing the interpreter (see [AiConfig]).
 ///
-/// ### Non-obvious
-///
-/// - **The interpreter never lets the model influence the set
-///   directly.** It only produces a [TissueCommand] whose `verb`
-///   must be a key in [verbByName]. The dispatch instruction
-///   (downstream) still checks `host.modifiable` and TestTissue
-///   still guards the element.
-/// - **The HTTP client is injected.** A caller that wants to reuse
-///   an existing client can pass one in; the caller is then
-///   responsible for closing it. The demo passes none, so the
-///   interpreter creates its own and closes it in `dispose`.
-/// - **The timeout applies twice.** It is applied to both the
-///   connection establishment and the response body read. A slow
-///   endpoint that returns headers quickly but body slowly will
-///   still hit this timeout.
-/// - **`response_format` requests JSON.** The
-///   `{'type': 'json_object'}` value tells OpenAI-compatible
-///   endpoints to constrain the model to valid JSON. Not all
-///   endpoints honour it; the parser handles either case.
-///
 /// ### Example
 ///
 /// ```dart

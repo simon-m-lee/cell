@@ -4,9 +4,6 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-// Copyright (c) 2025 Lee Man Hoi Simon. Please see the AUTHORS file
-// for details. All rights reserved. Use of this source code is governed by a
-// MIT license that can be found in the LICENSE file.
 import 'dart:collection';
 
 import 'package:synchronized/synchronized.dart';
@@ -64,17 +61,6 @@ Map<String, dynamic> mapMerge<K, V>(
 ///    [toList], or [map]) operate on a **Point-in-Time Snapshot**. This
 ///    prevents `ConcurrentModificationError` by allowing concurrent mutations
 ///    while a specific reactive wave processes the current state.
-///
-/// ### Non‑obvious
-/// - **Locking Overhead**: While providing safety, the internal synchronization
-///   introduces latency. For high-frequency read-only access within a single
-///   thread, consider using [replicate] to get a local, non-synchronized copy.
-/// - **Future Completion**: A mutation's [Future] completes once the lock is
-///   acquired and the operation is applied, ensuring causal ordering between
-///   sequential calls.
-/// - **Zero-Blocking**: The use of `synchronized` ensures that the calling
-///   thread remains free for other tasks while waiting for the set to become
-///   available.
 ///
 /// ### Example
 /// ```dart
@@ -357,19 +343,6 @@ class AsyncQueueList<E> {
 /// 4. **Structural Reconstruction**: Methods like [removeWhere] perform a
 ///    full O(n) **Re-heapification** to maintain integrity after bulk changes.
 ///
-/// ### Non‑obvious
-/// - **Traversal Order**: The [iterator] and [forEach] methods traverse the
-///   internal heap list, which does **not** guarantee priority order. Use
-///   [removeFirst] sequentially if ranked traversal is required.
-/// - **Removal Penalty**: Removing arbitrary elements via [remove] or
-///   [removeWhere] is significantly more expensive than [removeFirst] due to
-///   the required structural repair.
-/// - **Comparison Strategy**: If no custom comparator is provided, elements
-///   **must** implement [Comparable<E>], or a [TypeError] will occur during
-///   insertion.
-/// - **Non-Thread Safety**: This class is a "somatic" (synchronous) component.
-///   For cross-thread synchronization, wrap it in [AsyncPriorityQueue].
-///
 /// ### Example
 /// ```dart
 /// // Create a queue where lower numbers have higher priority
@@ -489,14 +462,34 @@ class PriorityQueue<E> extends IterableBase<E> {
   void addLast(E value) => add(value); // Priority dictates position
 
   E removeLast() {
-    // Note: Standard priority queues are optimized for removeFirst.
-    // removeLast requires a linear scan of the leaf nodes.
+    // Standard priority queues are optimized for removeFirst.
+    // removeLast requires a linear scan of the leaf nodes: the maximum
+    // element of a min-heap can only live on the bottom level, which is
+    // the last half of the array.
     if (_heap.isEmpty) throw StateError('Metabolic buffer is empty.');
-    return _heap.removeLast();
+    if (_heap.length == 1) return _heap.removeLast();
+
+    var target = _heap.length ~/ 2;
+    for (var i = target + 1; i < _heap.length; i++) {
+      if (_compare(_heap[i], _heap[target]) > 0) target = i;
+    }
+
+    final result = _heap[target];
+    if (target == _heap.length - 1) {
+      _heap.removeLast();
+    } else {
+      _heap[target] = _heap.removeLast();
+      _bubbleUp(target);
+      _bubbleDown(target);
+    }
+    return result;
   }
 
   bool remove(Object? value) {
-    final index = _heap.indexOf(value as E);
+    // Match Set.remove/List.remove semantics: a value of an incompatible
+    // type is simply absent, not a TypeError.
+    if (value is! E) return false;
+    final index = _heap.indexOf(value);
     if (index == -1) return false;
     if (index == _heap.length - 1) {
       _heap.removeLast();
@@ -512,7 +505,16 @@ class PriorityQueue<E> extends IterableBase<E> {
   Iterator<E> get iterator => _heap.iterator;
 
   @override
-  E get last => _heap.last;
+  E get last {
+    if (_heap.isEmpty) throw StateError('Metabolic buffer is empty.');
+    // The lowest-precedence element is the maximum of the leaf nodes
+    // (the last half of the array); the raw array tail is arbitrary.
+    var target = _heap.length ~/ 2;
+    for (var i = target + 1; i < _heap.length; i++) {
+      if (_compare(_heap[i], _heap[target]) > 0) target = i;
+    }
+    return _heap[target];
+  }
 
   /// Removes all elements from the hierarchy that satisfy the [test] predicate.
   ///
@@ -689,16 +691,6 @@ class AsyncPriorityQueue<E> {
 /// 4. **Metabolic Gating**: Enforces the [capacity] limit during [add] and
 ///    [addAll] operations, throwing a [StateError] if exceeded.
 ///
-/// ### Non‑obvious
-/// - **Snapshot Isolation**: Use [replicate] for long-running iterations or
-///   mappings to avoid holding the genotypic lock and blocking other actors.
-/// - **Traversal Order**: The internal iterator does not guarantee priority
-///   order. Use sequential [removeFirst] calls for ranked extraction.
-/// - **Bubble Penalty**: Structural repairs after arbitrary removals are O(n);
-///   prefer [removeFirst] (O(log n)) for optimal throughput.
-/// - **Zero-Blocking**: The underlying lock ensures the calling thread remains
-///   available for other tasks while waiting for queue access.
-///
 /// ### Example
 /// ```dart
 /// // Higher number = Higher priority
@@ -809,10 +801,11 @@ class SyncQueue<E> {
   /// Injects all elements from [iterable] into the hierarchy.
   Future<void> addAll(Iterable<E> iterable) {
     return _lock.synchronized(() {
-      for (final element in iterable) {
-        if (capacity != -1 && _queue.length >= capacity) {
-          throw StateError('Metabolic buffer capacity exceeded during addAll');
-        }
+      final elements = iterable.toList();
+      if (capacity != -1 && _queue.length + elements.length > capacity) {
+        throw StateError('Metabolic buffer capacity exceeded during addAll');
+      }
+      for (final element in elements) {
         _queue.add(element);
       }
     });
@@ -884,16 +877,6 @@ class SyncQueue<E> {
 ///    semantics to `await` authority, providing a resilient developer experience
 ///    under high contention.
 ///
-/// ### Non‑obvious
-/// - **Principal Dominance**: The synchronous component [C] remains the "Source
-///   of Truth." The [Async] handle is purely an **Access Coordinator**.
-/// - **Event Loop Integration**: By returning [Future]s, it allows the Dart VM
-///   to perform other tasks while the reactive graph processes a wave, preventing
-///   UI jank or thread blocking.
-/// - **Locking Latency**: While providing safety, using the [Async] proxy
-///   introduces the minor overhead of lock acquisition and asynchronous
-///   scheduling compared to direct synchronous access.
-///
 /// ### Example
 /// ```dart
 /// // A synchronous ValueCell (The Principal)
@@ -955,21 +938,6 @@ abstract class Async<C> {}
 ///    delegates "Read" and "Observe" capabilities to the principal but
 ///    intercepts and neutralizes "Write" requests.
 ///
-/// ### Non‑obvious
-/// - **Identity Transparency (Zero-Copy)**: Most unmodifiable deputies share
-///    the exact same physical storage and synchronization [Lock] as their
-///    principal. This provides **Zero-Cost Projection** without the memory
-///    overhead of data duplication.
-/// - **Stateless Marker**: As an abstract marker interface, it adds no
-///    runtime object overhead or heap pressure; it serves purely as a
-///    type-system hint for the validation and security engines.
-/// - **Causal Lineage**: A deputy maintains a transparent link to its
-///    principal, ensuring that forensic traces correctly attribute state
-///    changes to the original source of authority.
-/// - **Not "Deep" Immutability**: Marking a container as [Unmodifiable]
-///    restricts the container's own structure but does not necessarily
-///    make the objects *inside* the container unmodifiable.
-///
 /// ### Example
 /// ```dart
 /// // 1. Create a mutable principal
@@ -1023,17 +991,6 @@ abstract class Unmodifiable {}
 /// 4. **Conactive Gateway**: Provides a [SyncBox] via the [async] property,
 ///    allowing the same state to be managed safely across asynchronous
 ///    execution boundaries.
-///
-/// ### Non‑obvious
-/// - **Nullable Flexibility**: A box is designed to hold `null` by default,
-///   representing an uninitialized, reset, or transitional state.
-/// - **Thread Safety Boundary**: The base [Box] is optimized for
-///   high-performance, synchronous execution within a single reactive wave.
-///   It is **not** thread-safe; use the [async] property for cross-context
-///   mutations.
-/// - **Identity Transparency**: Replacing the *value* inside a box does not
-///   trigger observer notifications directly—that responsibility lies with
-///   the [Cell] or [Nucleus] orchestrating the change.
 ///
 /// ### Example
 /// ```dart
@@ -1101,19 +1058,6 @@ class Box<T> {
 ///    a synchronization barrier.
 /// 4. **Conactive Bridge**: It serves as the primary gateway for [Async] proxies
 ///    to interact with a cell's internal cytoplasm safely.
-///
-/// ### Non‑obvious
-/// - **Locking Latency**: While providing safety, the synchronization barrier
-///   introduces a minor scheduling delay compared to direct [Box] access. Use
-///   the standard [Box] for pure intra-wave reactive transformations.
-/// - **Point-in-Time Consistency**: The [state] getter returns the state at
-///   the exact moment the lock was acquired, preventing the "Lost Update"
-///   problem during high-contention cycles.
-/// - **Zero-Blocking**: Because it uses the framework's internal [Lock], the
-///   calling thread remains free to handle other event loop tasks while waiting
-///   for access, preventing UI jank.
-/// - **Principal Coupling**: A [SyncBox] is strictly a proxy; it does not own
-///   the state itself but merely coordinates access to its principal [Box].
 ///
 /// ### Example
 /// ```dart
@@ -1190,19 +1134,6 @@ class SyncBox<T> {
 ///    activation phase, bridging the gap between a stateless blueprint and
 ///    a crystallized instance.
 ///
-/// ### Non‑obvious
-/// - **Flyweight Strategy**: As a final object within a [Nucleus] record, it
-///   supports memory-efficient sharing of structural metadata while allowing
-///   per-instance constant initialization.
-/// - **Runtime Enforcement**: Attempting to re-initialize the box or evolve
-///   its value after the first assignment triggers a runtime error, acting
-///   as an internal **Integrity Gate**.
-/// - **Synchronized Access**: Like a standard box, it provides a [SyncBox]
-///   proxy via the [async] property for thread-safe initialization from
-///   background tasks.
-/// - **Nullable Support**: The internal [value] is nullable by design,
-///   allowing the "crystallized" state to be a null constant if required.
-///
 /// ### Example
 /// ```dart
 /// // Defined within an immutable nucleus record
@@ -1227,9 +1158,25 @@ class SyncBox<T> {
 /// * [Nucleus]: The structural container that typically utilizes boxes for
 ///   state storage.
 class FinalBox<T> implements Box<T> {
-  /// The immutable state value held by this container, initialized late.
+  T? _value;
+  bool _initialized = false;
+
+  /// The immutable state value held by this container.
+  ///
+  /// Reading before the first write returns `null` instead of throwing —
+  /// exception-free reads keep the pulse hot path cheap. Write-once
+  /// semantics are still enforced by the setter.
   @override
-  late final T? value;
+  T? get value => _value;
+
+  @override
+  set value(T? value) {
+    if (_initialized) {
+      throw StateError('FinalBox value has already been set.');
+    }
+    _initialized = true;
+    _value = value;
+  }
 
   /// Creates a [FinalBox] without an initial state. The [value] must be set exactly
   /// once before it is read.
@@ -1297,12 +1244,12 @@ class FunctionObject {
 ///     The function attempts to execute the primary [fn] and cast its result
 ///     to the expected type [T].
 /// 2.  **Stage 2: Secondary Recovery ([fallback])**:
-///     If Stage 1 fails (due to a runtime exception or a type-cast error),
-///     the utility attempts to execute the [fallback] function. This is
-///     ideal for emitting alternative lookup logic or logging the failure.
+///     If Stage 1 reports an *absent* field (see below), the utility
+///     attempts to execute the [fallback] function.
 /// 3.  **Stage 3: Static Default ([orElse])**:
-///     If both functional attempts fail (or if the [fallback] throws), the
-///     utility attempts to return the provided [orElse] constant.
+///     If both functional attempts fail (or if the [fallback] reports an
+///     absent field), the utility attempts to return the provided [orElse]
+///     constant.
 /// 4.  **Terminal Failure**:
 ///     If all stages fail and [orElse] is either null or incompatible with
 ///     type [T], the original exception from Stage 1 is rethrown to ensure
@@ -1324,10 +1271,10 @@ class FunctionObject {
 /// - [orElse]: A static value of type [T] to return as the ultimate
 ///   safety net if all functional calls fail.
 ///
-/// ### Example: Safe Configuration Parsing
+/// ### Example: Safe Configuration Lookup
 /// ```dart
 /// final timeout = get<int>(
-///   () => int.parse(remoteConfig['timeout']),
+///   () => remoteConfig.timeout,
 ///   fallback: () => localSettings.defaultTimeout,
 ///   orElse: 3000,
 /// );
@@ -1339,15 +1286,38 @@ T get<T>(Function fn, {Function? fallback, T? orElse}) {
   try {
     return fn() as T;
   } catch (e) {
+    if (!_isAbsence(e)) rethrow;
+    return _recoverAbsent<T>(fallback: fallback, orElse: orElse);
+  }
+}
+
+/// Whether [e] is an absence-shaped failure: a missing record field
+/// ([NoSuchMethodError]) or an uninitialized lazy field. The late-init
+/// error class has no public type name (it lives in `dart:_internal`), so
+/// it is recognized by its class-name prefix.
+bool _isAbsence(Object e) =>
+    e is NoSuchMethodError ||
+    e.toString().startsWith('LateInitializationError');
+
+/// The recovery chain for a genuinely absent property.
+///
+/// Only absence-shaped failures reach this point; everything else has
+/// already propagated from [get]. The fallback may itself read another
+/// absent field, which is also treated as absence rather than an error.
+/// A fallback result that is not of type [T] (including `null` for a
+/// non-nullable [T]) resolves to [orElse] — the same outcome the former
+/// broad catch produced, but via an explicit type test instead of a
+/// swallowed cast error.
+T _recoverAbsent<T>({Function? fallback, T? orElse}) {
+  if (fallback != null) {
     try {
-      if (fallback != null) return fallback() as T;
-    } catch (_) {}
-    try {
-      return orElse as T;
-    } catch (_) {
-      throw e;
+      final v = fallback();
+      if (v is T) return v;
+    } catch (e) {
+      if (!_isAbsence(e)) rethrow;
     }
   }
+  return orElse as T;
 }
 
 /*

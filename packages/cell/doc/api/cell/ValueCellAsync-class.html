@@ -88,18 +88,6 @@ snapshot of the state.</li>
 <li>The controller is lightweight – it holds only a reference to the
 principal cell.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>state</code> getter uses the cell's lock, so it waits for any ongoing
-transformation to complete before returning.</li>
-<li>The <code>update</code> method is private; you use <code>updateAsync</code> from the
-<code>StateHandle</code> returned by <code>Cell.state</code>.</li>
-<li>All operations are scheduled on the Dart event loop; they never block
-the calling thread.</li>
-<li>The controller does not create its own lock – it reuses the cell's.</li>
-<li>If the cell is invalidated, operations may return stale data or fail
-silently; check <code>cell.isInvalidated</code> before using.</li>
-</ul>
 <h3 id="example-reading-state-asynchronously">Example: Reading State Asynchronously</h3>
 <pre class="language-dart"><code class="language-dart">final counter = Cell.state&lt;int&gt;(state: 0);
 final async = counter.cell.async;
@@ -193,8 +181,7 @@ asynchronous execution layer to a specific <a href="../cell/ValueCell-class.html
 
 </dt>
 <dd>
-  Asynchronously retrieves the current state of the principal <a href="../cell/ValueCell-class.html">ValueCell</a>
-with a guarantee of <strong>Atomic Memory Consistency</strong>.
+  Asynchronously retrieves the current state of the principal <a href="../cell/ValueCell-class.html">ValueCell</a>.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -209,14 +196,14 @@ with a guarantee of <strong>Atomic Memory Consistency</strong>.
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="apply" class="callable inherited">
-  <span class="name"><a href="../cell/ModifiableAsync/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a></span>
+  <span class="name"><a href="../cell/ModifiableAsync/apply.html">apply</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="apply-param-command"><span class="type-annotation"><a href="../cell/ApplyCommand.html">ApplyCommand</a></span> <span class="parameter-name">command</span>, {</span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Asynchronously applies a function to the wrapped cell.
+  Asynchronously submits an <a href="../cell/ApplyCommand.html">ApplyCommand</a> to the wrapped cell.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -297,7 +284,7 @@ with a guarantee of <strong>Atomic Memory Consistency</strong>.
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

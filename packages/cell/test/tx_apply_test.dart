@@ -9,6 +9,37 @@ import 'package:cell/cell.dart';
 
 // ─────────────────────────────────────────────────────────────────────────
 // Fixtures
+
+// Local builders for the forensic command model.
+ApplyCommand cmd(
+  Function function, [
+  List<Object?>? positionalArguments,
+  ApplyCompensation? compensation,
+]) =>
+    (
+      function: function,
+      arguments: (
+        positionalArguments: positionalArguments,
+        namedArguments: null
+      ),
+      compensation: compensation,
+    );
+
+ApplyCompensation undo(
+  Function function, [
+  List<Object?>? positionalArguments,
+  Map<Symbol, Object?>? namedArguments,
+  Cell? cell,
+]) =>
+    (
+      function: function,
+      arguments: (
+        positionalArguments: positionalArguments,
+        namedArguments: namedArguments
+      ),
+      cell: cell,
+    );
+
 //
 // txApply only enqueues functions that appear in [Cell.modifiable].
 // Tear-offs are stored on fields so `modifiable.contains` is identity-stable.
@@ -46,13 +77,13 @@ class AccountCell extends CellBase {
     _credit(amount);
   }
 
-  dynamic _reject() => ApplyRejected.instance;
+  dynamic _reject() => ApplyVeto.instance;
 
   void _fail() => throw StateError('forced failure');
 
   @override
   Iterable<Function> get modifiable =>
-      {credit, debit, creditNamed, reject, fail, apply};
+      {credit, debit, creditNamed, reject, fail, apply<dynamic>};
 }
 
 class LedgerCell extends CellBase {
@@ -84,7 +115,7 @@ class LedgerCell extends CellBase {
 
   @override
   Iterable<Function> get modifiable =>
-      {record, unrecord, unrecordNamed, fail, boomUndo, apply};
+      {record, unrecord, unrecordNamed, fail, boomUndo, apply<dynamic>};
 }
 
 class MutableModifiableCell extends CellBase {
@@ -99,7 +130,7 @@ class MutableModifiableCell extends CellBase {
     add = _add;
     sub = _sub;
     fail = _fail;
-    allowed.addAll({add, sub, fail, apply});
+    allowed.addAll({add, sub, fail, apply<dynamic>});
   }
 
   void _add(int amount) => value += amount;
@@ -152,13 +183,19 @@ void stage(
   void Function(int)? compensate,
   AccountCell? compensateCell,
 }) {
-  cell.apply(
-    fn,
-    positionalArguments: [amount],
+  cell.apply<Object?>(
+    (
+      function: fn,
+      arguments: (positionalArguments: [amount], namedArguments: null),
+      compensation: compensate == null
+          ? null
+          : (
+              function: compensate,
+              arguments: (positionalArguments: [amount], namedArguments: null),
+              cell: compensateCell,
+            ),
+    ),
     tx: tx,
-    compensate: compensate,
-    compensatePositional: compensate == null ? null : [amount],
-    compensateCell: compensateCell,
   );
 }
 
@@ -241,7 +278,7 @@ void main() {
 
       test('apply without tx runs immediately', () {
         final cell = AccountCell(balance: 10);
-        cell.apply(cell.credit, positionalArguments: [3]);
+        cell.apply<void>(cmd(cell.credit, [3]));
         expect(cell.balance, 13);
       });
     });
@@ -277,15 +314,10 @@ void main() {
           tx.execute(
             participants: [a, b],
             body: (scope) {
-              a.apply(
-                a.record,
-                positionalArguments: ['op1'],
-                tx: scope,
-                compensateCell: b,
-                compensate: b.unrecord,
-                compensatePositional: ['op1'],
-              );
-              b.apply(b.fail, tx: scope);
+              a.apply<Object?>(
+                  cmd(a.record, ['op1'], undo(b.unrecord, ['op1'], null, b)),
+                  tx: scope);
+              b.apply<Object?>(cmd(b.fail), tx: scope);
             },
           ),
           throwsA(isA<TxApplyException>()),
@@ -315,14 +347,10 @@ void main() {
           tx.execute(
             participants: [cell, blocker],
             body: (scope) {
-              cell.apply(
-                cell.add,
-                positionalArguments: [10],
-                tx: scope,
-                compensate: cell.flakySub,
-                compensatePositional: [10],
-              );
-              blocker.apply(blocker.fail, tx: scope);
+              cell.apply<Object?>(
+                  cmd(cell.add, [10], undo(cell.flakySub, [10])),
+                  tx: scope);
+              blocker.apply<Object?>(cmd(blocker.fail), tx: scope);
             },
           ),
           throwsA(isA<TxApplyException>()),
@@ -338,13 +366,9 @@ void main() {
         final tx = Cell.txApply();
 
         await tx.begin([cell]);
-        cell.apply(
-          cell.record,
-          positionalArguments: ['op1'],
-          tx: tx,
-          compensate: cell.unrecord,
-          compensatePositional: ['op1'],
-        );
+        cell.apply<Object?>(
+            cmd(cell.record, ['op1'], undo(cell.unrecord, ['op1'])),
+            tx: tx);
         await tx.rollback();
 
         expect(cell.ops, isEmpty);
@@ -359,13 +383,9 @@ void main() {
         );
 
         await tx.begin([cell]);
-        cell.apply(
-          cell.record,
-          positionalArguments: ['op1'],
-          tx: tx,
-          compensate: cell.unrecord,
-          compensatePositional: ['op1'],
-        );
+        cell.apply<Object?>(
+            cmd(cell.record, ['op1'], undo(cell.unrecord, ['op1'])),
+            tx: tx);
         await tx.rollback();
 
         expect(cell.ops, ['undo_op1']);
@@ -382,33 +402,27 @@ void main() {
           tx.execute(
             participants: [cell1],
             body: (scope) {
-              cell2.apply(cell2.credit, positionalArguments: [1], tx: scope);
+              cell2.apply<Object?>(cmd(cell2.credit, [1]), tx: scope);
             },
           ),
           throwsA(isTxApplyException(containing: 'not a participant')),
         );
       });
 
-      test('enqueue of a non-modifiable function is rejected', () async {
-        TxApplyRejected? rejected;
+      test('enqueue accepts functions outside the modifiable manifest', () async {
         final cell = AccountCell();
-        final tx = Cell.txApply(
-          TxApplyOptions(onEvent: (e) {
-            if (e is TxApplyRejected) rejected = e;
-          }),
-        );
+        final tx = Cell.txApply();
 
-        await expectLater(
-          tx.execute(
-            participants: [cell],
-            body: (scope) {
-              scope.enqueue(cell, () {}, [], null);
-            },
-          ),
-          throwsA(isTxApplyException(containing: 'not in cell.modifiable')),
+        // One capability model: the integrity gate — not whitelist
+        // membership — authorizes a command. AccountCell carries the
+        // default allowAll gate, so this caller-supplied closure commits.
+        await tx.execute(
+          participants: [cell],
+          body: (scope) {
+            scope.enqueueCommand(cell, cmd(() => cell.balance = 7));
+          },
         );
-        expect(rejected, isNotNull);
-        expect(rejected!.cell, same(cell));
+        expect(cell.balance, 7);
       });
 
       test('txApply with compensation error policy', () async {
@@ -423,14 +437,10 @@ void main() {
           tx.execute(
             participants: [cell],
             body: (scope) {
-              cell.apply(
-                cell.record,
-                positionalArguments: ['op1'],
-                tx: scope,
-                compensate: cell.boomUndo,
-                compensatePositional: ['op1'],
-              );
-              cell.apply(cell.fail, tx: scope);
+              cell.apply<Object?>(
+                  cmd(cell.record, ['op1'], undo(cell.boomUndo, ['op1'])),
+                  tx: scope);
+              cell.apply<Object?>(cmd(cell.fail), tx: scope);
             },
           ),
           throwsA(isTxApplyException(containing: 'commit failed')),
@@ -451,14 +461,10 @@ void main() {
           tx.execute(
             participants: [cell],
             body: (scope) {
-              cell.apply(
-                cell.record,
-                positionalArguments: ['op1'],
-                tx: scope,
-                compensate: cell.boomUndo,
-                compensatePositional: ['op1'],
-              );
-              cell.apply(cell.fail, tx: scope);
+              cell.apply<Object?>(
+                  cmd(cell.record, ['op1'], undo(cell.boomUndo, ['op1'])),
+                  tx: scope);
+              cell.apply<Object?>(cmd(cell.fail), tx: scope);
             },
           ),
           throwsA(isTxApplyException(containing: 'compensation also failed')),
@@ -478,21 +484,13 @@ void main() {
           tx.execute(
             participants: [cell],
             body: (scope) {
-              cell.apply(
-                cell.record,
-                positionalArguments: ['op1'],
-                tx: scope,
-                compensate: cell.boomUndo,
-                compensatePositional: ['op1'],
-              );
-              cell.apply(
-                cell.record,
-                positionalArguments: ['op2'],
-                tx: scope,
-                compensate: cell.boomUndo,
-                compensatePositional: ['op2'],
-              );
-              cell.apply(cell.fail, tx: scope);
+              cell.apply<Object?>(
+                  cmd(cell.record, ['op1'], undo(cell.boomUndo, ['op1'])),
+                  tx: scope);
+              cell.apply<Object?>(
+                  cmd(cell.record, ['op2'], undo(cell.boomUndo, ['op2'])),
+                  tx: scope);
+              cell.apply<Object?>(cmd(cell.fail), tx: scope);
             },
           ),
           throwsA(isTxApplyException(containing: 'compensation also failed')),
@@ -518,7 +516,7 @@ void main() {
           tx.execute(
             participants: [cell],
             body: (scope) {
-              cell.apply(cell.reject, tx: scope);
+              cell.apply<Object?>(cmd(cell.reject), tx: scope);
               stage(scope, cell, cell.credit, 5, compensate: cell.debit);
             },
           ),
@@ -544,12 +542,49 @@ void main() {
         await tx.execute(
           participants: [cell],
           body: (scope) {
-            cell.apply(cell.reject, tx: scope);
+            cell.apply<Object?>(cmd(cell.reject), tx: scope);
             stage(scope, cell, cell.credit, 10, compensate: cell.debit);
           },
         );
 
         expect(cell.balance, 10);
+      });
+
+      test(
+          'a rejected command is not compensated when a later command '
+          'throws (stopOnFirstFailure: false)', () async {
+        final cell = AccountCell(balance: 0);
+        final tx = Cell.txApply(
+          const TxApplyOptions(stopOnFirstFailure: false),
+        );
+
+        await expectLater(
+          tx.execute(
+            participants: [cell],
+            body: (scope) {
+              // Gate-rejected: never executed, so its compensation (`fail`
+              // as a sentinel) must not run during the rollback below — a
+              // wrongful compensation would surface as a compensation
+              // failure, not a plain commit failure.
+              cell.apply<Object?>(
+                cmd(cell.reject, [], undo(cell.fail, [], null, cell)),
+                tx: scope,
+              );
+              stage(scope, cell, cell.credit, 10, compensate: cell.debit);
+              cell.apply<Object?>(cmd(cell.fail), tx: scope);
+            },
+          ),
+          throwsA(
+            isTxApplyException(containing: 'commit failed').having(
+              (e) => e.message,
+              'message',
+              isNot(contains('compensation')),
+            ),
+          ),
+        );
+        // Only the executed credit was compensated; the rejected command's
+        // compensation never ran.
+        expect(cell.balance, 0);
       });
     });
 
@@ -598,6 +633,50 @@ void main() {
           tx.commit(),
           throwsA(isTxApplyException(containing: 'already finished')),
         );
+      });
+
+      test('txApply rollback with unknown savepoint throws', () async {
+        final events = <TxApplyEvent>[];
+        final cell = AccountCell(balance: 0);
+        final tx = Cell.txApply(TxApplyOptions(onEvent: events.add));
+
+        await tx.begin([cell]);
+        stage(tx, cell, cell.credit, 10, compensate: cell.debit);
+
+        await expectLater(
+          tx.rollback(savepoint: 999),
+          throwsA(isA<ArgumentError>()),
+        );
+
+        // Fail closed: no rollback may have happened, silently or otherwise.
+        expect(events.whereType<TxApplyRolledBack>(), isEmpty);
+        expect(cell.balance, 0);
+
+        await tx.commit();
+        expect(cell.balance, 10);
+      });
+
+      test('txApply rollback rejects a savepoint from another scope', () async {
+        final cell = AccountCell(balance: 0);
+        final tx = Cell.txApply();
+        final other = Cell.txApply();
+
+        await tx.begin([cell]);
+        await other.begin([cell]);
+        final foreign = other.savepoint();
+        stage(tx, cell, cell.credit, 10, compensate: cell.debit);
+
+        await expectLater(
+          tx.rollback(savepoint: foreign),
+          throwsA(isA<ArgumentError>()),
+        );
+
+        // The foreign savepoint must not roll back this scope, even partially.
+        expect(cell.balance, 0);
+
+        await tx.commit();
+        expect(cell.balance, 10);
+        await other.rollback();
       });
     });
 
@@ -761,9 +840,15 @@ void main() {
         expect(cell.balance, 0);
       });
 
-      test('TxApplyRejected event emitted on rejection', () async {
+      test('TxApplyRejected event emitted on gate rejection', () async {
         final rejected = <TxApplyRejected>[];
         final cell = AccountCell();
+        void block(int amount) => cell.balance -= amount;
+        final gate = TestCell((object, {host, arguments, user}) {
+          // Reject the debit action itself.
+          return object is! Function;
+        });
+        final gated = await cell.deputy(testRule: gate);
 
         final tx = Cell.txApply(
           TxApplyOptions(onEvent: (event) {
@@ -773,16 +858,16 @@ void main() {
 
         await expectLater(
           tx.execute(
-            participants: [cell],
+            participants: [gated],
             body: (scope) {
-              scope.enqueue(cell, () => cell.balance = -5, [], null);
+              scope.enqueueCommand(gated, cmd(block, [5]));
             },
           ),
           throwsA(isA<TxApplyException>()),
         );
 
         expect(rejected, isNotEmpty);
-        expect(rejected.first.reason, 'not in modifiable');
+        expect(rejected.first.reason, 'integrity gate');
         expect(cell.balance, 0);
       });
     });
@@ -808,7 +893,7 @@ void main() {
         await tx.execute(
           participants: [cell],
           body: (scope) {
-            cell.apply(cell.credit, positionalArguments: [5], tx: scope);
+            cell.apply<Object?>(cmd(cell.credit, [5]), tx: scope);
           },
         );
 
@@ -825,15 +910,9 @@ void main() {
           tx.execute(
             participants: [a, b],
             body: (scope) {
-              a.apply(
-                a.credit,
-                positionalArguments: [5],
-                tx: scope,
-                compensateCell: b,
-                compensate: b.debit,
-                compensatePositional: [5],
-              );
-              b.apply(b.fail, tx: scope);
+              a.apply<Object?>(cmd(a.credit, [5], undo(b.debit, [5], null, b)),
+                  tx: scope);
+              b.apply<Object?>(cmd(b.fail), tx: scope);
             },
           ),
           throwsA(isA<TxApplyException>()),
@@ -851,14 +930,11 @@ void main() {
           tx.execute(
             participants: [cell],
             body: (scope) {
-              cell.apply(
-                cell.record,
-                positionalArguments: ['op1'],
-                tx: scope,
-                compensate: cell.unrecordNamed,
-                compensateNamed: {#name: 'op1'},
-              );
-              cell.apply(cell.fail, tx: scope);
+              cell.apply<Object?>(
+                  cmd(cell.record, ['op1'],
+                      undo(cell.unrecordNamed, null, {#name: 'op1'})),
+                  tx: scope);
+              cell.apply<Object?>(cmd(cell.fail), tx: scope);
             },
           ),
           throwsA(isA<TxApplyException>()),
@@ -895,21 +971,9 @@ void main() {
         await tx.execute(
           participants: [cell1, cell2, cell3],
           body: (scope) {
-            cell1.apply(
-              cell1.credit,
-              positionalArguments: [9],
-              tx: scope,
-            );
-            cell2.apply(
-              cell2.credit,
-              positionalArguments: [18],
-              tx: scope,
-            );
-            cell3.apply(
-              cell3.credit,
-              positionalArguments: [27],
-              tx: scope,
-            );
+            cell1.apply<Object?>(cmd(cell1.credit, [9]), tx: scope);
+            cell2.apply<Object?>(cmd(cell2.credit, [18]), tx: scope);
+            cell3.apply<Object?>(cmd(cell3.credit, [27]), tx: scope);
           },
         );
 
@@ -949,67 +1013,47 @@ void main() {
         final tx = Cell.txApply();
         await tx.begin([a]);
         expect(
-          () => a.apply(
-            a.credit,
-            positionalArguments: [1],
-            tx: tx,
-            compensateCell: b,
-            compensate: b.debit,
-            compensatePositional: [1],
-          ),
+          () => a.apply<Object?>(
+              cmd(a.credit, [1], undo(b.debit, [1], null, b)),
+              tx: tx),
           throwsA(isTxApplyException(containing: 'compensate cell')),
         );
         await tx.rollback();
       });
 
-      test('enqueue rejects a compensate function not in modifiable', () async {
+      test('enqueue accepts a compensate function outside the manifest',
+          () async {
         final cell = AccountCell(balance: 10);
         void outsider() {}
         final tx = Cell.txApply();
         await tx.begin([cell]);
-        expect(
-          () => cell.apply(
-            cell.credit,
-            positionalArguments: [1],
-            tx: tx,
-            compensate: outsider,
-          ),
-          throwsA(isTxApplyException(containing: 'compensate function')),
-        );
+        // One capability model: compensation authorization comes from the
+        // integrity gate, not whitelist membership.
+        final outcome = cell.apply<Object?>(
+            cmd(cell.credit, [1], undo(outsider)), tx: tx);
+        expect(outcome, isA<ApplyStaged>());
         await tx.rollback();
       });
 
-      test('commit rejects a function removed from modifiable', () async {
+      test('commit ignores manifest removal; the gate decides', () async {
         final cell = MutableModifiableCell();
         final tx = Cell.txApply();
         await tx.begin([cell]);
-        cell.apply(cell.add, positionalArguments: [3], tx: tx);
+        cell.apply<Object?>(cmd(cell.add, [3]), tx: tx);
         cell.allowed.remove(cell.add);
-        await expectLater(
-          tx.commit(),
-          throwsA(isTxApplyException(containing: 'not modifiable at commit')),
-        );
+        await tx.commit();
+        expect(cell.value, 3);
       });
 
-      test('commit rejects compensate removed from modifiable', () async {
+      test('commit ignores compensate manifest removal; the gate decides',
+          () async {
         final cell = MutableModifiableCell();
         final tx = Cell.txApply();
         await tx.begin([cell]);
-        cell.apply(
-          cell.add,
-          positionalArguments: [3],
-          tx: tx,
-          compensate: cell.sub,
-          compensatePositional: [3],
-        );
+        cell.apply<Object?>(cmd(cell.add, [3], undo(cell.sub, [3])), tx: tx);
         cell.allowed.remove(cell.sub);
-        await expectLater(
-          tx.commit(),
-          throwsA(
-            isTxApplyException(
-                containing: 'compensate not modifiable at commit'),
-          ),
-        );
+        await tx.commit();
+        expect(cell.value, 3);
       });
 
       test('default compensation backoff retries a transient undo', () async {
@@ -1023,14 +1067,10 @@ void main() {
           tx.execute(
             participants: [cell, blocker],
             body: (scope) {
-              cell.apply(
-                cell.add,
-                positionalArguments: [10],
-                tx: scope,
-                compensate: cell.flakySub,
-                compensatePositional: [10],
-              );
-              blocker.apply(blocker.fail, tx: scope);
+              cell.apply<Object?>(
+                  cmd(cell.add, [10], undo(cell.flakySub, [10])),
+                  tx: scope);
+              blocker.apply<Object?>(cmd(blocker.fail), tx: scope);
             },
           ),
           throwsA(isA<TxApplyException>()),
@@ -1050,13 +1090,11 @@ void main() {
           tx.execute(
             participants: [cell, blocker],
             body: (scope) {
-              cell.apply(
-                cell.credit,
-                positionalArguments: [5],
+              cell.apply<Object?>(
+                cmd(cell.credit, [5], undo(cell.reject)),
                 tx: scope,
-                compensate: cell.reject,
               );
-              blocker.apply(blocker.fail, tx: scope);
+              blocker.apply<Object?>(cmd(blocker.fail), tx: scope);
             },
           ),
           throwsA(isA<TxApplyException>()),
@@ -1078,14 +1116,10 @@ void main() {
           tx.execute(
             participants: [ledger, cell],
             body: (scope) {
-              ledger.apply(
-                ledger.record,
-                positionalArguments: ['op1'],
-                tx: scope,
-                compensate: ledger.boomUndo,
-                compensatePositional: ['op1'],
-              );
-              cell.apply(cell.reject, tx: scope);
+              ledger.apply<Object?>(
+                  cmd(ledger.record, ['op1'], undo(ledger.boomUndo, ['op1'])),
+                  tx: scope);
+              cell.apply<Object?>(cmd(cell.reject), tx: scope);
             },
           ),
           throwsA(isA<TxApplyCompensationException>()),

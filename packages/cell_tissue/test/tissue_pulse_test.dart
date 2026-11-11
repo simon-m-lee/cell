@@ -5,18 +5,45 @@
 import 'package:cell_tissue/cell_tissue.dart';
 import 'package:test/test.dart';
 
+
+// Local builders for the forensic command model.
+ApplyCommand cmd(
+  Function function, [
+  List<Object?>? positionalArguments,
+  ApplyCompensation? compensation,
+]) =>
+    (
+      function: function,
+      arguments:
+          (positionalArguments: positionalArguments, namedArguments: null),
+      compensation: compensation,
+    );
+
+ApplyCompensation undo(
+  Function function, [
+  List<Object?>? positionalArguments,
+  Cell? cell,
+]) =>
+    (
+      function: function,
+      arguments:
+          (positionalArguments: positionalArguments, namedArguments: null),
+      cell: cell,
+    );
+
+
 TissuePulse<int> addedEvent(TissueList<int> list, int value) =>
-    list.apply(list.add, positionalArguments: [value]) as TissuePulse<int>;
+    (list.apply<Object?>(cmd(list.add, [value])) as ApplyAccepted<Object?>).result as TissuePulse<int>;
 
 TissuePulse<int> removedEvent(TissueList<int> list, int value) =>
-    list.apply(list.remove, positionalArguments: [value]) as TissuePulse<int>;
+    (list.apply<Object?>(cmd(list.remove, [value])) as ApplyAccepted<Object?>).result as TissuePulse<int>;
 
 TissuePulse<ElementUpdatedRecord<int, TissueValue<int>>> updatedEvent(
   TissueValue<int> value,
   int next,
 ) =>
-    value.apply(value.set, positionalArguments: [next])
-        as TissuePulse<ElementUpdatedRecord<int, TissueValue<int>>>;
+    (value.apply<Object?>(cmd(value.set, [next])) as ApplyAccepted<Object?>)
+        .result as TissuePulse<ElementUpdatedRecord<int, TissueValue<int>>>;
 
 void main() {
   group('TissuePulse.batch and CollectiveTissuePulse', () {
@@ -91,8 +118,9 @@ void main() {
       final batch = TissuePulse.batch<int>([a]);
       final stringList = TissueList.of(['x']);
       final foreign =
-          stringList.apply(stringList.add, positionalArguments: ['y'])
-              as TissuePulse<String>;
+          (stringList.apply<Object?>(cmd(stringList.add, ['y']))
+                  as ApplyAccepted<Object?>)
+              .result as TissuePulse<String>;
 
       final withBatch = a + batch;
       expect(withBatch.toList().length, 2);

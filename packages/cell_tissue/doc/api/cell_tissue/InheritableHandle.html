@@ -82,13 +82,6 @@ used by the framework to pass inheritable properties around.</p>
 </ul>
 <p>The framework uses this for flyweight sharing – when you create a deputy,
 the new nucleus can inherit these from its principal without copying them.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is a record, not a class – it's lightweight and immutable.</li>
-<li>The framework resolves inherited properties by walking up the <code>principal</code>
-chain; this record is the unit of transfer.</li>
-</ul>
-<p>See also: <a href="../cell_tissue/Nucleus-class.html">Nucleus</a>, <a href="../cell_tissue/Nucleus/Nucleus.evolve.html">Nucleus.evolve</a>.</p>
 </section>
 
     
@@ -135,7 +128,7 @@ chain; this record is the unit of transfer.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -92,18 +92,6 @@ authority, etc.) that share the same storage.</li>
 <li>If the value is a <a href="../mitosis/Cell-class.html">Cell</a>, it is automatically linked to the tissue,
 enabling "bubbling" of internal changes.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>Equality (<code>==</code>) compares the underlying value, so <code>valueCell == 42</code> works.</li>
-<li>The <a href="../mitosis/TissueValue/async.html">async</a> getter returns a <a href="../mitosis/ValueCellAsync-class.html">ValueCellAsync</a> for <code>Future</code>‑based
-operations, useful for network callbacks or background tasks.</li>
-<li>The <code>unmodifiable</code> getter is <strong>not a snapshot</strong> – it's a live view that
-stays in sync with the source.</li>
-<li>If <code>finalValue</code> is <code>true</code>, the value can only be set once. Subsequent
-<code>set</code> attempts are silently ignored or return <code>false</code>.</li>
-<li>The <code>set</code> method returns <code>true</code> if the value was changed, <code>false</code> if
-it was rejected by validation or already had the same value.</li>
-</ul>
 <h3 id="example-basic-usage">Example: Basic usage</h3>
 <pre class="language-dart"><code class="language-dart">final counter = TissueValue&lt;int&gt;(0);
 counter.value = 1;
@@ -149,6 +137,25 @@ final uiView = source.deputy(testRule: TestTissue.readOnly);
 <li><a href="../mitosis/UnmodifiableTissueValue-class.html">UnmodifiableTissueValue</a> – a read‑only deputy variant.</li>
 <li><a href="../mitosis/Tissue/elementUpdated-constant.html">Tissue.elementUpdated</a> – the event emitted on value changes.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Tissue — the reserve scalar. Not a Cell factory, not a Flow operator.
+<strong>When to use:</strong> "45,000 bags / 42 trolleys / 800 MW / ledger cents" — one governed number with an invariant (<code>TestTissue</code> <code>&gt;= 0</code>) plus a harness pre-check.
+<strong>When NOT to use:</strong>
+  <strong>DON'T</strong> put <code>testRule: TestCell</code> on any <code>TissueList</code> / <code>TissueMap</code> /
+<code>TissueSet</code> / <code>TissueQueue</code> / <code>TissueValue</code> constructor. Use <code>TestTissue</code>.
+This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-test.dart</code>.
+  <code>Cell.state&lt;int&gt;</code> when the WalkThrough named a reserve book.
+<strong>Live signature:</strong> <code>TissueValue&lt;V&gt;(V? value, {bind, context, testRule, receptor, synapses, finalValue})</code> / <code>TissueValue.empty({...})</code> / <code>TissueValue.unmodifiable(bind)</code> — pinned at <code>cell_tissue: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.state</code> (retained setting without Tissue semantics).
+<strong>Guide:</strong> <code>HowTo-Mitose-Tissue.md</code> §2.5 "TissueValue — the reserve scalar" (#tissue-value)
+<strong>Example:</strong> <code>example/cell_tissue_example.dart</code>
+<strong>Cross-layer:</strong> the conservation invariant (<code>value + sum(map.values) == baseline</code>) is a harness read, not a second write path.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final q = TissueQueue&lt;int&gt;(capacity: 3);
+q.addLast(1);
+q.addLast(2);
+print(q.length); // 2
+</code></pre>
 </section>
 
 
@@ -170,6 +177,7 @@ final uiView = source.deputy(testRule: TestTissue.readOnly);
         
   <dt>Available extensions</dt>
   <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="../mitosis/ApplyCommandDSL.html">ApplyCommandDSL</a></li>
       <li><a href="../mitosis/CellFlowOperators.html">CellFlowOperators</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/EnumByName.html">EnumByName</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/FutureIterable.html">FutureIterable</a></li>
@@ -577,8 +585,8 @@ downstream observers and does not broadcast pulses.
 </dd>
 
         <dt id="apply" class="callable inherited">
-  <span class="name"><a href="../mitosis/Tissue/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../mitosis/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
-    <span class="returntype parameter">&#8594; dynamic</span>
+  <span class="name"><a href="../mitosis/Tissue/apply.html">apply</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="apply-param-command"><span class="type-annotation"><a href="../mitosis/ApplyCommand.html">ApplyCommand</a></span> <span class="parameter-name">command</span>, {</span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../mitosis/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span>
   </span>
   
 
@@ -668,6 +676,23 @@ metadata attached.
 <dd class="inherited">
   A view of this iterable as an iterable of <code>R</code> instances.
   <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="command" class="callable">
+  <span class="name"><a href="../mitosis/ApplyCommandDSL/command.html">command</a></span><span class="signature">(<wbr><span class="parameter" id="command-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../mitosis/ApplyCommandRunner-class.html">ApplyCommandRunner</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/Cell-class.html">Cell</a>,
+        provided by the <a href="../mitosis/ApplyCommandDSL.html">ApplyCommandDSL</a> extension</span>
+      </p>
+  Begins assembling a command that invokes <code>function</code> on this cell.
+  
 
 </dd>
 
@@ -1338,7 +1363,7 @@ reactive value with explicit control over its behavioural and structural bluepri
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

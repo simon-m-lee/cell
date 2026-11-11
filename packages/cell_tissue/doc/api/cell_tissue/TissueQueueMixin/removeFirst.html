@@ -76,7 +76,7 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 E removeFirst() {
-  final result = apply(removeFirst);
+  final result = dispatch(removeFirst);
   if (result == null) {
     throw UnsupportedError(&#39;Unmodifiable operation&#39;);
   }
@@ -109,7 +109,7 @@ E removeFirst() {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

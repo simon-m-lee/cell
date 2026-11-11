@@ -87,20 +87,6 @@ operation is rejected.</li>
 execute with zero-latency, while asynchronous rules suspend the reactive
 wave until I/O or remote validation completes.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Fail-Safe Execution</strong>: To maintain graph resilience, unhandled
-exceptions within a rule are treated as a <strong>Pass</strong> (<code>true</code>). This
-prevents a single faulty validator from paralyzing the entire system.</li>
-<li><strong>Memory Optimization</strong>: Employs the <strong>Flyweight Pattern</strong> by storing
-configuration in memory-optimized records, minimizing the heap footprint
-of validation chains even at massive scale.</li>
-<li><strong>Zero-State</strong>: Rules are stateless and can be safely cached, shared
-across domains, or reused across multiple <a href="../cell_flow/Cell-class.html">Cell</a> instances.</li>
-<li><strong>Causal Integrity</strong>: Rules evaluated asynchronously maintain their
-position in the reactive timeline, ensuring state transitions occur in
-the correct order relative to other pulses.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// 1. Define atomic rules
 final isPositive = TestRule&lt;int&gt;((val, {host, arguments, user}) =&gt; val &gt; 0);
@@ -312,7 +298,7 @@ the restoration of validation logic from a compressed state.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

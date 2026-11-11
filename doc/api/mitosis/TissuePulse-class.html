@@ -79,25 +79,6 @@ tissue, and a full causal <a href="../mitosis/Pulse/trace.html">trace</a>.</li>
 <li>The event is immutable – it represents a fact that has already occurred.</li>
 <li>You can <a href="../mitosis/TissuePulse/evolve.html">evolve</a> the event to add a step to its trace or change its context.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The event is a <a href="../mitosis/Pulse-class.html">Pulse</a> – it participates in the same reactive propagation
-system as any other signal. It can be evolved, batched, and observed.</li>
-<li>The payload shape follows the <a href="../mitosis/Pulse/type.html">type</a> classification: element mutations
-carry the element itself (a <a href="https://api.flutter.dev/flutter/dart-core/MapEntry-class.html">MapEntry</a> for map add/remove), scalar value
-changes carry an <a href="../mitosis/ElementUpdatedRecord.html">ElementUpdatedRecord</a>, and map entry updates carry an
-<a href="../mitosis/EntryUpdatedRecord.html">EntryUpdatedRecord</a>.</li>
-<li>The event is emitted <strong>after</strong> the mutation, not before. If you need to
-capture the before state, the event's <a href="../mitosis/ElementUpdatedRecord.html">ElementUpdatedRecord</a> or
-<a href="../mitosis/EntryUpdatedRecord.html">EntryUpdatedRecord</a> payload includes it.</li>
-<li>For batch operations (<code>addAll</code>, <code>removeAll</code>, <code>clear</code>), the framework emits
-a <a href="../mitosis/CollectiveTissuePulse-class.html">CollectiveTissuePulse</a> whose sub-events each retain their own
-<a href="../mitosis/TissueEvent-class.html">TissueEvent</a> classification.</li>
-<li>The event is not emitted for initial population of the tissue – only for
-mutations that happen after creation.</li>
-<li><code>null</code> values are valid payloads – they represent the removal or clearing
-of a value.</li>
-</ul>
 <h3 id="example-listening-to-changes">Example: Listening to changes</h3>
 <pre class="language-dart"><code class="language-dart">final list = TissueList&lt;int&gt;([1, 2, 3]);
 list.listen((event) {
@@ -126,6 +107,23 @@ list.remove(2); // prints "Removed: 2"
 <li><a href="../mitosis/EntryUpdatedRecord.html">EntryUpdatedRecord</a> – the payload delivered for map entry updates.</li>
 <li><a href="../mitosis/CollectiveTissuePulse-class.html">CollectiveTissuePulse</a> – batches of these events.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Tissue — the book's event signal. Not a Cell factory, not a Flow operator.
+<strong>When to use:</strong> optional second-order observe on a book (e.g. UI shows the audit log live); app observers in a Cell-variant Demo still sit on the <strong>gate Cell</strong>.
+<strong>When NOT to use:</strong> as the decision signal — Tissue records, Flow decides.
+<strong>Live signature:</strong> <code>abstract interface class TissuePulse&lt;E&gt; implements Pulse&lt;E&gt;</code> — pinned at <code>cell_tissue: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Pulse</code> (the generic graph signal; this is a collection event).
+<strong>Guide:</strong> <code>HowTo-Mitose-Tissue.md</code> §1 "What Tissue owns in a Demo" (#tissue-owns)
+<strong>Example:</strong> <code>example/cell_tissue_example.dart</code>
+<strong>Cross-layer:</strong> the glue that writes books is <code>Cell.observe</code> on the gate Cell.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final book = TissueList.of([1]);
+final seen = &lt;Object?&gt;[];
+final o = Cell.observe(source: book, effect: (Pulse p) =&gt; seen.add(p.payload));
+book.add(2);
+o.stop();
+print(seen.length);
+</code></pre>
 </section>
 
 
@@ -1081,7 +1079,7 @@ collection.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

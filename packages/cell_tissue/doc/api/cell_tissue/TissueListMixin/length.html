@@ -117,9 +117,7 @@ the physical storage capacity of the underlying container.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 set length(int newLength) {
-  if (this is! Unmodifiable) {
-    _nucleus.container.store.length = newLength;
-  }
+  dispatch(_length, positionalArguments: [newLength]);
 }</code></pre>
 </section>
 
@@ -149,7 +147,7 @@ set length(int newLength) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

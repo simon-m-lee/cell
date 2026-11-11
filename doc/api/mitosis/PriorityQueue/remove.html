@@ -68,7 +68,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">bool remove(Object? value) {
-  final index = _heap.indexOf(value as E);
+  &#47;&#47; Match Set.remove&#47;List.remove semantics: a value of an incompatible
+  &#47;&#47; type is simply absent, not a TypeError.
+  if (value is! E) return false;
+  final index = _heap.indexOf(value);
   if (index == -1) return false;
   if (index == _heap.length - 1) {
     _heap.removeLast();
@@ -106,7 +109,7 @@
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

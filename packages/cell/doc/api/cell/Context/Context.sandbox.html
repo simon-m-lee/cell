@@ -82,9 +82,6 @@ non‑destructive testing.</p>
 <li><code>audit_level: AuditLevel.none</code></li>
 <li><code>priority: 30</code></li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<p>Sandbox contexts are marked as <code>ephemeral</code> – they are not persisted
-and are automatically cleaned up when no longer in use.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final testContext = Context.sandbox(
   partOf: 'Finance/Strategies',
@@ -157,7 +154,7 @@ state of the principal without being able to modify it.</li>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

@@ -89,17 +89,6 @@ atomically during construction, ensuring a consistent initial state.</li>
 <li>If <code>unmodifiableElement</code> is <code>true</code> (the default), child cells are
 projected as unmodifiable when accessed.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The nucleus is <strong>not</strong> automatically cloned; if it is already activated
-(bound to another tissue), the factory will clone it internally to avoid
-sharing locks and synapses. This is handled by the underlying
-<code>Cell.fromNucleus</code> machinery.</li>
-<li>The <code>unmodifiableElement</code> flag is applied <em>in addition</em> to whatever
-projection rules the nucleus might have. It is a layer of safety.</li>
-<li>The resulting tissue is live and can be observed; it just cannot be
-mutated through this handle.</li>
-</ul>
 <h3 id="example-reusing-a-validated-blueprint">Example: Reusing a validated blueprint</h3>
 <pre class="language-dart"><code class="language-dart">final blueprint = TissueNucleus.create&lt;int&gt;(
   testRule: TestTissue&lt;int&gt;((v) =&gt; v &gt; 0),
@@ -155,7 +144,7 @@ as unmodifiable when accessed.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

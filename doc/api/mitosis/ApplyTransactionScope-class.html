@@ -54,6 +54,28 @@
 </h1></div>
 
     
+<section class="desc markdown">
+  <p>Handle for a <strong>staged command transaction</strong> — the mechanism behind
+<a href="../mitosis/Cell/txApply.html">Cell.txApply</a>.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <code>txApply</code> when you need to execute multiple <code>Cell.apply</code> commands
+atomically, with the ability to <strong>compensate</strong> already-executed commands
+if a later command fails. This is the Saga-style counterpart to
+<code>Cell.transaction</code> (which buffers <strong>value</strong> updates and provides
+isolation levels).</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><a href="../mitosis/ApplyTransactionScope/begin.html">begin</a> registers participant cells.</li>
+<li>Commands are staged via <a href="../mitosis/ApplyTransactionScope/enqueueCommand.html">enqueueCommand</a> (indirectly, through
+<code>Cell.apply(command, tx: scope)</code>).</li>
+<li><a href="../mitosis/ApplyTransactionScope/commit.html">commit</a> validates each command's whitelist status, then executes
+them sequentially. On any failure, executed commands are compensated
+in reverse order.</li>
+<li><a href="../mitosis/ApplyTransactionScope/rollback.html">rollback</a> discards the staging buffer, optionally compensating
+already-executed commands. With a savepoint, only commands after the
+savepoint are affected and the scope remains active.</li>
+</ol>
+</section>
 
 
 
@@ -116,7 +138,7 @@
 
 </dt>
 <dd>
-  
+  Activates the transaction for the given <code>participants</code>.
   
 
 </dd>
@@ -129,20 +151,20 @@
 
 </dt>
 <dd>
-  
+  Executes every staged command atomically, compensating on failure.
   
 
 </dd>
 
-        <dt id="enqueue" class="callable">
-  <span class="name"><a href="../mitosis/ApplyTransactionScope/enqueue.html">enqueue</a></span><span class="signature">(<wbr><span class="parameter" id="enqueue-param-cell"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="enqueue-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, </span><span class="parameter" id="enqueue-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="enqueue-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, {</span><span class="parameter" id="enqueue-param-compensateCell"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span>, </span><span class="parameter" id="enqueue-param-compensateFunction"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensateFunction</span>, </span><span class="parameter" id="enqueue-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="enqueue-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span></span>})
-    <span class="returntype parameter">&#8594; void</span>
+        <dt id="enqueueCommand" class="callable">
+  <span class="name"><a href="../mitosis/ApplyTransactionScope/enqueueCommand.html">enqueueCommand</a></span><span class="signature">(<wbr><span class="parameter" id="enqueueCommand-param-cell"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="enqueueCommand-param-command"><span class="type-annotation"><a href="../mitosis/ApplyCommand.html">ApplyCommand</a></span> <span class="parameter-name">command</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
   </span>
   
 
 </dt>
 <dd>
-  
+  Stages a first-class <a href="../mitosis/ApplyCommand.html">ApplyCommand</a> for atomic execution at commit time.
   
 
 </dd>
@@ -155,7 +177,7 @@
 
 </dt>
 <dd>
-  
+  Runs <code>body</code> between <a href="../mitosis/ApplyTransactionScope/begin.html">begin</a> and <a href="../mitosis/ApplyTransactionScope/commit.html">commit</a>, rolling back on any error.
   
 
 </dd>
@@ -181,7 +203,8 @@
 
 </dt>
 <dd>
-  
+  Discards staged calls, optionally rolling back only to an earlier
+<code>savepoint</code>.
   
 
 </dd>
@@ -194,7 +217,7 @@
 
 </dt>
 <dd>
-  
+  Captures the current buffer position as a rollback target.
   
 
 </dd>
@@ -262,7 +285,7 @@
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

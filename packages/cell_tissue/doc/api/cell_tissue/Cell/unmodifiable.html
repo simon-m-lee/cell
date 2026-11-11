@@ -78,10 +78,9 @@ emit state transitions or structural modifications.</p>
 <ul>
 <li><strong><a href="../../cell_tissue/Cell/modifiable.html">modifiable</a></strong>: Represents the <strong>Capability Manifest</strong>—the whitelist
 of functions authorized to mutate the cell via <a href="../../cell_tissue/Cell/apply.html">apply</a>.</li>
-<li><strong><a href="../../cell_tissue/Cell/unmodifiable.html">unmodifiable</a></strong>: Returns a new <a href="../../cell_tissue/Cell-class.html">Cell</a> handle where the <a href="../../cell_tissue/Cell/modifiable.html">modifiable</a>
-list is effectively <strong>shadowed and emptied</strong>. Even if the principal
-cell defines authorized mutations, the deputy produced by this getter
-strips away that authority, ensuring <a href="../../cell_tissue/Cell/apply.html">apply</a> will always fail.</li>
+<li><strong><a href="../../cell_tissue/Cell/unmodifiable.html">unmodifiable</a></strong>: Returns a read-only projection of this cell.
+Mutations are rejected by the layered integrity gate, and direct
+mutation paths (such as <a href="../../cell_tissue/ValueCell/value.html">ValueCell.value</a> assignment) are sealed.</li>
 </ul>
 <h3 id="when-to-use">When to use</h3>
 <p>Use this to follow the <strong>Principle of Least Privilege</strong>. Pass an
@@ -90,22 +89,20 @@ plugins that need to react to state changes but should never be allowed
 to trigger them.</p>
 <h3 id="how-it-works">How it works</h3>
 <ol>
-<li><strong>Integrity Gate Override</strong>: The deputy is initialized with
-<a href="../../cell_tissue/TestCell/readOnly-constant.html">TestCell.readOnly</a>, which automatically rejects all incoming <a href="../../cell_tissue/Pulse-class.html">Pulse</a>s.</li>
-<li><strong>State Sharing</strong>: The deputy shares the exact same underlying state,
-lock, and <a href="../../cell_tissue/Synapses-class.html">Synapses</a> as the principal cell, ensuring zero-latency
-reactivity without memory duplication.</li>
-<li><strong>Capability Stripping</strong>: The deputy’s <a href="../../cell_tissue/Cell/modifiable.html">modifiable</a> getter is
-hardcoded to return an empty iterable, removing all entry points for
-the dynamic command pattern.</li>
+<li><strong>Rule Layering</strong>: The projection layers <a href="../../cell_tissue/TestCell/readOnly-constant.html">TestCell.readOnly</a> on top
+of the principal's rule through the <code>validate</code> seam, so every vetted
+<a href="../../cell_tissue/Cell/apply.html">apply</a> action is rejected while pulses (non-Function objects) still
+propagate.</li>
+<li><strong>State Sharing</strong>: The projection shares the exact same underlying
+state, lock, and transformation pipeline as the principal cell,
+ensuring zero-latency reactivity without memory duplication.</li>
+<li><strong>Capability Enforcement</strong>: every <code>apply</code> — manifest member or not —
+is vetted by the integrity gate (<code>validate.action</code>). <a href="../../cell_tissue/TestCell/readOnly-constant.html">TestCell.readOnly</a>
+rejects every Function action, so an unmodifiable projection cannot
+be made to run code; the <a href="../../cell_tissue/Cell/modifiable.html">modifiable</a> manifest remains a capability
+declaration consumed by rules, not a bypass switch. Direct write
+paths are sealed separately.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Identity Logic</strong>: While the deputy is a different object instance, it
-maintains logical identity with the principal for structural comparisons.</li>
-<li><strong>Reactivity Flow</strong>: The deputy remains a fully functional reactive
-node; it simply acts as an "Egress-Only" valve in the topology.</li>
-</ul>
 <h3 id="example-encapsulating-domain-logic">Example: Encapsulating Domain Logic</h3>
 <pre class="language-dart"><code class="language-dart">class UserAccount {
   // The internal, private state that allows mutations
@@ -122,7 +119,21 @@ node; it simply acts as an "Egress-Only" valve in the topology.</li>
 </code></pre>
 <h3 id="returns">Returns:</h3>
 <p>A <a href="../../cell_tissue/Cell-class.html">Cell</a> instance representing a read-only projection of the current
-node, with a nullified <a href="../../cell_tissue/Cell/modifiable.html">modifiable</a> manifest.</p>
+node.</p>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> hand a UI / auditor a read-only view of a Cell; least-privilege egress.
+<strong>When NOT to use:</strong> as a copy — it is a live proxy sharing the principal's state.
+<strong>Live signature:</strong> <code>Cell get unmodifiable</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.deputy</code> (parameterized attenuation; <code>unmodifiable</code> is the fixed read-only case).
+<strong>Guide:</strong> <code>guide/HowTo-DeputyContext.md</code> (deputies)
+<strong>Example:</strong> <code>example/cell_example.dart</code>
+<strong>Cross-layer:</strong> the Tissue equivalent is <code>.unmodifiable</code> on <code>TissueList</code> / <code>TissueMap</code> / <code>TissueSet</code> / <code>TissueQueue</code> / <code>TissueValue</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final c = Cell.state&lt;int&gt;(initial: 1);
+final ro = c.cell.unmodifiable;
+print(ro);
+</code></pre>
 </section>
 
     
@@ -158,7 +169,7 @@ node, with a nullified <a href="../../cell_tissue/Cell/modifiable.html">modifiab
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -143,8 +143,7 @@ void _invokeOnError(
 /// ### See Also
 /// - [AiTissueCommandBatch]: Batch of sentences in one port call.
 /// - [AiTissueCommandWithRetry]: Retry policy over the port call.
-class AiTissueCommand<S> extends FlowInstructionBase<Cell, Pulse, Pulse>
-    with FlowInstructionMixin<Cell, Pulse, Pulse> {
+class AiTissueCommand<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// The wrapped interpreter.
   final Interpreter interpreter;
 
@@ -303,19 +302,10 @@ class AiTissueCommand<S> extends FlowInstructionBase<Cell, Pulse, Pulse>
 ///    the list is emitted as one `Pulse<List<Object>>`, tagged
 ///    with `'AiTissueCommandBatch'`.
 ///
-/// ### Non‑obvious
-/// - **One HTTP call per sentence**: Deliberate, so the traffic
-///   log can attribute each reply to a specific sentence.
-/// - **Mixed replies**: A batch that produces three commands and
-///   one refusal emits all four in the list.
-/// - **Order preservation**: The output list matches the input
-///   order even if some sentences time out.
-///
 /// ### See Also
 /// - [AiTissueCommand]: Single-sentence sibling.
 /// - [AiTissueCommandWithRetry]: Retry sibling.
-class AiTissueCommandBatch<S> extends FlowInstructionBase<Cell, Pulse, Pulse>
-    with FlowInstructionMixin<Cell, Pulse, Pulse> {
+class AiTissueCommandBatch<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// The wrapped interpreter.
   final Interpreter interpreter;
 
@@ -465,8 +455,7 @@ class AiTissueCommandBatch<S> extends FlowInstructionBase<Cell, Pulse, Pulse>
 /// - [AiTissueCommand]: Single-shot sibling.
 /// - [AiTissueCommandBatch]: Batch sibling.
 class AiTissueCommandWithRetry<S>
-    extends FlowInstructionBase<Cell, Pulse, Pulse>
-    with FlowInstructionMixin<Cell, Pulse, Pulse> {
+    extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// The wrapped interpreter.
   final Interpreter interpreter;
 

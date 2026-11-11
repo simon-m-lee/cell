@@ -82,14 +82,6 @@ You don't call it directly.</p>
 <li>The operation is designed to occur within the synchronisation <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> of
 the <code>tissue</code>, ensuring atomicity.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The method is wrapped in a <code>try‑catch</code> to handle edge cases where the
-underlying store might be fixed‑length (throwing an <a href="https://api.flutter.dev/flutter/dart-core/UnsupportedError-class.html">UnsupportedError</a>).</li>
-<li>If the element is a <a href="../../cell_tissue/Cell-class.html">Cell</a> and the addition succeeds, the link is
-established. If the element was already present (in a Set), the link
-is still established if it's a new reference.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>tissue</code>: The <a href="../../cell_tissue/Tissue-class.html">Tissue</a> instance that owns this container.</li>
@@ -146,7 +138,7 @@ bool add(Tissue&lt;E&gt; tissue, E e) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

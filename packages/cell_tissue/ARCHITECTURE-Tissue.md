@@ -81,7 +81,7 @@ list.add(x)
 TestTissue  ──reject──► no write, no event
     │ accept
     ▼
-TissueReceptor / apply (whitelisted method)
+TissueReceptor / apply (integrity-gated command)
     │
     ▼
 Container (physical List/Set/Map/Queue)  under Lock
@@ -96,13 +96,14 @@ events. Only mutations *after* construction do.
 **Batch validation is per-element.** `addAll` skips invalid members; it
 does not fail the whole call.
 
-**The `modifiable` manifest is the public contract.** `TissueList`,
-`TissueSet`, `TissueMap`, `TissueQueue`, and `TissueValue` each expose a
-`modifiable` iterable of functions. Every mutation routed through
-`apply(function, …)` first checks `modifiable.contains(function)`. An
-unmodifiable view has an empty `modifiable`, so an external dispatcher
-that consults the manifest can deny a verb **before** the tissue lock is
-taken.
+**`modifiable` is a capability manifest, not an enforcement point.**
+`TissueList`, `TissueSet`, `TissueMap`, `TissueQueue`, and `TissueValue`
+each expose a `modifiable` iterable of functions, and an unmodifiable
+view exposes an empty one — a dispatcher may consult it to deny a verb
+before taking the tissue lock (the `nl-instruction-tissue-set` demo does
+exactly this). Authorization itself is decided by the integrity gate
+(`TestTissue` through the `validate` seam): every `apply` is vetted,
+whitelisted or not.
 
 ---
 
@@ -127,14 +128,9 @@ the view without going through `deputy()` if you prefer a factory.
 
 **Dispatch-side gate.** A deputy’s empty `modifiable` is the mechanism a
 dispatcher uses to deny a verb without attempting the mutation. The
-sibling demos exercise this directly: the dispatch instruction consults
-`host.modifiable.contains(tearOff)` before calling the tear-off, so an
-unmodifiable host is denied at the gate.
-
-**Snapshot caveat.** In some builds, `.unmodifiable` may be a snapshot
-rather than a live view. Verify the header of the demo or the docstring
-of `.unmodifiable` before relying on liveliness; the two behaviours are
-indistinguishable from an observer that subscribes after install.
+`nl-instruction-tissue-set` demo exercises this directly: its dispatch
+instruction consults `host.modifiable.contains(tearOff)` before calling
+the tear-off, so an unmodifiable host is denied at the gate.
 
 ---
 
@@ -148,7 +144,7 @@ indistinguishable from an observer that subscribes after install.
 | Signal | `Pulse` | `TissuePulse` (is a `Pulse`) |
 | Storage | `Box<V>` | `Container` strategy + `TissueContainer` |
 | Restricted view | `Cell.deputy` / `.unmodifiable` | same, plus deep element projection |
-| Command whitelist | `Cell.modifiable` | `Tissue.modifiable` (per collection type) |
+| Command manifest | `Cell.modifiable` | `Tissue.modifiable` (per collection type) |
 
 Use **cell** when the unit of change is one atom. Use **tissue** when the
 unit of change is membership or an indexed/keyed structure, and you want
@@ -169,7 +165,7 @@ or a value write belongs on a `Tissue`. Passing a `TestCell` where a
 `TestTissue` is expected is a type error; wrapping one in the other is a
 layering error.
 
-**TissueValue vs ValueCell** (also `docs/InDepth-CollectiveValue-vs-ValueCell.md`):
+**TissueValue vs ValueCell**:
 `TissueValue` implements `ValueCell` but uses `TissueValueNucleus`,
 `TestTissue`, and `TissueReceptor`. Prefer `Cell.state` / `ValueCell`
 for a lightweight scalar; prefer `TissueValue` when the scalar must
@@ -322,24 +318,19 @@ on a plain Dart working list (`_rtuWork`, `_pushWork`, `_issuerWork`).
 A downstream observer can still subscribe to the queue's `ElementAdded`
 pulses to reconstruct every outbound attempt.
 
-### 8.2 Tissue-cell observer caveat
-
-In this build, `Cell.observe` on a **Tissue** cell does not deliver
-pulses to observer effects. The demos emit trace prints from the
-**writers** themselves — the gate observers, the pump methods, the
-money methods, and the scenario code in `main()`.
-
-The pattern is portable: subscribe with `Cell.observe` when the Tissue
-is a source for Flow; emit prints from the writer when the Tissue write
-is the observable event.
-
 ---
 
 ## 9. Current status and known gaps
 
-- **Alpha.** `publish_to: none`. No independent audit. `test/` is
-  minimal in this package.
-- **`example/` now ships four end-to-end demos**, each with an
+- **Stable (package version `1.0.0`).** The published pub.dev package is
+  still `1.0.0-rc.9` until the stable release is published. No
+  independent security or correctness audit has been performed.
+- **Verification:** the full test suite passes — **362 tests** — and
+  `dart doc .` exits with 0 warnings and 0 errors. `dart analyze lib`
+  reports two pre-existing info-level style lints
+  (`curly_braces_in_flow_control_structures` in
+  `lib/src/tissue_pulse.dart`); the library is otherwise clean.
+- **`example/` ships four end-to-end demos**, each with an
   `*-Demo.dart`, a `*-WalkThrough.md`, a `*-FEATURES.md`, and a
   `*-ARCHITECTURE.md`:
   - `card-auth-pipeline(tissue)-*` — payments books
@@ -354,18 +345,27 @@ is the observable event.
   do take initial data on the main factory.
 - **`TissueMap` constructor** puts `testRule` on the
   `TissueMapNucleus`, passed via `properties:`.
-- **`addAll` skips invalid elements silently** — easy to miss in UI
-  unless you count before/after or log in a custom `TestTissue`.
+- **`addAll` skips invalid elements silently** — by design of the
+  `TestTissue` gate; count before/after or log in a custom `TestTissue`
+  if you need to observe rejections.
 - **Queue overflow** drops the oldest element with no dedicated event
   documented as distinct from a normal remove.
 - **`TissueQueue` does not drain** via `removeFirst` / `remove` in this
-  build.
-- **`Cell.observe` on a Tissue cell is silent** in this build.
-- **`.unmodifiable` may be a snapshot** in some builds. Verify the
-  docstring or the demo header before relying on liveliness.
-- **No joint commit** across multiple Tissues in this build. The demos
-  use the v1 compensation ladder; `Cell.transaction` is the migration
-  target.
+  build (see the `ai-do-not-drain-tissuequeue` macro).
+- **`Cell.observe` on a Tissue cell works** — tissue broadcasts are
+  regular pulses and observer wiring is covered by the suite
+  (`tissue_map_test.dart`, AI-guide examples). Older builds were silent
+  here; if you see no delivery, the cell was never mutated or the
+  observer was linked to a projection.
+- **`.unmodifiable` is live**, not a snapshot — a fitness test
+  (`unmodifiable_is_live_test.dart`) proves the projection reflects
+  source mutations.
+- **No joint commit** across multiple Tissues is exercised by the suite
+  in this build. `Cell.txApply` integration with a single tissue is
+  covered (`tissue_queue_test.dart`); the demos use the v1 compensation
+  ladder, and `Cell.transaction` is the migration target for
+  multi-tissue atomicity. Verify a multi-tissue transaction against the
+  current source before relying on it.
 - **Isolates.** Locks make mutations atomic on one isolate; they do not
   share a tissue across isolates.
 - **Marketing claims** in the previous README (AI-native tier,

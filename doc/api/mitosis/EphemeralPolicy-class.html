@@ -89,19 +89,6 @@ budget, or any other quota you choose.</li>
 <li><code>onInvalidate</code>: invoked when the policy reaches its terminal condition.
 Perform any cleanup and return <code>true</code> to confirm the node was reclaimed.</li>
 </ul>
-<h3 id="non-obvious">Non-obvious</h3>
-<ul>
-<li>The TTL timer starts lazily on the <strong>first interaction</strong>, not at policy
-creation.</li>
-<li>If both <a href="../mitosis/EphemeralPolicy/duration.html">duration</a> and <a href="../mitosis/EphemeralPolicy/eventLimit.html">eventLimit</a> are set, whichever condition fires
-first triggers invalidation.</li>
-<li>A shared policy is ticked <strong>once per pulse</strong> regardless of how many
-governed cells that pulse visits. Without this per-policy, per-pulse
-guard, a pulse emitted by the head of a bound chain would be counted
-again at every governed downstream cell that inherits the same policy.</li>
-<li>A body that hosts its own policy is governed exclusively by it: its
-<code>isInvalidated</code> reflects only the body's policy, not the head's.</li>
-</ul>
 <h3 id="example-cache-with-a-5-minute-ttl">Example: cache with a 5-minute TTL</h3>
 <pre class="language-dart"><code class="language-dart">final cachePolicy = EphemeralPolicy(
   duration: Duration(minutes: 5),
@@ -259,6 +246,19 @@ interaction vectors.
 
 </dd>
 
+        <dt id="invalidate" class="callable">
+  <span class="name"><a href="../mitosis/EphemeralPolicy/invalidate.html">invalidate</a></span><span class="signature">(<wbr><span class="parameter" id="invalidate-param-cell"><span class="type-annotation">C</span> <span class="parameter-name">cell</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Manually runs the invalidation sequence of this policy.
+  
+
+</dd>
+
         <dt id="noSuchMethod" class="callable inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
     <span class="returntype parameter">&#8594; dynamic</span>
@@ -353,7 +353,7 @@ interaction vectors.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -79,17 +79,6 @@ otherwise trigger race conditions if executed in isolation.</li>
 scope are staged. Only when the scope completes successfully are the
 changes committed and propagated through the reactive graph. If an error
 occurs, the staged pulses are discarded (rolled back).</p>
-<h3 id="nonobvious">Non‑obvious:</h3>
-<ul>
-<li><strong>Pulse Consolidation</strong>: Downstream cells only observe the <em>final</em>
-state of the graph at the end of the transaction, effectively
-debouncing intermediate transitions.</li>
-<li><strong>Forensic Framing</strong>: All evolutions within the scope are tagged
-with a <code>TransactionID</code>, allowing forensic tracers to identify
-mutations belonging to the same atomic block.</li>
-<li><strong>Reentrancy</strong>: If called inside an existing transaction, it joins
-the parent scope rather than creating a nested one.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>options</code>: Configuration including the <code>action</code> closure, security
@@ -107,6 +96,23 @@ walkthrough of bank transfer logic and multi-node consistency.
 {@category Advanced}
 {@category txApply}</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> The BRD says two retained facts move together or not at all, or an external act can fail after a local write — participants are <strong>Tissue books</strong>, with <code>apply</code> + <code>compensate</code>.
+<strong>When NOT to use:</strong> one book with no undo (an ordinary Tissue write from <code>Cell.observe</code>); never wrap <code>riskOf</code> (policy is pure).
+<strong>Live signature:</strong> <code>Cell.txApply([TxApplyOptions options = const TxApplyOptions()])</code> → <code>ApplyTransactionScope</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.transaction</code> (coordinates <code>ValueCell</code>, not Tissue).
+<strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §3.4 "Cell.txApply — the only atomic commit, on Tissue" (#cell-txapply)
+<strong>Example:</strong> <code>example/atomic_multi_update.dart</code>
+<strong>Cross-layer:</strong> the books written inside the commands are <code>cell_tissue</code> collections.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final counter = Cell.state&lt;int&gt;(initial: 0);
+final tx = Cell.txApply();
+await tx.execute(participants: [counter.cell], body: (scope) {
+  counter.update(5); // staged — committed when execute completes
+});
+print(counter.cell.value);
+</code></pre>
 </section>
 
 
@@ -144,7 +150,7 @@ walkthrough of bank transfer logic and multi-node consistency.
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

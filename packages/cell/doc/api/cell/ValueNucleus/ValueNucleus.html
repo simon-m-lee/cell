@@ -79,12 +79,6 @@ cell.</p>
 pipeline from the <code>transform</code> function, and integrates the commitment
 rule. If you provide a custom <code>receptor</code>, you must manually include
 <code>ValueCell.postProcessRule</code> to persist state.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The initial <code>state</code> is written directly to the Box, bypassing the
-transform – it's considered a trusted seed.</li>
-<li>If <code>transform</code> is provided, it overrides the <code>receptor</code> parameter.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>transform</code>: <strong>Transformation Logic.</strong> An optional function defining
@@ -167,7 +161,7 @@ traits carried by the nucleus blueprint.</li>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

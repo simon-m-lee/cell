@@ -74,13 +74,6 @@ the pulse is automatically invalidated.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The timer starts on the first interaction with a cell. If the pulse
 is never processed, the timer never starts, avoiding unnecessary overhead.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The timer is reset if you set a new <code>duration</code>? No, it's set at
-construction and cannot be changed.</li>
-<li>If both TTL and hop limit are set, the first one to fire triggers
-invalidation.</li>
-</ul>
 <h3 id="returns">Returns:</h3>
 <p>The <a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a> for the TTL, or <code>null</code> if no TTL is set.</p>
 </section>
@@ -120,7 +113,7 @@ invalidation.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

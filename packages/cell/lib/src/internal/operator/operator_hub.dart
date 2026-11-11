@@ -33,13 +33,6 @@ part of '../../../cell.dart';
 /// It then loops through its registered spokes and applies the chosen
 /// routing strategy to find a match.
 ///
-/// ### Non‑obvious
-/// - **Priority**: If multiple spokes match in a non-multicast mode, the one
-///   with the highest priority wins.
-/// - **Longest-Prefix**: In `prefix` mode, the hub automatically selects
-///   the most specific match (e.g., 'user.login.success' will prefer a spoke
-///   named 'user.login' over a spoke named 'user').
-///
 /// ### Example
 /// ```dart
 /// // Setting up a prefix-based router
@@ -106,23 +99,6 @@ enum HubRouting {
 /// `SpokeRegistrations`. It compares the `Pulse.type` against the `key`
 /// (or runs the `match` predicate). If a match is found, the signal
 /// is routed to that spoke's internal cell.
-///
-/// ### Non‑obvious: the key becomes the spoke's role
-/// The `key` also becomes the `role` in the automatically generated
-/// [DeputyContext] if one isn't provided. This means the spoke's
-/// identity is derived from its routing address.
-///
-/// ### Non‑obvious: exactly one of handler or receptor must be provided
-/// A spoke can be defined either as a simple function (`handler`) or as
-/// a full reactive node (`receptor`). They are mutually exclusive — you
-/// must provide exactly one. The `handler` is wrapped into a [Receptor]
-/// internally if provided alone.
-///
-/// ### Non‑obvious: priority determines evaluation order
-/// Higher `priority` values are evaluated first. When multiple spokes
-/// match a signal and the hub is not in multicast mode, the one with the
-/// highest priority receives the pulse. This is how you ensure specific
-/// routes are preferred over general ones.
 ///
 /// ### Example: Basic Spoke Registration
 /// ```dart
@@ -262,7 +238,15 @@ HubHandle _hub({
   final effectiveMulticast = multicast || routing == HubRouting.multicast;
 
   // ── 2. Materialise spoke cells ─────────────────────────────
-  final Map<String, Cell> spokeCells = {};
+  // Keyed by REGISTRATION IDENTITY, not by `key`: two registrations may
+  // share a routing key (the documented priority-disambiguation use case),
+  // and a `Map<String, Cell>` would silently let the second one shadow the
+  // first so that every lookup resolves to the same spoke.
+  final Map<SpokeRegistration, Cell> spokeCells =
+      HashMap<SpokeRegistration, Cell>(
+    equals: identical,
+    hashCode: identityHashCode,
+  );
   for (final reg in ordered) {
     final role = reg.key;
     final spokeCell = Cell.governed(
@@ -271,21 +255,27 @@ HubHandle _hub({
       receptor: reg.receptor ?? Receptor(reg.handler!),
       synapses: distribution != null ? distribution(role) : Synapses.enabled,
     );
-    spokeCells[role] = spokeCell;
+    spokeCells[reg] = spokeCell;
   }
 
   // Optional fallback cell (created only when requested).
   Cell? fallbackCell;
   if (fallback != null) {
     // Re-use an existing spoke with that key, or create a silent sink.
-    fallbackCell = spokeCells[fallback] ??
+    SpokeRegistration? fallbackReg;
+    for (final reg in ordered) {
+      if (reg.key == fallback) {
+        fallbackReg = reg;
+        break;
+      }
+    }
+    fallbackCell = (fallbackReg == null ? null : spokeCells[fallbackReg]) ??
         Cell.governed(
           ephemeralPolicy: ephemeralPolicy,
           context: Context.module(fallback),
           receptor: Receptor.passThrough,
           synapses: Synapses.enabled,
         );
-    spokeCells.putIfAbsent(fallback, () => fallbackCell!);
   }
 
   // ── 3. Matcher helpers ─────────────────────────────────────
@@ -335,17 +325,17 @@ HubHandle _hub({
       // Deliver to every matching spoke (already priority-ordered).
       for (final reg in ordered) {
         if (matches(reg, type)) {
-          targets.add(spokeCells[reg.key]!);
+          targets.add(spokeCells[reg]!);
         }
       }
     } else if (routing == HubRouting.prefix) {
       final best = longestPrefixMatch(type);
-      if (best != null) targets.add(spokeCells[best.key]!);
+      if (best != null) targets.add(spokeCells[best]!);
     } else {
       // exact / pattern – first (highest priority) match wins
       for (final reg in ordered) {
         if (matches(reg, type)) {
-          targets.add(spokeCells[reg.key]!);
+          targets.add(spokeCells[reg]!);
           break;
         }
       }
@@ -369,7 +359,10 @@ HubHandle _hub({
     receptor: receptor,
     testRule: testRule,
     synapses: Synapses(
-      downstreams: spokeCells.values,
+      downstreams: {
+        ...spokeCells.values,
+        if (fallbackCell != null) fallbackCell
+      },
       relay: relay ?? defaultRelay,
     ),
     bind: bind,
@@ -398,7 +391,7 @@ HubHandle _hub({
 
   return (
     root: cell,
-    spokes: spokeCells.values,
+    spokes: {...spokeCells.values, if (fallbackCell != null) fallbackCell},
     emit: emit,
     emitAsync: emitAsync,
     ingest: ingest,
@@ -461,9 +454,9 @@ bool _globMatch(String pattern, String text) {
     final c = pattern[i];
     switch (c) {
       case '*':
-        buf.write('.*');
+        buf.write('.*'); break;
       case '?':
-        buf.write('.');
+        buf.write('.'); break;
       case '.':
       case '+':
       case '(':
@@ -476,7 +469,7 @@ bool _globMatch(String pattern, String text) {
       case '^':
       case r'$':
       case r'\':
-        buf.write(r'\' + c);
+        buf.write(r'\' + c); break;
       default:
         buf.write(c);
     }

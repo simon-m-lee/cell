@@ -71,12 +71,6 @@ sending a network request.</p>
 <p>The handle contains a terminal cell that receives pulses from its
 <code>bind</code> source. You can <code>start</code> or <code>stop</code> the observer to enable/disable
 side effect execution.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The cell is terminal – it never propagates pulses further.</li>
-<li><code>stop</code> doesn't remove the cell from the graph; it just pauses
-side effect execution.</li>
-</ul>
 </section>
 
     
@@ -118,7 +112,7 @@ side effect execution.</li>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

@@ -86,13 +86,6 @@
 element — the pulse itself.</li>
 <li>For an evolved pulse: returns an iterator over the entire chain.</li>
 </ul>
-<h3 id="nonobvious-a-collective-iterates-over-itself-not-its-payload">Non‑obvious: a collective iterates over itself, not its payload</h3>
-<p>For a <a href="../../mitosis/CollectivePulse-class.html">CollectivePulse</a>, iterating over the collective yields the
-collective as a single item, not its constituent pulses. To access the
-individual pulses, use the <a href="../../mitosis/UnmodifiablePulseBase/payload.html">payload</a> getter:</p>
-<pre class="language-dart"><code class="language-dart">for (final p in collective) { } // one item (the collective)
-for (final p in collective.payload) { } // all sub‑pulses
-</code></pre>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final collective = Pulse&lt;int&gt;(1) + Pulse&lt;String&gt;('hello');
 for (final p in collective) {
@@ -135,7 +128,7 @@ Iterator&lt;PulseBase&gt; get iterator =&gt; _pulses.iterator;</code></pre>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

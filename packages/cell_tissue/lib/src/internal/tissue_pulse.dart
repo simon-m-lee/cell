@@ -74,15 +74,6 @@ class _CollectiveTissueEvent<E> extends CollectiveTissueEventBase<E> {
 /// - The `+` operator flattens nested collectives – you always get a
 ///   single, flat list of events.
 ///
-/// ### Non‑obvious
-/// - The collective does **not** create a causal relationship between its
-///   members. Each event keeps its own `parent` and `trace`.
-/// - The collective's [root] is itself – it's a root collective.
-/// - If the iterable is empty, the collective is still valid – it just has
-///   `null` payload and `isComposite` `true`.
-/// - Evolution (`evolve`) on a collective turns it into an
-///   [EvolvedTissuePulse] (a chain), not another collective.
-///
 /// ### Example: Iterating over a batch
 /// ```dart
 /// final batch = CollectiveTissuePulse.from([addEvent, removeEvent]);
@@ -102,6 +93,9 @@ class _CollectiveTissueEvent<E> extends CollectiveTissueEventBase<E> {
 abstract class CollectiveTissueEventBase<E>
     extends TissuePulseBase<Iterable<Pulse<E>>>
     implements CollectiveTissuePulse<E>, CollectivePulse<E> {
+  @override
+  bool get isComposite => true;
+
   /// Creates a collective from the given [pulses] (which are actually
   /// `TissuePulse<E>` instances).
   ///
@@ -256,15 +250,6 @@ class _EvolvedTissueEvent<E> extends EvolvedTissueEventBase<E> {
 ///   duplicate data.
 /// - The `_branches` counter is incremented by one to track completion across
 ///   the chain.
-///
-/// ### Non‑obvious
-/// - Unlike a [CollectiveTissuePulse], this is a **chain**, not a flat bundle.
-///   The `+` operator on an evolved event creates a collective (a batch), not
-///   a longer chain.
-/// - The [parent] is never `null` – the root event (the original) is the only
-///   one without a parent.
-/// - When you call `evolve` again, you get a new `EvolvedTissueEvent` that
-///   links back to the previous one.
 ///
 /// ### Example: building a chain
 /// ```dart
@@ -515,7 +500,10 @@ mixin _TissueEventMixin<E> on Pulse<E> {
   /// ### Returns:
   /// The [Tissue] that caused this event, or `null` if unknown.
   @override
-  Tissue? get source => super.source as Tissue?;
+  Tissue? get source {
+    final src = super.source;
+    return src is Tissue ? src : null;
+  }
 
   /// The primordial ancestor of this event's causal lineage.
   ///
@@ -581,17 +569,6 @@ mixin _TissueEventMixin<E> on Pulse<E> {
 ///   tissue, and a full causal [trace].
 /// - The event is immutable – it represents a fact that has already occurred.
 /// - You can [evolve] the event to add a step to its trace or change its context.
-///
-/// ### Non‑obvious
-/// - The event is a [Pulse] – it participates in the same reactive propagation
-///   system as any other signal. It can be evolved, batched, and observed.
-/// - The event is emitted **after** the mutation, not before. If you need to
-///   capture the before state, records like [ElementUpdatedRecord] or [EntryUpdatedRecord]
-///   include it in the payload.
-/// - For batch operations (addAll, removeAll), the payload may be an iterable
-///   of elements, not a single one.
-/// - `null` values are valid payloads – they represent the removal or clearing
-///   of a value.
 ///
 /// ### Example: Observing changes
 /// ```dart
@@ -671,10 +648,10 @@ abstract class TissuePulseBase<E> extends PulseBase<E>
           policy: policy,
           context: context,
           payload: payload,
-          // [PulseBase.mask] only accepts a String? type tag, so a
-          // [TissueEvent] classification is carried in the dynamic `user`
-          // slot and surfaced through the overridden [type] getter below.
-          type: type is TissueEvent ? null : type,
+          // PulseBase.mask stores `type` as dynamic — a TissueEvent is a
+          // legitimate classifier, so it goes in the type slot directly and
+          // `user` stays user metadata.
+          type: type,
           timestamp: timestamp,
           source: source,
           step: step,
@@ -685,19 +662,8 @@ abstract class TissuePulseBase<E> extends PulseBase<E>
           pulse: pulse,
           parent: parent,
           scrutinize: scrutinize,
-          user: type is TissueEvent ? type : user,
+          user: user,
         ));
-
-  /// The semantic classification of this tissue pulse.
-  ///
-  /// When the pulse represents a structural mutation, this returns the
-  /// corresponding [TissueEvent] enum value. For governed or custom pulses
-  /// carrying a string type tag, the original [Pulse.type] value is returned.
-  @override
-  dynamic get type {
-    final user = get<dynamic>(() => _record.root.tertiary.user, orElse: null);
-    return user is TissueEvent ? user : super.type;
-  }
 
   /// Low‑level constructor that takes a raw [Record].
   ///
@@ -889,14 +855,6 @@ class _UnmodifiableTissueEvent<E> extends UnmodifiableTissueEventBase<E> {
 ///   barrier to derivation.
 /// - The `+` operator combines this event into a collective.
 ///
-/// ### Non‑obvious
-/// - This is a zero‑copy projection – the underlying data is not duplicated.
-/// - It is recursive: `parent` and `root` are also unmodifiable projections.
-/// - For composite events (collectives), iteration yields unmodifiable
-///   projections of each sub‑event.
-/// - The [shell] getter on an unmodifiable event still works – it wraps
-///   the projection in a defensive shell.
-///
 /// ### Example
 /// ```dart
 /// final list = TissueList.of([1]);
@@ -958,7 +916,10 @@ abstract class UnmodifiableTissueEventBase<E> extends UnmodifiablePulseBase<E>
   /// ### Returns:
   /// The [Tissue] that caused this event, or `null` if unknown.
   @override
-  Tissue? get source => super.source as Tissue?;
+  Tissue? get source {
+    final src = super.source;
+    return src is Tissue ? src : null;
+  }
 
   /// The primordial ancestor of this event lineage.
   ///
@@ -1053,19 +1014,6 @@ abstract class UnmodifiableTissueEventBase<E> extends UnmodifiablePulseBase<E>
 ///   for that bucket.
 /// - The order of elements within each group preserves the original iteration
 ///   order (insertion order).
-///
-/// ### Non‑obvious
-/// - The function returns a **new** [Map] – the original iterable is not
-///   modified.
-/// - The keys are determined by the [key] function **at the time of grouping**.
-///   If the elements are mutable and change later, the grouping is not updated
-///   automatically – you would need to re‑run [groupBy].
-/// - The values in the resulting map are **new lists** – they are not the same
-///   lists as the original iterable. Modifying them does not affect the source.
-/// - The function is **lazy** in the sense that it only iterates over the
-///   [values] once, but it eagerly collects all elements into the map.
-/// - If the [key] function returns `null` for some elements, they are grouped
-///   under the key `null` (since Dart maps allow null keys).
 ///
 /// ### Example: Grouping tasks by priority
 /// ```dart

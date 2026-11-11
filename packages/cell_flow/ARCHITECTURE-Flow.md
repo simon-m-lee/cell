@@ -260,11 +260,6 @@ Instruction files stay implementation detail except when you construct
 
 ## 10. Status
 
-Intended design for the instruction-based Flow layer described above.
-Verify guarantees against current source. Experimental trees
-(`instruction2/`, unused nucleus blueprints) are out of scope for this
-document unless `Flow.*` imports them.
-
 If cell’s architecture document is the foundation, this file is the
 operator storey on top of it: same graph, named policies, three ways in
 (`Flow.*`, fluent, `InstructionChain`).

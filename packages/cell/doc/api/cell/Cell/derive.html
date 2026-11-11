@@ -100,21 +100,6 @@ logic is invoked within the cell's transformation pipeline.</li>
 immediately. If it returns a pulse of type <code>O</code>, the signal continues
 its lineage to downstream observers.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Stateless Nature</strong>: A derived cell does not possess its own <a href="../../cell/Box-class.html">Box</a> or
-persistent storage. It is a functional transformer that operates lazily;
-it only synthesizes a value when a stimulus flows through from the <code>source</code>.</li>
-<li><strong>Causal Integrity</strong>: To maintain the <strong>Chain of Evidence</strong>, the
-<code>project</code> function should return a pulse created via <code>input.evolve()</code>.
-This preserves the <strong>Contextual Lineage</strong>, allowing the framework to
-trace the resulting signal back to its primordial root for debugging
-and security auditing.</li>
-<li><strong>The Valve Pattern</strong>: Returning <code>null</code> is the framework's idiomatic way
-to implement <strong>Signal Neutralization</strong>. This stops the propagation
-immediately, ensuring that downstream observers are never notified
-of irrelevant or unauthorized state transitions.</li>
-</ul>
 <h3 id="example-transforming-and-filtering">Example: Transforming and Filtering</h3>
 <pre class="language-dart"><code class="language-dart">// Derives a count, but only pulses if the text is not empty
 final countCell = Cell.derive&lt;StringPulse, IntPulse&gt;(
@@ -134,6 +119,25 @@ input pulse to an output pulse. Return <code>null</code> to suppress the signal.
 <h3 id="returns">Returns:</h3>
 <p>A new <a href="../../cell/Cell-class.html">Cell</a> instance representing the reactive projection of the <code>source</code>.
 {@category Core 16 Operators}</p>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> A BRD says "show X derived from Y" — pure projection, no policy branches.
+<strong>When NOT to use:</strong> policy clauses (that is a <code>cell_flow</code> instruction); retained storage (that is <code>Cell.state</code>).
+<strong>Live signature:</strong> <code>Cell.derive&lt;I extends Pulse, O extends Pulse&gt;({required Cell source, required O? Function(I) project})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.synthesis</code> (fan-in from many sources, not 1-to-1).
+<strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)
+<strong>Example:</strong> <code>example/derive_demo.dart</code>
+<strong>Cross-layer:</strong> a projection of a rich <code>*Decision</code> onto a seam enum is <code>MapValue</code> in <code>cell_flow</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final dbl = Cell.derive&lt;Pulse&lt;int&gt;, Pulse&lt;int&gt;&gt;(
+  source: src.cell,
+  project: (p) =&gt; Pulse&lt;int&gt;((p.payload ?? 0) * 2),
+);
+final o = Cell.observe(source: dbl, effect: (Pulse p) =&gt; print(p.payload));
+src.emit(21);
+o.stop();
+</code></pre>
 </section>
 
 
@@ -184,7 +188,7 @@ input pulse to an output pulse. Return <code>null</code> to suppress the signal.
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

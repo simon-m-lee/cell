@@ -95,16 +95,6 @@ found, it "walks up" to the <code>principal</code> and asks for the property the
 <li>This is the engine behind zero‑copy deputies: they reuse the principal's
 logic and storage without duplicating anything.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The type is overridden to <code>TissueListNucleusBase&lt;E, C&gt;?</code> instead of the
-generic <code>Nucleus?</code>. This is a covariant override that ensures you get a
-properly typed principal when you need to access list‑specific methods.</li>
-<li>The chain ends when this getter returns <code>null</code> – that's the "root" nucleus.</li>
-<li>Even though the getter is <code>public</code>, it's intended for internal framework
-use. Mutating or replacing the principal after construction is not
-supported – the nucleus is immutable.</li>
-</ul>
 <h3 id="example-internal">Example (Internal)</h3>
 <pre class="language-dart"><code class="language-dart">final list = TissueList&lt;int&gt;();
 final deputy = list.deputy(testRule: TestTissue.readOnly);
@@ -151,7 +141,7 @@ TissueListNucleusBase&lt;E, C&gt;? get principal =&gt;
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

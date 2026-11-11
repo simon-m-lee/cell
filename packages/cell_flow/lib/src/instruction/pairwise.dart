@@ -120,17 +120,6 @@ Pulse<A> _out<A>(A value, Pulse trigger, Cell? cell, String step) {
 /// 4. The instruction preserves causal provenance.
 /// 5. Each emitted value gets the step `'Pairwise'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **Sliding Window**: Only the last two values are kept.
-/// - **First Pulse Silent**: The first pulse is not emitted.
-/// - **State Persistence**: Only the previous value is stored (O(1) memory).
-/// - **Order Preservation**: Results are emitted in input order.
-/// - **Error Handling**: Type errors are reported via [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Type Safety**: The instruction is generic over [S] (input type),
-///   ensuring compile-time type safety.
-/// - **Memory Efficiency**: Only the previous value is stored.
-///
 /// ### Example: Adjacent Pairs
 /// ```dart
 /// final ticks = Cell.ingress<int>();
@@ -235,8 +224,8 @@ class Pairwise<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   Pairwise({
     PairwiseErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             final state = _PrevState<S>();
             return (pulse, {cell, user}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -256,7 +245,7 @@ class Pairwise<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 'Pairwise',
               );
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -294,16 +283,6 @@ class Pairwise<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. The current value becomes the previous value for the next pair.
 /// 5. The instruction preserves causal provenance.
 /// 6. Each emitted value gets the step `'PairwiseWith'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Custom Combination**: The [combine] function defines what to emit.
-/// - **First Pulse Silent**: The first pulse is not emitted.
-/// - **State Persistence**: Only the previous value is stored (O(1) memory).
-/// - **Error Handling**: Errors in [combine] are reported via [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Type Safety**: The instruction is generic over [S] (input) and
-///   [T] (output), ensuring compile-time type safety.
-/// - **Memory Efficiency**: Only the previous value is stored.
 ///
 /// ### Example: Deltas
 /// ```dart
@@ -410,8 +389,8 @@ class PairwiseWith<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     T Function(S previous, S current) combine, {
     PairwiseErrorHandler? onError,
     dynamic user,
-  }) : super(
-          (() {
+  }) : super.statefulSync(
+          () {
             final state = _PrevState<S>();
             return (pulse, {cell, user}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -436,7 +415,7 @@ class PairwiseWith<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                 return null;
               }
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -455,10 +434,6 @@ class PairwiseWith<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [prev]: The previous value in the stream.
 /// - [hasPrev]: Whether a previous value has been stored.
 ///
-/// ### Non‑obvious
-/// - **O(1) Memory**: Only one value is stored at a time.
-/// - **State Reset**: The state is not automatically reset; it persists
-///   for the lifetime of the instruction.
 class _PrevState<S> {
   S? prev;
   bool hasPrev = false;

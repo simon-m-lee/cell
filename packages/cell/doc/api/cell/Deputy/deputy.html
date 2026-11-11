@@ -88,15 +88,6 @@ principal's state and lock but applies the new rules.</li>
 <li>If all parameters are left at their defaults, the method returns
 <code>this</code> – no proxy is created.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The deputy's <code>testRule</code> is layered <em>on top</em> of the principal's rule.
-You can only narrow permissions, never expand them.</li>
-<li>Deputies are logically equal to their principal: <code>deputy == principal</code>
-is <code>true</code>, so they work seamlessly in <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a>s and <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a>s.</li>
-<li>The deputy gets its own independent <a href="../../cell/Synapses-class.html">Synapses</a> registry by default,
-so it can have its own observers separate from the principal.</li>
-</ul>
 <h3 id="common-patterns">Common patterns</h3>
 <ul>
 <li><strong>Read‑Only View</strong>: <code>testRule: TestCell.readOnly</code></li>
@@ -107,7 +98,8 @@ so it can have its own observers separate from the principal.</li>
 <h3 id="example-readonly-deputy">Example: read‑only deputy</h3>
 <pre class="language-dart"><code class="language-dart">final readOnly = await cell.deputy(testRule: TestCell.readOnly);
 readOnly.value;        // works
-readOnly.apply(...);   // blocked – modifiable whitelist is empty
+readOnly.apply(...);   // blocked – the layered readOnly rule rejects
+                       // whitelisted actions via the validate seam
 </code></pre>
 <h3 id="example-temporary-deputy-with-lease">Example: temporary deputy with lease</h3>
 <pre class="language-dart"><code class="language-dart">final temporary = await cell.deputy(
@@ -184,7 +176,7 @@ FutureOr&lt;C&gt; deputy({
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

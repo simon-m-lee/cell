@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="cell_api_chooser library API docs, for the Dart programming language.">
+  <title>cell_api_chooser library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">doc\api_chooser.dart</li>
+  </ol>
+  <div class="self-name">cell_api_chooser</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar=""
+    data-below-sidebar="cell_api_chooser&#47;cell_api_chooser-library-sidebar.html">
+  
+    <div>
+      
+
+      <h1>
+        <span class="kind-library">doc\api_chooser</span>
+        library 
+ 
+
+      </h1>
+    </div>
+
+    
+<section class="desc markdown">
+  <h2 id="api-chooser--cell">API Chooser — <code>cell</code></h2>
+<p><strong>Layer:</strong> Cell — graph nodes, ingress/observe, TestCell, transactions, deputies.
+Does <strong>not</strong> own: the decision (cell_flow), the books (cell_tissue).</p>
+<p><strong>Read this file when:</strong> a BRD sentence says "capture X", "retain X",
+"show X derived from Y", "commit two facts together", or "redact PII".</p>
+<p>The full decision procedure lives in the layer HowTo; this matrix
+is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</p>
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>When to use</th>
+<th>When NOT to use</th>
+<th>Live signature</th>
+<th>Guide</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Cell</code></td>
+<td>** Read this page when a BRD sentence names an external fact, a retained value, or a side effect; then pick one static factory below.</td>
+<td>** <strong>DON'T</strong> create a custom Cell type to encode business policy.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Policy belongs in a <code>FlowInstructionBase</code> subclass in <code>cell_flow</code>,</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>not in a Cell receptor.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>See <code>HowTo-Mitose-Flow.md</code> §4 "When the BRD requires a custom FlowInstruction". <code>Cell.gate</code>, <code>Cell.book</code>, <code>Cell.policy</code>, <code>Cell.pipeline</code> <strong>do not exist</strong>.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>The full public factory list is in <code>HowTo-Mitose-Cell.md</code> §2.</td>
+<td>** <code>abstract interface class Cell</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)</td>
+<td>** <code>example/cell_example.dart</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Cell.asyncMap</code></td>
+<td>** a background <code>Future</code> per pulse with concurrency control (<code>concurrency</code>, <code>latestOnly</code>, <code>exhaust</code>).</td>
+<td>** source selection (mapper returns a <code>Cell</code>) — that is <code>Cell.switchMap</code>; and never inside the policy decision itself.</td>
+<td>** <code>Cell.asyncMap&lt;S, T&gt;(Cell source, Future&lt;T&gt; Function(S value) mapper, {int concurrency = 0, bool latestOnly = false, bool exhaust = false})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)</td>
+<td>** <code>example/async_map_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Cell.debounce</code></td>
+<td>** wait for silence on a feed (belt chatter, search input, 15 s snapshots) — feed shaping <strong>before</strong> <code>publishTick</code>.</td>
+<td>** as the policy gate; Time operators shape feeds, they never <em>decide</em>. A "wait for silence" decision is still a <code>cell_flow</code> instruction concern.</td>
+<td>** <code>Cell.debounce(Cell source, Duration duration, {bool leading = false, EphemeralPolicy? ephemeralPolicy})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.6 "Time" (#flow-time)</td>
+<td>** <code>example/stability_search_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Cell.deputy</code></td>
+<td>** capability attenuation — read-only or narrowed-write views of a Cell for untrusted callers (UI, auditors).</td>
+<td>** to widen permissions (a deputy can only narrow); use <code>.unmodifiable</code> for the fixed read-only case.</td>
+<td>** <code>FutureOr&lt;Cell&gt; deputy({DeputyContext context = DeputyContext.system, TestCell testRule = TestCell.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>guide/HowTo-DeputyContext.md</code> (deputies)</td>
+<td>** <code>example/cell_example.dart</code></td>
+</tr>
+<tr>
+<td><code>Cell.derive</code></td>
+<td>** A BRD says "show X derived from Y" — pure projection, no policy branches.</td>
+<td>** policy clauses (that is a <code>cell_flow</code> instruction); retained storage (that is <code>Cell.state</code>).</td>
+<td>** <code>Cell.derive&lt;I extends Pulse, O extends Pulse&gt;({required Cell source, required O? Function(I) project})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)</td>
+<td>** <code>example/derive_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Cell.distinct</code></td>
+<td>** skip <em>consecutive</em> equal payloads (heartbeats, no-change ticks) before downstream work.</td>
+<td>** a latch that an ACK must reset — <code>Cell.distinct</code> has no <code>reset()</code>, so use a custom <code>cell_flow</code> instruction; global dedupe is <code>cell_flow</code>'s <code>Distinct</code>.</td>
+<td>** <code>Cell.distinct(Cell source, {bool Function(dynamic previous, dynamic next)? equals})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)</td>
+<td>** <code>example/distinct_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Cell.fromFuture</code></td>
+<td>** bridge a single <code>Future</code> result into the graph (one config load, one AODB lookup); emits at most once.</td>
+<td>** continuous sources — that is <code>Cell.fromStream</code>; imperative callbacks — that is <code>Cell.ingress</code>.</td>
+<td>** <code>Cell.fromFuture&lt;T&gt;(Future&lt;T&gt; future)</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.1 "Create" (#flow-create)</td>
+<td>** <code>test/receptor_instruction_future_test.dart</code></td>
+</tr>
+<tr>
+<td><code>Cell.fromNucleus</code></td>
+<td>** infrastructure only — hydrate a cell from a persisted / cloned <a href="../cell/Nucleus-class.html">Nucleus</a> blueprint.</td>
+<td>** application state — use <code>Cell.state</code> / <code>Cell.ingress</code> / <code>Cell.derive</code> first.</td>
+<td>** <code>Cell.fromNucleus(Nucleus nucleus)</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>guide/HowTo-Nucleus.md</code> (nucleus blueprints)</td>
+<td>** <code>example/open_cell_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Cell.fromStream</code></td>
+<td>** bridge an existing Dart <code>Stream</code> (PLC belt, WebSocket, <code>Stream.periodic</code>) into the graph.</td>
+<td>** a single value — that is <code>Cell.fromFuture</code>; imperative callbacks — that is <code>Cell.ingress</code>.</td>
+<td>** <code>Cell.fromStream&lt;T&gt;(Stream&lt;T&gt; stream, {bool cancelOnError = false, EphemeralPolicy? ephemeralPolicy})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.1 "Create" (#flow-create)</td>
+<td>** <code>test/operator_from_stream_test.dart</code></td>
+</tr>
+<tr>
+<td><code>Cell.governed</code></td>
+<td>** infrastructure nodes needing a TTL (<a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a>), explicit <a href="../cell/Context-class.html">Context</a>, or a private lock.</td>
+<td>** ordinary application state — <code>Cell.state</code> / <code>Cell.ingress</code> cover it.</td>
+<td>** <code>Cell.governed({ephemeralPolicy, context, bind, receptor, testRule, synapses, forceLock})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>guide/HowTo-EphemeralPolicy.md</code> (governance)</td>
+<td>** <code>example/open_cell_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Cell.hub</code></td>
+<td>** One bus with many pulse types routed by <code>Pulse.type</code> (pattern / prefix / multicast).</td>
+<td>** v1 product lanes — two <code>Cell.ingress</code> lanes are simpler; do not replace a policy instruction.</td>
+<td>** <code>Cell.hub({spokes, governedSpokes, registrations, routing, multicast, fallback, distribution, relay, source})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)</td>
+<td>** <code>example/hub_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Cell.ingress</code></td>
+<td>** A BRD says "capture X" (an external fact enters the system) — identity, class, quantity, location, tick bus, ACK.</td>
+<td>** <strong>DON'T</strong> create a custom Cell type to encode business policy.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Policy belongs in a <code>FlowInstructionBase</code> subclass in <code>cell_flow</code>,</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>not in a Cell receptor.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>See <code>HowTo-Mitose-Flow.md</code> §4 "When the BRD requires a custom FlowInstruction".</td>
+<td>** <code>Cell.ingress&lt;I&gt;({refine, ephemeralPolicy, source, context, receptor, testRule, synapses, forceLock})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>HowTo-Mitose-Cell.md</code> §3.1 "Cell.ingress — how the desk enters the graph" (#cell-ingress)</td>
+<td>** <code>example/ingress_demo.dart</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Cell.observe</code></td>
+<td>** A pulse has already been <em>decided</em> and a book / side effect must move — the <strong>only</strong> Flow → Tissue glue in a Mitose Demo.</td>
+<td>** <strong>DON'T</strong> put business logic in <code>Cell.observe</code>'s <code>effect</code>.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>effect</code> may write Tissue books, call <code>reset()</code>, enqueue pumps, print.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>It may <strong>not</strong> call <code>riskOf</code>, change <code>pass</code>, or call <code>toHandle</code>.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>See <code>HowTo-Mitose-Cell.md</code> §3.2 "Cell.observe — the only Flow → Tissue glue".</td>
+<td>** <code>Cell.observe&lt;P extends Pulse&gt;({required Cell source, required void Function(P) effect, bool initiallyStarted = true})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>HowTo-Mitose-Cell.md</code> §3.2 "Cell.observe — the only Flow → Tissue glue" (#cell-observe)</td>
+<td>** <code>example/observe_demo.dart</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Cell.open</code></td>
+<td>** Late-bind a device / module after boot, or manually manage link/unlink topology.</td>
+<td>** standard external facts — use <code>Cell.ingress</code>; rare in v1 Demos.</td>
+<td>** <code>Cell.open({ephemeralPolicy, context, source, receptor, testRule, synapses, forceLock})</code> → <code>OpenCell</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)</td>
+<td>** <code>example/open_cell_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Cell.sanitized</code></td>
+<td>** A BRD says "no name on the extract" — redact PII before a log / UI cell, or omit the field at the source.</td>
+<td>** as a substitute for never writing PII into Tissue rows; sanitize the <em>view</em>, keep the book clean.</td>
+<td>** <code>Cell.sanitized&lt;P extends Pulse&gt;(Cell source, {required P Function(P) redact, Sensitivity minSensitivity = Sensitivity.confidential})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)</td>
+<td>** <code>example/sanitized_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Cell.state</code></td>
+<td>** A BRD says "retain X" and the WalkThrough named <strong>no</strong> Tissue book; a setting read at any time (not a governed reserve).</td>
+<td>** <strong>DON'T</strong> use <code>Cell.state&lt;List&lt;E&gt;&gt;</code> as a system of record.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Use <code>TissueList&lt;E&gt;</code> from <code>cell_tissue</code>.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>See <code>HowTo-Mitose-Tissue.md</code> §2.1 "TissueList — the audit book".</td>
+<td>** <code>Cell.state&lt;V&gt;({initial, evolve, testRule})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)</td>
+<td>** <code>example/state_demo.dart</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Cell.switchMap</code></td>
+<td>** dynamic source selection — the mapper returns a <code>Cell</code> and the graph rebinds to it ("latest reservation / flight only").</td>
+<td>** background enrichment where the mapper returns a <code>Future</code> — that is <code>Cell.asyncMap</code>.</td>
+<td>** <code>Cell.switchMap&lt;S, T&gt;(Cell source, Cell Function(S value) mapper, {ephemeralPolicy, context, testRule, synapses, forceLock})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)</td>
+<td>** <code>example/instruction_pipeline_walkthrough.dart</code></td>
+</tr>
+<tr>
+<td><code>Cell.synthesis</code></td>
+<td>** "one screen / one status from many feeds" — aggregate current values whenever any source pulses.</td>
+<td>** a policy decision on the merged tick; and never use it <em>and</em> a custom instruction on the same tick without saying which decides.</td>
+<td>** <code>Cell.synthesis&lt;P extends Pulse&gt;(Iterable&lt;Cell&gt; sources, {required P? Function(Iterable&lt;Cell&gt; cells, Pulse emit) aggregator})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)</td>
+<td>** <code>example/synthesis_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Cell.throttle</code></td>
+<td>** limit a feed to at most one pulse per duration (leading immediate, trailing optional) — feed shaping <strong>before</strong> <code>publishTick</code>.</td>
+<td>** as the policy gate; the decision belongs to the <code>cell_flow</code> instruction, and Time operators shape feeds, not decisions.</td>
+<td>** <code>Cell.throttle(Cell source, Duration duration, {bool leading = true, bool trailing = false})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>HowTo-Mitose-Flow.md</code> §3.6 "Time" (#flow-time)</td>
+<td>** <code>example/throttle_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Cell.transaction</code></td>
+<td>** Coordinating multiple <code>ValueCell</code>s atomically (money, forms) <strong>outside</strong> a Mitose Demo.</td>
+<td>** <strong>DON'T</strong> wrap a Tissue write in <code>Cell.transaction</code>. Mitose commits with</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Cell.txApply</code> on Tissue books. <code>Cell.transaction</code> coordinates <code>ValueCell</code>.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>See <code>HowTo-Mitose-Cell.md</code> §3.3 "Cell.transaction — not the Mitose commit".</td>
+<td>** <code>Cell.transaction([TransactionOptions options = const TransactionOptions()])</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>HowTo-Mitose-Cell.md</code> §3.3 "Cell.transaction — not the Mitose commit" (#cell-transaction)</td>
+<td>** <code>example/transaction_demo.dart</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Cell.txApply</code></td>
+<td>** The BRD says two retained facts move together or not at all, or an external act can fail after a local write — participants are <strong>Tissue books</strong>, with <code>apply</code> + <code>compensate</code>.</td>
+<td>** one book with no undo (an ordinary Tissue write from <code>Cell.observe</code>); never wrap <code>riskOf</code> (policy is pure).</td>
+<td>** <code>Cell.txApply([TxApplyOptions options = const TxApplyOptions()])</code> → <code>ApplyTransactionScope</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>HowTo-Mitose-Cell.md</code> §3.4 "Cell.txApply — the only atomic commit, on Tissue" (#cell-txapply)</td>
+<td>** <code>example/atomic_multi_update.dart</code></td>
+</tr>
+<tr>
+<td><code>Cell.unmodifiable</code></td>
+<td>** hand a UI / auditor a read-only view of a Cell; least-privilege egress.</td>
+<td>** as a copy — it is a live proxy sharing the principal's state.</td>
+<td>** <code>Cell get unmodifiable</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>guide/HowTo-DeputyContext.md</code> (deputies)</td>
+<td>** <code>example/cell_example.dart</code></td>
+</tr>
+<tr>
+<td><code>Cell.valve</code></td>
+<td>** a pure predicate gate that passes or suppresses pulses before expensive downstream work.</td>
+<td>** named business policy (clause-ordered, latch, product filter) — that is a <code>cell_flow</code> instruction, not a Cell predicate.</td>
+<td>** <code>Cell.valve&lt;P extends Pulse&gt;(Cell source, bool Function(P pulse) gate, {Synapses synapses = Synapses.enabled})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>guide/HowTo-16_Essential_Operators.md</code> (valve)</td>
+<td>** <code>example/valve_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>Pulse</code></td>
+<td>** read <code>pulse.payload</code>, <code>pulse.source</code>, <code>pulse.type</code> in observers; create one for manual injection (<code>Pulse(value, type: '...')</code>).</td>
+<td>** as a storage unit — state lives in <code>Cell.state</code> / Tissue books; pulses are immutable signals.</td>
+<td>** <code>Pulse&lt;P&gt;(P? payload, {dynamic type, Cell? source, int? priority, String? step})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>guide/HowTo-Pulse.md</code> (pulse anatomy)</td>
+<td>** <code>example/ingress_demo.dart</code></td>
+</tr>
+<tr>
+<td><code>TestCell</code></td>
+<td>** <code>testRule: TestCell(...)</code> on <strong>ingress / state / toHandle</strong> only, when a BRD quality rule names that field.</td>
+<td>** <strong>DON'T</strong> put <code>testRule: TestCell</code> on any <code>TissueList</code> / <code>TissueMap</code> /</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>TissueSet</code> / <code>TissueQueue</code> / <code>TissueValue</code> constructor. Use <code>TestTissue</code>.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-test.dart</code>.</td>
+<td>** <code>TestCell&lt;C extends Cell&gt;(...)</code> — chain with <code>+</code>; <code>TestCell.allowAll</code> / <code>TestCell.readOnly</code> constants — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>guide/HowTo-TestCell.md</code> (integrity gates)</td>
+<td>** <code>example/ingress_demo.dart</code></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="how-this-matrix-stays-fresh">How this matrix stays fresh</h2>
+<ul>
+<li><code>dart run tool/generate_api_chooser.dart</code> — regenerates this file.</li>
+<li><code>test/api_chooser_up_to_date_test.dart</code> — fails CI if stale.</li>
+<li><code>dart run tool/ai_preflight.dart</code> — fails CI if a pin drifts.</li>
+</ul>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">doc\api_chooser.dart</li>
+</ol>
+
+    <h5><span class="package-name">cell</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
+        <li><a href="../topics/Transactions-topic.html">Transactions</a></li>
+        <li><a href="../topics/Apply + Transactions-topic.html">Apply&nbsp;+&nbsp;Transactions</a></li>
+        <li><a href="../topics/Pulse-topic.html">Pulse</a></li>
+        <li><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
+        <li><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
+        <li><a href="../topics/Instructions-topic.html">Instructions</a></li>
+        <li><a href="../topics/Advanced-topic.html">Advanced</a></li>
+        <li><a href="../topics/Demo: aircraft-topic.html">Demo:aircraft</a></li>
+        <li><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></li>
+        <li><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></li>
+        <li><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></li>
+        <li><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></li>
+        <li><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></li>
+        <li><a href="../topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
+      <li><a href="../cell_api_chooser/">doc\api_chooser</a></li>
+      <li class="section-subtitle">Features</li>
+        <li class="section-subitem"><a href="../cell/">cell</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <h5>cell_api_chooser library</h5>
+  </div><!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -88,13 +88,6 @@ concurrently and don't need to cancel previous operations.</p>
 <li>Values are emitted as they complete (unordered).</li>
 <li>All inners run to completion (no cancellation).</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Unordered Output</strong>: Results are emitted in completion order.</li>
-<li><strong>Concurrency</strong>: All operations start immediately.</li>
-<li><strong>No Cancellation</strong>: Previous operations are not cancelled.</li>
-<li><strong>Error Isolation</strong>: Errors in one operation don't affect others.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -126,6 +119,22 @@ ids.emit(2); // Starts fetching (parallel)
 <li><a href="../../cell_flow/Flow/switchMap.html">switchMap</a>: For latest-only flattening.</li>
 <li><a href="../../cell_flow/Flow/exhaustMap.html">exhaustMap</a>: For exhaust flattening.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Flow — concurrent flattener. Not a Cell factory, not a Tissue book.
+<strong>When to use:</strong> parallel CAD lookups / independent I/O per trigger; results in completion order.
+<strong>When NOT to use:</strong> order matters (concatMap) or only the latest matters (switchMap).
+<strong>Live signature:</strong> <code>Flow.mergeMap&lt;S, T&gt;(Cell source, {required FutureOr&lt;Object?&gt; Function(S value) project})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>Flow.switchMap</code> (cancels previous) and <code>Flow.concatMap</code> (queues inners).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)
+<strong>Example:</strong> <code>example/async_map_parallel_search_demo.dart</code>
+<strong>Cross-layer:</strong> flatten wraps I/O beside the decision, never inside <code>riskOf</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final h = Flow.mergeMap&lt;int, int&gt;(src.cell, project: (v) async =&gt; v * 2);
+final o = Cell.observe(source: h.cell, effect: (Pulse p) =&gt; print(p.payload));
+src.emit(1);
+o.stop();
+</code></pre>
 </section>
 
 
@@ -165,7 +174,7 @@ ids.emit(2); // Starts fetching (parallel)
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

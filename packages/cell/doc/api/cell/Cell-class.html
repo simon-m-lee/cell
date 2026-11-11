@@ -54,8 +54,9 @@
  
     <span class="category getting-started cp-1 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
     <span class="category core-16-operators cp-2 linked" title="This is part of the Core 16 Operators topic."><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></span>
-    <span class="category demo:aircraft cp-3 linked" title="This is part of the Demo:aircraft topic."><a href="../topics/Demo: aircraft-topic.html">Demo:aircraft</a></span>
-    <span class="category demo:hotel cp-4 linked" title="This is part of the Demo:hotel topic."><a href="../topics/Demo: hotel-topic.html">Demo:hotel</a></span>
+    <span class="category transactions cp-3 linked" title="This is part of the Transactions topic."><a href="../topics/Transactions-topic.html">Transactions</a></span>
+    <span class="category apply-+-transactions cp-4 linked" title="This is part of the Apply + Transactions topic."><a href="../topics/Apply + Transactions-topic.html">Apply&nbsp;+&nbsp;Transactions</a></span>
+    <span class="category demo:aircraft cp-5 linked" title="This is part of the Demo:aircraft topic."><a href="../topics/Demo: aircraft-topic.html">Demo:aircraft</a></span>
 </h1></div>
 
     
@@ -127,6 +128,29 @@ high-level data synchronization.</p>
 <li><strong>HowTo</strong>: See <code>guide/HowTo-Start.md</code> for a comprehensive guide on
 getting started with the Cell architecture and reactive patterns.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> Read this page when a BRD sentence names an external fact, a retained value, or a side effect; then pick one static factory below.
+<strong>When NOT to use:</strong>
+  <strong>DON'T</strong> create a custom Cell type to encode business policy.
+Policy belongs in a <code>FlowInstructionBase</code> subclass in <code>cell_flow</code>,
+not in a Cell receptor.
+See <code>HowTo-Mitose-Flow.md</code> §4 "When the BRD requires a custom FlowInstruction".
+  <code>Cell.gate</code>, <code>Cell.book</code>, <code>Cell.policy</code>, <code>Cell.pipeline</code> <strong>do not exist</strong>.
+The full public factory list is in <code>HowTo-Mitose-Cell.md</code> §2.
+<strong>Live signature:</strong> <code>abstract interface class Cell</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>ValueCell</code> (the concrete stateful type returned by <code>Cell.state</code>).
+<strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)
+<strong>Example:</strong> <code>example/cell_example.dart</code>
+<strong>Cross-layer:</strong> decision logic moves to <code>cell_flow</code>; collection history moves to <code>cell_tissue</code>.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final inGate = Cell.ingress&lt;int&gt;();
+final seen = &lt;int&gt;[];
+final o = Cell.observe(source: inGate.cell, effect: (Pulse p) =&gt; seen.add(p.payload as int));
+inGate.emit(1);
+o.stop();
+print(seen); // [1]
+</code></pre>
 </section>
 
 
@@ -147,6 +171,10 @@ getting started with the Cell architecture and reactive patterns.</li>
           </ul></dd>
 
         
+  <dt>Available extensions</dt>
+  <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="../cell/ApplyCommandDSL.html">ApplyCommandDSL</a></li>
+  </ul></dd>
         
 
 
@@ -326,14 +354,31 @@ boundaries and operational authority.
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="apply" class="callable">
-  <span class="name"><a href="../cell/Cell/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
-    <span class="returntype parameter">&#8594; dynamic</span>
+  <span class="name"><a href="../cell/Cell/apply.html">apply</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="apply-param-command"><span class="type-annotation"><a href="../cell/ApplyCommand.html">ApplyCommand</a></span> <span class="parameter-name">command</span>, {</span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd>
-  Executes a <strong>State Transition</strong> or arbitrary logic via the <strong>Command Pattern</strong> gateway.
+  Submits an <a href="../cell/ApplyCommand.html">ApplyCommand</a> to trigger a state change or an action within this cell.
+  
+
+</dd>
+
+        <dt id="command" class="callable">
+  <span class="name"><a href="../cell/ApplyCommandDSL/command.html">command</a></span><span class="signature">(<wbr><span class="parameter" id="command-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell/ApplyCommandRunner-class.html">ApplyCommandRunner</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell/Cell-class.html">Cell</a>,
+        provided by the <a href="../cell/ApplyCommandDSL.html">ApplyCommandDSL</a> extension</span>
+      </p>
+  Begins assembling a command that invokes <code>function</code> on this cell.
   
 
 </dd>
@@ -574,7 +619,7 @@ reactive state management.
 </dd>
 
         <dt id="switchMap" class="callable">
-  <span class="name"><a href="../cell/Cell/switchMap.html">switchMap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="switchMap-param-source"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span><span class="parameter" id="switchMap-param-mapper"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">mapper</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>)
+  <span class="name"><a href="../cell/Cell/switchMap.html">switchMap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="switchMap-param-source"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span><span class="parameter" id="switchMap-param-mapper"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">mapper</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), {</span><span class="parameter" id="switchMap-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="switchMap-param-context"><span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span><span class="parameter" id="switchMap-param-testRule"><span class="type-annotation"><a href="../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span><span class="parameter" id="switchMap-param-synapses"><span class="type-annotation"><a href="../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span><span class="parameter" id="switchMap-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell/Cell-class.html">Cell</a></span>
   </span>
   
@@ -683,7 +728,7 @@ reactive circuit breaker, controlling signal propagation through the graph.
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

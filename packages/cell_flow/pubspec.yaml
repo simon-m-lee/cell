@@ -2,7 +2,7 @@ name: cell_flow
 description: >-
   Orchestration Layer (Flow) for the Cell Framework — 90+ forensic-grade 
   operators (asyncMap, switchMap, debounce) for reactive signal processing.
-version: 1.0.0-rc.9
+version: 1.0.0
 
 homepage: https://github.com/simon-m-lee/cell
 repository: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow
@@ -25,12 +25,15 @@ environment:
   sdk: '>=3.5.0 <4.0.0'
 
 dependencies:
-  cell: ^1.0.0-rc.8
+  cell: ^1.1.0
 
 dev_dependencies:
+  benchmark_harness: ^2.3.0
   lints: ^6.0.0
+  rxdart: ^0.28.0
   test: ^1.25.0
-  cell_tissue: ^1.0.0-rc.9
+  vm_service: ^14.2.5
+  cell_tissue: ^1.0.0
 
 platforms:
   android:

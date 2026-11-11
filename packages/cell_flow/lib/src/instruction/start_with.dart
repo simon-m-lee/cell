@@ -101,6 +101,8 @@ void _emitAll<S>(
   dynamic token,
 ) {
   for (final value in values) {
+    // Lifecycle: stop allocating pulses once the host cell is dead.
+    if (cell != null && cell.isInvalidated) return;
     future?.call(
       result: _out<S>(value, trigger, cell, step),
       token: token,
@@ -158,16 +160,6 @@ void _emitAll<S>(
 /// 5. All subsequent pulses are forwarded unchanged.
 /// 6. The seed emission gets the step `'StartWith.seed'`.
 /// 7. Source emissions get the step `'StartWith'`.
-///
-/// ### Non‑obvious
-/// - **First Trigger Only**: The prefix is emitted only on the first pulse.
-/// - **Replace First**: [replaceFirst] controls whether the original
-///   pulse is dropped.
-/// - **Provenance Preservation**: The emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Sync/Async**: Uses future-based emission for flexibility.
-/// - **No Late Subscribers**: The prefix is not re-emitted for late
-///   subscribers.
 ///
 /// ### Example: Single Prefix
 /// ```dart
@@ -247,8 +239,8 @@ class StartWith<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool replaceFirst = false,
     StartWithErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             var first = true;
             return (pulse, {cell, user, future, token}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -263,7 +255,7 @@ class StartWith<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return typed.withStep('StartWith');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -351,16 +343,6 @@ class StartWithValue<S> extends StartWith<S> {
 /// 6. Each seed emission gets the step `'StartWithMany.seed'`.
 /// 7. Source emissions get the step `'StartWithMany'`.
 ///
-/// ### Non‑obvious
-/// - **First Trigger Only**: The prefix is emitted only on the first pulse.
-/// - **Order Preserved**: Seeds are emitted in the order provided.
-/// - **Replace First**: [replaceFirst] controls whether the original
-///   pulse is dropped.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **No Late Subscribers**: The prefix is not re-emitted for late
-///   subscribers.
-///
 /// ### Example: Multiple Prefix Values
 /// ```dart
 /// final input = Cell.ingress<int>();
@@ -440,8 +422,8 @@ class StartWithMany<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool replaceFirst = false,
     StartWithErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             var first = true;
             final prefix = List<S>.from(seeds);
             return (pulse, {cell, user, future, token}) {
@@ -455,7 +437,7 @@ class StartWithMany<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return typed.withStep('StartWithMany');
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -490,18 +472,6 @@ class StartWithMany<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 6. All subsequent pulses are forwarded unchanged.
 /// 7. Each seed emission gets the step `'StartWithFactory.seed'`.
 /// 8. Source emissions get the step `'StartWithFactory'`.
-///
-/// ### Non‑obvious
-/// - **First Trigger Only**: The prefix is emitted only on the first pulse.
-/// - **Dynamic Computation**: The prefix is computed from the first payload.
-/// - **Lazy**: The factory is only called when the first pulse arrives.
-/// - **Replace First**: [replaceFirst] controls whether the original
-///   pulse is dropped.
-/// - **Error Handling**: Errors in the factory are reported via [onError].
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **No Late Subscribers**: The prefix is not re-emitted for late
-///   subscribers.
 ///
 /// ### Example: Context-Aware Prefix
 /// ```dart
@@ -584,8 +554,8 @@ class StartWithFactory<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool replaceFirst = false,
     StartWithErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             var first = true;
             return (pulse, {cell, user, future, token}) {
               final typed = _typedOrError<S>(pulse, onError: onError);
@@ -603,14 +573,16 @@ class StartWithFactory<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                     token,
                   );
                 } catch (e, stack) {
+                  // Factory failure must not destroy the first source
+                  // pulse: report the error, then fall through and forward
+                  // the source pulse without a prefix.
                   onError?.call(e, stack);
-                  return null;
                 }
                 if (replaceFirst) return null;
               }
               return typed.withStep('StartWithFactory');
             };
-          })(),
+          },
           user: user,
         );
 }

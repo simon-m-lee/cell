@@ -53,6 +53,15 @@
 </h1></div>
 
     
+<section class="desc markdown">
+  <p>Raised when one or more compensations fail under
+<a href="../cell_tissue/CompensationErrorPolicy.html">CompensationErrorPolicy.collectThenThrow</a> or
+<a href="../cell_tissue/CompensationErrorPolicy.html">CompensationErrorPolicy.failFast</a>.</p>
+<p>The transaction is <strong>already in an unrecoverable state</strong> when this is
+thrown: the forward path failed, and some compensations that should have
+reversed earlier effects also failed. Callers must escalate (alert,
+manual reconciliation), not retry the transaction blindly.</p>
+</section>
 
 
     <section>
@@ -101,7 +110,8 @@
 
 </dt>
 <dd>
-  
+  Optional underlying cause — the error that triggered the rollback in
+the first place (as opposed to the compensation failures themselves).
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -113,7 +123,8 @@
 
 </dt>
 <dd>
-  
+  All compensations that failed, in the order they were attempted
+(reverse-staging order).
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -137,7 +148,7 @@
 
 </dt>
 <dd>
-  
+  Human-readable description of the compensation failure batch.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -239,7 +250,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

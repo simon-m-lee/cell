@@ -76,14 +76,6 @@ lifecycle, synapses, and integrity rules of the new node.</li>
 <li><strong>Handle Generation</strong>: It produces a <a href="../mitosis/FlowHandle.html">FlowHandle</a> record, exposing
 methods for both synchronous and asynchronous stimulus ingress.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Composition Logic</strong>: This mixin provides the concrete implementation
-for the <code>+</code> operator, enabling the serial chaining of instructions
-into a single evolution pipeline.</li>
-<li><strong>Lock Integration</strong>: It automatically detects if the underlying
-nucleus requires a <strong>Conactive Lock</strong> for serialized execution.</li>
-</ul>
 <h3 id="see-also">See Also</h3>
 <ul>
 <li><a href="../mitosis/FlowInstruction-class.html">FlowInstruction</a>: The abstract blueprint for reactive logic.</li>
@@ -238,6 +230,24 @@ nucleus requires a <strong>Conactive Lock</strong> for serialized execution.</li
   </section>
     
     
+  <section class="summary offset-anchor" id="static-methods">
+    <h2>Static Methods</h2>
+    <dl class="callables">
+        <dt id="activateLink" class="callable">
+  <span class="name"><a href="../mitosis/FlowInstructionMixin/activateLink.html">activateLink</a></span><span class="signature">(<wbr><span class="parameter" id="activateLink-param-link"><span class="type-annotation"><a href="../mitosis/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../mitosis/Pulse-class.html">Pulse</a></span>&gt;</span></span> <span class="parameter-name">link</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../mitosis/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../mitosis/Pulse-class.html">Pulse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Materializes a link with fresh per-activation state.
+  
+
+</dd>
+
+    </dl>
+  </section>
     
 
 </div> <!-- /.main-content -->
@@ -263,7 +273,7 @@ nucleus requires a <strong>Conactive Lock</strong> for serialized execution.</li
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

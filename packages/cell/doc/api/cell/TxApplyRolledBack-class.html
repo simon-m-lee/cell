@@ -53,6 +53,11 @@
 </h1></div>
 
     
+<section class="desc markdown">
+  <p>Emitted after a rollback (full or savepoint-scoped).</p>
+<p>When <a href="../cell/TxApplyRolledBack/savepoint.html">savepoint</a> is non-null, the rollback was partial — commands before
+the savepoint remain staged and may still be committed.</p>
+</section>
 
 
     <section>
@@ -128,7 +133,7 @@
 
 </dt>
 <dd>
-  
+  The opaque savepoint the rollback targeted, or <code>null</code> for a full rollback.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -218,7 +223,7 @@
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

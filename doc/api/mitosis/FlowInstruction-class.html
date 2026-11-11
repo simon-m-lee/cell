@@ -64,8 +64,12 @@ interface to provide ergonomic "Composition-First" mechanics, allowing
 developers to build complex reactive topologies through simple operator
 overloading and method chaining.</p>
 <p>Unlike a <a href="../mitosis/Cell-class.html">Cell</a>, which is a live, stateful node in a graph, a
-<code>FlowInstruction</code> is a stateless description of how a pulse should be
-evolved, filtered, or routed.</p>
+<code>FlowInstruction</code> is a <strong>reusable blueprint</strong> describing how a pulse
+should be evolved, filtered, or routed. Blueprints may be stateful:
+operators that need timers, queues, or accumulators allocate their state
+from a per-activation factory, so each <a href="../mitosis/FlowInstruction/toHandle.html">toHandle</a> call materializes
+fresh state — two handles from one blueprint never share state, and
+stateless blueprints are shared as-is.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
 <li><strong>Pipeline Assembly</strong>: Defining a sequence of transformations
@@ -77,8 +81,9 @@ operators where readability and composition are paramount.</li>
 </ul>
 <h3 id="core-mechanics">Core Mechanics</h3>
 <ol>
-<li><strong>Stateless Logic</strong>: Describes the <em>evolution</em> of a pulse without
-holding the pulse data itself.</li>
+<li><strong>Blueprint Logic</strong>: Describes the <em>evolution</em> of a pulse without
+holding the pulse data itself. Stateful operators allocate their
+mutable state per activation (see the class docs).</li>
 <li><strong>Composition</strong>: Instructions are chainable using the <code>+</code> operator.
 <code>MapValue(...) + Filter(...)</code> creates a new instruction link that
 applies both transformations serially.</li>
@@ -88,15 +93,6 @@ a live <a href="../mitosis/FlowHandle.html">FlowHandle</a>.</li>
 <li><strong>Flyweight Receptors</strong>: Internally, these instructions are compiled
 into highly efficient <a href="../mitosis/Receptor-class.html">Receptor</a> objects to minimize memory overhead.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Flyweight Preservation</strong>: Configuration metadata (via <a href="../mitosis/FlowInstruction/user.html">user</a>) is
-carried through the chain, ensuring pipelines maintain context.</li>
-<li><strong>Lazy Linkage</strong>: Combining instructions builds a metadata map;
-execution is deferred until a pulse enters the materialized graph.</li>
-<li><strong>Covariant Safety</strong>: The <code>+</code> operator ensures specific instruction
-subtypes can be mixed while maintaining proper type inference.</li>
-</ul>
 <h3 id="type-parameters">Type Parameters</h3>
 <ul>
 <li><code>C</code>: <strong>Anchor Cell Type.</strong> The type of cell hosting the instruction.</li>
@@ -119,6 +115,20 @@ final signupHandle = validateEmail.toHandle(source: signupField);
 <li><a href="../mitosis/FlowInstructionBase-class.html">FlowInstructionBase</a>: The standard base implementation for custom logic.</li>
 <li><a href="../mitosis/Instruction-class.html">Instruction</a>: The underlying core interface from <code>package:cell</code>.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Flow — the instruction interface. Not a Cell factory, not a Tissue book.
+<strong>When to use:</strong> type the chain (<code>FlowInstruction&lt;Cell, Pulse, Pulse&gt;</code>), compose with <code>+</code>, or write a small stateless gate closure.
+<strong>When NOT to use:</strong> clause-ordered policy with a resettable latch — subclass <code>FlowInstructionBase</code> instead (a bare closure cannot <code>reset()</code>).
+<strong>Live signature:</strong> <code>FlowInstruction&lt;C, I, O&gt;(O? Function(I pulse, {C? cell, dynamic user}) instruction, {dynamic user})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Do NOT confuse with:</strong> <code>FlowInstructionBase</code> (the base class you <em>extend</em> for stateful policy).
+<strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §4 "When the BRD requires a custom FlowInstruction" (#flow-custom-instruction)
+<strong>Example:</strong> <code>example/cell_flow_example.dart</code>
+<strong>Cross-layer:</strong> entry is <code>Cell.ingress</code>; books are <code>cell_tissue</code>; this only decides.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final gate = FlowInstruction&lt;Cell, Pulse, Pulse&gt;((p, {cell, user}) =&gt; p);
+final h = gate.toHandle(source: Cell.ingress&lt;String&gt;().cell);
+h.emit('x');
+</code></pre>
 </section>
 
 
@@ -161,7 +171,6 @@ defining pulse evolution within the reactive topography.
         </dt>
         <dd>
           Creates a composite instruction by chaining multiple <code>instructions</code> serially.
-            <div class="constructor-modifier features">const</div>
             <div class="constructor-modifier features">factory</div>
         </dd>
         <dt id="FlowInstruction.future" class="callable">
@@ -253,7 +262,7 @@ defining pulse evolution within the reactive topography.
 
         <dt id="toHandle" class="callable">
   <span class="name"><a href="../mitosis/FlowInstruction/toHandle.html">toHandle</a></span><span class="signature">(<wbr>{<span class="parameter" id="toHandle-param-source"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span><span class="parameter" id="toHandle-param-testRule"><span class="type-annotation"><a href="../mitosis/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span><span class="parameter" id="toHandle-param-synapses"><span class="type-annotation"><a href="../mitosis/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span></span>})
-    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a><span class="signature">&lt;<wbr><span class="type-parameter">I</span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
   </span>
   
 
@@ -340,7 +349,7 @@ defining pulse evolution within the reactive topography.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -61,6 +61,11 @@
 
       </section>
       
+<section class="desc markdown">
+  <p>Maximum attempts per compensation, including the initial attempt.</p>
+<p>Values <code>&lt; 1</code> are clamped to <code>1</code>. Default <code>1</code> disables retries — the
+most predictable behaviour for callers who do not opt in.</p>
+</section>
 
       
 <section class="summary source-code" id="source">
@@ -94,7 +99,7 @@
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

@@ -7,6 +7,33 @@ import 'dart:async';
 import 'package:cell_tissue/cell_tissue.dart';
 import 'package:test/test.dart';
 
+
+// Local builders for the forensic command model.
+ApplyCommand cmd(
+  Function function, [
+  List<Object?>? positionalArguments,
+  ApplyCompensation? compensation,
+]) =>
+    (
+      function: function,
+      arguments:
+          (positionalArguments: positionalArguments, namedArguments: null),
+      compensation: compensation,
+    );
+
+ApplyCompensation undo(
+  Function function, [
+  List<Object?>? positionalArguments,
+  Cell? cell,
+]) =>
+    (
+      function: function,
+      arguments:
+          (positionalArguments: positionalArguments, namedArguments: null),
+      cell: cell,
+    );
+
+
 Future<TissueQueue<T>> resolveDeputy<T>(TissueQueue<T> source) async {
   final result = source.deputy();
   return result is Future<TissueQueue<T>> ? await result : result;
@@ -147,7 +174,7 @@ void main() {
     test('apply gateway dispatches whitelisted functions', () {
       final queue = TissueQueue<int>();
 
-      final added = queue.apply(queue.add, positionalArguments: [9]);
+      final added = (queue.apply<Object?>(cmd(queue.add, [9])) as ApplyAccepted<Object?>).result;
       expect(added, isNotNull);
       expect(queue.toList(), [9]);
     });
@@ -200,7 +227,7 @@ void main() {
     test('evolve produces a deputy nucleus', () {
       final principal = TissueQueueNucleus.create<int, TissueQueue<int>>();
       final evolved = TissueQueueNucleus<int>.evolve(
-        principal: principal,
+        principal,
         testRule: TestTissue<int, TissueQueue<int>>(
           (object, {host, arguments, user}) => (object as int) > 0,
         ),
@@ -332,7 +359,7 @@ void main() {
       await expectLater(async.addFirst(9), throwsUnsupportedError);
       await expectLater(async.addLast(9), throwsUnsupportedError);
       await expectLater(
-        async.apply(view.add, positionalArguments: [9]),
+        async.apply<void>(cmd(view.add, [9])),
         throwsUnsupportedError,
       );
       await expectLater(async.clear(), throwsUnsupportedError);
@@ -354,8 +381,8 @@ void main() {
           participants: [queue],
           body: (tx) {
             expect(queue.toList(), isEmpty);
-            queue.apply(queue.add, positionalArguments: [1], tx: tx);
-            queue.apply(queue.add, positionalArguments: [2], tx: tx);
+            queue.apply<Object?>(cmd(queue.add, [1]), tx: tx);
+            queue.apply<Object?>(cmd(queue.add, [2]), tx: tx);
             expect(queue.toList(), isEmpty); // staged, not applied until commit
           });
 
@@ -374,8 +401,8 @@ void main() {
           participants: [queue],
           body: (tx) {
             final result =
-                queue.apply(queue.add, positionalArguments: [7], tx: tx);
-            expect(result, isNull);
+                queue.apply<Object?>(cmd(queue.add, [7]), tx: tx);
+            expect(result, isA<ApplyStaged>());
             expect(queue.toList(), isEmpty);
           });
 
@@ -390,8 +417,8 @@ void main() {
         tx.execute(
             participants: [queue],
             body: (tx) {
-              queue.apply(queue.add, positionalArguments: [1], tx: tx);
-              queue.apply(queue.add, positionalArguments: [2], tx: tx);
+              queue.apply<Object?>(cmd(queue.add, [1]), tx: tx);
+              queue.apply<Object?>(cmd(queue.add, [2]), tx: tx);
               throw StateError('boom');
             }),
         throwsStateError,
@@ -408,33 +435,28 @@ void main() {
       );
 
       await tx.begin([queue]);
-      tx.enqueue(
-        queue,
-        queue.add,
-        [1],
-        null,
-        compensateCell: queue,
-        compensateFunction: queue.remove,
-        compensatePositional: [1],
-      );
+      tx.enqueueCommand(
+  queue,
+  cmd(queue.add, [1], undo(queue.remove, [1], queue)),
+);
       await tx.rollback();
 
       expect(queue.toList(), isEmpty);
     });
 
-    test('rejects functions outside the modifiable whitelist at enqueue',
+    test('accepts functions outside the modifiable whitelist; gate decides',
         () async {
       final queue = TissueQueue<int>();
       final tx = Cell.txApply();
 
-      await expectLater(
-        tx.execute(
-            participants: [queue],
-            body: (tx) {
-              queue.apply(queue.contains, positionalArguments: [1], tx: tx);
-            }),
-        throwsA(isA<TxApplyException>()),
-      );
+      // One capability model with direct apply: authorization comes from
+      // the integrity gate (`validate.action`), not whitelist membership.
+      // The default gate allows, so the command commits.
+      await tx.execute(
+          participants: [queue],
+          body: (tx) {
+            queue.apply<Object?>(cmd(queue.contains, [1]), tx: tx);
+          });
 
       expect(queue.toList(), isEmpty);
     });
@@ -447,13 +469,10 @@ void main() {
       await tx.execute(
           participants: [queue],
           body: (tx) {
-            queue.apply(
-              queue.add,
-              positionalArguments: [5],
-              tx: tx,
-              compensate: queue.remove,
-              compensatePositional: [5],
-            );
+            queue.apply<Object?>(
+  cmd(queue.add, [5], undo(queue.remove, [5])),
+  tx: tx,
+);
           });
 
       expect(queue.toList(), [5]);

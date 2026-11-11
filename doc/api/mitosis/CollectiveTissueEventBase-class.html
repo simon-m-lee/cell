@@ -78,19 +78,9 @@ in the payload.</li>
 for each sub‑event. When each sub‑event completes, it decrements the
 counter. When the counter reaches zero, the collective's completion
 callback fires.</li>
-<li>The <a href="../mitosis/PulseBase/isComposite.html">isComposite</a> flag is always <code>true</code>.</li>
+<li>The <a href="../mitosis/CollectiveTissueEventBase/isComposite.html">isComposite</a> flag is always <code>true</code>.</li>
 <li>The <code>+</code> operator flattens nested collectives – you always get a
 single, flat list of events.</li>
-</ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The collective does <strong>not</strong> create a causal relationship between its
-members. Each event keeps its own <code>parent</code> and <code>trace</code>.</li>
-<li>The collective's <a href="../mitosis/TissuePulseBase/root.html">root</a> is itself – it's a root collective.</li>
-<li>If the iterable is empty, the collective is still valid – it just has
-<code>null</code> payload and <code>isComposite</code> <code>true</code>.</li>
-<li>Evolution (<code>evolve</code>) on a collective turns it into an
-<a href="../mitosis/EvolvedTissuePulse-class.html">EvolvedTissuePulse</a> (a chain), not another collective.</li>
 </ul>
 <h3 id="example-iterating-over-a-batch">Example: Iterating over a batch</h3>
 <pre class="language-dart"><code class="language-dart">final batch = CollectiveTissuePulse.from([addEvent, removeEvent]);
@@ -202,15 +192,15 @@ type of the <strong>first</strong> pulse's payload (used for backward compatibil
 
 </dd>
 
-        <dt id="isComposite" class="property inherited">
-  <span class="name"><a href="../mitosis/PulseBase/isComposite.html">isComposite</a></span>
+        <dt id="isComposite" class="property">
+  <span class="name"><a href="../mitosis/CollectiveTissueEventBase/isComposite.html">isComposite</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
-<dd class="inherited">
+<dd>
   Indicates whether this pulse is a multi-message bundle (a collection).
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
 
@@ -420,13 +410,13 @@ receiver authenticates itself.
 </dd>
 
         <dt id="type" class="property inherited">
-  <span class="name"><a href="../mitosis/TissuePulseBase/type.html">type</a></span>
+  <span class="name"><a href="../mitosis/PulseBase/type.html">type</a></span>
   <span class="signature">&#8594; dynamic</span>
   
 
 </dt>
 <dd class="inherited">
-  The semantic classification of this tissue pulse.
+  Semantic type classification for pattern matching and routing.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -1001,7 +991,7 @@ flattened collective.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

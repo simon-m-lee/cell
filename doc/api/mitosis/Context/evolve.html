@@ -80,9 +80,6 @@ constraints or change the sub‑domain for a deputy.</p>
 <p>You provide a resolver function that returns a new governance entry
 for any evolvable dimension you want to change. Dimensions you don't
 touch are inherited from the current context.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<p>Only dimensions marked <code>evolvable: true</code> can be changed – trying to
-change a static pillar will have no effect. This is by design.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>resolver</code>: A callback that reconciles requested <a href="../../mitosis/Governance-class.html">Governance</a>
@@ -130,7 +127,7 @@ in the system's <strong>Causal Lineage</strong>.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

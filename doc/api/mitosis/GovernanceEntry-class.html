@@ -68,11 +68,6 @@ manually.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>Each entry pairs a dimension key with a typed value. The framework uses
 these internally to build context records.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<p>The type parameters <code>G</code> and <code>V</code> are preserved so that when you later
-read from a context using <code>context[Ontology.taxonomy]</code>, you get a
-<code>String</code> (or whatever the expected type is) – not a loose <code>dynamic</code>.
-This is why entries are type‑safe.</p>
 <h3 id="type-parameters">Type Parameters</h3>
 <ul>
 <li><code>G</code>: The specific <a href="../mitosis/Governance-class.html">Governance</a> type (e.g., <a href="../mitosis/Ontology.html">Ontology</a>, <a href="../mitosis/Provenance.html">Provenance</a>, <a href="../mitosis/Mandate.html">Mandate</a>)</li>
@@ -253,7 +248,7 @@ This is why entries are type‑safe.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

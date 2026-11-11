@@ -75,14 +75,6 @@ context, if none of the named factories fit.</li>
 <p><a href="../mitosis/Context-class.html">Context</a> organizes metadata into distinct, type-safe <a href="../mitosis/Mandate.html">Mandate</a> dimensions.
 It uses a <strong>Prototype-based Inheritance</strong> model where dimensions are
 either <strong>Static Pillars</strong> (invariant) or <strong>Fluid Boundaries</strong> (evolvable).</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<p><strong>Not every field can be changed later.</strong> Fields like <a href="../mitosis/Context/taxonomy.html">taxonomy</a> and <a href="../mitosis/Context/topology.html">topology</a>
-are fixed at creation — calling <a href="../mitosis/Context/evolve.html">evolve</a> can't change them, only fields
-marked evolvable (like <a href="../mitosis/Context/constraints.html">constraints</a>, <a href="../mitosis/Context/stakeholders.html">stakeholders</a>, <a href="../mitosis/Context/compliance.html">compliance</a>) can be
-refined. This is intentional: it stops a cell's fundamental identity from
-silently drifting as it gets passed through <a href="../mitosis/Context/Context.deputy.html">deputy</a> layers. If <a href="../mitosis/Context/evolve.html">evolve</a>
-seems to be ignoring a field you passed, check whether that field is
-evolvable at all.</p>
 <h3 id="see-also">See Also</h3>
 <ul>
 <li><a href="../mitosis/Context/Context.deputy.html">Context.deputy</a>: Returns a <a href="../mitosis/DeputyContext-class.html">DeputyContext</a> for per‑proxy authority.</li>
@@ -571,7 +563,7 @@ governance model.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

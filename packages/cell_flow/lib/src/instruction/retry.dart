@@ -141,12 +141,6 @@ Future<T> _runTask<S, T>(RetryTask<S, T> task, S value) async {
 /// - [emitErrorPulse]: Whether to emit an error pulse on final failure.
 /// - [again]: Predicate that decides whether to retry.
 ///
-/// ### Non‑obvious
-/// - **Infinite Loop Protection**: The [again] predicate controls retries.
-/// - **Error Swallowing**: Errors are caught and handled without crashing.
-/// - **Provenance Preservation**: Success and error pulses preserve metadata.
-/// - **Type Safety**: Generic over [S] (input) and [T] (output).
-/// - **Async Predicate**: [again] can return a `Future<bool>`.
 Future<void> _attempt<S, T>({
   required RetryTask<S, T> task,
   required S value,
@@ -242,17 +236,6 @@ Future<void> _attempt<S, T>({
 /// 8. Each retry attempt preserves causal provenance.
 /// 9. Each emitted success value gets the step `'Retry'` for provenance.
 /// 10. Error emissions get the step `'Retry.error'`.
-///
-/// ### Non‑obvious
-/// - **Total Attempts**: The task runs up to `count + 1` times.
-/// - **No Delay**: Retries are immediate (use [RetryWithDelay] for delays).
-/// - **Error Swallowing**: Errors are caught and don't crash the flow.
-/// - **Error Pulse**: The error pulse has type `'error'` for routing.
-/// - **Provenance Preservation**: Success and error pulses preserve
-///   the source cell, type, and priority from the trigger pulse.
-/// - **Type Safety**: The instruction is generic over [S] (input type)
-///   and [T] (output type), ensuring compile-time type safety.
-/// - **Synchronous Count**: [count] is a fixed integer.
 ///
 /// ### Example: Simple API Retry
 /// ```dart
@@ -418,21 +401,6 @@ class Retry<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 7. [shouldRetry] may return a `Future<bool>` for async decisions.
 /// 8. Success emissions get the step `'RetryWhen'`.
 /// 9. Error emissions get the step `'RetryWhen.error'`.
-///
-/// ### Non‑obvious
-/// - **Async Predicate**: [shouldRetry] can return a `Future<bool>`,
-///   allowing async decisions (e.g., checking external state).
-/// - **Error Inspection**: The predicate receives the error, allowing
-///   type-based decisions.
-/// - **Attempt Number**: The predicate receives the attempt number,
-///   allowing attempt-based decisions.
-/// - **No Built-in Limit**: Implement your own limit in [shouldRetry].
-/// - **Error Swallowing**: Errors in [shouldRetry] are caught and
-///   treated as `false` (stop retrying).
-/// - **Provenance Preservation**: Success and error pulses preserve
-///   the source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Predicate**: [shouldRetry] can be synchronous or
-///   asynchronous.
 ///
 /// ### Example: Retry Only on Network Errors
 /// ```dart
@@ -602,15 +570,6 @@ class RetryWhen<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 6. Success emissions get the step `'RetryWithDelay'`.
 /// 7. Error emissions get the step `'RetryWithDelay.error'`.
 ///
-/// ### Non‑obvious
-/// - **Fixed Delay**: The delay is the same for every retry.
-/// - **Total Time**: Total retry time is `count * delay`.
-/// - **No Jitter**: No random variation (use [RetryWithBackoff] for that).
-/// - **Error Swallowing**: Errors are caught and don't crash the flow.
-/// - **Provenance Preservation**: Success and error pulses preserve
-///   the source cell, type, and priority from the trigger pulse.
-/// - **Type Safety**: Generic over [S] (input) and [T] (output).
-///
 /// ### Example: API Retry with Delay
 /// ```dart
 /// final requests = Cell.ingress<String>();
@@ -770,16 +729,6 @@ class RetryWithDelay<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///    when all retries fail.
 /// 7. Success emissions get the step `'RetryWithBackoff'`.
 /// 8. Error emissions get the step `'RetryWithBackoff.error'`.
-///
-/// ### Non‑obvious
-/// - **Exponential Growth**: Delay grows exponentially with each attempt.
-/// - **Capping**: [maxDelay] prevents unbounded delay growth.
-/// - **No Jitter**: No random variation (add your own if needed).
-/// - **Total Time**: Total retry time is the sum of all delays.
-/// - **Error Swallowing**: Errors are caught and don't crash the flow.
-/// - **Provenance Preservation**: Success and error pulses preserve
-///   the source cell, type, and priority from the trigger pulse.
-/// - **Type Safety**: Generic over [S] (input) and [T] (output).
 ///
 /// ### Example: API Retry with Backoff
 /// ```dart
@@ -948,17 +897,6 @@ class RetryWithBackoff<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///    when all retries fail.
 /// 8. Success emissions get the step `'RetryUntil'`.
 /// 9. Error emissions get the step `'RetryUntil.error'`.
-///
-/// ### Non‑obvious
-/// - **Stop Condition**: [until] returns `true` to *stop* retrying.
-/// - **Error Inspection**: The predicate receives the error for inspection.
-/// - **Attempt Number**: The predicate receives the attempt number.
-/// - **Max Attempts**: [maxAttempts] is the total attempts limit.
-/// - **Error Swallowing**: Errors in [until] are caught and treated
-///   as `false` (continue retrying).
-/// - **Provenance Preservation**: Success and error pulses preserve
-///   the source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Predicate**: [until] is synchronous.
 ///
 /// ### Example: Stop on Validation Error
 /// ```dart

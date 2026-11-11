@@ -129,15 +129,6 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// 3. Later pulses are ignored.
 /// 4. Each emitted value gets the step `'Of'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **First Trigger Only**: The sequence only plays on the first pulse.
-/// - **Synchronous Emission**: Values are emitted synchronously.
-/// - **No Completion**: Cells don't complete, but the instruction
-///   stops emitting after all values are sent.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Error Handling**: If emission fails, the error is reported.
-///
 /// ### Example: Emitting Initial Values
 /// ```dart
 /// final start = Cell.ingress<void>();
@@ -195,8 +186,8 @@ class Of<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Iterable<T> values, {
     OfErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             var started = false;
             return (pulse, {cell, user, future, token}) {
               if (started) return null;
@@ -213,7 +204,7 @@ class Of<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -266,14 +257,6 @@ class Of<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. Later pulses are ignored.
 /// 4. Each emitted value gets the step `'FromIterable'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **First Trigger Only**: The sequence only plays on the first pulse.
-/// - **Iterable Order**: The iteration order of the iterable is used.
-/// - **Synchronous Emission**: Values are emitted synchronously.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Error Handling**: If emission fails, the error is reported.
-///
 /// ### Parameters:
 /// - [source]: **The Iterable Source.** The iterable to emit elements from.
 /// - [onError]: **Error Handler.** Optional callback for handling errors.
@@ -307,8 +290,8 @@ class FromIterable<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Iterable<T> source, {
     OfErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             var started = false;
             return (pulse, {cell, user, future, token}) {
               if (started) return null;
@@ -325,7 +308,7 @@ class FromIterable<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -380,14 +363,6 @@ class FromIterable<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 5. Later pulses are ignored.
 /// 6. Each emitted value gets the step `'Range'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **First Trigger Only**: The range only plays on the first pulse.
-/// - **Step Control**: [step] controls the increment between values.
-/// - **Synchronous Emission**: Values are emitted synchronously.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Error Handling**: If emission fails, the error is reported.
-///
 /// ### Parameters:
 /// - [start]: **Starting Value.** The first integer in the range.
 /// - [count]: **Number of Values.** How many integers to emit.
@@ -427,8 +402,8 @@ class Range extends FlowInstructionBase<Cell, Pulse, Pulse> {
     int step = 1,
     OfErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             var started = false;
             return (pulse, {cell, user, future, token}) {
               if (started) return null;
@@ -447,7 +422,7 @@ class Range extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -500,14 +475,6 @@ class Range extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. Later pulses are ignored.
 /// 4. Each emitted value gets the step `'Repeat'` for provenance.
 ///
-/// ### Non‑obvious
-/// - **First Trigger Only**: The sequence only plays on the first pulse.
-/// - **Same Value**: The same value is emitted each time.
-/// - **Synchronous Emission**: Values are emitted synchronously.
-/// - **Provenance Preservation**: Each emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Error Handling**: If emission fails, the error is reported.
-///
 /// ### Parameters:
 /// - [value]: **The Value to Repeat.** The value to emit multiple times.
 /// - [count]: **Number of Repetitions.** How many times to emit the value.
@@ -546,8 +513,8 @@ class Repeat<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     int count = 1,
     OfErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             var started = false;
             return (pulse, {cell, user, future, token}) {
               if (started) return null;
@@ -564,7 +531,7 @@ class Repeat<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }

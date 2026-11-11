@@ -32,16 +32,6 @@ part of '../cell_flow.dart';
 /// 4. Transformations are optimized into flyweight receptors that execute
 ///    within the host cell's switching fabric.
 ///
-/// ### Non‑obvious
-/// - **Stateless Blueprint**: The methods in [Flow] are convenience wrappers. The
-///   authoritative logic lives in the [FlowInstruction] classes.
-/// - **Resource Management**: A [FlowHandle] is a managed resource. While cells
-///   in Mitosis do not "complete", you should dispose of observers or handles to
-///   prune branches when they are no longer needed.
-/// - **Causal Integrity**: All operations in [Flow] preserve forensic metadata.
-///   Incoming pulses are evolved (not replaced), maintaining a full trace of
-///   the signal's journey across the topography.
-///
 /// ### See Also:
 /// * [FlowInstruction]: The stateless blueprint for reactive logic.
 /// * [FlowHandle]: The live instance of a flow pipeline.
@@ -55,7 +45,30 @@ part of '../cell_flow.dart';
 /// {@category Fluent API}
 /// {@category Architecture}
 /// {@category Walkthroughs}
-abstract class Flow extends CellBase {
+/// A namespace of static operator factories. [Flow] is deliberately NOT a
+/// [CellBase]: it has no cell state, no nucleus, and no participation in the
+/// reactive graph — it only assembles [FlowInstruction] blueprints. Keeping
+/// it out of the cell hierarchy prevents a fake cell from leaking into
+/// cell-typed positions.
+///
+/// ### AI Agent Guide
+/// **Layer:** Flow — the static operator catalog. Not a Cell factory, not a Tissue book.
+/// **When to use:** walk §3 families of `HowTo-Mitose-Flow.md` against the BRD before writing a custom instruction; `Flow.*` covers feed adapters and adjacent journeys.
+/// **When NOT to use:** the **decision** gate of a Cell-variant Demo — that is `FlowInstructionBase` + `+` + `toHandle` (one Receptor, one lock).
+/// **Live signature:** `abstract class Flow` — static factories return `FlowHandle` — pinned at `cell_flow: 1.0.0`
+/// **Do NOT confuse with:** `Cell` (graph nodes; Flow is a namespace that only assembles blueprints).
+/// **Guide:** `HowTo-Mitose-Flow.md` §3 "Examine the catalog against the BRD" (#flow-catalog)
+/// **Example:** `example/cell_flow_example.dart`
+/// **Cross-layer:** entry is `Cell.ingress`; books are `cell_tissue`; `Cell.observe` glues them.
+/// **Minimal compilable example**
+/// ```dart
+/// final src = Cell.ingress<int>();
+/// final h = Flow.filter<int>(src.cell, test: (v) => v > 0);
+/// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+/// src.emit(1);
+/// o.stop();
+/// ```
+abstract class Flow {
   // ─────────────────────────────────────────────────────────────
   // Create
   // ─────────────────────────────────────────────────────────────
@@ -82,12 +95,6 @@ abstract class Flow extends CellBase {
   /// 2. Each value in [values] is emitted in order.
   /// 3. Later pulses are ignored.
   /// 4. Each emitted value gets the step `'Of'` for provenance.
-  ///
-  /// ### Non‑obvious
-  /// - **First Trigger Only**: The sequence only plays on the first pulse.
-  /// - **Synchronous Emission**: Values are emitted synchronously.
-  /// - **No Completion**: Cells don't complete, but the instruction
-  ///   stops emitting after all values are sent.
   ///
   /// ### Parameters:
   /// - [source]: **The Trigger Source.** The cell that triggers the emission.
@@ -117,6 +124,24 @@ abstract class Flow extends CellBase {
   /// - [fromIterable]: For emitting from an iterable.
   /// - [range]: For emitting a numeric range.
   /// - [repeat]: For emitting a repeated value.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — create operator. Not a Cell factory, not a Tissue book.
+  /// **When to use:** replay a fixed fixture list of values on the first trigger (test data, init values).
+  /// **When NOT to use:** v1 industry Demos usually `tickIn.emit` from the harness instead of Create operators.
+  /// **Live signature:** `Flow.of<T>(Cell source, {required Iterable<T> values})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Flow.fromIterable` (same semantics; takes an Iterable source).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.1 "Create" (#flow-create)
+  /// **Example:** `example/cell_flow_example.dart`
+  /// **Cross-layer:** external facts enter through `Cell.ingress`; this only replays fixtures.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.of<int>(src.cell, values: [1, 2, 3]);
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// o.stop();
+  /// ```
   static FlowHandle of<T>(
     Cell source, {
     required Iterable<T> values,
@@ -145,11 +170,6 @@ abstract class Flow extends CellBase {
   /// 2. Each element of [iterable] is emitted in iteration order.
   /// 3. Later pulses are ignored.
   /// 4. Each emitted value gets the step `'FromIterable'` for provenance.
-  ///
-  /// ### Non‑obvious
-  /// - **First Trigger Only**: The sequence only plays on the first pulse.
-  /// - **Iterable Order**: The iteration order of the iterable is used.
-  /// - **Synchronous Emission**: Values are emitted synchronously.
   ///
   /// ### Parameters:
   /// - [source]: **The Trigger Source.** The cell that triggers the emission.
@@ -208,11 +228,6 @@ abstract class Flow extends CellBase {
   /// 4. [count] values are emitted.
   /// 5. Later pulses are ignored.
   /// 6. Each emitted value gets the step `'Range'` for provenance.
-  ///
-  /// ### Non‑obvious
-  /// - **First Trigger Only**: The range only plays on the first pulse.
-  /// - **Step Control**: [step] controls the increment between values.
-  /// - **Synchronous Emission**: Values are emitted synchronously.
   ///
   /// ### Parameters:
   /// - [source]: **The Trigger Source.** The cell that triggers the emission.
@@ -283,11 +298,6 @@ abstract class Flow extends CellBase {
   /// 3. Later pulses are ignored.
   /// 4. Each emitted value gets the step `'Repeat'` for provenance.
   ///
-  /// ### Non‑obvious
-  /// - **First Trigger Only**: The sequence only plays on the first pulse.
-  /// - **Same Value**: The same value is emitted each time.
-  /// - **Synchronous Emission**: Values are emitted synchronously.
-  ///
   /// ### Parameters:
   /// - [source]: **The Trigger Source.** The cell that triggers the emission.
   /// - [value]: **The Value to Repeat.** The value to emit multiple times.
@@ -352,14 +362,6 @@ abstract class Flow extends CellBase {
   /// 5. Later pulses are ignored.
   /// 6. Each emitted value gets the step `'FromFuture'` for provenance.
   ///
-  /// ### Non‑obvious
-  /// - **One-Shot**: The instruction processes only the first trigger.
-  /// - **Lazy Execution**: The future is not started until the first trigger
-  ///   arrives. This prevents unnecessary work.
-  /// - **Error Handling**: Errors are reported via [onError] and optionally
-  ///   as error pulses with `type: 'error'`.
-  /// - **Timeout**: Optional timeout can be applied to the future operation.
-  ///
   /// ### Parameters:
   /// - [source]: **The Trigger Source.** The cell that triggers the future.
   /// - [future]: **The Future to Bridge.** The asynchronous operation to await.
@@ -401,6 +403,25 @@ abstract class Flow extends CellBase {
   /// ### See Also:
   /// - [deferFuture]: For creating a new future on each trigger.
   /// - [fromStream]: For bridging a continuous stream.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — create operator. Not a Cell factory, not a Tissue book.
+  /// **When to use:** one AODB lookup / config load per arm trigger; emits the single future result.
+  /// **When NOT to use:** continuous sources — that is `Flow.fromStream`.
+  /// **Live signature:** `Flow.fromFuture<S>(Cell source, {required Future<S> future, Duration? timeout, FutureErrorHandler? onError, bool emitErrorPulse = true})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Flow.deferFuture` (new future per trigger) and `Cell.fromFuture` (no source cell).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.1 "Create" (#flow-create)
+  /// **Example:** `example/from_future_forensic_pipeline_demo.dart`
+  /// **Cross-layer:** imperatively generated facts still enter via `Cell.ingress`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.fromFuture<int>(src.cell, future: Future.value(5));
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(0);
+  /// await Future<void>.delayed(const Duration(milliseconds: 20));
+  /// o.stop();
+  /// ```
   static FlowHandle fromFuture<S>(
     Cell source, {
     required Future<S> future,
@@ -441,16 +462,6 @@ abstract class Flow extends CellBase {
   /// 4. Success emits `Pulse<S>` with step `DeferFuture`.
   /// 5. Failure is reported through [onError] and optionally an error pulse.
   /// 6. Results are emitted in input order (sequential processing).
-  ///
-  /// ### Non‑obvious
-  /// - **Per-Trigger**: Each trigger starts a new future.
-  /// - **Sequential**: The instruction processes inputs one at a time.
-  ///   Each async operation must complete before the next starts.
-  /// - **Payload Access**: The trigger payload is passed to [create] so
-  ///   the future can depend on the stimulus.
-  /// - **Error Handling**: Errors are reported via [onError] and optionally
-  ///   as error pulses with `type: 'error'`.
-  /// - **Timeout**: Optional timeout can be applied to each future operation.
   ///
   /// ### Parameters:
   /// - [source]: **The Trigger Source.** The cell that triggers each future.
@@ -523,13 +534,6 @@ abstract class Flow extends CellBase {
   /// 5. The instruction stops after the first trigger.
   /// 6. Each emitted event gets the step `'FromStream'` for provenance.
   ///
-  /// ### Non‑obvious
-  /// - **First Trigger Only**: The stream only starts on the first trigger.
-  /// - **Single Subscription**: Only one subscription is created.
-  /// - **Error Handling**: Stream errors are caught and reported.
-  /// - **Provenance Preservation**: Each emitted event preserves the
-  ///   source cell, type, and priority from the trigger pulse.
-  ///
   /// ### Parameters:
   /// - [source]: **The Trigger Source.** The cell that triggers the subscription.
   /// - [stream]: **The Stream Source.** The stream to bridge into the
@@ -560,6 +564,25 @@ abstract class Flow extends CellBase {
   /// ### See Also:
   /// - [deferStream]: For creating a new stream on each trigger.
   /// - [fromFuture]: For bridging a single future.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — create operator. Not a Cell factory, not a Tissue book.
+  /// **When to use:** the belt PLC is already a Dart `Stream` — bridge it into the graph.
+  /// **When NOT to use:** a single value (`Flow.fromFuture`) or imperative callbacks (`Cell.ingress`).
+  /// **Live signature:** `Flow.fromStream<S>(Cell source, {required Stream<S> stream, StreamErrorHandler? onError, bool emitErrorPulse = true})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Flow.deferStream` (new subscription per trigger) and `Cell.fromStream` (no source cell).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.1 "Create" (#flow-create)
+  /// **Example:** `example/from_stream_realtime_data_demo.dart`
+  /// **Cross-layer:** feed shaping before `publishTick` is the legal Time-operator slot.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.fromStream<int>(src.cell, stream: Stream.fromIterable([1, 2]));
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(0);
+  /// await Future<void>.delayed(const Duration(milliseconds: 20));
+  /// o.stop();
+  /// ```
   static FlowHandle fromStream<S>(
     Cell source, {
     required Stream<S> stream,
@@ -594,11 +617,6 @@ abstract class Flow extends CellBase {
   /// 3. Each event is emitted as a pulse.
   /// 4. If the stream errors, an error pulse is emitted.
   /// 5. Each emitted event gets the step `'DeferStream'` for provenance.
-  ///
-  /// ### Non‑obvious
-  /// - **New Stream Each Time**: A fresh stream is created on each trigger.
-  /// - **Lazy Creation**: The stream is created when triggered.
-  /// - **Error Handling**: Stream errors are caught and reported.
   ///
   /// ### Parameters:
   /// - [source]: **The Trigger Source.** The cell that triggers each stream.
@@ -665,13 +683,6 @@ abstract class Flow extends CellBase {
   /// 3. The return value is wrapped in a new [Pulse] and propagated downstream.
   /// 4. Forensic metadata, including the source cell and trace history, is preserved.
   ///
-  /// ### Non‑obvious
-  /// - **Atomic Transformation**: The mapping happens within the reactive wave, ensuring
-  ///   downstream observers see the transformed value immediately.
-  /// - **Error Suppression**: If [project] throws an exception, the pulse is dropped
-  ///   to prevent graph corruption, and the error is reported via [onError].
-  /// - **Stateless**: The operator maintains no internal state between pulses.
-  ///
   /// ### When to use
   /// Use [map] when you need to transform each value in a stream.
   ///
@@ -689,13 +700,6 @@ abstract class Flow extends CellBase {
   /// 3. The result is emitted as a typed pulse.
   /// 4. If [project] throws an error, the pulse is dropped.
   /// 5. The emitted pulse gets the step `'MapValue'` for provenance.
-  ///
-  /// ### Non‑obvious
-  /// - **Type Safety**: Input type [S] and output type [T] are separate.
-  /// - **Error Handling**: If [project] throws, the pulse is dropped.
-  /// - **Provenance Preservation**: The emitted pulse preserves the
-  ///   source cell, type, and priority from the trigger pulse.
-  /// - **Synchronous Transformation**: [project] is synchronous.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -728,6 +732,24 @@ abstract class Flow extends CellBase {
   /// - [mapWithIndex]: For indexed mapping.
   /// - [mapNotNull]: For dropping null results.
   /// - [mapWhen]: For conditional mapping.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — projection operator (Rx `map`). Not a Cell factory, not a Tissue book.
+  /// **When to use:** project a payload on a stock chain; the facade over `MapValue`.
+  /// **When NOT to use:** the rich-`*Decision` → seam-enum projection on a Cell-variant chain — use the `MapValue` class so it can join `+` chains.
+  /// **Live signature:** `Flow.map<S, T>(Cell source, {required T Function(S value) project, MapErrorHandler? onError})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `MapValue` (the chain class) and `Map` (dart:core data structure).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.2 "Transform" (#flow-transform)
+  /// **Example:** `example/cell_flow_example.dart`
+  /// **Cross-layer:** the projected gate Cell is consumed by `Cell.observe`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.map<int, int>(src.cell, project: (v) => v * 2);
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// o.stop();
+  /// ```
   static FlowHandle map<S, T>(
     Cell source, {
     required T Function(S value) project,
@@ -766,11 +788,6 @@ abstract class Flow extends CellBase {
   /// 2. If the type matches, the constant [value] is emitted.
   /// 3. The input value is ignored (only the type is checked).
   /// 4. The emitted pulse gets the step `'MapTo'` for provenance.
-  ///
-  /// ### Non‑obvious
-  /// - **Input Ignored**: The input value is not used in the output.
-  /// - **Type Check**: The type is still checked to ensure proper typing.
-  /// - **Constant Output**: The same value is emitted for every input.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -831,12 +848,6 @@ abstract class Flow extends CellBase {
   /// 4. The result is emitted as a typed pulse.
   /// 5. If [project] throws an error, the pulse is dropped.
   /// 6. The emitted pulse gets the step `'MapWithIndex'` for provenance.
-  ///
-  /// ### Non‑obvious
-  /// - **Index Type**: The index is a 0-based integer.
-  /// - **Typed Only**: Only typed pulses increment the index.
-  /// - **Error Handling**: If [project] throws, the pulse is dropped
-  ///   and the index is not incremented.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -901,11 +912,6 @@ abstract class Flow extends CellBase {
   /// 5. If [project] throws an error, the pulse is dropped.
   /// 6. The emitted pulse gets the step `'MapNotNull'` for provenance.
   ///
-  /// ### Non‑obvious
-  /// - **Null Dropping**: `null` results are dropped silently.
-  /// - **Type Safety**: The output type [T] is non-nullable.
-  /// - **Error Handling**: If [project] throws, the pulse is dropped.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [project]: **Optional Transformation Function.** Called with each
@@ -968,11 +974,6 @@ abstract class Flow extends CellBase {
   /// 5. The result is emitted as a typed pulse.
   /// 6. If [test] or [project] throws an error, the pulse is dropped.
   /// 7. The emitted pulse gets the step `'MapWhen'` for provenance.
-  ///
-  /// ### Non‑obvious
-  /// - **Two Steps**: Test then project (both synchronous).
-  /// - **Dropping**: If [test] fails, the pulse is dropped.
-  /// - **Error Handling**: If [test] or [project] throws, the pulse is dropped.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -1054,12 +1055,6 @@ abstract class Flow extends CellBase {
   ///    `'MapValueOr.orElse'`.
   /// 6. If [orElse] throws, the pulse is dropped.
   ///
-  /// ### Non‑obvious
-  /// - **Two-Level Error Handling**: Errors in [project] go to [orElse].
-  /// - **Errors in [orElse]**: If [orElse] throws, the pulse is dropped.
-  /// - **Provenance Preservation**: Fallback emissions get the step
-  ///   `'MapValueOr.orElse'` to distinguish them.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [project]: **Transformation Function.** Called with each typed
@@ -1128,12 +1123,6 @@ abstract class Flow extends CellBase {
   /// 5. If [project] throws an error, the pulse is dropped.
   /// 6. The emitted pulse gets the step `'MapValues'` for provenance.
   ///
-  /// ### Non‑obvious
-  /// - **Map Payload Required**: The payload must be a `Map`.
-  /// - **Keys Preserved**: The keys remain unchanged.
-  /// - **Type Safety**: Generic over key type [K], value type [V],
-  ///   and result type [R].
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the map payloads.
   /// - [project]: **Value Transformation Function.** Called with each
@@ -1194,14 +1183,6 @@ abstract class Flow extends CellBase {
   /// 5. If [project] throws an error, the pulse is dropped.
   /// 6. The emitted pulse gets the step `'MapKeys'` for provenance.
   ///
-  /// ### Non‑obvious
-  /// - **Map Payload Required**: The payload must be a `Map`.
-  /// - **Values Preserved**: The values remain unchanged.
-  /// - **Type Safety**: Generic over key type [K], value type [V],
-  ///   and result key type [R].
-  /// - **Key Collisions**: If two keys map to the same value, the last
-  ///   one wins (standard Map behavior).
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the map payloads.
   /// - [project]: **Key Transformation Function.** Called with each
@@ -1260,11 +1241,6 @@ abstract class Flow extends CellBase {
   /// 4. If extraction fails, [onError] is called and the pulse is dropped.
   /// 5. The pulse gets the step `'Pluck'` for provenance.
   ///
-  /// ### Non‑obvious
-  /// - **Type Safety**: The extracted value must match type [T].
-  /// - **Error Handling**: Missing keys or type mismatches drop the pulse.
-  /// - **Source Types**: Supports Map, List/Iterable, and objects with `[]`.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the payloads.
   /// - [key]: **The Key to Extract.** The field name or index to look up.
@@ -1293,6 +1269,24 @@ abstract class Flow extends CellBase {
   /// - [pluckOr]: For extraction with default values.
   /// - [pluckAll]: For extracting multiple fields.
   /// - [pluckPath]: For extracting nested fields.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — projection operator. Not a Cell factory, not a Tissue book.
+  /// **When to use:** extract one named field from a record/map payload.
+  /// **When NOT to use:** the rich-`*Decision` → seam-enum projection — that is `MapValue`.
+  /// **Live signature:** `Flow.pluck<T>(Cell source, {required Object key, PluckErrorHandler? onError})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Flow.pluckOr` (fallback when the field is missing).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.2 "Transform" (#flow-transform)
+  /// **Example:** `example/cell_flow_example.dart`
+  /// **Cross-layer:** the decision itself remains a Flow instruction.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<Map<String, Object>>();
+  /// final h = Flow.pluck<int>(src.cell, key: 'a');
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit({'a': 1});
+  /// o.stop();
+  /// ```
   static FlowHandle pluck<T>(
     Cell source, {
     required Object key,
@@ -1322,11 +1316,6 @@ abstract class Flow extends CellBase {
   /// 3. If the value is missing or has the wrong type, [orElse] is emitted.
   /// 4. The default value always matches type [T].
   /// 5. The pulse gets the step `'PluckOr'` (or `'PluckOr.orElse'` for defaults).
-  ///
-  /// ### Non‑obvious
-  /// - **Always Emits**: A value is always emitted (success or default).
-  /// - **Type Safety**: The default must match type [T].
-  /// - **Error Handling**: Errors are caught and the default is used.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the payloads.
@@ -1390,13 +1379,6 @@ abstract class Flow extends CellBase {
   /// 4. If [useOrElse] is `false`, missing keys trigger [onError].
   /// 5. The collected key-value pairs are emitted as a map.
   /// 6. The pulse gets the step `'PluckAll'` for provenance.
-  ///
-  /// ### Non‑obvious
-  /// - **Map Output**: The output is always a `Map<Object, Object?>`.
-  /// - **Partial Success**: Even if some keys fail, successful ones are
-  ///   included in the output.
-  /// - **Error Handling**: Missing keys can either use defaults or trigger
-  ///   error handlers.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the payloads.
@@ -1470,14 +1452,6 @@ abstract class Flow extends CellBase {
   /// 5. If any step fails, [onError] is called and the pulse is dropped.
   /// 6. If [useOrElse] is `true`, [orElse] is emitted on failure.
   /// 7. The pulse gets the step `'PluckPath'` (or `'PluckPath.orElse'` for defaults).
-  ///
-  /// ### Non‑obvious
-  /// - **Path Traversal**: The path is walked left to right.
-  /// - **Any Step Failure**: If any step in the path fails, the whole
-  ///   extraction fails.
-  /// - **Type Safety**: The final value must match type [T].
-  /// - **Error Handling**: Missing keys or type mismatches can trigger
-  ///   error handlers or fallbacks.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the payloads.
@@ -1557,11 +1531,6 @@ abstract class Flow extends CellBase {
   ///    current accumulator and the new value.
   /// 4. The result becomes the new accumulator and is emitted.
   ///
-  /// ### Non‑obvious
-  /// - **No Seed**: The first value is used as the seed and not emitted.
-  /// - **Silent First**: The instruction is silent on the first pulse.
-  /// - **State Persistence**: The accumulator is maintained across pulses.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [accumulate]: **The Accumulation Function.** Takes the current
@@ -1592,6 +1561,24 @@ abstract class Flow extends CellBase {
   /// ### See Also:
   /// - [reduce]: For using an explicit seed value.
   /// - [pairwise]: For emitting adjacent pairs.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — accumulation operator. Not a Cell factory, not a Tissue book.
+  /// **When to use:** running totals / cumulative state emitted per pulse.
+  /// **When NOT to use:** a retained reserve — that is a `TissueValue` with an invariant in `cell_tissue`.
+  /// **Live signature:** `Flow.scan<S, A>(Cell source, {required A Function(A acc, S value) accumulate})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Flow.reduce` (emits only the final accumulated value).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.2 "Transform" (#flow-transform)
+  /// **Example:** `example/start_with_scan_ui_demo.dart`
+  /// **Cross-layer:** the reserve protocol is a Tissue harness pattern, not a chain accumulator.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.scan<int, int>(src.cell, accumulate: (acc, v) => acc + v);
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// o.stop();
+  /// ```
   static FlowHandle scan<S, A>(
     Cell source, {
     required A Function(A acc, S value) accumulate,
@@ -1618,11 +1605,6 @@ abstract class Flow extends CellBase {
   /// 2. For each pulse, [accumulate] is called with the current
   ///    accumulator and the new value.
   /// 3. The result becomes the new accumulator and is emitted.
-  ///
-  /// ### Non‑obvious
-  /// - **Explicit Seed**: The seed is provided as a parameter.
-  /// - **First Pulse Emits**: The first pulse always emits a result.
-  /// - **State Persistence**: The accumulator is maintained across pulses.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -1687,12 +1669,6 @@ abstract class Flow extends CellBase {
   ///    are emitted as a pair `(previous, current)`.
   /// 3. The current value becomes the previous value for the next pair.
   ///
-  /// ### Non‑obvious
-  /// - **Sliding Window**: Only the last two values are kept.
-  /// - **First Pulse Silent**: The first pulse is not emitted.
-  /// - **State Persistence**: Only the previous value is stored (O(1) memory).
-  /// - **Order Preservation**: Results are emitted in input order.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   ///
@@ -1742,15 +1718,6 @@ abstract class Flow extends CellBase {
   /// 3. The instruction waits for the resulting [Future] to resolve.
   /// 4. Once resolved, the next item in the queue is processed.
   ///
-  /// ### Non‑obvious
-  /// - **Backpressure**: Rapid inputs will cause the queue to grow.
-  /// - **Serialization**: Guaranteed to process only one future at a time.
-  /// - **Error Isolation**: A failure in one mapper does not stop the queue.
-  ///
-  /// [asyncMap] is the foundational asynchronous mapping operator. It
-  /// processes inputs one at a time, waiting for each async operation
-  /// to complete before starting the next.
-  ///
   /// ### When to use
   /// Use [asyncMap] when you need to perform async operations on each
   /// value and order matters.
@@ -1770,12 +1737,6 @@ abstract class Flow extends CellBase {
   /// 5. If [mapper] throws an error, it's reported and the instruction
   ///    continues with the next input.
   /// 6. Each emitted value gets the step `'AsyncMap'` for provenance.
-  ///
-  /// ### Non‑obvious
-  /// - **Sequential Processing**: Operations run one after another.
-  /// - **Queueing**: Inputs are queued while processing.
-  /// - **No Cancellation**: Previous operations are not cancelled.
-  /// - **Error Isolation**: Errors don't stop the queue.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -1835,12 +1796,6 @@ abstract class Flow extends CellBase {
   /// 3. Results are emitted as they complete.
   /// 4. Order is not preserved.
   /// 5. If [mapper] throws an error, it's reported independently.
-  ///
-  /// ### Non‑obvious
-  /// - **Unordered**: Results are emitted in completion order.
-  /// - **Unlimited Concurrency**: All operations start immediately.
-  /// - **No Queuing**: No queuing; operations start immediately.
-  /// - **Error Isolation**: Errors are reported independently.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -1906,13 +1861,6 @@ abstract class Flow extends CellBase {
   /// 5. If [mapper] throws an error, it's reported only for the current
   ///    generation.
   ///
-  /// ### Non‑obvious
-  /// - **Generation Tracking**: Each operation gets a unique ID.
-  /// - **Silent Cancellation**: Cancelled operations don't emit errors.
-  /// - **Latest Only**: Only the most recent operation emits values.
-  /// - **Error Isolation**: Only errors from the current generation are
-  ///   reported.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [mapper]: **Mapping Function.** Called with each typed payload,
@@ -1943,6 +1891,25 @@ abstract class Flow extends CellBase {
   /// ### See Also:
   /// - [asyncMap]: For sequential mapping.
   /// - [asyncMapConcurrent]: For concurrent mapping.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — latest-only async transform. Not a Cell factory, not a Tissue book.
+  /// **When to use:** latest search / latest flight on stand — a new pulse cancels the previous in-flight result.
+  /// **When NOT to use:** parallel lookups (`asyncMapConcurrent`) or ordered I/O (`asyncMap`).
+  /// **Live signature:** `Flow.asyncMapLatest<S, T>(Cell source, {required FutureOr<T> Function(S value) mapper, AsyncMapErrorHandler? onError})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Flow.switchMap` (flattens an inner sequence; this maps one Future per pulse).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.4 "Flatten (inner sequences)" (#flow-flatten)
+  /// **Example:** `example/async_map_parallel_search_demo.dart`
+  /// **Cross-layer:** the decision still lives in the instruction; this is adjacent I/O.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<String>();
+  /// final h = Flow.asyncMapLatest<String, int>(src.cell, mapper: (v) async => v.length);
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit('abc');
+  /// await Future<void>.delayed(const Duration(milliseconds: 20));
+  /// o.stop();
+  /// ```
   static FlowHandle asyncMapLatest<S, T>(
     Cell source, {
     required FutureOr<T> Function(S value) mapper,
@@ -1974,12 +1941,6 @@ abstract class Flow extends CellBase {
   /// 4. If [mapper] throws an error, it's reported and the instruction
   ///    continues with the next input.
   /// 5. The index is only incremented on successful completions.
-  ///
-  /// ### Non‑obvious
-  /// - **Index Type**: The index is a 0-based integer.
-  /// - **Typed Only**: Only typed pulses increment the index.
-  /// - **Sequential**: Operations run one after another.
-  /// - **Error Handling**: If [mapper] throws, the index is not incremented.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -2039,12 +2000,6 @@ abstract class Flow extends CellBase {
   /// 3. The instruction continues with the next input.
   /// 4. Each emitted value gets the step `'AsyncMapWithRetry'` for provenance.
   ///
-  /// ### Non‑obvious
-  /// - **Total Attempts**: The operation may run `count + 1` times.
-  /// - **No Delay**: Retries are immediate.
-  /// - **Error Reporting**: Only the final failure is reported.
-  /// - **Sequential**: Operations run one after another.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [mapper]: **Mapping Function.** Called with each typed payload,
@@ -2101,12 +2056,6 @@ abstract class Flow extends CellBase {
   /// 2. If the operation exceeds [duration], a [TimeoutException] is thrown.
   /// 3. The error is reported via [onError].
   /// 4. The instruction continues with the next input.
-  ///
-  /// ### Non‑obvious
-  /// - **Timer Precision**: Timers are based on the event loop.
-  /// - **Cancellation**: Timed-out operations are cancelled.
-  /// - **Error Reporting**: Timeouts are reported via [onError].
-  /// - **Sequential**: Operations run one after another.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -2169,12 +2118,6 @@ abstract class Flow extends CellBase {
   /// 2. If successful, the result is emitted.
   /// 3. If the operation fails, [fallback] is emitted instead.
   /// 4. The instruction always emits a value.
-  ///
-  /// ### Non‑obvious
-  /// - **Always Emits**: A value is always emitted (success or fallback).
-  /// - **Error Isolation**: Errors are caught and handled gracefully.
-  /// - **Type Safety**: The fallback must return the same type [T].
-  /// - **Sequential**: Operations run one after another.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -2242,12 +2185,6 @@ abstract class Flow extends CellBase {
   /// 5. If [expand] throws an error, the error is reported and the
   ///    instruction continues with the next input.
   ///
-  /// ### Non‑obvious
-  /// - **Strict Ordering**: Output order matches input order.
-  /// - **Queueing**: Inputs are queued while processing.
-  /// - **No Cancellation**: Previous operations are not cancelled.
-  /// - **Error Isolation**: Errors don't stop the queue.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [expand]: **Expansion Function.** Takes an input value and returns
@@ -2308,12 +2245,6 @@ abstract class Flow extends CellBase {
   /// 3. Results are emitted as they complete.
   /// 4. Order is not preserved.
   /// 5. If [expand] throws an error, it's reported independently.
-  ///
-  /// ### Non‑obvious
-  /// - **Unordered**: Results are emitted in completion order.
-  /// - **Unlimited Concurrency**: All operations start immediately.
-  /// - **No Queuing**: No queuing; operations start immediately.
-  /// - **Error Isolation**: Errors are reported independently.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -2379,13 +2310,6 @@ abstract class Flow extends CellBase {
   /// 5. If [expand] throws an error, it's reported only for the current
   ///    generation.
   ///
-  /// ### Non‑obvious
-  /// - **Generation Tracking**: Each operation gets a unique ID.
-  /// - **Silent Cancellation**: Cancelled operations don't emit errors.
-  /// - **Latest Only**: Only the most recent operation emits values.
-  /// - **Error Isolation**: Only errors from the current generation are
-  ///   reported.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [expand]: **Expansion Function.** Takes an input value and returns
@@ -2446,13 +2370,6 @@ abstract class Flow extends CellBase {
   /// 2. While the inner sequence is running, new triggers are dropped.
   /// 3. When the inner sequence completes, the next trigger is accepted.
   /// 4. If [expand] throws an error, the busy flag is cleared.
-  ///
-  /// ### Non‑obvious
-  /// - **Dropping**: New triggers are silently dropped while busy.
-  /// - **Single Operation**: Only one operation runs at a time.
-  /// - **No Queuing**: No queuing; dropped triggers are lost.
-  /// - **Error Clearing**: Errors clear the busy flag.
-  /// - **Drop First**: The first trigger is always processed.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -2525,13 +2442,6 @@ abstract class Flow extends CellBase {
   /// 6. If [accumulate] throws an error, it's reported and the instruction
   ///    continues with the next input.
   ///
-  /// ### Non‑obvious
-  /// - **Sequential Processing**: Steps run one after another.
-  /// - **Queueing**: Inputs are queued while processing.
-  /// - **No Cancellation**: Previous operations are not cancelled.
-  /// - **Error Isolation**: Errors don't stop the queue.
-  /// - **Snapshot Access**: The snapshot can be read externally.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [seed]: **Initial State.** The starting accumulator value.
@@ -2601,11 +2511,6 @@ abstract class Flow extends CellBase {
   /// 3. Any previous asynchronous accumulation is abandoned.
   /// 4. The result of the latest successful accumulation is emitted.
   ///
-  /// ### Non‑obvious
-  /// - **Generation Tracking**: Each operation gets a unique ID to prevent
-  ///   stale updates.
-  /// - **State Persistence**: The snapshot is updated only by the latest
-  ///   generation.
   static FlowHandle asyncFoldLatest<S, A>(
     Cell source, {
     required A seed,
@@ -2672,12 +2577,6 @@ abstract class Flow extends CellBase {
   /// 4. If [accumulate] throws an error, it's reported and the instruction
   ///    continues with the next input.
   ///
-  /// ### Non‑obvious
-  /// - **First Value as Seed**: The first value is emitted as the seed.
-  /// - **No Seed Parameter**: No explicit seed is required.
-  /// - **Sequential Processing**: Steps run one after another.
-  /// - **Queueing**: Inputs are queued while processing.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [accumulate]: **Accumulation Function.** Called with the current
@@ -2742,12 +2641,6 @@ abstract class Flow extends CellBase {
   /// 5. If [test] throws an error, the pulse is dropped.
   /// 6. Forwarded pulses get the step `'Filter'` for provenance.
   ///
-  /// ### Non‑obvious
-  /// - **Synchronous Predicate**: The predicate must be synchronous.
-  /// - **Type Safety**: Only typed payloads are considered.
-  /// - **Error Handling**: Errors in the predicate drop the pulse.
-  /// - **Order Preservation**: Results are emitted in input order.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [test]: **Predicate Function.** Returns `true` to keep the value.
@@ -2776,6 +2669,24 @@ abstract class Flow extends CellBase {
   /// ### See Also:
   /// - [mapWhen]: For conditional mapping.
   /// - [takeWhile]: For taking until a condition fails.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — predicate operator (Rx `filter`). Not a Cell factory, not a Tissue book.
+  /// **When to use:** drop `none` / keep only `atRisk` on a stock chain, or a single-predicate pass before `MapValue`.
+  /// **When NOT to use:** clause-ordered policy with a resettable latch — that is a custom `FlowInstructionBase`.
+  /// **Live signature:** `Flow.filter<S>(Cell source, {required bool Function(S value) test})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Filter` (the chain class; same semantics) and `Cell.valve` (Cell-layer gate).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.3 "Filter / take / skip" (#flow-filter-take-skip)
+  /// **Example:** `example/filter_data_quality_demo.dart`
+  /// **Cross-layer:** policy reading a live TissueSet belongs in a custom instruction.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.filter<int>(src.cell, test: (v) => v.isEven);
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// o.stop();
+  /// ```
   static FlowHandle filter<S>(
     Cell source, {
     required bool Function(S value) test,
@@ -2807,12 +2718,6 @@ abstract class Flow extends CellBase {
   ///    pulses are dropped.
   /// 5. Results are emitted in input order.
   ///
-  /// ### Non‑obvious
-  /// - **Terminal State**: Once the count is reached, the stream closes.
-  /// - **State Persistence**: The instruction maintains a counter.
-  /// - **Order Preservation**: Results are emitted in the same order as inputs.
-  /// - **No Completion Signal**: The source cell is not completed.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [count]: **The Number of Values to Take.** Must be >= 0.
@@ -2839,6 +2744,24 @@ abstract class Flow extends CellBase {
   /// ### See Also:
   /// - [takeWhile]: For conditional taking.
   /// - [takeUntil]: For event-based taking.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — count taker. Not a Cell factory, not a Tissue book.
+  /// **When to use:** first N alerts only; cap a burst; prefetch a page.
+  /// **When NOT to use:** "first N alerts" in a Cell-variant Demo is usually a book concern (Tissue), not a chain operator.
+  /// **Live signature:** `Flow.take<S>(Cell source, {required int count})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Flow.skip` (drops the first N; take keeps them).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.3 "Filter / take / skip" (#flow-filter-take-skip)
+  /// **Example:** `example/cell_flow_example.dart`
+  /// **Cross-layer:** retention/purge policy belongs to the Tissue book.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.take<int>(src.cell, count: 2);
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// o.stop();
+  /// ```
   static FlowHandle take<S>(
     Cell source, {
     required int count,
@@ -2867,13 +2790,6 @@ abstract class Flow extends CellBase {
   /// 3. If the predicate returns `true`, the value passes through.
   /// 4. If the predicate returns `false`, the stream closes.
   /// 5. The failing value is not emitted (unless `inclusive`).
-  ///
-  /// ### Non‑obvious
-  /// - **Terminal State**: Once the predicate returns `false`, the stream
-  ///   closes and no further values are emitted.
-  /// - **State Persistence**: The instruction maintains an `open` flag.
-  /// - **Order Preservation**: Results are emitted in the same order as inputs.
-  /// - **Error Handling**: Errors in the predicate close the stream.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -2932,12 +2848,6 @@ abstract class Flow extends CellBase {
   /// 2. Initially, all values from the source are forwarded.
   /// 3. When the [notifier] emits a value, the stream closes.
   /// 4. After the notifier emits, all subsequent source values are dropped.
-  ///
-  /// ### Non‑obvious
-  /// - **State**: The instruction maintains an `open` flag.
-  /// - **Once Closed**: The stream cannot be opened again.
-  /// - **First Value**: The notifier's value is not passed through.
-  /// - **Memory Efficiency**: Only a boolean flag is stored.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -3000,12 +2910,6 @@ abstract class Flow extends CellBase {
   /// 4. If the counter reaches [count], all subsequent values pass through.
   /// 5. Results are emitted in input order.
   ///
-  /// ### Non‑obvious
-  /// - **Opening State**: Once the count is reached, the stream opens.
-  /// - **State Persistence**: The instruction maintains a counter.
-  /// - **Order Preservation**: Results are emitted in the same order as inputs.
-  /// - **Memory Efficiency**: Only an integer counter is stored.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [count]: **The Number of Values to Skip.** Must be >= 0.
@@ -3032,6 +2936,24 @@ abstract class Flow extends CellBase {
   /// ### See Also:
   /// - [skipWhile]: For conditional skipping.
   /// - [skipUntil]: For event-based skipping.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — count skipper. Not a Cell factory, not a Tissue book.
+  /// **When to use:** ignore the first N pulses (seed / warm-up / header rows).
+  /// **When NOT to use:** named policy filtering — that is `Flow.filter` or a custom instruction.
+  /// **Live signature:** `Flow.skip<S>(Cell source, {required int count})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Flow.take` (keeps the first N; skip drops them).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.3 "Filter / take / skip" (#flow-filter-take-skip)
+  /// **Example:** `example/cell_flow_example.dart`
+  /// **Cross-layer:** "first N alerts only" is usually a book concern in Tissue.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.skip<int>(src.cell, count: 1);
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// o.stop();
+  /// ```
   static FlowHandle skip<S>(
     Cell source, {
     required int count,
@@ -3062,13 +2984,6 @@ abstract class Flow extends CellBase {
   /// 4. If the predicate returns `false`, the stream is opened and all
   ///    subsequent values pass through.
   /// 5. Results are emitted in input order.
-  ///
-  /// ### Non‑obvious
-  /// - **Opening State**: Once the predicate returns `false`, the stream is
-  ///   opened and all subsequent values pass through.
-  /// - **State Persistence**: The instruction maintains a `skipping` flag.
-  /// - **Order Preservation**: Results are emitted in the same order as inputs.
-  /// - **Error Handling**: Errors in the predicate are reported via [onError].
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -3130,12 +3045,6 @@ abstract class Flow extends CellBase {
   /// 3. When the [notifier] emits a value, the stream opens.
   /// 4. After the notifier emits, all subsequent source values pass through.
   ///
-  /// ### Non‑obvious
-  /// - **State**: The instruction maintains an `open` flag.
-  /// - **Once Opened**: The stream cannot be closed again.
-  /// - **First Value**: The notifier's value is not passed through.
-  /// - **Memory Efficiency**: Only a boolean flag is stored.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [notifier]: **The Opening Event Source.** The cell that triggers the
@@ -3195,11 +3104,6 @@ abstract class Flow extends CellBase {
   /// 3. If the payload is different, it's emitted and becomes the new
   ///    previous value.
   ///
-  /// ### Non‑obvious
-  /// - **Consecutive Only**: Only back-to-back duplicates are skipped.
-  /// - **No Initial Emission**: The first value is always skipped.
-  /// - **State Persistence**: The instruction maintains the previous value.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   ///
@@ -3249,12 +3153,6 @@ abstract class Flow extends CellBase {
   /// 3. If the predicate returns `true`, the value is skipped.
   /// 4. If the predicate returns `false`, the value passes through.
   /// 5. Results are emitted in input order.
-  ///
-  /// ### Non‑obvious
-  /// - **Per-Value**: The predicate is evaluated for each value independently.
-  /// - **Stateless**: The instruction maintains no state.
-  /// - **Order Preservation**: Results are emitted in the same order as inputs.
-  /// - **Memory Efficiency**: No state is stored.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -3321,14 +3219,6 @@ abstract class Flow extends CellBase {
   /// - **Use [skipRepeated]** when only consecutive repeats matter to avoid
   ///   unbounded memory growth.
   ///
-  /// ### Non‑obvious
-  /// - **Global Scope**: Any previously seen value is dropped, even if it
-  ///   appeared long ago.
-  /// - **Memory Growth**: The instruction stores all seen values, so memory
-  ///   grows with the number of unique values.
-  /// - **Custom Comparator**: Providing an `equals` function allows for
-  ///   custom comparison logic.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   ///
@@ -3355,6 +3245,24 @@ abstract class Flow extends CellBase {
   /// ### See Also:
   /// - [skipRepeated]: For consecutive-only deduplication.
   /// - [filter]: For general filtering.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — global dedupe operator. Not a Cell factory, not a Tissue book.
+  /// **When to use:** "do not flood the log" on a 15 s feed — drop any payload seen before.
+  /// **When NOT to use:** an ACK-resettable latch (stock `Distinct` has no `reset()` — use a custom instruction).
+  /// **Live signature:** `Flow.distinct<S>(Cell source)` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Flow.skipRepeated` (consecutive-only) and `DistinctUntilChanged` (Flow class, consecutive).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.3 "Filter / take / skip" (#flow-filter-take-skip)
+  /// **Example:** `example/distinct_noise_reduction_demo.dart`
+  /// **Cross-layer:** a guarded register of seen keys is a `TissueSet`; the reset latch is a custom instruction.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.distinct<int>(src.cell);
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// o.stop();
+  /// ```
   static FlowHandle distinct<S>(Cell source) {
     return Distinct<S>().toHandle(source: source);
   }
@@ -3399,16 +3307,6 @@ abstract class Flow extends CellBase {
   /// - **`null`**: No emission (the pulse is dropped).
   /// - **Nested combinations**: `Future<Iterable<T>>`, etc., are recursively expanded.
   ///
-  /// ### Non‑obvious
-  /// - **Strict Sequencing**: The instruction processes inputs one at a time.
-  ///   Each sequence must complete before the next starts.
-  /// - **Queueing**: If triggers arrive while a sequence is in progress,
-  ///   they are queued in FIFO order.
-  /// - **Error Handling**: Errors in the [project] or during draining are
-  ///   reported via [onError].
-  /// - **Backpressure**: The instruction processes inputs sequentially,
-  ///   automatically providing backpressure.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [project]: **The Flattening Logic.** Takes an input value and returns
@@ -3444,6 +3342,24 @@ abstract class Flow extends CellBase {
   /// - [mergeMap]: For concurrent flattening.
   /// - [switchMap]: For latest-only flattening.
   /// - [exhaustMap]: For exhaust flattening.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — sequential flattener. Not a Cell factory, not a Tissue book.
+  /// **When to use:** order of issuer calls matters — each inner sequence finishes before the next starts (queue inners).
+  /// **When NOT to use:** parallel I/O (mergeMap) or latest-only (switchMap).
+  /// **Live signature:** `Flow.concatMap<S, T>(Cell source, {required FutureOr<Object?> Function(S value) project})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Flow.concat` (fixed inners after one trigger).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.4 "Flatten (inner sequences)" (#flow-flatten)
+  /// **Example:** `example/cell_flow_example.dart`
+  /// **Cross-layer:** flatten wraps I/O beside the decision, never inside `riskOf`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.concatMap<int, int>(src.cell, project: (v) async => v * 2);
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// o.stop();
+  /// ```
   static FlowHandle concatMap<S, T>(
     Cell source, {
     required FutureOr<Object?> Function(S value) project,
@@ -3472,12 +3388,6 @@ abstract class Flow extends CellBase {
   /// 2. Each inner in [inners] is drained in order.
   /// 3. All values from each inner are emitted.
   /// 4. The instruction stops after all inners are played.
-  ///
-  /// ### Non‑obvious
-  /// - **Fixed Inners**: The inners are fixed at construction time.
-  /// - **First Pulse Only**: The instruction only arms on the first pulse.
-  /// - **Sequential**: Inners are played one after another.
-  /// - **Error Isolation**: Errors in one inner don't stop the next.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the trigger.
@@ -3540,12 +3450,6 @@ abstract class Flow extends CellBase {
   /// 3. All values from each inner are emitted.
   /// 4. If the queue is empty, the instruction waits.
   ///
-  /// ### Non‑obvious
-  /// - **Dynamic Payloads**: The inners come from the source payloads.
-  /// - **Queueing**: Inners are queued and processed in order.
-  /// - **Sequential**: Inners are played one after another.
-  /// - **Error Isolation**: Errors in one inner don't stop the next.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   ///
@@ -3592,12 +3496,6 @@ abstract class Flow extends CellBase {
   /// 2. The queue is processed one inner at a time.
   /// 3. The inner is fully drained and collected.
   /// 4. The last typed value of type [T] is emitted.
-  ///
-  /// ### Non‑obvious
-  /// - **Last Only**: Only the last item of each inner is emitted.
-  /// - **Full Drain**: The entire inner is drained to find the last.
-  /// - **Type Filtering**: Only values of type [T] are considered.
-  /// - **Memory Usage**: Drains the full inner into memory.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -3648,12 +3546,6 @@ abstract class Flow extends CellBase {
   /// 4. Values are emitted as they complete (unordered).
   /// 5. All inners run to completion (no cancellation).
   ///
-  /// ### Non‑obvious
-  /// - **Unordered Output**: Results are emitted in completion order.
-  /// - **Concurrency**: All operations start immediately.
-  /// - **No Cancellation**: Previous operations are not cancelled.
-  /// - **Error Isolation**: Errors in one operation don't affect others.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [project]: **The Flattening Logic.** Takes an input value and returns
@@ -3684,6 +3576,24 @@ abstract class Flow extends CellBase {
   /// - [concatMap]: For sequential flattening.
   /// - [switchMap]: For latest-only flattening.
   /// - [exhaustMap]: For exhaust flattening.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — concurrent flattener. Not a Cell factory, not a Tissue book.
+  /// **When to use:** parallel CAD lookups / independent I/O per trigger; results in completion order.
+  /// **When NOT to use:** order matters (concatMap) or only the latest matters (switchMap).
+  /// **Live signature:** `Flow.mergeMap<S, T>(Cell source, {required FutureOr<Object?> Function(S value) project})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Flow.switchMap` (cancels previous) and `Flow.concatMap` (queues inners).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.4 "Flatten (inner sequences)" (#flow-flatten)
+  /// **Example:** `example/async_map_parallel_search_demo.dart`
+  /// **Cross-layer:** flatten wraps I/O beside the decision, never inside `riskOf`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.mergeMap<int, int>(src.cell, project: (v) async => v * 2);
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// o.stop();
+  /// ```
   static FlowHandle mergeMap<S, T>(
     Cell source, {
     required FutureOr<Object?> Function(S value) project,
@@ -3708,14 +3618,6 @@ abstract class Flow extends CellBase {
   /// 3. Any previous active inner sequence is immediately abandoned/cancelled.
   /// 4. Only values from the current (latest) inner are emitted.
   ///
-  /// ### Non‑obvious
-  /// - **Generation ID**: Internally uses incrementing IDs to ignore stale results.
-  /// - **Cancellation**: For Streams, it cancels the subscription. For Futures,
-  ///   it ignores the result.
-  ///
-  /// [switchMap] acts as a **Latest-Only Flattener**. A new trigger
-  /// cancels emission from the previous inner sequence.
-  ///
   /// ### When to use
   /// Use [switchMap] when you only care about the most recent operation:
   ///
@@ -3733,14 +3635,6 @@ abstract class Flow extends CellBase {
   ///    sequence's ID is marked as stale.
   /// 3. Only the sequence with the current ID can emit results.
   /// 4. Stale sequences' items are silently dropped.
-  ///
-  /// ### Non‑obvious
-  /// - **Silent Cancellation**: Cancelled sequences do not throw exceptions.
-  ///   They simply don't emit results.
-  /// - **Generation ID Tracking**: Each sequence gets a unique ID. Only the
-  ///   sequence with the current ID can emit.
-  /// - **Memory Safety**: The state only holds the current generation ID.
-  /// - **Error Handling**: Only errors from the latest sequence are reported.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -3772,6 +3666,24 @@ abstract class Flow extends CellBase {
   /// - [concatMap]: For sequential flattening.
   /// - [mergeMap]: For concurrent flattening.
   /// - [exhaustMap]: For exhaust flattening.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — latest-only flattener. Not a Cell factory, not a Tissue book.
+  /// **When to use:** "latest reservation / flight / search only" — a new trigger cancels the previous inner sequence.
+  /// **When NOT to use:** parallel CAD lookups (mergeMap) or ordered calls (concatMap).
+  /// **Live signature:** `Flow.switchMap<S, T>(Cell source, {required FutureOr<Object?> Function(S value) project})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Cell.switchMap` (Cell-layer variant whose mapper returns a `Cell`).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.4 "Flatten (inner sequences)" (#flow-flatten)
+  /// **Example:** `example/switch_map_dynamic_dependency_demo.dart`
+  /// **Cross-layer:** flatten wraps I/O beside the decision, never inside `riskOf`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.switchMap<int, int>(src.cell, project: (v) async => v * 2);
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// o.stop();
+  /// ```
   static FlowHandle switchMap<S, T>(
     Cell source, {
     required FutureOr<Object?> Function(S value) project,
@@ -3802,13 +3714,6 @@ abstract class Flow extends CellBase {
   /// 2. While the sequence is in flight, all subsequent triggers are dropped.
   /// 3. When the sequence completes, the instruction is ready for the next trigger.
   /// 4. Results are emitted from the first sequence.
-  ///
-  /// ### Non‑obvious
-  /// - **Drop While Busy**: Triggers while busy are silently dropped.
-  /// - **One at a Time**: Only one sequence can be in flight at a time.
-  /// - **Error Handling**: Errors are reported via [onError].
-  /// - **Causal Provenance**: Every emitted result is wrapped as an
-  ///   [EvolvedPulse], preserving the forensic history.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -3843,6 +3748,24 @@ abstract class Flow extends CellBase {
   /// - [concatMap]: For sequential flattening.
   /// - [mergeMap]: For concurrent flattening.
   /// - [switchMap]: For latest-only flattening.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — exhaust flattener. Not a Cell factory, not a Tissue book.
+  /// **When to use:** prevent double submit / double checkout / double ACK — triggers while an inner sequence is busy are dropped.
+  /// **When NOT to use:** a busy-flag pattern hand-rolled in the instruction (known race in `ExhaustMapLatest`: set the busy flag **before** scheduling the inner work; prefer this operator for outbound pumps).
+  /// **Live signature:** `Flow.exhaustMap<S, T>(Cell source, {required FutureOr<Object?> Function(S value) project})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Flow.switchMap` (cancels previous; exhaust drops new) and `Flow.mergeMap` (overlaps all).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.4 "Flatten (inner sequences)" (#flow-flatten)
+  /// **Example:** `example/exhaust_map_submit_checkout_demo.dart`
+  /// **Cross-layer:** use on the **outbound pump Cell**, never inside `riskOf`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.exhaustMap<int, int>(src.cell, project: (v) async => v * 2);
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// o.stop();
+  /// ```
   static FlowHandle exhaustMap<S, T>(
     Cell source, {
     required FutureOr<Object?> Function(S value) project,
@@ -3877,11 +3800,6 @@ abstract class Flow extends CellBase {
   /// 3. The bound source pulse passes through (if `forwardSource` is true).
   /// 4. Pulses from [others] are forwarded with step `MergeWith.other`.
   ///
-  /// ### Non‑obvious
-  /// - **Interleaved**: Pulses from different sources are interleaved.
-  /// - **Order Preservation**: Within each source, order is preserved.
-  /// - **Error Handling**: Type errors are reported via [onError].
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [others]: **The Additional Cells.** Cells to merge with the source.
@@ -3910,6 +3828,24 @@ abstract class Flow extends CellBase {
   /// ### See Also:
   /// - [merge]: For merging extra sources only.
   /// - [mergeAll]: For flattening inner sequences.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — multi-source fan-in. Not a Cell factory, not a Tissue book.
+  /// **When to use:** interleave pulses from several sources into one gate ("merge clicks from two widgets").
+  /// **When NOT to use:** value pairing — use `zipWith` / `combineLatestWith`; a Cell-variant Tick is usually assembled in the harness instead.
+  /// **Live signature:** `Flow.mergeWith<T>(Cell source, {required List<Cell> others})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Flow.merge` (arming source is not forwarded).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.5 "Combine" (#flow-combine)
+  /// **Example:** `example/merge_stream_aggregation_demo.dart`
+  /// **Cross-layer:** the merged gate Cell is still consumed by `Cell.observe`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.mergeWith<int>(src.cell, others: [Cell.ingress<int>().cell]);
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// o.stop();
+  /// ```
   static FlowHandle mergeWith<T>(
     Cell source, {
     required List<Cell> others,
@@ -3934,12 +3870,6 @@ abstract class Flow extends CellBase {
   /// 2. Observers are started on all [sources] cells.
   /// 3. Pulses from all [sources] are forwarded with step `Merge`.
   /// 4. The arming pulse is not forwarded (by default).
-  ///
-  /// ### Non‑obvious
-  /// - **Arming Only**: The first source pulse is only used to arm.
-  /// - **Interleaved**: Pulses from different sources are interleaved.
-  /// - **No Source Forwarding**: The arming pulse is not forwarded.
-  /// - **Error Handling**: Type errors are reported via [onError].
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the trigger.
@@ -4000,12 +3930,6 @@ abstract class Flow extends CellBase {
   /// - **`null`**: No emission.
   /// - **Nested combinations**: Recursively expanded.
   ///
-  /// ### Non‑obvious
-  /// - **Concurrent**: Inner sequences are processed concurrently.
-  /// - **Interleaved**: Emissions from different sequences are interleaved.
-  /// - **No Order Guarantee**: Results are emitted in completion order.
-  /// - **Error Handling**: Errors are reported via [onError].
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [onError]: **Error Handler.** Optional callback for handling errors.
@@ -4064,12 +3988,6 @@ abstract class Flow extends CellBase {
   ///    b. The values are combined using [project].
   ///    c. The result is emitted.
   /// 4. The slowest source determines the emission rate.
-  ///
-  /// ### Non‑obvious
-  /// - **Index Pairing**: Values are paired by position (index).
-  /// - **Queueing**: Values are queued until all sources have a value.
-  /// - **Synchronization**: The slowest source determines the emission rate.
-  /// - **Memory Usage**: Queues hold values until all sources have one.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -4138,12 +4056,6 @@ abstract class Flow extends CellBase {
   /// 4. If every queue has at least one value, one value is removed
   ///    from each queue and the row is emitted.
   ///
-  /// ### Non‑obvious
-  /// - **Arm Only**: The bound source only arms the zip; its payload
-  ///   is not included in the zipped output.
-  /// - **Index Pairing**: Values are paired by position (index).
-  /// - **Queueing**: Values are queued until all sources have a value.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the trigger.
   /// - [sources]: **Sources to Zip.** The cells to zip together.
@@ -4210,12 +4122,6 @@ abstract class Flow extends CellBase {
   /// 3. When the row reaches [width], it's emitted as a list.
   /// 4. The row is cleared.
   ///
-  /// ### Non‑obvious
-  /// - **Batching**: Values are batched by count.
-  /// - **Single Source**: Only one source is used.
-  /// - **No Overlap**: Each value appears in exactly one batch.
-  /// - **Memory Usage**: Only holds up to [width] values at a time.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [width]: **Batch Size.** The number of values in each batch.
@@ -4281,13 +4187,6 @@ abstract class Flow extends CellBase {
   /// 4. The result is emitted as a [Pulse].
   /// 5. Whenever any cell updates, the [combine] function is called again.
   ///
-  /// ### Non‑obvious
-  /// - **All Must Have Value**: Emission only happens after all cells have
-  ///   at least one value.
-  /// - **Latest Values**: Always uses the most recent value from each cell.
-  /// - **Any Update Triggers**: Any cell update triggers a new combination.
-  /// - **Source Arming**: The first source pulse is required to arm.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [others]: **The Additional Cells.** Cells to combine with the source.
@@ -4322,6 +4221,28 @@ abstract class Flow extends CellBase {
   /// ### See Also:
   /// - [withLatestFrom]: For source-driven combination.
   /// - [zipWith]: For index-based pairing.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — combine operator. Not a Cell factory, not a Tissue book.
+  /// **When to use:** "one screen from occupancy + inbound + boarded" — emit whenever any source emits, with the latest of all.
+  /// **When NOT to use:** index pairing (`zipWith`) or a Cell-variant Tick that the harness assembles in Dart (say so in Real desk).
+  /// **Live signature:** `Flow.combineLatestWith<S, R>(Cell source, {required List<Cell> others, required R Function(S sourceValue, List<Object?> latest) combine, CombineErrorHandler? onError})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Flow.withLatestFrom` (source-driven; waits for others but emits only on source).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.5 "Combine" (#flow-combine)
+  /// **Example:** `example/combine_latest_sync_demo.dart`
+  /// **Cross-layer:** the merged screen is still a projection; books stay in Tissue.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.combineLatestWith<int, String>(
+  ///   src.cell,
+  ///   others: [Cell.ingress<String>().cell],
+  ///   combine: (a, latest) => '$a:${latest.single}',
+  /// );
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// o.stop();
+  /// ```
   static FlowHandle combineLatestWith<S, R>(
     Cell source, {
     required List<Cell> others,
@@ -4357,12 +4278,6 @@ abstract class Flow extends CellBase {
   ///    the source value and the latest values from [others].
   /// 3. If any other cell has not yet produced a value, the source pulse is dropped.
   /// 4. The result is emitted as a [Pulse].
-  ///
-  /// ### Non‑obvious
-  /// - **Source-Driven**: Only source updates trigger emission.
-  /// - **Latest Values**: Uses the latest values from others at the time of
-  ///   source update.
-  /// - **Drop on Miss**: Source pulses are dropped if any other cell has no value.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -4439,13 +4354,6 @@ abstract class Flow extends CellBase {
   /// - `null`: The competitor is ignored (no emission).
   /// - **Nested combinations**: Recursively expanded.
   ///
-  /// ### Non‑obvious
-  /// - **One-Shot**: The race is started on the first trigger only.
-  /// - **Concurrent**: All competitors are started concurrently.
-  /// - **First Value Wins**: Only the first value from any competitor is emitted.
-  /// - **Streams are Cancelled**: Streams that lose are cancelled.
-  /// - **Error Handling**: Errors are reported via [onError].
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the trigger.
   /// - [competitors]: **The Competitors.** An iterable of sources to race.
@@ -4469,6 +4377,24 @@ abstract class Flow extends CellBase {
   /// );
   ///
   /// start.emit(null); // Emits 'fast'
+  /// ```
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — combine operator. Not a Cell factory, not a Tissue book.
+  /// **When to use:** first feed that answers wins (two lookups, keep the faster).
+  /// **When NOT to use:** deterministic pairing (`zipWith`) or all-sources screens (`combineLatestWith`).
+  /// **Live signature:** `Flow.race<T>(Cell source, {required List<Object?> competitors})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Flow.mergeWith` (interleaves all; race takes one winner).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.5 "Combine" (#flow-combine)
+  /// **Example:** `example/retry_timeout_flaky_network_demo.dart`
+  /// **Cross-layer:** a harness `_driveAlert` retry-once is often the v1 alternative.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.race<int>(src.cell, competitors: [1, 2]);
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// o.stop();
   /// ```
   static FlowHandle race<T>(
     Cell source, {
@@ -4502,12 +4428,6 @@ abstract class Flow extends CellBase {
   /// 2. A timer is started for [duration].
   /// 3. When the timer fires, the pulse is forwarded.
   /// 4. The pulse gets the step `'Delay'` for provenance.
-  ///
-  /// ### Non‑obvious
-  /// - **Fixed Delay**: The delay is the same for all pulses.
-  /// - **No Cancellation**: Previous delays are not cancelled.
-  /// - **Provenance Preservation**: The forwarded pulse preserves the
-  ///   source cell, type, and priority from the trigger pulse.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -4564,13 +4484,6 @@ abstract class Flow extends CellBase {
   /// 2. [durationOf] is called with the payload.
   /// 3. A timer is started for the computed duration.
   /// 4. When the timer fires, the pulse is forwarded.
-  ///
-  /// ### Non‑obvious
-  /// - **Payload-Dependent**: The delay is computed from the payload.
-  /// - **Error Handling**: If [durationOf] throws, the pulse is dropped.
-  /// - **Provenance Preservation**: The forwarded pulse preserves the
-  ///   source cell, type, and priority from the trigger pulse.
-  /// - **Synchronous Extraction**: [durationOf] is synchronous.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -4634,12 +4547,6 @@ abstract class Flow extends CellBase {
   ///    - `null`: returns immediately
   /// 4. When the notifier completes, the pulse is forwarded.
   ///
-  /// ### Non‑obvious
-  /// - **Flexible Notifier**: Supports Duration, Future, Stream, null.
-  /// - **Async Wait**: The wait is asynchronous.
-  /// - **Error Handling**: If [when] throws or the notifier errors,
-  ///   the error is reported.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [when]: **Notifier Factory.** Called with each typed payload,
@@ -4698,13 +4605,6 @@ abstract class Flow extends CellBase {
   /// 3. If a new pulse arrives before the timer fires, the previous
   ///    timer is cancelled.
   /// 4. Only the latest pulse is delivered.
-  ///
-  /// ### Non‑obvious
-  /// - **Cancellation**: Previous timers are cancelled on new pulses.
-  /// - **Latest Only**: Only the latest pulse is delivered.
-  /// - **Trailing**: The delay is trailing (after the last pulse).
-  /// - **Generation Tracking**: Each pulse gets a generation ID to
-  ///   determine if it's still current.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -4770,12 +4670,6 @@ abstract class Flow extends CellBase {
   /// 3. When the timer completes without interruption, the latest value is emitted.
   /// 4. Only the final value in each burst is emitted.
   ///
-  /// ### Non‑obvious
-  /// - **Silence Window**: The timer resets on every new pulse.
-  /// - **Pending Value**: Only the most recent value is emitted.
-  /// - **State Persistence**: The instruction maintains the pending value and timer.
-  /// - **Order Preservation**: Only the final value in each burst is emitted.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [duration]: **The Silence Window.** The period of inactivity required
@@ -4807,6 +4701,27 @@ abstract class Flow extends CellBase {
   /// ### See Also:
   /// - [throttle]: For rate limiting.
   /// - [sample]: For sampling on notifier.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — time operator. Not a Cell factory, not a Tissue book.
+  /// **When to use:** belt chatter / 15 s snapshots — emit only after a period of silence on a feed, **before** `publishTick`.
+  /// **When NOT to use:**
+  ///   {@macro ai-do-not-put-time-op-as-policy}
+  /// **Live signature:** `Flow.debounce<S>(Cell source, {required Duration duration})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Flow.throttle` (leading/trailing rate limit) and `Flow.auditTime` (one-shot, does not reset on each pulse).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.6 "Time" (#flow-time)
+  /// **Example:** `example/stability_search_demo.dart`
+  /// **Cross-layer:** the Cell-layer twin is `Cell.debounce`; neither is a policy gate.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<String>();
+  /// final h = Flow.debounce<String>(src.cell, duration: const Duration(milliseconds: 50));
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit('a');
+  /// src.emit('b');
+  /// await Future<void>.delayed(const Duration(milliseconds: 80));
+  /// o.stop();
+  /// ```
   static FlowHandle debounce<S>(
     Cell source, {
     required Duration duration,
@@ -4841,13 +4756,6 @@ abstract class Flow extends CellBase {
   /// - **Both** (`leading: true, trailing: true`): Emit first and last.
   /// - **Neither** (`leading: false, trailing: false`): No emissions during window.
   ///
-  /// ### Non‑obvious
-  /// - **Fixed Windows**: Windows are fixed duration and do not reset.
-  /// - **Leading Emission**: The first pulse in a window is emitted immediately.
-  /// - **Trailing Emission**: The last pulse in a window is emitted when the
-  ///   window closes.
-  /// - **Pending Value**: Only the most recent value in the window is kept.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [duration]: **The Time Window.** The minimum time between emissions.
@@ -4878,6 +4786,27 @@ abstract class Flow extends CellBase {
   /// ### See Also:
   /// - [debounce]: For silence-based emission.
   /// - [sample]: For sampling on notifier.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — time operator. Not a Cell factory, not a Tissue book.
+  /// **When to use:** supervisor mash on ACK / constant-rate sampling — at most one pulse per duration (leading/trailing), on a feed **before** `publishTick`.
+  /// **When NOT to use:**
+  ///   {@macro ai-do-not-put-time-op-as-policy}
+  /// **Live signature:** `Flow.throttle<S>(Cell source, {required Duration duration, bool leading = true, bool trailing = false})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Flow.debounce` (waits for silence; this is a fixed rate window).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.6 "Time" (#flow-time)
+  /// **Example:** `example/throttle_rate_limiting_demo.dart`
+  /// **Cross-layer:** the Cell-layer twin is `Cell.throttle`; neither is a policy gate.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.throttle<int>(src.cell, duration: const Duration(milliseconds: 50));
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// src.emit(2);
+  /// await Future<void>.delayed(const Duration(milliseconds: 80));
+  /// o.stop();
+  /// ```
   static FlowHandle throttle<S>(
     Cell source, {
     required Duration duration,
@@ -4914,13 +4843,6 @@ abstract class Flow extends CellBase {
   ///    b. The pending value is cleared.
   ///    c. If no pending value, nothing is emitted.
   ///
-  /// ### Non‑obvious
-  /// - **Pending Only**: Values are only emitted if they arrived since
-  ///   the last emission.
-  /// - **Ignored Ticks**: Notifier ticks with no pending value are ignored.
-  /// - **Latest Only**: Only the latest value is held; older values are
-  ///   overwritten.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [notifier]: **Notifier Cell.** The cell that triggers sampling.
@@ -4952,6 +4874,9 @@ abstract class Flow extends CellBase {
   /// ### See Also:
   /// - [sampleTime]: For time-based sampling.
   /// - [audit]: For audit on notifier.
+  /// Materializes a [Sample] instruction. Like every [Flow] factory the
+  /// returned [FlowHandle] is untyped: the payload type [S] is enforced by
+  /// the operator's own type checks, not by the handle record.
   static FlowHandle sample<S>(
     Cell source, {
     required Cell notifier,
@@ -4982,12 +4907,6 @@ abstract class Flow extends CellBase {
   ///    a. If there's a pending value, it's emitted.
   ///    b. The pending value is cleared.
   /// 4. The timer continues indefinitely.
-  ///
-  /// ### Non‑obvious
-  /// - **Lazy Start**: The timer starts on the first pulse.
-  /// - **Continuous Timer**: The timer runs until the instruction is disposed.
-  /// - **Pending Only**: Values are only emitted if they arrived since
-  ///   the last emission.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -5050,12 +4969,6 @@ abstract class Flow extends CellBase {
   /// 4. If no source pulse has arrived since the last audit, the
   ///    notifier pulse is ignored.
   ///
-  /// ### Non‑obvious
-  /// - **Waiting Flag**: The waiting flag tracks if a source pulse
-  ///   has arrived since the last audit.
-  /// - **One-Time Audit**: Each source pulse can only be audited once.
-  /// - **Ignored Ticks**: Notifier ticks with no waiting are ignored.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [notifier]: **Notifier Cell.** The cell that triggers the audit.
@@ -5115,12 +5028,6 @@ abstract class Flow extends CellBase {
   /// 2. If there's already a scheduled timer, it's not reset (one-shot).
   /// 3. After [duration], the pending value is emitted.
   /// 4. The timer is a one-shot, not periodic.
-  ///
-  /// ### Non‑obvious
-  /// - **One-Shot Timer**: The timer fires once and stops.
-  /// - **No Reset**: Unlike debounce, the timer is not reset on new pulses.
-  /// - **Latest in Window**: The latest value in the window is emitted.
-  /// - **Scheduled Flag**: Prevents multiple timers from running.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -5182,12 +5089,6 @@ abstract class Flow extends CellBase {
   /// 4. The error pulse has type `'error'` for routing.
   /// 5. The clock is closed after the first timeout.
   ///
-  /// ### Non‑obvious
-  /// - **Single Timeout**: The clock closes after the first timeout.
-  /// - **Reset Behavior**: Timer resets on every typed pulse.
-  /// - **Error Type**: The error is a [TimeoutException].
-  /// - **Type Safety**: The instruction is generic over [S].
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [duration]: **Timeout Duration.** The maximum gap between pulses
@@ -5218,6 +5119,25 @@ abstract class Flow extends CellBase {
   /// ### See Also:
   /// - [timeoutWithFallback]: For fallback on timeout.
   /// - [timeout]: For overall deadline from first pulse.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — time operator. Not a Cell factory, not a Tissue book.
+  /// **When to use:** "raise if stopped > 60 s" style deadlines on an adjacent I/O cell — emits an error pulse if silence exceeds the duration.
+  /// **When NOT to use:** ACK-within-N-minutes journeys in v1 (that is a tick-field / clock concern, not a chain operator); never as the policy gate.
+  /// **Live signature:** `Flow.timeout<S>(Cell source, {required Duration duration, TimeoutErrorHandler? onError, bool emitErrorPulse = true})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Flow.timeoutWithFallback` (emits a fallback value instead of an error pulse).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.6 "Time" (#flow-time)
+  /// **Example:** `example/retry_timeout_flaky_network_demo.dart`
+  /// **Cross-layer:** wall-clock policy stays in the instruction or on the tick field.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.timeout<int>(src.cell, duration: const Duration(milliseconds: 50));
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// await Future<void>.delayed(const Duration(milliseconds: 20));
+  /// o.stop();
+  /// ```
   static FlowHandle timeout<S>(
     Cell source, {
     required Duration duration,
@@ -5251,14 +5171,6 @@ abstract class Flow extends CellBase {
   /// 2. On timeout, [fallback] is emitted instead of an error.
   /// 3. If [once] is `true`, the fallback is emitted only once.
   /// 4. If [once] is `false`, the fallback is emitted on every timeout.
-  ///
-  /// ### Non‑obvious
-  /// - **Once vs Continuous**: [once] controls whether the fallback is
-  ///   emitted repeatedly.
-  /// - **No Error**: No error pulse is emitted.
-  /// - **Provenance Preservation**: The fallback pulse preserves the
-  ///   source cell, type, and priority from the trigger pulse.
-  /// - **Type Safety**: The fallback must match the payload type [S].
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -5326,14 +5238,6 @@ abstract class Flow extends CellBase {
   /// 3. On each tick, the current `tick` value is emitted.
   /// 4. The `tick` counter increments by 1 each emission.
   ///
-  /// ### Non‑obvious
-  /// - **Arming on First Pulse**: The clock starts on the first pulse, not
-  ///   on creation. This allows lazy initialization.
-  /// - **No Initial Emission**: Unlike Rx, there's no `0` emission at the
-  ///   start. The first emission is after [period] has elapsed.
-  /// - **Memory Safety**: The timer is cancelled when the instruction is
-  ///   disposed.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the trigger.
   /// - [period]: **The Tick Interval.** The duration between each emission.
@@ -5398,14 +5302,6 @@ abstract class Flow extends CellBase {
   /// 4. The buffer is then shifted by [skip] (which defaults to [size]).
   /// 5. If `skip` == `size`, the buffer is cleared completely (tumbling).
   /// 6. If `skip` < `size`, the last `size - skip` elements are kept (sliding).
-  ///
-  /// ### Non‑obvious
-  /// - **Lazy Emission**: No pulse is emitted until at least [size] pulses have arrived.
-  /// - **Memory Usage**: The operator holds a maximum of [size] elements in memory.
-  /// - **Overlapping Windows**: If [skip] is less than [size], elements will appear in
-  ///   multiple output lists.
-  /// - **Gaps**: If [skip] is greater than [size], some incoming elements will be
-  ///   discarded between buffers.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -5474,13 +5370,6 @@ abstract class Flow extends CellBase {
   /// 4. The buffer is cleared after emission.
   /// 5. If [emitEmpty] is `false`, empty buffers are skipped.
   ///
-  /// ### Non‑obvious
-  /// - **Lazy Start**: The timer starts on the first pulse, not on
-  ///   instruction creation.
-  /// - **Continuous**: The timer continues indefinitely until disposed.
-  /// - **Empty Skip**: [emitEmpty] controls whether empty buffers are
-  ///   emitted.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [duration]: **Buffer Duration.** The time interval for each buffer.
@@ -5546,11 +5435,6 @@ abstract class Flow extends CellBase {
   ///    b. The buffer is cleared.
   /// 3. If [emitEmpty] is `true`, empty buffers are emitted.
   /// 4. The closer can be triggered multiple times.
-  ///
-  /// ### Non‑obvious
-  /// - **Multiple Closes**: The closer can be triggered repeatedly.
-  /// - **Continuous Batching**: After a close, batching continues.
-  /// - **Empty Control**: [emitEmpty] controls empty buffer emission.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -5621,12 +5505,6 @@ abstract class Flow extends CellBase {
   ///    b. The buffer is emitted as a list.
   ///    c. The buffer is cleared.
   ///
-  /// ### Non‑obvious
-  /// - **Trigger Inclusion**: [includeTrigger] controls whether the
-  ///   triggering value is included in the buffer.
-  /// - **Empty Skip**: Empty buffers are not emitted.
-  /// - **Predicate Evaluation**: The predicate is evaluated on each value.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [test]: **Predicate Function.** Called with each typed payload,
@@ -5694,12 +5572,6 @@ abstract class Flow extends CellBase {
   /// 4. If [duration] elapses, it flushes (even if count not reached).
   /// 5. The buffer is cleared after each flush.
   /// 6. The timer resets after each flush.
-  ///
-  /// ### Non‑obvious
-  /// - **Two Triggers**: Either time or count can trigger a flush.
-  /// - **Timer Reset**: The timer resets after each flush.
-  /// - **Count Priority**: Count triggers flush immediately.
-  /// - **Distinct Steps**: Different provenance steps for time and count.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -5772,11 +5644,6 @@ abstract class Flow extends CellBase {
   /// | `skip < size` | Overlapping | `[1, 2, 3]`, `[2, 3, 4]`, `[3, 4, 5]` |
   /// | `skip > size` | Gaps (items skipped) | `[1, 2, 3]`, `[5, 6, 7]` (4 skipped) |
   ///
-  /// ### Non‑obvious
-  /// - **Tumbling Default**: [skip] defaults to [size] (no overlap).
-  /// - **Overlap**: When [skip] < [size], windows overlap.
-  /// - **Gaps**: When [skip] > [size], some items are skipped.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [size]: **Window Size.** The number of items in each window.
@@ -5836,12 +5703,6 @@ abstract class Flow extends CellBase {
   /// 4. The buffer is cleared after emission.
   /// 5. If [emitEmpty] is `false`, empty windows are skipped.
   ///
-  /// ### Non‑obvious
-  /// - **Lazy Start**: The timer starts on the first pulse.
-  /// - **Continuous**: The timer continues indefinitely.
-  /// - **Empty Skip**: [emitEmpty] controls whether empty windows are
-  ///   emitted.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [duration]: **Window Duration.** The time interval for each window.
@@ -5897,12 +5758,6 @@ abstract class Flow extends CellBase {
   /// 4. The [Grouped] record is emitted.
   /// 5. If [keyOf] throws an error, the pulse is dropped.
   ///
-  /// ### Non‑obvious
-  /// - **No State**: No state is maintained between pulses.
-  /// - **Per-Item Emit**: Emits one [Grouped] for each input.
-  /// - **Key Extraction**: [keyOf] is called for each value.
-  /// - **Type Safety**: Generic over value type [S] and key type [K].
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [keyOf]: **Key Extraction Function.** Called with each typed
@@ -5932,6 +5787,24 @@ abstract class Flow extends CellBase {
   /// ### See Also:
   /// - [groupCollect]: For collecting values by group.
   /// - [groupByCount]: For batching values by group.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — collect operator. Not a Cell factory, not a Tissue book.
+  /// **When to use:** group bag alerts by belt (FR-08) — emit `Grouped(key, value)` per pulse.
+  /// **When NOT to use:** the WalkThrough often chooses a `TissueMap` key instead; do not run both without saying which is the system of record.
+  /// **Live signature:** `Flow.groupBy<S, K>(Cell source, {required K Function(S value) keyOf, GroupErrorHandler? onError})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Flow.groupCollect` (collects each group into a list).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.7 "Collect / control" (#flow-collect-control)
+  /// **Example:** `example/cell_flow_example.dart`
+  /// **Cross-layer:** persistent grouping by key is `TissueMap<K, V>` in `cell_tissue`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.groupBy<int, int>(src.cell, keyOf: (v) => v % 2);
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// o.stop();
+  /// ```
   static FlowHandle groupBy<S, K>(
     Cell source, {
     required K Function(S value) keyOf,
@@ -5962,12 +5835,6 @@ abstract class Flow extends CellBase {
   /// 3. The value is added to the group's list in the internal map.
   /// 4. The current map is emitted as a snapshot.
   /// 5. If [keyOf] throws an error, the pulse is dropped.
-  ///
-  /// ### Non‑obvious
-  /// - **Stateful**: Maintains a map of all groups.
-  /// - **Running Snapshot**: Emits the complete map after every pulse.
-  /// - **Snapshot Copy**: The emitted map is a copy (not the internal map).
-  /// - **Monotonic Growth**: Groups only grow; values are never removed.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -6035,12 +5902,6 @@ abstract class Flow extends CellBase {
   /// 3. The value is added to the group's list.
   /// 4. If the list reaches [size], it's emitted as a [Grouped] record.
   /// 5. The group is cleared from the internal map.
-  ///
-  /// ### Non‑obvious
-  /// - **Stateful**: Maintains groups until they reach the size.
-  /// - **Clear on Emit**: Groups are removed after emission.
-  /// - **Per-Group Batching**: Each group batches independently.
-  /// - **Incomplete Groups**: Groups that never reach the size are kept.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -6111,12 +5972,6 @@ abstract class Flow extends CellBase {
   /// 4. The [Split] record is emitted.
   /// 5. If [test] throws an error, the pulse is dropped.
   ///
-  /// ### Non‑obvious
-  /// - **No State**: No state is maintained between pulses.
-  /// - **Per-Item Emit**: Emits one [Split] for each input.
-  /// - **Predicate Evaluation**: [test] is called for each value.
-  /// - **Type Safety**: Generic over value type [S].
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [test]: **Predicate Function.** Called with each typed payload,
@@ -6176,12 +6031,6 @@ abstract class Flow extends CellBase {
   /// 4. If [test] returns `false`, [elseMap] is called with the value.
   /// 5. The result is emitted.
   /// 6. If [test], [thenMap], or [elseMap] throws, the pulse is dropped.
-  ///
-  /// ### Non‑obvious
-  /// - **No State**: No state is maintained between pulses.
-  /// - **Per-Item Emit**: Emits one value for each input.
-  /// - **Different Mappers**: Two different mapping functions.
-  /// - **Type Safety**: Generic over value type [S] and output type [T].
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -6254,12 +6103,6 @@ abstract class Flow extends CellBase {
   /// 3. If [test] returns [matched] (default `true`), the value is emitted.
   /// 4. If [test] returns the opposite, the value is dropped.
   /// 5. If [test] throws an error, the pulse is dropped.
-  ///
-  /// ### Non‑obvious
-  /// - **No State**: No state is maintained between pulses.
-  /// - **Filtering**: Only values matching the condition are emitted.
-  /// - **Inverse Filtering**: With [matched] `false`, keeps non-matching values.
-  /// - **Type Safety**: Generic over value type [S].
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -6334,14 +6177,6 @@ abstract class Flow extends CellBase {
   /// 5. The result is emitted as a [Pulse].
   /// 6. The instruction preserves causal provenance.
   ///
-  /// ### Non‑obvious
-  /// - **Binary Branch**: Only two paths are available: then and else.
-  /// - **Type Safety**: The instruction is generic over [S] (input) and
-  ///   [T] (output), ensuring compile-time type safety.
-  /// - **Error Handling**: Errors in the predicate or mappers are reported
-  ///   via [onError].
-  /// - **Synchronous Execution**: The instruction executes synchronously.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [test]: **The Condition.** Returns `true` for the [thenMap] path.
@@ -6414,13 +6249,6 @@ abstract class Flow extends CellBase {
   /// 4. If [replaceFirst] is `true`, the original pulse is dropped.
   /// 5. Each emitted value gets the step `'StartWith'` for provenance.
   ///
-  /// ### Non‑obvious
-  /// - **First Trigger Only**: The prefix is emitted only on the first pulse.
-  /// - **Replace First**: [replaceFirst] controls whether the original
-  ///   pulse is dropped.
-  /// - **Provenance Preservation**: The emitted value preserves the
-  ///   source cell, type, and priority from the trigger pulse.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [value]: **The Value to Prefix.** The value to emit before the stream.
@@ -6479,13 +6307,6 @@ abstract class Flow extends CellBase {
   /// 3. The `seen` counter is incremented.
   /// 4. The pulse gets the step `'Share'` for provenance.
   ///
-  /// ### Non‑obvious
-  /// - **Pass-through**: Values are not modified or buffered.
-  /// - **Counting**: The `seen` counter tracks typed pulses only.
-  /// - **Type Safety**: Only payloads matching type [S] are counted.
-  /// - **Multiple Observers**: Multiple observers share one subscription.
-  /// - **No Replay**: Late subscribers do not receive past values.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   ///
@@ -6534,12 +6355,6 @@ abstract class Flow extends CellBase {
   /// 3. The buffer maintains a sliding window of [size] values.
   /// 4. The pulse is passed through unchanged.
   /// 5. The `buffer.values` getter provides access to buffered values.
-  ///
-  /// ### Non‑obvious
-  /// - **Sliding Window**: The buffer maintains exactly [size] values.
-  /// - **Size 0**: If size is 0, no values are retained.
-  /// - **Mutable Buffer**: The buffer is mutable and shared.
-  /// - **External Access**: The buffer is accessible externally.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -6603,14 +6418,6 @@ abstract class Flow extends CellBase {
   /// 6. If [emitErrorPulse] is `true`, an error pulse is emitted
   ///    when all retries fail.
   ///
-  /// ### Non‑obvious
-  /// - **Total Attempts**: The task runs up to `count + 1` times.
-  /// - **No Delay**: Retries are immediate.
-  /// - **Error Swallowing**: Errors are caught and don't crash the flow.
-  /// - **Error Pulse**: The error pulse has type `'error'` for routing.
-  /// - **Provenance Preservation**: Success and error pulses preserve
-  ///   the source cell, type, and priority from the trigger pulse.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [task]: **The Task to Execute.** Takes an input value and returns
@@ -6642,6 +6449,25 @@ abstract class Flow extends CellBase {
   /// - [retry]: For conditional retry logic.
   /// - [retry]: For retries with a fixed delay.
   /// - [retry]: For retries with exponential backoff.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — control operator. Not a Cell factory, not a Tissue book.
+  /// **When to use:** flaky RTU / issuer — retry a `FutureOr` task up to `count` times on the **outbound pump Cell**.
+  /// **When NOT to use:** inside `riskOf` (policy is pure); a harness `_driveAlert` retry-once is the usual v1 alternative.
+  /// **Live signature:** `Flow.retry<S, T>(Cell source, {required RetryTask<S, T> task, int count = 3, RetryErrorHandler? onError, bool emitErrorPulse = true})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Flow.exhaustMap` (prevents overlap; retry re-attempts failures).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.7 "Collect / control" (#flow-collect-control)
+  /// **Example:** `example/retry_timeout_flaky_network_demo.dart`
+  /// **Cross-layer:** the enqueue history is a `TissueQueue` book.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.retry<int, int>(src.cell, task: (v) async => v, count: 2);
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// await Future<void>.delayed(const Duration(milliseconds: 20));
+  /// o.stop();
+  /// ```
   static FlowHandle retry<S, T>(
     Cell source, {
     required RetryTask<S, T> task,
@@ -6681,13 +6507,6 @@ abstract class Flow extends CellBase {
   /// 4. If [onValue] succeeds, the pulse is passed through unchanged.
   /// 5. The pulse gets the step `'Tap'` for provenance.
   ///
-  /// ### Non‑obvious
-  /// - **Error Handling**: If [onValue] throws, the pulse is dropped.
-  /// - **Pass-through**: The pulse is not modified.
-  /// - **Type Safety**: Only typed payloads trigger the callback.
-  /// - **Provenance Preservation**: The pulse gets the `'Tap'` step.
-  /// - **Synchronous Callback**: [onValue] is synchronous.
-  ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
   /// - [onValue]: **Side Effect Callback.** Called with each typed
@@ -6715,6 +6534,25 @@ abstract class Flow extends CellBase {
   /// ### See Also:
   /// - [tapAll]: For side effects on all pulses.
   /// - [tapWithIndex]: For indexed side effects.
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Flow — side-effect pass-through. Not a Cell factory, not a Tissue book.
+  /// **When to use:** logging / metrics / analytics on a stock chain without rewriting the pulse.
+  /// **When NOT to use:**
+  ///   {@macro ai-do-not-tap-tissue-on-decision-chain}
+  /// **Live signature:** `Flow.tap<S>(Cell source, {required void Function(S value) onValue, TapErrorHandler? onError})` — pinned at `cell_flow: 1.0.0`
+  /// **Do NOT confuse with:** `Cell.observe` (the Cell-layer glue that writes books; tap lives in the chain).
+  /// **Guide:** `HowTo-Mitose-Flow.md` §3.7 "Collect / control" (#flow-collect-control)
+  /// **Example:** `example/tap_logging_analytics_demo.dart`
+  /// **Cross-layer:** book writes happen in `Cell.observe` on the gate Cell, not in Tap.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final src = Cell.ingress<int>();
+  /// final h = Flow.tap<int>(src.cell, onValue: (v) => print(v));
+  /// final o = Cell.observe(source: h.cell, effect: (Pulse p) => print(p.payload));
+  /// src.emit(1);
+  /// o.stop();
+  /// ```
   static FlowHandle tap<S>(
     Cell source, {
     required void Function(S value) onValue,
@@ -6744,13 +6582,6 @@ abstract class Flow extends CellBase {
   /// 3. If [onPulse] throws an error, the pulse is dropped.
   /// 4. If [onPulse] succeeds, the pulse is passed through unchanged.
   /// 5. The pulse gets the step `'TapAll'` for provenance.
-  ///
-  /// ### Non‑obvious
-  /// - **No Type Check**: The callback receives all pulses.
-  /// - **Full Pulse Access**: The callback receives the full [Pulse] object.
-  /// - **Error Handling**: If [onPulse] throws, the pulse is dropped.
-  /// - **Provenance Preservation**: The pulse gets the `'TapAll'` step.
-  /// - **Synchronous Callback**: [onPulse] is synchronous.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.
@@ -6807,14 +6638,6 @@ abstract class Flow extends CellBase {
   /// 4. If [onValue] throws an error, the pulse is dropped.
   /// 5. If [onValue] succeeds, the pulse is passed through unchanged.
   /// 6. The index is incremented after the callback.
-  ///
-  /// ### Non‑obvious
-  /// - **Index Type**: The index is a 0-based integer.
-  /// - **Typed Only**: Only typed pulses increment the index.
-  /// - **Error Handling**: If [onValue] throws, the pulse is dropped
-  ///   and the index is not incremented.
-  /// - **Provenance Preservation**: The pulse gets the `'TapWithIndex'` step.
-  /// - **Synchronous Callback**: [onValue] is synchronous.
   ///
   /// ### Parameters:
   /// - [source]: **The Source Cell.** The cell providing the input values.

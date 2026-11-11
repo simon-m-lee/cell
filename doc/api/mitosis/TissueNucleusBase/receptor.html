@@ -94,16 +94,6 @@ the <code>principal</code> chain to find a handler from an ancestor.</li>
 <li><strong>Default Fallback</strong>: If the root is reached without finding a
 custom receptor, it defaults to <a href="../../mitosis/TissueReceptor/passThrough-constant.html">TissueReceptor.passThrough</a>.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The receptor is <strong>activated</strong> when the nucleus is bound to a live
-tissue – this is when it becomes aware of the specific collection
-instance.</li>
-<li>If you pass an already‑activated receptor to a new nucleus, the
-framework automatically clones it to prevent state leakage.</li>
-<li>For deputies, the receptor is typically inherited from the principal
-unless explicitly overridden.</li>
-</ul>
 <h3 id="example-internal">Example (Internal)</h3>
 <pre class="language-dart"><code class="language-dart">final receptor = list._nucleus.receptor;
 // receptor is the function that processes mutation pulses
@@ -150,7 +140,7 @@ TissueReceptor&lt;E, C&gt; get receptor {
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -30,12 +30,6 @@ part of '../../cell.dart';
 /// The framework uses this for flyweight sharing – when you create a deputy,
 /// the new nucleus can inherit these from its principal without copying them.
 ///
-/// ### Non‑obvious
-/// - This is a record, not a class – it's lightweight and immutable.
-/// - The framework resolves inherited properties by walking up the `principal`
-///   chain; this record is the unit of transfer.
-///
-/// See also: [Nucleus], [Nucleus.evolve].
 typedef InheritableHandle = ({
   /// The upstream [Cell] providing the primary data ingress.
   Cell? bind,
@@ -68,19 +62,116 @@ class _Nucleus extends NucleusBase {
       super.principal})
       : super();
 
-  _Nucleus.evolve(
-      {super.ephemeralPolicy,
-      super.bind,
-      super.context,
-      super.receptor,
-      super.testRule,
-      super.synapses,
-      super.user,
-      super.override,
-      required super.principal})
-      : super.evolve();
-
   _Nucleus.fromRecord(super.record) : super.fromRecord();
+
+  int get _nShape {
+    try {
+      return record.local.shape as int;
+    } catch (_) {
+      return 0; // legacy records without the tag
+    }
+  }
+
+  /// Default-enabled nuclei store the [Synapses.enabled] flyweight; the real
+  /// set is materialized on first access, so an isolated cell pays nothing.
+  @override
+  late final Synapses synapses = _resolveSynapses();
+
+  Synapses _resolveSynapses() {
+    final stored =
+        get<Synapses>(() => record.local.synapses, orElse: Synapses.disabled);
+    if (stored != Synapses.enabled) return stored;
+    return Synapses();
+  }
+
+  @override
+  late final Receptor receptor = get<Receptor>(
+      () => record.local.inheritable.receptor,
+      fallback: () => principal?.receptor,
+      orElse: Receptor.passThrough);
+
+  @override
+  late final TestCell testRule = _resolveTestRule();
+
+  TestCell _resolveTestRule() {
+    final localRule = get<TestCell>(() => record.local.inheritable.testRule,
+        fallback: () => principal?.testRule, orElse: TestCell.allowAll);
+    if (localRule != TestCell.allowAll) return localRule;
+    final upstream = bind;
+    if (upstream != null) return upstream._nucleus.testRule;
+    return localRule;
+  }
+
+  @override
+  late final Context context = _resolveContext();
+
+  Context _resolveContext() {
+    final localCtx = get<Context>(() => record.local.inheritable.context,
+        fallback: () => principal?.context, orElse: Context.system);
+    if (localCtx != Context.system) return localCtx;
+    final upstream = bind;
+    if (upstream != null) return upstream.context;
+    return localCtx;
+  }
+
+  @override
+  late final Lock? lock = _nShape == 0
+      ? get<Lock?>(() => record.local.lock,
+          fallback: () => principal?.lock, orElse: null)
+      : (_nShape & 4) != 0
+          ? record.local.lock
+          : principal?.lock;
+
+  @override
+  late final Record? user = _nShape == 0
+      ? get<Record?>(() => record.local.user,
+          fallback: () => principal?.user, orElse: null)
+      : (_nShape & 2) != 0
+          ? record.local.user
+          : principal?.user;
+
+  @override
+  late final Cell? bind = _nShape == 0
+      ? get<Cell?>(() => record.local.bind, orElse: null)
+      : (_nShape & 16) != 0
+          ? record.local.bind
+          : null;
+
+  @override
+  late final DateTime timestamp = _resolveTimestamp();
+
+  DateTime _resolveTimestamp() {
+    final raw = get<dynamic>(
+      () => record.timestamp,
+      fallback: () => record.local.timestamp,
+      orElse: null,
+    );
+    if (raw is DateTime) return raw;
+    if (raw is int) return DateTime.fromMillisecondsSinceEpoch(raw);
+    // The record no longer stores a construction-time stamp: compute it on
+    // first read instead of paying DateTime.now() for every cell.
+    return DateTime.now();
+  }
+
+  @override
+  late final EphemeralPolicy? _hostedEphemeralPolicy = get<EphemeralPolicy?>(
+      () => record.local.inheritable.ephemeralPolicy,
+      fallback: () => (principal as NucleusBase?)?._hostedEphemeralPolicy,
+      orElse: null);
+
+  @override
+  late final EphemeralPolicy? _ephemeralPolicy = _resolveEphemeralPolicy();
+
+  EphemeralPolicy? _resolveEphemeralPolicy() {
+    final hosted = _hostedEphemeralPolicy;
+    if (hosted != null) return hosted;
+    final upstream = bind;
+    if (upstream != null) {
+      final nucleus = upstream._nucleus;
+      if (nucleus is NucleusBase) return nucleus._ephemeralPolicy;
+    }
+    return null;
+  }
 
   @override
   Nucleus get clone {
@@ -119,13 +210,6 @@ class _Nucleus extends NucleusBase {
 ///   isn't found locally, it walks up the chain.
 /// - Provides low-level getters for all nucleus properties.
 ///
-/// ### Non‑obvious
-/// - The internal record is immutable; changes create a new nucleus.
-/// - The `forceLock` parameter in the primary constructor defaults to `true`,
-///   but in `evolve` it's typically inherited from the principal.
-/// - The `mask` static method is the engine behind flyweight storage.
-///
-/// See also: [Nucleus], [_Nucleus], [Nucleolus].
 abstract class NucleusBase implements Nucleus {
   // ignore: strict_top_level_inference, prefer_typing_uninitialized_variables
   final record;
@@ -159,10 +243,12 @@ abstract class NucleusBase implements Nucleus {
   ///     `mask` utility, which evaluates each argument against framework defaults.
   ///     If a property matches the default (e.g., [Context.system]), it is
   ///     omitted from the record entirely, eliminating the "Nullable Field Tax."
-  /// *   **Concurrency Governance**: Unless [forceLock] is explicitly set to
-  ///     `true`, the constructor ensures the nucleus is equipped with a fresh
-  ///     atomic `Lock`. This lock is the primary synchronization mechanism
-  ///     guaranteeing that [Pulse] processing is atomic and thread-safe.
+  /// *   **Concurrency Governance**: When [forceLock] is `true`, the
+  ///     nucleus is equipped with a fresh reentrant `Lock` and the cell
+  ///     serializes its mutating operations through it. The default
+  ///     (`false`) leaves the node lock-free: the runtime is a single
+  ///     Dart isolate, so the lock is a re-entrancy/ordering guard, not a
+  ///     cross-thread memory fence.
   /// *   **Logic Purity**: If the provided [receptor] is already "activated"
   ///     (bound to a live cell), the constructor automatically emits
   ///     `receptor.copy`. This prevents logic leakage and ensures each blueprint
@@ -186,8 +272,8 @@ abstract class NucleusBase implements Nucleus {
   /// * [receptor]: The **Transformation Pipeline** gatekeeper.
   /// * [testRule]: The **Policy Guard** for state validation.
   /// * [synapses]: Manages the **Signal Distribution Network**.
-  /// * [forceLock]: If `true`, prevents the creation of a new synchronization
-  ///   primitive (used when sharing a lock with a [principal]).
+  /// * [forceLock]: If `true`, creates a fresh reentrant synchronization
+  ///   lock for this nucleus. Default `false` = lock-free (single isolate).
   /// * [user]: Optional record for extension-specific metadata.
   /// * [principal]: Optional ancestor [Nucleus] for **Prototype Inheritance**.
   NucleusBase(
@@ -253,18 +339,6 @@ abstract class NucleusBase implements Nucleus {
   /// 3. **Hydration Logic**: It assumes the **Flyweight Optimization** has
   ///    already been applied to the input, allowing for immediate reification.
   ///
-  /// ### Non‑obvious
-  /// - **Trust Model**: Operates on a "Trusted Input" model; it does not validate
-  ///   that mandatory pillars (like [testRule]) are present if the [principal]
-  ///   is missing.
-  /// - **Deterministic Identity**: By utilizing `const` records, the framework
-  ///   maintains referential equality across the graph, ensuring a
-  ///   stable **Causal Provenance**.
-  /// - **Zero-Cost Path**: Provides a zero-latency path for restoring nuclei
-  ///   within performance-critical reactive waves.
-  /// - **Manual Pillar Resolution**: Property resolution will fall back to the
-  ///   `principal` defined within the record, not an external argument.
-  ///
   /// ### Example
   /// ```dart
   /// // Primarily used internally for structural evolution:
@@ -289,98 +363,23 @@ abstract class NucleusBase implements Nucleus {
   /// * [Nucleolus]: For static, compile-time blueprint reification.
   const NucleusBase.fromRecord(this.record);
 
-  /// Creates a specialized **Architectural Extension** of an existing [Nucleus] to
-  /// support hierarchical property inheritance and contextual overrides.
-  ///
-  /// This constructor implements the **Prototype Inheritance Pattern** within the
-  /// property system, allowing a derived nucleus to inherit its structural
-  /// identity and core behavioral logic from a [principal] while layering on
-  /// localized configuration overrides.
-  ///
-  /// ### When to use
-  /// - **Contextual Specialization**: When many nodes share common logic (security
-  ///   tiers, storage strategies) but differ in a single specific aspect.
-  /// - **Creating Deputies**: Generating restricted-access or read-only views
-  ///   of a cell that share data but use different [testRule] guards.
-  /// - **Contextual Projections**: Projecting a system-level state into a
-  ///   user-level view by overriding the [context] pillar.
-  /// - **Behavioral Shadowing**: Overriding a [receptor] to add transformation
-  ///   logic without altering the principal's original behavior.
-  ///
-  /// ### How it works
-  /// 1. **The Linker Record**: It creates a multi-tiered record that points back
-  ///    to the [principal] for any property not explicitly defined locally.
-  /// 2. **Resolution Chain**: When a property is accessed, the system employs
-  ///    a "walk-up" strategy: Local Segment -> Principal Segment ->
-  ///    [Nucleus.empty] (Global Defaults).
-  /// 3. **Shared Atomicity**: By default, extensions share the [principal]'s
-  ///    atomic [Lock], ensuring they maintain a single atomic boundary for
-  ///    complex graph transitions.
-  /// 4. **Memory Optimization**: It avoids re-allocating a full property set,
-  ///    storing only the "delta" between the extension and its prototype.
-  ///
-  /// ### Non‑obvious
-  /// - **Binding Specificity**: Upstream bindings ([bind]) are instance-specific
-  ///   and are **not** inherited from the principal to prevent accidental
-  ///   graph recursion.
-  /// - **Isolation Branching**: If an [override] is provided with its own lock,
-  ///   the extension branches into an independent synchronization domain.
-  /// - **Shadowing Rules**: Providing a `null` value for an inheritable pillar
-  ///   (like [testRule]) typically triggers a fallback to the principal,
-  ///   rather than clearing the property.
-  /// - **Trust Model**: The framework assumes the [principal] is already
-  ///   valid and optimized, skipping redundant bitmask checks during evolution.
-  ///
-  /// ### Parameters:
-  /// * [ephemeralPolicy]: **Lifecycle Governance.** Defines when the resulting
-  ///   cell should be automatically invalidated.
-  /// * [bind]: **Upstream Dependency.** The cell this node monitors (not inherited).
-  /// * [context]: **Operational Authority.** The execution tier (inherits from
-  ///   [principal] if null).
-  /// * [receptor]: **Transformation Pipeline.** The logic for processing pulses.
-  /// * [testRule]: **Policy Guard.** Integrity rules for state changes (inherits
-  ///   from [principal] if null).
-  /// * [synapses]: **Egress Network.** Manages the observer registry for the
-  ///   extension.
-  /// * [user]: **Ad-hoc Metadata.** Optional extension-specific storage.
-  /// * [override]: **Pre-compiled Blueprint.** A nucleus whose record will be
-  ///   directly adopted.
-  /// * [principal]: **The Prototype Source.** The nucleus providing structural
-  ///   inheritance.
-  ///
-  /// ### Returns:
-  /// A [Nucleus] instance representing a **Hierarchical Property Extension**.
-  ///
-  /// ### See Also:
-  /// * [Nucleus.evolve]: The high-level extension method.
-  /// * [DeputyContext.evolve]: For specializing security and mandate dimensions.
-  /// * [NucleusBase.fromRecord]: For restoring evolved nuclei from state.
-  NucleusBase.evolve({
-    EphemeralPolicy? ephemeralPolicy,
-    Cell? bind,
-    Context? context,
-    Receptor? receptor,
-    TestCell? testRule,
-    Synapses? synapses,
-    Record? user,
-    Nucleus? override,
-    required Nucleus principal
-  }) : this.fromRecord((
-          local: (override as NucleusBase?)?.record.local ??
-              NucleusBase.mask(
-                  bind: bind,
-                  context: context,
-                  receptor: receptor,
-                  testRule: testRule,
-                  synapses: synapses,
-                  user: user,
-                  ephemeralPolicy: ephemeralPolicy),
-          principal: principal
-        ));
-
   void _propagate(PulseBase pulse) {
     if (synapses == Synapses.disabled || synapses.isEmpty) {
-      pulse._complete();
+      final box = pulse._branches;
+      if (box == null) {
+        // No completion callback: settle directly (for composites this also
+        // completes the sub-pulse callbacks) without branch accounting.
+        pulse._complete();
+        return;
+      }
+      // Mirror SynapsesBase._broadcast's empty path. Each terminal branch
+      // decrements exactly once and only the final decrement completes;
+      // otherwise a wave fanned out to N terminal cells would fire the
+      // completion callback N times.
+      box.value = box.value! - 1;
+      if (box.value == 0) {
+        pulse._complete();
+      }
       return;
     }
     synapses.call(pulse);
@@ -447,8 +446,15 @@ abstract class NucleusBase implements Nucleus {
   }
 
   @override
-  Synapses get synapses =>
-      get<Synapses>(() => record.local.synapses, orElse: Synapses.disabled);
+  Synapses get synapses {
+    final stored =
+        get<Synapses>(() => record.local.synapses, orElse: Synapses.disabled);
+    // Default-enabled records store the enabled flyweight; materialize a
+    // real set so links and async broadcasts work. `_Nucleus` and
+    // `ValueNucleus` cache this per instance.
+    if (stored != Synapses.enabled) return stored;
+    return Synapses();
+  }
 
   @override
   Cell? get bind => get<Cell?>(() => record.local.bind, orElse: null);
@@ -544,7 +550,17 @@ abstract class NucleusBase implements Nucleus {
   }
 
   @override
-  int get hashCode => record.hashCode;
+  int get hashCode {
+    // Must agree with `==`: both walk to the root principal and compare by
+    // identity. The previous `record.hashCode` made two nuclei with the same
+    // root (e.g. a deputy nucleus and its principal's) hash differently,
+    // breaking every Set<Nucleus>/Map<Nucleus, …> they share.
+    Nucleus? p = this;
+    while (p?.principal != null) {
+      p = p!.principal;
+    }
+    return identityHashCode(p);
+  }
 
   /// Generates a memory-optimized, multi-tiered [Record] that serves as the
   /// fundamental state and behavior definition for a [Nucleus].
@@ -574,18 +590,6 @@ abstract class NucleusBase implements Nucleus {
   ///      [receptor], [testRule], [ephemeralPolicy]) that can be inherited.
   ///    - **Local Segment**: Instance-specific anchors ([bind], [synapses],
   ///      [lock]) and metadata ([user], [others]).
-  ///
-  /// ### Non‑obvious
-  /// - **Receptor Auto-Cloning**: If the provided [receptor] is already
-  ///   "activated" (bound to another cell), `mask` automatically clones it
-  ///   to ensure independent logic states for the new node.
-  /// - **Synapses Provisioning**: Passing [Synapses.enabled] triggers the
-  ///   allocation of a new registry, ensuring every node has a unique
-  ///   egress network for its dependents.
-  /// - **Lock Injection**: By default, it allocates a new reentrant [Lock]
-  ///   to serve as the node's atomic boundary, unless [forceLock] is `true`.
-  /// - **Timestamping**: Every record is tagged with a `timestamp` to
-  ///   facilitate causal ordering and cache invalidation.
   ///
   /// ### Parameters:
   /// * [ephemeralPolicy]: **Lifecycle Guard.** Defines when the nucleus
@@ -621,10 +625,6 @@ abstract class NucleusBase implements Nucleus {
       bool forceLock = false,
       Record? user,
       dynamic others}) {
-    if (synapses == Synapses.enabled) {
-      synapses = Synapses();
-    }
-
     if (receptor != null) {
       if (receptor == Receptor.passThrough) {
         receptor = _Receptor();
@@ -633,12 +633,12 @@ abstract class NucleusBase implements Nucleus {
       }
     }
 
-    final inheritableMask = (
-        (context != null && context != Context.system ? 1 : 0) |
+    final inheritableMask = ((context != null && context != Context.system
+            ? 1
+            : 0) |
         (receptor != null && receptor != Receptor.passThrough ? 2 : 0) |
         (testRule != null && !identical(testRule, TestCell.allowAll) ? 4 : 0) |
-        (ephemeralPolicy != null ? 8 : 0)
-    );
+        (ephemeralPolicy != null ? 8 : 0));
 
     final inheritable = switch (inheritableMask) {
       0 => (),
@@ -680,277 +680,258 @@ abstract class NucleusBase implements Nucleus {
     final mask = ((inheritableMask != 0 ? 1 : 0) |
         (user != null ? 2 : 0) |
         (forceLock ? 4 : 0) |
-        (synapses != null && synapses != Synapses.disabled ? 8 : 0) |
+        (synapses != null ? 8 : 0) |
         (bind != null ? 16 : 0) |
         (others != null ? 32 : 0));
 
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    // Field-level shape tag: accessors test these bits and then read the
+    // record directly — exception-free hot path. Bit layout mirrors the
+    // `mask` computation above (1 inheritable, 2 user, 4 lock, 8 synapses,
+    // 16 bind, 32 others) plus the inheritable sub-mask (context=1,
+    // receptor=2, testRule=4, ephemeralPolicy=8) in bits 8..11.
+    final shape = mask | (inheritableMask << 8);
 
     return switch (mask) {
-      0 => (timestamp: timestamp),
-      1 => (timestamp: timestamp, inheritable: inheritable),
-      2 => (timestamp: timestamp, user: user),
-      3 => (timestamp: timestamp, inheritable: inheritable, user: user),
-      4 => (timestamp: timestamp, lock: Lock(reentrant: true)),
+      0 => (shape: shape),
+      1 => (shape: shape, inheritable: inheritable),
+      2 => (shape: shape, user: user),
+      3 => (shape: shape, inheritable: inheritable, user: user),
+      4 => (shape: shape, lock: Lock(reentrant: true)),
       5 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           lock: Lock(reentrant: true)
         ),
-      6 => (timestamp: timestamp, user: user, lock: Lock(reentrant: true)),
+      6 => (shape: shape, user: user, lock: Lock(reentrant: true)),
       7 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           user: user,
           lock: Lock(reentrant: true)
         ),
-      8 => (timestamp: timestamp, synapses: synapses),
-      9 => (timestamp: timestamp, inheritable: inheritable, synapses: synapses),
-      10 => (timestamp: timestamp, user: user, synapses: synapses),
+      8 => (shape: shape, synapses: synapses),
+      9 => (shape: shape, inheritable: inheritable, synapses: synapses),
+      10 => (shape: shape, user: user, synapses: synapses),
       11 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           user: user,
           synapses: synapses
         ),
-      12 => (
-          timestamp: timestamp,
-          lock: Lock(reentrant: true),
-          synapses: synapses
-        ),
+      12 => (shape: shape, lock: Lock(reentrant: true), synapses: synapses),
       13 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           lock: Lock(reentrant: true),
           synapses: synapses
         ),
       14 => (
-          timestamp: timestamp,
+          shape: shape,
           user: user,
           lock: Lock(reentrant: true),
           synapses: synapses
         ),
       15 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           user: user,
           lock: Lock(reentrant: true),
           synapses: synapses
         ),
-      16 => (timestamp: timestamp, bind: bind),
-      17 => (timestamp: timestamp, inheritable: inheritable, bind: bind),
-      18 => (timestamp: timestamp, user: user, bind: bind),
-      19 => (
-          timestamp: timestamp,
-          inheritable: inheritable,
-          user: user,
-          bind: bind
-        ),
-      20 => (timestamp: timestamp, lock: Lock(reentrant: true), bind: bind),
+      16 => (shape: shape, bind: bind),
+      17 => (shape: shape, inheritable: inheritable, bind: bind),
+      18 => (shape: shape, user: user, bind: bind),
+      19 => (shape: shape, inheritable: inheritable, user: user, bind: bind),
+      20 => (shape: shape, lock: Lock(reentrant: true), bind: bind),
       21 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           lock: Lock(reentrant: true),
           bind: bind
         ),
-      22 => (
-          timestamp: timestamp,
-          user: user,
-          lock: Lock(reentrant: true),
-          bind: bind
-        ),
+      22 => (shape: shape, user: user, lock: Lock(reentrant: true), bind: bind),
       23 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           user: user,
           lock: Lock(reentrant: true),
           bind: bind
         ),
-      24 => (timestamp: timestamp, synapses: synapses, bind: bind),
+      24 => (shape: shape, synapses: synapses, bind: bind),
       25 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           synapses: synapses,
           bind: bind
         ),
-      26 => (timestamp: timestamp, user: user, synapses: synapses, bind: bind),
+      26 => (shape: shape, user: user, synapses: synapses, bind: bind),
       27 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           user: user,
           synapses: synapses,
           bind: bind
         ),
       28 => (
-          timestamp: timestamp,
+          shape: shape,
           lock: Lock(reentrant: true),
           synapses: synapses,
           bind: bind
         ),
       29 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           lock: Lock(reentrant: true),
           synapses: synapses,
           bind: bind
         ),
       30 => (
-          timestamp: timestamp,
+          shape: shape,
           user: user,
           lock: Lock(reentrant: true),
           synapses: synapses,
           bind: bind
         ),
       31 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           user: user,
           lock: Lock(reentrant: true),
           synapses: synapses,
           bind: bind
         ),
-      32 => (timestamp: timestamp, others: others),
-      33 => (timestamp: timestamp, inheritable: inheritable, others: others),
-      34 => (timestamp: timestamp, user: user, others: others),
+      32 => (shape: shape, others: others),
+      33 => (shape: shape, inheritable: inheritable, others: others),
+      34 => (shape: shape, user: user, others: others),
       35 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           user: user,
           others: others
         ),
-      36 => (timestamp: timestamp, lock: Lock(reentrant: true), others: others),
+      36 => (shape: shape, lock: Lock(reentrant: true), others: others),
       37 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           lock: Lock(reentrant: true),
           others: others
         ),
       38 => (
-          timestamp: timestamp,
+          shape: shape,
           user: user,
           lock: Lock(reentrant: true),
           others: others
         ),
       39 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           user: user,
           lock: Lock(reentrant: true),
           others: others
         ),
-      40 => (timestamp: timestamp, synapses: synapses, others: others),
+      40 => (shape: shape, synapses: synapses, others: others),
       41 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           synapses: synapses,
           others: others
         ),
-      42 => (
-          timestamp: timestamp,
-          user: user,
-          synapses: synapses,
-          others: others
-        ),
+      42 => (shape: shape, user: user, synapses: synapses, others: others),
       43 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           user: user,
           synapses: synapses,
           others: others
         ),
       44 => (
-          timestamp: timestamp,
+          shape: shape,
           lock: Lock(reentrant: true),
           synapses: synapses,
           others: others
         ),
       45 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           lock: Lock(reentrant: true),
           synapses: synapses,
           others: others
         ),
       46 => (
-          timestamp: timestamp,
+          shape: shape,
           user: user,
           lock: Lock(reentrant: true),
           synapses: synapses,
           others: others
         ),
       47 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           user: user,
           lock: Lock(reentrant: true),
           synapses: synapses,
           others: others
         ),
-      48 => (timestamp: timestamp, bind: bind, others: others),
+      48 => (shape: shape, bind: bind, others: others),
       49 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           bind: bind,
           others: others
         ),
-      50 => (timestamp: timestamp, user: user, bind: bind, others: others),
+      50 => (shape: shape, user: user, bind: bind, others: others),
       51 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           user: user,
           bind: bind,
           others: others
         ),
       52 => (
-          timestamp: timestamp,
+          shape: shape,
           lock: Lock(reentrant: true),
           bind: bind,
           others: others
         ),
       53 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           lock: Lock(reentrant: true),
           bind: bind,
           others: others
         ),
       54 => (
-          timestamp: timestamp,
+          shape: shape,
           user: user,
           lock: Lock(reentrant: true),
           bind: bind,
           others: others
         ),
       55 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           user: user,
           lock: Lock(reentrant: true),
           bind: bind,
           others: others
         ),
-      56 => (
-          timestamp: timestamp,
-          synapses: synapses,
-          bind: bind,
-          others: others
-        ),
+      56 => (shape: shape, synapses: synapses, bind: bind, others: others),
       57 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           synapses: synapses,
           bind: bind,
           others: others
         ),
       58 => (
-          timestamp: timestamp,
+          shape: shape,
           user: user,
           synapses: synapses,
           bind: bind,
           others: others
         ),
       59 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           user: user,
           synapses: synapses,
@@ -958,14 +939,14 @@ abstract class NucleusBase implements Nucleus {
           others: others
         ),
       60 => (
-          timestamp: timestamp,
+          shape: shape,
           lock: Lock(reentrant: true),
           synapses: synapses,
           bind: bind,
           others: others
         ),
       61 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           lock: Lock(reentrant: true),
           synapses: synapses,
@@ -973,7 +954,7 @@ abstract class NucleusBase implements Nucleus {
           others: others
         ),
       62 => (
-          timestamp: timestamp,
+          shape: shape,
           user: user,
           lock: Lock(reentrant: true),
           synapses: synapses,
@@ -981,7 +962,7 @@ abstract class NucleusBase implements Nucleus {
           others: others
         ),
       63 => (
-          timestamp: timestamp,
+          shape: shape,
           inheritable: inheritable,
           user: user,
           lock: Lock(reentrant: true),
@@ -1020,16 +1001,6 @@ abstract class NucleusBase implements Nucleus {
 /// 3. **Flyweight Reification**: It enables the framework to share a single
 ///    pre-compiled memory address for every "simplest" node in the graph.
 ///
-/// ### Non‑obvious
-/// - **Statelessness**: A nucleus of this type contains no local
-///   bindings ([Cell.bind]) or egress synapses, ensuring it consumes
-///   minimal resources even in massive dependency graphs.
-/// - **Constant-Time Resolution**: Property access on this type bypasses
-///   the record-masking logic used in [NucleusBase], achieving native
-///   O(1) resolution speed.
-/// - **Structural Purity**: It represents a "Naked Blueprint" devoid of
-///   ad-hoc metadata, user-defined records, or specialized locks.
-///
 /// ### Parameters:
 /// (None)
 ///
@@ -1066,17 +1037,6 @@ typedef NucleusSimplest = Nucleolus;
 ///    reactive fabric to share a single instance for every unconfigured node.
 /// 4. **Zero-State Blueprint**: Its internal record is a constant empty unit `()`,
 ///    satisfying the structural contract of [NucleusBase] without runtime overhead.
-///
-/// ### Non‑obvious
-/// - **Activation Resistance**: The `activate()` method always returns `false`
-///   because the nucleolus represents an immutable blueprint, not a dynamic
-///   operational state.
-/// - **Constant-Time Resolution**: Property access on this class is O(1)
-///   native speed, as it bypasses record-masking logic entirely.
-/// - **Ontological Purity**: It provides the "naked" state of a reactive node,
-///   devoid of any metadata, ad-hoc user records, or egress synapses.
-/// - **Immutable Integrity**: Being transitively immutable, it ensures that
-///   the global defaults of the system cannot be altered at runtime.
 ///
 /// ### Parameters:
 /// (None)

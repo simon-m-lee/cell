@@ -103,13 +103,6 @@ Pulse _err(Object error, Cell? cell, Pulse trigger, String step) {
 /// ### Returns:
 /// The first value of type [T], or `null` if none found.
 ///
-/// ### Non‑obvious
-/// - **Recursive Draining**: The function recurses on `Future` and `Iterable`
-///   values, allowing nested structures to be flattened.
-/// - **Cancellation**: The [stillLive] callback is checked at each step,
-///   allowing cancelled operations to stop early.
-/// - **String Special Case**: Strings are treated as values, not iterables.
-/// - **First Match**: Only the first value of type [T] is returned.
 Future<T?> _firstOf<T>(
   Object? inner, {
   bool Function()? stillLive,
@@ -156,13 +149,6 @@ Future<T?> _firstOf<T>(
 /// - [stillLive]: Callback to check if the race is still current.
 /// - [markWon]: Callback to mark that a winner has been found.
 ///
-/// ### Non‑obvious
-/// - **Concurrent Start**: All competitors are started concurrently using
-///   `Future.any`.
-/// - **First Value Wins**: Only the first value from any competitor is
-///   passed to [onWin].
-/// - **Cancellation**: The [stillLive] callback is checked before handling
-///   any result.
 Future<void> _raceList<T>({
   required Iterable<Object?> competitors,
   required void Function(T value) onWin,
@@ -275,18 +261,6 @@ class _GenerationState {
 /// - **Nested combinations**: `Future<Iterable<T>>`, `Stream<Future<T>>`,
 ///   etc., are recursively expanded.
 ///
-/// ### Non‑obvious
-/// - **One-Shot**: The race is started on the first trigger only.
-/// - **Concurrent**: All competitors are started concurrently.
-/// - **First Value Wins**: Only the first value from any competitor is emitted.
-/// - **Streams are Cancelled**: Streams that lose are cancelled.
-/// - **Error Handling**: Errors are reported via [onError].
-/// - **Causal Provenance**: Every emitted result is wrapped as an
-///   [EvolvedPulse], preserving the forensic history.
-/// - **Type Safety**: The instruction is generic over [T] (output type).
-/// - **Null Values**: If a competitor produces `null`, it's not considered
-///   a valid win (unless T is nullable and the value is `null` as T).
-///
 /// ### Example: Fastest API Response
 /// ```dart
 /// final start = Cell.ingress<void>();
@@ -380,8 +354,8 @@ class Race<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Iterable<Object?> competitors, {
     RaceErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final started = _OnceState();
             final gen = _GenerationState();
             final snapshot = List<Object?>.from(competitors);
@@ -405,7 +379,7 @@ class Race<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -440,15 +414,6 @@ class Race<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 6. All subsequent emissions from the winner are ignored.
 /// 7. Later triggers are ignored.
 /// 8. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **First Value Only**: Only the very first winning value is emitted.
-/// - **Streams are Cancelled**: Streams that lose are cancelled.
-/// - **Winner's Emissions are Ignored**: Only the first value from the
-///   winner is emitted; subsequent values are ignored.
-/// - **One-Shot**: The race is started on the first trigger only.
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Memory Efficient**: Only the first value is stored.
 ///
 /// ### Example: First Response Only
 /// ```dart
@@ -527,8 +492,8 @@ class RaceFirst<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     Iterable<Object?> competitors, {
     RaceErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final started = _OnceState();
             var won = false;
             return (pulse, {cell, user, future, token}) {
@@ -550,7 +515,7 @@ class RaceFirst<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -583,14 +548,6 @@ class RaceFirst<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. The first competitor to produce a value wins.
 /// 5. Any in-flight race is invalidated (latest-race-wins).
 /// 6. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **Dynamic Competitors**: Competitors are generated from the payload.
-/// - **Latest-Race-Wins**: Each new trigger invalidates the previous race.
-/// - **Type Safety**: The instruction is generic over [S] (input) and [T] (output).
-/// - **Error Handling**: Errors are reported via [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Async Mapper**: [mapper] can return a `Future` of competitors.
 ///
 /// ### Example: Key-Based Racing
 /// ```dart
@@ -675,8 +632,8 @@ class RaceMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FutureOr<Iterable<Object?>> Function(S value) mapper, {
     RaceErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final gen = _GenerationState();
             return (pulse, {cell, user, future, token}) {
               final payload = pulse.payload;
@@ -715,7 +672,7 @@ class RaceMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -747,14 +704,6 @@ class RaceMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. Both competitors are started concurrently.
 /// 5. The first to produce a value wins.
 /// 6. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **Side-by-Side**: The source inner races against a fixed side competitor.
-/// - **Dynamic Source**: The source inner is derived from the payload.
-/// - **Fixed Other**: The side competitor is fixed (same for all triggers).
-/// - **Error Handling**: Errors are reported via [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Latest Race Wins**: In-flight races are invalidated on new triggers.
 ///
 /// ### Example: Cache vs Network
 /// ```dart
@@ -836,8 +785,8 @@ class RaceWith<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     required FutureOr<Object?> Function() other,
     RaceErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final gen = _GenerationState();
             return (pulse, {cell, user, future, token}) {
               final payload = pulse.payload;
@@ -877,7 +826,7 @@ class RaceWith<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -911,14 +860,6 @@ class RaceWith<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. If the source inner produces a value first, the value is emitted.
 /// 5. If the timer fires first, a [TimeoutException] error pulse is emitted.
 /// 6. The instruction preserves causal provenance.
-///
-/// ### Non‑obvious
-/// - **Timeout**: The source inner races against a timer.
-/// - **Error Pulse**: If the timer wins, a [TimeoutException] error pulse is emitted.
-/// - **Silent Timeout**: If [emitErrorPulse] is false, the error is not emitted.
-/// - **Error Handling**: Errors are reported via [onError].
-/// - **Causal Provenance**: Every emitted result preserves forensic history.
-/// - **Latest Race Wins**: In-flight races are invalidated on new triggers.
 ///
 /// ### Example: API Call with Timeout
 /// ```dart
@@ -955,6 +896,10 @@ class RaceWith<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [S]: The type of the input payload from the source cell.
 /// - [T]: The type of the output payload from the winner.
 ///
+class _RaceUntilEmpty {
+  const _RaceUntilEmpty();
+}
+
 /// ### Returns:
 /// A [FlowInstruction] that races against a timeout.
 ///
@@ -1012,8 +957,8 @@ class RaceUntil<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     RaceErrorHandler? onError,
     bool emitErrorPulse = true,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final gen = _GenerationState();
             return (pulse, {cell, user, future, token}) {
               final payload = pulse.payload;
@@ -1036,7 +981,7 @@ class RaceUntil<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
                         inner,
                         stillLive: () => id == gen.generation,
                       );
-                      return first ?? Object();
+                      return first ?? _RaceUntilEmpty();
                     }(),
                     Future<Object>.delayed(
                         timeout, () => TimeoutException('RaceUntil', timeout)),
@@ -1064,7 +1009,7 @@ class RaceUntil<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }

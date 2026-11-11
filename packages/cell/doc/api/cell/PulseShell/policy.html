@@ -87,9 +87,6 @@ from propagating forever, or to limit the number of hops.</li>
 <p>The policy enforces a TTL (time‑to‑live) and/or hop limit. The pulse is
 neutralised if it exceeds either limit. The framework checks this
 automatically during propagation.</p>
-<h3 id="nonobvious-the-policy-is-attached-to-the-root">Non‑obvious: the policy is attached to the root</h3>
-<p>If you evolve a pulse, the policy travels with it — it's inherited
-through the parent chain, not duplicated.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final pulse = Pulse.governed&lt;int&gt;(
   payload: 42,
@@ -137,7 +134,7 @@ PulseEphemeralPolicy? get policy =&gt; null;</code></pre>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

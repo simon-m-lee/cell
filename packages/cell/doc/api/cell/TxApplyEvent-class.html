@@ -54,6 +54,28 @@
 </h1></div>
 
     
+<section class="desc markdown">
+  <p>Base class for all lifecycle events emitted by an <a href="../cell/ApplyTransactionScope-class.html">ApplyTransactionScope</a>.</p>
+<p>Consumers subscribe by supplying <a href="../cell/TxApplyOptions/onEvent.html">TxApplyOptions.onEvent</a>. Events are
+<strong>informational</strong>: they describe what happened but do not influence
+control flow. They are useful for logging, monitoring, distributed
+tracing, and forensic reconstruction of a transaction.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Observe a transaction's lifecycle without altering its semantics.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>An event is fired at each meaningful phase transition:</p>
+<ul>
+<li><a href="../cell/TxApplyBegun-class.html">TxApplyBegun</a> — once, when <a href="../cell/ApplyTransactionScope/begin.html">ApplyTransactionScope.begin</a> completes.</li>
+<li><a href="../cell/TxApplyStaged-class.html">TxApplyStaged</a> — once per successful <a href="../cell/ApplyTransactionScope/enqueueCommand.html">ApplyTransactionScope.enqueueCommand</a>.</li>
+<li><a href="../cell/TxApplyRejected-class.html">TxApplyRejected</a> — when a command is refused (at staging time or at
+commit time — see <a href="../cell/TxApplyRejected-class.html">TxApplyRejected</a>).</li>
+<li><a href="../cell/TxApplyCompensationFailed-class.html">TxApplyCompensationFailed</a> / <a href="../cell/TxApplyCompensationRetry-class.html">TxApplyCompensationRetry</a> — during
+compensation.</li>
+<li><a href="../cell/TxApplyRolledBack-class.html">TxApplyRolledBack</a> — when a rollback (full or savepoint-scoped)
+completes.</li>
+<li><a href="../cell/TxApplyCommitted-class.html">TxApplyCommitted</a> — on a successful <a href="../cell/ApplyTransactionScope/commit.html">ApplyTransactionScope.commit</a>.</li>
+</ul>
+</section>
 
 
     <section>
@@ -197,7 +219,7 @@
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

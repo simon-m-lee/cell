@@ -86,13 +86,6 @@ This is useful for conditional logic or debugging.</p>
 locally.</li>
 <li>It defaults to <a href="../../mitosis/Container/value-constant.html">Container.value</a> if no container type is set.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is a <strong>structural</strong> property – it is fixed and cannot be changed
-through a deputy. All deputies inherit the same container type.</li>
-<li>The container type affects whether <code>set</code> succeeds after the first
-assignment (<a href="../../mitosis/Container/finalValue-constant.html">Container.finalValue</a> rejects subsequent writes).</li>
-</ul>
 </section>
 
     
@@ -129,7 +122,7 @@ Container get containerType;</code></pre>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

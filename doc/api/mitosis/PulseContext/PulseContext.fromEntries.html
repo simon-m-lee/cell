@@ -74,12 +74,6 @@ deserialising a context from an external source.</p>
 <p>You provide a list of <a href="../../mitosis/GovernanceEntry-class.html">GovernanceEntry</a> objects (typically from
 <a href="../../mitosis/Provenance.html">Provenance</a>), and the framework constructs a context record from them.
 You can optionally specify a <code>parent</code> to inherit from.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The entries are validated against their <code>isType</code> guard at construction
-time, so you can't build a context with mismatched types.</li>
-<li>The <code>parent</code> chain is immutable.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>entries</code>: An iterable of <a href="../../mitosis/GovernanceEntry-class.html">GovernanceEntry</a> objects defining the
@@ -121,7 +115,7 @@ telemetric pillars.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -53,6 +53,11 @@
 </h1></div>
 
     
+<section class="desc markdown">
+  <p>Emitted after a successful <a href="../cell/ApplyTransactionScope/commit.html">ApplyTransactionScope.commit</a>.</p>
+<p>The <code>callCount</code> is captured <strong>before</strong> the staging buffer is cleared, so
+it reflects the number of commands attempted in the committed batch.</p>
+</section>
 
 
     <section>
@@ -104,7 +109,7 @@
 
 </dt>
 <dd>
-  
+  The number of commands that were in the committed batch.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -218,7 +223,7 @@
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

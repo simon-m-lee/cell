@@ -76,20 +76,9 @@
 <ul>
 <li>Accepts metadata for the new evolved pulse.</li>
 <li>Passes all parameters to the superclass constructor.</li>
-<li>Increments the <code>_branches</code> counter to track completion of the chain.</li>
 <li>The resulting pulse is a new node in the causal chain, linked to
 its <code>parent</code> via the superclass.</li>
 </ul>
-<h3 id="nonobvious-the-branch-counter-tracks-chain-completion">Non‑obvious: the branch counter tracks chain completion</h3>
-<p>The <code>_branches</code> counter is incremented here. Each pulse in the chain
-decrements the counter when it completes. When the counter reaches zero,
-the chain's completion callback fires. This is how the framework knows
-when a causal chain is fully processed.</p>
-<h3 id="nonobvious-metadata-is-additive">Non‑obvious: metadata is additive</h3>
-<p>When you evolve a pulse, the new metadata (context, step, etc.) is
-added to the chain. The original metadata is preserved in the parent.
-This is how the framework maintains full provenance — you can always
-walk back up the chain to see the complete history.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>policy</code>: Optional lifecycle policy (TTL, hop limit).</li>
@@ -139,12 +128,7 @@ final evolved = EvolvedPulseBase(
 })  : _pulses = pulse is EvolvedPulseBase
           ? [...pulse._pulses, pulse]
           : [parent, pulse],
-      super(pulse: pulse, parent: parent) {
-  final branches = _branches;
-  if (branches != null) {
-    branches.value = branches.value! + 1;
-  }
-}</code></pre>
+      super(pulse: pulse, parent: parent);</code></pre>
 </section>
 
 
@@ -172,7 +156,7 @@ final evolved = EvolvedPulseBase(
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

@@ -134,6 +134,19 @@ dedicated, private synchronization domain.</li>
 <h3 id="returns">Returns:</h3>
 <p>A fully managed <a href="../../mitosis/Cell-class.html">Cell</a> instance with a dedicated policy perimeter and
 explicit lifecycle configuration.</p>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> infrastructure nodes needing a TTL (<a href="../../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a>), explicit <a href="../../mitosis/Context-class.html">Context</a>, or a private lock.
+<strong>When NOT to use:</strong> ordinary application state — <code>Cell.state</code> / <code>Cell.ingress</code> cover it.
+<strong>Live signature:</strong> <code>Cell.governed({ephemeralPolicy, context, bind, receptor, testRule, synapses, forceLock})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell</code> (the ungoverned default factory).
+<strong>Guide:</strong> <code>guide/HowTo-EphemeralPolicy.md</code> (governance)
+<strong>Example:</strong> <code>example/open_cell_demo.dart</code>
+<strong>Cross-layer:</strong> policy clauses are still a <code>cell_flow</code> concern; governance here is lifecycle/authority, not business policy.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final g = Cell.governed(context: Context.system);
+print(g.isGoverned); // true
+</code></pre>
 </section>
 
 
@@ -175,7 +188,7 @@ explicit lifecycle configuration.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

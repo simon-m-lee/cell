@@ -113,15 +113,38 @@ void main() {
         expect(Receptor.passThrough.hashCode, Receptor.passThrough.hashCode);
       });
 
-      test('passThrough == a ReceptorBase is true; the reverse is not', () {
+      test('passThrough equals only other pass-through receptors', () {
         final empty = Receptor.pipeline();
         final transforming = Receptor((cell, pulse, {user}) => pulse);
-        // passThrough inspects ReceptorBase._record.$2; named records throw
-        // and the catch treats every ReceptorBase as equal.
-        expect(Receptor.passThrough == empty, isTrue);
-        expect(Receptor.passThrough == transforming, isTrue);
+        // The old heuristic compared a named record positionally, which
+        // always threw and made passThrough equal to every ReceptorBase.
+        // Equality must be symmetric and consistent with hashCode.
+        expect(Receptor.passThrough == empty, isFalse);
+        expect(Receptor.passThrough == transforming, isFalse);
         expect(empty == Receptor.passThrough, isFalse);
         expect(transforming == Receptor.passThrough, isFalse);
+        expect(Receptor.passThrough, same(Receptor.passThrough));
+        expect({Receptor.passThrough, empty, transforming}, hasLength(3));
+      });
+
+      test('receptor equality follows the configuration record', () {
+        final instruction =
+            Instruction<Cell, Pulse, Pulse>((p, {cell, user}) => p);
+        final a = Receptor.pipeline(instruction: instruction);
+        final b = Receptor.pipeline(instruction: instruction);
+        final c = Receptor.pipeline(
+          instruction:
+              Instruction<Cell, Pulse, Pulse>((p, {cell, user}) => null),
+        );
+
+        // Same configuration record → equal and same hash.
+        expect(a, equals(b));
+        expect(a.hashCode, b.hashCode);
+        expect({a, b}, hasLength(1));
+
+        // Different configuration → not equal.
+        expect(a == c, isFalse);
+        expect({a, b, c}, hasLength(2));
       });
 
       test('empty pipeline getters do not throw NoSuchMethodError', () {
@@ -478,6 +501,77 @@ void main() {
         );
         expect((await done.future)?.payload, 42);
         await queued;
+      });
+
+      test('fire-and-forget pulses enqueued mid-drain are all delivered',
+          () async {
+        final receptor = bindReceptor(Receptor((cell, pulse, {user}) {
+          return Pulse((pulse.payload as int) * 2);
+        }));
+        final done = <int>[];
+        final all = Completer<void>();
+
+        // Each hook re-enters the async queue while the drain holds the
+        // unawaited lock. The always-scheduled drains must pick every
+        // pulse up regardless of the lock state at enqueue time.
+        void submit(int value) {
+          unawaited(receptor.async.call(
+            Pulse<int>(value) as PulseBase,
+            serializedCompletion: false,
+            hook: ({result, required input}) {
+              done.add(result!.payload as int);
+              if (value < 3) {
+                submit(value + 1);
+              } else {
+                all.complete();
+              }
+            },
+          ));
+        }
+
+        submit(1);
+        await all.future.timeout(const Duration(seconds: 5));
+        expect(done, [2, 4, 6]);
+      });
+
+      test('receptor.async is a stable handle', () {
+        final r = Receptor((cell, pulse, {user}) => pulse);
+        expect(identical(r.async, r.async), isTrue);
+      });
+
+      test('receptor.async preserves FIFO under concurrent submits', () async {
+        final log = <int>[];
+        // A receptor that takes longer to process smaller numbers
+        final r = Receptor.instruction(
+            Instruction.future((pulse, {cell, user, future, token}) {
+          final val = pulse.payload as int;
+          // Artificial delay: 10ms for 0, 5ms for 5.
+          Future.delayed(Duration(milliseconds: 10 - val)).whenComplete(
+              () => future?.call(result: Pulse(val + 1), token: token));
+          return null;
+        }));
+
+        final nucleus = Nucleus(receptor: r);
+        final c = Cell.fromNucleus(nucleus);
+        final input = nucleus.receptor;
+
+        // Use hooks to log when the results are actually delivered
+        final first = input.async.call(
+          Pulse(0, source: c) as PulseBase,
+          hook: ({result, required input}) => log.add(input.payload as int),
+        );
+
+        final second = input.async.call(
+          Pulse(5, source: c) as PulseBase,
+          hook: ({result, required input}) => log.add(input.payload as int),
+        );
+
+        // Wait for both "Nervous Signals" to complete their journey
+        await Future.wait([first, second]);
+
+        // Even though the second pulse (5) had a shorter delay (5ms),
+        // the async pipeline must preserve the submission order (FIFO).
+        expect(log, [0, 5], reason: 'FIFO must be preserved across submits');
       });
     });
 

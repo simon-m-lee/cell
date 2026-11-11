@@ -81,14 +81,6 @@ common way to build complex validation chains.</p>
 <p>The operator creates a new <a href="../../cell_tissue/TestCell-class.html">TestCell</a> that evaluates the <code>other</code> rule
 first, and if that passes, evaluates <code>this</code> rule next (as the parent).
 This creates a left‑to‑right chain where all rules must pass.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The order matters: <code>ruleA + ruleB</code> means ruleA is evaluated first,
-then ruleB. If ruleA fails, ruleB is never called.</li>
-<li>The resulting chain is still a <a href="../../cell_tissue/TestCell-class.html">TestCell</a> and can be further composed.</li>
-<li>The <code>other</code> rule is wrapped as the "first" rule, and <code>this</code> becomes
-its parent, so the evaluation order is <code>other</code> then <code>this</code>.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final policy = isPositive + isAuthorized + isInRange;
 </code></pre>
@@ -136,7 +128,7 @@ TestCell&lt;C&gt; operator +(covariant TestRule&lt;C&gt; other) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

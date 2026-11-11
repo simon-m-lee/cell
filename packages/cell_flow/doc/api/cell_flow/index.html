@@ -120,18 +120,111 @@ unnecessary computations.</p>
 <li><code>HowTo-Fluent_Operator.md</code>: Best practices for method-chaining.</li>
 <li><code>HowTo-FlowInstruction-Receptor.md</code>: Advanced custom gate composition.</li>
 </ul>
+<h2 id="cell_flow--the-flow-layer"><code>cell_flow</code> — the Flow layer</h2>
+<p><strong>Layer contract</strong> (the seam sentence): the instruction decides, the chain
+assembles, the observer glues.</p>
+<p><strong>Public surface (top entry points)</strong> — full catalog is in
+<code>FEATURES-Flow.md</code> and <code>lib/doc/api_chooser.dart</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Entry point</th>
+<th>When to use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Custom instruction</td>
+<td><code>FlowInstructionBase</code></td>
+<td>Clause-ordered policy + resettable latch + product filter</td>
+</tr>
+<tr>
+<td>Projection</td>
+<td><code>MapValue</code></td>
+<td>Decision → seam enum; never emits a level directly</td>
+</tr>
+<tr>
+<td>Time</td>
+<td><code>Debounce</code>, <code>Throttle</code>, <code>Delay</code></td>
+<td>Feed adapters; not for the decision</td>
+</tr>
+<tr>
+<td>Flatten</td>
+<td><code>ConcatMap</code>, <code>MergeMap</code>, <code>SwitchMap</code>, <code>ExhaustMap</code></td>
+<td>Inner sequence per trigger</td>
+</tr>
+<tr>
+<td>Combine</td>
+<td><code>MergeWith</code>, <code>CombineLatestWith</code>, <code>WithLatestFrom</code>, <code>ZipWith</code>, <code>Race</code></td>
+<td>Multi-source fan-in</td>
+</tr>
+<tr>
+<td>Collect</td>
+<td><code>BufferCount</code>, <code>BufferTime</code>, <code>WindowCount</code>, <code>GroupBy</code></td>
+<td>Batch / group</td>
+</tr>
+<tr>
+<td>Control</td>
+<td><code>StartWith</code>, <code>Share</code>, <code>ShareReplay</code>, <code>Retry</code>, <code>Tap</code></td>
+<td>Adjacent concerns</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Do NOT</strong> use this package for: ingress (Cell), observe (Cell), Transaction
+(Cell.txApply), Tissue collections (cell_tissue). See <code>HowTo-Mitose-Flow.md</code> §1.</p>
 </section>
 
 
     <section class="summary offset-anchor" id="classes">
       <h2>Classes</h2>
       <dl>
-          <dt id="ApplyRejected">
-  <span class="name "><a href="../cell_flow/ApplyRejected-class.html">ApplyRejected</a></span> 
+          <dt id="ApplyAccepted">
+  <span class="name "><a href="../cell_flow/ApplyAccepted-class.html">ApplyAccepted</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span> 
 
 </dt>
 <dd>
-  Explicit soft-reject from <a href="../cell_flow/Cell/apply.html">Cell.apply</a> (not the same as void → null).
+  The command was authorized, safety-checked, and successfully executed.
+</dd>
+
+          <dt id="ApplyCommandRunner">
+  <span class="name "><a href="../cell_flow/ApplyCommandRunner-class.html">ApplyCommandRunner</a></span> 
+
+</dt>
+<dd>
+  A helper class used to set up and execute an action on a cell.
+</dd>
+
+          <dt id="ApplyLedger">
+  <span class="name "><a href="../cell_flow/ApplyLedger-class.html">ApplyLedger</a></span> 
+
+</dt>
+<dd>
+  The framework's internal <strong>Record Keeper</strong> and receipt generator.
+</dd>
+
+          <dt id="ApplyOutcome">
+  <span class="name "><a href="../cell_flow/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The official, auditable result of submitting an <a href="../cell_flow/ApplyCommand.html">ApplyCommand</a>.
+</dd>
+
+          <dt id="ApplyRejected">
+  <span class="name "><a href="../cell_flow/ApplyRejected-class.html">ApplyRejected</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The command was denied by the framework's safety rules (the Integrity Gate).
+</dd>
+
+          <dt id="ApplyStaged">
+  <span class="name "><a href="../cell_flow/ApplyStaged-class.html">ApplyStaged</a></span> 
+
+</dt>
+<dd>
+  The command was accepted and placed into a transaction to be run later.
 </dd>
 
           <dt id="ApplyTransactionScope">
@@ -139,7 +232,16 @@ unnecessary computations.</p>
 
 </dt>
 <dd>
-  
+  Handle for a <strong>staged command transaction</strong> — the mechanism behind
+<a href="../cell_flow/Cell/txApply.html">Cell.txApply</a>.
+</dd>
+
+          <dt id="ApplyVeto">
+  <span class="name "><a href="../cell_flow/ApplyVeto-class.html">ApplyVeto</a></span> 
+
+</dt>
+<dd>
+  A special signal used by a function to cancel its own operation.
 </dd>
 
           <dt id="Async">
@@ -225,7 +327,7 @@ together as a single atomic wave.
 
 </dt>
 <dd>
-  
+  Describes a single failed compensation attempt.
 </dd>
 
           <dt id="Context">
@@ -570,7 +672,7 @@ serving as a specialized <strong>Ranked Execution Buffer</strong> for the reacti
 
 </dt>
 <dd>
-  
+  The foundational blueprint for all nervous signals within the reactive graph.
 </dd>
 
           <dt id="PulseContext">
@@ -819,7 +921,7 @@ invariants across the reactive graph.
 
 </dt>
 <dd>
-  
+  Emitted once, immediately after <a href="../cell_flow/ApplyTransactionScope/begin.html">ApplyTransactionScope.begin</a> succeeds.
 </dd>
 
           <dt id="TxApplyCommitted">
@@ -827,7 +929,7 @@ invariants across the reactive graph.
 
 </dt>
 <dd>
-  
+  Emitted after a successful <a href="../cell_flow/ApplyTransactionScope/commit.html">ApplyTransactionScope.commit</a>.
 </dd>
 
           <dt id="TxApplyCompensationFailed">
@@ -835,7 +937,7 @@ invariants across the reactive graph.
 
 </dt>
 <dd>
-  
+  Emitted each time a compensation attempt fails.
 </dd>
 
           <dt id="TxApplyCompensationRetry">
@@ -843,7 +945,7 @@ invariants across the reactive graph.
 
 </dt>
 <dd>
-  
+  Emitted before each retry of a compensation function.
 </dd>
 
           <dt id="TxApplyEvent">
@@ -851,7 +953,7 @@ invariants across the reactive graph.
 
 </dt>
 <dd>
-  
+  Base class for all lifecycle events emitted by an <a href="../cell_flow/ApplyTransactionScope-class.html">ApplyTransactionScope</a>.
 </dd>
 
           <dt id="TxApplyOptions">
@@ -859,7 +961,7 @@ invariants across the reactive graph.
 
 </dt>
 <dd>
-  
+  Configuration for <a href="../cell_flow/Cell/txApply.html">Cell.txApply</a>.
 </dd>
 
           <dt id="TxApplyRejected">
@@ -867,7 +969,7 @@ invariants across the reactive graph.
 
 </dt>
 <dd>
-  
+  Emitted when a staged command is refused.
 </dd>
 
           <dt id="TxApplyRolledBack">
@@ -875,7 +977,7 @@ invariants across the reactive graph.
 
 </dt>
 <dd>
-  
+  Emitted after a rollback (full or savepoint-scoped).
 </dd>
 
           <dt id="TxApplyStaged">
@@ -883,7 +985,7 @@ invariants across the reactive graph.
 
 </dt>
 <dd>
-  
+  Emitted once per successful <a href="../cell_flow/ApplyTransactionScope/enqueueCommand.html">ApplyTransactionScope.enqueueCommand</a>.
 </dd>
 
           <dt id="TypeObject">
@@ -1036,7 +1138,8 @@ reactive operations within the framework.
 
 </dt>
 <dd>
-  
+  Determines how the transaction scope behaves when a compensation attempt
+fails.
 </dd>
 
           <dt id="HubRouting">
@@ -1213,6 +1316,16 @@ bridge stateless instructions with live reactive topographies.
     <section class="summary offset-anchor" id="extensions">
       <h2>Extensions</h2>
       <dl>
+          <dt id="ApplyCommandDSL">
+  <span class="name "><a href="../cell_flow/ApplyCommandDSL.html">ApplyCommandDSL</a></span>
+  on <a href="../cell_flow/Cell-class.html">Cell</a>
+  
+
+</dt>
+<dd>
+  A "fluent" shortcut that makes it easier to create and run commands on a cell.
+</dd>
+
           <dt id="CellFlowOperators">
   <span class="name "><a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a></span>
   on <a href="../cell_flow/Cell-class.html">Cell</a>
@@ -1334,6 +1447,66 @@ in reverse order (LIFO unwind of nested <code>synchronized</code> sections).
       <h2>Typedefs</h2>
       <dl>
           
+  <dt id="ApplyArguments" class="">
+  <span class="name"><a href="../cell_flow/ApplyArguments.html">ApplyArguments</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="field-name">namedArguments</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="field-name">positionalArguments</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A structured container for function arguments that allows for auditing and reversals.
+  
+
+</dd>
+
+
+          
+  <dt id="ApplyCommand" class="">
+  <span class="name"><a href="../cell_flow/ApplyCommand.html">ApplyCommand</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_flow/ApplyArguments.html">ApplyArguments</a></span> <span class="field-name">arguments</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flow/ApplyCompensation.html">ApplyCompensation</a>?</span> <span class="field-name">compensation</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="field-name">function</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A complete request to perform an action or change state within a cell.
+  
+
+</dd>
+
+
+          
+  <dt id="ApplyCompensation" class="">
+  <span class="name"><a href="../cell_flow/ApplyCompensation.html">ApplyCompensation</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_flow/ApplyArguments.html">ApplyArguments</a></span> <span class="field-name">arguments</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a>?</span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="field-name">function</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A set of instructions used to undo or "roll back" a change if it fails.
+  
+
+</dd>
+
+
+          
+  <dt id="ApplyReceipt" class="">
+  <span class="name"><a href="../cell_flow/ApplyReceipt.html">ApplyReceipt</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_flow/ApplyArguments.html">ApplyArguments</a></span> <span class="field-name">arguments</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="field-name">function</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="field-name">id</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a></span> <span class="field-name">timestamp</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="field-name">txSequence</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="field-name">vetted</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  The permanent, official record of a specific action taken by a cell.
+  
+
+</dd>
+
+
+          
   <dt id="Arguments" class="">
   <span class="name"><a href="../cell_flow/Arguments.html">Arguments</a></span>
     = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="field-name">namedArguments</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="field-name">positionalArguments</span>}</span>)
@@ -1367,8 +1540,8 @@ interface to manage an external side-effect listener.
 
           
   <dt id="FlowHandle" class="">
-  <span class="name"><a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>&lt;<wbr><span class="type-parameter">I</span>&gt;
-    = (<span class="field">{<span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emit</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emitAsync</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">I</span>&gt;</span></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>}</span>)
+  <span class="name"><a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">dynamic</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emit</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">dynamic</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emitAsync</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>}</span>)
   </span>
   
 
@@ -1572,7 +1745,9 @@ functions — the standard way to create and interact with a state atom.
 
 </dt>
 <dd>
-  
+  Raised when one or more compensations fail under
+<a href="../cell_flow/CompensationErrorPolicy.html">CompensationErrorPolicy.collectThenThrow</a> or
+<a href="../cell_flow/CompensationErrorPolicy.html">CompensationErrorPolicy.failFast</a>.
 </dd>
 
           <dt id="TxApplyException">
@@ -1580,7 +1755,9 @@ functions — the standard way to create and interact with a state atom.
 
 </dt>
 <dd>
-  
+  Raised for <strong>control-flow</strong> problems in a <a href="../cell_flow/ApplyTransactionScope-class.html">ApplyTransactionScope</a>: wrong
+phase (e.g. <code>commit</code> before <code>begin</code>), non-modifiable function, non-
+participant cell, or a rejected command at commit time.
 </dd>
 
       </dl>
@@ -1613,6 +1790,8 @@ functions — the standard way to create and interact with a state atom.
         <li><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></li>
       <li class="section-title">Libraries</li>
       <li><a href="../cell_flow/">cell_flow</a></li>
+      <li><a href="../cell_flow_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
+      <li><a href="../cell_flow_api_chooser/">doc\api_chooser</a></li>
 </ol>
 
   </div>
@@ -1623,7 +1802,7 @@ functions — the standard way to create and interact with a state atom.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

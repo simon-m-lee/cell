@@ -102,25 +102,6 @@ the principal's state (this is the "synchronisation" phase).</li>
 <li>The final (possibly transformed) pulse is dispatched to downstream
 observers via the tissue's <a href="../mitosis/Synapses-class.html">Synapses</a>.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Auto‑synchronisation</strong>: If the tissue is <code>bind</code>ed to a principal, the
-receptor automatically syncs structural changes (adds, removes, updates)
-from that principal into the local container, even before your custom
-rule runs. This is the foundation of the <strong>Deputy Pattern</strong>.</li>
-<li><strong>Activation</strong>: A receptor is a stateless template until it is activated
-(bound to a tissue). Once activated, it holds a reference to that tissue
-and cannot be safely reused on another one – use <a href="../mitosis/TissueReceptor/clone.html">clone</a> for that.</li>
-<li><strong>Pass‑through</strong>: The <code>passThrough</code> constant is a singleton; it's the
-default for all tissues, and it's extremely lightweight.</li>
-<li><strong>Async support</strong>: All pipeline stages can be synchronous or asynchronous
-(<code>FutureOr</code>). If any stage returns a <code>Future</code>, the propagation wave
-suspends until it completes.</li>
-<li><strong>Cloning</strong>: If you need the same logic on multiple tissues, call <code>clone</code>
-on an activated receptor to get a fresh, unactivated copy.</li>
-<li><strong>Returning <code>null</code></strong> is the standard way to filter a pulse – it's not an
-error path.</li>
-</ul>
 <h3 id="example-simple-transformation">Example: Simple transformation</h3>
 <pre class="language-dart"><code class="language-dart">final doubleReceptor = TissueReceptor&lt;int, TissueList&lt;int&gt;&gt;(
   (tissue, pulse, {user}) {
@@ -428,7 +409,7 @@ standardised pulse propagation and structural state synchronisation.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

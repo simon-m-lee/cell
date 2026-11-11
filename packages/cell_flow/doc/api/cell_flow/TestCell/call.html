@@ -84,14 +84,8 @@ automatically during validation. You might call it for testing.</p>
 <li>It evaluates the local rules (and optionally a custom <code>strategy</code>).</li>
 <li>If all pass, it delegates to the <code>TestCell.parent</code> (if any).</li>
 <li>If a rule returns a <code>Future</code>, it waits for it.</li>
-<li>If an exception occurs and the host is governed, the validation fails
-(returns <code>false</code>); if ungoverned, it passes (<code>true</code>).</li>
-</ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The exception handling differs between governed and ungoverned cells
-to avoid breaking the system when policies are misconfigured.</li>
-<li>The <code>arguments</code> parameter is only used for action validation.</li>
+<li>If a rule throws, the validation <strong>fails closed</strong> and returns
+<code>false</code> — a throwing integrity gate must never authorize anything.</li>
 </ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
@@ -111,10 +105,20 @@ that triggered this request.</li>
   <pre class="language-dart"><code class="language-dart">@override
 FutureOr&lt;bool&gt; call(dynamic object, {covariant C? host, dynamic arguments}) {
   try {
-    return super.call(object, host: host, arguments: arguments);
+    final result = super.call(object, host: host, arguments: arguments);
+    if (result is Future&lt;bool&gt;) {
+      &#47;&#47; The sync try&#47;catch above cannot see exceptions thrown inside an
+      &#47;&#47; async rule — the rejection lands in the future. An integrity
+      &#47;&#47; gate fails CLOSED on a throwing rule, governed host or not.
+      return result.catchError((Object e, StackTrace st) {
+        if (e is! Exception) return Error.throwWithStackTrace(e, st);
+        return false;
+      });
+    }
+    return result;
   } on Exception {
-    if (host != null &amp;&amp; host.isGoverned) return false;
-    return true;
+    &#47;&#47; Fail closed: a throwing rule must never authorize an operation.
+    return false;
   }
 }</code></pre>
 </section>
@@ -144,7 +148,7 @@ FutureOr&lt;bool&gt; call(dynamic object, {covariant C? host, dynamic arguments}
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -83,19 +83,6 @@ build an <a href="../mitosis/HttpInterpreter-class.html">HttpInterpreter</a>.</p
   "extraBody": { "seed": 42 }
 }
 </code></pre>
-<h3 id="non-obvious">Non-obvious</h3>
-<ul>
-<li><strong><code>extraBody</code> is merged into the request envelope.</strong> It can
-add <code>seed</code>, <code>top_p</code>, <code>max_tokens</code>, or any provider-specific
-field. It cannot override <code>model</code>, <code>messages</code>,
-<code>temperature</code>, or <code>response_format</code> — those are set by the
-interpreter after the merge.</li>
-<li><strong><code>apiKey</code> is required.</strong> There is no "anonymous" mode in
-this build. A caller that wants to run without a key should
-use <a href="../mitosis/StubInterpreter-class.html">StubInterpreter</a> directly.</li>
-<li><strong><code>timeoutSeconds</code> is optional.</strong> Omitting it uses the
-interpreter's own default of 30 seconds.</li>
-</ul>
 <h3 id="no-environment-fallback">No Environment Fallback</h3>
 <p>When a config is supplied, the resulting interpreter reads
 <strong>only</strong> the values in this config. It does not consult
@@ -367,7 +354,7 @@ inside the instruction.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

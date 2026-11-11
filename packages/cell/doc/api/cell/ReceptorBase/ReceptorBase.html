@@ -95,22 +95,6 @@ checks and persistence logic before the pulse is broadcast downstream.</li>
 metadata passed to every stage.</li>
 <li><strong>Synchronous Pipeline</strong>: All stages execute synchronously in sequence.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Memory Efficiency</strong>: It utilizes a <strong>Flyweight Record Strategy</strong>. The
-internal storage shape is optimized at construction to only allocate
-memory for the logic units actually provided.</li>
-<li><strong>Safety Shield</strong>: Each stage of the pipeline is independently wrapped
-in a resilience boundary. Exceptions are caught and logged to the
-pulse's trace, ensuring a logic failure doesn't crash the entire graph.</li>
-<li><strong>Stateless Template</strong>: Like all receptors, this constructor creates
-a blueprint. It only acquires a concrete execution context once
-bound to a specific cell.</li>
-<li><strong>Initialization Hook</strong>: The <code>init</code> parameter allows for setup logic
-that runs exactly once when the receptor is first activated by a cell.</li>
-<li><strong>Synchronous Execution</strong>: The <a href="../../cell/ReceptorBase/call.html">call</a> method executes synchronously.
-Use <a href="../../cell/ReceptorAsync-class.html">ReceptorAsync</a> for asynchronous pulse injection.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>instruction</code>: The core <a href="../../cell/Instruction-class.html">Instruction</a> defining the primary transformation.</li>
@@ -133,14 +117,14 @@ Use <a href="../../cell/ReceptorAsync-class.html">ReceptorAsync</a> for asynchro
   Pulse? Function(Pulse pulse, C host, {dynamic user})? reaction,
   void Function()? init,
   dynamic Function()? user,
-}) : this.fromRecord(record: mask(
-    instruction: instruction,
-    preProcess: preProcess,
-    postProcess: postProcess,
-    reaction: reaction,
-    user: user,
-    init: init
-));</code></pre>
+}) : this.fromRecord(
+          record: mask(
+              instruction: instruction,
+              preProcess: preProcess,
+              postProcess: postProcess,
+              reaction: reaction,
+              user: user,
+              init: init));</code></pre>
 </section>
 
 
@@ -168,7 +152,7 @@ Use <a href="../../cell/ReceptorAsync-class.html">ReceptorAsync</a> for asynchro
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

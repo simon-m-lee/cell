@@ -89,13 +89,6 @@ and emit when a batch is full.</p>
 <li>If the list reaches <code>size</code>, it's emitted as a <code>Grouped</code> record.</li>
 <li>The group is cleared from the internal map.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Stateful</strong>: Maintains groups until they reach the size.</li>
-<li><strong>Clear on Emit</strong>: Groups are removed after emission.</li>
-<li><strong>Per-Group Batching</strong>: Each group batches independently.</li>
-<li><strong>Incomplete Groups</strong>: Groups that never reach the size are kept.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
@@ -171,7 +164,7 @@ words.emit('avocado'); // -&gt; Grouped(A, [apple, apricot, avocado])
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

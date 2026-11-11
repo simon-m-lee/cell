@@ -62,6 +62,22 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Discards staged calls, optionally rolling back only to an earlier
+<code>savepoint</code>.</p>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>With a <code>savepoint</code>, compensates and discards the staged calls after
+that point. The transaction remains active.</li>
+<li>Without a <code>savepoint</code>, compensates and discards all staged calls and
+finishes the transaction.</li>
+</ul>
+<h3 id="throws">Throws</h3>
+<ul>
+<li><a href="https://api.flutter.dev/flutter/dart-core/ArgumentError-class.html">ArgumentError</a> if the savepoint was not returned by <code>savepoint</code> on
+this scope.</li>
+</ul>
+</section>
 
 
     
@@ -95,7 +111,7 @@
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

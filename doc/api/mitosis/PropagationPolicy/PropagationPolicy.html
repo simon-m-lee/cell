@@ -76,13 +76,6 @@ manages batch synchronization.</p>
 <li>It is attached to a synapses instance at creation.</li>
 <li>The synapses uses the policy to decide how to handle each outgoing pulse.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The policy is immutable – you cannot change it after synapses creation.</li>
-<li>To change behavior, create a new synapses with a new policy.</li>
-<li>All parameters have sensible defaults, so you can omit those you
-don't need.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>strategy</code>: The tactical model defining the timing and delivery mode
@@ -146,7 +139,7 @@ a single delivery wave. Defaults to <strong>10</strong>.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

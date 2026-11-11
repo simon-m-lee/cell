@@ -95,18 +95,6 @@ themselves considered governed.</li>
 <li><strong>Passive Default</strong>: If no local overrides exist and there is no
 upstream binding, the node is considered un-governed (standard system state).</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Recursive Integrity</strong>: Governance is contagious. A chain of bindings
-will propagate the governance flag downward. If the root data source
-is governed, the entire reactive lineage is flagged as governed.</li>
-<li><strong>Authority vs. Governance</strong>: A node can have a strict <a href="../../cell_flow/Nucleus/testRule.html">testRule</a> (gate)
-but remain un-governed if its <a href="../../cell_flow/Nucleus/context.html">context</a> is still <a href="../../cell_flow/Context/system-constant.html">Context.system</a> and
-it lacks a lifecycle policy.</li>
-<li><strong>Identity vs. State</strong>: This getter reflects the <em>structural</em>
-governance of the node (its "DNA"), not the current <em>activation</em>
-state of the resulting <a href="../../cell_flow/Cell-class.html">Cell</a>.</li>
-</ul>
 <h3 id="returns">Returns:</h3>
 <p><code>true</code> if the node is under specialized administrative or lifecycle control.</p>
 </section>
@@ -144,7 +132,7 @@ state of the resulting <a href="../../cell_flow/Cell-class.html">Cell</a>.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

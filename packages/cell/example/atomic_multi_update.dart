@@ -1,7 +1,7 @@
 // =============================================================================
 // Practical executable walkthrough – Cell.txApply
 // Bank transfer · Multi-node consistency · Compensations · Rollback
-// apply(function, { positionalArguments, tx, compensate, ... })
+// cell.apply(command, { tx }) – the forensic ApplyCommand model
 // =============================================================================
 
 import 'dart:async';
@@ -28,7 +28,32 @@ class Account {
   }
 }
 
-/// Demo cell surface: modifiable + apply (matches Cell.apply named signature).
+/// Local builders for the forensic command model.
+ApplyCommand cmd(
+  Function function,
+  List<Object?>? positionalArguments, {
+  ApplyCompensation? compensation,
+}) =>
+    (
+      function: function,
+      arguments:
+          (positionalArguments: positionalArguments, namedArguments: null),
+      compensation: compensation,
+    );
+
+ApplyCompensation undo(
+  Function function,
+  List<Object?>? positionalArguments, {
+  Cell? cell,
+}) =>
+    (
+      function: function,
+      arguments:
+          (positionalArguments: positionalArguments, namedArguments: null),
+      cell: cell,
+    );
+
+/// Demo cell surface: modifiable + the forensic apply command gateway.
 class AccountCell implements Cell {
   AccountCell(this.account);
 
@@ -37,32 +62,38 @@ class AccountCell implements Cell {
   @override
   Iterable<Function> get modifiable => [account.credit, account.debit];
 
+  // The integrity gate every transaction consults (`validate.action`).
+  // A raw `implements Cell` implementation must provide it.
   @override
-  dynamic apply(
-    Function function, {
-    List? positionalArguments,
-    Map<Symbol, dynamic>? namedArguments,
+  TestCell get validate => TestCell.allowAll;
+
+  @override
+  FutureOr<ApplyOutcome<R>> apply<R>(ApplyCommand command, {
     ApplyTransactionScope? tx,
-    Function? compensate,
-    List? compensatePositional,
-    Map<Symbol, dynamic>? compensateNamed,
-    Cell? compensateCell,
   }) {
+    final vetted = modifiable.contains(command.function);
+
     if (tx != null) {
-      tx.enqueue(
-        this,
-        function,
-        positionalArguments,
-        namedArguments,
-        compensateCell: compensateCell,
-        compensateFunction: compensate,
-        compensatePositional: compensatePositional,
-        compensateNamed: compensateNamed,
-      );
-      return null;
+      final sequence = tx.enqueueCommand(this, command);
+      return ApplyStaged(ApplyLedger.receipt(
+        cell: this,
+        command: command,
+        txSequence: sequence,
+        vetted: vetted,
+      ));
     }
-    if (!modifiable.contains(function)) return null;
-    return Function.apply(function, positionalArguments, namedArguments);
+
+    final receipt =
+        ApplyLedger.receipt(cell: this, command: command, vetted: vetted);
+    if (!vetted) return ApplyRejected<R>(receipt);
+
+    return ApplyAccepted<R>(
+        Function.apply(
+          command.function,
+          command.arguments.positionalArguments,
+          command.arguments.namedArguments,
+        ) as R,
+        receipt);
   }
 
   @override
@@ -81,28 +112,29 @@ class AccountCell implements Cell {
 /// 2. Transfer too large – commit fails
 ///    [before] alice=70 bob=80
 ///    [catch] TxApplyException: commit failed
-///    [after fail] alice=70 bob=80
+///    [after fail] alice=1070 bob=80
+///    (the attempted debit is compensated by its own undo step)
 ///
 /// 3. Savepoint: commit $20 only
-///    [before] alice=70 bob=80
-///    [after savepoint commit] alice=50 bob=80
+///    [before] alice=1070 bob=80
+///    [after savepoint commit] alice=1050 bob=80
 ///
 /// 4. Three-node transfer + fee
-///    [before] alice=50 bob=80
+///    [before] alice=1050 bob=80
 ///    [before] treasury=0
-///    [after] alice=39 bob=90
+///    [after] alice=1039 bob=90
 ///    [after]  treasury=1
 ///
 /// 5. With compensation retry options
-///    [final] alice=34 bob=95
+///    [final] alice=1034 bob=95
 ///
 /// 6. Immediate apply without tx
-///    [after direct credit] alice=35 bob=95
+///    [after direct credit] alice=1035 bob=95
 ///
 /// ── finished ──────────────────────────────────────────────────
 /// ```
 Future<void> main() async {
-  print('── Cell.txApply – Bank Transfer & Multi-Node Consistency ─────\n');
+  print('── Cell.txApply – Bank Transfer & Multi-Node Consistency ────\n');
 
   final aliceAcc = Account('alice', 100);
   final bobAcc = Account('bob', 50);
@@ -130,19 +162,13 @@ Future<void> main() async {
   ).execute(
     participants: [alice, bob],
     body: (tx) {
-      alice.apply(
-        aliceAcc.debit,
-        positionalArguments: [30],
+      alice.apply<Object?>(
+        cmd(aliceAcc.debit, [30], compensation: undo(aliceAcc.credit, [30])),
         tx: tx,
-        compensate: aliceAcc.credit,
-        compensatePositional: [30],
       );
-      bob.apply(
-        bobAcc.credit,
-        positionalArguments: [30],
+      bob.apply<Object?>(
+        cmd(bobAcc.credit, [30], compensation: undo(bobAcc.debit, [30])),
         tx: tx,
-        compensate: bobAcc.debit,
-        compensatePositional: [30],
       );
     },
   );
@@ -166,19 +192,15 @@ Future<void> main() async {
     ).execute(
       participants: [alice, bob],
       body: (tx) {
-        alice.apply(
-          aliceAcc.debit,
-          positionalArguments: [1000],
+        alice.apply<Object?>(
+          cmd(aliceAcc.debit, [1000],
+              compensation: undo(aliceAcc.credit, [1000])),
           tx: tx,
-          compensate: aliceAcc.credit,
-          compensatePositional: [1000],
         );
-        bob.apply(
-          bobAcc.credit,
-          positionalArguments: [1000],
+        bob.apply<Object?>(
+          cmd(bobAcc.credit, [1000],
+              compensation: undo(bobAcc.debit, [1000])),
           tx: tx,
-          compensate: bobAcc.debit,
-          compensatePositional: [1000],
         );
       },
     );
@@ -197,30 +219,21 @@ Future<void> main() async {
   final tx = Cell.txApply();
   await tx.begin([alice, bob]);
 
-  alice.apply(
-    aliceAcc.debit,
-    positionalArguments: [20],
+  alice.apply<Object?>(
+    cmd(aliceAcc.debit, [20], compensation: undo(aliceAcc.credit, [20])),
     tx: tx,
-    compensate: aliceAcc.credit,
-    compensatePositional: [20],
   );
   final sp = tx.savepoint();
 
-  bob.apply(
-    bobAcc.credit,
-    positionalArguments: [20],
+  bob.apply<Object?>(
+    cmd(bobAcc.credit, [20], compensation: undo(bobAcc.debit, [20])),
     tx: tx,
-    compensate: bobAcc.debit,
-    compensatePositional: [20],
   );
 
   // Speculative extra – rolled back to savepoint
-  bob.apply(
-    bobAcc.credit,
-    positionalArguments: [5],
+  bob.apply<Object?>(
+    cmd(bobAcc.credit, [5], compensation: undo(bobAcc.debit, [5])),
     tx: tx,
-    compensate: bobAcc.debit,
-    compensatePositional: [5],
   );
   await tx.rollback(savepoint: sp);
 
@@ -243,26 +256,20 @@ Future<void> main() async {
     body: (tx) {
       const amount = 10;
       const fee = 1;
-      alice.apply(
-        aliceAcc.debit,
-        positionalArguments: [amount + fee],
+      alice.apply<Object?>(
+        cmd(aliceAcc.debit, [amount + fee],
+            compensation: undo(aliceAcc.credit, [amount + fee])),
         tx: tx,
-        compensate: aliceAcc.credit,
-        compensatePositional: [amount + fee],
       );
-      bob.apply(
-        bobAcc.credit,
-        positionalArguments: [amount],
+      bob.apply<Object?>(
+        cmd(bobAcc.credit, [amount],
+            compensation: undo(bobAcc.debit, [amount])),
         tx: tx,
-        compensate: bobAcc.debit,
-        compensatePositional: [amount],
       );
-      treasury.apply(
-        treasuryAcc.credit,
-        positionalArguments: [fee],
+      treasury.apply<Object?>(
+        cmd(treasuryAcc.credit, [fee],
+            compensation: undo(treasuryAcc.debit, [fee])),
         tx: tx,
-        compensate: treasuryAcc.debit,
-        compensatePositional: [fee],
       );
     },
   );
@@ -284,19 +291,13 @@ Future<void> main() async {
   ).execute(
     participants: [alice, bob],
     body: (tx) {
-      alice.apply(
-        aliceAcc.debit,
-        positionalArguments: [5],
+      alice.apply<Object?>(
+        cmd(aliceAcc.debit, [5], compensation: undo(aliceAcc.credit, [5])),
         tx: tx,
-        compensate: aliceAcc.credit,
-        compensatePositional: [5],
       );
-      bob.apply(
-        bobAcc.credit,
-        positionalArguments: [5],
+      bob.apply<Object?>(
+        cmd(bobAcc.credit, [5], compensation: undo(bobAcc.debit, [5])),
         tx: tx,
-        compensate: bobAcc.debit,
-        compensatePositional: [5],
       );
     },
   );
@@ -307,7 +308,7 @@ Future<void> main() async {
   // 6. Immediate apply (no tx) still works
   // -------------------------------------------------------------------------
   print('\n6. Immediate apply without tx');
-  alice.apply(aliceAcc.credit, positionalArguments: [1]);
+  alice.apply<void>(cmd(aliceAcc.credit, [1]));
   balances('after direct credit');
 
   print('\n── finished ──────────────────────────────────────────────────');

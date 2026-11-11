@@ -54,10 +54,10 @@ import 'package:cell/cell.dart';
 //
 // The first attempt surfaced five issues. This version addresses each:
 //
-//   • Cell.txApply scope object was passed to Cell.apply(tx: scope) without
-//     an explicit begin. Replaced with a direct try/catch + explicit voidKey
-//     compensation that preserves the exact semantics: on failure the issued
-//     credential is voided; occupancy stays committed.
+//   • Cell.txApply scope object was passed to Cell.apply(command, tx: scope)
+//     without an explicit begin. Replaced with a direct try/catch + explicit
+//     voidKey compensation that preserves the exact semantics: on failure the
+//     issued credential is voided; occupancy stays committed.
 //
 //   • Cell.throttle default window swallowed the first folio tap. Set
 //     leading: true and trailing: false explicitly, and lengthened the

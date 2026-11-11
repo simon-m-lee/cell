@@ -81,20 +81,6 @@ and passed to the instruction during every invocation.</li>
 <li>The receptor inherits the transformation, filtering, and error
 handling behavior defined in the instruction.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Metadata Precedence</strong>: The <code>user</code> data passed to this factory is
-passed to the instruction's call method. If the instruction already
-has internal metadata, this <code>user</code> parameter acts as the execution-time
-context.</li>
-<li><strong>Template State</strong>: Like all receptor factories, this returns a
-stateless blueprint. It only acquires a concrete execution context
-when bound to a cell.</li>
-<li><strong>Short-circuiting</strong>: If the instruction is a chain, the receptor
-respects the chain's terminal logic (returning <code>null</code> stops the
-signal).</li>
-<li><strong>Synchronous Execution</strong>: The instruction executes synchronously.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>instruction</code>: The logic unit to use for pulse processing.</li>
@@ -147,7 +133,7 @@ final receptor = Receptor.instruction(auditor, user: 'SecurityLog');
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

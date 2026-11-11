@@ -79,13 +79,6 @@ chain. It determines whether the value can be changed after initialisation.</p>
 <p>Read this to understand whether the value is mutable or write‑once.
 This is useful for conditional UI logic (e.g., disabling an "Edit" button)
 or for debugging.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is a <strong>structural</strong> property – it is fixed at creation and
-inherited by all deputies. A deputy cannot change a mutable value
-into a write‑once one.</li>
-<li>Defaults to <a href="../../mitosis/Container/value-constant.html">Container.value</a> if not set.</li>
-</ul>
 </section>
 
     
@@ -125,7 +118,7 @@ Container get containerType {
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -87,7 +87,7 @@ a live graph node, returning a handle for stimulus ingress.</p>
   TestCell testRule = TestCell.allowAll,
   Synapses synapses = Synapses.enabled,
 }) {
-  final receptor = Receptor.instruction(this);
+  final receptor = Receptor.instruction(_activate());
   final nucleus = Nucleus(
       bind: source,
       testRule: testRule,
@@ -140,7 +140,7 @@ a live graph node, returning a handle for stimulus ingress.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

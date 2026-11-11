@@ -95,14 +95,6 @@ where omitted.</li>
 inherits from that principal.</li>
 <li>The <code>container</code> parameter determines the storage strategy.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>forceLock</code> flag, when <code>true</code>, allows sharing the principal's lock.
-This is typically used for deputies to maintain a single atomic boundary.</li>
-<li>The type parameters <code>E</code>, <code>I</code>, and <code>C</code> must be consistent – the storage
-type <code>I</code> must be an <code>Iterable&lt;E&gt;</code>, and the interface <code>C</code> must extend
-<a href="../../cell_tissue/Tissue-class.html">Tissue&lt;E&gt;</a>.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>bind</code>: Optional upstream cell.</li>
@@ -178,7 +170,7 @@ stateless template for the specified collection architecture.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

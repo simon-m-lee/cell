@@ -87,7 +87,7 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 void setRange(int start, int end, Iterable&lt;E&gt; iterable, [int skipCount = 0]) {
-  apply(setRange, positionalArguments: [start, end, iterable, skipCount]);
+  dispatch(setRange, positionalArguments: [start, end, iterable, skipCount]);
 }</code></pre>
 </section>
 
@@ -116,7 +116,7 @@ void setRange(int start, int end, Iterable&lt;E&gt; iterable, [int skipCount = 0
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

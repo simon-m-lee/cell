@@ -92,17 +92,6 @@ payload is passed through so the factory can depend on the stimulus.</p>
 <li>Failure is reported through <code>onError</code> and optionally an error pulse.</li>
 <li>Results are emitted in input order (sequential processing).</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Per-Trigger</strong>: Each trigger starts a new future.</li>
-<li><strong>Sequential</strong>: The instruction processes inputs one at a time.
-Each async operation must complete before the next starts.</li>
-<li><strong>Payload Access</strong>: The trigger payload is passed to <code>create</code> so
-the future can depend on the stimulus.</li>
-<li><strong>Error Handling</strong>: Errors are reported via <code>onError</code> and optionally
-as error pulses with <code>type: 'error'</code>.</li>
-<li><strong>Timeout</strong>: Optional timeout can be applied to each future operation.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>source</code>: <strong>The Trigger Source.</strong> The cell that triggers each future.</li>
@@ -181,7 +170,7 @@ userIds.emit(2); // Loads user 2
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

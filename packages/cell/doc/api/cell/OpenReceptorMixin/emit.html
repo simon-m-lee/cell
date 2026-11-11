@@ -78,17 +78,6 @@ internal <a href="../../cell/Receptor-class.html">Receptor</a> logic.</li>
 <li><strong>Propagation</strong>: The resulting pulse (if any) is then broadcast
 downstream to the rest of the network.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Async Support</strong>: If the cell's safety check (<code>testRule</code>) is
-asynchronous, this method returns a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>.</li>
-<li><strong>Signal Termination</strong>: If the safety check fails, or if the
-transformation logic returns <code>null</code>, the signal is terminated
-and no data is broadcast.</li>
-<li><strong>Error Handling</strong>: Any errors thrown during the transformation
-step are caught, and the emission is treated as a silent failure
-(returns <code>null</code>).</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>pulse</code>: The data pulse to be injected into the network.</li>
@@ -106,14 +95,11 @@ suppressed.</p>
   <pre class="language-dart"><code class="language-dart">FutureOr&lt;Pulse?&gt; emit(Pulse pulse) {
   final validation = validate(pulse, host: this);
 
-  &#47;&#47; Helper to execute the core receptor logic
-  FutureOr&lt;Pulse?&gt; process() {
-    try {
-      return _nucleus.receptor.call(pulse);
-    } catch (_) {
-      return null;
-    }
-  }
+  &#47;&#47; Helper to execute the core receptor logic. A throwing receptor
+  &#47;&#47; PROPAGATES to the emit() caller — swallowing it here would make
+  &#47;&#47; &quot;rejected by policy&quot; indistinguishable from &quot;receptor threw&quot;, and
+  &#47;&#47; the async path already propagates.
+  FutureOr&lt;Pulse?&gt; process() =&gt; _nucleus.receptor.call(pulse);
 
   &#47;&#47; 1. Branch: Asynchronous Path (Remote Governance&#47;IO)
   if (validation is Future&lt;bool&gt;) {
@@ -150,7 +136,7 @@ suppressed.</p>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

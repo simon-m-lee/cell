@@ -80,16 +80,6 @@ duplicate data.</li>
 <li>The <code>_branches</code> counter is incremented by one to track completion across
 the chain.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>Unlike a <a href="../mitosis/CollectiveTissuePulse-class.html">CollectiveTissuePulse</a>, this is a <strong>chain</strong>, not a flat bundle.
-The <code>+</code> operator on an evolved event creates a collective (a batch), not
-a longer chain.</li>
-<li>The <a href="../mitosis/EvolvedTissueEventBase/parent.html">parent</a> is never <code>null</code> – the root event (the original) is the only
-one without a parent.</li>
-<li>When you call <code>evolve</code> again, you get a new <code>EvolvedTissueEvent</code> that
-links back to the previous one.</li>
-</ul>
 <h3 id="example-building-a-chain">Example: building a chain</h3>
 <pre class="language-dart"><code class="language-dart">final list = TissueList.of([1]);
 final root = list.apply(list.add, positionalArguments: [42]);
@@ -419,13 +409,13 @@ final evolved = root
 </dd>
 
         <dt id="type" class="property inherited">
-  <span class="name"><a href="../mitosis/TissuePulseBase/type.html">type</a></span>
+  <span class="name"><a href="../mitosis/PulseBase/type.html">type</a></span>
   <span class="signature">&#8594; dynamic</span>
   
 
 </dt>
 <dd class="inherited">
-  The semantic classification of this tissue pulse.
+  Semantic type classification for pattern matching and routing.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -1068,7 +1058,7 @@ collection.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

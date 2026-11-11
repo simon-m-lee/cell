@@ -79,15 +79,6 @@ This is because the unmodifiable projection is a view, not a final
 barrier to derivation.</li>
 <li>The <code>+</code> operator combines this event into a collective.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is a zero‑copy projection – the underlying data is not duplicated.</li>
-<li>It is recursive: <code>parent</code> and <code>root</code> are also unmodifiable projections.</li>
-<li>For composite events (collectives), iteration yields unmodifiable
-projections of each sub‑event.</li>
-<li>The <a href="../mitosis/UnmodifiableTissueEventBase/shell.html">shell</a> getter on an unmodifiable event still works – it wraps
-the projection in a defensive shell.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final list = TissueList.of([1]);
 final event = list.apply(list.add, positionalArguments: [42]);
@@ -1054,7 +1045,7 @@ collection.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

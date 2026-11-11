@@ -87,18 +87,6 @@ links, and user metadata from the provided record.</li>
 supports the framework's goal of sharing memory for identical
 validation logic across different nodes.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Developer Guidance</strong>: Most developers should use the primary
-<a href="../../cell_flow/TestRule-class.html">TestRule</a> or <a href="../../cell_flow/TestRule/TestRule.chain.html">TestRule.chain</a> constructors. This constructor is
-reserved for <strong>Advanced Framework Scenarios</strong>.</li>
-<li><strong>Zero-Cost Path</strong>: It provides a zero-latency path for restoring
-rules within performance-critical reactive waves.</li>
-<li><strong>Data Integrity</strong>: Assumes the provided record is valid and was
-properly synthesized by the framework.</li>
-<li><strong>Isolation</strong>: Rules restored this way are immediately ready for use in
-a <strong>Reciprocal Handshake</strong> without further configuration.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// Primarily used internally for restoration:
 final restoredRule = TestRule&lt;C&gt;.fromRecord(storedRecord);
@@ -150,7 +138,7 @@ containing the rule's logic, parent links, and metadata.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -95,20 +95,6 @@ synchronously. It compares the <code>host.value</code> (current state) with the
 <li><strong>Commitment</strong>: If <code>evolve</code> returns a new <a href="../../cell/Pulse-class.html">Pulse</a>, the state is
 updated and immediately broadcast via <a href="../../cell/Synapses-class.html">Synapses</a>.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Initial Seed</strong>: The <code>initial</code> value is written directly to storage,
-bypassing the transformation and validation cycle.</li>
-<li><strong>Testing &amp; Integrity</strong>: The <code>testRule</code> acts as an <strong>Integrity Gate</strong>,
-allowing you to enforce constraints (e.g., "value must never be negative")
-or inject mock behaviors during unit testing without altering production
-transformation logic.</li>
-<li><strong>Null Filtering</strong>: If <code>evolve</code> returns <code>null</code>, the update is
-rejected, the storage remains unchanged, and no propagation occurs.</li>
-<li><strong>Atomic Isolation</strong>: By default, state updates are serialized
-through an internal <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> to prevent race conditions during
-concurrent async operations.</li>
-</ul>
 <h3 id="example-validated-counter">Example: Validated Counter</h3>
 <pre class="language-dart"><code class="language-dart">final counter = Cell.state&lt;int&gt;(
   initial: 0,
@@ -147,6 +133,23 @@ Useful for enforcing domain invariants and mocking test scenarios.</li>
 state management and reactive patterns.
 {@category Core 16 Operators}</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> A BRD says "retain X" and the WalkThrough named <strong>no</strong> Tissue book; a setting read at any time (not a governed reserve).
+<strong>When NOT to use:</strong>
+  <strong>DON'T</strong> use <code>Cell.state&lt;List&lt;E&gt;&gt;</code> as a system of record.
+Use <code>TissueList&lt;E&gt;</code> from <code>cell_tissue</code>.
+See <code>HowTo-Mitose-Tissue.md</code> §2.1 "TissueList — the audit book".
+<strong>Live signature:</strong> <code>Cell.state&lt;V&gt;({initial, evolve, testRule})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.ingress</code> (stateless entry) and <code>TissueValue</code> (governed reserve book in <code>cell_tissue</code>).
+<strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)
+<strong>Example:</strong> <code>example/state_demo.dart</code>
+<strong>Cross-layer:</strong> prefer <code>TissueValue&lt;V&gt;</code> from <code>cell_tissue</code> when the WalkThrough named a reserve / pool book.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final counter = Cell.state&lt;int&gt;(initial: 0);
+counter.update(5);
+print(counter.cell.value); // 5
+</code></pre>
 </section>
 
 
@@ -195,7 +198,7 @@ state management and reactive patterns.
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

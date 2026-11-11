@@ -89,21 +89,6 @@ or <code>null</code> (<strong>NEUTRALIZED</strong>).</li>
 and lineage of the underlying object, ensuring metadata (trace,
 timestamp, context) is preserved throughout the handshake.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Flyweight Strategy</strong>: Many implementations (like <a href="../cell/PulseShell-class.html">PulseShell</a>) utilize
-<code>const</code> constructors and shared storage to minimize heap pressure
-during high-frequency propagation waves.</li>
-<li><strong>Fail-Closed Design</strong>: If the scrutiny process fails or is bypassed,
-the shell remains opaque, preventing unauthorized leak of the internal
-cytoplasm.</li>
-<li><strong>Identity Transparency</strong>: The shell does not replace the identity of the
-underlying stimulus but acts as a perceptual lens through which the
-stimulus is viewed by specific consumers.</li>
-<li><strong>Structural Blueprint</strong>: It defines the zero-cost anchoring for
-defensive proxies, allowing security protocols to be embedded directly
-into the signal propagation logic.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">class SecureShell&lt;P&gt; implements Shell&lt;Cell&gt; {
   final Pulse&lt;P&gt; _kernel;
@@ -284,7 +269,7 @@ version of the data compatible with the caller's authorization scope and intent.
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

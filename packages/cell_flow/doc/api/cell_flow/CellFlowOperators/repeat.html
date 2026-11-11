@@ -89,14 +89,6 @@ the trigger payload and prepares <code>count</code> instances of <code>value</co
 inheriting the provenance and priority of the trigger, tagged
 with the <code>'Repeat'</code> step.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Payload Override</strong>: Unlike <a href="../../cell_flow/CellFlowOperators/range.html">range</a>, which derives its values from
-a start point, <a href="../../cell_flow/CellFlowOperators/repeat.html">repeat</a> completely ignores the trigger stimulus
-payload in favor of the provided <code>value</code>.</li>
-<li><strong>Synchronous Emission</strong>: All <code>count</code> pulses are evolved
-synchronously within the same execution frame.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>value</code>: The <strong>Fixed Payload</strong> to be materialized.</li>
@@ -144,7 +136,7 @@ synchronously within the same execution frame.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

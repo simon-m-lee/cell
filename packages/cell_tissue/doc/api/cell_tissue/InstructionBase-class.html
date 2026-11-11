@@ -82,21 +82,6 @@ signal recovers using a fallback strategy to prevent graph-wide failures.</li>
 <li><strong>Future Propagation</strong>: It supports asynchronous continuation via the
 <a href="../cell_tissue/InstructionBase/InstructionBase.future.html">future</a> callback mechanism.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Sparsity-Aware Storage</strong>: The internal record shape is automatically
-optimized to omit unused fields (like metadata), reducing the memory
-tax for systems with millions of reactive nodes.</li>
-<li><strong>Type Integrity</strong>: It enforces strict type checking on results,
-ensuring that incompatible payloads are discarded to maintain
-graph-wide type safety.</li>
-<li><strong>Const-Ready Design</strong>: The class is designed to support <code>const</code>
-initialization, ensuring that identical logic units share the same
-physical memory address across the entire application.</li>
-<li><strong>Synchronous Execution</strong>: All instruction execution is synchronous.
-The <a href="../cell_tissue/InstructionBase/call.html">call</a> method returns the result immediately without awaiting any
-<a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>. Asynchronous coordination is handled via the <a href="../cell_tissue/InstructionBase/InstructionBase.future.html">future</a> callback.</li>
-</ul>
 <h3 id="type-parameters">Type Parameters:</h3>
 <ul>
 <li><code>C</code>: The type of the host <a href="../cell_tissue/Cell-class.html">Cell</a> (the transformation target).</li>
@@ -297,7 +282,7 @@ resilience.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

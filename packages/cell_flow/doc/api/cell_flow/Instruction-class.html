@@ -90,22 +90,6 @@ short-circuits.</li>
 For asynchronous behavior, use the <a href="../cell_flow/Instruction/Instruction.future.html">Instruction.future</a> factory or
 the <a href="../cell_flow/Receptor/async.html">Receptor.async</a> execution path.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Composition</strong>: The <code>+</code> operator creates an <a href="../cell_flow/InstructionChain-class.html">InstructionChain</a>, which
-maintains strict execution order.</li>
-<li><strong>Resilience</strong>: Instructions are wrapped in a safety boundary. If an
-exception occurs, it is caught, logged to the pulse's forensic trace,
-and the original pulse is returned as a fallback.</li>
-<li><strong>Flyweight Pattern</strong>: Instructions are designed to be extremely
-lightweight, often sharing the same underlying logic record to minimize
-memory overhead in large graphs.</li>
-<li><strong>Context vs Metadata</strong>: The <code>user</code> parameter is external metadata
-passed during invocation; it is not persisted in the <a href="../cell_flow/Pulse/context.html">Pulse.context</a>.</li>
-<li><strong>Synchronous Only</strong>: Instructions execute synchronously. For
-asynchronous pulse processing, use <a href="../cell_flow/Instruction/Instruction.future.html">Instruction.future</a> or call
-through <a href="../cell_flow/Receptor/async.html">Receptor.async</a> which handles the asynchronous coordination.</li>
-</ul>
 <h3 id="example-validation--sanitization-pipeline">Example: Validation &amp; Sanitization Pipeline</h3>
 <pre class="language-dart"><code class="language-dart">final trim = Instruction&lt;Cell, String, String&gt;((pulse, {cell, user}) {
   return Pulse(pulse.payload.trim());
@@ -331,7 +315,7 @@ custom instructions.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

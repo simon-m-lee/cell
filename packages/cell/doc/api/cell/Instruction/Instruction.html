@@ -74,18 +74,6 @@ It receives the <code>pulse</code>, the host <code>cell</code> (for context-awar
 any <code>user</code> data passed during construction. The return value determines
 the next state of the signal: a new <a href="../../cell/Pulse-class.html">Pulse</a> continues propagation, while
 <code>null</code> drops it.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Safety Wrap</strong>: The function is automatically wrapped in a resilience
-layer. Exceptions are caught, logged, and the original pulse is
-returned as a fallback to prevent pipeline crashes.</li>
-<li><strong>Static Metadata</strong>: The <code>user</code> parameter provided here acts as a
-default configuration that is passed to every invocation of this
-specific instruction instance.</li>
-<li><strong>Synchronous Execution</strong>: The instruction executes synchronously.
-For asynchronous processing, use <a href="../../cell/Instruction/Instruction.future.html">Instruction.future</a> or call through
-<a href="../../cell/Receptor/async.html">Receptor.async</a>.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>instruction</code>: The function that transforms an input pulse <code>I</code> to an
@@ -143,7 +131,7 @@ custom instructions (including synchronous/asynchronous) and scheduling logic..<
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

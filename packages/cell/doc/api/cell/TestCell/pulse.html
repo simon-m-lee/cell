@@ -86,48 +86,6 @@ when a <a href="../../cell/Pulse-class.html">Pulse</a> arrives at a cell. It can
 <li>If any rule returns <code>false</code>, the pulse is dropped.</li>
 <li>If all pass, it delegates to the <code>TestCell.parent</code>.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The pulse validation is the first gate a pulse meets – it happens
-before the pulse reaches the receptor's transformation logic.</li>
-<li>Rules can inspect the pulse's context, type, and payload to make
-authorisation decisions.</li>
-<li>If a rule returns a <code>Future</code>, the pulse processing is suspended
-until the rule completes.</li>
-</ul>
-<p>Example</p>
-<pre class="language-dart"><code class="language-dart">final policy = TestCell&lt;Cell&gt;((object, {host, arguments, user}) {
-  if (object is Pulse) {
-    // Only accept pulses with priority &gt; 50
-    return object.priority &gt; 50;
-  }
-  return true;
-});
-
-// Pulse Validation
-final pulsePolicy = TestCell&lt;Cell&gt;((object, {host, arguments, user}) {
-  if (object is Pulse) {
-    final ctx = object.context;
-    // Only accept pulses from admin actors
-    return ctx.actor == 'admin';
-  }
-  return true;
-});
-
-final cell = Cell(testRule: pulsePolicy);
-
-// Allowed pulse
-final adminPulse = Pulse.governed&lt;int&gt;(
-  context: PulseContext(actor: 'admin'),
-);
-cell._nucleus.receptor(adminPulse); // Accepted
-
-// Blocked pulse
-final userPulse = Pulse.governed&lt;int&gt;(
-  context: PulseContext(actor: 'user'),
-);
-cell._nucleus.receptor(userPulse); // Rejected
-</code></pre>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>pulse</code>: The incoming <a href="../../cell/Pulse-class.html">Pulse</a> to be validated.</li>
@@ -147,7 +105,13 @@ FutureOr&lt;bool&gt; pulse(covariant Pulse pulse, {required C host}) {
 
   FutureOr&lt;bool&gt; runRules(int index) {
     for (var i = index; i &lt; rules.length; i++) {
-      final result = rules[i].pulse(pulse, host: host);
+      final rule = rules[i];
+      &#47;&#47; Nested TestCells implement TestPulseRule, so dispatch them through
+      &#47;&#47; `call` — their generic rule must see the pulse object. Only true
+      &#47;&#47; TestPulseRule instances use the specialized path.
+      final result = rule is TestCell&lt;C&gt;
+          ? rule.call(pulse, host: host)
+          : rule.pulse(pulse, host: host);
 
       if (result is Future&lt;bool&gt;) {
         return result.then((passed) {
@@ -192,7 +156,7 @@ FutureOr&lt;bool&gt; pulse(covariant Pulse pulse, {required C host}) {
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

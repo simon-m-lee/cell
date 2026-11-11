@@ -100,19 +100,6 @@ governed source also reports <code>true</code>.</li>
 <li><strong>Default</strong>: with neither a hosted nor an upstream policy, the node is
 un-governed (<code>false</code>).</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Cascading Contagion</strong>: Governance propagates down a binding lineage
-automatically. If a root source cell becomes governed, every node bound
-downstream reports <code>isGoverned == true</code>.</li>
-<li><strong>Authority vs. Governance</strong>: A node can enforce strict structural
-validation rules via a <a href="../../mitosis/TestCell-class.html">TestCell</a> gate, yet still remain un-governed if
-it hosts no <a href="../../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a> and is not bound to a governed source.
-<a href="../../mitosis/Context-class.html">Context</a> alone does <strong>not</strong> make a node governed.</li>
-<li><strong>Structural Verification</strong>: This property inspects the structural
-metadata (the "DNA") of the underlying node configuration rather than
-tracking dynamic mutations or value modifications.</li>
-</ul>
 <h3 id="example-inspecting-governance-state">Example: Inspecting Governance State</h3>
 <pre class="language-dart"><code class="language-dart">final policy = EphemeralPolicy(
   duration: Duration(minutes: 5),
@@ -173,7 +160,7 @@ bool get isGoverned =&gt; false;</code></pre>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

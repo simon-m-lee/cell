@@ -86,13 +86,6 @@ when <a href="../../cell_flow/Synapses/link.html">Synapses.link</a> is called. I
 <li>If any rule returns <code>false</code>, the link is rejected.</li>
 <li>If all pass, it delegates to the <code>TestCell.parent</code>.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The link rule is only evaluated for <code>Cell</code> objects – other objects
-always pass.</li>
-<li>This validation occurs <strong>before</strong> the link is added to the synapses
-registry, so a rejected link never becomes visible.</li>
-</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// Domain Isolation
 final domainPolicy = TestCell&lt;Cell&gt;((object, {host, arguments, user}) {
@@ -156,7 +149,7 @@ FutureOr&lt;bool&gt; link(covariant Cell link, {required Cell host}) =&gt; true;
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

@@ -80,7 +80,7 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 V putIfAbsent(K key, V Function() ifAbsent) =&gt;
-    apply(putIfAbsent, positionalArguments: [key, ifAbsent]);</code></pre>
+    dispatch(putIfAbsent, positionalArguments: [key, ifAbsent]);</code></pre>
 </section>
 
 
@@ -108,7 +108,7 @@ V putIfAbsent(K key, V Function() ifAbsent) =&gt;
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

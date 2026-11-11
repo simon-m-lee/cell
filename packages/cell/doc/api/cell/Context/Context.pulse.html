@@ -86,10 +86,6 @@ with <code>Pulse.governed</code>.</p>
 <p>The factory returns a <a href="../../cell/PulseContext-class.html">PulseContext</a> that carries per‑signal metadata
 like actor, reason, confidence, and traceId. The framework uses this
 for auditing and validation.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<p>The <code>traceId</code> is automatically generated if not provided, ensuring
-uniqueness. You can link pulses via <code>parentTraceId</code> to build a causal
-chain.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>baseContext</code>: The underlying environment (e.g., a <strong>Context</strong>)
@@ -159,7 +155,7 @@ preserving lineage.</li>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

@@ -87,15 +87,6 @@ are themselves reactive cells are accessed only as read‑only deputies.</li>
 creates a dedicated storage container, bypassing lazy projection
 logic for optimal iteration speed.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The view has its own <a href="../../cell_tissue/Synapses-class.html">Synapses</a> registry, so observers attached to
-the view are independent of those on the source.</li>
-<li>The <code>unmodifiableElement</code> flag affects deep immutability only – the
-queue itself is always read‑only regardless of this flag.</li>
-<li>Pre‑resolved unmodifiable proxies of member cells optimise iteration
-speed for high‑frequency read operations in the UI layer.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>nucleus</code>: <strong>Required</strong>. The <a href="../../cell_tissue/TissueQueueNucleusBase-class.html">TissueQueueNucleusBase</a> defining
@@ -143,7 +134,7 @@ dedicated high‑performance storage container for this specific instance.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

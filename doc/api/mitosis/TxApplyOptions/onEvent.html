@@ -61,6 +61,12 @@
 
       </section>
       
+<section class="desc markdown">
+  <p>Called for each lifecycle event — see <a href="../../mitosis/TxApplyEvent-class.html">TxApplyEvent</a>.</p>
+<p>Handlers run synchronously inside the transaction scope. Keep them
+cheap. An exception here aborts the transaction at the point of
+emission.</p>
+</section>
 
       
 <section class="summary source-code" id="source">
@@ -94,7 +100,7 @@
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

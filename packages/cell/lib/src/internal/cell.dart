@@ -29,12 +29,6 @@ typedef OpenCellBase = _OpenCell;
 /// - `emitAsync`: asynchronous, lock-protected update.
 /// - `ingest`: full [Pulse] injection with provenance.
 ///
-/// ### Non‑obvious
-/// - If the cell has a [Lock] (via `forceLock: true`), `emitAsync` queues
-///   the update to prevent race conditions.
-/// - The `ingest` method with `serializedCompletion: true` waits for the
-///   entire graph to stabilise before the Future completes.
-///
 /// ### Type Parameters:
 /// * [I]: The raw input data type accepted by this gateway.
 typedef IngressHandle<I> = ({
@@ -77,11 +71,6 @@ typedef IngressHandle<I> = ({
 /// (the handlers). When you `emit` or `ingest` a pulse, it's routed to
 /// the appropriate spoke(s) based on the hub's configuration.
 ///
-/// ### Non‑obvious
-/// - If you provide a custom `relay`, the default routing is bypassed – you
-///   must manually deliver pulses to the spokes.
-/// - The hub's `ingest` with `serializedCompletion: true` waits for all
-///   spokes to finish processing before completing the Future.
 typedef HubHandle = ({
   /// The central ingress node that governs the distribution hub. This node
   /// acts as the central gateway and **Integrity Gate** for the cluster.
@@ -139,10 +128,6 @@ typedef HubHandle = ({
 /// `bind` source. You can `start` or `stop` the observer to enable/disable
 /// side effect execution.
 ///
-/// ### Non‑obvious
-/// - The cell is terminal – it never propagates pulses further.
-/// - `stop` doesn't remove the cell from the graph; it just pauses
-///   side effect execution.
 typedef EgressHandle<S extends Pulse> = ({
   /// The terminal node (`cell`) that anchors this side-effect point to the graph.
   Cell cell,
@@ -184,18 +169,6 @@ typedef EgressHandle<S extends Pulse> = ({
 ///    synchronization [Lock] to prevent "torn states" in high-frequency
 ///    reactive waves.
 ///
-/// ### Non‑obvious
-/// - **Zero-Cost Immutability**: By returning an empty whitelist, an
-///   object becomes effectively immutable while remaining a first-class
-///   member of the reactive graph.
-/// - **Proxying Infrastructure**: It provides the base logic needed for
-///   [Cell.deputy] to intercept and delegate calls safely.
-/// - **Flyweight Architecture**: The use of a `const` constructor allows
-///   the system to manage unmodifiable views with minimal heap pressure.
-/// - **State Isolation**: Subclasses are responsible for ensuring that
-///   modifications trigger the appropriate reactive pulses to maintain graph
-///   consistency.
-///
 /// ### See Also:
 /// * [Cell.apply]: The primary method for executing commands on a
 ///   [Modifiable] instance.
@@ -228,9 +201,12 @@ class _Cell extends CellBase {
             bind: bind,
             testRule: testRule,
             context: context,
-            synapses: synapses == Synapses.enabled ? Synapses() : synapses,
+            synapses: synapses,
             forceLock: forceLock));
 
+  // Super parameters forward POSITIONALLY to the invoked super constructor;
+  // the subclass-side name (`evolve`) is decorative and need not match the
+  // super constructor's parameter name (`nucleus`).
   _Cell.fromNucleus(super.evolve) : super.fromNucleus();
 }
 
@@ -253,17 +229,22 @@ class _Cell extends CellBase {
 /// - Equality (`==`) and `hashCode` are based on the root principal, so
 ///   deputies are equal to their principals.
 ///
-/// ### Non‑obvious
-/// - The `fromNucleus` constructor clones the nucleus if it's already
-///   activated, preventing two cells from sharing the same lock.
-/// - Auto‑wiring to `bind` happens in a `try` block – if linking fails,
-///   the cell still initialises to maintain graph availability.
-///
-/// Subclasses extend this to define specific behavior while relying on this
-/// class for standard interface compliance.
 abstract class CellBase implements Cell {
   @override
   final Nucleus _nucleus;
+
+  /// The propagation step label used by `ReceptorBase._proceed`.
+  ///
+  /// The value is constant per cell (it only depends on the cell's context
+  /// role), so it is computed once instead of calling [toString] for every
+  /// pulse that visits the cell.
+  @override
+  late final String _stepString = _computeStepString();
+
+  String _computeStepString() {
+    final context = _nucleus.context;
+    return context is DeputyContext ? context.role ?? toString() : toString();
+  }
 
   /// The synchronization [Lock] owned by this cell's nucleus.
   ///
@@ -297,7 +278,7 @@ abstract class CellBase implements Cell {
             bind: bind,
             testRule: testRule,
             context: context,
-            synapses: synapses == Synapses.enabled ? Synapses() : synapses));
+            synapses: synapses));
 
   /// Initializes a [CellBase] instance using a pre-configured [Nucleus]
   /// blueprint, formally integrating it into the reactive data-flow graph.
@@ -352,13 +333,38 @@ abstract class CellBase implements Cell {
   ///   for this cell.
   CellBase.fromNucleus(Nucleus nucleus)
       : _nucleus = nucleus.isActivated ? nucleus.clone : nucleus {
+    // Link failures are LOUD: a declined link gate must not return a
+    // silent graph island. Everything else stays tolerant, because
+    // cross-package subclasses (cell_tissue) shadow the virtual `_nucleus`
+    // getter with one that is only usable after their own constructors
+    // have run — reading it during this super constructor legitimately
+    // fails and is not a caller error.
     try {
       _nucleus.activate(this);
       final bind = _nucleus.bind;
       if (bind != null) {
         final synapses = bind._nucleus.synapses;
-        synapses.link(bind, downstreamCell: this);
+        final linkResult = synapses.link(bind, downstreamCell: this);
+        if (linkResult is Future<bool>) {
+          // `bind` construction assumes synchronous TestCell.link rules. An
+          // explicitly async gate is still driven to completion; a rejection
+          // is contained here (there is no pulse to fail during
+          // construction) so it does not become an unhandled zone error.
+          unawaited(
+              linkResult.then((_) {}, onError: (Object e, StackTrace st) {}));
+        } else if (linkResult == false &&
+            !identical(synapses, Synapses.disabled)) {
+          // A disabled egress registry legitimately refuses every link
+          // (terminal cells). An ENABLED one declining the link means the
+          // link gate rejected construction.
+          throw StateError(
+            'Cell construction failed: the upstream link was rejected by '
+            'the link gate.',
+          );
+        }
       }
+    } on StateError {
+      rethrow;
     } catch (_) {}
   }
 
@@ -372,8 +378,7 @@ abstract class CellBase implements Cell {
             !identical(context, DeputyContext.system) ||
             !identical(testRule, TestCell.allowAll) ||
             !identical(synapses, Synapses.enabled))
-        ? _CellDeputy(
-            bind: this,
+        ? _CellDeputy(this,
             context: context,
             testRule: testRule,
             ephemeralPolicy: ephemeralPolicy,
@@ -398,8 +403,6 @@ abstract class CellBase implements Cell {
   /// The hash is resolved by traversing up the principal chain to the root
   /// nucleus. This guarantees `principal.hashCode == deputy.hashCode`.
   ///
-  /// ### Non‑obvious
-  /// This is what makes deputies and principals interchangeable in collections.
   @override
   int get hashCode {
     Nucleus? p = _nucleus;
@@ -421,9 +424,6 @@ abstract class CellBase implements Cell {
   /// - Two distinct mutable cells are only equal if they share the same
   ///   physical identity.
   ///
-  /// ### Non‑obvious
-  /// This is why `cell == cell.deputy()` is `true`. It's based on the
-  /// principal identity, not the object reference.
   @override
   bool operator ==(Object other) {
     // 1. Instant Identity Check (Same memory address)
@@ -436,66 +436,114 @@ abstract class CellBase implements Cell {
   }
 
   @override
-  dynamic apply(
-    Function function, {
-    List? positionalArguments,
-    Map<Symbol, dynamic>? namedArguments,
+  FutureOr<ApplyOutcome<R>> apply<R>(
+    ApplyCommand command, {
     ApplyTransactionScope? tx,
-    Function? compensate,
-    List? compensatePositional,
-    Map<Symbol, dynamic>? compensateNamed,
-    Cell? compensateCell,
   }) {
+    final vetted = modifiable.contains(command.function);
+
     if (tx != null) {
-      tx.enqueue(
-        this,
-        function,
-        positionalArguments,
-        namedArguments,
-        compensateCell: compensateCell,
-        compensateFunction: compensate,
-        compensatePositional: compensatePositional,
-        compensateNamed: compensateNamed,
-      );
-      return null;
+      final sequence = tx.enqueueCommand(this, command);
+      return ApplyStaged(ApplyLedger.receipt(
+        cell: this,
+        command: command,
+        txSequence: sequence,
+        vetted: vetted,
+      ));
     }
 
-    if (modifiable.contains(function)) {
-      // 1. Capture the FutureOr validation result from the Integrity Gate
-      final validation = _nucleus.testRule.action(function,
-          host: this,
-          arguments: (
-            positionalArguments: positionalArguments,
-            namedArguments: namedArguments
-          ));
+    final receipt =
+        ApplyLedger.receipt(cell: this, command: command, vetted: vetted);
 
-      // 2. Branch: Asynchronous Path
-      if (validation is Future<bool>) {
-        return validation.then((passed) {
-          if (passed) {
-            return Function.apply(
-                function, positionalArguments, namedArguments);
+    // Await Future-returning command functions: the docs promise that a
+    // Future-returning function makes `apply` async, and an asynchronous
+    // failure must surface here — not as an unhandled zone error. Sync
+    // functions keep their synchronous ApplyOutcome return. A function
+    // vetoing itself (ApplyVeto) is reported as ApplyRejected, matching
+    // the transaction layer.
+    FutureOr<ApplyOutcome<R>> accept(Object? rawResult) {
+      if (rawResult is Future<R>) {
+        return rawResult.then((r) {
+          if (identical(r, ApplyVeto.instance)) {
+            return ApplyRejected<R>(receipt);
           }
-          return null; // Action blocked by policy
+          return _acceptExecuted<R>(r, receipt);
         });
       }
-
-      // 3. Branch: Synchronous Path (Zero-cost check)
-      if (!validation) return null;
+      if (identical(rawResult, ApplyVeto.instance)) {
+        return ApplyRejected<R>(receipt);
+      }
+      return _acceptExecuted<R>(rawResult as R, receipt);
     }
 
-    // Standard execution for sync path or non-modifiable functions
-    return Function.apply(function, positionalArguments, namedArguments);
+    Object? run() => Function.apply(
+          command.function,
+          command.arguments.positionalArguments,
+          command.arguments.namedArguments,
+        );
+
+    // EVERY apply is gated — including functions outside the capability
+    // manifest. The `vetted` flag only records manifest membership on the
+    // receipt; it must never decide whether the integrity gate runs.
+    // Consult the overridable `validate` getter (not `_nucleus.testRule`
+    // directly) so subclasses like `UnmodifiableValueCell` can layer
+    // additional read-only enforcement atop the principal's rule without
+    // having to mutate the shared nucleus.
+    FutureOr<bool> validation;
+    try {
+      validation = validate.action(command.function,
+          host: this, arguments: command.arguments, command: command);
+    } on Exception {
+      // A throwing integrity gate fails closed: reject the action.
+      return ApplyRejected<R>(receipt);
+    }
+
+    if (validation is Future<bool>) {
+      return validation.then((passed) {
+        if (!passed) return ApplyRejected<R>(receipt);
+        return accept(run());
+      });
+    }
+
+    if (!validation) return ApplyRejected<R>(receipt);
+
+    return accept(run());
+  }
+
+  /// Wraps an executed command's [result] into an [ApplyAccepted] outcome.
+  ///
+  /// When the command produces a [Pulse], the pulse is routed through the
+  /// cell's own receptor before the receipt is returned. This is the
+  /// "Successful Transmission" contract of [ApplyAccepted]: by the time the
+  /// caller observes the outcome, the reactive graph has been notified of the
+  /// change — including dead-end branches, whose settlement fires the pulse's
+  /// governed `onComplete` callbacks.
+  FutureOr<ApplyOutcome<R>> _acceptExecuted<R>(R result, ApplyReceipt receipt) {
+    if (result is Pulse) {
+      final handled = _nucleus.receptor.call(result);
+      if (handled is Future<Pulse?>) {
+        return handled.then((_) => ApplyAccepted<R>(result, receipt));
+      }
+    }
+    return ApplyAccepted<R>(result, receipt);
   }
 
   @override
-  Iterable<Function> get modifiable => <Function>{apply};
+  Iterable<Function> get modifiable => <Function>{apply<dynamic>};
 
   @override
   bool get isTerminal => _nucleus.synapses == Synapses.disabled;
 
+  /// A lazily-materialized read-only deputy of this cell.
+  ///
+  /// `unmodifiable` must never return the mutable self: the returned view is
+  /// a deputy whose chained [TestCell.readOnly] rejects every whitelisted
+  /// action through the `validate` seam.
+  late final Cell _readOnlyView =
+      _CellDeputy(this, testRule: TestCell.readOnly);
+
   @override
-  Cell get unmodifiable => this;
+  Cell get unmodifiable => _readOnlyView;
 
   @override
   ModifiableAsync<Cell> get async => ModifiableAsync<Cell>(this);
@@ -529,10 +577,6 @@ abstract class CellBase implements Cell {
 /// list of sources and the emitting pulse. The aggregator returns a new
 /// pulse (or `null` to drop it).
 ///
-/// ### Non‑obvious
-/// - The synthesis cell does not store state – it's a pure transform.
-/// - The aggregator is called for every pulse from any source.
-/// - The cell automatically links to all provided sources on construction.
 class SynthesisCell extends CellBase
     with IterableMixin<Cell>
     implements Iterable<Cell> {
@@ -567,7 +611,7 @@ class SynthesisCell extends CellBase
             receptor: receptor,
             bind: bind,
             context: context,
-            synapses: synapses == Synapses.enabled ? Synapses() : synapses,
+            synapses: synapses,
             forceLock: forceLock)) {
     for (var c in cells) {
       c._nucleus.synapses.link(c, downstreamCell: this);
@@ -595,10 +639,25 @@ class SynthesisCell extends CellBase
         synapses: synapses,
         forceLock: forceLock);
 
-    // 3. Define the manipulation logic
+    // 3. Define the manipulation logic. `sourceSet` is the single source of
+    // truth for `toList()`/`start()`, so it must only ever contain cells
+    // whose link to the synthesis cell was actually accepted by governance.
     bool add(Cell c) {
       if (sourceSet.add(c)) {
-        c._nucleus.synapses.link(c, downstreamCell: cel);
+        final linked = c._nucleus.synapses.link(c, downstreamCell: cel);
+        if (linked is Future<bool>) {
+          // The handle API is synchronous; revert optimistically-late when
+          // async governance rejects the link.
+          linked.then((ok) {
+            if (!ok) sourceSet.remove(c);
+          });
+          return true;
+        }
+        if (!linked) {
+          // Governance rejected the link: keep the handle truthful.
+          sourceSet.remove(c);
+          return false;
+        }
         return true;
       }
       return false;
@@ -606,7 +665,12 @@ class SynthesisCell extends CellBase
 
     bool remove(Cell c) {
       if (sourceSet.remove(c)) {
-        c._nucleus.synapses.unlink(c, downstreamCell: cel);
+        final unlinked = c._nucleus.synapses.unlink(c, downstreamCell: cel);
+        if (!unlinked) {
+          // The link is still live: keep the handle truthful.
+          sourceSet.add(c);
+          return false;
+        }
         return true;
       }
       return false;
@@ -617,11 +681,16 @@ class SynthesisCell extends CellBase
     List<Cell> toList() => sourceSet.toList(growable: false);
 
     bool clear() {
-      for (var c in sourceSet) {
-        c._nucleus.synapses.unlink(c, downstreamCell: cel);
+      final snapshot = sourceSet.toList(growable: false);
+      var allUnlinked = true;
+      for (var c in snapshot) {
+        if (c._nucleus.synapses.unlink(c, downstreamCell: cel)) {
+          sourceSet.remove(c);
+        } else {
+          allUnlinked = false;
+        }
       }
-      sourceSet.clear();
-      return true;
+      return allUnlinked;
     }
 
     // Stop/Start controls the propagation by unlinking/re-linking the entire set
@@ -744,12 +813,21 @@ class _OpenCell extends CellBase
       covariant DeputyContext context = DeputyContext.system,
       covariant TestCell testRule = TestCell.allowAll,
       Synapses synapses = Synapses.enabled}) {
+    // Causal Integrity: the security context cannot escalate or bypass.
+    // Runtime check — an `assert` disappears in release builds.
+    if (context != DeputyContext.system &&
+        this.context != DeputyContext.system &&
+        context._parent != this.context) {
+      throw StateError(
+        'Causal Integrity Violation: The new DeputyContext must be a direct descendant of the current context.',
+      );
+    }
+
     return (ephemeralPolicy != null ||
             !identical(context, DeputyContext.system) ||
             !identical(testRule, TestCell.allowAll) ||
             !identical(synapses, Synapses.enabled))
-        ? _OpenCellDeputy(
-            bind: this,
+        ? _OpenCellDeputy(this,
             context: context,
             testRule: testRule,
             ephemeralPolicy: ephemeralPolicy,
@@ -800,36 +878,24 @@ class ModifiableAsync<C extends Cell> implements Async {
   /// Creates an asynchronous wrapper for the given [cell].
   const ModifiableAsync(C cell) : _cell = cell;
 
-  /// Asynchronously applies a function to the wrapped cell.
+  /// Asynchronously submits an [ApplyCommand] to the wrapped cell.
   ///
-  /// This method acquires a lock on the cell's properties to ensure thread safety,
-  /// then delegates to the cell's synchronous [Cell.apply] method.
-  ///
-  /// Parameters:
-  /// * [function]: The function to execute.
-  /// * [positionalArguments]: Arguments passed by position.
-  /// * [namedArguments]: Arguments passed by name.
+  /// This is the async counterpart of [Cell.apply] for the command model.
+  /// The whole command — including its compensation blueprint and the
+  /// transaction scope — is forwarded under the cell's lock.
   ///
   /// Returns:
-  ///   A [Future] that completes with the result of the function application.
-  Future apply(
-    Function function, {
-    List? positionalArguments,
-    Map<Symbol, dynamic>? namedArguments,
+  ///   A [Future] completing with the auditable [ApplyOutcome] of the
+  ///   submission.
+  Future<ApplyOutcome<R>> apply<R>(
+    ApplyCommand command, {
     ApplyTransactionScope? tx,
-    Function? compensate,
-    List? compensatePositional,
-    Map<Symbol, dynamic>? compensateNamed,
-    Cell? compensateCell,
   }) async {
     final lock = _cell._nucleus.lock;
-    return lock != null
-        ? lock.synchronized(() => _cell.apply(function,
-            positionalArguments: positionalArguments,
-            namedArguments: namedArguments))
-        : Future(() => _cell.apply(function,
-            positionalArguments: positionalArguments,
-            namedArguments: namedArguments));
+    final FutureOr<ApplyOutcome<R>> outcome = lock != null
+        ? await lock.synchronized(() => _cell.apply<R>(command, tx: tx))
+        : _cell.apply<R>(command, tx: tx);
+    return await outcome;
   }
 }
 
@@ -847,12 +913,6 @@ class ModifiableAsync<C extends Cell> implements Async {
 /// ### How it works
 /// It wraps the synchronous `receptor` method in a `Future`. The pulse is
 /// validated and processed on the event loop.
-///
-/// ### Non‑obvious
-/// - The async version still respects the cell's [TestCell] – pulses are
-///   validated just like sync calls.
-/// - The `receptor` method is the only async‑specific method; `link` is
-///   already `FutureOr` in the sync version.
 ///
 /// ### Practical Scenario:
 /// A `GatewayCell` receiving data from an external web-hook uses
@@ -881,12 +941,19 @@ class OpenCellAsync extends ModifiableAsync<OpenCell> {
   /// Returns a [Future] that resolves once the transformation and
   /// initial propagation are complete.
   Future<bool> emit(Pulse pulse) async {
-    bool emit(Pulse pulse) => _cell._nucleus.receptor.call(pulse) != null;
+    Future<bool> process() async {
+      final result = _cell._nucleus.receptor.call(pulse);
+      // The receptor may be asynchronous: only report success once the
+      // eventual transformation result is known (and non-null).
+      final out = result is Future<Pulse?> ? await result : result;
+      return out != null;
+    }
+
     final lock = _cell._nucleus.lock;
     if (lock != null) {
-      return lock.synchronized(() => emit(pulse)).then((value) => value);
+      return lock.synchronized(process);
     }
-    return Future<bool>(() => emit(pulse)).then((value) => value);
+    return process();
   }
 
   Future<void> ingest(Pulse pulse, {bool serializedCompletion = false}) async {
@@ -916,15 +983,6 @@ class OpenCellAsync extends ModifiableAsync<OpenCell> {
 /// 3. **Broadcast**: If the transformation is successful, the resulting
 ///    data is broadcast to all connected parts of the network.
 ///
-/// ### Non‑obvious
-/// - **Async Support**: If the cell's safety check involves external
-///   validation (like a database or network check), the [emit] method
-///   automatically returns a `Future`.
-/// - **Error Handling**: If an error occurs during processing, the mixin
-///   catches it and cancels the update to prevent the failure from crashing
-///   the reactive network.
-/// - **Signal Termination**: If a pulse fails validation or the transformation
-///   logic returns no value, the update is dropped and nothing is broadcast.
 mixin OpenReceptorMixin on Cell {
   /// Processes and broadcasts an incoming [Pulse] through the cell's
   /// transformation logic.
@@ -942,16 +1000,6 @@ mixin OpenReceptorMixin on Cell {
   /// 3. **Propagation**: The resulting pulse (if any) is then broadcast
   ///    downstream to the rest of the network.
   ///
-  /// ### Non‑obvious
-  /// - **Async Support**: If the cell's safety check ([testRule]) is
-  ///   asynchronous, this method returns a [Future].
-  /// - **Signal Termination**: If the safety check fails, or if the
-  ///   transformation logic returns `null`, the signal is terminated
-  ///   and no data is broadcast.
-  /// - **Error Handling**: Any errors thrown during the transformation
-  ///   step are caught, and the emission is treated as a silent failure
-  ///   (returns `null`).
-  ///
   /// ### Parameters:
   /// * [pulse]: The data pulse to be injected into the network.
   ///
@@ -962,14 +1010,11 @@ mixin OpenReceptorMixin on Cell {
   FutureOr<Pulse?> emit(Pulse pulse) {
     final validation = validate(pulse, host: this);
 
-    // Helper to execute the core receptor logic
-    FutureOr<Pulse?> process() {
-      try {
-        return _nucleus.receptor.call(pulse);
-      } catch (_) {
-        return null;
-      }
-    }
+    // Helper to execute the core receptor logic. A throwing receptor
+    // PROPAGATES to the emit() caller — swallowing it here would make
+    // "rejected by policy" indistinguishable from "receptor threw", and
+    // the async path already propagates.
+    FutureOr<Pulse?> process() => _nucleus.receptor.call(pulse);
 
     // 1. Branch: Asynchronous Path (Remote Governance/IO)
     if (validation is Future<bool>) {
@@ -1006,16 +1051,6 @@ mixin OpenReceptorMixin on Cell {
   /// 3. The returned [Future] stays active while pulses are still moving
   ///    through the fabric.
   /// 4. Once all related side effects are done, the [Future] completes.
-  ///
-  /// ### Non‑obvious
-  /// - **Full Propagation**: This doesn't just wait for the immediate cell;
-  ///   it waits for the *entire* ripple effect across the network.
-  /// - **Serialization**: If [serializedCompletion] is set to `true`, the
-  ///   network ensures this pulse is processed in a strict queue, preventing
-  ///   it from overlapping with other incoming signals.
-  /// - **Error Handling**: If a downstream effect fails, the [Future] will
-  ///   still complete once the failure is handled, ensuring your code
-  ///   doesn't hang indefinitely.
   ///
   /// ### Example: Atomic Setup
   /// ```dart
@@ -1061,10 +1096,6 @@ mixin OpenReceptorMixin on Cell {
 /// 1. Delegating to the cell's [Synapses] to add the downstream cell.
 /// 2. Returning an unlinker closure (or `null` if rejected).
 ///
-/// ### Non‑obvious
-/// - The link is governed by the cell's [TestCell] – it can be rejected.
-/// - The unlinker removes the link when called.
-/// - If the validation is asynchronous, the method returns a `Future`.
 mixin OpenSynapsesMixin on Cell {
   /// Establishes a governed reactive connection between this cell and a
   /// downstream [cell].

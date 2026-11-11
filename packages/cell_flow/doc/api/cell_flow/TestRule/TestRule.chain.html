@@ -153,10 +153,16 @@ default sequential execution of the <code>rules</code> collection.</li>
               ? user != null
                   ? (rule: strategy, parent: parent, user: user)
                   : (rule: strategy, parent: parent)
-              : (rule: strategy)
+              : user != null
+                  ? (rule: strategy, user: user)
+                  : (rule: strategy)
           : parent != null
-              ? (rules: rules, parent: parent)
-              : (rules: rules);</code></pre>
+              ? user != null
+                  ? (rules: rules, parent: parent, user: user)
+                  : (rules: rules, parent: parent)
+              : user != null
+                  ? (rules: rules, user: user)
+                  : (rules: rules);</code></pre>
 </section>
 
 
@@ -184,7 +190,7 @@ default sequential execution of the <code>rules</code> collection.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

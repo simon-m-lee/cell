@@ -203,7 +203,8 @@ counterparts of the Tissue demos. Pipeline 1 produced:</p>
 </code></pre>
 <p>There was no residual ledger, no always-on test file, no comprehension
 check, no change mode, and no version plate. Atomic work used whatever
-the harness wrote; <code>Cell.transaction</code> was not yet deferred.</p>
+the harness wrote; <code>Cell.transaction</code> had not yet been deferred to
+<code>Cell.txApply</code>.</p>
 <h3 id="what-pipeline-2-produces">What Pipeline 2 produces</h3>
 <pre class="language-text"><code class="language-text">&lt;stem&gt;-BRD.md
 &lt;stem&gt;-WalkThrough.md
@@ -1092,7 +1093,7 @@ reactive containers in <code>cell_tissue</code>.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

@@ -80,11 +80,6 @@ auditing, or explainability.</li>
 <li>The <a href="../cell_flow/Pulse/root.html">root</a> always points to the original pulse that started the chain.</li>
 <li>The payload is inherited from the root — evolved pulses don't duplicate it.</li>
 </ul>
-<h3 id="nonobvious-evolution-is-not-mutation">Non‑obvious: evolution is not mutation</h3>
-<p><a href="../cell_flow/EvolvedPulse-class.html">EvolvedPulse</a> is immutable. When you call <a href="../cell_flow/Pulse/evolve.html">evolve</a>, you get a <em>new</em> pulse
-that points to the old one. The old pulse is still there — unchanged,
-available for reference — which is why you can trace the entire lineage
-without copying data.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final root = Pulse&lt;int&gt;(42);
 final evolved = root.evolve(step: 'validation');
@@ -980,8 +975,8 @@ collection.
 
 </dt>
 <dd class="inherited">
-  Appends a diagnostic stage to the pulse's causal trace without branching
-the causal chain.
+  Appends <code>step</code> to the pulse's causal trace without branching the
+causal chain.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -1049,7 +1044,7 @@ the causal chain.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

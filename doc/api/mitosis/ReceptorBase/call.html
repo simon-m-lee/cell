@@ -95,24 +95,6 @@ to ensure the pulse complies with all operational invariants.</li>
 <li><strong>Broadcast</strong>: If successful, the resulting pulse is automatically
 propagated to all downstream synapses.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Safety Shield</strong>: The entire call stack is protected by a resilience
-boundary. Exceptions are caught and logged to the pulse's forensic
-trace, and the signal is safely terminated (<code>null</code>) to protect graph
-stability.</li>
-<li><strong>Synchronous Execution</strong>: The method executes synchronously and
-returns the result immediately. For asynchronous execution, use
-<a href="../../mitosis/ReceptorAsync-class.html">ReceptorAsync</a>.</li>
-<li><strong>Auditability</strong>: In governed mode, every execution step is recorded,
-providing a complete audit trail of how data flowed through the graph.</li>
-<li><strong>Short-circuiting</strong>: Signal propagation is aborted immediately if
-the cell is invalidated, validation fails, or a transformation
-stage returns <code>null</code>.</li>
-<li><strong>Validation Async Support</strong>: While the pipeline is synchronous,
-validation can return a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;bool&gt;</a> for asynchronous validation
-checks. This is the only async operation in the call path.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>incoming</code>: The incoming pulse to process.</li>
@@ -131,10 +113,8 @@ FutureOr&lt;Pulse?&gt; call(covariant Pulse incoming) {
       isActivated,
       &#39;Receptor call failed: The receptor must be activated before it can process pulses. &#39;
       &#39;Verify that the host cell has been properly initialized and is not in a disposed state.&#39;);
-  &#47;&#47; assert(!cell.isInvalidated,
-  &#47;&#47; &#39;Receptor call failed: The [cell] the receptor is activated with is in a disposed state.&#39;);
-  assert(!incoming.isInvalidated,
-      &#39;Receptor call failed: The [incoming] pulse is in a disposed state.&#39;);
+  &#47;&#47; A TTL-expired pulse reaching a later branch is a normal, handled
+  &#47;&#47; runtime condition (it is silently dropped below) — never an assert.
 
   if (incoming is Shell) {
     return incoming.scrutinize(this, null);
@@ -148,7 +128,8 @@ FutureOr&lt;Pulse?&gt; call(covariant Pulse incoming) {
       &#39;Receptor call failed: The [incoming] pulse is not implemented from PulseBase.&#39;);
 
   if (!(incoming as PulseBase)._checker.add(cell)) {
-    print(&#39;DEBUG receptor: checker add false&#39;);
+    &#47;&#47; Cycle detected: this cell already processed the pulse in the
+    &#47;&#47; current wave. Terminate the branch silently.
     return null;
   }
 
@@ -188,7 +169,7 @@ FutureOr&lt;Pulse?&gt; call(covariant Pulse incoming) {
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

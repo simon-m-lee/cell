@@ -780,10 +780,10 @@ class RideHailDispatchHarness {
   ///
   /// Kept for symmetry and possible future use; `main()` reads
   /// [dispatchCell] directly.
-  FlowHandle<Pulse<dynamic>>? dispatchHandle;
+  FlowHandle? dispatchHandle;
 
   /// The SURGE gate handle.
-  FlowHandle<Pulse<dynamic>>? surgeHandle;
+  FlowHandle? surgeHandle;
 
   /// The DISPATCH gate cell — emits only when [matchOf] returns
   /// [Match.dispatch] **and** the Distinct latch has not seen

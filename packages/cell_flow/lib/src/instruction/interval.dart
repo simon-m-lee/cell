@@ -106,12 +106,6 @@ Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
 ///    instruction's async pipeline.
 /// 5. The [cell] and [trigger] store the context for pulse creation.
 ///
-/// ### Non‑obvious
-/// - **Single Timer**: Only one timer is active at a time. Calling
-///   [cancel] clears it.
-/// - **State Reset**: [cancel] resets the timer and tick counter.
-/// - **Armed Guard**: The [armed] flag prevents multiple timers from
-///   being started.
 class _ClockState {
   /// The active timer for periodic emissions.
   Timer? timer;
@@ -196,24 +190,6 @@ class _ClockState {
 /// 8. Each emitted value is wrapped as an [EvolvedPulse] with the step
 ///    `'Interval'` to preserve causal provenance.
 ///
-/// ### Non‑obvious
-/// - **Arming on First Pulse**: The clock starts on the first pulse, not
-///   on creation. This allows lazy initialization.
-/// - **No Initial Emission**: Unlike Rx, there's no `0` emission at the
-///   start. The first emission is after [period] has elapsed.
-/// - **Stopping Behavior**: When [maxTicks] is reached, the timer is
-///   cancelled and the counter stops.
-/// - **Reset Behavior**: With [resetOnSource] `true`, the counter resets
-///   to 0 on any later source pulse.
-/// - **Type Safety**: The instruction is generic over the cell type [C]
-///   but the payload is always `int`.
-/// - **Provenance Preservation**: Every emitted value preserves the source
-///   cell, type, and priority from the trigger pulse.
-/// - **Memory Safety**: The timer is cancelled when the instruction is
-///   disposed or when [maxTicks] is reached.
-/// - **Error Handling**: Errors in emission are caught and reported via
-///   the [onError] callback.
-///
 /// ### Example: Basic Ticker
 /// ```dart
 /// final start = Cell.ingress<void>();
@@ -295,11 +271,18 @@ class Interval extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool resetOnSource = false,
     IntervalErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _ClockState();
 
             void emitTick() {
+              // Lifecycle: cancel the periodic clock once the handle is
+              // dead instead of ticking forever.
+              final host = state.cell;
+              if (host != null && host.isInvalidated) {
+                state.cancel();
+                return;
+              }
               final trigger = state.trigger;
               if (trigger == null || state.future == null) return;
               state.future!(
@@ -341,7 +324,7 @@ class Interval extends FlowInstructionBase<Cell, Pulse, Pulse> {
               }
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -406,19 +389,6 @@ class Interval extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 7. If [maxTicks] is set, the timer stops after that many emissions.
 /// 8. If [resetOnSource] is `true`, a later source pulse resets the counter.
 ///
-/// ### Non‑obvious
-/// - **Fixed vs Computed**: Provide either [value] (fixed) or [valueOf]
-///   (computed), but not both. An [ArgumentError] is thrown if both are
-///   `null`.
-/// - **Tick Index**: The [tick] parameter to [valueOf] is 0-based and
-///   increments each emission.
-/// - **Error Handling**: Errors in [valueOf] are caught and reported via
-///   [onError], and the timer is cancelled.
-/// - **Type Safety**: The instruction is generic over [T], allowing any
-///   payload type.
-/// - **Provenance Preservation**: Every emitted value preserves the source
-///   cell, type, and priority from the trigger pulse.
-///
 /// ### Parameters:
 /// - [period]: **The Tick Interval.** The duration between each emission.
 /// - [value]: **Fixed Value.** Optional. Emitted on every tick if provided.
@@ -471,8 +441,8 @@ class IntervalWithValue<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool resetOnSource = false,
     IntervalErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             if (value == null && valueOf == null) {
               throw ArgumentError('Provide value or valueOf');
             }
@@ -484,6 +454,13 @@ class IntervalWithValue<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
             }
 
             void emitTick() {
+              // Lifecycle: cancel the periodic clock once the handle is
+              // dead instead of ticking forever.
+              final host = state.cell;
+              if (host != null && host.isInvalidated) {
+                state.cancel();
+                return;
+              }
               final trigger = state.trigger;
               if (trigger == null || state.future == null) return;
               try {
@@ -517,7 +494,7 @@ class IntervalWithValue<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               state.timer = Timer.periodic(period, (_) => emitTick());
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -606,21 +583,6 @@ class IntervalWithValue<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 9. If [resetOnSource] is `true`, a later source pulse resets the
 ///    accumulator to the initial [seed].
 ///
-/// ### Non‑obvious
-/// - **State Persistence**: The accumulator persists across ticks and
-///   is updated in place.
-/// - **First Tick Handling**: The [next] function receives `tick = 0`
-///   for the first emission, allowing you to special-case the initial
-///   value if needed.
-/// - **Error Handling**: Errors in [next] are caught and reported via
-///   [onError], and the timer is cancelled.
-/// - **Type Safety**: The instruction is generic over [A], allowing any
-///   state type.
-/// - **Reset Behavior**: When [resetOnSource] is `true`, the accumulator
-///   resets to the initial [seed] value.
-/// - **Provenance Preservation**: Every emitted value preserves the source
-///   cell, type, and priority from the trigger pulse.
-///
 /// ### Parameters:
 /// - [period]: **The Tick Interval.** The duration between each emission.
 /// - [seed]: **Initial State.** The starting accumulator value.
@@ -674,8 +636,8 @@ class IntervalWithState<A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool resetOnSource = false,
     IntervalErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final clock = _ClockState();
             var acc = seed;
 
@@ -713,7 +675,7 @@ class IntervalWithState<A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               clock.timer = Timer.periodic(period, (_) => emitTick());
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }
@@ -775,22 +737,6 @@ class IntervalWithState<A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 6. The emitted value is wrapped as an [EvolvedPulse] with the step
 ///    `'TimerPulse'` to preserve causal provenance.
 ///
-/// ### Non‑obvious
-/// - **One-Shot**: Only emits once. The instruction stops after emission.
-/// - **No Re-arm**: Later source pulses are ignored. If you need multiple
-///   timers, create a new instruction each time.
-/// - **Fixed vs Computed**: Provide either [value] (fixed) or [valueOf]
-///   (computed), but not both. An [ArgumentError] is thrown if both are
-///   `null`.
-/// - **Error Handling**: Errors in [valueOf] are caught and reported via
-///   [onError].
-/// - **Type Safety**: The instruction is generic over [T], allowing any
-///   payload type.
-/// - **Provenance Preservation**: The emitted value preserves the source
-///   cell, type, and priority from the trigger pulse.
-/// - **Memory Safety**: The timer is automatically cancelled when the
-///   instruction is disposed.
-///
 /// ### Parameters:
 /// - [delay]: **The Delay Duration.** The time to wait before emission.
 /// - [value]: **Fixed Value.** Optional. Emitted when the timer fires.
@@ -834,13 +780,15 @@ class TimerPulse<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     T Function()? valueOf,
     IntervalErrorHandler? onError,
     dynamic user,
-  }) : super.future(
-          (() {
+  }) : super.stateful(
+          () {
             final state = _ClockState();
             return (pulse, {cell, user, future, token}) {
               if (state.armed) return null;
               state.armed = true;
               state.timer = Timer(delay, () {
+                // Lifecycle: never compute or emit for a dead handle.
+                if (cell != null && cell.isInvalidated) return;
                 try {
                   final payload = valueOf != null ? valueOf() : (value as T);
                   future!(
@@ -853,7 +801,7 @@ class TimerPulse<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
               });
               return null;
             };
-          })(),
+          },
           user: user,
         );
 }

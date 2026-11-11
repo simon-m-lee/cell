@@ -93,18 +93,6 @@ redaction rules based on the signal's metadata.</li>
 the <code>redact</code> logic is applied.</li>
 <li>The "cleansed" pulse is then propagated to downstream observers.</li>
 </ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Targeted Sanitization</strong>: Redaction happens during the propagation
-phase; the original source cell remains completely intact and
-retains the raw data for authorized internal use.</li>
-<li><strong>Causal Integrity</strong>: Redacted pulses are generated as <code>EvolvedPulse</code>
-instances. This means they preserve their forensic history, allowing
-auditors to see <em>when</em> and <em>why</em> a value was sanitized.</li>
-<li><strong>Compliance Defaults</strong>: If a pulse lacks sensitivity metadata, it
-is treated as <a href="../../cell/Sensitivity.html">Sensitivity.public</a> and bypasses redaction unless
-configured otherwise.</li>
-</ul>
 <h3 id="example-email-masking">Example: Email Masking</h3>
 <pre class="language-dart"><code class="language-dart">final userView = Cell.sanitized&lt;UserPulse&gt;(
   source: internalUserStore,
@@ -140,6 +128,25 @@ checks.</li>
 walkthrough of automated PII redaction and audit trails.
 {@category Core 16 Operators}</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+<strong>When to use:</strong> A BRD says "no name on the extract" — redact PII before a log / UI cell, or omit the field at the source.
+<strong>When NOT to use:</strong> as a substitute for never writing PII into Tissue rows; sanitize the <em>view</em>, keep the book clean.
+<strong>Live signature:</strong> <code>Cell.sanitized&lt;P extends Pulse&gt;(Cell source, {required P Function(P) redact, Sensitivity minSensitivity = Sensitivity.confidential})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>Cell.derive</code> (projection without the sensitivity gate).
+<strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)
+<strong>Example:</strong> <code>example/sanitized_demo.dart</code>
+<strong>Cross-layer:</strong> GDPR row shapes also belong to <code>cell_tissue</code> TestTissue rules.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
+final clean = Cell.sanitized&lt;Pulse&lt;int&gt;&gt;(
+  src.cell,
+  redact: (p) =&gt; Pulse(p.payload, type: 'redacted'),
+);
+final o = Cell.observe(source: clean, effect: (Pulse p) =&gt; print(p.type));
+src.emit(42);
+o.stop();
+</code></pre>
 </section>
 
 
@@ -153,11 +160,13 @@ walkthrough of automated PII redaction and audit trails.
 }) {
   final receptor = _Receptor(reaction: (pulse, cell, {user}) {
     final p = pulse as P;
+    &#47;&#47; Fail closed: a privacy primitive must not let unclassified data
+    &#47;&#47; through. A pulse without sensitivity metadata (e.g. a plain
+    &#47;&#47; ingress pulse with PulseContext.system) is redacted, not passed.
     final sensitivity = p.context.sensitivity;
-    if (sensitivity != null &amp;&amp; sensitivity.index &gt;= minSensitivity.index) {
-      return redact(p);
-    }
-    return p;
+    final mustRedact =
+        sensitivity == null || sensitivity.index &gt;= minSensitivity.index;
+    return mustRedact ? redact(p) : p;
   });
   return Cell(bind: source, receptor: receptor);
 }</code></pre>
@@ -188,7 +197,7 @@ walkthrough of automated PII redaction and audit trails.
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.9
+      1.1.0
   </span>
   
 </footer>

@@ -92,13 +92,6 @@ inherits from that principal.</li>
 <li>The <code>container</code> parameter determines the storage strategy (mutable
 <a href="../../cell_tissue/Container/value-constant.html">Container.value</a> or write‑once <a href="../../cell_tissue/Container/finalValue-constant.html">Container.finalValue</a>).</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The <code>forceLock</code> flag, when <code>true</code>, allows sharing the principal's lock.
-This is typically used for deputies to maintain a single atomic boundary.</li>
-<li>The <code>container</code> parameter can be used to explicitly set the storage
-strategy – useful for custom container types.</li>
-</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>bind</code>: Optional upstream cell.</li>
@@ -121,17 +114,18 @@ tissue types.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static TissueValueNucleusBase&lt;V, C&gt; create&lt;V, C extends TissueValue&lt;V&gt;&gt;(
-    {Cell? bind,
-    Context? context,
-    TissueReceptor&lt;V, C&gt;? receptor,
-    TestTissue&lt;V, C&gt;? testRule,
-    Synapses? synapses,
-    Container? container,
-    Record? user,
-    EphemeralPolicy? ephemeralPolicy,
-    forceLock = false,
-    TissueValueNucleusBase&lt;V, C&gt;? principal}) {
+  <pre class="language-dart"><code class="language-dart">static TissueValueNucleusBase&lt;V, C&gt; create&lt;V, C extends TissueValue&lt;V&gt;&gt;({
+  Cell? bind,
+  Context? context,
+  TissueReceptor&lt;V, C&gt;? receptor,
+  TestTissue&lt;V, C&gt;? testRule,
+  Synapses? synapses,
+  Container? container,
+  Record? user,
+  EphemeralPolicy? ephemeralPolicy,
+  forceLock = false,
+  TissueValueNucleusBase&lt;V, C&gt;? principal
+}) {
   if (principal != null) {
     final local = TissueNucleusBase.mask&lt;V, ValueContainer&lt;V&gt;, C&gt;(
       container: container,
@@ -186,7 +180,7 @@ tissue types.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.9
+      1.0.0
   </span>
   
 </footer>

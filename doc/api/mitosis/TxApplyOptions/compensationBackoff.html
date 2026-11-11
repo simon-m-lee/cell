@@ -61,6 +61,11 @@
 
       </section>
       
+<section class="desc markdown">
+  <p>Delay strategy between compensation attempts.</p>
+<p>Receives the 1-based number of the attempt that just failed. When
+<code>null</code>, <code>_defaultCompensationBackoff</code> is used (exponential with cap).</p>
+</section>
 
       
 <section class="summary source-code" id="source">
@@ -94,7 +99,7 @@
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.14
+      2.2.0
   </span>
   
 </footer>

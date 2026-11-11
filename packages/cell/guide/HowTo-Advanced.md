@@ -15,8 +15,6 @@ Use this group when a write must be *justified*, *isolated*, or *short-lived* â€
 | [Pulse Ephemeral Policy](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-PulseEphemeralPolicy.md) | TTL and hop limits on a signal |
 | [Ephemeral Policy](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-EphemeralPolicy.md) | TTL and event budgets on a cell |
 | [Propagation Policy](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-PropagationPolicy.md) | Debounce / throttle / batch at the synapse |
-| [Transactions](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Transaction.md) | Multi-cell buffered writes and isolation |
-| [txApply](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-TransactionOnApply.md) | Staged `apply()` plus compensation |
 
 None of this runs unless you pass the type in. `Context.describe('â€¦')` stores text; it is not a compliance program.
 

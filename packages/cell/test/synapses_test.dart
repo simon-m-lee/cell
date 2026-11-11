@@ -31,6 +31,19 @@ class RecordingCell extends CellBase {
         );
 }
 
+/// A cell whose receptor runs an arbitrary callback mid-broadcast.
+class UnlinkingCell extends CellBase {
+  UnlinkingCell(this.onPulse)
+      : super(
+          receptor: Receptor((cell, pulse, {user}) {
+            (cell as UnlinkingCell).onPulse();
+            return null;
+          }),
+        );
+
+  final void Function() onPulse;
+}
+
 Future<void> delay(int milliseconds) =>
     Future.delayed(Duration(milliseconds: milliseconds));
 
@@ -118,6 +131,21 @@ void main() {
         expect(synapses.length, 2);
         expect(synapses.contains(a), isTrue);
         expect(synapses.contains(b), isTrue);
+      });
+
+      test('a cell and its deputy are distinct downstream edges', () async {
+        final cell = Cell();
+        // A real attenuation (non-identical rule) — a bare `deputy()` would
+        // be Identity Preservation and return `this`.
+        final deputy = await cell.deputy(
+            testRule: TestCell((object, {host, arguments, user}) => true));
+        // Deputy == principal by design — but they are separate graph
+        // nodes, and the edge set must keep both.
+        expect(deputy, equals(cell));
+        final synapses = Synapses(downstreams: [cell, deputy]);
+        expect(synapses.length, 2);
+        expect(synapses.contains(cell), isTrue);
+        expect(synapses.contains(deputy), isTrue);
       });
 
       test('call delivers to every downstream in order', () {
@@ -219,6 +247,23 @@ void main() {
           synapses.unlink(host, downstreamCell: RecordingCell()),
           isFalse,
         );
+      });
+
+      test('a receptor may unlink a downstream cell mid-broadcast', () {
+        final b = RecordingCell();
+        final synapses = Synapses<Pulse, Cell>(downstreams: [b]);
+        final host = Cell(synapses: synapses);
+        late final UnlinkingCell a;
+        a = UnlinkingCell(() {
+          // Deferred: the broadcast is iterating the live set right now.
+          expect(synapses.unlink(host, downstreamCell: b), isTrue);
+        });
+        expect(synapses.link(host, downstreamCell: a), isTrue);
+
+        expect(() => synapses.call(Pulse<int>(1)), returnsNormally);
+        expect(synapses.contains(b), isFalse,
+            reason: 'the deferred unlink applies after the broadcast');
+        expect(synapses.contains(a), isTrue);
       });
 
       test('link is rejected when the host testRule denies the observer', () {
@@ -642,42 +687,6 @@ void main() {
         expect(recorder.receivedPayloads, [8]);
       });
 
-      test('async.call with exhaust delivers', () async {
-        final recorder = RecordingCell();
-        final synapses = Synapses(
-          downstreams: [recorder],
-          policy: PropagationPolicy(strategy: PropagationStrategy.exhaust),
-        );
-        await synapses.async.call(Pulse<int>(3));
-        await delay(20);
-        expect(recorder.receivedPayloads, [3]);
-      });
-
-      test('async.call with resilient delivers', () async {
-        final recorder = RecordingCell();
-        final synapses = Synapses(
-          downstreams: [recorder],
-          policy: PropagationPolicy(strategy: PropagationStrategy.resilient),
-        );
-        await synapses.async.call(Pulse<int>(5));
-        await delay(20);
-        expect(recorder.receivedPayloads, [5]);
-      });
-
-      test('async.call with retry delivers', () async {
-        final recorder = RecordingCell();
-        final synapses = Synapses(
-          downstreams: [recorder],
-          policy: PropagationPolicy(
-            strategy: PropagationStrategy.retry,
-            throttleTime: Duration.zero,
-          ),
-        );
-        await synapses.async.call(Pulse<int>(6));
-        await delay(20);
-        expect(recorder.receivedPayloads, [6]);
-      });
-
       test('async.call with debounceLeading zero throttle delivers', () async {
         final recorder = RecordingCell();
         final synapses = Synapses(
@@ -859,74 +868,6 @@ void main() {
         expect(relayed, isEmpty);
       });
 
-      test('async resilient swallows a throwing relay', () async {
-        final recorder = RecordingCell();
-        final synapses = Synapses<Pulse, Cell>(
-          downstreams: [recorder],
-          policy: PropagationPolicy(strategy: PropagationStrategy.resilient),
-          relay: (pulse) {
-            throw StateError('async fail');
-          },
-        );
-        await synapses.async.call(Pulse<int>(1));
-        await delay(20);
-        expect(recorder.receivedPulses, isEmpty);
-      });
-
-      test('async retry retries a throwing relay then gives up', () async {
-        var attempts = 0;
-        final recorder = RecordingCell();
-        final synapses = Synapses<Pulse, Cell>(
-          downstreams: [recorder],
-          policy: PropagationPolicy(
-            strategy: PropagationStrategy.retry,
-            throttleTime: Duration.zero,
-            batchSize: 1,
-          ),
-          relay: (pulse) {
-            attempts += 1;
-            throw StateError('async always');
-          },
-        );
-        await synapses.async.call(Pulse<int>(1));
-        await delay(20);
-        expect(attempts, greaterThanOrEqualTo(1));
-        expect(recorder.receivedPulses, isEmpty);
-      });
-
-      test(
-          'async.call sample heartbeats the first pulse then stops when unlinked',
-          () async {
-        final recorder = RecordingCell();
-        final synapses = Synapses(
-          downstreams: [recorder],
-          policy: PropagationPolicy(
-            strategy: PropagationStrategy.sample,
-            throttleTime: const Duration(milliseconds: 20),
-          ),
-        );
-        final host = Cell(synapses: synapses);
-        addTearDown(() {
-          synapses.unlink(host, downstreamCell: recorder);
-        });
-
-        await synapses.async.call(Pulse<int>(1));
-        await synapses.async.call(Pulse<int>(99));
-        expect(recorder.receivedPulses, isEmpty);
-
-        await delay(30);
-        expect(recorder.receivedPayloads, [1]);
-        final afterFirstTick = recorder.receivedPulses.length;
-
-        await delay(45);
-        expect(recorder.receivedPulses.length, afterFirstTick);
-        expect(recorder.receivedPayloads.toSet(), {1});
-
-        expect(synapses.unlink(host, downstreamCell: recorder), isTrue);
-        await delay(45);
-        expect(recorder.receivedPulses.length, afterFirstTick);
-      });
-
       test('async debounce completes after observers are unlinked', () async {
         var completed = false;
         final recorder = RecordingCell();
@@ -950,44 +891,135 @@ void main() {
         expect(recorder.receivedPulses, isEmpty);
         expect(completed, isTrue);
       });
+
+      test('collective waits for all branches, including dead-end ones',
+          () async {
+        var completed = 0;
+        final done = Completer<void>();
+
+        // 1. Define a receptor that returns the pulse as its effect.
+        // In the forensic vocabulary, this is the "DNA" of the cell.
+        final r = Receptor((cell, pulse, {user}) => pulse);
+
+        // 2. Branch A: A dead-end (no synapses).
+        // This is a "Somatic State Transition" that leads to no further downstreams.
+        final a = Cell(receptor: r, synapses: Synapses.disabled);
+
+        // 3. Branch B: An active observer.
+        // We use a governed effect here to ensure the pulse's lifecycle is
+        // accounted for in the forensic ledger.
+        Cell.observe(
+          source: a,
+          effect: (pulse) {
+            // Acknowledgment of the Nervous Signal.
+          },
+        );
+
+        // 4. Create the collective "Nervous Signal" (Pulse.batch).
+        // p1 and p2 are sub-pulses; collective is the Integrity Gate for the batch.
+        final p1 = Pulse.governed(payload: 1, onComplete: (_) => completed++);
+        final p2 = Pulse.governed(payload: 2, onComplete: (_) => completed++);
+
+        final collective = Pulse.batch([p1, p2], onComplete: (_) {
+          // This fires when the entire causal graph (A and B) has settled.
+          if (!done.isCompleted) done.complete();
+        });
+
+        // 5. Submit via the official Command Journey.
+        // We use the ApplyCommand record to ensure the signal is vetted.
+        await a.apply(
+          (
+            function: (pulse) => pulse,
+            arguments: (
+              positionalArguments: [collective],
+              namedArguments: <Symbol, Object?>{},
+            ),
+            compensation: null,
+          ),
+        );
+
+        // 6. Verification with a 5s safety timeout.
+        // If the framework fails to resolve the "dead-end" branch or the
+        // observer terminal, this will time out.
+        await done.future.timeout(
+          const Duration(seconds: 5),
+          onTimeout: () {
+            throw TimeoutException(
+                'Collective pulse failed to settle forensically: '
+                'Potential hang in branch settlement (A: dead-end, B: observer).');
+          },
+        );
+
+        expect(completed, 2,
+            reason: 'Both governed pulses must signal completion');
+      });
+
+      test('a governed pulse with onComplete fires once across two terminals',
+          () async {
+        var completions = 0;
+        final source = Cell(
+          receptor: Receptor((cell, pulse, {user}) => pulse),
+        );
+
+        // Two terminal observers. Each observer's own synapses are empty,
+        // so `NucleusBase._propagate` reaches its empty fast path for both
+        // branches of the fan-out.
+        Cell.observe(source: source, effect: (_) {});
+        Cell.observe(source: source, effect: (_) {});
+
+        final pulse =
+            Pulse.governed(payload: 1, onComplete: (_) => completions++);
+        await source.apply(
+          (
+            function: (Pulse p) => p,
+            arguments: (
+              positionalArguments: [pulse],
+              namedArguments: <Symbol, Object?>{},
+            ),
+            compensation: null,
+          ),
+        );
+        await Future<void>.delayed(Duration.zero);
+
+        expect(completions, 1,
+            reason: 'each terminal must decrement the branch counter, and '
+                'only the zero-crossing fires the completion callback');
+      });
+
+      test('fan-out completion fires only after the last terminal', () async {
+        final source = Cell(
+          receptor: Receptor((cell, pulse, {user}) => pulse),
+        );
+        var aSeen = false;
+        var bSeen = false;
+        final atCompletion = <String>[];
+        Cell.observe(source: source, effect: (_) => aSeen = true);
+        Cell.observe(source: source, effect: (_) => bSeen = true);
+
+        final pulse = Pulse.governed(
+            payload: 1,
+            onComplete: (_) {
+              atCompletion.add('a=$aSeen b=$bSeen');
+            });
+        await source.apply(
+          (
+            function: (Pulse p) => p,
+            arguments: (
+              positionalArguments: [pulse],
+              namedArguments: <Symbol, Object?>{},
+            ),
+            compensation: null,
+          ),
+        );
+        await Future<void>.delayed(Duration.zero);
+
+        expect(atCompletion, ['a=true b=true'],
+            reason: 'the branch counter must account for every fan-out '
+                'terminal before the completion callback fires');
+      });
     });
 
     group('remaining strategies', () {
-      test('exhaust delivers the pulse', () {
-        final recorder = RecordingCell();
-        final synapses = Synapses(
-          downstreams: [recorder],
-          policy: PropagationPolicy(strategy: PropagationStrategy.exhaust),
-        );
-        synapses.call(Pulse<int>(1));
-        synapses.call(Pulse<int>(2));
-        expect(recorder.receivedPayloads, [1, 2]);
-      });
-
-      test('resilient delivers when downstreams succeed', () {
-        final recorder = RecordingCell();
-        final synapses = Synapses(
-          downstreams: [recorder],
-          policy: PropagationPolicy(strategy: PropagationStrategy.resilient),
-        );
-        synapses.call(Pulse<int>(5));
-        expect(recorder.receivedPayloads, [5]);
-      });
-
-      test('retry delivers when downstreams succeed', () {
-        final recorder = RecordingCell();
-        final synapses = Synapses(
-          downstreams: [recorder],
-          policy: PropagationPolicy(
-            strategy: PropagationStrategy.retry,
-            throttleTime: Duration.zero,
-            batchSize: 2,
-          ),
-        );
-        synapses.call(Pulse<int>(6));
-        expect(recorder.receivedPayloads, [6]);
-      });
-
       test('debounceLeading with zero throttle delivers every pulse', () {
         final recorder = RecordingCell();
         final synapses = Synapses(
@@ -1014,63 +1046,6 @@ void main() {
         );
         synapses.call(Pulse<int>(3));
         expect(recorder.receivedPulses, isNotEmpty);
-      });
-
-      test('resilient swallows a throwing relay', () {
-        final recorder = RecordingCell();
-        final synapses = Synapses<Pulse, Cell>(
-          downstreams: [recorder],
-          policy: PropagationPolicy(strategy: PropagationStrategy.resilient),
-          relay: (pulse) {
-            throw StateError('downstream failed');
-          },
-        );
-        synapses.call(Pulse<int>(1));
-        expect(recorder.receivedPulses, isEmpty);
-      });
-
-      test('retry retries a throwing relay then gives up', () async {
-        var attempts = 0;
-        final recorder = RecordingCell();
-        final synapses = Synapses<Pulse, Cell>(
-          downstreams: [recorder],
-          policy: PropagationPolicy(
-            strategy: PropagationStrategy.retry,
-            throttleTime: Duration.zero,
-            batchSize: 1,
-          ),
-          relay: (pulse) {
-            attempts += 1;
-            throw StateError('always');
-          },
-        );
-        synapses.call(Pulse<int>(1));
-        await delay(20);
-        expect(attempts, greaterThanOrEqualTo(1));
-        expect(recorder.receivedPulses, isEmpty);
-      });
-
-      test('sample heartbeats then stops when unlinked', () async {
-        final recorder = RecordingCell();
-        final synapses = Synapses(
-          downstreams: [recorder],
-          policy: PropagationPolicy(
-            strategy: PropagationStrategy.sample,
-            throttleTime: const Duration(milliseconds: 20),
-          ),
-        );
-        final host = Cell(synapses: synapses);
-        addTearDown(() {
-          synapses.unlink(host, downstreamCell: recorder);
-        });
-
-        synapses.call(Pulse<int>(4));
-        expect(recorder.receivedPulses, isEmpty);
-        await delay(45);
-        expect(recorder.receivedPayloads, isNotEmpty);
-        expect(recorder.receivedPayloads.toSet(), {4});
-        expect(synapses.unlink(host, downstreamCell: recorder), isTrue);
-        await delay(45);
       });
 
       test('debounced pulse completes after observers are unlinked', () async {

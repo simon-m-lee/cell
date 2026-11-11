@@ -1,3 +1,11 @@
+// # `example/ingress_demo.dart`
+//
+// **What it demonstrates:** A stateless ingress + a Cell.observe sink.
+// **Which BRD sentence picks it:** "The system shall capture every bag tag scan."
+// **Layer:** Cell (§3.1 `Cell.ingress`, §3.2 `Cell.observe`)
+// **API signatures used:** `Cell.ingress`, `Cell.observe`, `IngressHandle.emit`, `EgressHandle.stop`
+// **Run:** `dart run example/ingress_demo.dart`
+// **Verify first:** `dart run tool/ai_preflight.dart` exits 0.
 // =============================================================================
 // Practical executable example – Cell.ingress (corrected)
 // =============================================================================
