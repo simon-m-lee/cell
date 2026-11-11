@@ -15,11 +15,12 @@ on:
 jobs:
   pr-suite:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: packages/cell
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dart-lang/setup-dart@v1
       - run: dart pub get
       - name: Run benchmarks
@@ -33,11 +34,12 @@ jobs:
 
   pr-suite-tissue:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: packages/cell_tissue
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dart-lang/setup-dart@v1
       - run: dart pub get
       - name: Run benchmarks
@@ -53,11 +55,12 @@ jobs:
 
   pr-suite-flow:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: packages/cell_flow
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dart-lang/setup-dart@v1
       - run: dart pub get
       - name: Run benchmarks
@@ -69,11 +72,12 @@ jobs:
   nightly-full:
     if: github.event_name == 'schedule'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: packages/cell
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dart-lang/setup-dart@v1
       - run: dart pub get
       - name: Heavy propagation stress

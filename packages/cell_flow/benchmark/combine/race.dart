@@ -2,6 +2,8 @@
 // Race: first-competitor dominance.
 //
 // Run: dart run benchmark/combine/race.dart
+import 'dart:async';
+
 import 'package:benchmark_harness/benchmark_harness.dart';
 import 'package:cell_flow/cell_flow.dart';
 
@@ -46,7 +48,10 @@ class RaceUntilFar extends AsyncBenchmarkBase {
   @override
   Future<void> setup() async {
     h = Flow.race<int>(Cell.ingress<int>().cell,
-        competitors: [Future<void>.delayed(const Duration(hours: 1), () => 1)]);
+        // Never completes: models a competitor that stays in the race.
+        // A `Future.delayed` would arm a real Timer and keep this process
+        // alive for its duration; a plain `Completer` future has no timer.
+        competitors: [Completer<int>().future]);
   }
 
   @override

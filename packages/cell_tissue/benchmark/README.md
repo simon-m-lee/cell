@@ -26,6 +26,17 @@ dart run benchmark/compare/vs_plain_collections.dart
 dart run --observe benchmark/memory/per_tissue_footprint.dart
 ```
 
+## Baseline maintenance
+
+Regenerate `baseline.json` with the **rebaseline-benchmarks** workflow
+(`.github/workflows/rebaseline-benchmarks.yml`) so the reference scores
+are measured on the same `ubuntu-latest` machine class that runs the
+regression gate, then commit the downloaded artifact (this also covers
+the research sub-suite baseline under `benchmark/tissue/`). Re-run
+whenever the CI image or the Dart SDK changes. Local numbers will differ
+from CI; the runner kills any benchmark file that exceeds its per-file
+timeout (default 2 minutes) so a hang fails fast.
+
 ## Pass criteria
 
 | Claim | Benchmark | Criterion |

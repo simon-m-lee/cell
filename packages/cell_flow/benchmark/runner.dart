@@ -3,6 +3,7 @@
 // the results as JSON for the regression gate.
 //
 // Run (from packages/cell_flow): dart run benchmark/runner.dart --out current.json
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -51,14 +52,61 @@ const nightlySuite = [
 
 final linePattern = RegExp(r'^(.*)\(RunTime\):\s+([0-9.]+) us\.$');
 
+/// Per-file wall-clock budget. A benchmark that hangs must not stall the
+/// whole suite (or burn a full CI job) — kill it and fail fast.
+const defaultFileTimeout = Duration(minutes: 2);
+
+/// Runs one benchmark file as a child process and returns its captured
+/// output. The script is launched directly (not via `dart run`) so the
+/// spawned process *is* the benchmark VM and a kill on timeout cannot
+/// leave an orphaned grandchild behind.
+Future<({int exitCode, String stdoutText, String stderrText})> runFile(
+  String file, {
+  required Duration timeout,
+}) async {
+  final process = await Process.start(
+    Platform.resolvedExecutable,
+    [file],
+    workingDirectory: Directory.current.path,
+  );
+  final stdoutFuture = process.stdout.transform(utf8.decoder).join();
+  final stderrFuture = process.stderr.transform(utf8.decoder).join();
+  final done = Completer<({int exitCode, bool timedOut})>();
+  late final Timer killTimer;
+  process.exitCode.then((code) {
+    killTimer.cancel();
+    if (!done.isCompleted) {
+      done.complete((exitCode: code, timedOut: false));
+    }
+  });
+  killTimer = Timer(timeout, () {
+    if (!done.isCompleted) {
+      done.complete((exitCode: 124, timedOut: true));
+    }
+  });
+  final result = await done.future;
+  if (result.timedOut) {
+    process.kill(ProcessSignal.sigkill);
+    await process.exitCode;
+  }
+  return (
+    exitCode: result.exitCode,
+    stdoutText: await stdoutFuture,
+    stderrText: await stderrFuture,
+  );
+}
+
 Future<void> main(List<String> args) async {
   var out = 'current.json';
   var nightly = false;
+  var fileTimeout = defaultFileTimeout;
   for (var i = 0; i < args.length; i++) {
     if (args[i] == '--out' && i + 1 < args.length) {
       out = args[i + 1];
     } else if (args[i] == '--nightly') {
       nightly = true;
+    } else if (args[i] == '--file-timeout' && i + 1 < args.length) {
+      fileTimeout = Duration(seconds: int.parse(args[i + 1]));
     }
   }
 
@@ -66,19 +114,20 @@ Future<void> main(List<String> args) async {
   final results = <String, double>{};
   for (final file in suite) {
     stdout.writeln('== $file ==');
-    final process = await Process.run(
-      Platform.resolvedExecutable,
-      ['run', file],
-      workingDirectory: Directory.current.path,
-    );
-    stdout.write(process.stdout);
-    stderr.write(process.stderr);
-    if (process.exitCode != 0) {
-      stderr.writeln('FAILED: $file (exit ${process.exitCode})');
-      exitCode = process.exitCode;
+    final run = await runFile(file, timeout: fileTimeout);
+    stdout.write(run.stdoutText);
+    stderr.write(run.stderrText);
+    if (run.exitCode != 0) {
+      if (run.exitCode == 124) {
+        stderr.writeln(
+            'FAILED: $file (timed out after ${fileTimeout.inSeconds}s)');
+      } else {
+        stderr.writeln('FAILED: $file (exit ${run.exitCode})');
+      }
+      exitCode = run.exitCode;
       return;
     }
-    for (final line in LineSplitter.split(process.stdout as String)) {
+    for (final line in LineSplitter.split(run.stdoutText)) {
       final match = linePattern.firstMatch(line.trim());
       if (match != null) {
         results[match.group(1)!] = double.parse(match.group(2)!);

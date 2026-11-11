@@ -2,6 +2,8 @@
 // SwitchMap: supersession must be cheaper than full drains.
 //
 // Run: dart run benchmark/flatten/switch_map.dart
+import 'dart:async';
+
 import 'package:benchmark_harness/benchmark_harness.dart';
 import 'package:cell_flow/cell_flow.dart';
 
@@ -27,8 +29,11 @@ class SwitchMapSuperseded extends AsyncBenchmarkBase {
   final gate = Cell.ingress<int>();
   late final FlowHandle h =
       Flow.switchMap<int, int>(gate.cell, project: (v) async {
-    await Future<void>.delayed(const Duration(hours: 1));
-    return v;
+    // Never completes: models in-flight work that stays superseded. A
+    // pending `Future.delayed` would arm a real Timer and keep this
+    // process alive for its duration, so a plain `Completer` future is
+    // used instead — supersession is what is measured, not the timer.
+    return Completer<int>().future;
   });
 
   @override

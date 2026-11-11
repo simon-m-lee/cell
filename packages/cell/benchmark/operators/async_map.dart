@@ -52,11 +52,19 @@ class AsyncMapBenchmark extends AsyncBenchmarkBase {
 
   @override
   Future<void> run() async {
+    final start = emitted;
     for (var i = 0; i < n; i++) {
       emit(i);
     }
+    // `latestOnly` supersedes earlier in-flight work and `exhaust` drops
+    // pulses while busy, so a synchronous burst can legitimately collapse
+    // to a single delivery — waiting for all n deliveries there would only
+    // burn the spin budget (deterministically). Wait for what the mode
+    // promises instead, with a bounded fallback so a delivery regression
+    // cannot stall the suite.
+    final target = start + ((latestOnly || exhaust) ? 1 : n);
     var spins = 0;
-    while (emitted < n && spins < 1000000) {
+    while (emitted < target && spins < 10000) {
       await Future<void>.delayed(Duration.zero);
       spins++;
     }

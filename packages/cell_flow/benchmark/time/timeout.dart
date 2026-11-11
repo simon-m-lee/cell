@@ -2,6 +2,8 @@
 // Timeout: the no-op timer reset path vs the fire path.
 //
 // Run: dart run benchmark/time/timeout.dart
+import 'dart:io';
+
 import 'package:benchmark_harness/benchmark_harness.dart';
 import 'package:cell_flow/cell_flow.dart';
 
@@ -48,8 +50,15 @@ class TimeoutWithFallback extends AsyncBenchmarkBase {
   }
 }
 
-void main() {
-  TimeoutFar().report();
-  TimeoutFireOnce().report();
-  TimeoutWithFallback().report();
+Future<void> main() async {
+  await TimeoutFar().report();
+  await TimeoutFireOnce().report();
+  await TimeoutWithFallback().report();
+  // The 1h arms above leave real framework Timers pending. Timers keep the
+  // isolate alive until they fire, which would stall the benchmark suite
+  // for an hour after measurement finished. The measurements are complete
+  // here, so flush the emitted scores and exit without waiting for those
+  // never-meant-to-fire timers.
+  await stdout.flush();
+  exit(0);
 }

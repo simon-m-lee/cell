@@ -83,6 +83,14 @@ price of governance, not a parity target. Each hop pays roughly:
   benchmarked through their public `Flow.*` factory equivalents; the entry
   names reflect the public factory used.
 
-Regenerate `baseline.json` on the same machine class as CI
-(`dart run benchmark/runner.dart --out benchmark/baseline.json`) and
-re-check when the CI image changes.
+Regenerate `baseline.json` with the **rebaseline-benchmarks** workflow
+(`.github/workflows/rebaseline-benchmarks.yml`) so the reference scores
+are measured on the same `ubuntu-latest` machine class that runs the
+regression gate, then commit the downloaded artifact. Re-run whenever the
+CI image or the Dart SDK changes. For local experiments only,
+`dart run benchmark/runner.dart --out benchmark/baseline.json` produces a
+local baseline (numbers will differ from CI).
+
+The runner kills any benchmark file that exceeds its per-file timeout
+(default 2 minutes, `--file-timeout <seconds>` to override), so a hanging
+benchmark fails the suite fast instead of stalling the CI job.

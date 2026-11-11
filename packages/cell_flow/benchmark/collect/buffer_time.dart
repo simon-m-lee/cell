@@ -2,6 +2,8 @@
 // BufferTime: periodic timer cost vs debounce.
 //
 // Run: dart run benchmark/collect/buffer_time.dart
+import 'dart:io';
+
 import 'package:benchmark_harness/benchmark_harness.dart';
 import 'package:cell_flow/cell_flow.dart';
 
@@ -35,7 +37,13 @@ class BufferTimeShort extends AsyncBenchmarkBase {
   }
 }
 
-void main() {
-  BufferTimeZero().report();
-  BufferTimeShort().report();
+Future<void> main() async {
+  await BufferTimeZero().report();
+  await BufferTimeShort().report();
+  // BufferTime arms a periodic framework Timer while the handle is live;
+  // nothing in this benchmark invalidates the handle, so the timer would
+  // keep the isolate alive forever. Measurements are complete here — flush
+  // the emitted scores and exit instead of waiting on the framework timer.
+  await stdout.flush();
+  exit(0);
 }

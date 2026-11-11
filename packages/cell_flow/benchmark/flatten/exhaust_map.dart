@@ -2,6 +2,8 @@
 // ExhaustMap: the busy-gate short-circuit must beat the run path.
 //
 // Run: dart run benchmark/flatten/exhaust_map.dart
+import 'dart:async';
+
 import 'package:benchmark_harness/benchmark_harness.dart';
 import 'package:cell_flow/cell_flow.dart';
 
@@ -30,8 +32,10 @@ class ExhaustMapBusy extends AsyncBenchmarkBase {
   final gate = Cell.ingress<int>();
   late final FlowHandle h =
       Flow.exhaustMap<int, int>(gate.cell, project: (v) async {
-    await Future<void>.delayed(const Duration(hours: 1));
-    return v;
+    // Never completes: keeps the busy gate closed for the whole run.
+    // A `Future.delayed` would arm a real Timer and keep this process
+    // alive for its duration; a plain `Completer` future has no timer.
+    return Completer<int>().future;
   });
 
   @override

@@ -1,0 +1,58 @@
+name: rebaseline-benchmarks
+
+# Regenerates the committed benchmark baselines on the same machine class
+# (ubuntu-latest) that runs the benchmark workflow, and uploads them as an
+# artifact together with the Dart SDK version they were measured with.
+#
+# Run manually via the Actions tab ("Run workflow"), download the artifact,
+# and commit the updated baseline.json files. Re-run this whenever the CI
+# image or the Dart SDK changes (see the benchmark READMEs).
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rebaseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dart-lang/setup-dart@v1
+
+      - name: Record SDK version
+        run: dart --version > sdk-version.txt
+
+      - name: Rebaseline cell
+        working-directory: packages/cell
+        run: |
+          dart pub get
+          dart run benchmark/runner.dart --out benchmark/baseline.json
+
+      - name: Rebaseline cell_tissue
+        working-directory: packages/cell_tissue
+        run: |
+          dart pub get
+          dart run benchmark/runner.dart --out benchmark/baseline.json
+
+      - name: Rebaseline cell_tissue research suite
+        working-directory: packages/cell_tissue
+        run: dart run benchmark/tissue/runner.dart --full --out benchmark/tissue/baseline.json
+
+      - name: Rebaseline cell_flow
+        working-directory: packages/cell_flow
+        run: |
+          dart pub get
+          dart run benchmark/runner.dart --out benchmark/baseline.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-baselines
+          path: |
+            sdk-version.txt
+            packages/cell/benchmark/baseline.json
+            packages/cell_tissue/benchmark/baseline.json
+            packages/cell_tissue/benchmark/tissue/baseline.json
+            packages/cell_flow/benchmark/baseline.json

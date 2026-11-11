@@ -133,17 +133,30 @@ testing enough — tighten the workload before tuning the criterion.
 
 ## Baseline maintenance
 
-`baseline.json` is populated on the maintainer's machine:
+`baseline.json` is the reference score set. Because the regression gate
+runs on GitHub-hosted `ubuntu-latest` runners, the baseline must be
+measured on that same machine class — a maintainer-machine baseline and a
+CI run on different CPU/OS never line up for noisy microbenchmarks.
+
+To re-baseline (also required whenever the CI image or Dart SDK changes):
+
+1. Run the **rebaseline-benchmarks** workflow from the Actions tab
+   (`.github/workflows/rebaseline-benchmarks.yml`).
+2. Download the `benchmark-baselines` artifact.
+3. Copy the three `baseline.json` files back into
+   `packages/{cell,cell_tissue,cell_flow}/benchmark/` (and the research
+   suite baseline into `packages/cell_tissue/benchmark/tissue/`), then
+   commit them. The artifact also records the Dart SDK version used.
+
+For local experiments only (numbers will differ from CI):
 
 ```bash
 dart run benchmark/runner.dart --out benchmark/baseline.json
 ```
 
-It is committed so PRs can compare against it. Benchmarks are noisy:
-re-generate the baseline on the same machine class (same CPU, same OS) that
-runs CI, and re-check it when the CI image changes. The memory, 50k-pulse,
-and comparison benches are intentionally NOT part of the PR suite — run
-them nightly (see `.github/workflows/benchmark.yml`).
+The runner kills any benchmark file that exceeds its per-file timeout
+(default 2 minutes, `--file-timeout <seconds>` to override), so a hanging
+benchmark fails the suite in seconds instead of stalling the CI job.
 
 ## What not to do
 
