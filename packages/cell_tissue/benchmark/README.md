@@ -13,7 +13,7 @@ Mirrors the `cell` package's suite: every benchmark runs outside the
 | `benchmark/memory/per_tissue_footprint.dart` | VM-service heap delta per tissue instance (run with `dart run --observe`) |
 | `benchmark/compare/vs_plain_collections.dart` | Feature-fair comparison: reactive tissue + observer vs plain collection + hand-rolled listener |
 | `benchmark/runner.dart` | PR suite: runs the three cheap files and writes JSON results |
-| `benchmark/compare.dart` | Regression gate: fails when any result regresses > 15% vs `baseline.json` |
+| `benchmark/compare.dart` | Regression gate: two-tier budget — 15% for benchmarks >= 10 ms baseline, 50% below (see `compare.dart`) |
 
 ## Run
 
@@ -54,7 +54,7 @@ deputy/unmodifiable live-view checks, batch metadata fitness, container
 variants, bulk/complex operators, async mutation, memory footprint, and
 feature-fair plain-collection comparisons — see
 [`benchmark/tissue/README.md`](tissue/README.md) for the layout and how to run
-the PR suite and the 15% regression gate.
+the PR suite and the two-tier regression gate.
 
 The sub-suite's semantic fitness tests live in `test/tissue/fitness/` and run
 in normal CI; they assert the docstring contracts (live unmodifiable views,

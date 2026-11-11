@@ -15,7 +15,7 @@ They now pass because those bugs are fixed.
 benchmark/tissue/
 ├── harness.dart                  # fixtures + feature-fair plain controls
 ├── runner.dart                   # pr-suite + --full runner (writes JSON)
-├── compare.dart                  # 15% regression gate
+├── compare.dart                  # two-tier regression gate (15% >= 10 ms, 50% below)
 ├── baseline.json                 # checked-in baseline
 ├── micro/
 │   ├── mutation_cost.dart        # anchor: per-op add/remove/put/set cost
@@ -54,7 +54,7 @@ dart run benchmark/tissue/runner.dart --out benchmark/tissue/current.json
 # Full research suite: +13 more files
 dart run benchmark/tissue/runner.dart --full --out benchmark/tissue/current.json
 
-# Regression gate (15% budget)
+# Regression gate (two-tier budget: 15% for >= 10 ms baselines, 50% below)
 dart run benchmark/tissue/compare.dart \
   --baseline benchmark/tissue/baseline.json \
   --current benchmark/tissue/current.json

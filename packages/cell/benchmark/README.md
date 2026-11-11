@@ -37,7 +37,8 @@ dart run benchmark/propagation/chain_depth.dart
 # The full PR suite -> current.json
 dart run benchmark/runner.dart --out current.json
 
-# Regression gate (fails on > 15% slowdown vs baseline)
+# Regression gate (fails on regressions beyond the two-tier budget; see
+# compare.dart for the tiers)
 dart run benchmark/compare.dart \
   --baseline benchmark/baseline.json \
   --current current.json \
