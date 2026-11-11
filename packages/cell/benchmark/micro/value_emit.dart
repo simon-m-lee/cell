@@ -1,6 +1,12 @@
 // Compares the three public write paths on ValueCell:
 // value setter vs StateHandle.update vs vetted Cell.apply.
 //
+// Each `run()` performs exactly one operation and lets benchmark_harness
+// scale the iteration count, so the reported score is microseconds per
+// single write/update/apply. (A fixed 100k-operation loop per run forced
+// the harness to run multi-minute phases because it always executes a
+// minimum of two iterations per phase.)
+//
 // Run: dart run benchmark/micro/value_emit.dart
 import 'package:benchmark_harness/benchmark_harness.dart';
 import 'package:cell/cell.dart';
@@ -9,13 +15,12 @@ import 'package:cell/cell.dart';
 class PlainFieldWrite extends BenchmarkBase {
   PlainFieldWrite() : super('[control] plain field write');
 
-  final cell = _PlainBox(0);
+  final box = _PlainBox(0);
+  var i = 0;
 
   @override
   void run() {
-    for (var i = 0; i < 100000; i++) {
-      cell.value = i;
-    }
+    box.value = i++;
   }
 }
 
@@ -23,12 +28,11 @@ class ValueSetter extends BenchmarkBase {
   ValueSetter() : super('ValueCell.value =');
 
   final cell = Cell.state<int>(initial: 0).cell;
+  var i = 0;
 
   @override
   void run() {
-    for (var i = 0; i < 100000; i++) {
-      cell.value = i;
-    }
+    cell.value = i++;
   }
 }
 
@@ -36,12 +40,11 @@ class StateUpdate extends BenchmarkBase {
   StateUpdate() : super('StateHandle.update');
 
   final handle = Cell.state<int>(initial: 0);
+  var i = 0;
 
   @override
   void run() {
-    for (var i = 0; i < 100000; i++) {
-      handle.update(i);
-    }
+    handle.update(i++);
   }
 }
 
@@ -49,21 +52,21 @@ class ApplyCommand extends AsyncBenchmarkBase {
   ApplyCommand() : super('Cell.apply (vetted)');
 
   final cell = Cell.state<int>(initial: 0).cell;
+  var i = 0;
 
   @override
   Future<void> run() async {
-    for (var i = 0; i < 10000; i++) {
-      await cell.apply<int>(
-        (
-          function: (ValueCell<int> c) {
-            c.value = i;
-            return i;
-          },
-          arguments: (positionalArguments: [cell], namedArguments: null),
-          compensation: null,
-        ),
-      );
-    }
+    await cell.apply<int>(
+      (
+        function: (ValueCell<int> c) {
+          c.value = i;
+          return i;
+        },
+        arguments: (positionalArguments: [cell], namedArguments: null),
+        compensation: null,
+      ),
+    );
+    i++;
   }
 }
 
