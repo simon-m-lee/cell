@@ -24,8 +24,11 @@ export '../cell.dart'
         PulseContextCodec,
         CellSnapshot,
         CellGraphSnapshot,
-        // Phase 2 — registry + identity (grows in the next commit).
+        // Phase 2 — registry + identity.
         Purity,
-        RegisteredCell;
+        CellGraph,
+        CellGraphBuilder,
+        RegisteredCell,
+        CellGraphRegistry;
 // Phase 3+ grows this list: EffectJournal, … — see
 // research/Causal-Replay/Plan.md.

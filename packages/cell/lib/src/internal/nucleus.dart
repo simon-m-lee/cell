@@ -233,8 +233,18 @@ abstract class NucleusBase implements Nucleus {
   String get id => _resolveId();
 
   String _resolveId() {
-    // Phase 2 will replace this body with:
-    //   return _CellGraphRegistry.nameOf(this) ?? _fallbackId();
+    // Phase 2: a graph-assigned name wins. The walk visits our own nucleus
+    // first, then the principal chain — a deputy whose principal is
+    // registered resolves to the principal's name, which is the identity
+    // contract ("the ledger treats them as the same cell for state
+    // purposes"). Only when nothing in the chain is registered does the
+    // deterministic fallback apply.
+    Nucleus? cursor = this;
+    while (cursor != null) {
+      final registered = _CellGraphRegistry.nameOf(cursor);
+      if (registered != null) return registered;
+      cursor = cursor.principal;
+    }
     return _fallbackId();
   }
 

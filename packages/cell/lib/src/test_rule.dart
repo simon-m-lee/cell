@@ -88,6 +88,17 @@ class TestRule<C> {
   // ignore: prefer_typing_uninitialized_variables, strict_top_level_inference
   final _record;
 
+  /// A rule's purity. Defaults to [Purity.pure]; rules that perform
+  /// external I/O must override — a rule that reads external state (a
+  /// clock, an environment variable, a read-only database) to
+  /// [Purity.readOnlyExternal], a rule that mutates external state (rare;
+  /// mostly misuse) to [Purity.effectful] and be journalled.
+  Purity get purity => Purity.pure;
+
+  /// A rule's version. Defaults to `'0.0.0'`; subclasses should override
+  /// with a stable string. See [Receptor.version].
+  String get version => '0.0.0';
+
   /// The internal validation function for this rule.
   Function? get _rule {
     return get<Function?>(() => _record.rule, orElse: null);

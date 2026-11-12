@@ -117,6 +117,8 @@ import 'dart:core';
 
 import 'package:cell/src/internal/commons.dart';
 
+import 'package:meta/meta.dart' show visibleForTesting;
+
 import 'package:uuid/uuid.dart';
 
 import 'package:synchronized/synchronized.dart';
@@ -202,3 +204,7 @@ part 'replay/codec/graph_snapshot.dart';
 /// process-wide `_CellGraphRegistry`.
 part 'replay/graph/purity.dart';
 part 'replay/graph/registered_cell.dart';
+part 'replay/graph/registry.dart';
+part 'replay/graph/cell_graph_registry.dart';
+part 'replay/graph/cell_graph_builder.dart';
+part 'replay/graph/cell_graph.dart';

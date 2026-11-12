@@ -411,6 +411,16 @@ class _PassThroughReceptor implements Receptor<Never> {
   /// Returns the identity hash code of the singleton instance.
   @override
   int get hashCode => identityHashCode(_singleton);
+
+  /// PassThrough is the identity function — it stays [Purity.pure]
+  /// forever; there is nothing to record.
+  @override
+  Purity get purity => Purity.pure;
+
+  /// Phase 2 default: `0.0.0` means "unversioned" until Phase 3 stamps
+  /// actual receptor versions.
+  @override
+  String get version => '0.0.0';
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -577,6 +587,19 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   /// Accessing it before activation throws a [StateError].
   @override
   late final C cell;
+
+  /// Default effect footprint: [Purity.pure]. Phase 3 populates this for
+  /// the built-in operators (`asyncMap` → effectful, `fromStream` →
+  /// effectful, `debounce`/`throttle` → readOnlyExternal); custom
+  /// receptors that perform external I/O must override it.
+  @override
+  Purity get purity => Purity.pure;
+
+  /// Default version: `'0.0.0'` ("unversioned"). Phase 3 stamps the
+  /// built-in receptors; user receptors override with a stable string so
+  /// the Phase 5 replay engine can dispatch by version.
+  @override
+  String get version => '0.0.0';
 
   /// Initializes the foundational engine for pulse transformation and
   /// state governance.
