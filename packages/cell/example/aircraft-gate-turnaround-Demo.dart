@@ -845,8 +845,9 @@ class GateTurnaround {
     bumperView = Cell.state<bool>(initial: false);
 
     // --- Group 2 ------------------------------------------------------------
-    bumperQuiet =
-        Cell.debounce(bumperIn.cell, const Duration(milliseconds: 40));
+    bumperQuiet = Cell.debounce(
+        bumperIn.cell, const Duration(milliseconds: 40),
+        journal: RecordingJournal());
     statusDistinct = Cell.distinct(status.cell);
 
     // --- Synthesis ----------------------------------------------------------
@@ -962,13 +963,14 @@ class GateTurnaround {
     // walkthrough requires.
     acars = Cell.asyncMap<FlightOnBlock, String>(
       latestForAcars!,
-      (r) async {
+      (r, {required EffectJournal journal}) async {
         await Future.delayed(const Duration(milliseconds: 5));
         final f = _asFlight(r);
         if (f == null) return 'ACARS-ACK ?';
         acarsPosts++;
         return 'ACARS-ACK ${f.flight}';
       },
+      journal: RecordingJournal(),
       latestOnly: true,
     );
 
@@ -1001,6 +1003,7 @@ class GateTurnaround {
     // --- One-shot slot quote ------------------------------------------------
     slotQuote = Cell.fromFuture<int>(
       Future<int>.delayed(const Duration(milliseconds: 5), () => 18),
+      journal: RecordingJournal(),
     );
 
     // --- Observers ----------------------------------------------------------
@@ -1139,6 +1142,7 @@ class GateTurnaround {
     final throttledPush = Cell.throttle(
       pushTap.cell,
       const Duration(milliseconds: 50),
+      journal: RecordingJournal(),
       leading: true,
       trailing: false,
     );

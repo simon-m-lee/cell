@@ -37,6 +37,7 @@ Future<void> main() async {
   final throttledSensor = Cell.throttle(
     rawSensor.cell,
     const Duration(milliseconds: 200),
+    journal: RecordingJournal(),
     leading: true, // Emit the first pulse immediately
     trailing:
         true, // Emit the last pulse seen during the window once window closes

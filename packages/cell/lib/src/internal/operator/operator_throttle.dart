@@ -12,6 +12,11 @@ part of '../../../cell.dart';
 
 /// Rate-limits [source] to at most one leading emission per [duration].
 ///
+/// Phase 3 (D6 breaking change): the wait is the non-determinism, so
+/// `journal:` is required — the window timer runs through the journal's
+/// `timer` primitive. On replay, the fire callback is invoked in journal
+/// order instead of after a real wait.
+///
 /// Classic Rx `throttleTime`.
 ///
 /// * [leading] – emit the first pulse in a window (default `true`).
@@ -22,6 +27,7 @@ part of '../../../cell.dart';
 Cell _throttle(
   Cell source,
   Duration duration, {
+  required EffectJournal journal,
   bool leading = true,
   bool trailing = false,
   EphemeralPolicy? ephemeralPolicy,
@@ -39,7 +45,7 @@ Cell _throttle(
   final outputCell = Cell.governed(
     ephemeralPolicy: ephemeralPolicy,
     context: context,
-    receptor: Receptor.passThrough,
+    receptor: _ReadOnlyExternalPassThroughReceptor(),
     testRule: testRule,
     synapses: synapses,
     forceLock: forceLock,
@@ -65,30 +71,37 @@ Cell _throttle(
   void openWindow() {
     state.muted = true;
     state.timer?.cancel();
-    state.timer = Timer(duration, () {
-      state.muted = false;
-      state.timer = null;
-      if (trailing && state.hasTrailing) {
-        final pending = state.trailingPulse;
-        state.hasTrailing = false;
-        state.trailingPulse = null;
-        if (pending != null) {
-          try {
-            emitOut(pending);
-          } catch (e, st) {
-            // A throwing downstream receptor must not become an
-            // unhandled zone error: fail the originating pulse cleanly.
-            (pending as PulseBase)._fail(e, stackTrace: st);
-          } finally {
-            // After the trailing emit, always start a new mute window
-            // (Rx-like) — including when the downstream threw. Without
-            // this the window never reopens and the throttle degenerates
-            // into an unthrottled pass-through for the rest of its life.
-            openWindow();
+    state.timer = _JournalTimer(
+      journal: journal,
+      duration: duration,
+      // The window timer is not tied to a specific pulse; a constant input
+      // keeps the replay-side digest check stable across replays.
+      input: null,
+      onFire: () {
+        state.muted = false;
+        state.timer = null;
+        if (trailing && state.hasTrailing) {
+          final pending = state.trailingPulse;
+          state.hasTrailing = false;
+          state.trailingPulse = null;
+          if (pending != null) {
+            try {
+              emitOut(pending);
+            } catch (e, st) {
+              // A throwing downstream receptor must not become an
+              // unhandled zone error: fail the originating pulse cleanly.
+              (pending as PulseBase)._fail(e, stackTrace: st);
+            } finally {
+              // After the trailing emit, always start a new mute window
+              // (Rx-like) — including when the downstream threw. Without
+              // this the window never reopens and the throttle degenerates
+              // into an unthrottled pass-through for the rest of its life.
+              openWindow();
+            }
           }
         }
-      }
-    });
+      },
+    );
   }
 
   final bridge = Cell.governed(
@@ -97,7 +110,7 @@ Cell _throttle(
     testRule: TestCell.allowAll,
     synapses: Synapses.disabled,
     receptor: Receptor(
-      (cell, pulse, {user}) {
+      (cell, pulse, {user}) => JournalScope.runSync(journal, () {
         if (outputCell.isInvalidated) return null;
         // This bridge is bound to exactly one source, so every pulse that
         // arrives here came from it. A `pulse.source == source` guard is
@@ -123,7 +136,7 @@ Cell _throttle(
             ..trailingPulse = pulse;
         }
         return null;
-      },
+      }),
     ),
   );
 
@@ -133,7 +146,7 @@ Cell _throttle(
 
 class _ThrottleState {
   bool muted = false;
-  Timer? timer;
+  _JournalTimer? timer;
   bool hasTrailing = false;
   Pulse? trailingPulse;
   // ignore: unused_field

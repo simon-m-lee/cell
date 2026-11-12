@@ -23,8 +23,6 @@ part of '../../cell.dart';
 abstract final class JournalScope {
   static final Object _key = Object();
 
-  static final Zone _root = Zone.root;
-
   /// The top of the current journal stack, or [NullJournal.instance] if
   /// empty. **Never returns a no-op journal that silently swallows
   /// effects** — the sentinel fails loudly, by design.
@@ -45,8 +43,13 @@ abstract final class JournalScope {
   ) async {
     final existing = Zone.current[_key] as List<EffectJournal>?;
     final stack = existing ?? <EffectJournal>[];
-    final zoned =
-        existing == null ? _root.fork(zoneValues: {_key: stack}) : Zone.current;
+    // The outermost scope forks from the *current* zone — not the root —
+    // so error handlers and zone values of the surrounding context (e.g.
+    // the test runner's guarded zone) are inherited. Nested scopes reuse
+    // the existing stack and skip the fork.
+    final zoned = existing == null
+        ? Zone.current.fork(zoneValues: {_key: stack})
+        : Zone.current;
     stack.add(journal);
     journal.push();
     try {
@@ -62,8 +65,9 @@ abstract final class JournalScope {
   static T runSync<T>(EffectJournal journal, T Function() body) {
     final existing = Zone.current[_key] as List<EffectJournal>?;
     final stack = existing ?? <EffectJournal>[];
-    final zoned =
-        existing == null ? _root.fork(zoneValues: {_key: stack}) : Zone.current;
+    final zoned = existing == null
+        ? Zone.current.fork(zoneValues: {_key: stack})
+        : Zone.current;
     stack.add(journal);
     journal.push();
     try {

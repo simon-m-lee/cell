@@ -12,6 +12,11 @@ part of '../../../cell.dart';
 
 /// Emits only after [source] has been quiet for [duration].
 ///
+/// Phase 3 (D6 breaking change): the wait is the non-determinism, so
+/// `journal:` is required — the timer runs through the journal's `timer`
+/// primitive. On replay, the fire callback is invoked in journal order
+/// instead of after a real wait.
+///
 /// Modeled on Rx `debounceTime`, with one deliberate deviation in
 /// `leading` mode: a lone pulse is emitted immediately **and** again by the
 /// trailing timer, whereas classic Rx would suppress the trailing emit when
@@ -24,6 +29,7 @@ part of '../../../cell.dart';
 Cell _debounce(
   Cell source,
   Duration duration, {
+  required EffectJournal journal,
   bool leading = false,
   EphemeralPolicy? ephemeralPolicy,
   Context context = Context.system,
@@ -40,7 +46,7 @@ Cell _debounce(
   final outputCell = Cell.governed(
     ephemeralPolicy: ephemeralPolicy,
     context: context,
-    receptor: ephemeralPolicy != null ? _Receptor() : Receptor.passThrough,
+    receptor: _ReadOnlyExternalPassThroughReceptor(),
     testRule: testRule,
     synapses: synapses,
     forceLock: forceLock,
@@ -69,7 +75,7 @@ Cell _debounce(
     testRule: TestCell.allowAll,
     synapses: Synapses.disabled,
     receptor: Receptor(
-      (cell, pulse, {user}) {
+      (cell, pulse, {user}) => JournalScope.runSync(journal, () {
         if (outputCell.isInvalidated) {
           state.cancel();
           return null;
@@ -94,24 +100,33 @@ Cell _debounce(
           return null;
         }
 
-        state.timer = Timer(duration, () {
-          final pending = state.pending;
-          state.cancel();
-          // If leading already emitted this pulse as the start of the burst,
-          // still emit trailing latest (may be same or newer).
-          if (pending != null) {
-            try {
-              emitOut(pending);
-            } catch (e, st) {
-              // A throwing downstream receptor must not become an
-              // unhandled zone error: fail the originating pulse cleanly.
-              (pending as PulseBase)._fail(e, stackTrace: st);
+        // The debounce timer is the non-determinism. It is journalled via
+        // `journal.timer`. On the replay side, the journal invokes the
+        // timer's callback in journal order, not after a real wait. This
+        // is what makes debounce replayable.
+        state.timer = _JournalTimer(
+          journal: journal,
+          duration: duration,
+          input: pulse.payload,
+          onFire: () {
+            final pending = state.pending;
+            state.cancel();
+            // If leading already emitted this pulse as the start of the burst,
+            // still emit trailing latest (may be same or newer).
+            if (pending != null) {
+              try {
+                emitOut(pending);
+              } catch (e, st) {
+                // A throwing downstream receptor must not become an
+                // unhandled zone error: fail the originating pulse cleanly.
+                (pending as PulseBase)._fail(e, stackTrace: st);
+              }
             }
-          }
-        });
+          },
+        );
 
         return null;
-      },
+      }),
     ),
   );
 
@@ -120,7 +135,7 @@ Cell _debounce(
 }
 
 class _DebounceState {
-  Timer? timer;
+  _JournalTimer? timer;
   Pulse? pending;
   // ignore: unused_field
   Object? _pin;

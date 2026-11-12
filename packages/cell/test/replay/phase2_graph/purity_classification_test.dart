@@ -31,20 +31,36 @@ void main() {
     expect(graph.purityOf('derived'), Purity.pure);
   });
 
-  test('asyncMap currently reports pure (Phase 3 will override)', () {
-    // Phase 2 ships the plumbing; Phase 3 retrofits `asyncMap` to
-    // `effectful`. This test pins the *current* default and is expected
-    // to be updated in the Phase 3 commit that flips it.
+  test('asyncMap reports effectful (Phase 3 flip)', () {
+    // Phase 2 pinned `pure` as a marker; Phase 3's journal retrofit flips
+    // it: asyncMap is effectful and requires a journal.
     final src = Cell.ingress<int>();
     final map = Cell.asyncMap<int, String>(
       src.cell,
-      (v) async => 'v=$v',
+      (v, {required EffectJournal journal}) async => 'v=$v',
+      journal: RecordingJournal(),
     );
     final graph = (CellGraph.builder()
           ..register('src', src.cell)
           ..register('mapped', map))
         .build();
-    expect(graph.purityOf('mapped'), Purity.pure);
+    expect(graph.purityOf('mapped'), Purity.effectful);
+  });
+
+  test('debounce and throttle report readOnlyExternal', () {
+    final src = Cell.ingress<int>();
+    final journal = RecordingJournal();
+    final db = Cell.debounce(src.cell, const Duration(milliseconds: 5),
+        journal: journal);
+    final th = Cell.throttle(src.cell, const Duration(milliseconds: 5),
+        journal: journal);
+    final graph = (CellGraph.builder()
+          ..register('src', src.cell)
+          ..register('db', db)
+          ..register('th', th))
+        .build();
+    expect(graph.purityOf('db'), Purity.readOnlyExternal);
+    expect(graph.purityOf('th'), Purity.readOnlyExternal);
   });
 
   test('a custom receptor and rule can declare their purity', () {

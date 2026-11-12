@@ -822,7 +822,9 @@ class FrontDesk {
     doorView = Cell.state<bool>(initial: false);
 
     // --- Group 2 ------------------------------------------------------------
-    doorQuiet = Cell.debounce(doorIn.cell, const Duration(milliseconds: 40));
+    doorQuiet = Cell.debounce(
+        doorIn.cell, const Duration(milliseconds: 40),
+        journal: RecordingJournal());
     statusDistinct = Cell.distinct(status.cell);
 
     // --- Synthesis: build the desk picture from state mirrors --------------
@@ -901,7 +903,7 @@ class FrontDesk {
     // field is present, the post is recorded and a PMS-ACK is returned.
     pmsCell = Cell.asyncMap<Reservation, String>(
       latestRes!,
-      (r) async {
+      (r, {required EffectJournal journal}) async {
         await Future.delayed(const Duration(milliseconds: 5));
         final reservation = _asReservation(r);
         if (reservation == null) return 'PMS-ACK ?';
@@ -909,6 +911,7 @@ class FrontDesk {
         pmsLast = reservation.conf;
         return 'PMS-ACK ${reservation.conf}';
       },
+      journal: RecordingJournal(),
       latestOnly: true,
     );
 
@@ -941,6 +944,7 @@ class FrontDesk {
     // --- One-shot rate quote ------------------------------------------------
     quoteCell = Cell.fromFuture<int>(
       Future<int>.delayed(const Duration(milliseconds: 5), () => 18900),
+      journal: RecordingJournal(),
     );
 
     // --- Observers ----------------------------------------------------------
@@ -1048,6 +1052,7 @@ class FrontDesk {
     final throttledFolio = Cell.throttle(
       folioTap.cell,
       const Duration(milliseconds: 300),
+      journal: RecordingJournal(),
       leading: true,
       trailing: false,
     );

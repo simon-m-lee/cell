@@ -50,3 +50,21 @@ mixin Effectful {
 mixin EffectfulReadOnly {
   Purity get purity => Purity.readOnlyExternal;
 }
+
+/// An effectful pass-through receptor used by the retrofitted operators
+/// (`asyncMap`, `fromStream`, `fromFuture`). It behaves exactly like
+/// `Receptor.passThrough` but reports [Purity.effectful], so
+/// `CellGraph.purityOf` classifies the operator's cell correctly and
+/// Phase 5 refuses an exact (journal-free) replay.
+class _EffectfulPassThroughReceptor extends _Receptor<Cell>
+    with Effectful {
+  _EffectfulPassThroughReceptor() : super();
+}
+
+/// A time-observing pass-through receptor used by `debounce`/`throttle`.
+/// Waiting for a timer is an observation of the outside world (time), not
+/// a mutation, so it reports [Purity.readOnlyExternal].
+class _ReadOnlyExternalPassThroughReceptor extends _Receptor<Cell>
+    with EffectfulReadOnly {
+  _ReadOnlyExternalPassThroughReceptor() : super();
+}

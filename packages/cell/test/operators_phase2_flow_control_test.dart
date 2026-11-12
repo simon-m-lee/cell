@@ -51,6 +51,7 @@ void main() {
         final debounced = Cell.debounce(
           source.cell,
           Duration(milliseconds: 50),
+          journal: RecordingJournal(),
         );
         expect(debounced, isA<Cell>());
       });
@@ -63,6 +64,7 @@ void main() {
           final debounced = Cell.debounce(
             source.cell,
             Duration(milliseconds: 10),
+            journal: RecordingJournal(),
           );
           Cell.observe(
               source: debounced,
@@ -84,6 +86,7 @@ void main() {
         final debounced = Cell.debounce(
           source.cell,
           Duration(milliseconds: 50),
+          journal: RecordingJournal(),
         );
         final rec = Recorder(debounced);
 
@@ -99,6 +102,7 @@ void main() {
         final debounced = Cell.debounce(
           source.cell,
           Duration(milliseconds: 50),
+          journal: RecordingJournal(),
         );
         final rec = Recorder(debounced);
 
@@ -118,6 +122,7 @@ void main() {
         final debounced = Cell.debounce(
           source.cell,
           Duration(milliseconds: 50),
+          journal: RecordingJournal(),
           leading: true,
         );
         final rec = Recorder(debounced);
@@ -134,7 +139,7 @@ void main() {
 
       test('debounce with zero duration delivers immediately', () async {
         final source = Cell.ingress<int>();
-        final debounced = Cell.debounce(source.cell, Duration.zero);
+        final debounced = Cell.debounce(source.cell, Duration.zero, journal: RecordingJournal());
         final rec = Recorder(debounced);
 
         source.emit(42);
@@ -154,6 +159,7 @@ void main() {
         final debounced = Cell.debounce(
           source.cell,
           Duration(milliseconds: 50),
+          journal: RecordingJournal(),
           ephemeralPolicy: policy,
         );
         final rec = Recorder(debounced);
@@ -177,6 +183,7 @@ void main() {
         final debounced = Cell.debounce(
           source.cell,
           Duration.zero,
+          journal: RecordingJournal(),
           leading: true,
         );
         final rec = Recorder(debounced);
@@ -192,6 +199,7 @@ void main() {
         final debounced = Cell.debounce(
           source.cell,
           Duration(milliseconds: 50),
+          journal: RecordingJournal(),
           leading: true,
         );
         final rec = Recorder(debounced);
@@ -216,6 +224,7 @@ void main() {
         final throttled = Cell.throttle(
           source.cell,
           Duration(milliseconds: 50),
+          journal: RecordingJournal(),
         );
         expect(throttled, isA<Cell>());
       });
@@ -228,6 +237,7 @@ void main() {
           final throttled = Cell.throttle(
             source.cell,
             Duration(milliseconds: 10),
+            journal: RecordingJournal(),
             leading: false,
             trailing: true,
           );
@@ -251,6 +261,7 @@ void main() {
         final throttled = Cell.throttle(
           source.cell,
           Duration(milliseconds: 50),
+          journal: RecordingJournal(),
           leading: true,
         );
         final rec = Recorder(throttled);
@@ -267,6 +278,7 @@ void main() {
         final throttled = Cell.throttle(
           source.cell,
           Duration(milliseconds: 50),
+          journal: RecordingJournal(),
           leading: true,
         );
         final rec = Recorder(throttled);
@@ -288,6 +300,7 @@ void main() {
         final throttled = Cell.throttle(
           source.cell,
           Duration(milliseconds: 100),
+          journal: RecordingJournal(),
           leading: true,
           trailing: true,
         );
@@ -311,6 +324,7 @@ void main() {
         final throttled = Cell.throttle(
           source.cell,
           Duration(milliseconds: 50),
+          journal: RecordingJournal(),
           leading: false,
           trailing: true,
         );
@@ -325,7 +339,7 @@ void main() {
 
       test('throttle with zero duration delivers the leading pulse', () async {
         final source = Cell.ingress<int>();
-        final throttled = Cell.throttle(source.cell, Duration.zero);
+        final throttled = Cell.throttle(source.cell, Duration.zero, journal: RecordingJournal());
         final rec = Recorder(throttled);
 
         source.emit(1);
@@ -343,6 +357,7 @@ void main() {
         final throttled = Cell.throttle(
           source.cell,
           Duration(milliseconds: 50),
+          journal: RecordingJournal(),
           leading: false,
           trailing: false,
         );
@@ -608,6 +623,7 @@ void main() {
         final debounced = Cell.debounce(
           source.cell,
           Duration(milliseconds: 30),
+          journal: RecordingJournal(),
         );
         final rec = Recorder(Cell.distinct(debounced));
 
@@ -631,6 +647,7 @@ void main() {
         final throttled = Cell.throttle(
           source.cell,
           Duration(milliseconds: 30),
+          journal: RecordingJournal(),
           leading: true,
         );
         final rec = Recorder(Cell.distinct(throttled));
@@ -719,6 +736,7 @@ void main() {
           () => Cell.debounce(
             source.cell,
             const Duration(milliseconds: -1),
+            journal: RecordingJournal(),
           ),
           throwsA(isA<ArgumentError>()),
         );
@@ -730,6 +748,7 @@ void main() {
           () => Cell.throttle(
             source.cell,
             const Duration(milliseconds: -1),
+            journal: RecordingJournal(),
           ),
           throwsA(isA<ArgumentError>()),
         );
@@ -789,14 +808,14 @@ void main() {
       test('debounce cell toString', () {
         final source = Cell.ingress<int>();
         final debounced =
-            Cell.debounce(source.cell, Duration(milliseconds: 50));
+            Cell.debounce(source.cell, Duration(milliseconds: 50), journal: RecordingJournal());
         expect(debounced.toString(), contains('Cell'));
       });
 
       test('throttle cell toString', () {
         final source = Cell.ingress<int>();
         final throttled =
-            Cell.throttle(source.cell, Duration(milliseconds: 50));
+            Cell.throttle(source.cell, Duration(milliseconds: 50), journal: RecordingJournal());
         expect(throttled.toString(), contains('Cell'));
       });
 

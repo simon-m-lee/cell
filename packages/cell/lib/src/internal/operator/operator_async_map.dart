@@ -12,6 +12,12 @@ part of '../../../cell.dart';
 
 /// Maps each upstream payload through an async function and emits results.
 ///
+/// Phase 3 (D6 breaking change): the mapper takes a **required named
+/// `journal` parameter** and the factory takes a `journal:` argument —
+/// asyncMap is effectful, and its I/O must go through the journal. The
+/// mapper runs inside `JournalScope.run(journal, …)`, so both the
+/// parameter and `EffectJournal.current` are the same journal.
+///
 /// ### Concurrency modes
 /// * [concurrency] `0` (default) – unlimited in-flight (mergeMap-style)
 /// * [concurrency] `1` – sequential (concatMap-style)
@@ -25,7 +31,8 @@ part of '../../../cell.dart';
 /// * exhaust → refuse new values until the current in-flight work finishes
 Cell _asyncMap<S, T>(
   Cell source,
-  Future<T> Function(S value) mapper, {
+  Future<T> Function(S value, {required EffectJournal journal}) mapper, {
+  required EffectJournal journal,
   int concurrency = 0,
   bool latestOnly = false,
   bool exhaust = false,
@@ -43,6 +50,7 @@ Cell _asyncMap<S, T>(
 
   final state = _AsyncMapState<S, T>(
     mapper: mapper,
+    journal: journal,
     concurrency: concurrency <= 0 ? 0 : concurrency,
     latestOnly: latestOnly,
     exhaust: exhaust,
@@ -51,7 +59,7 @@ Cell _asyncMap<S, T>(
   final outputCell = Cell.governed(
     ephemeralPolicy: ephemeralPolicy,
     context: context,
-    receptor: Receptor.passThrough,
+    receptor: _EffectfulPassThroughReceptor(),
     testRule: testRule,
     synapses: synapses,
     forceLock: forceLock,
@@ -88,12 +96,14 @@ Cell _asyncMap<S, T>(
 class _AsyncMapState<S, T> {
   _AsyncMapState({
     required this.mapper,
+    required this.journal,
     required this.concurrency,
     required this.latestOnly,
     required this.exhaust,
   });
 
-  final Future<T> Function(S value) mapper;
+  final Future<T> Function(S value, {required EffectJournal journal}) mapper;
+  final EffectJournal journal;
   final int concurrency; // 0 = unlimited
   final bool latestOnly;
   final bool exhaust;
@@ -139,7 +149,13 @@ class _AsyncMapState<S, T> {
 
       Future<void>(() async {
         try {
-          final result = await mapper(next);
+          // The mapper runs inside JournalScope.run so that its I/O is
+          // journalled — and so `EffectJournal.current` inside the mapper
+          // resolves to the same journal as its `journal:` parameter.
+          final result = await JournalScope.run(
+            journal,
+            () => mapper(next, journal: journal),
+          );
           if (latestOnly && gen != _generation) return; // superseded
           onResult(result);
         } catch (_) {

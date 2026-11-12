@@ -152,3 +152,53 @@ class NullJournal implements EffectJournal {
   @override
   List<Map<String, Object?>> toJson() => const [];
 }
+
+/// A timer whose wait goes through an [EffectJournal].
+///
+/// The `Timer` API on `dart:async` does not allow the wait to be
+/// intercepted, so this class provides the same surface (`cancel`) via a
+/// wrapper around the journal's `timer` primitive. On the recording
+/// side, the journal schedules a real timer and the callback fires when
+/// it fires; on the replay side, the journal invokes the callback
+/// immediately (in journal order, still deferred to a microtask by the
+/// journal's `await`) and consumes one `TimerEffect` from the log.
+class _JournalTimer {
+  final EffectJournal journal;
+  final Duration duration;
+  final Object? input;
+  final void Function() onFire;
+  bool _cancelled = false;
+  Future<void>? _pending;
+
+  _JournalTimer({
+    required this.journal,
+    required this.duration,
+    required this.input,
+    required this.onFire,
+  }) {
+    _pending = journal
+        .timer(duration: duration, input: input, onFire: () {
+          if (_cancelled) return;
+          onFire();
+        })
+        .catchError((Object e, StackTrace st) {
+          // A timer that throws in its callback is the caller's bug, not
+          // the journal's. Surface it through the pulse's onError path —
+          // which is what the previous, non-journalled timer did via the
+          // zone.
+          _cancelled = true;
+        });
+  }
+
+  void cancel() {
+    _cancelled = true;
+    // The journal's timer primitive does not expose a cancel; on the
+    // replay side, cancellation is a matter of not invoking the callback
+    // when it would fire. The `_cancelled` flag above handles that. On
+    // the recording side, the actual Dart timer is cancelled by the
+    // journal implementation (RecordingJournal's default scheduler is
+    // Future.delayed, which cannot be cancelled — a known Phase 3.1 item
+    // to swap it for a Timer-backed scheduler).
+    _pending?.ignore();
+  }
+}

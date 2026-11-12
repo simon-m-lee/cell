@@ -33,6 +33,7 @@ void main() {
 
       final cell = Cell.fromStream<int>(
         controller.stream,
+        journal: RecordingJournal(),
         ephemeralPolicy: policy,
       );
 
@@ -60,7 +61,10 @@ void main() {
       final controller = StreamController<int>.broadcast();
       addTearDown(() => controller.close());
 
-      final cell = Cell.fromStream<int>(controller.stream);
+      final cell = Cell.fromStream<int>(
+        controller.stream,
+        journal: RecordingJournal(),
+      );
 
       for (var i = 0; i < 20; i++) {
         controller.add(i);
@@ -94,6 +98,7 @@ void main() {
 
       final cell = Cell.fromStream<int>(
         controller.stream,
+        journal: RecordingJournal(),
         ephemeralPolicy: policy,
       );
 

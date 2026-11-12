@@ -53,11 +53,12 @@ void main() {
         final source = Cell.state<int>(initial: 0);
         final mapped = Cell.asyncMap<int, int>(
           source.cell,
-          (value) async {
+          (value, {required EffectJournal journal}) async {
             await Future.delayed(Duration(milliseconds: 10));
             return value * 2;
           },
-        );
+        journal: RecordingJournal()
+      );
         final rec = Recorder(mapped);
 
         source.update(5);
@@ -69,11 +70,12 @@ void main() {
         final ingress = Cell.ingress<int>();
         final mapped = Cell.asyncMap<int, int>(
           ingress.cell,
-          (value) async {
+          (value, {required EffectJournal journal}) async {
             await Future.delayed(Duration(milliseconds: 10));
             return value * 2;
           },
-        );
+        journal: RecordingJournal()
+      );
         final rec = Recorder(mapped);
 
         ingress.emit(5);
@@ -86,13 +88,14 @@ void main() {
         final order = <int>[];
         final mapped = Cell.asyncMap<int, int>(
           ingress.cell,
-          (value) async {
+          (value, {required EffectJournal journal}) async {
             await Future.delayed(Duration(milliseconds: 20));
             order.add(value);
             return value * 2;
           },
           concurrency: 1,
-        );
+        journal: RecordingJournal()
+      );
         final rec = Recorder(mapped);
 
         ingress.emit(1);
@@ -108,14 +111,15 @@ void main() {
         final ingress = Cell.ingress<int>();
         final mapped = Cell.asyncMap<int, int>(
           ingress.cell,
-          (value) async {
+          (value, {required EffectJournal journal}) async {
             await Future.delayed(
               Duration(milliseconds: value == 1 ? 50 : 10),
             );
             return value * 2;
           },
           latestOnly: true,
-        );
+        journal: RecordingJournal()
+      );
         final rec = Recorder(mapped);
 
         ingress.emit(1);
@@ -131,13 +135,14 @@ void main() {
         final processed = <int>[];
         final mapped = Cell.asyncMap<int, int>(
           ingress.cell,
-          (value) async {
+          (value, {required EffectJournal journal}) async {
             await Future.delayed(Duration(milliseconds: 50));
             processed.add(value);
             return value * 2;
           },
           exhaust: true,
-        );
+        journal: RecordingJournal()
+      );
         final rec = Recorder(mapped);
 
         ingress.emit(1);
@@ -153,11 +158,12 @@ void main() {
         final ingress = Cell.ingress<int>();
         final mapped = Cell.asyncMap<int, int>(
           ingress.cell,
-          (value) async {
+          (value, {required EffectJournal journal}) async {
             await Future.delayed(Duration(milliseconds: 10));
             return value * 2;
           },
-        );
+        journal: RecordingJournal()
+      );
         var receivedValue = 0;
         final observer = Cell.observe(
           source: mapped,
@@ -180,11 +186,12 @@ void main() {
         final ingress = Cell.ingress<int>();
         final mapped = Cell.asyncMap<int, int>(
           ingress.cell,
-          (value) async {
+          (value, {required EffectJournal journal}) async {
             if (value == 2) throw Exception('Test error');
             return value * 2;
           },
-        );
+        journal: RecordingJournal()
+      );
         final rec = Recorder(mapped);
 
         ingress.emit(1);
@@ -450,7 +457,7 @@ void main() {
         final source = Cell.ingress<int>();
         final switched = Cell.switchMap<int, String>(
           source.cell,
-          (id) => Cell.fromFuture(Future.value('Profile $id')),
+          (id) => Cell.fromFuture(Future.value('Profile $id'), journal: RecordingJournal()),
         );
         final rec = Recorder(switched);
 
@@ -467,7 +474,7 @@ void main() {
         final source = Cell.ingress<int>();
         final switched = Cell.switchMap<int, String>(
           source.cell,
-          (id) => Cell.fromFuture(Future.value('Value from ID $id')),
+          (id) => Cell.fromFuture(Future.value('Value from ID $id'), journal: RecordingJournal()),
         );
         var last = '';
         final observer = Cell.observe(
@@ -487,7 +494,7 @@ void main() {
         final source = Cell.ingress<int>();
         final switched = Cell.switchMap<int, String>(
           source.cell,
-          (id) => Cell.fromFuture(Future.value('ID $id')),
+          (id) => Cell.fromFuture(Future.value('ID $id'), journal: RecordingJournal()),
         );
         final rec = Recorder(switched);
 
@@ -505,7 +512,7 @@ void main() {
         final source = Cell.ingress<int?>();
         final switched = Cell.switchMap<int?, String>(
           source.cell,
-          (id) => Cell.fromFuture(Future.value(id?.toString() ?? 'null')),
+          (id) => Cell.fromFuture(Future.value(id?.toString() ?? 'null'), journal: RecordingJournal()),
         );
         final rec = Recorder(switched);
 
@@ -580,7 +587,7 @@ void main() {
 
     group('Cell.fromFuture', () {
       test('fromFuture emits future result', () async {
-        final cell = Cell.fromFuture(Future.value(42));
+        final cell = Cell.fromFuture(Future.value(42), journal: RecordingJournal());
         final rec = Recorder(cell);
         await delay(20);
         expect(rec.payloads, [42]);
@@ -589,7 +596,7 @@ void main() {
       test('fromFuture with observe receives value', () async {
         var receivedValue = 0;
         final observer = Cell.observe(
-          source: Cell.fromFuture(Future.value(42)),
+          source: Cell.fromFuture(Future.value(42), journal: RecordingJournal()),
           effect: (Pulse pulse) {
             receivedValue = pulse.payload;
           },
@@ -601,7 +608,7 @@ void main() {
 
       test('fromFuture with state cell receives value', () async {
         final target = Cell.state<int>(initial: 0);
-        final futureCell = Cell.fromFuture(Future.value(42));
+        final futureCell = Cell.fromFuture(Future.value(42), journal: RecordingJournal());
         final observer = Cell.observe(
           source: futureCell,
           effect: (Pulse pulse) {
@@ -614,7 +621,7 @@ void main() {
       });
 
       test('fromFuture with derived cell transforms value', () async {
-        final futureCell = Cell.fromFuture(Future.value(42));
+        final futureCell = Cell.fromFuture(Future.value(42), journal: RecordingJournal());
         final derived = Cell.derive(
           source: futureCell,
           project: (Pulse pulse) => Pulse('Value: ${pulse.payload}'),
@@ -626,7 +633,7 @@ void main() {
 
       test('fromFuture with delayed Future', () async {
         final completer = Completer<int>();
-        final rec = Recorder(Cell.fromFuture(completer.future));
+        final rec = Recorder(Cell.fromFuture(completer.future, journal: RecordingJournal()));
         expect(rec.pulses, isEmpty);
 
         completer.complete(42);
@@ -637,7 +644,7 @@ void main() {
       test('fromFuture emits an error pulse when the Future fails', () async {
         final error = Exception('Test error');
         final rec = Recorder(
-          Cell.fromFuture(Future<int>.error(error)),
+          Cell.fromFuture(Future<int>.error(error), journal: RecordingJournal()),
         );
         await delay(20);
         expect(rec.pulses, hasLength(1));
@@ -647,7 +654,7 @@ void main() {
 
       test('fromFuture with complex type', () async {
         final rec = Recorder(
-          Cell.fromFuture(Future.value({'name': 'Alice', 'age': 30})),
+          Cell.fromFuture(Future.value({'name': 'Alice', 'age': 30}), journal: RecordingJournal()),
         );
         await delay(20);
         expect(rec.pulses, hasLength(1));
@@ -657,7 +664,7 @@ void main() {
       });
 
       test('fromFuture with null value', () async {
-        final rec = Recorder(Cell.fromFuture(Future<int?>.value(null)));
+        final rec = Recorder(Cell.fromFuture(Future<int?>.value(null), journal: RecordingJournal()));
         await delay(20);
         expect(rec.payloads, [null]);
       });
@@ -666,7 +673,7 @@ void main() {
     group('Cell.fromStream', () {
       test('fromStream emits stream values', () async {
         final rec =
-            Recorder(Cell.fromStream(Stream<int>.fromIterable([1, 2, 3])));
+            Recorder(Cell.fromStream(Stream<int>.fromIterable([1, 2, 3]), journal: RecordingJournal()));
         await delay(20);
         expect(rec.payloads, [1, 2, 3]);
       });
@@ -674,7 +681,7 @@ void main() {
       test('fromStream with observe receives values', () async {
         final receivedValues = <int>[];
         final observer = Cell.observe(
-          source: Cell.fromStream(Stream<int>.fromIterable([1, 2, 3])),
+          source: Cell.fromStream(Stream<int>.fromIterable([1, 2, 3]), journal: RecordingJournal()),
           effect: (Pulse pulse) {
             receivedValues.add(pulse.payload);
           },
@@ -686,7 +693,7 @@ void main() {
 
       test('fromStream with state cell accumulates values', () async {
         final target = Cell.state<List<int>>(initial: []);
-        final streamCell = Cell.fromStream(Stream<int>.fromIterable([1, 2, 3]));
+        final streamCell = Cell.fromStream(Stream<int>.fromIterable([1, 2, 3]), journal: RecordingJournal());
         final observer = Cell.observe(
           source: streamCell,
           effect: (Pulse pulse) {
@@ -701,7 +708,7 @@ void main() {
 
       test('fromStream with delayed stream', () async {
         final controller = StreamController<int>();
-        final rec = Recorder(Cell.fromStream(controller.stream));
+        final rec = Recorder(Cell.fromStream(controller.stream, journal: RecordingJournal()));
 
         controller.add(1);
         await delay(10);
@@ -719,6 +726,7 @@ void main() {
           Cell.fromStream(
             Stream.periodic(Duration(milliseconds: 20), (count) => count)
                 .take(3),
+            journal: RecordingJournal(),
           ),
         );
         await delay(120);
@@ -728,7 +736,7 @@ void main() {
       test('fromStream with cancelOnError handles errors', () async {
         final controller = StreamController<int>();
         final rec = Recorder(
-          Cell.fromStream(controller.stream, cancelOnError: true),
+          Cell.fromStream(controller.stream, cancelOnError: true, journal: RecordingJournal()),
         );
 
         controller.add(1);
@@ -746,14 +754,14 @@ void main() {
 
       test('fromStream with distinct filters duplicates', () async {
         final streamCell =
-            Cell.fromStream(Stream<int>.fromIterable([1, 1, 2, 2, 3, 3]));
+            Cell.fromStream(Stream<int>.fromIterable([1, 1, 2, 2, 3, 3]), journal: RecordingJournal());
         final rec = Recorder(Cell.distinct(streamCell));
         await delay(20);
         expect(rec.payloads, [1, 2, 3]);
       });
 
       test('fromStream with derived transforms values', () async {
-        final streamCell = Cell.fromStream(Stream<int>.fromIterable([1, 2, 3]));
+        final streamCell = Cell.fromStream(Stream<int>.fromIterable([1, 2, 3]), journal: RecordingJournal());
         final derived = Cell.derive(
           source: streamCell,
           project: (Pulse pulse) => Pulse('Value: ${pulse.payload}'),
@@ -770,6 +778,7 @@ void main() {
               {'name': 'Alice', 'age': 30},
               {'name': 'Bob', 'age': 25},
             ]),
+            journal: RecordingJournal(),
           ),
         );
         await delay(20);
@@ -780,14 +789,14 @@ void main() {
 
       test('fromStream with null values', () async {
         final rec = Recorder(
-          Cell.fromStream(Stream<int?>.fromIterable([null, 1, null, 2])),
+          Cell.fromStream(Stream<int?>.fromIterable([null, 1, null, 2]), journal: RecordingJournal()),
         );
         await delay(20);
         expect(rec.payloads, [null, 1, null, 2]);
       });
 
       test('fromStream with empty stream emits nothing', () async {
-        final rec = Recorder(Cell.fromStream(Stream<int>.empty()));
+        final rec = Recorder(Cell.fromStream(Stream<int>.empty(), journal: RecordingJournal()));
         await delay(20);
         expect(rec.pulses, isEmpty);
       });
@@ -802,6 +811,7 @@ void main() {
         );
         final cell = Cell.fromStream(
           controller.stream,
+          journal: RecordingJournal(),
           ephemeralPolicy: EphemeralPolicy(
             eventLimit: 1,
             onEvent: (object,
@@ -829,11 +839,12 @@ void main() {
         final ingress = Cell.ingress<int>();
         final mapped = Cell.asyncMap<int, int>(
           ingress.cell,
-          (value) async {
+          (value, {required EffectJournal journal}) async {
             await Future.delayed(Duration(milliseconds: 10));
             return value * 2;
           },
-        );
+        journal: RecordingJournal()
+      );
         var receivedValue = 0;
         final observer = Cell.observe(
           source: mapped,
@@ -853,7 +864,7 @@ void main() {
       });
 
       test('fromFuture + derive + state', () async {
-        final futureCell = Cell.fromFuture(Future.value(42));
+        final futureCell = Cell.fromFuture(Future.value(42), journal: RecordingJournal());
         final derived = Cell.derive(
           source: futureCell,
           project: (Pulse pulse) => Pulse('Value: ${pulse.payload}'),
@@ -872,7 +883,7 @@ void main() {
 
       test('fromStream + distinct + observe', () async {
         final streamCell =
-            Cell.fromStream(Stream<int>.fromIterable([1, 1, 2, 2, 3, 3]));
+            Cell.fromStream(Stream<int>.fromIterable([1, 1, 2, 2, 3, 3]), journal: RecordingJournal());
         final receivedValues = <int>[];
         final observer = Cell.observe(
           source: Cell.distinct(streamCell),
@@ -889,11 +900,12 @@ void main() {
         final ingress = Cell.ingress<int>();
         final mapped = Cell.asyncMap<int, int>(
           ingress.cell,
-          (value) async {
+          (value, {required EffectJournal journal}) async {
             await Future.delayed(Duration(milliseconds: 10));
             return value * 2;
           },
-        );
+        journal: RecordingJournal()
+      );
         final target = Cell.state<int>(initial: 0);
         final observer = Cell.observe(
           source: mapped,
@@ -914,11 +926,12 @@ void main() {
 
       test('fromFuture + asyncMap + observe', () async {
         final mapped = Cell.asyncMap<int, int>(
-          Cell.fromFuture(Future.value(5)),
-          (value) async {
+          Cell.fromFuture(Future.value(5), journal: RecordingJournal()),
+          (value, {required EffectJournal journal}) async {
             await Future.delayed(Duration(milliseconds: 10));
             return value * 3;
           },
+          journal: RecordingJournal(),
         );
         var receivedValue = 0;
         final observer = Cell.observe(
@@ -934,11 +947,12 @@ void main() {
 
       test('fromStream + asyncMap + observe', () async {
         final mapped = Cell.asyncMap<int, int>(
-          Cell.fromStream(Stream<int>.fromIterable([1, 2, 3])),
-          (value) async {
+          Cell.fromStream(Stream<int>.fromIterable([1, 2, 3]), journal: RecordingJournal()),
+          (value, {required EffectJournal journal}) async {
             await Future.delayed(Duration(milliseconds: 10));
             return value * 2;
           },
+          journal: RecordingJournal(),
         );
         final receivedValues = <int>[];
         final observer = Cell.observe(
@@ -979,8 +993,9 @@ void main() {
       test('asyncMap with empty source emits nothing', () async {
         final mapped = Cell.asyncMap<int, int>(
           Cell.state<int>(initial: 0).cell,
-          (value) async => value * 2,
-        );
+          (value, {required EffectJournal journal}) async => value * 2,
+        journal: RecordingJournal()
+      );
         final rec = Recorder(mapped);
         await delay(20);
         expect(rec.pulses, isEmpty);
@@ -996,7 +1011,7 @@ void main() {
       });
 
       test('fromFuture with already completed future', () async {
-        final rec = Recorder(Cell.fromFuture(Future.value(42)));
+        final rec = Recorder(Cell.fromFuture(Future.value(42), journal: RecordingJournal()));
         await delay(20);
         expect(rec.payloads, [42]);
       });
@@ -1005,7 +1020,7 @@ void main() {
         final controller = StreamController<int>();
         final receivedValues = <int>[];
         final observer = Cell.observe(
-          source: Cell.fromStream(controller.stream, cancelOnError: false),
+          source: Cell.fromStream(controller.stream, cancelOnError: false, journal: RecordingJournal()),
           effect: (Pulse pulse) {
             receivedValues.add(pulse.payload);
           },
@@ -1057,7 +1072,7 @@ void main() {
         final rec = Recorder(
           Cell.switchMap<int, String>(
             source.cell,
-            (id) => Cell.fromFuture(Future.value('ID $id received')),
+            (id) => Cell.fromFuture(Future.value('ID $id received'), journal: RecordingJournal()),
           ),
         );
 
@@ -1080,8 +1095,9 @@ void main() {
       test('asyncMap cell toString', () {
         final mapped = Cell.asyncMap<int, int>(
           Cell.state<int>(initial: 0).cell,
-          (value) async => value * 2,
-        );
+          (value, {required EffectJournal journal}) async => value * 2,
+        journal: RecordingJournal()
+      );
         expect(mapped.toString(), contains('Cell'));
       });
 
@@ -1097,18 +1113,18 @@ void main() {
       test('switchMap cell toString', () {
         final switched = Cell.switchMap<int, int>(
           Cell.ingress<int>().cell,
-          (id) => Cell.fromFuture(Future.value(id)),
+          (id) => Cell.fromFuture(Future.value(id), journal: RecordingJournal()),
         );
         expect(switched.toString(), contains('Cell'));
       });
 
       test('fromFuture cell toString', () {
-        expect(Cell.fromFuture(Future.value(42)).toString(), contains('Cell'));
+        expect(Cell.fromFuture(Future.value(42), journal: RecordingJournal()).toString(), contains('Cell'));
       });
 
       test('fromStream cell toString', () {
         expect(
-          Cell.fromStream(Stream<int>.empty()).toString(),
+          Cell.fromStream(Stream<int>.empty(), journal: RecordingJournal()).toString(),
           contains('Cell'),
         );
       });

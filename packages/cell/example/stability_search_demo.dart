@@ -48,6 +48,7 @@ Future<void> main() async {
   final stableQuery = Cell.debounce(
     queries.cell,
     const Duration(milliseconds: 80),
+    journal: RecordingJournal(),
   );
 
   final searchObs = Cell.observe(
@@ -74,6 +75,7 @@ Future<void> main() async {
   final validate = Cell.debounce(
     email.cell,
     const Duration(milliseconds: 70),
+    journal: RecordingJournal(),
   );
 
   final valObs = Cell.observe(
@@ -103,6 +105,7 @@ Future<void> main() async {
   final stableSize = Cell.debounce(
     sizes.cell,
     const Duration(milliseconds: 60),
+    journal: RecordingJournal(),
   );
 
   final sizeObs = Cell.observe(
@@ -131,6 +134,7 @@ Future<void> main() async {
   final autosave = Cell.debounce(
     edits.cell,
     const Duration(milliseconds: 90),
+    journal: RecordingJournal(),
   );
 
   final saveObs = Cell.observe(
@@ -156,6 +160,7 @@ Future<void> main() async {
   final debounced = Cell.debounce(
     q2.cell,
     const Duration(milliseconds: 50),
+    journal: RecordingJournal(),
   );
 
   final q2Obs = Cell.observe(
@@ -186,6 +191,7 @@ Future<void> main() async {
   final scrubbed = Cell.debounce(
     scrub.cell,
     const Duration(milliseconds: 70),
+    journal: RecordingJournal(),
     leading: true,
   );
 
@@ -213,6 +219,7 @@ Future<void> main() async {
   final stable = Cell.debounce(
     term.cell,
     const Duration(milliseconds: 60),
+    journal: RecordingJournal(),
   );
 
   // Lightweight stand-in if asyncMap exhaust not required:

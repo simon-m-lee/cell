@@ -1571,7 +1571,11 @@ abstract interface class Cell {
   /// **Minimal compilable example**
   /// ```dart
   /// final src = Cell.ingress<String>();
-  /// final db = Cell.debounce(src.cell, const Duration(milliseconds: 50));
+  /// final db = Cell.debounce(
+  ///   src.cell,
+  ///   const Duration(milliseconds: 50),
+  ///   journal: RecordingJournal(),
+  /// );
   /// final o = Cell.observe(source: db, effect: (Pulse p) => print(p.payload));
   /// src.emit('a');
   /// src.emit('b');
@@ -1581,12 +1585,14 @@ abstract interface class Cell {
   static Cell debounce(
     Cell source,
     Duration duration, {
+    required EffectJournal journal,
     bool leading = false,
     EphemeralPolicy? ephemeralPolicy,
   }) =>
       _debounce(
         source,
         duration,
+        journal: journal,
         leading: leading,
         ephemeralPolicy: ephemeralPolicy,
       );
@@ -1652,7 +1658,11 @@ abstract interface class Cell {
   /// **Minimal compilable example**
   /// ```dart
   /// final src = Cell.ingress<int>();
-  /// final th = Cell.throttle(src.cell, const Duration(milliseconds: 50));
+  /// final th = Cell.throttle(
+  ///   src.cell,
+  ///   const Duration(milliseconds: 50),
+  ///   journal: RecordingJournal(),
+  /// );
   /// final o = Cell.observe(source: th, effect: (Pulse p) => print(p.payload));
   /// src.emit(1);
   /// src.emit(2); // throttled
@@ -1662,10 +1672,17 @@ abstract interface class Cell {
   static Cell throttle(
     Cell source,
     Duration duration, {
+    required EffectJournal journal,
     bool leading = true,
     bool trailing = false,
   }) =>
-      _throttle(source, duration, leading: leading, trailing: trailing);
+      _throttle(
+        source,
+        duration,
+        journal: journal,
+        leading: leading,
+        trailing: trailing,
+      );
 
   /// Filters out consecutive duplicate payloads from a source [Cell].
   ///
@@ -1867,7 +1884,11 @@ abstract interface class Cell {
   /// **Minimal compilable example**
   /// ```dart
   /// final src = Cell.ingress<int>();
-  /// final am = Cell.asyncMap<int, String>(src.cell, (v) async => 'v=$v');
+  /// final am = Cell.asyncMap<int, String>(
+  ///   src.cell,
+  ///   (v, {required EffectJournal journal}) async => 'v=$v',
+  ///   journal: RecordingJournal(),
+  /// );
   /// final o = Cell.observe(source: am, effect: (Pulse p) => print(p.payload));
   /// src.emit(3);
   /// await Future<void>.delayed(const Duration(milliseconds: 30));
@@ -1875,7 +1896,8 @@ abstract interface class Cell {
   /// ```
   static Cell asyncMap<S, T>(
     Cell source,
-    Future<T> Function(S value) mapper, {
+    Future<T> Function(S value, {required EffectJournal journal}) mapper, {
+    required EffectJournal journal,
     int concurrency = 0,
     bool latestOnly = false,
     bool exhaust = false,
@@ -1883,6 +1905,7 @@ abstract interface class Cell {
       _asyncMap<S, T>(
         source,
         mapper,
+        journal: journal,
         concurrency: concurrency,
         latestOnly: latestOnly,
         exhaust: exhaust,
@@ -1963,18 +1986,23 @@ abstract interface class Cell {
   /// **Cross-layer:** the orchestration equivalent is `Flow.fromStream` in `cell_flow`.
   /// **Minimal compilable example**
   /// ```dart
-  /// final s = Cell.fromStream<int>(Stream.fromIterable([1, 2, 3]));
+  /// final s = Cell.fromStream<int>(
+  ///   Stream.fromIterable([1, 2, 3]),
+  ///   journal: RecordingJournal(),
+  /// );
   /// final o = Cell.observe(source: s, effect: (Pulse p) => print(p.payload));
   /// await Future<void>.delayed(const Duration(milliseconds: 30));
   /// o.stop();
   /// ```
   static Cell fromStream<T>(
     Stream<T> stream, {
+    required EffectJournal journal,
     bool cancelOnError = false,
     EphemeralPolicy? ephemeralPolicy,
   }) =>
       _fromStream<T>(
         stream,
+        journal: journal,
         cancelOnError: cancelOnError,
         ephemeralPolicy: ephemeralPolicy,
       );
@@ -2043,12 +2071,16 @@ abstract interface class Cell {
   /// **Cross-layer:** the orchestration equivalent is `Flow.fromFuture` in `cell_flow`.
   /// **Minimal compilable example**
   /// ```dart
-  /// final f = Cell.fromFuture<int>(Future.value(7));
+  /// final f = Cell.fromFuture<int>(Future.value(7), journal: RecordingJournal());
   /// final o = Cell.observe(source: f, effect: (Pulse p) => print(p.payload));
   /// await Future<void>.delayed(const Duration(milliseconds: 10));
   /// o.stop();
   /// ```
-  static Cell fromFuture<T>(Future<T> future) => _fromFuture<T>(future);
+  static Cell fromFuture<T>(
+    Future<T> future, {
+    required EffectJournal journal,
+  }) =>
+      _fromFuture<T>(future, journal: journal);
 
   /// Synthesizes a **Dynamic Provider Switch**—a specialized node that
   /// swaps its data source at runtime based on the selection from another cell.

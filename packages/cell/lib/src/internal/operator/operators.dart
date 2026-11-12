@@ -345,129 +345,14 @@ EgressHandle<P> _observe<P extends Pulse>(
 /// Creates a cell that emits the values of a Dart [Stream].
 ///
 /// The subscription is cancelled automatically when the cell is invalidated.
-Cell _fromStream<T>(
-  Stream<T> stream, {
-  EphemeralPolicy? ephemeralPolicy,
-  Context context = Context.system,
-  TestCell testRule = TestCell.allowAll,
-  Synapses synapses = Synapses.enabled,
-  bool forceLock = false,
-  bool cancelOnError = false,
-}) {
-  late final Cell cell;
-  StreamSubscription<T>? sub;
-
-  void cancelSubscription() {
-    final current = sub;
-    sub = null;
-    current?.cancel();
-  }
-
-  final lifecycle = EphemeralPolicy<Cell>(
-    duration: ephemeralPolicy?.duration,
-    eventLimit: ephemeralPolicy?.eventLimit,
-    onEvent: (object, {required Cell cell, required policy, arguments, user}) {
-      // Tick the caller's policy so its own onEvent/limit/invalidation
-      // semantics are preserved, then report the wrapper's own counter.
-      ephemeralPolicy?.call(object, cell: cell, arguments: arguments);
-      return (events: policy.events + 1);
-    },
-    onInvalidate: (nucleus) {
-      cancelSubscription();
-      // Preserve the caller's policy's own invalidation hook — the wrapper
-      // replaced it on the host cell, so it would otherwise never run.
-      ephemeralPolicy?.invalidate(nucleus.cell);
-      return true;
-    },
-  );
-
-  cell = Cell.governed(
-    ephemeralPolicy: lifecycle,
-    context: context,
-    receptor: Receptor.passThrough,
-    testRule: testRule,
-    synapses: synapses,
-    forceLock: forceLock,
-  );
-
-  final hostRef = WeakReference(cell);
-
-  sub = stream.listen(
-    (value) {
-      final host = hostRef.target;
-      if (host == null || host.isInvalidated) {
-        cancelSubscription();
-        return;
-      }
-      host._nucleus.receptor.call(
-        Pulse<T>.governed(payload: value, source: host),
-      );
-      // Removed: redundant lifecycle(value, cell: host) call.
-      // passThrough is not governed, but the cell is.
-      // ReceptorBase._proceed handles the lifecycle policy tick automatically.
-      final limit = lifecycle.eventLimit;
-      if (host.isInvalidated || (limit != null && lifecycle.events >= limit)) {
-        cancelSubscription();
-      }
-    },
-    onError: (Object error, StackTrace st) {
-      if (cancelOnError) {
-        cancelSubscription();
-      }
-    },
-    onDone: cancelSubscription,
-    cancelOnError: cancelOnError,
-  );
-
-  Finalizer<void Function()>(
-    (cancel) => cancel(),
-  ).attach(cell, cancelSubscription, detach: cell);
-
-  return cell;
-}
+/// Moved to `operator_stream_future.dart` in Phase 3 (journal retrofit).
 
 // ─────────────────────────────────────────────────────────────
 // operator - fromFuture
 // ─────────────────────────────────────────────────────────────
 
 /// Creates a cell that emits the result of a [Future] exactly once.
-Cell _fromFuture<T>(
-  Future<T> future, {
-  EphemeralPolicy? ephemeralPolicy,
-  Context context = Context.system,
-  TestCell testRule = TestCell.allowAll,
-  Synapses synapses = Synapses.enabled,
-  bool forceLock = false,
-}) {
-  final cell = Cell.governed(
-    ephemeralPolicy: ephemeralPolicy,
-    context: context,
-    receptor: Receptor.passThrough,
-    testRule: testRule,
-    synapses: synapses,
-    forceLock: forceLock,
-  );
-
-  future.then((value) {
-    if (!cell.isInvalidated) {
-      cell._nucleus.receptor.call(
-        Pulse<T>.governed(payload: value, source: cell),
-      );
-    }
-  }, onError: (Object error, StackTrace stackTrace) {
-    if (!cell.isInvalidated) {
-      cell._nucleus.receptor.call(
-        Pulse<Object>.governed(
-          payload: error,
-          type: 'error',
-          source: cell,
-        ),
-      );
-    }
-  });
-
-  return cell;
-}
+/// Moved to `operator_stream_future.dart` in Phase 3 (journal retrofit).
 
 // ─────────────────────────────────────────────────────────────
 // Multi-lock acquisition (reusable)

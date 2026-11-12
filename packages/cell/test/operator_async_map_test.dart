@@ -18,11 +18,12 @@ void main() {
 
       final cell = Cell.asyncMap<int, int>(
         ingress.cell,
-        (v) {
+        (v, {required EffectJournal journal}) {
           final c = Completer<int>();
           completers[v] = c;
           return c.future;
         },
+        journal: RecordingJournal(),
         latestOnly: true,
         concurrency: 1,
       );
@@ -68,11 +69,12 @@ void main() {
 
       final cell = Cell.asyncMap<int, int>(
         ingress.cell,
-        (v) {
+        (v, {required EffectJournal journal}) {
           final c = Completer<int>();
           completers[v] = c;
           return c.future;
         },
+        journal: RecordingJournal(),
         latestOnly: true,
         concurrency: 0,
       );

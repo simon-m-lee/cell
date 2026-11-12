@@ -19,10 +19,14 @@ Future<void> aiExampleCell() async {
   print(seen); // [1]
 }
 
-// <lib/src/cell.dart:1858>
+// <lib/src/cell.dart:1875>
 Future<void> aiExampleCell_asyncMap() async {
   final src = Cell.ingress<int>();
-  final am = Cell.asyncMap<int, String>(src.cell, (v) async => 'v=$v');
+  final am = Cell.asyncMap<int, String>(
+    src.cell,
+    (v, {required EffectJournal journal}) async => 'v=$v',
+    journal: RecordingJournal(),
+  );
   final o = Cell.observe(source: am, effect: (Pulse p) => print(p.payload));
   src.emit(3);
   await Future<void>.delayed(const Duration(milliseconds: 30));
@@ -32,7 +36,11 @@ Future<void> aiExampleCell_asyncMap() async {
 // <lib/src/cell.dart:1562>
 Future<void> aiExampleCell_debounce() async {
   final src = Cell.ingress<String>();
-  final db = Cell.debounce(src.cell, const Duration(milliseconds: 50));
+  final db = Cell.debounce(
+    src.cell,
+    const Duration(milliseconds: 50),
+    journal: RecordingJournal(),
+  );
   final o = Cell.observe(source: db, effect: (Pulse p) => print(p.payload));
   src.emit('a');
   src.emit('b');
@@ -40,7 +48,7 @@ Future<void> aiExampleCell_debounce() async {
   o.stop();
 }
 
-// <lib/src/cell.dart:2240>
+// <lib/src/cell.dart:2272>
 Future<void> aiExampleCell_deputy() async {
   final c = Cell.state<int>(initial: 1);
   final d = await c.cell.deputy(testRule: TestCell.readOnly);
@@ -59,7 +67,7 @@ Future<void> aiExampleCell_derive() async {
   o.stop();
 }
 
-// <lib/src/cell.dart:1728>
+// <lib/src/cell.dart:1745>
 Future<void> aiExampleCell_distinct() async {
   final src = Cell.ingress<int>();
   final d = Cell.distinct(src.cell);
@@ -72,9 +80,9 @@ Future<void> aiExampleCell_distinct() async {
   print(seen); // [1, 2]
 }
 
-// <lib/src/cell.dart:2035>
+// <lib/src/cell.dart:2063>
 Future<void> aiExampleCell_fromFuture() async {
-  final f = Cell.fromFuture<int>(Future.value(7));
+  final f = Cell.fromFuture<int>(Future.value(7), journal: RecordingJournal());
   final o = Cell.observe(source: f, effect: (Pulse p) => print(p.payload));
   await Future<void>.delayed(const Duration(milliseconds: 10));
   o.stop();
@@ -93,9 +101,12 @@ Future<void> aiExampleCell_fromNucleus() async {
   print(authCell);
 }
 
-// <lib/src/cell.dart:1955>
+// <lib/src/cell.dart:1978>
 Future<void> aiExampleCell_fromStream() async {
-  final s = Cell.fromStream<int>(Stream.fromIterable([1, 2, 3]));
+  final s = Cell.fromStream<int>(
+    Stream.fromIterable([1, 2, 3]),
+    journal: RecordingJournal(),
+  );
   final o = Cell.observe(source: s, effect: (Pulse p) => print(p.payload));
   await Future<void>.delayed(const Duration(milliseconds: 30));
   o.stop();
@@ -161,7 +172,7 @@ Future<void> aiExampleCell_state() async {
   print(counter.cell.value); // 5
 }
 
-// <lib/src/cell.dart:2129>
+// <lib/src/cell.dart:2161>
 Future<void> aiExampleCell_switchMap() async {
   final src = Cell.ingress<String>();
   final sm = Cell.switchMap<String, int>(
@@ -188,10 +199,14 @@ Future<void> aiExampleCell_synthesis() async {
   o.stop();
 }
 
-// <lib/src/cell.dart:1643>
+// <lib/src/cell.dart:1649>
 Future<void> aiExampleCell_throttle() async {
   final src = Cell.ingress<int>();
-  final th = Cell.throttle(src.cell, const Duration(milliseconds: 50));
+  final th = Cell.throttle(
+    src.cell,
+    const Duration(milliseconds: 50),
+    journal: RecordingJournal(),
+  );
   final o = Cell.observe(source: th, effect: (Pulse p) => print(p.payload));
   src.emit(1);
   src.emit(2); // throttled
@@ -221,7 +236,7 @@ Future<void> aiExampleCell_txApply() async {
   print(counter.cell.value);
 }
 
-// <lib/src/cell.dart:2694>
+// <lib/src/cell.dart:2726>
 Future<void> aiExampleCell_unmodifiable() async {
   final c = Cell.state<int>(initial: 1);
   final ro = c.cell.unmodifiable;

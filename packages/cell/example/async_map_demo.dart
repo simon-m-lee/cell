@@ -73,13 +73,14 @@ Future<void> main() async {
 
   final profiles = Cell.asyncMap<int, Map<String, dynamic>>(
     userIds.cell,
-    (id) => pretendWork(
+    (id, {required EffectJournal journal}) => pretendWork(
       'fetch user $id',
       {'id': id, 'name': 'User-$id'},
       ms: 100 - id * 20, // higher ids finish first
     ),
     concurrency: 0,
-  );
+  journal: RecordingJournal(),
+);
 
   final profileObs = Cell.observe(
     source: profiles,
@@ -104,13 +105,14 @@ Future<void> main() async {
 
   final searchResults = Cell.asyncMap<String, List<String>>(
     query.cell,
-    (q) async {
+    (q, {required EffectJournal journal}) async {
       print('   … searching "$q"');
       await Future.delayed(Duration(milliseconds: 60 + q.length * 20));
       return ['$q-result-1', '$q-result-2'];
     },
     latestOnly: true,
-  );
+  journal: RecordingJournal(),
+);
 
   final searchObs = Cell.observe(
     source: searchResults,
@@ -136,9 +138,10 @@ Future<void> main() async {
 
   final jobResults = Cell.asyncMap<String, String>(
     jobs.cell,
-    (job) => pretendWork('job $job', '$job✓', ms: 50),
+    (job, {required EffectJournal journal}) => pretendWork('job $job', '$job✓', ms: 50),
     concurrency: 1,
-  );
+  journal: RecordingJournal(),
+);
 
   final jobObs = Cell.observe(
     source: jobResults,
@@ -165,7 +168,7 @@ Future<void> main() async {
 
   final pooled = Cell.asyncMap<int, int>(
     tasks.cell,
-    (n) async {
+    (n, {required EffectJournal journal}) async {
       active++;
       if (active > maxActive) maxActive = active;
       print('   … pool start #$n (active=$active)');
@@ -175,7 +178,8 @@ Future<void> main() async {
       return n * n;
     },
     concurrency: 2,
-  );
+  journal: RecordingJournal(),
+);
 
   final poolObs = Cell.observe(
     source: pooled,
@@ -200,12 +204,13 @@ Future<void> main() async {
 
   final thumbs = Cell.asyncMap<String, String>(
     paths.cell,
-    (path) => pretendWork(
+    (path, {required EffectJournal journal}) => pretendWork(
       'thumb $path',
       path.replaceAll('.png', '_thumb.png'),
       ms: 60,
     ),
-  );
+  journal: RecordingJournal(),
+);
 
   final thumbObs = Cell.observe(
     source: thumbs,

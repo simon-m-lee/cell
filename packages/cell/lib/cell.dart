@@ -186,6 +186,7 @@ part 'src/internal/operator/operators.dart';
 part 'src/internal/operator/operator_async_map.dart';
 part 'src/internal/operator/operator_throttle.dart';
 part 'src/internal/operator/operator_debounce.dart';
+part 'src/internal/operator/operator_stream_future.dart';
 part 'src/internal/operator/operator_transaction.dart';
 part 'src/internal/operator/operator_hub.dart';
 part 'src/internal/operator/operator_tx_apply.dart';
