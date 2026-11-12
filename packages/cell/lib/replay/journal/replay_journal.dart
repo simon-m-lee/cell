@@ -105,8 +105,12 @@ class ReplayJournal implements EffectJournal {
     }
     // On the replay side, `onFire` IS called — it is the *internal
     // continuation* of the debounce/throttle state machine. What is
-    // skipped is the actual `Timer` wait; the replay fires the callback
-    // in journal order, which reproduces the interleaving.
+    // skipped is the actual `Timer` wait. The callback is deferred one
+    // microtask first: a real timer can never fire inside the same
+    // synchronous burst that scheduled it, and that ordering is exactly
+    // what lets a superseded debounce/throttle timer be cancelled before
+    // its fire callback runs during replay.
+    await Future<void>.delayed(Duration.zero);
     await onFire();
   }
 
