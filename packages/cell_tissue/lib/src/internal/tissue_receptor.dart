@@ -43,6 +43,15 @@ class _PassThroughTissueReceptor implements TissueReceptor<Never, Never> {
   FutureOr<PulseBase<dynamic>?> call(covariant PulseBase<dynamic> pulse) {
     return pulse;
   }
+
+  /// Tissue pass-through stays [Purity.pure] — it is the identity
+  /// function; there is nothing to record.
+  @override
+  Purity get purity => Purity.pure;
+
+  /// Unversioned (`0.0.0`) until Phase 3 stamps receptor versions.
+  @override
+  String get version => '0.0.0';
 }
 
 /// Internal implementation of [TissueReceptor] for generic tissues.
