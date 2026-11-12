@@ -131,8 +131,14 @@ void main() {
         PulseContextCodec,
         CellSnapshot,
         CellGraphSnapshot,
+        // Phase 2 — registry + identity.
+        Purity,
+        CellGraph,
+        CellGraphBuilder,
+        RegisteredCell,
+        CellGraphRegistry,
       ];
-      expect(types, hasLength(4));
+      expect(types, hasLength(9));
     });
   });
 }

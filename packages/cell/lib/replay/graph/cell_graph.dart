@@ -117,15 +117,17 @@ class CellGraph {
   // ── validation ──────────────────────────────────────────────────────
 
   /// Walks every registered root's descendants (via `bind` and
-  /// `Synapses`) and rejects any cell that is not registered. Called at
-  /// `build()` time so the failure is immediate, and again from
-  /// `_validateBindTarget` whenever a new bind is observed at runtime.
+  /// `Synapses`) and rejects any cell reached through a **bind edge** that
+  /// is not registered. Called at `build()` time so the failure is
+  /// immediate, and again from `_validateBindTarget` whenever a new bind
+  /// is observed at runtime.
   ///
-  /// In strict mode, this is the enforcement that makes a graph
-  /// *replayable*: an unregistered downstream cell is a cell whose
-  /// receptor might not be journalled and whose state might not be
-  /// snapshotted. If we allowed it, replay would silently miss part of
-  /// the graph.
+  /// The violation rule is deliberately scoped to `bind` edges: that is
+  /// the user-facing wiring surface and the Plan's Phase 2 exit criterion
+  /// ("unregistered bind in a graph is rejected"). Synapse edges are how
+  /// the framework wires operator internals (e.g. `asyncMap`'s internal
+  /// bridge cell, terminal observers), which users cannot register; those
+  /// are traversed for completeness but are Phase 3's journal concern.
   ///
   /// In unrestricted mode, this method does nothing.
   void _validateReachability() {
@@ -138,18 +140,22 @@ class CellGraph {
       final cell = pending.removeLast();
       final id = cell.id;
       if (!seen.add(id)) continue;
-      if (!containsName(id)) {
-        throw StateError(
-          'CellGraph reachability violation: cell "$id" was reached via '
-          'the bind/synapse graph from a registered root, but is not '
-          'registered. Register it with CellGraphBuilder.register(), '
-          'or use CellGraph.unrestricted() for tests.',
-        );
-      }
+
       // Enumerate bind + synapses. `_nucleus.bind` gives the direct
-      // upstream; `_nucleus.synapses` iterates downstreams.
+      // upstream; `_nucleus.synapses` iterates downstreams. Only bind
+      // targets are checked against the registry.
       final upstream = cell._nucleus.bind;
-      if (upstream != null) pending.add(upstream);
+      if (upstream != null) {
+        if (!containsName(upstream.id)) {
+          throw StateError(
+            'CellGraph reachability violation: cell "${upstream.id}" is '
+            'bound as the upstream of registered cell "$id", but is not '
+            'registered. Register it with CellGraphBuilder.register(), '
+            'or use CellGraph.unrestricted() for tests.',
+          );
+        }
+        pending.add(upstream);
+      }
       for (final downstream in cell._nucleus.synapses) {
         pending.add(downstream);
       }
