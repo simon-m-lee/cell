@@ -137,7 +137,26 @@ class ValueCellAsync<V> extends ModifiableAsync<ValueCell<V>> {
       final receptor = _cell._nucleus.receptor;
       final result = receptor.call(v == null ? Pulse<V>(null) : Pulse<V>(v));
       if (result is Future<Pulse?>) {
-        return (await result) != null;
+        final committed = await result;
+        if (committed is Pulse) {
+          // Phase 4: the async emit path is the direct-value path's
+          // counterpart; ledger the committed pulse.
+          LedgerScope.recordPulse(
+            pulse: committed,
+            emitCell: _cell,
+            emitFunction: _emit,
+            emittedValue: v,
+          );
+        }
+        return committed != null;
+      }
+      if (result is Pulse) {
+        LedgerScope.recordPulse(
+          pulse: result,
+          emitCell: _cell,
+          emitFunction: _emit,
+          emittedValue: v,
+        );
       }
       return result != null;
     }

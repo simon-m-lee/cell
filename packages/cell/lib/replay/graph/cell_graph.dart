@@ -114,6 +114,59 @@ class CellGraph {
   /// enforce that a journalled pulse's `source` is a registered cell.
   Set<String> get registeredIds => Set.unmodifiable(_byName.keys);
 
+  // ── ledger ───────────────────────────────────────────────────────────
+
+  Ledger? _ledger;
+
+  /// The ledger this graph is bound to, or `null` if the graph is not
+  /// ledgered. A graph can have at most one ledger; call `unbindLedger`
+  /// to sever the binding before binding a different one.
+  Ledger? get ledger => _ledger;
+
+  /// Binds [this] graph to a new ledger backed by [store]. Runs
+  /// `Ledger.openVerified` so a corrupt store fails at bind time, not on
+  /// first append.
+  ///
+  /// Every subsequent `Cell.apply` / `ValueCell.update` on a cell in this
+  /// graph — inside [run] — is recorded in the ledger. Binding is
+  /// **idempotent**: if the graph is already bound, throws [StateError] —
+  /// a graph cannot have two ledgers, and silently swapping would leave
+  /// the old ledger permanently incomplete.
+  Future<Ledger> bindLedger({required LedgerStore store}) async {
+    if (_ledger != null) {
+      throw StateError(
+        'CellGraph.bindLedger: graph "$graphId" is already bound to a '
+        'ledger. Call unbindLedger first if you intend to swap.',
+      );
+    }
+    final ledger = await Ledger.openVerified(graph: this, store: store);
+    _ledger = ledger;
+    return ledger;
+  }
+
+  /// Severs the graph's binding to its ledger. The ledger remains open
+  /// (the caller must close it); subsequent `Cell.apply` calls on the
+  /// graph are no longer recorded. Returns the previously bound ledger.
+  Future<Ledger?> unbindLedger() async {
+    final l = _ledger;
+    _ledger = null;
+    return l;
+  }
+
+  /// Runs [body] with this graph's ledger scope active. All
+  /// `Cell.apply`/`ValueCell.update` calls inside [body] are recorded,
+  /// and the scope's queued appends are drained before this resolves.
+  Future<T> run<T>(FutureOr<T> Function() body) {
+    final l = _ledger;
+    if (l == null) {
+      throw StateError(
+        'CellGraph.run: graph "$graphId" is not bound to a ledger. '
+        'Call bindLedger(...) first.',
+      );
+    }
+    return LedgerScope.run(LedgerScopeImpl(ledger: l), body);
+  }
+
   // ── validation ──────────────────────────────────────────────────────
 
   /// Walks every registered root's descendants (via `bind` and

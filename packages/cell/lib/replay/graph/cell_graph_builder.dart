@@ -101,6 +101,9 @@ class CellGraphBuilder {
     final wrapped = RegisteredCell(cell, effectiveName);
     _registered.add(wrapped);
     _byName[effectiveName] = wrapped;
+    // Phase 4: keep the Phase 1 source registry in sync so ledger entries
+    // can resolve receipt cells back to live cells in this process.
+    _ReplayCellRegistry.register(effectiveName, cell);
     return wrapped;
   }
 

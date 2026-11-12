@@ -535,8 +535,15 @@ abstract class CellBase implements Cell {
     if (result is Pulse) {
       final handled = _nucleus.receptor.call(result);
       if (handled is Future<Pulse?>) {
-        return handled.then((_) => ApplyAccepted<R>(result, receipt));
+        return handled.then((_) {
+          // Phase 4: if a ledger is bound, record the entry. The deltas
+          // were captured by postProcessRule during the receptor call;
+          // the append is queued on the scope and drained on scope exit.
+          LedgerScope.recordPulse(pulse: result, receipt: receipt);
+          return ApplyAccepted<R>(result, receipt);
+        });
       }
+      LedgerScope.recordPulse(pulse: result, receipt: receipt);
     }
     return ApplyAccepted<R>(result, receipt);
   }

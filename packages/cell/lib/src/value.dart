@@ -324,9 +324,44 @@ class ValueCell<V> extends CellBase {
   /// by `ValueCell` and `ValueNucleus`. You don't need to call it directly.
   static Instruction postProcessRule =
       Instruction<ValueCell, Pulse, Pulse>((pulse, {cell, user}) {
-    cell!._nucleus.state.value = pulse.payload;
+    final before = cell!._nucleus.state.value;
+    cell._nucleus.state.value = pulse.payload;
+    final after = cell._nucleus.state.value;
+
+    // Phase 4: capture the delta if a ledger is bound. `LedgerScope.current`
+    // is a zone lookup; when no ledger is bound, it returns null and the
+    // whole capture is one `null` check.
+    final scope = LedgerScope.current;
+    if (scope != null) {
+      scope.captureDelta(StateDelta(
+        cellId: cell.id,
+        before: _encodeForLedger(before),
+        after: _encodeForLedger(after),
+        at: DateTime.now(),
+      ));
+    }
     return pulse;
   });
+
+  /// Encodes a ValueCell value for the ledger. Handles primitives, lists,
+  /// maps, and `DateTime`. Values that are not JSON-encodable (custom
+  /// user types) throw a `StateError` — this is the loud failure the plan
+  /// requires for non-serialisable state in a ledgered graph.
+  static Object? _encodeForLedger(Object? v) {
+    if (v == null || v is num || v is bool || v is String) return v;
+    if (v is List) return v.map(_encodeForLedger).toList();
+    if (v is Map) {
+      return v.map((k, value) => MapEntry('$k', _encodeForLedger(value)));
+    }
+    if (v is DateTime) return v.toUtc().toIso8601String();
+    if (v is Cell) return {'__cell__': v.id};
+    throw StateError(
+      'ValueCell: value of type ${v.runtimeType} is not JSON-encodable '
+      'and cannot be recorded in a Ledger. Provide a custom codec '
+      '(Phase 3+ work) or store the value as a primitive in a '
+      'ValueCell<String>/int/etc.',
+    );
+  }
 
   @override
   ValueNucleus<V> get _nucleus => super._nucleus as ValueNucleus<V>;
@@ -558,6 +593,17 @@ class ValueCell<V> extends CellBase {
     if (!identical(v, value) && v != value) {
       final receptor = _nucleus.receptor;
       final result = receptor.call(v == null ? Pulse<V>(null) : Pulse<V>(v));
+      // Phase 4: the direct emit path bypasses `Cell.apply` (no receipt
+      // exists yet), so the ledger hook synthesises one from the cell
+      // and the emitted value.
+      if (result is Pulse) {
+        LedgerScope.recordPulse(
+          pulse: result,
+          emitCell: this,
+          emitFunction: _emit,
+          emittedValue: v,
+        );
+      }
       // The synchronous update contract can only report "accepted": an
       // async validation pipeline returns a Future here, and its committed
       // outcome is surfaced by ValueCellAsync._emit, which awaits the same

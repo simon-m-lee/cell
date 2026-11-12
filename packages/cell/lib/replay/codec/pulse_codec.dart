@@ -395,4 +395,10 @@ class _ReplayCellRegistry {
   }
 
   static Cell? lookup(String id) => _cells[id];
+
+  /// Clears the registry (tests only; paired with
+  /// `CellGraphRegistry.forceReset`).
+  static void forceReset() {
+    _cells.clear();
+  }
 }

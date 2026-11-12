@@ -78,6 +78,7 @@ class _CellGraphRegistry {
   static void forceReset() {
     _byNucleus.clear();
     _byId.clear();
+    _ReplayCellRegistry.forceReset();
   }
 
   /// Diagnostic: a snapshot of the current registry contents. Not part of
