@@ -113,6 +113,7 @@ library cell;
 
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:core';
 
 import 'package:cell/src/internal/commons.dart';
@@ -217,3 +218,15 @@ part 'replay/journal/journal_scope.dart';
 part 'replay/journal/recording_journal.dart';
 part 'replay/journal/replay_journal.dart';
 part 'replay/journal/effectful.dart';
+
+/// Replay module — the durable ledger (Phase 4).
+/// `file_store.dart` is NOT a part: it imports `dart:io`, which must not
+/// leak into the web-safe core library; it is a standalone library
+/// exported by the replay barrel.
+part 'replay/ledger/state_delta.dart';
+part 'replay/ledger/hash_chain.dart';
+part 'replay/ledger/ledger_entry.dart';
+part 'replay/ledger/ledger_store.dart';
+part 'replay/ledger/in_memory_store.dart';
+part 'replay/ledger/ledger.dart';
+part 'replay/ledger/ledger_scope.dart';

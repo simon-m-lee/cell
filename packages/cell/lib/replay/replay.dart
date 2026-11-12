@@ -44,6 +44,17 @@ export '../cell.dart'
         ReplayDivergenceException,
         JournalScope,
         Effectful,
-        EffectfulReadOnly;
-// Phase 4+ grows this list: Ledger, … — see
+        EffectfulReadOnly,
+        // Phase 4 — ledger.
+        StateDelta,
+        Ledger,
+        LedgerEntry,
+        LedgerStore,
+        InMemoryLedgerStore,
+        LedgerIntegrityException,
+        LedgerScope;
+// FileLedgerStore is a standalone library (it imports dart:io, which
+// must not leak into the web-safe core).
+export 'ledger/file_store.dart' show FileLedgerStore;
+// Phase 5+ grows this list: ReplayEngine, … — see
 // research/Causal-Replay/Plan.md.

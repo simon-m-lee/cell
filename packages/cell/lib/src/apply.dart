@@ -177,7 +177,11 @@ typedef ApplyReceipt = ({
   ApplyArguments arguments,
   DateTime timestamp,
   int? txSequence,
-  bool vetted
+  bool vetted,
+  // Phase 4 — populated by Ledger.appendInternal; null on the receipt
+  // returned by Cell.apply, non-null on the receipt stored in the ledger.
+  int? ledgerSeq,
+  String? pulseDigest
 });
 
 /// The official, auditable result of submitting an [ApplyCommand].
@@ -473,6 +477,8 @@ final class ApplyLedger {
         timestamp: DateTime.now(),
         txSequence: txSequence,
         vetted: vetted,
+        ledgerSeq: null,
+        pulseDigest: null,
       );
 }
 
