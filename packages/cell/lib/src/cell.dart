@@ -2334,6 +2334,36 @@ abstract interface class Cell {
   /// tier of this node.
   Context get context;
 
+  /// A stable, serialisable identifier for this cell handle.
+  ///
+  /// Unlike [hashCode] — which is derived from the root principal's
+  /// `identityHashCode` and is therefore process-local — `id` is intended to
+  /// survive persistence. The Phase 1 codec uses it to reconstruct a pulse's
+  /// `source` after a snapshot is loaded; the Phase 2 `CellGraph` uses it as
+  /// the registration key.
+  ///
+  /// ### Guarantees
+  ///
+  /// * **Stable within a process.** Two calls to `cell.id` return the same
+  ///   string.
+  /// * **Stable across processes for registered cells** (Phase 2). A cell
+  ///   registered with a `CellGraph` returns the graph-assigned name.
+  /// * **Stable across processes for unregistered cells, too, in Phase 1.**
+  ///   The fallback is `nucleus:<hex(identityHashCode(rootNucleus))>`, which
+  ///   is stable within a process and only cross-process-stable once Phase 2
+  ///   lands. This is documented so consumers do not assume cross-process
+  ///   identity in Phase 1.
+  ///
+  /// ### Non-obvious: `id` ≠ `hashCode`
+  ///
+  /// `hashCode` is a **set-membership** key — a deputy and its principal must
+  /// hash equal (they do), and `ValueCell` cannot change its hash when it
+  /// evolves. `id` is a **wire identity** — a deputy and its principal may
+  /// share the same `id` in Phase 1 (they walk to the same root) but Phase 2
+  /// will give them distinct registered names. Do not substitute one for the
+  /// other; they answer different questions.
+  String get id;
+
   /// A boolean indicator identifying whether this [Cell] acts as a
   /// **Processing Sink** within the reactive topology.
   ///

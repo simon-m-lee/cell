@@ -223,6 +223,12 @@ class TissueNever extends IterableBase<Never>
   TissueNucleusBase<Never, Never, Never> get _nucleus =>
       const TissueNucleusNever();
 
+  /// The sentinel implements [Tissue] directly (no [CellBase] to inherit
+  /// from), so `Cell.id` delegates to the shared const nucleus: every empty
+  /// tissue reports the same stable, process-local identity.
+  @override
+  String get id => _nucleus.id;
+
   /// The empty tissue has no state to synchronise, so it never locks.
   @override
   Lock? get lock => null;

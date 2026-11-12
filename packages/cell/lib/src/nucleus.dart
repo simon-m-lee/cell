@@ -484,6 +484,15 @@ abstract interface class Nucleus {
   /// Returns the parent nucleus, or `null` if this is the root.
   Nucleus? get principal;
 
+  /// The persisted identity of the cell this nucleus powers.
+  ///
+  /// Resolved by [NucleusBase]: a graph-registered name once `CellGraph`
+  /// (Phase 2) lands, otherwise the hex `identityHashCode` of the root
+  /// principal — stable within a process. See `Cell.id` for the full
+  /// identity contract; `id` is deliberately parallel to `hashCode`, which
+  /// stays a set-membership key.
+  String get id;
+
   /// The **Temporal Origin** and synthesis record of this [Nucleus] instance.
   ///
   /// ### When to use

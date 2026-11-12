@@ -233,6 +233,19 @@ abstract class CellBase implements Cell {
   @override
   final Nucleus _nucleus;
 
+  /// A stable identifier for this cell handle.
+  ///
+  /// Delegates to the nucleus, which resolves the id. For ordinary use this
+  /// is the root principal's identity hash; for registered cells (Phase 2)
+  /// it is the graph-assigned name.
+  ///
+  /// This is *additive*. `hashCode` is unchanged; `id` is a parallel
+  /// identity intended to be persisted. The `@override` is load-bearing:
+  /// without it, a subclass could declare a different `id` with no compile
+  /// error, silently shadowing the interface's contract.
+  @override
+  String get id => _nucleus.id;
+
   /// The propagation step label used by `ReceptorBase._proceed`.
   ///
   /// The value is constant per cell (it only depends on the cell's context

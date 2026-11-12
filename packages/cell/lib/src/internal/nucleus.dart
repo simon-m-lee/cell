@@ -214,6 +214,40 @@ abstract class NucleusBase implements Nucleus {
   // ignore: strict_top_level_inference, prefer_typing_uninitialized_variables
   final record;
 
+  /// The persisted identity of the cell this nucleus powers. Resolved as
+  /// follows:
+  ///
+  ///   1. If a `CellGraph` (Phase 2) has registered this nucleus, its
+  ///      registered name.
+  ///   2. Otherwise, the `identityHashCode` of the root principal.
+  ///
+  /// The resolution policy belongs on [NucleusBase] because the nucleus is
+  /// where the identity resolution lives. See `Cell.id` for the identity
+  /// contract (`id` ≠ `hashCode`).
+  ///
+  /// A plain getter (rather than a `late final` cache) because
+  /// [NucleusBase.fromRecord] is a const constructor; resolution is
+  /// deterministic and cheap (a principal-chain walk + one identity hash),
+  /// so the value is stable across calls.
+  @override
+  String get id => _resolveId();
+
+  String _resolveId() {
+    // Phase 2 will replace this body with:
+    //   return _CellGraphRegistry.nameOf(this) ?? _fallbackId();
+    return _fallbackId();
+  }
+
+  String _fallbackId() {
+    Nucleus root = this;
+    Nucleus? principal = root.principal;
+    while (principal != null) {
+      root = principal;
+      principal = root.principal;
+    }
+    return 'nucleus:${identityHashCode(root).toRadixString(16)}';
+  }
+
   /// The primary constructor for [NucleusBase], initializing a memory-optimized
   /// tiered property storage for a reactive [Cell].
   ///

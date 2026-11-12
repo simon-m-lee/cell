@@ -122,6 +122,14 @@ import 'package:uuid/uuid.dart';
 import 'package:synchronized/synchronized.dart';
 export 'package:synchronized/synchronized.dart';
 
+// Replay module — canonical serialisation foundations. The codec parts below
+// need `fingerprint`; the canonical encoder/fingerprint are exported so
+// `package:cell/cell.dart` consumers get the full Phase 1 surface.
+import 'package:cell/replay/codec/fingerprint.dart';
+export 'package:cell/replay/codec/canonical_json.dart'
+    show canonicalJsonEncode, canonicalJsonDecode;
+export 'package:cell/replay/codec/fingerprint.dart' show fingerprint;
+
 // --- Public APIs and Utilities ---
 
 /// Standard test rules and base meta-data for governance.
@@ -179,3 +187,12 @@ part 'src/internal/operator/operator_debounce.dart';
 part 'src/internal/operator/operator_transaction.dart';
 part 'src/internal/operator/operator_hub.dart';
 part 'src/internal/operator/operator_tx_apply.dart';
+
+/// Replay module — serialisation foundations (Phase 1).
+/// These are parts, not separate libraries: the codecs reach into private
+/// pulse/context records (`_parent`, `_record`, `_Pulse`), so they must
+/// live inside the `cell` library.
+part 'replay/codec/pulse_context_codec.dart';
+part 'replay/codec/pulse_codec.dart';
+part 'replay/codec/cell_snapshot.dart';
+part 'replay/codec/graph_snapshot.dart';

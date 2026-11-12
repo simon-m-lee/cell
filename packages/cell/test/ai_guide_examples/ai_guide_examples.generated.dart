@@ -221,7 +221,7 @@ Future<void> aiExampleCell_txApply() async {
   print(counter.cell.value);
 }
 
-// <lib/src/cell.dart:2664>
+// <lib/src/cell.dart:2694>
 Future<void> aiExampleCell_unmodifiable() async {
   final c = Cell.state<int>(initial: 1);
   final ro = c.cell.unmodifiable;
