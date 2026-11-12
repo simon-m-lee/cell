@@ -29,6 +29,21 @@ export '../cell.dart'
         CellGraph,
         CellGraphBuilder,
         RegisteredCell,
-        CellGraphRegistry;
-// Phase 3+ grows this list: EffectJournal, … — see
+        CellGraphRegistry,
+        // Phase 3 — journal.
+        EffectJournal,
+        EffectRecord,
+        ClockEffect,
+        UuidEffect,
+        IoEffect,
+        StreamEffect,
+        TimerEffect,
+        NullJournal,
+        RecordingJournal,
+        ReplayJournal,
+        ReplayDivergenceException,
+        JournalScope,
+        Effectful,
+        EffectfulReadOnly;
+// Phase 4+ grows this list: Ledger, … — see
 // research/Causal-Replay/Plan.md.

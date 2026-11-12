@@ -1,0 +1,142 @@
+// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
+// for details. Use of this source code is governed by a MIT or
+// Apache-2.0 license that can be found in the LICENSE file.
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+part of '../../cell.dart';
+
+/// The recording side of the journal.
+///
+/// Every effect is executed for real; the journal records the observation
+/// and the run continues. The recorded log is what [ReplayJournal]
+/// consumes later.
+///
+/// ### Non-obvious: recording happens *after* the operation, not before
+///
+/// If the operation throws, there is no effect to record — the throw
+/// propagates and the ledger (Phase 4) records the *failure*, not an
+/// effect. This is deliberate: a failed I/O call is not a re-runnable
+/// observation; the caller must decide whether to retry (in which case
+/// the retry is the new effect).
+class RecordingJournal implements EffectJournal {
+  final List<EffectRecord> _records = [];
+  int _nextOrdinal = 0;
+
+  /// The clock source. Defaults to `DateTime.now`. Tests inject a
+  /// deterministic source so the test suite can assert byte-identical
+  /// output.
+  final DateTime Function() _clockSource;
+
+  /// The UUID source. Defaults to `Uuid().v4`. Same test consideration.
+  final String Function() _uuidSource;
+
+  /// The timer scheduler. Defaults to a real `Timer`. Tests inject a
+  /// virtual scheduler so the suite does not wait real time.
+  final Future<void> Function(Duration, FutureOr<void> Function())
+      _timerScheduler;
+
+  RecordingJournal({
+    DateTime Function()? clockSource,
+    String Function()? uuidSource,
+    Future<void> Function(Duration, FutureOr<void> Function())?
+        timerScheduler,
+  })  : _clockSource = clockSource ?? DateTime.now,
+        _uuidSource = uuidSource ?? _defaultUuid,
+        _timerScheduler = timerScheduler ?? _defaultTimer;
+
+  static String _defaultUuid() => const Uuid().v4();
+
+  static Future<void> _defaultTimer(
+    Duration d,
+    FutureOr<void> Function() onFire,
+  ) =>
+      Future.delayed(d, onFire);
+
+  @override
+  int get consumed => _records.length;
+
+  @override
+  DateTime clock() {
+    final now = _clockSource();
+    _records.add(ClockEffect(
+      ordinal: _nextOrdinal++,
+      inputDigest: fingerprint('clock'),
+      outputDigest: fingerprint(now.millisecondsSinceEpoch),
+      at: now,
+      epochMillis: now.millisecondsSinceEpoch,
+    ));
+    return now;
+  }
+
+  @override
+  String uuid() {
+    final id = _uuidSource();
+    final at = _clockSource();
+    _records.add(UuidEffect(
+      ordinal: _nextOrdinal++,
+      inputDigest: fingerprint('uuid'),
+      outputDigest: fingerprint(id),
+      at: at,
+      uuid: id,
+    ));
+    return id;
+  }
+
+  @override
+  Future<T> io<T>({
+    required String label,
+    required Object? input,
+    required Future<T> Function() run,
+    Object? Function(T)? serializeOutput,
+  }) async {
+    final at = _clockSource();
+    final result = await run();
+    final raw = serializeOutput != null ? serializeOutput(result) : result;
+    _records.add(IoEffect(
+      ordinal: _nextOrdinal++,
+      inputDigest: fingerprint(input),
+      outputDigest: fingerprint(raw),
+      at: at,
+      label: label,
+      rawOutput: raw,
+    ));
+    return result;
+  }
+
+  @override
+  Future<void> timer({
+    required Duration duration,
+    required Object? input,
+    required FutureOr<void> Function() onFire,
+  }) async {
+    final scheduledAt = _clockSource();
+    await _timerScheduler(duration, onFire);
+    final firedAt = _clockSource();
+    _records.add(TimerEffect(
+      ordinal: _nextOrdinal++,
+      inputDigest: fingerprint(input),
+      outputDigest: fingerprint(firedAt.millisecondsSinceEpoch),
+      at: firedAt,
+      scheduled: duration,
+      scheduledAtMillis: scheduledAt.millisecondsSinceEpoch,
+      firedAtMillis: firedAt.millisecondsSinceEpoch,
+    ));
+  }
+
+  @override
+  void push() {}
+
+  @override
+  void pop() {}
+
+  @override
+  void assertExhausted() {
+    // Recording side: there is nothing to exhaust. A recording is a
+    // stream; we don't assert that the producer "finished".
+  }
+
+  @override
+  List<Map<String, Object?>> toJson() =>
+      _records.map((r) => r.toJson()).toList(growable: false);
+}

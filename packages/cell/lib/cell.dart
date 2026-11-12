@@ -208,3 +208,11 @@ part 'replay/graph/registry.dart';
 part 'replay/graph/cell_graph_registry.dart';
 part 'replay/graph/cell_graph_builder.dart';
 part 'replay/graph/cell_graph.dart';
+
+/// Replay module — the EffectJournal (Phase 3, critical path).
+part 'replay/journal/effect_record.dart';
+part 'replay/journal/effect_journal.dart';
+part 'replay/journal/journal_scope.dart';
+part 'replay/journal/recording_journal.dart';
+part 'replay/journal/replay_journal.dart';
+part 'replay/journal/effectful.dart';

@@ -1,0 +1,257 @@
+// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
+// for details. Use of this source code is governed by a MIT or
+// Apache-2.0 license that can be found in the LICENSE file.
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+part of '../../cell.dart';
+
+/// A single recorded non-deterministic observation.
+///
+/// Every field is a JSON primitive (except [at] which is a `DateTime`
+/// serialised to ISO-8601 in [toJson]). The record is designed to be
+/// stored verbatim in the ledger (Phase 4), so its canonical form is
+/// pinned by this codec and never extended without a schema version bump.
+///
+/// ### Non-obvious: input/output digests, not raw values
+///
+/// Recording the *value* of every clock read or I/O response would blow
+/// up the ledger (a `Future<Response>` with a 10 KB body per call, times
+/// thousands of calls). The journal records the **fingerprint** of the
+/// input and the output instead, and stores the raw value in a side
+/// buffer only when the value is required to reconstruct (see
+/// [EffectRecord.rawOutput]). This keeps the ledger compact and lets
+/// `verify()` detect tampering via hash mismatch, without storing
+/// secrets in the clear.
+sealed class EffectRecord {
+  /// Monotonic ordinal within the journal, assigned by [EffectJournal].
+  /// Used to assert exact consumption during replay.
+  final int ordinal;
+
+  /// SHA-256 fingerprint of the effect's input (e.g. for `Clock.now`, the
+  /// fingerprint of `"clock"`; for [IoEffect], the fingerprint of the
+  /// request).
+  final String inputDigest;
+
+  /// SHA-256 fingerprint of the effect's output (e.g. the epoch millis
+  /// for a clock read; the response body for an I/O call).
+  final String outputDigest;
+
+  /// Wall-clock time of the observation. Recorded because replay needs to
+  /// reconstruct ordering; not part of the *semantics* of the effect.
+  final DateTime at;
+
+  const EffectRecord({
+    required this.ordinal,
+    required this.inputDigest,
+    required this.outputDigest,
+    required this.at,
+  });
+
+  /// The type tag stored in the ledger. Stable across schema versions.
+  String get kind;
+
+  Map<String, Object?> toJson() => {
+        'kind': kind,
+        'ordinal': ordinal,
+        'inputDigest': inputDigest,
+        'outputDigest': outputDigest,
+        'at': at.toUtc().toIso8601String(),
+        ...payloadJson(),
+      };
+
+  /// The variant-specific payload. Called by [toJson].
+  Map<String, Object?> payloadJson();
+
+  /// Reconstruct from [toJson]'s output.
+  static EffectRecord fromJson(Map<String, Object?> json) {
+    final kind = json['kind'] as String?;
+    if (kind == null) {
+      throw const FormatException('EffectRecord: missing "kind"');
+    }
+    switch (kind) {
+      case 'clock':
+        return ClockEffect.fromJson(json);
+      case 'uuid':
+        return UuidEffect.fromJson(json);
+      case 'io':
+        return IoEffect.fromJson(json);
+      case 'stream':
+        return StreamEffect.fromJson(json);
+      case 'timer':
+        return TimerEffect.fromJson(json);
+      default:
+        throw FormatException('EffectRecord: unknown kind "$kind"');
+    }
+  }
+}
+
+/// A read of the system clock. Records the epoch millis.
+class ClockEffect extends EffectRecord {
+  /// The observed wall-clock time (epoch millis).
+  final int epochMillis;
+
+  const ClockEffect({
+    required super.ordinal,
+    required super.inputDigest,
+    required super.outputDigest,
+    required super.at,
+    required this.epochMillis,
+  });
+
+  @override
+  String get kind => 'clock';
+
+  @override
+  Map<String, Object?> payloadJson() => {'epochMillis': epochMillis};
+
+  static ClockEffect fromJson(Map<String, Object?> json) => ClockEffect(
+        ordinal: json['ordinal'] as int,
+        inputDigest: json['inputDigest'] as String,
+        outputDigest: json['outputDigest'] as String,
+        at: DateTime.parse(json['at'] as String),
+        epochMillis: json['epochMillis'] as int,
+      );
+}
+
+/// A UUID generation. Records the generated UUID.
+class UuidEffect extends EffectRecord {
+  /// The generated UUID string.
+  final String uuid;
+
+  const UuidEffect({
+    required super.ordinal,
+    required super.inputDigest,
+    required super.outputDigest,
+    required super.at,
+    required this.uuid,
+  });
+
+  @override
+  String get kind => 'uuid';
+
+  @override
+  Map<String, Object?> payloadJson() => {'uuid': uuid};
+
+  static UuidEffect fromJson(Map<String, Object?> json) => UuidEffect(
+        ordinal: json['ordinal'] as int,
+        inputDigest: json['inputDigest'] as String,
+        outputDigest: json['outputDigest'] as String,
+        at: DateTime.parse(json['at'] as String),
+        uuid: json['uuid'] as String,
+      );
+}
+
+/// A single I/O call (network, disk, database). Records the label, the
+/// request digest, and the response digest; the **raw response** is held
+/// only if the caller supplied `rawOutput`. For replay, `rawOutput` is
+/// required — the digest alone cannot reconstruct the response.
+class IoEffect extends EffectRecord {
+  /// A semantic label, e.g. `'http.GET /profile/42'`. Used by the CLI
+  /// (Phase 8) for legibility.
+  final String label;
+
+  /// The raw response, JSON-encoded, or `null` if the recorder did not
+  /// capture it. A `null` rawOutput means the effect cannot be replayed
+  /// and `ReplayJournal` will refuse to consume it.
+  final Object? rawOutput;
+
+  const IoEffect({
+    required super.ordinal,
+    required super.inputDigest,
+    required super.outputDigest,
+    required super.at,
+    required this.label,
+    required this.rawOutput,
+  });
+
+  @override
+  String get kind => 'io';
+
+  @override
+  Map<String, Object?> payloadJson() => {
+        'label': label,
+        if (rawOutput != null) 'rawOutput': rawOutput,
+      };
+
+  static IoEffect fromJson(Map<String, Object?> json) => IoEffect(
+        ordinal: json['ordinal'] as int,
+        inputDigest: json['inputDigest'] as String,
+        outputDigest: json['outputDigest'] as String,
+        at: DateTime.parse(json['at'] as String),
+        label: json['label'] as String,
+        rawOutput: json['rawOutput'],
+      );
+}
+
+/// A stream event. Records the event's stream label, the digest of the
+/// value, and optionally the raw value.
+class StreamEffect extends EffectRecord {
+  final String streamLabel;
+  final Object? rawValue;
+
+  const StreamEffect({
+    required super.ordinal,
+    required super.inputDigest,
+    required super.outputDigest,
+    required super.at,
+    required this.streamLabel,
+    required this.rawValue,
+  });
+
+  @override
+  String get kind => 'stream';
+
+  @override
+  Map<String, Object?> payloadJson() => {
+        'streamLabel': streamLabel,
+        if (rawValue != null) 'rawValue': rawValue,
+      };
+
+  static StreamEffect fromJson(Map<String, Object?> json) => StreamEffect(
+        ordinal: json['ordinal'] as int,
+        inputDigest: json['inputDigest'] as String,
+        outputDigest: json['outputDigest'] as String,
+        at: DateTime.parse(json['at'] as String),
+        streamLabel: json['streamLabel'] as String,
+        rawValue: json['rawValue'],
+      );
+}
+
+/// A timer firing. Records the scheduled duration and the actual fire
+/// time; the pair is what makes debounce/throttle replayable.
+class TimerEffect extends EffectRecord {
+  final Duration scheduled;
+  final int scheduledAtMillis;
+  final int firedAtMillis;
+
+  const TimerEffect({
+    required super.ordinal,
+    required super.inputDigest,
+    required super.outputDigest,
+    required super.at,
+    required this.scheduled,
+    required this.scheduledAtMillis,
+    required this.firedAtMillis,
+  });
+
+  @override
+  String get kind => 'timer';
+
+  @override
+  Map<String, Object?> payloadJson() => {
+        'scheduled': scheduled.inMicroseconds,
+        'scheduledAtMillis': scheduledAtMillis,
+        'firedAtMillis': firedAtMillis,
+      };
+
+  static TimerEffect fromJson(Map<String, Object?> json) => TimerEffect(
+        ordinal: json['ordinal'] as int,
+        inputDigest: json['inputDigest'] as String,
+        outputDigest: json['outputDigest'] as String,
+        at: DateTime.parse(json['at'] as String),
+        scheduled: Duration(microseconds: json['scheduled'] as int),
+        scheduledAtMillis: json['scheduledAtMillis'] as int,
+        firedAtMillis: json['firedAtMillis'] as int,
+      );
+}
