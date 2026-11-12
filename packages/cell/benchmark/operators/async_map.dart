@@ -28,7 +28,7 @@ class AsyncMapBenchmark extends AsyncBenchmarkBase {
     final source = Cell.ingress<int>();
     final mapped = Cell.asyncMap<int, int>(
       source.cell,
-      (v) async {
+      (v, {required EffectJournal journal}) async {
         // Pure CPU work — no timers, so the benchmark measures framework
         // overhead, not the event loop.
         var acc = v;
@@ -37,6 +37,7 @@ class AsyncMapBenchmark extends AsyncBenchmarkBase {
         }
         return acc;
       },
+      journal: RecordingJournal(),
       concurrency: concurrency,
       latestOnly: latestOnly,
       exhaust: exhaust,

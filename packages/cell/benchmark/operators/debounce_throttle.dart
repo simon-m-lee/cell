@@ -13,7 +13,8 @@ class DebounceZero extends BenchmarkBase {
   @override
   void setup() {
     final source = Cell.ingress<int>();
-    final out = Cell.debounce(source.cell, Duration.zero);
+    final out =
+        Cell.debounce(source.cell, Duration.zero, journal: RecordingJournal());
     Cell.observe(source: out, effect: (Pulse p) {});
     emit = source.emit;
   }
@@ -34,7 +35,8 @@ class DebounceLeadingZero extends BenchmarkBase {
   @override
   void setup() {
     final source = Cell.ingress<int>();
-    final out = Cell.debounce(source.cell, Duration.zero, leading: true);
+    final out = Cell.debounce(source.cell, Duration.zero,
+        leading: true, journal: RecordingJournal());
     Cell.observe(source: out, effect: (Pulse p) {});
     emit = source.emit;
   }
@@ -55,7 +57,8 @@ class ThrottleZero extends BenchmarkBase {
   @override
   void setup() {
     final source = Cell.ingress<int>();
-    final out = Cell.throttle(source.cell, Duration.zero);
+    final out =
+        Cell.throttle(source.cell, Duration.zero, journal: RecordingJournal());
     Cell.observe(source: out, effect: (Pulse p) {});
     emit = source.emit;
   }

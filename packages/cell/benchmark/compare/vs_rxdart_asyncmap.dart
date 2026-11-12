@@ -24,7 +24,11 @@ class CellAsyncMap extends AsyncBenchmarkBase {
   @override
   Future<void> setup() async {
     final source = Cell.ingress<int>();
-    final mapped = Cell.asyncMap<int, int>(source.cell, (v) async => cpu(v));
+    final mapped = Cell.asyncMap<int, int>(
+      source.cell,
+      (v, {required EffectJournal journal}) async => cpu(v),
+      journal: RecordingJournal(),
+    );
     Cell.observe(
         source: mapped,
         effect: (Pulse p) {
