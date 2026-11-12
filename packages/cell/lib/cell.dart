@@ -196,3 +196,9 @@ part 'replay/codec/pulse_context_codec.dart';
 part 'replay/codec/pulse_codec.dart';
 part 'replay/codec/cell_snapshot.dart';
 part 'replay/codec/graph_snapshot.dart';
+
+/// Replay module — cell registry and graph identity (Phase 2).
+/// Also parts: the builder and graph reach into `cell._nucleus` and the
+/// process-wide `_CellGraphRegistry`.
+part 'replay/graph/purity.dart';
+part 'replay/graph/registered_cell.dart';

@@ -14,10 +14,18 @@ library;
 export 'codec/canonical_json.dart'
     show canonicalJsonEncode, canonicalJsonDecode;
 export 'codec/fingerprint.dart' show fingerprint;
-// The pulse/snapshot codecs are parts of the core `cell` library (they
-// reach into private pulse/context records), so the barrel re-exports
-// them from there.
+// The pulse/snapshot codecs and the graph types are parts of the core
+// `cell` library (they reach into private pulse/context/cell records), so
+// the barrel re-exports them from there.
 export '../cell.dart'
-    show PulseCodec, PulseContextCodec, CellSnapshot, CellGraphSnapshot;
-// Phase 2+ grows this list: CellGraph, Purity, … — see
+    show
+        // Phase 1 — serialisation.
+        PulseCodec,
+        PulseContextCodec,
+        CellSnapshot,
+        CellGraphSnapshot,
+        // Phase 2 — registry + identity (grows in the next commit).
+        Purity,
+        RegisteredCell;
+// Phase 3+ grows this list: EffectJournal, … — see
 // research/Causal-Replay/Plan.md.
