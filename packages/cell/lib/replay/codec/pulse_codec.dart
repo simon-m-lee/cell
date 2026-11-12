@@ -54,8 +54,16 @@ class PulseCodec {
         ? null
         : fingerprint(toJson(materialise(parent as Pulse<dynamic>)));
 
+    // A locally-null payload (an evolved pulse whose appended pulse has a
+    // null payload) overrides a non-null parent payload at runtime. The
+    // wire must preserve that distinction: the key is kept with a null
+    // value even though every other null is stripped.
+    final resolvedPayload = base.payload;
+    final payloadIsNullOverride =
+        resolvedPayload == null && parent != null && parent.payload != null;
+
     final out = <String, Object?>{
-      'payload': _encodePayload(base.payload),
+      'payload': _encodePayload(resolvedPayload),
       'type': _encodeDynamic(base.type),
       'priority': base.priority,
       'timestamp': base.timestamp.toUtc().toIso8601String(),
@@ -66,8 +74,10 @@ class PulseCodec {
     };
     // Strip nulls so the canonical bytes don't include a stable-position
     // `null` for every unset optional field — that would defeat the point
-    // of the canonical encoder.
+    // of the canonical encoder. The one exception is the null-override
+    // marker above.
     out.removeWhere((_, v) => v == null);
+    if (payloadIsNullOverride) out['payload'] = null;
     return out;
   }
 
@@ -139,8 +149,12 @@ class PulseCodec {
     final parentTrace = parentBase?.trace ?? const <String>[];
     final localSteps = _leafSteps(trace, parentTrace);
 
-    return _Pulse<dynamic>(
+    // The `payload` key is present iff the node defines its payload
+    // locally — including the null-override marker (see `toJson`).
+    final hasLocalPayload = json.containsKey('payload');
+    return _plainPulse(
       payload: _decodePayload(rawPayload),
+      localPayload: hasLocalPayload,
       type: type,
       priority: priority,
       timestamp: timestamp,
@@ -209,11 +223,10 @@ class PulseCodec {
     // well as through the local record; capture the resolved value so the
     // rebuilt node keeps it without the composite structure.
     final hasAppendedPulse = base._pulse != null;
-    return _Pulse<dynamic>(
-      payload:
-          (shape & PulseBase._kPayload) != 0 || hasAppendedPulse
-              ? base.payload
-              : null,
+    return _plainPulse(
+      payload: base.payload,
+      localPayload:
+          (shape & PulseBase._kPayload) != 0 || hasAppendedPulse,
       type: (shape & PulseBase._kType) != 0 || hasAppendedPulse
           ? base.type
           : null,
@@ -226,6 +239,52 @@ class PulseCodec {
           ? record.root.secondary.step as String
           : null,
       parent: newParent,
+    );
+  }
+
+  /// Builds a plain pulse node.
+  ///
+  /// [localPayload] means "this node defines its own payload". When that
+  /// definition is null and the parent carries a non-null payload, the
+  /// runtime semantics are a *null override* — a state `_Pulse` cannot
+  /// express (its record drops null payloads, so the getter would inherit).
+  /// [_NullPayloadPulse] pins the getter for exactly that case.
+  static Pulse<dynamic> _plainPulse({
+    Object? payload,
+    required bool localPayload,
+    dynamic type,
+    int? priority,
+    DateTime? timestamp,
+    Cell? source,
+    PulseContext? context,
+    PulseEphemeralPolicy? policy,
+    String? step,
+    PulseBase<dynamic>? parent,
+  }) {
+    if (localPayload &&
+        payload == null &&
+        parent != null &&
+        parent.payload != null) {
+      return _NullPayloadPulse(
+        context: context,
+        type: type,
+        timestamp: timestamp,
+        source: source,
+        priority: priority,
+        step: step,
+        parent: parent,
+      );
+    }
+    return _Pulse<dynamic>(
+      payload: localPayload ? payload : null,
+      type: type,
+      priority: priority,
+      timestamp: timestamp,
+      source: source,
+      context: context,
+      policy: policy,
+      step: step,
+      parent: parent,
     );
   }
 
@@ -289,6 +348,29 @@ class PulseCodec {
     if (id == null) return null;
     return _ReplayCellRegistry.lookup(id);
   }
+}
+
+/// A decoded plain pulse whose wire record declares a locally-null payload
+/// while its parent carries a non-null payload.
+///
+/// `_Pulse` cannot express this state: its record drops null payloads, so
+/// the payload getter would fall through to the parent. The runtime's own
+/// semantics do have this state (`EvolvedPulseBase.payload` reads the
+/// appended pulse directly, null included), so the codec needs a shape
+/// that pins the getter. Everything else behaves like a plain `_Pulse`.
+class _NullPayloadPulse extends _SinglePulseBase<dynamic> {
+  _NullPayloadPulse({
+    super.context,
+    super.type,
+    super.timestamp,
+    super.source,
+    super.priority,
+    super.step,
+    super.parent,
+  });
+
+  @override
+  dynamic get payload => null;
 }
 
 /// A minimal, in-process registry used by [PulseCodec] to resolve a source
