@@ -22,6 +22,15 @@ part of '../../cell.dart';
 ///   journaled. If the replay journal has no verdict for the current
 ///   input, the journal throws [ReplayDivergenceException] — the rule
 ///   changed since the recording.
+///
+/// ### Where the *version* dispatch lives
+///
+/// This class dispatches on **purity only**. The
+/// receptor/rule **version** boundary is enforced one level up, by
+/// `ReplayEngine._checkVersions` before any dispatch happens: the
+/// recorded versions must be satisfied by the graph's `VersionRegistry`
+/// or by the live implementations matching exactly — otherwise the
+/// engine reports a divergence without calling the rule at all.
 abstract final class TestCellReplay {
   /// Invokes [rule] on [object] with the current journal, honouring its
   /// purity. Returns the rule's decision.

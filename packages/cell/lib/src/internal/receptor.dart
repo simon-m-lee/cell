@@ -595,9 +595,20 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   @override
   Purity get purity => Purity.pure;
 
-  /// Default version: `'0.0.0'` ("unversioned"). Phase 3 stamps the
-  /// built-in receptors; user receptors override with a stable string so
-  /// the Phase 5 replay engine can dispatch by version.
+  /// Default version: `'0.0.0'` ("unversioned"). User receptors override
+  /// with a stable string so the Phase 5 replay engine can dispatch by
+  /// version.
+  ///
+  /// ### Non-obvious: the built-in operator bridges stay `'0.0.0'`
+  ///
+  /// Phase 3 deliberately did **not** stamp the built-in operator
+  /// receptors. Unversioned means "no version contract": an unversioned
+  /// ledger replays against an unversioned target across releases, and
+  /// an implementation change surfaces as a journal/delta divergence
+  /// (the effects changed) rather than a clean version-boundary error.
+  /// The versioned path is for user receptors whose implementation may
+  /// change while their *semantics* stay stable — then the ledger says
+  /// exactly which implementation produced it.
   @override
   String get version => '0.0.0';
 

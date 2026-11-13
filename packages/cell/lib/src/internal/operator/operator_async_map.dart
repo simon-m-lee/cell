@@ -18,6 +18,13 @@ part of '../../../cell.dart';
 /// mapper runs inside `JournalScope.run(journal, …)`, so both the
 /// parameter and `EffectJournal.current` are the same journal.
 ///
+/// ### Mapper contract
+///
+/// The mapper must **await** every `journal.io(...)`/`journal.clock(...)`
+/// call before returning. A mapper that spawns a detached task must pass
+/// its `journal` parameter into that task explicitly — `JournalScope.run`
+/// covers the mapper call itself, not work spawned from it.
+///
 /// ### Concurrency modes
 /// * [concurrency] `0` (default) – unlimited in-flight (mergeMap-style)
 /// * [concurrency] `1` – sequential (concatMap-style)
@@ -29,6 +36,18 @@ part of '../../../cell.dart';
 /// [latestOnly] and [exhaust] are mutually exclusive in intent:
 /// * switch → cancel interest in in-flight when a newer value arrives
 /// * exhaust → refuse new values until the current in-flight work finishes
+///
+/// ### Ledger attribution (Phase 8 hardening)
+///
+/// Concurrent mapper invocations share one [EffectJournal]; a positional
+/// `recordsSince(before)` window over that shared sequence cannot tell
+/// which invocation wrote which record. Under an active `LedgerScope`,
+/// `concurrency > 1` and `latestOnly` therefore throw a loud
+/// [StateError] instead of silently cross-contaminating ledger entries.
+/// Pulse-tagged effect windows (the correct attribution) are the
+/// deferred Phase 5.1 item; the default `concurrency: 0` remains
+/// available, and attributes correctly when emissions wait for their
+/// async work to settle.
 Cell _asyncMap<S, T>(
   Cell source,
   Future<T> Function(S value, {required EffectJournal journal}) mapper, {
@@ -83,7 +102,7 @@ Cell _asyncMap<S, T>(
         final payload = pulse.payload;
         if (payload is! S) return null;
 
-        state.enqueue(payload, onResult: emitResult);
+        state.enqueue(payload, pulse: pulse as PulseBase, onResult: emitResult);
         return null; // do not forward source pulse
       },
     ),
@@ -108,7 +127,7 @@ class _AsyncMapState<S, T> {
   final bool latestOnly;
   final bool exhaust;
 
-  final List<S> _queue = <S>[];
+  final List<({S value, PulseBase pulse})> _queue = [];
   int _inFlight = 0;
   int _generation = 0;
   // ignore: unused_field
@@ -118,22 +137,42 @@ class _AsyncMapState<S, T> {
 
   bool get _busy => _inFlight > 0;
 
-  void enqueue(S value, {required void Function(T value) onResult}) {
+  void enqueue(
+    S value, {
+    required PulseBase pulse,
+    required void Function(T value) onResult,
+  }) {
     // ── exhaustMap: drop upstream while busy ─────────────────
     if (exhaust && _busy) {
       return; // ignore new values until idle
+    }
+
+    // Phase 8 hardening: overlapping mapper invocations share one
+    // journal, so effect records cannot be attributed per invocation
+    // (see the factory doc). Refuse the configuration loudly while a
+    // ledger is recording instead of corrupting entries.
+    if ((concurrency > 1 || latestOnly) && LedgerScope.current != null) {
+      throw StateError(
+        'asyncMap: concurrent mapper invocations '
+        '(concurrency: $concurrency, latestOnly: $latestOnly) cannot be '
+        'attributed to ledger entries in Phase 8 — their effect records '
+        'share one journal and would cross-contaminate entries. '
+        'Pulse-tagged effect windows are the deferred Phase 5.1 fix; use '
+        'concurrency: 1 (and latestOnly: false) under a ledgered graph, '
+        'or record without a ledger.',
+      );
     }
 
     if (latestOnly) {
       _generation++;
       _queue
         ..clear()
-        ..add(value);
+        ..add((value: value, pulse: pulse));
       _pump(onResult, generation: _generation);
       return;
     }
 
-    _queue.add(value);
+    _queue.add((value: value, pulse: pulse));
     _pump(onResult, generation: _generation);
   }
 
@@ -160,13 +199,17 @@ class _AsyncMapState<S, T> {
               effective is RecordingJournal ? effective.consumed : 0;
           final result = await JournalScope.run(
             effective,
-            () => mapper(next, journal: effective),
+            () => mapper(next.value, journal: effective),
           );
           // Phase 5 cooperative ledger capture: hand the just-recorded
           // effects to the active LedgerScope so the entry for the pulse
           // that caused this mapping carries them — every effect the
           // mapper invocation produced, not only the last one. Only for
           // RecordingJournal-backed runs (replays have no ledger scope).
+          //
+          // Phase 5.1 caveat: this positional window is only sound while
+          // invocations do not overlap; overlapping configurations are
+          // refused loudly at enqueue time (see above).
           final ledgerScope = LedgerScope.current;
           if (ledgerScope != null && effective is RecordingJournal) {
             for (final record in effective.recordsSince(before)) {
@@ -175,8 +218,13 @@ class _AsyncMapState<S, T> {
           }
           if (latestOnly && gen != _generation) return; // superseded
           onResult(result);
-        } catch (_) {
-          // Swallow by default (same policy as fromFuture).
+        } catch (e, st) {
+          // Phase 8 hardening: the mapper failed. Route the failure to
+          // the source pulse's onError channel instead of swallowing it
+          // — a swallowed failure is invisible to the recording (and to
+          // every downstream waiting on the pulse). No emission happens,
+          // matching the documented "errors produce no output" contract.
+          next.pulse._fail(e, stackTrace: st);
         } finally {
           _inFlight--;
           // Always drain. In `latestOnly` mode `enqueue` has already cleared

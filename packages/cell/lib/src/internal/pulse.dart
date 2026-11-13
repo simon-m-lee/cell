@@ -1945,6 +1945,17 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
     /// source and represents a more direct instruction, whereas a longer trace
     /// represents a signal that has undergone multiple layers of transformation
     /// and refinement.
+    ///
+    /// ### Non-obvious: returning `0` is load-bearing
+    ///
+    /// Two distinct pulses with identical metadata deliberately compare
+    /// **equal**. The async receptor's priority queue treats `0` as
+    /// "keep insertion order", which is the framework's FIFO guarantee
+    /// for same-precedence submits — adding a hash-based tiebreaker here
+    /// would reorder equal-precedence pulses and break that contract
+    /// (caught by `receptor_test.dart`'s FIFO test). Callers who need a
+    /// total order over distinct pulses should use a comparator that
+    /// falls back to a submission sequence, not to `compareTo`.
     return trace.length.compareTo(other.trace.length);
   }
 

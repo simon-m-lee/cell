@@ -339,8 +339,22 @@ class ValueCell<V> extends CellBase {
     // swallows a throw here, so the write is simply dropped instead of
     // committed-and-silently-unrecorded).
     final before = cell!._nucleus.state.value;
-    final encodedBefore = _encodeForLedger(before);
-    final encodedAfter = _encodeForLedger(pulse.payload);
+    final Object? encodedBefore;
+    final Object? encodedAfter;
+    try {
+      encodedBefore = _encodeForLedger(before);
+      encodedAfter = _encodeForLedger(pulse.payload);
+    } catch (e, st) {
+      // Phase 8 hardening (review fix): the pipeline's error contract
+      // swallows a throw here, which used to mean "write silently
+      // dropped and unrecorded" with no observable signal at all. Fail
+      // the pulse instead — the drop is now visible on the pulse's
+      // onError channel, and the ledger's deferred window still records
+      // the pulse (with its empty deltas) so the failure is part of the
+      // history rather than a hole in it.
+      (pulse as PulseBase)._fail(e, stackTrace: st);
+      return pulse;
+    }
     cell._nucleus.state.value = pulse.payload;
     scope.captureDelta(StateDelta(
       cellId: cell.id,

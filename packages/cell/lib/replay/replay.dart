@@ -8,7 +8,18 @@
 ///
 /// Import `package:cell/replay.dart` to bring the replay module into
 /// scope. Nothing in the core `package:cell/cell.dart` surface is
-/// duplicated here; the two libraries are complementary.
+/// duplicated here; the two libraries are complementary. In practice the
+/// core library already exports most replay types (they are parts of the
+/// `cell` library), so a program may import either or both — this barrel
+/// exists as the focused, stable surface for replay consumers.
+///
+/// ### Cross-process identity requirement
+///
+/// A ledger recorded in one process can only be replayed in another if
+/// every cell in the graph was **registered** with a `CellGraph`
+/// (`register`/`registerState`). An unregistered cell's id is a
+/// process-local identity hash and cannot be addressed from a ledger
+/// file — registration is what makes identity stable (Phase 2).
 library;
 
 export 'codec/canonical_json.dart'

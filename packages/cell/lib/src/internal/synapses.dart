@@ -5,6 +5,31 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 part of '../../cell.dart';
 
+/// Terminalises a pulse that a propagation strategy decided to drop or
+/// supersede.
+///
+/// Phase 8 hardening (review fix): filter suppression, throttle drops,
+/// debounce replacements, audit replacements, and `persistent` buffer
+/// replacement all used to abandon the pulse without touching its branch
+/// counter — a pulse carrying `onComplete` never fired its callback, and
+/// any `LedgerScope` bookkeeping keyed on completion hung forever.
+///
+/// A pulse created *with* an `onComplete` callback always carries a
+/// branch box; decrement it and complete only at zero (sibling branches
+/// may still be in flight). A pulse *without* a callback has a null box,
+/// and `_complete()` is a guarded no-op for it.
+void _terminalizePulse(PulseBase pulse) {
+  final box = pulse._branches;
+  if (box == null) {
+    pulse._complete();
+    return;
+  }
+  box.value = box.value! - 1;
+  if (box.value! <= 0) {
+    pulse._complete();
+  }
+}
+
 class _Synapses<P extends Pulse, L extends Cell> extends SynapsesBase<P, L> {
   _Synapses({
     super.policy,
@@ -116,12 +141,30 @@ class AsyncSynapses<P extends Pulse, L extends Cell>
         branches.value = branches.value! + (eligible - 1);
       }
       final futures = <Future>[];
+      var delivered = 0;
 
       for (Cell c in downstreams) {
         if (!pulse._checker.contains(c)) {
           final receptor = c._nucleus.receptor;
           final f = receptor.async.call(pulse);
-          futures.add(f);
+          delivered++;
+          // Phase 8 hardening (review fix): a rejecting async receptor
+          // must not abort the fan-out via Future.wait, and must not
+          // strand the branch counter. Fail the pulse, perform this
+          // delivery's terminal decrement ourselves, and keep waiting
+          // for the other deliveries.
+          futures.add(
+            f.then(
+              (_) {
+                // Terminal accounting is performed by the receptor's
+                // completion bookkeeping for successful deliveries.
+              },
+              onError: (Object e, StackTrace st) {
+                pulse._fail(e, stackTrace: st);
+                _terminalizePulse(pulse);
+              },
+            ),
+          );
         }
       }
 
@@ -129,6 +172,20 @@ class AsyncSynapses<P extends Pulse, L extends Cell>
         pulse._complete();
       } else {
         await Future.wait(futures);
+      }
+
+      // Reconcile like the sync broadcast: the fan-out credit was
+      // granted for every eligible downstream up front, and a re-entrant
+      // receptor can mark a later downstream as already-visited (or
+      // unlink it) mid-loop.
+      if (delivered < eligible) {
+        final box = pulse._branches;
+        if (box == null) {
+          pulse._complete();
+        } else {
+          box.value = box.value! - (eligible - delivered);
+          if (box.value! <= 0) pulse._complete();
+        }
       }
     }
   }
@@ -148,11 +205,20 @@ class AsyncSynapses<P extends Pulse, L extends Cell>
   @override
   FutureOr<void> _debounced(PulseBase p) async {
     final timerBox = _timerBox;
-    if (timerBox == null) return;
+    if (timerBox == null) {
+      // Drop: without a timer box the pulse is never broadcast.
+      _terminalizePulse(p);
+      return;
+    }
 
     final buffer = _buffer;
     if (buffer != null) {
+      final replaced = buffer.firstOrNull;
       await buffer.async.clearAndAdd(p);
+      if (replaced is PulseBase && !identical(replaced, p)) {
+        // The replaced pulse will never fire its debounce timer.
+        _terminalizePulse(replaced);
+      }
     }
 
     timerBox.value?.cancel();
@@ -208,8 +274,16 @@ class AsyncSynapses<P extends Pulse, L extends Cell>
   @override
   Future<void> _throttled(PulseBase p) async {
     final timerBox = _timerBox;
-    if (timerBox == null) return;
-    if (timerBox.value != null) return;
+    if (timerBox == null) {
+      // Drop: without a timer box the pulse is never broadcast.
+      _terminalizePulse(p);
+      return;
+    }
+    if (timerBox.value != null) {
+      // Drop: the throttle window is still open.
+      _terminalizePulse(p);
+      return;
+    }
 
     await _broadcast(p);
     final window = _policy!.throttleTime;
@@ -237,7 +311,12 @@ class AsyncSynapses<P extends Pulse, L extends Cell>
       // We store the 'latest' pulse in the buffer for the audit window
       final buffer = _buffer;
       if (buffer != null) {
+        final replaced = buffer.firstOrNull;
         await buffer.async.clearAndAdd(p);
+        if (replaced is PulseBase && !identical(replaced, p)) {
+          // The replaced pulse will never be broadcast.
+          _terminalizePulse(replaced);
+        }
       }
 
       if (timerBox.value == null) {
@@ -267,7 +346,11 @@ class AsyncSynapses<P extends Pulse, L extends Cell>
   @override
   Future<void> _debounceLeading(PulseBase p) async {
     final timerBox = _timerBox;
-    if (timerBox == null || timerBox.value != null) return;
+    if (timerBox == null || timerBox.value != null) {
+      // Drop: the leading window is closed.
+      _terminalizePulse(p);
+      return;
+    }
 
     await _broadcast(p);
     final window = _policy!.throttleTime;
@@ -359,7 +442,12 @@ class AsyncSynapses<P extends Pulse, L extends Cell>
     if (_filter != null) {
       p = _filter!(pulse) as PulseBase?;
     }
-    if (p == null) return;
+    if (p == null) {
+      // The filter suppressed the pulse for this egress: this branch is
+      // terminal.
+      _terminalizePulse(pulse as PulseBase);
+      return;
+    }
 
     final strategy = _policy?.strategy ?? PropagationStrategy.immediate;
     switch (strategy) {
@@ -398,9 +486,14 @@ class AsyncSynapses<P extends Pulse, L extends Cell>
       case PropagationStrategy.persistent:
         final buffer = _buffer;
         if (buffer != null) {
+          final replaced = buffer.firstOrNull;
           buffer
             ..clear()
             ..add(p);
+          if (replaced is PulseBase && !identical(replaced, p)) {
+            // The previous persisted pulse is superseded.
+            _terminalizePulse(replaced);
+          }
         }
         await _broadcast(p);
         break;
@@ -473,6 +566,13 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
   int _broadcastDepth = 0;
   List<C>? _deferredAdds;
   List<C>? _deferredRemoves;
+
+  /// The pulse whose debounce timer is currently pending. The sync
+  /// `_debounced` strategy keeps the pending pulse in the timer's closure,
+  /// which made a superseded pulse unreachable — and its completion
+  /// counter stranded. Tracking it here lets a replacement terminalise
+  /// its predecessor (Phase 8 hardening).
+  PulseBase? _debouncedPending;
 
   /// Initializes a new [SynapsesBase] instance, acting as the **Network
   /// Controller** for signal distribution and graph topology management.
@@ -864,11 +964,23 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
 
   void _debounced(PulseBase p) {
     final timerBox = _timerBox;
-    if (timerBox == null) return;
+    if (timerBox == null) {
+      // Drop: without a timer box the pulse is never broadcast.
+      _terminalizePulse(p);
+      return;
+    }
 
+    final replaced = _debouncedPending;
+    _debouncedPending = p;
+    if (replaced != null && !identical(replaced, p)) {
+      // The replaced pulse's debounce timer is cancelled below; it will
+      // never be broadcast.
+      _terminalizePulse(replaced);
+    }
     timerBox.value?.cancel();
     final window = _policy!.debounceTime;
     if (window == Duration.zero) {
+      _debouncedPending = null;
       timerBox.value = null;
       _broadcast(p);
       return;
@@ -878,6 +990,9 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
         _broadcast(p);
       } catch (e, st) {
         p._fail(e, stackTrace: st);
+      }
+      if (identical(_debouncedPending, p)) {
+        _debouncedPending = null;
       }
       timerBox.value?.cancel();
       timerBox.value = null;
@@ -917,7 +1032,11 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
 
   void _throttled(PulseBase p) {
     final timerBox = _timerBox;
-    if (timerBox == null || timerBox.value != null) return;
+    if (timerBox == null || timerBox.value != null) {
+      // Drop: the throttle window is closed (or absent).
+      _terminalizePulse(p);
+      return;
+    }
 
     _broadcast(p);
     final window = _policy!.throttleTime;
@@ -941,12 +1060,21 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
 
   void _audit(PulseBase p) {
     final timerBox = _timerBox;
-    if (timerBox == null) return;
+    if (timerBox == null) {
+      // Drop: without a timer box the pulse is never broadcast.
+      _terminalizePulse(p);
+      return;
+    }
 
     final buffer = _buffer;
     if (buffer != null) {
+      final replaced = buffer.firstOrNull;
       buffer.clear();
       buffer.add(p);
+      if (replaced is PulseBase && !identical(replaced, p)) {
+        // The replaced pulse will never be broadcast.
+        _terminalizePulse(replaced);
+      }
     }
 
     if (timerBox.value != null) return;
@@ -974,7 +1102,11 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
 
   void _debounceLeading(PulseBase p) {
     final timerBox = _timerBox;
-    if (timerBox == null || timerBox.value != null) return;
+    if (timerBox == null || timerBox.value != null) {
+      // Drop: the leading window is closed.
+      _terminalizePulse(p);
+      return;
+    }
 
     _broadcast(p);
     final window = _policy!.throttleTime;
@@ -1014,9 +1146,14 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
       if (_policy?.strategy == PropagationStrategy.persistent) {
         final buffer = _buffer;
         if (buffer != null) {
+          final replaced = buffer.firstOrNull;
           buffer
             ..clear()
             ..add(pulse);
+          if (replaced is PulseBase && !identical(replaced, pulse)) {
+            // The previous persisted pulse is superseded.
+            _terminalizePulse(replaced);
+          }
         }
       }
       final box = pulse._branches;
@@ -1044,7 +1181,12 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
     if (_filter != null) {
       p = _filter!(p as P) as PulseBase?;
     }
-    if (p == null) return;
+    if (p == null) {
+      // The filter suppressed the pulse for this egress: this branch is
+      // terminal.
+      _terminalizePulse(pulse as PulseBase);
+      return;
+    }
 
     final strategy = _policy?.strategy ?? PropagationStrategy.immediate;
     switch (strategy) {

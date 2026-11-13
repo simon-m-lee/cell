@@ -18,6 +18,22 @@ part of '../../../cell.dart';
 /// during replay. Events whose values are not JSON-encodable fail loudly
 /// at the fingerprint boundary — such streams cannot be replayed.
 ///
+/// ### Ordering guarantee
+///
+/// The record is written with the *same* `JournalScope` the emission runs
+/// in, and the shipped `RecordingJournal.io` appends in invocation order
+/// for this operator's constant-time `run` closure (microtasks resolve
+/// FIFO), so event N's record precedes event N+1's on the ledger. A
+/// custom journal that reorders its writes must not be passed here; a
+/// per-event monotonic sequence tag is the Phase 5.1 hardening.
+///
+/// ### Error handling gap (documented, Phase 5.1)
+///
+/// `onError` currently only cancels the subscription when
+/// `cancelOnError` is set — the error itself is neither emitted as a
+/// pulse nor journalled, so replay omits it. Journaling stream errors as
+/// effect records is deferred to Phase 5.1 (error-pulse reconstruction).
+///
 /// The subscription is cancelled automatically when the cell is
 /// invalidated.
 Cell _fromStream<T>(
@@ -128,6 +144,20 @@ Cell _fromStream<T>(
 /// re-awaiting the future (which would re-trigger I/O); the completion is
 /// recorded in journal order. The live path emits the actual value
 /// synchronously, as before.
+///
+/// Phase 8 fix: the completion resolves the **ambient** journal
+/// (`JournalScope.effectiveJournal`), matching `fromStream` and
+/// `asyncMap` — an outer `ReplayEngine`-pushed `ReplayJournal` therefore
+/// wins over the construction-time journal even though the future's
+/// continuation may run in a different scope than the one that created
+/// the cell.
+///
+/// ### Error handling gap (documented, Phase 5.1)
+///
+/// `onError` emits a `type: 'error'` pulse through the cell (so the live
+/// graph reacts), but the failure is not journalled as an effect — replay
+/// cannot reconstruct the error pulse. Journaling future errors is
+/// deferred to Phase 5.1 (error-pulse reconstruction).
 Cell _fromFuture<T>(
   Future<T> future, {
   required EffectJournal journal,
@@ -150,15 +180,16 @@ Cell _fromFuture<T>(
 
   future.then((value) {
     if (!cell.isInvalidated) {
+      final effective = JournalScope.effectiveJournal(journal);
       unawaited(JournalScope.run(
-        journal,
-        () => journal.io(
+        effective,
+        () => effective.io(
           label: futureLabel,
           input: null,
           run: () async => value,
         ),
       ));
-      JournalScope.runSync(journal, () {
+      JournalScope.runSync(effective, () {
         cell._nucleus.receptor.call(
           Pulse<T>.governed(payload: value, source: cell),
         );
@@ -166,7 +197,8 @@ Cell _fromFuture<T>(
     }
   }, onError: (Object error, StackTrace stackTrace) {
     if (!cell.isInvalidated) {
-      JournalScope.runSync(journal, () {
+      final effective = JournalScope.effectiveJournal(journal);
+      JournalScope.runSync(effective, () {
         cell._nucleus.receptor.call(
           Pulse<Object>.governed(
             payload: error,
