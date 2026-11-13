@@ -312,15 +312,26 @@ abstract final class Cli {
     );
     try {
       await parentLedger.verify();
-      final parentHeadHash = await parentLedger.lastHash;
-      if (parentHeadHash == null) {
-        throw _UsageException('Cannot fork an empty ledger.');
+      if (atSeq > await parentLedger.lastSeq) {
+        throw _UsageException(
+          'Cannot fork at seq $atSeq: the ledger only has '
+          '${await parentLedger.lastSeq + 1} entries (seq 0..'
+          '${await parentLedger.lastSeq}).',
+        );
       }
+      // Review fix: the fork must bind to the parent's hash AT the fork
+      // point, not the head — ForkVerify compares parentHeadHash against
+      // hashAtSeq(divergedAt), and a head hash would reject every fork
+      // taken below the head.
+      final parentHeadHash = await parentLedger.hashAtSeq(atSeq);
 
-      // Compute the parent's snapshot hash (Phase 8 fork binding).
+      // Compute the parent's snapshot hash (Phase 8 fork binding). The
+      // CLI cannot rebuild the parent graph, so the snapshot is a
+      // placeholder fingerprint of the chain position; the binding that
+      // matters for verification is parentHeadHash (hashAtSeq above).
       final parentSnapshotHash = fingerprint({
         'graphId': placeholderParent.id,
-        'lastSeq': await parentLedger.lastSeq,
+        'lastSeq': atSeq,
         'head': parentHeadHash,
       });
 

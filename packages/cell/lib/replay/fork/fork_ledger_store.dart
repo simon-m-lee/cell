@@ -121,8 +121,12 @@ class ForkLedgerStore implements LedgerStore {
       id: 'fork:${record.forkId}',
       cell: cell,
       function: _forkRecordMarker,
+      // Phase-8.3 (review): the fork record itself is embedded as the
+      // first positional argument of the synthetic entry, so the FILE
+      // carries the record — not just the one-way genesis hash — and
+      // ForkVerify can compare the stored record against the handle's.
       arguments: (
-        positionalArguments: null,
+        positionalArguments: <Object?>[record.toJson()],
         namedArguments: null,
       ),
       timestamp: record.at,

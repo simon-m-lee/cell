@@ -621,13 +621,20 @@ class ValueCell<V> extends CellBase {
         _encodeForLedger(v);
       }
       final receptor = _nucleus.receptor;
-      final result = receptor.call(v == null ? Pulse<V>(null) : Pulse<V>(v));
+      final input = v == null ? Pulse<V>(null) : Pulse<V>(v);
+      final result = receptor.call(input);
       // Phase 4: the direct emit path bypasses `Cell.apply` (no receipt
       // exists yet), so the ledger hook synthesises one from the cell
       // and the emitted value.
       if (result is Pulse) {
         LedgerScope.recordPulse(
-          pulse: result,
+          // Phase-8.3 (review): record the INPUT pulse, not `result`.
+          // The ledger entry must store the pulse THIS cell received;
+          // `result` is the transform's output (for a state cell, the
+          // new value), and replaying that as the input double-applies
+          // the transform. `emittedValue` already pins the raw payload
+          // in the receipt for the same reason.
+          pulse: input,
           emitCell: this,
           emitFunction: _emit,
           emittedValue: v,

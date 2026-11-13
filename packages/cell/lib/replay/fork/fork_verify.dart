@@ -56,6 +56,56 @@ extension ForkVerify on ForkHandle {
             '$parentHead',
       );
     }
+
+    // 4. Verify the embedded fork record (Phase-8.3 review fix): the
+    //    fork FILE's synthetic seq-0 entry carries the record as its
+    //    first positional argument. The record's own genesis hash must
+    //    match the chain's, and every field must match the handle's —
+    //    a tampered or stale fork file fails here.
+    try {
+      final synthetic = await ledger.entriesSince(0).first;
+      final positional = synthetic.receipt.arguments.positionalArguments;
+      final embedded = positional?.isNotEmpty == true
+          ? positional!.first
+          : null;
+      if (embedded is! Map) {
+        throw ForkIntegrityException(
+          forkId: record.forkId,
+          reason: 'fork ledger seq 0 does not carry the embedded '
+              'ForkRecord (missing or malformed first positional '
+              'argument)',
+        );
+      }
+      final embeddedRecord = ForkRecord.fromJson(
+        Map<String, Object?>.from(embedded),
+      );
+      if (embeddedRecord.genesisHash != record.genesisHash) {
+        throw ForkIntegrityException(
+          forkId: record.forkId,
+          reason: 'embedded fork record genesis mismatch: the stored '
+              'record hashes to ${embeddedRecord.genesisHash} but the '
+              'fork chain genesis is ${record.genesisHash}',
+        );
+      }
+      if (embeddedRecord.forkId != record.forkId ||
+          embeddedRecord.divergedAt != record.divergedAt ||
+          embeddedRecord.parentHeadHash != record.parentHeadHash ||
+          embeddedRecord.originalSnapshotHash !=
+              record.originalSnapshotHash) {
+        throw ForkIntegrityException(
+          forkId: record.forkId,
+          reason: 'embedded fork record mismatch: the stored seq-0 '
+              'record differs from the fork handle\'s record',
+        );
+      }
+    } on ForkIntegrityException {
+      rethrow;
+    } catch (e, st) {
+      throw ForkIntegrityException(
+        forkId: record.forkId,
+        reason: 'embedded fork record verification failed: $e\n$st',
+      );
+    }
   }
 }
 

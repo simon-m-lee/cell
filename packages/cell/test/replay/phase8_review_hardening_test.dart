@@ -47,6 +47,7 @@ void main() {
         return value * 2;
       },
       journal: RecordingJournal(),
+      concurrency: 1,
     );
     final recorder = <int>[];
     final observer = Cell.observe(
@@ -93,13 +94,20 @@ void main() {
       effect: (Pulse p) => recorder.add(p.payload as int),
     );
 
-    await graph.run(() async {
-      await ingress.emit(1);
-    });
+    await expectLater(
+      graph.run(() async {
+        await ingress.emit(1);
+      }),
+      throwsA(isA<StateError>().having(
+        (e) => '$e',
+        'message',
+        contains('only serial execution is attributable'),
+      )),
+    );
     await settle();
-    // The guard throws inside the bridge receptor, which routes the
-    // failure to the pulse; the observable contract is that no mapping
-    // (and therefore no emission) happens for the refused configuration.
+    // The scope rethrows the refusal at the graph.run boundary (inside
+    // the receptor pipeline it would be swallowed as a pulse failure);
+    // the observable contract is that no mapping happened at all.
     expect(recorder, isEmpty,
         reason: 'concurrency 2 must be refused under a ledger');
     observer.stop();
@@ -130,9 +138,16 @@ void main() {
       effect: (Pulse p) => recorder.add(p.payload as int),
     );
 
-    await graph.run(() async {
-      await ingress.emit(1);
-    });
+    await expectLater(
+      graph.run(() async {
+        await ingress.emit(1);
+      }),
+      throwsA(isA<StateError>().having(
+        (e) => '$e',
+        'message',
+        contains('only serial execution is attributable'),
+      )),
+    );
     await settle();
     expect(recorder, isEmpty,
         reason: 'latestOnly must be refused under a ledger');
@@ -438,6 +453,7 @@ void main() {
         },
       ),
       journal: RecordingJournal(),
+      concurrency: 1,
     );
     final graph = (CellGraph.builder(graphId: 'fork-effects')
           ..register('src', ingress.cell)
@@ -650,6 +666,282 @@ void main() {
       ),
     );
     replay.assertExhausted();
+  });
+
+  // ── Third review (closing criteria) hardening ─────────────────────
+
+  test('the materialised pulse body is in the entry and replays exactly',
+      () async {
+    // The apply path records args [5] but the receptor saw the pulse
+    // produced by `(x) => Pulse(x + 1)` — payload 6. The stored body
+    // must carry 6; the args-first heuristic would replay 5 and the
+    // doubling transform would diverge.
+    final counter = Cell.state<int>(
+      initial: 0,
+      evolve: (host, input) => Pulse((input.payload as int) * 2),
+    );
+    final graph = (CellGraph.builder(graphId: 'body-rt')
+          ..registerState('c', counter))
+        .build();
+    final ledger = await graph.bindLedger(
+      store: InMemoryLedgerStore(
+        genesisHash: Ledger.genesisHashOf(graph.id),
+      ),
+    );
+    await graph.run(() async {
+      await counter.cell.apply<Pulse<int>>((
+        function: (int payload) => Pulse<int>(payload + 1),
+        arguments: (positionalArguments: [5], namedArguments: null),
+        compensation: null,
+      ));
+    });
+    expect(counter.cell.value, 12);
+
+    final entry = await ledger.entriesSince(0).first;
+    expect(entry.pulseJson, isNotNull);
+    expect(entry.pulseJson!['payload'], 6,
+        reason: 'the body stores the pulse the receptor saw');
+    expect(fingerprint(entry.pulseJson!), entry.pulseDigest,
+        reason: 'the body must hash to pulseDigest');
+
+    CellGraphRegistry.forceReset();
+    final fresh = Cell.state<int>(
+      initial: 0,
+      evolve: (host, input) => Pulse((input.payload as int) * 2),
+    );
+    final freshGraph = (CellGraph.builder(graphId: 'body-rt')
+          ..registerState('c', fresh))
+        .build();
+    final result =
+        await ReplayEngine.replay(ledger: ledger, target: freshGraph);
+    expect(result.success, isTrue, reason: result.divergences.toString());
+    expect(fresh.cell.value, 12,
+        reason: 'replay reconstructs payload 6, not the argument 5');
+    await ledger.close();
+  });
+
+  test('a tampered pulse body fails verify with a pulse-digest reason',
+      () async {
+    final dir = await Directory.systemTemp.createTemp('body_tamper');
+    final path = '${dir.path}/ledger.jsonl';
+    CellGraphRegistry.forceReset();
+    final counter = Cell.state<int>(initial: 0);
+    final graph = (CellGraph.builder(graphId: 'body-t')
+          ..registerState('c', counter))
+        .build();
+    final ledger = await graph.bindLedger(
+      store: await FileLedgerStore.open(
+        path,
+        genesisHash: Ledger.genesisHashOf(graph.id),
+      ),
+    );
+    await graph.run(() async {
+      counter.update(1);
+    });
+    await ledger.close();
+
+    final lines = await File(path).readAsLines();
+    final tampered = <String>[];
+    for (final line in lines) {
+      final entry = jsonDecode(line) as Map<String, dynamic>;
+      if (entry['seq'] == 0) {
+        final body = entry['pulseJson'] as Map<String, dynamic>;
+        body['payload'] = 999; // digest no longer matches
+      }
+      tampered.add(jsonEncode(entry));
+    }
+    await File(path).writeAsString('${tampered.join('\n')}\n');
+
+    final reopened = await Ledger.open(
+      graph: graph,
+      store: await FileLedgerStore.open(
+        path,
+        genesisHash: Ledger.genesisHashOf(graph.id),
+      ),
+      genesisHash: Ledger.genesisHashOf(graph.id),
+    );
+    await expectLater(
+      reopened.verify(),
+      throwsA(isA<LedgerIntegrityException>().having(
+        (e) => '$e',
+        'message',
+        contains('pulse body digest mismatch'),
+      )),
+    );
+    await reopened.close();
+    await dir.delete(recursive: true);
+  });
+
+  test('fork verifies the embedded ForkRecord in the fork file', () async {
+    final counter = Cell.state<int>(initial: 0);
+    final graph = (CellGraph.builder(graphId: 'embedded-fork')
+          ..registerState('c', counter))
+        .build();
+    final ledger = await graph.bindLedger(
+      store: InMemoryLedgerStore(
+        genesisHash: Ledger.genesisHashOf(graph.id),
+      ),
+    );
+    await graph.run(() async {
+      counter.update(1);
+      counter.update(2);
+      counter.update(3);
+    });
+
+    final fork = await graph.fork(
+      parent: ledger,
+      atSeq: 1,
+      buildFreshGraph: () {
+        CellGraphRegistry.forceReset();
+        final c = Cell.state<int>(initial: 0);
+        return (CellGraph.builder(graphId: 'embedded-fork')
+              ..registerState('c', c))
+            .build();
+      },
+      buildStore: (genesis) => InMemoryLedgerStore(genesisHash: genesis),
+    );
+    // The fork file's synthetic entry carries the record; the handle's
+    // record must match it (ForkVerify would reject a stale one).
+    final synthetic = await fork.ledger.entriesSince(0).first;
+    final embedded = synthetic.receipt.arguments.positionalArguments!.first;
+    expect(
+      ForkRecord.fromJson(Map<String, Object?>.from(embedded as Map))
+          .genesisHash,
+      fork.record.genesisHash,
+    );
+    // The originalSnapshotHash is the BASELINE (parent state at atSeq),
+    // not the live graph's state.
+    final baselineHash = fingerprint(
+      fork.graph.snapshot(lastLedgerSeq: 1).toJson(),
+    );
+    expect(fork.record.originalSnapshotHash, baselineHash);
+    expect(
+      fork.record.originalSnapshotHash,
+      isNot(fingerprint(graph.snapshot(lastLedgerSeq: 2).toJson())),
+      reason: 'the hash must describe the fork point, not the live head',
+    );
+    await fork.verify(); // must pass
+    await ledger.close();
+  });
+
+  test('a tampered embedded ForkRecord fails fork verify', () async {
+    final dir = await Directory.systemTemp.createTemp('fork_tamper');
+    final path = '${dir.path}/fork.jsonl';
+    final record = ForkRecord(
+      forkId: 'fork-1',
+      originalLedgerId: 'parent-1',
+      divergedAt: 3,
+      originalSnapshotHash: fingerprint('snap'),
+      parentHeadHash: fingerprint('head'),
+      at: DateTime.utc(2026, 11, 12),
+    );
+    final inner = await FileLedgerStore.open(
+      path,
+      genesisHash: record.genesisHash,
+    );
+    final wrapped = ForkLedgerStore(record: record, inner: inner);
+    await wrapped.materialize();
+
+    // Rewrite the embedded record with a different divergedAt: the
+    // genesis no longer matches the chain.
+    final lines = await File(path).readAsLines();
+    final entry = jsonDecode(lines.single) as Map<String, dynamic>;
+    final args = (entry['receipt'] as Map)['arguments'] as Map;
+    final positional =
+        (args['positional'] as List).cast<Map<String, dynamic>>();
+    positional[0]['divergedAt'] = 99;
+    await File(path).writeAsString('${jsonEncode(entry)}\n');
+
+    final inner2 = await FileLedgerStore.open(
+      path,
+      genesisHash: record.genesisHash,
+    );
+    final wrapped2 = ForkLedgerStore(record: record, inner: inner2);
+    final placeholder = (CellGraph.builder(graphId: 'p', strict: false))
+        .build();
+    final forkLedger = await Ledger.open(
+      graph: placeholder,
+      store: wrapped2,
+      genesisHash: record.genesisHash,
+    );
+    await expectLater(
+      forkLedger.verify(),
+      throwsA(isA<LedgerIntegrityException>()),
+    );
+    await forkLedger.close();
+    await wrapped.close();
+    await dir.delete(recursive: true);
+  });
+
+  test('asyncMap default concurrency is refused loudly under a ledger',
+      () async {
+    final ingress = Cell.ingress<int>();
+    // Default concurrency: 0 — the reviewer's case.
+    final mapped = Cell.asyncMap<int, int>(
+      ingress.cell,
+      (value, {required EffectJournal journal}) async => value,
+      journal: RecordingJournal(),
+    );
+    final graph = (CellGraph.builder(graphId: 'guard-d')
+          ..register('src', ingress.cell)
+          ..register('mapped', mapped))
+        .build();
+    final ledger = await graph.bindLedger(
+      store: InMemoryLedgerStore(
+        genesisHash: Ledger.genesisHashOf(graph.id),
+      ),
+    );
+    await expectLater(
+      graph.run(() async {
+        await ingress.emit(1);
+      }),
+      throwsA(isA<StateError>().having(
+        (e) => '$e',
+        'message',
+        contains('concurrency: 0 (0 = unlimited)'),
+      )),
+    );
+    await ledger.close();
+  });
+
+  test('io digest mismatch is classified as tampering, not a codec error',
+      () async {
+    final journal = ReplayJournal([
+      IoEffect(
+        ordinal: 0,
+        inputDigest: fingerprint({'q': 'a'}),
+        outputDigest: fingerprint('original'),
+        at: DateTime.utc(2026, 11, 12),
+        label: 'api.fetch',
+        rawOutput: 'mutated',
+        hasRawOutput: true,
+      ),
+    ]);
+    await expectLater(
+      journal.io(
+        label: 'api.fetch',
+        input: {'q': 'a'},
+        run: () async => 'never',
+      ),
+      throwsA(isA<ReplayDivergenceException>().having(
+        (e) => '$e',
+        'message',
+        allOf(
+          contains('output digest mismatch'),
+          isNot(contains('encodable')),
+        ),
+      )),
+    );
+  });
+
+  test('the codec round-trip preserves ungoverned pulses', () {
+    final plain = Pulse(5);
+    final decoded = PulseCodec.fromJson(
+      PulseCodec.toJson(PulseCodec.materialise(plain)),
+    );
+    expect(decoded.isGoverned, isFalse,
+        reason: 'a system context must decode back to an ungoverned pulse');
+    expect(decoded.payload, 5);
   });
 }
 

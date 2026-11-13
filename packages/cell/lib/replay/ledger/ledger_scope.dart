@@ -64,6 +64,16 @@ class LedgerScope {
       return await zoned.run(body);
     } finally {
       await scope.drain();
+      // Phase-8.3 (review): surface a component's refusal after the
+      // body, outside the receptor pipeline where it cannot be
+      // swallowed. The first poison wins.
+      final poison = scope.poisonReason;
+      if (poison != null) {
+        throw StateError(
+          'LedgerScope.run aborted: a component refused to run under '
+          'this ledger: $poison',
+        );
+      }
     }
   }
 
@@ -213,6 +223,13 @@ class LedgerScopeImpl {
   /// immediate append sweeps only records written after this watermark.
   int _journalWatermark = 0;
 
+  /// Set when a component refuses to run under this ledger scope (e.g.
+  /// asyncMap in a non-serial mode). The refusal must be LOUD at the
+  /// `graph.run` boundary, because errors thrown inside the receptor
+  /// pipeline are swallowed by the framework's error contract
+  /// (`pulse._fail`); [LedgerScope.run] rethrows this after the body.
+  Object? _poison;
+
   LedgerScopeImpl({required this.ledger}) : parent = null;
 
   LedgerScopeImpl._child(this.ledger, this.parent);
@@ -221,6 +238,15 @@ class LedgerScopeImpl {
     if (identical(newParent, parent)) return this;
     return LedgerScopeImpl._child(ledger, newParent);
   }
+
+  /// Records a fatal, scope-wide refusal. The first reason wins.
+  void poison(Object reason) {
+    _poison ??= reason;
+  }
+
+  /// The recorded poison, if any. [LedgerScope.run] throws it after
+  /// draining so callers cannot miss a component's refusal.
+  Object? get poisonReason => _poison;
 
   void captureDelta(StateDelta delta) {
     _pending.add(delta);

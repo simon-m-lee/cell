@@ -67,6 +67,27 @@ Cell _asyncMap<S, T>(
     );
   }
 
+  // Phase 8.3 hardening (review): the ONLY ledger-attributable mode is
+  // serial execution. The default `concurrency: 0` means unlimited
+  // in-flight — exactly the overlapping case the positional
+  // recordsSince window cannot attribute. Refuse loudly wherever the
+  // ledger path is visible: here (construction already inside a
+  // ledgered run) and in `enqueue` (construction predates the ledger;
+  // the scope is poisoned and `LedgerScope.run` rethrows at the
+  // `graph.run` boundary, since errors inside the receptor pipeline are
+  // swallowed by the framework's error contract).
+  if ((concurrency != 1 || latestOnly) && LedgerScope.current != null) {
+    throw StateError(
+      'asyncMap: under a ledgered graph, only serial execution is '
+      'attributable (concurrency: 1, latestOnly: false). Got '
+      'concurrency: $concurrency (0 = unlimited), latestOnly: '
+      '$latestOnly. Concurrent mapper invocations share one journal '
+      'and their effects would cross-contaminate ledger entries; '
+      'pulse-tagged effect windows are the deferred Phase 5.1 fix. '
+      'Use concurrency: 1, or record without a ledger.',
+    );
+  }
+
   final state = _AsyncMapState<S, T>(
     mapper: mapper,
     journal: journal,
@@ -147,20 +168,22 @@ class _AsyncMapState<S, T> {
       return; // ignore new values until idle
     }
 
-    // Phase 8 hardening: overlapping mapper invocations share one
-    // journal, so effect records cannot be attributed per invocation
-    // (see the factory doc). Refuse the configuration loudly while a
-    // ledger is recording instead of corrupting entries.
-    if ((concurrency > 1 || latestOnly) && LedgerScope.current != null) {
-      throw StateError(
-        'asyncMap: concurrent mapper invocations '
-        '(concurrency: $concurrency, latestOnly: $latestOnly) cannot be '
-        'attributed to ledger entries in Phase 8 — their effect records '
-        'share one journal and would cross-contaminate entries. '
-        'Pulse-tagged effect windows are the deferred Phase 5.1 fix; use '
-        'concurrency: 1 (and latestOnly: false) under a ledgered graph, '
-        'or record without a ledger.',
-      );
+    // Phase 8.3 hardening (review): same refusal as the factory, for
+    // operators constructed before the ledger was bound. Throwing here
+    // would be swallowed by the receptor pipeline (`pulse._fail`); the
+    // scope is poisoned instead and `LedgerScope.run` rethrows at the
+    // `graph.run` boundary. The mapper is not started.
+    if ((concurrency != 1 || latestOnly) && LedgerScope.current != null) {
+      LedgerScope.current!.poison(StateError(
+        'asyncMap: under a ledgered graph, only serial execution is '
+        'attributable (concurrency: 1, latestOnly: false). Got '
+        'concurrency: $concurrency (0 = unlimited), latestOnly: '
+        '$latestOnly. Concurrent mapper invocations share one journal '
+        'and their effects would cross-contaminate ledger entries; '
+        'pulse-tagged effect windows are the deferred Phase 5.1 fix. '
+        'Use concurrency: 1, or record without a ledger.',
+      ));
+      return; // refuse: do not start the mapper under this ledger
     }
 
     if (latestOnly) {

@@ -104,8 +104,11 @@ class ReplayJournal implements EffectJournal {
     }
     // Validate the stored digest against the stored output (review fix:
     // outputDigest was never checked, and a mutated stored object would
-    // otherwise rewrite history silently). A non-encodable rawOutput is
-    // itself a divergence, not an ArgumentError.
+    // otherwise rewrite history silently). Catch ONLY the codec error:
+    // `_fail` throws ReplayDivergenceException, which must propagate as
+    // the digest-mismatch divergence — not be swallowed by this catch
+    // and re-wrapped as a bogus "not encodable" failure (the first
+    // review regression).
     final Object? served;
     try {
       served = record.rawOutput;
@@ -118,7 +121,7 @@ class ReplayJournal implements EffectJournal {
           ordinal: record.ordinal,
         );
       }
-    } catch (e, st) {
+    } on ArgumentError catch (e, st) {
       _fail(
         'I/O output for "$label" cannot be validated: the stored '
         'rawOutput is not encodable ($e)\n$st',

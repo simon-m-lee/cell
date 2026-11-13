@@ -42,16 +42,19 @@ extension ReplayEngineFork on ReplayEngine {
   /// This is what makes "fork at 100" mean "the fork's baseline is the
   /// parent's state at 100; the fork replays 101 onward".
   ///
-  /// ### Non-obvious: the fork's effects are *newly recorded*
+  /// ### Non-obvious: the fork *serves* the parent's effects
   ///
-  /// The parent's effects are in the parent ledger; the fork's effects
-  /// are in the fork ledger. When a mutation replaces a pulse, the new
-  /// pulse's effects are recorded during the fork's replay (which uses
-  /// a fresh `RecordingJournal`). When a mutation drops an entry, no
-  /// effects are recorded. When a mutation passes a pulse through
-  /// unchanged, the fork still re-records its effects — because the
-  /// fork's ledger is independent and must be self-verifiable without
-  /// the parent.
+  /// The parent's effects are in the parent ledger; the fork's entries
+  /// carry them forward into the fork ledger. Each replayed entry is
+  /// dispatched under a `ReplayJournal` built from the PARENT entry's
+  /// records — the fork never re-runs effectful `io` against the real
+  /// world, and the fork's ledger stores the same effect list the
+  /// parent recorded. Consequence: a mutation that replaces a pulse
+  /// whose I/O *differs* from the parent's will diverge instead of
+  /// becoming the fork's history. Phase 6 what-if is defined over
+  /// **pulses**, not effects; re-recording mutated effects (a fresh
+  /// RecordingJournal + live I/O) is the deferred Phase 6.1 item. When
+  /// a mutation drops an entry, nothing is appended.
   static Future<ReplayResult> replayFork({
     required ForkHandle fork,
     required Mutation mutation,
@@ -75,6 +78,7 @@ extension ReplayEngineFork on ReplayEngine {
     final divergences = <DivergenceReport>[];
     int replayed = 0;
     int? firstDivergedAt;
+    final parentsByDigest = <String, Pulse<dynamic>>{};
 
     await for (final entry in parent.entriesSince(startSeq)) {
       if (options.maxEntries != null && replayed >= options.maxEntries!) {
@@ -103,8 +107,11 @@ extension ReplayEngineFork on ReplayEngine {
         continue;
       }
 
-      final originalPulse =
-          PulseReconstructor.reconstruct(entry: entry, cell: registered.cell);
+      final originalPulse = PulseReconstructor.reconstruct(
+        entry: entry,
+        cell: registered.cell,
+        parentsByDigest: parentsByDigest,
+      );
       if (originalPulse == null) {
         final d = DivergenceReport(
           seq: entry.seq,

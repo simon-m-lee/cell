@@ -44,33 +44,54 @@ abstract final class PulseReconstructor {
   /// entry cannot be reconstructed.
   ///
   /// [cell] is the resolved target cell; it is used to populate the
-  /// pulse's `source` field, which matters for `TestPulseRule`
-  /// validation.
+  /// pulse's `source` field on the heuristic fallback path, which
+  /// matters for `TestPulseRule` validation.
   ///
-  /// ### Non-obvious: this is a *heuristic*, not an inverse
+  /// ### Phase-8.3: the pulse body is the primary path
   ///
-  /// Only the pulse's digest is stored (`pulseDigest`); the materialised
-  /// pulse JSON is not (a digest cannot be inverted, as the engine's own
-  /// docs admit). The reconstruction is:
+  /// Entries appended by `Ledger.appendInternal` now store the
+  /// materialised pulse JSON (`entry.pulseJson`), and `Ledger.verify`
+  /// checks it against `pulseDigest`. Reconstruction decodes that body
+  /// with `PulseCodec.fromJson` — payload, type, context, priority,
+  /// parent chain, and trace all round-trip. Parent pulses resolve by
+  /// digest through [parentsByDigest], which the engine populates as it
+  /// replays earlier entries (the ledger API the codec's docs always
+  /// anticipated).
   ///
-  /// 1. the first positional receipt argument as the payload — correct
-  ///    for the emit/ingress path (synthetic receipts store the emitted
-  ///    value), but the *apply* path stores the command's argument, not
-  ///    the pulse the receptor saw (e.g. `apply((x) => Pulse(x + 1),
-  ///    [5])` records args `[5]` but a payload of 6);
-  /// 2. failing that, the entry's own delta `after`.
-  ///
-  /// Context, priority, parent, trace, named arguments, and positional
-  /// arguments beyond the first are dropped. For state cells the
-  /// resulting mismatch is usually caught by the delta checks (the
-  /// transform re-derives the recorded `after`); for non-state cells it
-  /// can silently replay a different pulse. Persisting the materialised
-  /// pulse body and validating it against `pulseDigest` is the deferred
-  /// Phase 5.1 item.
+  /// Pre-8.3 entries (no body) fall back to the heuristic below: the
+  /// first positional receipt argument as the payload (exact for the
+  /// emit/ingress path; the *apply* path stores the command's argument,
+  /// not the pulse the receptor saw), then the entry's own delta
+  /// `after`. Context, priority, parent, trace, named arguments, and
+  /// positional arguments beyond the first are dropped on that path.
   static Pulse<dynamic>? reconstruct({
     required LedgerEntry entry,
     required Cell cell,
+    Map<String, Pulse<dynamic>>? parentsByDigest,
   }) {
+    final storedBody = entry.pulseJson;
+    if (storedBody != null) {
+      final parentDigest = storedBody['parentDigest'] as String?;
+      Pulse<dynamic>? parent;
+      if (parentDigest != null) {
+        parent = parentsByDigest?[parentDigest];
+        if (parent == null) {
+          // The chain prefix this pulse evolved from was not replayed
+          // (partial replay); the body cannot be decoded alone.
+          return null;
+        }
+      }
+      try {
+        final decoded = PulseCodec.fromJson(storedBody, parent: parent);
+        parentsByDigest?[fingerprint(storedBody)] = decoded;
+        return decoded;
+      } catch (_) {
+        // Malformed body: verify() already validated the digest; a
+        // decode failure is a format error and reads as unreconstructable.
+        return null;
+      }
+    }
+
     final args = entry.receipt.arguments.positionalArguments;
     if (args != null && args.isNotEmpty) {
       return Pulse<dynamic>(

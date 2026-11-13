@@ -57,6 +57,16 @@ class LedgerEntry {
   /// Wall-clock time the entry was committed to the ledger.
   final DateTime at;
 
+  /// The materialised pulse JSON (`PulseCodec.toJson` of the
+  /// materialised input pulse), when the entry was produced by a
+  /// Phase-8.3+ append. This is the pulse *body* — the reviewer's
+  /// closing criterion: `fingerprint(pulseJson)` equals [pulseDigest],
+  /// and replay reconstructs the exact pulse (payload, type, context,
+  /// priority, parent chain, trace) from it instead of the
+  /// args-first/delta-after heuristic. Pre-8.3 entries have no body and
+  /// fall back to the heuristic.
+  final Map<String, Object?>? pulseJson;
+
   /// The original receipt JSON, carried by reloaded entries so that
   /// `receiptDigest` and `toJson` stay byte-identical to the stored
   /// form (a live `Function` cannot be serialised). Append-created
@@ -73,6 +83,7 @@ class LedgerEntry {
     required this.effects,
     required this.deltas,
     required this.at,
+    this.pulseJson,
     Map<String, Object?>? receiptJson,
   }) : _storedReceiptJson = receiptJson;
 
@@ -85,6 +96,7 @@ class LedgerEntry {
     required this.effects,
     required this.deltas,
     required this.at,
+    this.pulseJson,
     required Map<String, Object?> storedReceiptJson,
   }) : _storedReceiptJson = storedReceiptJson;
 
@@ -192,6 +204,7 @@ class LedgerEntry {
         'prevHash': prevHash,
         'hash': hash,
         'pulseDigest': pulseDigest,
+        if (pulseJson != null) 'pulseJson': pulseJson,
         'receipt': _storedReceiptJson ?? _receiptJson(receipt),
         'effects': effects.map((e) => e.toJson()).toList(growable: false),
         'deltas': deltas.map((d) => d.toJson()).toList(growable: false),
@@ -262,6 +275,7 @@ class LedgerEntry {
       prevHash: json['prevHash'] as String,
       hash: json['hash'] as String,
       pulseDigest: json['pulseDigest'] as String,
+      pulseJson: (json['pulseJson'] as Map?)?.cast<String, Object?>(),
       receipt: receipt,
       effects: effects,
       deltas: deltas,

@@ -24,6 +24,7 @@ void main() {
         return '$a|$b';
       },
       journal: journal,
+      concurrency: 1,
     );
     final graph = (CellGraph.builder()
           ..register('src', src.cell)
@@ -54,6 +55,7 @@ void main() {
         );
       },
       journal: journal2,
+      concurrency: 1,
     );
     final graph2 = (CellGraph.builder()
           ..register('src', src2.cell)

@@ -117,6 +117,22 @@ class PulseCodec {
     final context = PulseContextCodec.fromJson(
       Map<String, Object?>.from(ctxJson),
     );
+    // Fidelity fix (review): the runtime's default/system context is
+    // stored as `null` inside `_Pulse` (the getter surfaces
+    // `PulseContext.system`), and `isGoverned` is decided from the
+    // STORED value. Decoding always produced a materialised PulseContext,
+    // so a recorded ungoverned pulse came back governed — the value-cell
+    // pipeline then took the governed `evolve` path and failed typed
+    // `root` casts downstream. Encode the decoded context back and
+    // compare with the system context's encoding (the codec guarantees
+    // encode(decode(x)) == encode(x)): a system context round-trips to
+    // `null` storage and the pulse stays ungoverned.
+    final effectiveContext = canonicalJsonEncode(
+          PulseContextCodec.toJson(context),
+        ) ==
+        canonicalJsonEncode(PulseContextCodec.toJson(PulseContext.system))
+        ? null
+        : context;
 
     final parentDigest = json['parentDigest'];
     PulseBase<dynamic>? parentBase;
@@ -159,7 +175,7 @@ class PulseCodec {
       priority: priority,
       timestamp: timestamp,
       source: source,
-      context: context,
+      context: effectiveContext,
       step: localSteps.isEmpty ? null : localSteps.single,
       parent: parentBase,
     );

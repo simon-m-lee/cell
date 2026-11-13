@@ -12,6 +12,7 @@ void main() {
       (v, {required EffectJournal journal}) =>
           journal.io(label: 'fetch($v)', input: v, run: () async => 'r$v'),
       journal: journal,
+      concurrency: 1,
     );
     final graph = (CellGraph.builder()
           ..register('src', src.cell)
@@ -44,6 +45,7 @@ void main() {
       (v, {required EffectJournal journal}) =>
           journal.io(label: 'fetch($v)', input: v, run: () async => 'r$v'),
       journal: journal2,
+      concurrency: 1,
     );
     final graph2 = (CellGraph.builder()
           ..register('src', src2.cell)

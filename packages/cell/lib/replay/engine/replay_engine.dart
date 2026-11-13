@@ -98,6 +98,9 @@ class ReplayEngine {
     int replayed = 0;
     int? firstDivergedAt;
     final checkBaseline = fromSeq == 0;
+    // Pulse bodies resolve their parent chains by digest; the engine
+    // registers each reconstructed pulse as it replays earlier entries.
+    final parentsByDigest = <String, Pulse<dynamic>>{};
 
     await for (final entry in ledger.entriesSince(fromSeq)) {
       if (options.maxEntries != null && replayed >= options.maxEntries!) {
@@ -109,6 +112,7 @@ class ReplayEngine {
         target: target,
         options: options,
         checkBaseline: checkBaseline,
+        parentsByDigest: parentsByDigest,
       );
 
       replayed++;
@@ -144,6 +148,7 @@ class ReplayEngine {
     required CellGraph target,
     required ReplayOptions options,
     required bool checkBaseline,
+    required Map<String, Pulse<dynamic>> parentsByDigest,
   }) async {
     // 1. Verify the receipt's back-filled fields (if requested).
     if (options.verifyReceipts) {
@@ -194,7 +199,11 @@ class ReplayEngine {
 
     // 3. Reconstruct the input pulse. If it cannot be reconstructed,
     //    the entry is hand-crafted; treat as divergence.
-    final pulse = PulseReconstructor.reconstruct(entry: entry, cell: cell);
+    final pulse = PulseReconstructor.reconstruct(
+      entry: entry,
+      cell: cell,
+      parentsByDigest: parentsByDigest,
+    );
     if (pulse == null) {
       return DivergenceReport(
         seq: entry.seq,

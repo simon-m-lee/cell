@@ -129,6 +129,16 @@ class Ledger {
               'got ${entry.hash}',
         );
       }
+      // Phase-8.3 (review): when the pulse body is stored, its digest
+      // must match pulseDigest — a tampered pulse body fails here.
+      if (entry.pulseJson != null &&
+          fingerprint(entry.pulseJson!) != entry.pulseDigest) {
+        throw LedgerIntegrityException(
+          seq: entry.seq,
+          reason: 'pulse body digest mismatch: the stored pulseJson does '
+              'not hash to pulseDigest ${entry.pulseDigest}',
+        );
+      }
       expectedPrev = entry.hash;
       expectedSeq++;
     }
@@ -160,9 +170,13 @@ class Ledger {
     final at = DateTime.now();
     // The pulse flowing through apply/emit is often a _FastPulse or has
     // _StepPulse ancestors; the digest is over the canonical materialised
-    // form.
-    final pulseDigest =
-        fingerprint(PulseCodec.toJson(PulseCodec.materialise(pulse)));
+    // form. Phase-8.3 (review): the materialised JSON is now STORED as
+    // the entry's pulse body, so replay can reconstruct the exact pulse
+    // and verify() can check the body against the digest. Both the body
+    // and the digest come from this ONE materialisation — re-materialising
+    // to "double check" would not be stable (timestamps regenerate).
+    final pulseJson = PulseCodec.toJson(PulseCodec.materialise(pulse));
+    final pulseDigest = fingerprint(pulseJson);
     final effectsDigest = fingerprint(
       effects.map((e) => e.toJson()).toList(growable: false),
     );
@@ -206,6 +220,7 @@ class Ledger {
       prevHash: prevHash,
       hash: hash,
       pulseDigest: pulseDigest,
+      pulseJson: pulseJson,
       receipt: filledReceipt,
       effects: List.unmodifiable(effects),
       deltas: List.unmodifiable(deltas),

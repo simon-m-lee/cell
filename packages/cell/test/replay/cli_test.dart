@@ -129,6 +129,38 @@ void main() {
     expect(firstEntry['seq'], 0);
     expect((firstEntry['receipt'] as Map)['id'], startsWith('fork:'));
 
+    // Phase-8.3 (review): the fork FILE carries the record itself — the
+    // synthetic seq-0 entry's first positional argument is
+    // ForkRecord.toJson — and parentHeadHash must be the parent's hash
+    // AT --at (ForkVerify compares against hashAtSeq(divergedAt)).
+    final args =
+        ((firstEntry['receipt'] as Map)['arguments'] as Map)['positional'];
+    expect(args, isA<List>());
+    final embedded = (args as List).first as Map<String, dynamic>;
+    expect(embedded['divergedAt'], 1);
+    expect(embedded['forkId'], json['forkId']);
+    final parentStore = await FileLedgerStore.open(
+      ledgerPath,
+      genesisHash: (jsonDecode((await File(ledgerPath)
+                  .openRead()
+                  .transform(utf8.decoder)
+                  .transform(const LineSplitter())
+                  .first)) as Map<String, dynamic>)['prevHash'] as String,
+    );
+    final parentPlaceholder = (CellGraph.builder(
+      graphId: 'cli-placeholder-parent',
+      strict: false,
+    )).build();
+    final parentLedger = await Ledger.open(
+      graph: parentPlaceholder,
+      store: parentStore,
+      genesisHash: parentStore.genesisHash,
+    );
+    final hashAtSeq = await parentLedger.hashAtSeq(1);
+    expect(embedded['parentHeadHash'], hashAtSeq,
+        reason: 'the CLI fork must bind to the parent hash AT --at');
+    await parentLedger.close();
+
     // And the fork verifies as a chain.
     final verify = await _capture(
         () => Cli.run(['verify', '--ledger', forkPath]));

@@ -77,27 +77,12 @@ extension CellGraphFork on CellGraph {
     //    HEAD hash here, which its own verify() would then reject for
     //    any atSeq below the head.)
     final parentHead = await parent.hashAtSeq(atSeq);
-    final parentSnapshot = snapshot(lastLedgerSeq: atSeq);
-    final snapshotHash = fingerprint(parentSnapshot.toJson());
 
-    // 3. Build the ForkRecord.
-    final record = ForkRecord(
-      forkId: const Uuid().v4(),
-      originalLedgerId: parent.graph.id,
-      divergedAt: atSeq,
-      originalSnapshotHash: snapshotHash,
-      parentHeadHash: parentHead,
-      at: DateTime.now(),
-    );
-
-    // 4. Wrap the caller's store so the fork's genesis is the
-    //    ForkRecord.
-    final forkStore = ForkLedgerStore(
-      record: record,
-      inner: buildStore(record.genesisHash),
-    );
-
-    // 5. Build the fresh graph.
+    // 3. Build the fresh graph first: the ForkRecord's snapshot hash
+    //    must describe the PARENT'S STATE AT atSeq, not whatever state
+    //    the live receiver happens to be in now (review fix: the
+    //    previous order fingerprinted `this.snapshot()` — live values
+    //    possibly past the fork point — and labelled it with atSeq).
     final freshGraph = buildFreshGraph();
     if (freshGraph.ledger != null) {
       throw StateError(
@@ -106,7 +91,7 @@ extension CellGraphFork on CellGraph {
       );
     }
 
-    // 6. Baseline replay: bring the fresh graph to the parent's state
+    // 4. Baseline replay: bring the fresh graph to the parent's state
     //    at atSeq. This is what makes the fork's starting state equal
     //    the parent's recorded state at the fork point; the doc's
     //    expected alternative states (e.g. 16000 in the what-if test)
@@ -119,7 +104,31 @@ extension CellGraphFork on CellGraph {
       );
     }
 
-    // 7. Open the fork's ledger, chained from the ForkRecord.
+    // 5. Now the fork point is materialised: fingerprint the
+    //    baseline-replayed graph's snapshot as the fork's
+    //    originalSnapshotHash.
+    final snapshotHash = fingerprint(
+      freshGraph.snapshot(lastLedgerSeq: atSeq).toJson(),
+    );
+
+    // 6. Build the ForkRecord.
+    final record = ForkRecord(
+      forkId: const Uuid().v4(),
+      originalLedgerId: parent.graph.id,
+      divergedAt: atSeq,
+      originalSnapshotHash: snapshotHash,
+      parentHeadHash: parentHead,
+      at: DateTime.now(),
+    );
+
+    // 7. Wrap the caller's store so the fork's genesis is the
+    //    ForkRecord.
+    final forkStore = ForkLedgerStore(
+      record: record,
+      inner: buildStore(record.genesisHash),
+    );
+
+    // 8. Open the fork's ledger, chained from the ForkRecord.
     final forkLedger = await Ledger.open(
       graph: freshGraph,
       store: forkStore,

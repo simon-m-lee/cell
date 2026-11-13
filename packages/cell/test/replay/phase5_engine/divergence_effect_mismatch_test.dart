@@ -14,6 +14,7 @@ Future<Ledger> recordEffectfulGraph(
       run: () async => 'result-$v',
     ),
     journal: journal,
+    concurrency: 1,
   );
   final graph = (CellGraph.builder()
         ..register('src', src.cell)
