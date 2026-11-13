@@ -152,10 +152,25 @@ class _AsyncMapState<S, T> {
           // The mapper runs inside JournalScope.run so that its I/O is
           // journalled — and so `EffectJournal.current` inside the mapper
           // resolves to the same journal as its `journal:` parameter.
+          // Phase 5: the ambient journal wins when an outer scope has
+          // pushed one (ReplayEngine's per-entry ReplayJournal); the
+          // construction-time journal is the fallback for recording.
+          final effective = JournalScope.effectiveJournal(journal);
           final result = await JournalScope.run(
-            journal,
-            () => mapper(next, journal: journal),
+            effective,
+            () => mapper(next, journal: effective),
           );
+          // Phase 5 cooperative ledger capture: hand the just-recorded
+          // effect to the active LedgerScope so the entry for the pulse
+          // that caused this mapping carries the effect. Only for
+          // RecordingJournal-backed runs (replays have no ledger scope).
+          final ledgerScope = LedgerScope.current;
+          if (ledgerScope != null && effective is RecordingJournal) {
+            final last = effective.lastRecord;
+            if (last != null) {
+              LedgerScope.captureEffect(last);
+            }
+          }
           if (latestOnly && gen != _generation) return; // superseded
           onResult(result);
         } catch (_) {

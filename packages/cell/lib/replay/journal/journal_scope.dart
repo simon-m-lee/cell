@@ -77,4 +77,17 @@ abstract final class JournalScope {
       journal.pop();
     }
   }
+
+  /// The journal an effectful operator should actually use: the ambient
+  /// journal when an outer scope has pushed one (Phase 5's `ReplayEngine`
+  /// pushes a per-entry [ReplayJournal] around the dispatch), otherwise
+  /// the journal the operator captured at construction.
+  ///
+  /// The ambient can only be observed *before* the operator pushes its
+  /// own scope; the operator then pushes `effectiveJournal` so the
+  /// mapper sees the same journal through both channels.
+  static EffectJournal effectiveJournal(EffectJournal captured) {
+    final ambient = current;
+    return identical(ambient, NullJournal.instance) ? captured : ambient;
+  }
 }

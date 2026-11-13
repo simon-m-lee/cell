@@ -281,11 +281,30 @@ IngressHandle<I> _ingress<I>(
       final synapses = nucleus.synapses;
       if (synapses != Synapses.disabled) {
         synapses.call(pulse);
+        // Phase 5: ingress emits bypass `Cell.apply` entirely; this hook
+        // is what puts them in the ledger. Deferred: downstream
+        // operators (asyncMap) settle their effects in microtasks, and
+        // the entry must carry those effects.
+        LedgerScope.recordPulseDeferred(
+          pulse: pulse,
+          emitCell: cell,
+          emitFunction: emit,
+          emittedValue: input,
+        );
         return true;
       }
     }
 
-    return receptor.call(pulse) != null;
+    final ok = receptor.call(pulse) != null;
+    if (ok) {
+      LedgerScope.recordPulseDeferred(
+        pulse: pulse,
+        emitCell: cell,
+        emitFunction: emit,
+        emittedValue: input,
+      );
+    }
+    return ok;
   }
 
   Future<bool> emitAsync(I input) async {

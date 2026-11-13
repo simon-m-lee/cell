@@ -127,6 +127,49 @@ class LedgerScope {
     ));
   }
 
+  /// Records a pulse whose *observable settlement* happens
+  /// asynchronously (Phase 5: ingress emits whose downstream operators
+  /// perform effects in detached continuations). The entry is appended
+  /// one event-loop turn later — after the microtask queue settles, and
+  /// with it the operator's cooperative [captureEffect] calls — so the
+  /// entry carries the effects and deltas the pulse actually produced.
+  ///
+  /// Bursts of emits that do not wait for their asynchronous work to
+  /// settle share one settlement turn; their effect attribution is a
+  /// Phase 5.1+ concern (pulse-tagged effect windows).
+  static void recordPulseDeferred({
+    required Pulse pulse,
+    ApplyReceipt? receipt,
+    Cell? emitCell,
+    Function? emitFunction,
+    Object? emittedValue,
+  }) {
+    final scope = current;
+    if (scope == null) return;
+    final effectiveReceipt = receipt ??
+        _syntheticReceipt(
+          cell: emitCell ?? (pulse.source ?? (throw ArgumentError(
+                'LedgerScope.recordPulse: a synthetic receipt needs '
+                'emitCell or a pulse source.',
+              ))),
+          function: emitFunction ?? ((Object? _) => null),
+          emittedValue: emittedValue,
+        );
+    final cellId = effectiveReceipt.cell.id;
+    scope.openWindow(
+      pulse: pulse,
+      receipt: effectiveReceipt,
+      cellId: cellId,
+    );
+  }
+
+  /// Hands an operator-recorded effect to the current scope. The effect
+  /// is attributed to the pending pulse window; the append at window
+  /// close carries it in the entry's `effects` list.
+  static void captureEffect(EffectRecord record) {
+    current?._pendingEffects.add(record);
+  }
+
   static ApplyReceipt _syntheticReceipt({
     required Cell cell,
     required Function function,
@@ -155,6 +198,8 @@ class LedgerScopeImpl {
   final Ledger ledger;
   final LedgerScopeImpl? parent;
   final List<StateDelta> _pending = [];
+  final List<EffectRecord> _pendingEffects = [];
+  final List<Future<void>> _windows = [];
   Future<void> _tail = Future<void>.value();
 
   LedgerScopeImpl({required this.ledger}) : parent = null;
@@ -170,11 +215,37 @@ class LedgerScopeImpl {
     _pending.add(delta);
   }
 
+  /// Opens a deferred pulse window: the append runs one event-loop turn
+  /// later, once the microtask queue (and with it the pulse's
+  /// asynchronous effect continuations) has settled.
+  void openWindow({
+    required Pulse pulse,
+    required ApplyReceipt receipt,
+    required String cellId,
+  }) {
+    final done = Future<void>.delayed(Duration.zero).then((_) {
+      // Still current scope? The zone captured at scheduling keeps
+      // `LedgerScope.current` resolving here even after the enclosing
+      // run's body returned (drain waits for this window).
+      final effects = List<EffectRecord>.of(_pendingEffects);
+      _pendingEffects.clear();
+      unawaited(recordAndAppend(
+        pulse: pulse,
+        receipt: receipt,
+        cellId: cellId,
+        effects: effects,
+      ));
+    });
+    _windows.add(done);
+    done.whenComplete(() => _windows.remove(done));
+  }
+
   /// Queues a coordinated append. The deltas are snapshotted *now* (the
   /// current pulse's captured set) and the append runs on the scope's
   /// serialisation chain, so many synchronous `ValueCell.update`s inside
   /// one scope produce entries in the exact update order with the exact
-  /// delta attribution.
+  /// delta attribution. [effects] are the explicitly captured effects;
+  /// any cooperatively captured [_pendingEffects] are appended to them.
   Future<void> recordAndAppend({
     required Pulse pulse,
     required ApplyReceipt receipt,
@@ -183,12 +254,15 @@ class LedgerScopeImpl {
   }) {
     final deltas = List<StateDelta>.from(_pending);
     _pending.clear();
+    final extraEffects = List<EffectRecord>.of(_pendingEffects);
+    _pendingEffects.clear();
+    final allEffects = <EffectRecord>[...effects, ...extraEffects];
     final task = _tail.then(
       (_) => ledger.appendInternal(
         pulse: pulse,
         receipt: receipt,
         cellId: cellId,
-        effects: effects,
+        effects: allEffects,
         deltas: deltas,
       ),
     );
@@ -198,6 +272,13 @@ class LedgerScopeImpl {
     return task;
   }
 
-  /// Resolves when every queued append has completed.
-  Future<void> drain() => _tail;
+  /// Resolves when every queued append — including deferred windows —
+  /// has completed.
+  Future<void> drain() async {
+    while (_windows.isNotEmpty) {
+      final snapshot = List<Future<void>>.of(_windows);
+      await Future.wait(snapshot);
+    }
+    await _tail;
+  }
 }

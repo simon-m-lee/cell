@@ -72,7 +72,7 @@ Cell _throttle(
     state.muted = true;
     state.timer?.cancel();
     state.timer = _JournalTimer(
-      journal: journal,
+      journal: JournalScope.effectiveJournal(journal),
       duration: duration,
       // The window timer is not tied to a specific pulse; a constant input
       // keeps the replay-side digest check stable across replays.
@@ -110,7 +110,10 @@ Cell _throttle(
     testRule: TestCell.allowAll,
     synapses: Synapses.disabled,
     receptor: Receptor(
-      (cell, pulse, {user}) => JournalScope.runSync(journal, () {
+      // Phase 5: prefer an outer ambient journal (ReplayEngine) over the
+      // construction-time journal.
+      (cell, pulse, {user}) =>
+          JournalScope.runSync(JournalScope.effectiveJournal(journal), () {
         if (outputCell.isInvalidated) return null;
         // This bridge is bound to exactly one source, so every pulse that
         // arrives here came from it. A `pulse.source == source` guard is

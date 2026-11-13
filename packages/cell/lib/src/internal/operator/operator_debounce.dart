@@ -75,7 +75,10 @@ Cell _debounce(
     testRule: TestCell.allowAll,
     synapses: Synapses.disabled,
     receptor: Receptor(
-      (cell, pulse, {user}) => JournalScope.runSync(journal, () {
+      // Phase 5: prefer an outer ambient journal (ReplayEngine) over the
+      // construction-time journal.
+      (cell, pulse, {user}) =>
+          JournalScope.runSync(JournalScope.effectiveJournal(journal), () {
         if (outputCell.isInvalidated) {
           state.cancel();
           return null;
@@ -105,7 +108,7 @@ Cell _debounce(
         // timer's callback in journal order, not after a real wait. This
         // is what makes debounce replayable.
         state.timer = _JournalTimer(
-          journal: journal,
+          journal: JournalScope.effectiveJournal(journal),
           duration: duration,
           input: pulse.payload,
           onFire: () {

@@ -79,15 +79,16 @@ Cell _fromStream<T>(
       // Record the event through the journal. The recorded value is what
       // Phase 5's ReplayEngine re-injects during replay; the live path
       // emits the actual value either way, synchronously as before.
+      final effective = JournalScope.effectiveJournal(journal);
       unawaited(JournalScope.run(
-        journal,
-        () => journal.io(
+        effective,
+        () => effective.io(
           label: streamLabel,
           input: value,
           run: () async => value,
         ),
       ));
-      JournalScope.runSync(journal, () {
+      JournalScope.runSync(effective, () {
         host._nucleus.receptor.call(
           Pulse<T>.governed(payload: value, source: host),
         );

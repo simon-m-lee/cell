@@ -139,4 +139,10 @@ class RecordingJournal implements EffectJournal {
   @override
   List<Map<String, Object?>> toJson() =>
       _records.map((r) => r.toJson()).toList(growable: false);
+
+  /// The most recently recorded effect, or `null` if none yet. Used by
+  /// Phase 5's cooperative ledger capture: an effectful operator hands
+  /// its just-recorded effect to the active [LedgerScope] so the entry
+  /// for the pulse that caused it carries the effect.
+  EffectRecord? get lastRecord => _records.isEmpty ? null : _records.last;
 }
