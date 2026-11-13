@@ -71,6 +71,7 @@ void main() {
         at: DateTime.fromMillisecondsSinceEpoch(1000),
         label: 'api.fetch',
         rawOutput: 'answer',
+        hasRawOutput: true,
       ),
     ]);
 
@@ -133,6 +134,7 @@ void main() {
         at: DateTime.utc(2026, 11, 12, 10, 0, 1),
         label: 'http.GET',
         rawOutput: 'resp',
+        hasRawOutput: true,
       ),
       StreamEffect(
         ordinal: 3,

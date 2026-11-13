@@ -37,6 +37,22 @@ abstract final class JournalScope {
   ///
   /// The caller is responsible for calling `assertExhausted` afterwards
   /// (or letting `ReplayEngine` do it).
+  ///
+  /// ### Non-obvious: nested scopes share the stack
+  ///
+  /// The outermost scope forks the current zone and owns the stack;
+  /// nested scopes deliberately skip the fork and push/pop the SAME
+  /// list. The ambient journal at any instant is therefore the
+  /// *innermost active* scope. Two consequences:
+  ///
+  /// * A continuation created inside a nested scope resumes after that
+  ///   scope pops: it observes the outer journal, not `NullJournal`.
+  ///   Only when the **outermost** scope pops does the ambient become
+  ///   the loud `NullJournal` sentinel — the fail-loud-after-pop
+  ///   contract applies at the outermost boundary.
+  /// * `ReplayEngine` relies on this: operators push their own scopes
+  ///   with the same effective journal, so the per-entry `ReplayJournal`
+  ///   stays ambient throughout, including detached continuations.
   static Future<T> run<T>(
     EffectJournal journal,
     FutureOr<T> Function() body,

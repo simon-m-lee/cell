@@ -48,6 +48,10 @@ class InMemoryLedgerStore implements LedgerStore {
   @override
   Stream<LedgerEntry> entriesSince(int fromSeq) async* {
     _ensureOpen();
+    // `fromSeq` is used as a list index here. The store enforces strict
+    // seq ordering from 0, so the list is dense and index == sequence —
+    // equivalent to the file store's sequence-number interpretation for
+    // every valid ledger.
     for (var i = fromSeq; i < _entries.length; i++) {
       yield _entries[i];
     }

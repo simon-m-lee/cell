@@ -95,15 +95,48 @@ class ReplayJournal implements EffectJournal {
         ordinal: record.ordinal,
       );
     }
-    if (record.rawOutput == null) {
+    if (!record.hasRawOutput) {
       _fail(
         'I/O effect "$label" cannot be replayed: rawOutput was not '
         'recorded. Pass serializeOutput to RecordingJournal.io.',
         ordinal: record.ordinal,
       );
     }
+    // Validate the stored digest against the stored output (review fix:
+    // outputDigest was never checked, and a mutated stored object would
+    // otherwise rewrite history silently). A non-encodable rawOutput is
+    // itself a divergence, not an ArgumentError.
+    final Object? served;
+    try {
+      served = record.rawOutput;
+      if (fingerprint(served) != record.outputDigest) {
+        _fail(
+          'I/O output digest mismatch for "$label": the stored rawOutput '
+          'no longer matches the recorded outputDigest (the recorded '
+          'object was mutated after the fact, or the ledger is '
+          'tampered).',
+          ordinal: record.ordinal,
+        );
+      }
+    } catch (e, st) {
+      _fail(
+        'I/O output for "$label" cannot be validated: the stored '
+        'rawOutput is not encodable ($e)\n$st',
+        ordinal: record.ordinal,
+      );
+    }
     _commit();
-    return record.rawOutput as T;
+    try {
+      return served as T;
+    } on TypeError catch (e, st) {
+      // Consumed but unusable: surface as a replay divergence instead of
+      // a raw TypeError.
+      throw ReplayDivergenceException(
+        'I/O output type mismatch for "$label": the recorded output '
+        'cannot be used as the requested type ($e)\n$st',
+        ordinal: record.ordinal,
+      );
+    }
   }
 
   @override

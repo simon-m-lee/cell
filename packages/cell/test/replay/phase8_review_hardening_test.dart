@@ -5,8 +5,11 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:cell/cell.dart';
+import 'package:cell/replay.dart';
 import 'package:test/test.dart';
 
 /// Regression tests for the Phase 8 code-review hardening fixes:
@@ -277,6 +280,383 @@ void main() {
         reason: 'a non-encodable transform must not reach the state box');
     await ledger.close();
   });
+
+  // ── Second review (engine loop) hardening ─────────────────────────
+
+  test('apply-path effectful verdicts are stored exactly once and replay',
+      () async {
+    final rule = _EffectfulAllowRule();
+    final cell = Cell.governed(
+      testRule: rule,
+      receptor: Receptor.passThrough,
+    );
+    final graph = (CellGraph.builder(graphId: 'dedup')
+          ..register('c', cell))
+        .build();
+    final ledger = await graph.bindLedger(
+      store: InMemoryLedgerStore(
+        genesisHash: Ledger.genesisHashOf(graph.id),
+      ),
+    );
+    final recording = RecordingJournal();
+    await JournalScope.run(recording, () => graph.run(() async {
+          await cell.apply<Pulse<int>>((
+            function: (int payload) => Pulse<int>(payload),
+            arguments: (positionalArguments: [1], namedArguments: null),
+            compensation: null,
+          ));
+        }));
+    final entry = await ledger.entriesSince(0).first;
+    expect(entry.effects.whereType<VerdictEffect>(), hasLength(1),
+        reason: 'the verdict must not be stored twice (journal sweep + '
+            'cooperative capture)');
+
+    CellGraphRegistry.forceReset();
+    final cell2 = Cell.governed(
+      testRule: _EffectfulAllowRule(),
+      receptor: Receptor.passThrough,
+    );
+    final graph2 = (CellGraph.builder(graphId: 'dedup')
+          ..register('c', cell2))
+        .build();
+    final result = await ReplayEngine.replay(ledger: ledger, target: graph2);
+    expect(result.success, isTrue, reason: result.divergences.toString());
+    await ledger.close();
+  });
+
+  test('replay verifies the chain before dispatching', () async {
+    final dir = await Directory.systemTemp.createTemp('chain_verify');
+    final path = '${dir.path}/ledger.jsonl';
+    CellGraphRegistry.forceReset();
+    final counter = Cell.state<int>(initial: 0);
+    final graph = (CellGraph.builder(graphId: 'chain-v')
+          ..registerState('c', counter))
+        .build();
+    final ledger = await graph.bindLedger(
+      store: await FileLedgerStore.open(
+        path,
+        genesisHash: Ledger.genesisHashOf(graph.id),
+      ),
+    );
+    await graph.run(() async {
+      counter.update(1);
+      counter.update(2);
+    });
+    await ledger.close();
+
+    // Tamper with the last entry's hash.
+    final lines = await File(path).readAsLines();
+    final out = <String>[];
+    for (final line in lines) {
+      final entry = jsonDecode(line) as Map<String, dynamic>;
+      if (entry['seq'] == 1) entry['hash'] = '0' * 64;
+      out.add(jsonEncode(entry));
+    }
+    await File(path).writeAsString('${out.join('\n')}\n');
+
+    final reopened = await Ledger.open(
+      graph: graph,
+      store: await FileLedgerStore.open(
+        path,
+        genesisHash: Ledger.genesisHashOf(graph.id),
+      ),
+      genesisHash: Ledger.genesisHashOf(graph.id),
+    );
+    CellGraphRegistry.forceReset();
+    final counter2 = Cell.state<int>(initial: 0);
+    final graph2 = (CellGraph.builder(graphId: 'chain-v')
+          ..registerState('c', counter2))
+        .build();
+    await expectLater(
+      ReplayEngine.replay(ledger: reopened, target: graph2),
+      throwsA(isA<LedgerIntegrityException>()),
+    );
+    await reopened.close();
+    await dir.delete(recursive: true);
+  });
+
+  test('full replays verify the recorded baseline (before) of each delta',
+      () async {
+    final counter = Cell.state<int>(initial: 0);
+    final graph = (CellGraph.builder(graphId: 'baseline')
+          ..registerState('c', counter))
+        .build();
+    final ledger = await graph.bindLedger(
+      store: InMemoryLedgerStore(
+        genesisHash: Ledger.genesisHashOf(graph.id),
+      ),
+    );
+    await graph.run(() async {
+      counter.update(1);
+      counter.update(2);
+    });
+
+    // Wrong initial state: the first entry's recorded `before` is 0, but
+    // the fresh graph starts at 99.
+    CellGraphRegistry.forceReset();
+    final wrong = Cell.state<int>(initial: 99);
+    final wrongGraph = (CellGraph.builder(graphId: 'baseline')
+          ..registerState('c', wrong))
+        .build();
+    await expectLater(
+      ReplayEngine.replay(ledger: ledger, target: wrongGraph),
+      throwsA(isA<ReplayDivergenceException>().having(
+        (e) => e.report?.reason,
+        'reason',
+        contains('delta.before mismatch'),
+      )),
+    );
+
+    // Partial replay skips the baseline check by contract.
+    CellGraphRegistry.forceReset();
+    final partial = Cell.state<int>(initial: 1);
+    final partialGraph = (CellGraph.builder(graphId: 'baseline')
+          ..registerState('c', partial))
+        .build();
+    final result = await ReplayEngine.replay(
+      ledger: ledger,
+      target: partialGraph,
+      fromSeq: 1,
+    );
+    expect(result.success, isTrue, reason: result.divergences.toString());
+    expect(partial.cell.value, 2);
+    await ledger.close();
+  });
+
+  test('fork replay serves effects from the parent journal, never the world',
+      () async {
+    var worldCalls = 0;
+    final ingress = Cell.ingress<int>();
+    final mapped = Cell.asyncMap<int, int>(
+      ingress.cell,
+      (v, {required EffectJournal journal}) => journal.io<int>(
+        label: 'world($v)',
+        input: v,
+        run: () async {
+          worldCalls++;
+          return v * 10;
+        },
+      ),
+      journal: RecordingJournal(),
+    );
+    final graph = (CellGraph.builder(graphId: 'fork-effects')
+          ..register('src', ingress.cell)
+          ..register('m', mapped))
+        .build();
+    final ledger = await graph.bindLedger(
+      store: InMemoryLedgerStore(
+        genesisHash: Ledger.genesisHashOf(graph.id),
+      ),
+    );
+    final recording = RecordingJournal();
+    await JournalScope.run(recording, () => graph.run(() async {
+          await ingress.emit(1);
+        }));
+    expect(worldCalls, 1);
+
+    final fork = await graph.fork(
+      parent: ledger,
+      atSeq: 0,
+      buildFreshGraph: () {
+        CellGraphRegistry.forceReset();
+        final i2 = Cell.ingress<int>();
+        final m2 = Cell.asyncMap<int, int>(
+          i2.cell,
+          (v, {required EffectJournal journal}) => journal.io<int>(
+            label: 'world($v)',
+            input: v,
+            run: () async {
+              worldCalls++;
+              return v * 10;
+            },
+          ),
+          journal: RecordingJournal(),
+        );
+        return (CellGraph.builder(graphId: 'fork-effects')
+              ..register('src', i2.cell)
+              ..register('m', m2))
+            .build();
+      },
+      buildStore: (genesis) => InMemoryLedgerStore(genesisHash: genesis),
+    );
+    final result = await ReplayEngineFork.replayFork(
+      fork: fork,
+      mutation: (entry, pulse) => pulse,
+    );
+    expect(result.success, isTrue, reason: result.divergences.toString());
+    expect(worldCalls, 1,
+        reason: 'the fork replay must serve the parent journal, not '
+            're-execute the io against the real world');
+    await ledger.close();
+  });
+
+  test('fork entries reconstruct the mutated pulse on replay', () async {
+    final counter = Cell.state<int>(initial: 0);
+    final graph = (CellGraph.builder(graphId: 'fork-roundtrip')
+          ..registerState('c', counter))
+        .build();
+    final ledger = await graph.bindLedger(
+      store: InMemoryLedgerStore(
+        genesisHash: Ledger.genesisHashOf(graph.id),
+      ),
+    );
+    await graph.run(() async {
+      counter.update(1);
+      counter.update(2);
+    });
+
+    final fork = await graph.fork(
+      parent: ledger,
+      atSeq: 0,
+      buildFreshGraph: () {
+        CellGraphRegistry.forceReset();
+        final c = Cell.state<int>(initial: 0);
+        return (CellGraph.builder(graphId: 'fork-roundtrip')
+              ..registerState('c', c))
+            .build();
+      },
+      buildStore: (genesis) => InMemoryLedgerStore(genesisHash: genesis),
+    );
+    final result = await ReplayEngineFork.replayFork(
+      fork: fork,
+      mutation: (entry, pulse) {
+        if (entry.seq == 1) return Pulse(20, source: pulse.source);
+        return pulse;
+      },
+    );
+    expect(result.success, isTrue, reason: result.divergences.toString());
+
+    // Replaying the FORK ledger (from seq 1, past the synthetic fork
+    // record) must reconstruct the MUTATED pulse, not the parent's.
+    CellGraphRegistry.forceReset();
+    final third = Cell.state<int>(initial: 1); // baseline after seq 0
+    final thirdGraph = (CellGraph.builder(graphId: 'fork-roundtrip')
+          ..registerState('c', third))
+        .build();
+    final again = await ReplayEngine.replay(
+      ledger: fork.ledger,
+      target: thirdGraph,
+      fromSeq: 1,
+    );
+    expect(again.success, isTrue, reason: again.divergences.toString());
+    expect(third.cell.value, 20);
+    await ledger.close();
+  });
+
+  test('fork store materialize is idempotent and verify reads the file',
+      () async {
+    final dir = await Directory.systemTemp.createTemp('fork_store');
+    final path = '${dir.path}/fork.jsonl';
+    final record = ForkRecord(
+      forkId: 'fork-1',
+      originalLedgerId: 'parent-1',
+      divergedAt: 3,
+      originalSnapshotHash: fingerprint('snap'),
+      parentHeadHash: fingerprint('head'),
+      at: DateTime.utc(2026, 11, 12),
+    );
+    final inner = await FileLedgerStore.open(
+      path,
+      genesisHash: record.genesisHash,
+    );
+    final wrapped = ForkLedgerStore(record: record, inner: inner);
+    await wrapped.materialize();
+    await wrapped.materialize(); // must be a no-op
+    final lines = await File(path).readAsLines();
+    expect(lines, hasLength(1), reason: 'no duplicate synthetic line');
+
+    // Tamper with the stored synthetic and re-wrap: verify must now
+    // hash the FILE's line, not a regenerated one.
+    final entry = jsonDecode(lines.single) as Map<String, dynamic>;
+    entry['hash'] = '0' * 64;
+    await File(path).writeAsString('${jsonEncode(entry)}\n');
+    final inner2 = await FileLedgerStore.open(
+      path,
+      genesisHash: record.genesisHash,
+    );
+    final wrapped2 = ForkLedgerStore(record: record, inner: inner2);
+    final placeholder = (CellGraph.builder(graphId: 'p', strict: false))
+        .build();
+    final forkLedger = await Ledger.open(
+      graph: placeholder,
+      store: wrapped2,
+      genesisHash: record.genesisHash,
+    );
+    await expectLater(
+      forkLedger.verify(),
+      throwsA(isA<LedgerIntegrityException>()),
+    );
+    await forkLedger.close();
+    await wrapped.close();
+    await dir.delete(recursive: true);
+  });
+
+  test('a legitimate null io result round-trips', () async {
+    final recording = RecordingJournal();
+    final value = await JournalScope.run(
+      recording,
+      () => recording.io<int?>(
+        label: 'maybe',
+        input: 1,
+        run: () async => null,
+      ),
+    );
+    expect(value, isNull);
+
+    final replay = ReplayJournal(
+      [EffectRecord.fromJson(recording.toJson().single)],
+    );
+    final served = await replay.io<int?>(
+      label: 'maybe',
+      input: 1,
+      run: () async => 42,
+    );
+    expect(served, isNull,
+        reason: 'a recorded null is a captured value, not a missing one');
+    replay.assertExhausted();
+  });
+
+  test('nested timer effects are recorded after the timer record', () async {
+    final recording = RecordingJournal();
+    await JournalScope.run(recording, () {
+      return recording.timer(
+        duration: Duration.zero,
+        input: 't',
+        onFire: () => recording.io<int>(
+          label: 'nested',
+          input: 1,
+          run: () async => 2,
+        ),
+      );
+    });
+    final kinds = recording
+        .toJson()
+        .map(EffectRecord.fromJson)
+        .map((e) => e.kind)
+        .toList(growable: false);
+    expect(kinds, ['timer', 'io'],
+        reason: 'the timer record must precede its nested effects');
+
+    final replay = ReplayJournal(
+      recording.toJson().map(EffectRecord.fromJson).toList(growable: false),
+    );
+    await replay.timer(
+      duration: Duration.zero,
+      input: 't',
+      onFire: () => replay.io<int>(
+        label: 'nested',
+        input: 1,
+        run: () async => 2,
+      ),
+    );
+    replay.assertExhausted();
+  });
+}
+
+class _EffectfulAllowRule extends TestCell<Cell> with Effectful {
+  @override
+  String get version => '1.0.0';
+  _EffectfulAllowRule() : super((_, {host, arguments, user}) => true);
 }
 
 class _NotEncodable {

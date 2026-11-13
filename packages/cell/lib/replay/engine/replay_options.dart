@@ -43,6 +43,14 @@ class ReplayOptions {
   /// the cycle-checker reseed itself is a Phase 7 concern, so the flag
   /// carries the settle behaviour that is actually load-bearing for
   /// this phase's exit criteria.)
+  ///
+  /// ### Non-obvious: one settle is one event-loop turn
+  ///
+  /// A chain of N unawaited timers needs one turn per hop; a single
+  /// settle covers one level. Deep unawaited chains (and real-timer
+  /// waits longer than a microtask flush) are the pulse-tagged-window
+  /// territory of Phase 5.1 — receptors that await their work are fully
+  /// covered by the single turn.
   final bool settleAfterDispatch;
 
   /// Maximum number of entries to replay. `null` means unlimited. Used

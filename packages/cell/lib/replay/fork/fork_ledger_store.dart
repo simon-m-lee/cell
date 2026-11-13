@@ -46,7 +46,14 @@ class ForkLedgerStore implements LedgerStore {
   /// ledger *file* whose `seq 0` is the `ForkRecord` even before any
   /// replay appends. Without this, an empty fork file would only gain
   /// its synthetic entry on the first `append`.
-  Future<void> materialize() => _ensureInjected();
+  ///
+  /// Idempotent across wrappers (review fix): re-wrapping an already
+  /// materialised store used to append a second synthetic seq-0 line to
+  /// the file.
+  Future<void> materialize() async {
+    if (await inner.lastSeq >= 0) return;
+    await _ensureInjected();
+  }
 
   /// The fork's chain genesis. [inner] must have been created with this
   /// value — `CellGraphFork.fork` passes it to the caller's store
@@ -81,10 +88,23 @@ class ForkLedgerStore implements LedgerStore {
   @override
   Stream<LedgerEntry> entriesSince(int fromSeq) async* {
     if (fromSeq <= 0) {
+      // Review fix: yield the STORED synthetic entry when the inner
+      // store has one. The previous behaviour yielded a freshly
+      // regenerated entry and skipped the stored line, so a tampered
+      // seq-0 line in the fork FILE was never what `Ledger.verify`
+      // hashed. Only a never-materialised fork falls back to the
+      // in-memory synthetic.
+      final stored = await inner.lastSeq;
+      if (stored >= 0) {
+        await for (final entry in inner.entriesSince(0)) {
+          yield entry;
+        }
+        return;
+      }
       yield _synthetic;
     }
     // The inner store also holds the injected synthetic at seq 0; skip
-    // it when streaming.
+    // it when streaming from a later sequence.
     await for (final entry in inner.entriesSince(fromSeq <= 0 ? 1 : fromSeq)) {
       yield entry;
     }

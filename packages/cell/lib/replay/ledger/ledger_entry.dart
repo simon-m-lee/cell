@@ -230,7 +230,9 @@ class LedgerEntry {
       arguments: arguments,
       timestamp: DateTime.parse(rawReceipt['timestamp'] as String),
       txSequence: rawReceipt['txSequence'] as int?,
-      vetted: (rawReceipt['vetted'] as bool?) ?? true,
+      vetted: (rawReceipt['vetted'] as bool?) ?? false, // review fix: fail
+      // closed — receipts always serialise `vetted`, so a missing key is
+      // tampering, not an old format.
       ledgerSeq: rawReceipt['ledgerSeq'] as int?,
       pulseDigest: rawReceipt['pulseDigest'] as String?,
       // Phase 7 — governance versions; '0.0.0' for pre-Phase-7 ledgers.

@@ -66,6 +66,12 @@ extension ReplayEngineFork on ReplayEngine {
 
     final parent = fork.parent;
     final startSeq = fork.record.divergedAt + 1;
+
+    // Phase 8 hardening (review fix): never replay a corrupt history,
+    // and never append onto a corrupt fork chain.
+    await parent.verify();
+    await fork.ledger.verify();
+
     final divergences = <DivergenceReport>[];
     int replayed = 0;
     int? firstDivergedAt;
@@ -152,7 +158,11 @@ extension ReplayEngineFork on ReplayEngine {
       entriesReplayed: replayed,
       divergedAt: firstDivergedAt,
       divergences: List.unmodifiable(divergences),
-      newSnapshot: fork.graph.snapshot(),
+      newSnapshot: fork.graph.snapshot(
+        // Tie the snapshot to the parent sequence the fork reached
+        // (review fix: the default -1 made the snapshot unbound).
+        lastLedgerSeq: startSeq + replayed - 1,
+      ),
     );
   }
 
@@ -172,16 +182,18 @@ extension ReplayEngineFork on ReplayEngine {
     // the first mutation, after which the fork's history is its own.)
     final Object? beforeValue = cell is ValueCell ? cell.value : null;
 
-    // Build a *fresh* RecordingJournal for the fork's effects. The
-    // fork graph's effectful operators prefer the ambient journal
-    // (Phase 5), so their effects land here.
-    final recordingJournal = RecordingJournal();
+    // Build the replay journal from the PARENT entry's effects. (Review
+    // fix: the fork used a fresh RecordingJournal here, which re-ran the
+    // effectful operators' `io` against the real world. The fork replays
+    // the parent's entry, so its effects must be SERVED from the
+    // parent's records — exactly like the main engine.)
+    final replayJournal = ReplayJournal(entry.effects);
 
     // Run the mutated pulse through the cell's receptor, settling the
     // microtask queue so asynchronous effect continuations finish
-    // before the effects are read.
+    // before the journal is checked.
     try {
-      await JournalScope.run(recordingJournal, () async {
+      await JournalScope.run(replayJournal, () async {
         final receptor = cell._nucleus.receptor;
         final result = receptor.call(mutatedPulse);
         if (result is Future<Pulse?>) {
@@ -191,6 +203,17 @@ extension ReplayEngineFork on ReplayEngine {
           await Future<void>.delayed(Duration.zero);
         }
       });
+      try {
+        replayJournal.assertExhausted();
+      } on ReplayDivergenceException catch (e) {
+        return DivergenceReport(
+          seq: entry.seq,
+          expected: 'journal exhausted',
+          actual: replayJournal.divergenceReason ??
+              '${replayJournal.remaining} unused effect(s)',
+          reason: 'fork journal not exhausted: ${e.message}',
+        );
+      }
     } catch (e) {
       return DivergenceReport(
         seq: entry.seq,
@@ -213,16 +236,35 @@ extension ReplayEngineFork on ReplayEngine {
       ));
     }
 
-    // Write the fork's entry to the fork's ledger.
+    // Write the fork's entry to the fork's ledger. (Review fix: the
+    // receipt's arguments are rebuilt from the MUTATED pulse — the
+    // parent's arguments described the pre-mutation input, so a later
+    // ReplayEngine.replay of the fork ledger would have reconstructed
+    // the wrong pulse. The engine reconstructs "first positional
+    // argument as payload", so that is exactly what we store.)
+    final forkReceipt = (
+      id: entry.receipt.id,
+      cell: entry.receipt.cell,
+      function: entry.receipt.function,
+      arguments: (
+        positionalArguments: <Object?>[mutatedPulse.payload],
+        namedArguments: null,
+      ),
+      timestamp: entry.receipt.timestamp,
+      txSequence: entry.receipt.txSequence,
+      vetted: entry.receipt.vetted,
+      ledgerSeq: null,
+      pulseDigest: null,
+      receptorVersion: null,
+      ruleVersion: null,
+      contextVersion: null,
+    );
     try {
       await fork.ledger.appendInternal(
         pulse: mutatedPulse,
-        receipt: entry.receipt,
+        receipt: forkReceipt,
         cellId: cellId,
-        effects: recordingJournal
-            .toJson()
-            .map(EffectRecord.fromJson)
-            .toList(growable: false),
+        effects: entry.effects,
         deltas: forkDeltas,
       );
     } catch (e) {

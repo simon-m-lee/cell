@@ -137,6 +137,14 @@ class Ledger {
   /// The internal append used by `LedgerScope`. External callers should
   /// not use this — entries must carry the deltas that only
   /// `postProcessRule` captures.
+  ///
+  /// ### Non-obvious: no internal serialisation
+  ///
+  /// `seq` is assigned from `lastSeq + 1` without a lock. `LedgerScope`
+  /// serialises appends on its own `_tail` chain, so scoped recording is
+  /// safe; a direct caller mixing `appendInternal` with concurrent
+  /// appends (including `ReplayEngineFork` appends racing another
+  /// writer on the same ledger) must serialise itself.
   Future<void> appendInternal({
     required Pulse pulse,
     required ApplyReceipt receipt,

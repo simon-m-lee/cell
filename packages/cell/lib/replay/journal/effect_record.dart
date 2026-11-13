@@ -156,9 +156,15 @@ class IoEffect extends EffectRecord {
   final String label;
 
   /// The raw response, JSON-encoded, or `null` if the recorder did not
-  /// capture it. A `null` rawOutput means the effect cannot be replayed
-  /// and `ReplayJournal` will refuse to consume it.
+  /// capture it (or the observation genuinely produced `null`). Use
+  /// [hasRawOutput] to distinguish the two — a missing record means the
+  /// effect cannot be replayed, a recorded `null` can.
   final Object? rawOutput;
+
+  /// Whether `rawOutput` was captured at all. (Review fix: a legitimate
+  /// `null` observation used to be indistinguishable from "not
+  /// recorded", so `ReplayJournal.io` refused to replay any null result.)
+  final bool hasRawOutput;
 
   const IoEffect({
     required super.ordinal,
@@ -167,6 +173,7 @@ class IoEffect extends EffectRecord {
     required super.at,
     required this.label,
     required this.rawOutput,
+    required this.hasRawOutput,
   });
 
   @override
@@ -176,6 +183,7 @@ class IoEffect extends EffectRecord {
   Map<String, Object?> payloadJson() => {
         'label': label,
         if (rawOutput != null) 'rawOutput': rawOutput,
+        'hasRawOutput': hasRawOutput,
       };
 
   static IoEffect fromJson(Map<String, Object?> json) => IoEffect(
@@ -185,11 +193,22 @@ class IoEffect extends EffectRecord {
         at: DateTime.parse(json['at'] as String),
         label: json['label'] as String,
         rawOutput: json['rawOutput'],
+        // Pre-review records lack the flag: the key's presence is the
+        // old behaviour's "recorded" signal.
+        hasRawOutput:
+            json['hasRawOutput'] as bool? ?? json['rawOutput'] != null,
       );
 }
 
 /// A stream event. Records the event's stream label, the digest of the
 /// value, and optionally the raw value.
+///
+/// ### Non-obvious: codec-only in Phase 8
+///
+/// No journal operation produces or consumes `StreamEffect` yet — the
+/// journalled operators record stream events as [IoEffect]s. The type
+/// exists so the schema is stable for Phase 5.1's dedicated stream
+/// journaling (per-event sequence tags).
 class StreamEffect extends EffectRecord {
   final String streamLabel;
   final Object? rawValue;

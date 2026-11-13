@@ -257,6 +257,16 @@ class LedgerScopeImpl {
   /// one scope produce entries in the exact update order with the exact
   /// delta attribution. [effects] are the explicitly captured effects;
   /// any cooperatively captured [_pendingEffects] are appended to them.
+  ///
+  /// ### Non-obvious: identity dedup is load-bearing
+  ///
+  /// On the immediate (apply/update) path, a cooperative capture (e.g.
+  /// `TestCellReplay`'s verdict sweep) stores the *same record instances*
+  /// that the journal-watermark sweep in `recordPulse` already collected.
+  /// Concatenating both lists would store every such effect twice, and
+  /// the replay journal would report one unused effect. `EffectRecord`
+  /// does not override `==`, so a set dedupes by identity — exactly the
+  /// "same record captured twice" case, and nothing else.
   Future<void> recordAndAppend({
     required Pulse pulse,
     required ApplyReceipt receipt,
@@ -267,7 +277,9 @@ class LedgerScopeImpl {
     _pending.clear();
     final extraEffects = List<EffectRecord>.of(_pendingEffects);
     _pendingEffects.clear();
-    final allEffects = <EffectRecord>[...effects, ...extraEffects];
+    final allEffects = <EffectRecord>{...effects, ...extraEffects}.toList(
+      growable: false,
+    );
     final task = _tail.then(
       (_) => ledger.appendInternal(
         pulse: pulse,

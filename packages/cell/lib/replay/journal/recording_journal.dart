@@ -100,6 +100,10 @@ class RecordingJournal implements EffectJournal {
       at: at,
       label: label,
       rawOutput: raw,
+      // Review fix: the recorder always captures (raw may legitimately
+      // be null); the flag lets the replay side distinguish "captured
+      // null" from "never recorded".
+      hasRawOutput: true,
     ));
     return result;
   }
@@ -110,18 +114,25 @@ class RecordingJournal implements EffectJournal {
     required Object? input,
     required FutureOr<void> Function() onFire,
   }) async {
-    final scheduledAt = _clockSource();
-    await _timerScheduler(duration, onFire);
-    final firedAt = _clockSource();
+    final at = _clockSource();
+    // Review fix: append the record BEFORE awaiting the fire callback.
+    // Any effects the callback performs are nested inside the timer;
+    // appending after the callback placed them BEFORE the timer record
+    // in the journal, and the replay side consumes the timer record
+    // first — an inversion that diverged for nested effects. The
+    // recorded `firedAtMillis` therefore approximates the schedule/fire
+    // moment rather than a post-fire timestamp (forensic only; replay
+    // never validates it).
     _records.add(TimerEffect(
       ordinal: _nextOrdinal++,
       inputDigest: fingerprint(input),
-      outputDigest: fingerprint(firedAt.millisecondsSinceEpoch),
-      at: firedAt,
+      outputDigest: fingerprint(at.millisecondsSinceEpoch),
+      at: at,
       scheduled: duration,
-      scheduledAtMillis: scheduledAt.millisecondsSinceEpoch,
-      firedAtMillis: firedAt.millisecondsSinceEpoch,
+      scheduledAtMillis: at.millisecondsSinceEpoch,
+      firedAtMillis: at.millisecondsSinceEpoch,
     ));
+    await _timerScheduler(duration, onFire);
   }
 
   @override

@@ -61,6 +61,17 @@ class ReplayEngine {
   /// mode), throws [ReplayDivergenceException]. In lenient mode,
   /// returns a result with `success == false` and non-empty
   /// `divergences`.
+  ///
+  /// ### Non-obvious: the purity gate is the journal, not a pre-check
+  ///
+  /// The engine does not consult `CellGraph.purityOf` up front. An
+  /// `effectful` cell whose entry records no effects replays "fine" —
+  /// but the only way to record *no* effects with an effectful
+  /// component is to have journalled nothing, which the journal's
+  /// exhaustion checks then cannot see either. The honest gate is on
+  /// the recording side (`NullJournal` fails loudly, and every
+  /// `effectful` rule writes a verdict); a dedicated purity
+  /// pre-validation is a Phase 5.1 hardening.
   static Future<ReplayResult> replay({
     required Ledger ledger,
     required CellGraph target,
@@ -77,9 +88,16 @@ class ReplayEngine {
       );
     }
 
+    // Phase 8 hardening (review fix): never replay a corrupt history.
+    // One pass recomputes every hash of the chain; a tampered ledger
+    // fails here with a LedgerIntegrityException instead of producing a
+    // confusing downstream divergence.
+    await ledger.verify();
+
     final divergences = <DivergenceReport>[];
     int replayed = 0;
     int? firstDivergedAt;
+    final checkBaseline = fromSeq == 0;
 
     await for (final entry in ledger.entriesSince(fromSeq)) {
       if (options.maxEntries != null && replayed >= options.maxEntries!) {
@@ -90,6 +108,7 @@ class ReplayEngine {
         entry: entry,
         target: target,
         options: options,
+        checkBaseline: checkBaseline,
       );
 
       replayed++;
@@ -112,7 +131,9 @@ class ReplayEngine {
       entriesReplayed: replayed,
       divergedAt: firstDivergedAt,
       divergences: List.unmodifiable(divergences),
-      newSnapshot: target.snapshot(),
+      // Tie the snapshot to the sequence the replay actually reached
+      // (review fix: the default -1 made the snapshot unbound).
+      newSnapshot: target.snapshot(lastLedgerSeq: fromSeq + replayed - 1),
     );
   }
 
@@ -122,6 +143,7 @@ class ReplayEngine {
     required LedgerEntry entry,
     required CellGraph target,
     required ReplayOptions options,
+    required bool checkBaseline,
   }) async {
     // 1. Verify the receipt's back-filled fields (if requested).
     if (options.verifyReceipts) {
@@ -183,11 +205,49 @@ class ReplayEngine {
       );
     }
 
-    // 4. Build a ReplayJournal from the entry's effects and run the
+    // 4. Baseline verification (full replays only). Each delta's
+    //    `before` must equal the target cell's value *before* dispatch:
+    //    an absolute set on a graph that was not at the recorded
+    //    baseline would otherwise pass silently (the `after` check below
+    //    cannot see the wrong starting point). Partial replays
+    //    (`fromSeq > 0`) deliberately skip this — the caller materialised
+    //    the state at `fromSeq - 1` themselves.
+    if (checkBaseline) {
+      for (final delta in entry.deltas) {
+        final deltaCell = target[delta.cellId]?.cell;
+        if (deltaCell is! ValueCell) continue;
+        final Object? actualBefore;
+        try {
+          actualBefore = ValueCell._encodeForLedger(deltaCell.value);
+        } catch (e, st) {
+          return DivergenceReport(
+            seq: entry.seq,
+            expected: delta.before,
+            actual: '<not encodable: $e>',
+            reason: 'baseline value of "${delta.cellId}" cannot be '
+                'encoded for comparison: $e\n$st',
+          );
+        }
+        if (canonicalJsonEncode(actualBefore) !=
+            canonicalJsonEncode(delta.before)) {
+          return DivergenceReport(
+            seq: entry.seq,
+            expected: delta.before,
+            actual: actualBefore,
+            reason: 'delta.before mismatch for cell "${delta.cellId}" '
+                '(the target was not at the recorded baseline when this '
+                'entry replayed; build the fresh graph with the recorded '
+                'initial state)',
+          );
+        }
+      }
+    }
+
+    // 5. Build a ReplayJournal from the entry's effects and run the
     //    pulse through the target graph inside that journal's scope.
     final replayJournal = ReplayJournal(entry.effects);
 
-    // 5. Dispatch. The pulse's processing must be journalled; the
+    // 6. Dispatch. The pulse's processing must be journalled; the
     //    asynchronous continuations (asyncMap mappers, deferred timer
     //    fires) settle in microtasks, so the event loop is drained
     //    before the journal and delta checks. A divergence thrown
@@ -247,6 +307,17 @@ class ReplayEngine {
   /// Phase 7 version enforcement. Returns a [DivergenceReport] when the
   /// ledger's recorded receptor/rule versions cannot be satisfied by
   /// the target graph (no registry entry and no live match).
+  ///
+  /// ### Non-obvious: the registry *gates*, it does not *install*
+  ///
+  /// A registry hit proves the recorded version is available and
+  /// dispatch proceeds with the graph's live receptor — `resolve` is not
+  /// used to swap in the historical implementation, and the recorded
+  /// `contextVersion` / `ContextTranslatorRegistry` are not consulted by
+  /// the engine. Phase 7 therefore prevents silent wrong-version replay
+  /// (the loud boundary); installing the registered historical
+  /// receptor/rule pair and translating contexts *during* dispatch is
+  /// the deferred Phase 7.1 item.
   static DivergenceReport? _checkVersions({
     required LedgerEntry entry,
     required CellGraph target,
@@ -342,10 +413,26 @@ class ReplayEngine {
         continue;
       }
       final actualValue = cell.value;
-      // Compare via canonical JSON so an `int` 5 and a `num` 5 are
-      // treated as equal (they serialise the same way).
+      // Encode the live value with the SAME codec that produced the
+      // recorded delta, then compare canonical JSON. (Review fix: the
+      // previous direct canonicalJsonEncode of the live value threw
+      // ArgumentError for DateTime/Cell values instead of reporting a
+      // divergence.)
+      final Object? actualEncoded;
+      try {
+        actualEncoded = ValueCell._encodeForLedger(actualValue);
+      } catch (e, st) {
+        return DivergenceReport(
+          seq: entry.seq,
+          expected: delta.after,
+          actual: '<not encodable: $e>',
+          reason: 'delta.after comparison failed for cell '
+              '"${delta.cellId}": the live value cannot be encoded '
+              '($e)\n$st',
+        );
+      }
       final expectedJson = canonicalJsonEncode(delta.after);
-      final actualJson = canonicalJsonEncode(actualValue);
+      final actualJson = canonicalJsonEncode(actualEncoded);
       if (expectedJson != actualJson) {
         return DivergenceReport(
           seq: entry.seq,

@@ -32,8 +32,17 @@ import 'package:cell/cell.dart'
 /// Instead, `FileLedgerStore` **flushes** after each append (writes go to
 /// the OS buffer) and **fsyncs on `close`**. A crash between flushes
 /// loses at most one entry, and `verify()` on reopen will report the gap.
-/// This is the same trade-off WAL-mode SQLite makes; the caller can opt
-/// into stricter durability by passing `fsyncEachAppend: true`.
+/// This is the same trade-off WAL-mode SQLite makes.
+///
+/// ### Honesty notes (review fixes)
+///
+/// `dart:io` exposes no per-append `fsync`; `flush()` is the strongest
+/// available primitive, so `fsyncEachAppend` is accepted for API
+/// compatibility but currently cannot be stronger than the default
+/// flush-then-fsync-on-close behaviour. Likewise, appends to a regular
+/// file are not atomically visible to concurrent readers regardless of
+/// size — the `PIPE_BUF`-sized entry cap below is retained as a
+/// conservative line-size bound, not an atomicity guarantee.
 class FileLedgerStore implements LedgerStore {
   @override
   final String genesisHash;
