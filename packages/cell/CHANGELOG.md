@@ -51,7 +51,7 @@ sequence, the expected and actual values, and a reason.
 ### Tooling, docs, and demos
 
 - **`cell-replay` CLI**: new `bin/cell_replay.dart` + `pubspec` executable (`cell_replay: cell-replay`) with `verify`, `diff`, `fork`, `visualise` (mermaid/DOT, `deltas`/`cells` modes), and `inspect`; exit codes 0/1/2/3. Phase 8 scope: `verify` checks the chain only (`--graph` is Phase 8.1), and the CLI derives the genesis from the first entry's `prevHash` (the `--genesis` flag is Phase 8.1).
-- **Guides**: new `guide/HowTo-Causal-Replay.md` (in-depth: mental model, machinery deep-dives, twelve recipes, failure modes, invariants) and `guide/HowTo-Replay.md` (the seven-item pre-flight checklist and 15-minute path).
+- **Guides**: new `guide/HowTo-Causal-Replay.md` — the in-depth guide (mental model, machinery deep-dives, twelve recipes, the seven-item pre-flight checklist, failure modes, invariants). The earlier Phase 8 `guide/HowTo-Replay.md` checklist was folded into it and the file retired.
 - **Demos**: `example/replay/record_and_replay.dart`, `example/replay/whatif_branch.dart`, and `example/replay/audit_ledger.dart` run to completion with assertions passing.
 - **Ledger-store conformance suite**: `test/replay/ledger_store_conformance.dart` — the acceptance criterion for any downstream `LedgerStore`; runs against `InMemoryLedgerStore` and `FileLedgerStore` (durable reopen included).
 - **Determinism gate**: `dart run tool/replay_determinism_check.dart` runs the replay suite twice and fails when outcomes differ.

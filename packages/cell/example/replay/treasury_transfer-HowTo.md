@@ -462,8 +462,8 @@ the upstream cell or use `CellGraph.unrestricted()` in tests only.
   example.
 - `example/replay/audit_ledger.dart` — the auditor's workflow, without
   the framework's own testing helpers.
-- `guide/HowTo-Replay.md` — the seven-item checklist and pre-flight
-  guide.
+- `guide/HowTo-Causal-Replay.md` — the in-depth guide, including the
+  seven-item pre-flight checklist.
 - `test/replay/phase*/` — the framework's own test suite, one
   directory per phase.
 ```

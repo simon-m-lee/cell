@@ -3,11 +3,12 @@
 **Causal Replay: the in-depth guide.**
 
 This guide explains what causal replay is, how every piece of the machinery
-works, and how to use it correctly. It is the companion to two shorter
-documents:
+works, and how to use it correctly. It is self-contained: [Part II](#part-ii--the-15-minute-path)
+is the 15-minute path and [Part VI](#part-vi--the-invariants-and-where-they-are-enforced)
+summarises the invariants; the seven-item pre-flight checklist is in
+[The seven-item pre-flight checklist](#the-seven-item-pre-flight-checklist)
+below. The companion design documents are:
 
-- `guide/HowTo-Replay.md` — the seven-item pre-flight checklist and the
-  15-minute path. Read that first if you want to get running.
 - `research/Causal-Replay/Plan.md` and `Phase-1.md` … `Phase-8.md` — the
   design plan this implementation was built from.
 
@@ -190,14 +191,14 @@ During replay, per ledger entry:
 | 5 | `ReplayEngine.replay`, `ReplayOptions`, `DivergenceReport`, `ReplayResult`, `PulseReconstructor`, `ReplayDivergenceException` | The replay loop and its diagnostics |
 | 6 | `ForkRecord`, `ForkPolicy.isolated`, `ForkHandle`, `ForkLedgerStore`, `CellGraphFork.fork`, `ReplayEngineFork.replayFork`, `ForkVerify` | What-if branches bound to the parent's hash at the fork point |
 | 7 | `VerdictEffect`/`PolicyTickEffect`, `DeputyContext.version`, `VersionRegistry`, `ContextTranslator`, `TestCellReplay`, `PolicyReplay`, engine `_checkVersions` | Governance replay: versions, purity dispatch, policy-tick ordering (C4) |
-| 8 | `cell-replay` CLI, `CellGraphVisualise`/`LedgerVisualise`, `HowTo-Replay.md`, ledger-store conformance suite, determinism gate, three demos | Tooling that turns a ledger into evidence |
+| 8 | `cell-replay` CLI, `CellGraphVisualise`/`LedgerVisualise`, the guide and checklist below, ledger-store conformance suite, determinism gate, three demos | Tooling that turns a ledger into evidence |
 
 ---
 
 # Part II — The 15-minute path
 
-The complete, annotated minimal program. (Identical in spirit to
-`guide/HowTo-Replay.md`; the full checklist lives there.)
+The complete, annotated minimal program. The seven-item pre-flight
+checklist follows immediately after the code.
 
 ```dart
 import 'dart:io';
@@ -280,6 +281,24 @@ Three details that matter even in this minimal example:
 - **`ReplayEngine.replay` refuses a ledgered target.** The target graph
   must be a *fresh* graph (no ledger bound); replay reconstructs state,
   it does not merge histories.
+
+## The seven-item pre-flight checklist
+
+If a graph satisfies all seven, it is replayable. If it does not, the
+framework reports *which* item failed — loudly, not silently.
+
+| # | Requirement | Enforcement |
+|---|---|---|
+| 1 | Every cell is registered | `CellGraphBuilder.build` throws on unregistered reachability |
+| 2 | Ledger bound exactly once, with the derived genesis | `bindLedger` throws on double bind; a wrong store genesis throws at open |
+| 3 | Mutations inside `graph.run` | Non-`run` mutations are silently unrecorded; the replay test (item 7) catches them |
+| 4 | I/O operators journalled | The five operators require `journal:`; omitting it is a compile error |
+| 5 | Purity declared | Default is `pure`; an I/O rule that declares `pure` fails the determinism check |
+| 6 | Versions stamped | Versioned receptors fail the Phase 7 version check at a boundary; built-ins stay unversioned by design |
+| 7 | A replay test passes | `ReplayEngine.replay` against a fresh graph asserts `result.success` |
+
+Each item is enforced at a specific place in the source; see [Part VI](#part-vi--the-invariants-and-where-they-are-enforced)
+for the invariant-to-enforcement-site mapping.
 
 ---
 
