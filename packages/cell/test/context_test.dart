@@ -655,7 +655,7 @@ void main() {
         expect(DeputyContext.system.stakeholders, isNull);
         expect(DeputyContext.system.subDomains, isNull);
         expect(DeputyContext.system.topology, isNull);
-        expect(DeputyContext.system.version, isNull);
+        expect(DeputyContext.system.version, '0.0.0');
         expect(DeputyContext.system.identity, isNull);
         expect(DeputyContext.system.type, isNull);
       });

@@ -249,3 +249,9 @@ part 'replay/fork/fork.dart';
 part 'replay/fork/fork_ledger_store.dart';
 part 'replay/fork/cell_graph_fork.dart';
 part 'replay/fork/fork_verify.dart';
+
+/// Replay module — governance replay (Phase 7).
+part 'replay/governance/version_registry.dart';
+part 'replay/governance/context_translator.dart';
+part 'replay/governance/testcell_replay.dart';
+part 'replay/governance/policy_replay.dart';

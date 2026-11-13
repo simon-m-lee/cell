@@ -1,0 +1,76 @@
+// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
+// for details. Use of this source code is governed by a MIT or
+// Apache-2.0 license that can be found in the LICENSE file.
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+part of '../../cell.dart';
+
+/// Purity-aware invocation of a [TestCell].
+///
+/// Phase 5 called `cell.validate(...)` unconditionally. Phase 7 checks
+/// the rule's purity and routes accordingly:
+///
+/// * **[Purity.pure]** — call the rule. Its decision is a function of
+///   its input; replay re-computes it exactly.
+/// * **[Purity.readOnlyExternal]** — call the rule inside a journal
+///   scope. Its decision is re-computed, but its *observations* are
+///   served from the journal (Phase 3).
+/// * **[Purity.effectful]** — do **not** call the rule on replay;
+///   consume its recorded `VerdictEffect`. On the recording side the
+///   rule runs once inside `journal.verdict` and its decision is
+///   journaled. If the replay journal has no verdict for the current
+///   input, the journal throws [ReplayDivergenceException] — the rule
+///   changed since the recording.
+abstract final class TestCellReplay {
+  /// Invokes [rule] on [object] with the current journal, honouring its
+  /// purity. Returns the rule's decision.
+  ///
+  /// [ruleLabel] is a stable string identifying the rule in the
+  /// journal's `VerdictEffect`. It is conventionally
+  /// `${rule.runtimeType}@${rule.version}`.
+  static FutureOr<bool> invoke({
+    required TestCell rule,
+    required Object? object,
+    required Cell host,
+    required EffectJournal journal,
+    required String ruleLabel,
+  }) {
+    switch (rule.purity) {
+      case Purity.pure:
+        // Synchronous rules stay synchronous — the framework's pulse
+        // contract depends on it.
+        return rule.call(object, host: host);
+
+      case Purity.readOnlyExternal:
+        // The rule runs; its external reads go through the journal.
+        // The journal is already in scope (Phase 3), so the rule's
+        // `journal.io(...)` calls will be served from it.
+        return rule.call(object, host: host);
+
+      case Purity.effectful:
+        // The rule's decision is a recorded effect. On the recording
+        // side `run` executes the rule exactly once; on the replay
+        // side ReplayJournal.verdict serves the recorded verdict and
+        // ignores `run`.
+        return journal.verdict(
+          ruleLabel: ruleLabel,
+          input: _encodeForVerdict(object),
+          run: () => rule.call(object, host: host),
+        );
+    }
+  }
+
+  static Object? _encodeForVerdict(Object? v) {
+    if (v == null || v is num || v is bool || v is String) return v;
+    if (v is Pulse) {
+      // Encode the pulse's payload and type; that is what a rule
+      // typically inspects.
+      return {
+        'payload': _encodeForVerdict(v.payload),
+        'type': v.type,
+      };
+    }
+    return v.toString();
+  }
+}

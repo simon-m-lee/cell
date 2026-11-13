@@ -778,13 +778,25 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
       return null;
     }
 
-    final validation = cell.validate(incoming, host: cell);
+    // Phase 7: purity-aware validation. Pure rules re-run; effectful
+    // rules serve their recorded verdict from the journal (they are not
+    // re-called on replay); readOnlyExternal rules re-run with their
+    // observations served from the journal. Sync rules stay sync.
+    final validation = TestCellReplay.invoke(
+      rule: cell.validate,
+      object: incoming,
+      host: cell,
+      journal: JournalScope.current,
+      ruleLabel: '${cell.validate.runtimeType}@${cell.validate.version}',
+    );
     if (validation is Future<bool>) {
-      return validation.then((isValid) => isValid ? _proceed(incoming) : null);
-    } else if (!validation) {
+      return validation.then(
+        (isValid) => isValid ? _proceed(incoming) : null,
+      );
+    }
+    if (!validation) {
       return null;
     }
-
     return _proceed(incoming);
   }
 
@@ -864,7 +876,14 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
       // guard, a pulse emitted by the head of a bound chain would be counted
       // again at every governed downstream cell that inherits the same policy.
       if (pulse._checker.tickPolicy(ephemeralPolicy)) {
-        ephemeralPolicy(pulse, cell: cell);
+        // Phase 7: the tick is journaled as a PolicyTickEffect; on the
+        // replay side the journal validates the tick (order, policy,
+        // cell, input) instead of re-running the policy callback.
+        PolicyReplay.tick(
+          policy: ephemeralPolicy,
+          cell: cell,
+          input: pulse.payload,
+        );
       }
       return !pulse.isInvalidated;
     }
@@ -1320,10 +1339,15 @@ class ReceptorAsync<C extends Cell> implements Async {
               }
             }
 
-            final validation = cell.validate.call(p, host: cell);
-            final passed =
-                validation is Future<bool> ? await validation : validation;
-            if (!passed) continue;
+            final validation = await TestCellReplay.invoke(
+              rule: cell.validate,
+              object: p,
+              host: cell,
+              journal: JournalScope.current,
+              ruleLabel:
+                  '${cell.validate.runtimeType}@${cell.validate.version}',
+            );
+            if (!validation) continue;
 
             Pulse? out;
             final lock = cell._nucleus.lock;

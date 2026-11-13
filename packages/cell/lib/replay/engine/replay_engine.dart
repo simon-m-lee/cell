@@ -163,6 +163,13 @@ class ReplayEngine {
     }
     final cell = registered.cell;
 
+    // Phase 7: version check. If the target's live receptor/rule
+    // versions do not match the ledger's, try the version registry. If
+    // neither matches, fail loudly (a version boundary without a
+    // translator is a divergence, not a guess).
+    final versionMismatch = _checkVersions(entry: entry, target: target);
+    if (versionMismatch != null) return versionMismatch;
+
     // 3. Reconstruct the input pulse. If it cannot be reconstructed,
     //    the entry is hand-crafted; treat as divergence.
     final pulse = PulseReconstructor.reconstruct(entry: entry, cell: cell);
@@ -235,6 +242,62 @@ class ReplayEngine {
   static EffectRecord? _effectAt(LedgerEntry entry, int index) {
     if (index < 0 || index >= entry.effects.length) return null;
     return entry.effects[index];
+  }
+
+  /// Phase 7 version enforcement. Returns a [DivergenceReport] when the
+  /// ledger's recorded receptor/rule versions cannot be satisfied by
+  /// the target graph (no registry entry and no live match).
+  static DivergenceReport? _checkVersions({
+    required LedgerEntry entry,
+    required CellGraph target,
+  }) {
+    final cellId = entry.receiptCellId;
+    final ledgerReceptorVersion = entry.receipt.receptorVersion;
+    final ledgerRuleVersion = entry.receipt.ruleVersion;
+
+    if (ledgerReceptorVersion == null || ledgerRuleVersion == null) {
+      // Phase 4-6 ledger without version fields. If the live versions
+      // are also unversioned ('0.0.0'), treat as equal; otherwise
+      // refuse to guess.
+      final live = target[cellId]!.cell._nucleus;
+      if (live.receptor.version == '0.0.0' &&
+          live.testRule.version == '0.0.0') {
+        return null;
+      }
+      return DivergenceReport(
+        seq: entry.seq,
+        expected: 'unversioned ledger',
+        actual: 'live receptor version ${live.receptor.version}',
+        reason: 'ledger has no version information, but the target graph '
+            'is versioned; refusing to guess whether the receptor '
+            'implementation is the one that produced the entry',
+      );
+    }
+
+    // The version registry wins when it has the recorded version.
+    if (target.versions.has(cellId: cellId, version: ledgerReceptorVersion)) {
+      return null;
+    }
+
+    // Otherwise the live implementation must match exactly.
+    final live = target[cellId]!.cell._nucleus;
+    if (live.receptor.version == ledgerReceptorVersion &&
+        live.testRule.version == ledgerRuleVersion) {
+      return null;
+    }
+
+    return DivergenceReport(
+      seq: entry.seq,
+      expected: 'version $ledgerReceptorVersion / $ledgerRuleVersion',
+      actual: 'version ${live.receptor.version} / ${live.testRule.version}',
+      reason: 'version boundary: the ledger recorded receptor version '
+          '$ledgerReceptorVersion and rule version $ledgerRuleVersion, '
+          'but the target graph has versions '
+          '${live.receptor.version} / ${live.testRule.version}. Register '
+          'the recorded version in the graph\'s VersionRegistry '
+          '(graph.registerVersion), or record a ledger at the current '
+          'version.',
+    );
   }
 
   /// Dispatches [pulse] through [target]'s [cell]. The dispatch goes

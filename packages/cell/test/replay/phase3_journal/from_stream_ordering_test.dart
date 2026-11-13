@@ -27,15 +27,19 @@ void main() {
     await controller.close();
 
     expect(seen, [1, 2, 3]);
-    expect(journal.consumed, 3);
+    // Phase 7 (C4): the fromStream host is governed with a lifecycle
+    // policy; each event journals one I/O record AND one policy tick.
+    expect(journal.consumed, 6);
 
     final records =
         journal.toJson().map(EffectRecord.fromJson).toList(growable: false);
-    expect(records, everyElement(isA<IoEffect>()));
+    final ioRecords = records.whereType<IoEffect>().toList(growable: false);
+    expect(ioRecords, hasLength(3));
     expect(
-      records.map((r) => (r as IoEffect).rawOutput),
+      ioRecords.map((r) => r.rawOutput),
       [1, 2, 3],
     );
+    expect(records.whereType<PolicyTickEffect>(), hasLength(3));
 
     observer.stop();
   });

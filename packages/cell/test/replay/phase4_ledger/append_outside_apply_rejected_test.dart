@@ -112,6 +112,9 @@ void main() {
       vetted: false,
       ledgerSeq: null,
       pulseDigest: null,
+      receptorVersion: null,
+      ruleVersion: null,
+      contextVersion: null,
     ));
     await ledger.appendInternal(
       pulse: pulse,

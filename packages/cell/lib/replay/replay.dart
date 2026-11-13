@@ -72,7 +72,15 @@ export '../cell.dart'
         CellGraphFork,
         ReplayEngineFork,
         ForkVerify,
-        ForkParentLookup;
+        ForkParentLookup,
+        // Phase 7 — governance replay.
+        VersionRegistry,
+        ContextTranslator,
+        ContextTranslatorRegistry,
+        CellGraphVersions,
+        CellGraphTranslators,
+        TestCellReplay,
+        PolicyReplay;
 // FileLedgerStore is a standalone library (it imports dart:io, which
 // must not leak into the web-safe core).
 export 'ledger/file_store.dart' show FileLedgerStore;
