@@ -145,4 +145,15 @@ class RecordingJournal implements EffectJournal {
   /// its just-recorded effect to the active [LedgerScope] so the entry
   /// for the pulse that caused it carries the effect.
   EffectRecord? get lastRecord => _records.isEmpty ? null : _records.last;
+
+  /// All recorded effects, in ordinal order (unmodifiable). Phase 5's
+  /// cooperative capture uses [recordsSince] to hand the active ledger
+  /// scope every effect a single mapper invocation recorded.
+  List<EffectRecord> get records => List.unmodifiable(_records);
+
+  /// The effects recorded at index [from] and later.
+  Iterable<EffectRecord> recordsSince(int from) {
+    if (from >= _records.length) return const Iterable.empty();
+    return _records.sublist(from);
+  }
 }

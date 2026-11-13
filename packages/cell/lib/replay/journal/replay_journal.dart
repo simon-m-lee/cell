@@ -61,13 +61,15 @@ class ReplayJournal implements EffectJournal {
 
   @override
   DateTime clock() {
-    final record = _consume<ClockEffect>(ClockEffect);
+    final record = _peek<ClockEffect>(ClockEffect);
+    _commit();
     return DateTime.fromMillisecondsSinceEpoch(record.epochMillis);
   }
 
   @override
   String uuid() {
-    final record = _consume<UuidEffect>(UuidEffect);
+    final record = _peek<UuidEffect>(UuidEffect);
+    _commit();
     return record.uuid;
   }
 
@@ -78,7 +80,7 @@ class ReplayJournal implements EffectJournal {
     required Future<T> Function() run,
     Object? Function(T)? serializeOutput,
   }) async {
-    final record = _consume<IoEffect>(IoEffect);
+    final record = _peek<IoEffect>(IoEffect);
     if (record.label != label) {
       _fail(
         'I/O label mismatch: expected "$label", recorded "${record.label}"',
@@ -100,6 +102,7 @@ class ReplayJournal implements EffectJournal {
         ordinal: record.ordinal,
       );
     }
+    _commit();
     return record.rawOutput as T;
   }
 
@@ -109,7 +112,7 @@ class ReplayJournal implements EffectJournal {
     required Object? input,
     required FutureOr<void> Function() onFire,
   }) async {
-    final record = _consume<TimerEffect>(TimerEffect);
+    final record = _peek<TimerEffect>(TimerEffect);
     if (record.scheduled != duration) {
       _fail(
         'timer duration mismatch: expected $duration, '
@@ -124,6 +127,7 @@ class ReplayJournal implements EffectJournal {
         ordinal: record.ordinal,
       );
     }
+    _commit();
     // On the replay side, `onFire` IS called — it is the *internal
     // continuation* of the debounce/throttle state machine. What is
     // skipped is the actual `Timer` wait. The callback is deferred one
@@ -172,7 +176,7 @@ class ReplayJournal implements EffectJournal {
     throw ReplayDivergenceException(message, ordinal: ordinal);
   }
 
-  T _consume<T extends EffectRecord>(Type type) {
+  T _peek<T extends EffectRecord>(Type type) {
     if (_cursor >= _records.length) {
       _fail(
         'ReplayJournal is empty, but the receptor attempted another '
@@ -188,12 +192,15 @@ class ReplayJournal implements EffectJournal {
         ordinal: record.ordinal,
       );
     }
-    // Kind validated: commit the consumption. Field-level validation
-    // (label/input/rawOutput) happens after this point in the callers;
-    // a field mismatch therefore leaves this record UNCONSUMED, which is
-    // the load-bearing detail for Phase 5's divergence diagnostics.
-    _cursor++;
     return record;
+  }
+
+  /// Advances the cursor past the currently peeked record. Only called
+  /// after the record's fields validated — a field mismatch leaves the
+  /// record unconsumed, which is the load-bearing detail for Phase 5's
+  /// divergence diagnostics (the mismatched effect stays identifiable).
+  void _commit() {
+    _cursor++;
   }
 }
 

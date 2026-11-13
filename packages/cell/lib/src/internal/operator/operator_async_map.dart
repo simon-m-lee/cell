@@ -156,19 +156,21 @@ class _AsyncMapState<S, T> {
           // pushed one (ReplayEngine's per-entry ReplayJournal); the
           // construction-time journal is the fallback for recording.
           final effective = JournalScope.effectiveJournal(journal);
+          final before =
+              effective is RecordingJournal ? effective.consumed : 0;
           final result = await JournalScope.run(
             effective,
             () => mapper(next, journal: effective),
           );
           // Phase 5 cooperative ledger capture: hand the just-recorded
-          // effect to the active LedgerScope so the entry for the pulse
-          // that caused this mapping carries the effect. Only for
+          // effects to the active LedgerScope so the entry for the pulse
+          // that caused this mapping carries them — every effect the
+          // mapper invocation produced, not only the last one. Only for
           // RecordingJournal-backed runs (replays have no ledger scope).
           final ledgerScope = LedgerScope.current;
           if (ledgerScope != null && effective is RecordingJournal) {
-            final last = effective.lastRecord;
-            if (last != null) {
-              LedgerScope.captureEffect(last);
+            for (final record in effective.recordsSince(before)) {
+              LedgerScope.captureEffect(record);
             }
           }
           if (latestOnly && gen != _generation) return; // superseded
