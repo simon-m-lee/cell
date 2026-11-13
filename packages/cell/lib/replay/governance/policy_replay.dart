@@ -22,27 +22,31 @@ abstract final class PolicyReplay {
   /// the replay side `ReplayJournal.policyTick` only consumes the
   /// record — the caller does not re-invoke the policy callback.
   ///
-  /// The [input] is the pulse's *payload* — the pulse object itself is
-  /// not stable across record/replay, its payload is.
+  /// The journal input is the pulse's *payload* — the pulse object
+  /// itself is not stable across record/replay, its payload is. The
+  /// policy callback still receives the pulse (preserving the
+  /// pre-Phase-7 contract) on the recording side only.
   static void tick({
     required EphemeralPolicy policy,
     required Cell cell,
-    required Object? input,
+    required PulseBase pulse,
   }) {
     final journal = JournalScope.current;
     if (journal is NullJournal) {
       // No journal: this tick is not being recorded. The graph is not
       // ledgered; call the policy as before.
-      policy.call(input, cell: cell);
+      policy.call(pulse, cell: cell);
       return;
     }
     journal.policyTick(
-      policyLabel: '${policy.runtimeType}@${identityHashCode(policy)}',
+      // runtimeType only: identity hashes differ between the recording
+      // and replay processes, and the journal compares labels exactly.
+      policyLabel: '${policy.runtimeType}',
       cellId: cell.id,
-      input: input,
+      input: pulse.payload,
     );
     if (journal is! ReplayJournal) {
-      policy.call(input, cell: cell);
+      policy.call(pulse, cell: cell);
     }
   }
 }

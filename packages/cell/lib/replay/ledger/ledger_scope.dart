@@ -113,12 +113,18 @@ class LedgerScope {
     // (debug VM), which is exactly where the queued append will run.
     final cellId = effectiveReceipt.cell.id;
     final journal = EffectJournal.current;
+    // Phase 7: capture only the records written since the previous
+    // immediate append (a per-scope watermark), not the whole journal.
+    // Without the watermark, a burst of apply pulses would attribute
+    // every earlier pulse's records to each later entry.
     final effects = journal is RecordingJournal
         ? journal
-            .toJson()
-            .map(EffectRecord.fromJson)
+            .recordsSince(scope._journalWatermark)
             .toList(growable: false)
         : const <EffectRecord>[];
+    if (journal is RecordingJournal) {
+      scope._journalWatermark = journal.consumed;
+    }
     unawaited(scope.recordAndAppend(
       pulse: pulse,
       receipt: effectiveReceipt,
@@ -201,6 +207,11 @@ class LedgerScopeImpl {
   final List<EffectRecord> _pendingEffects = [];
   final List<Future<void>> _windows = [];
   Future<void> _tail = Future<void>.value();
+
+  /// Phase 7: how many ambient-journal records the immediate
+  /// [LedgerScope.recordPulse] path has already attributed. Each
+  /// immediate append sweeps only records written after this watermark.
+  int _journalWatermark = 0;
 
   LedgerScopeImpl({required this.ledger}) : parent = null;
 

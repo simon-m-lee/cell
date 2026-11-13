@@ -882,7 +882,7 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
         PolicyReplay.tick(
           policy: ephemeralPolicy,
           cell: cell,
-          input: pulse.payload,
+          pulse: pulse,
         );
       }
       return !pulse.isInvalidated;

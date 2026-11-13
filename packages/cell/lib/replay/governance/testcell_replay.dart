@@ -42,22 +42,51 @@ abstract final class TestCellReplay {
         // contract depends on it.
         return rule.call(object, host: host);
 
-      case Purity.readOnlyExternal:
+      case Purity.readOnlyExternal: {
         // The rule runs; its external reads go through the journal.
         // The journal is already in scope (Phase 3), so the rule's
-        // `journal.io(...)` calls will be served from it.
-        return rule.call(object, host: host);
+        // `journal.io(...)` calls will be served from it. Records
+        // written while the rule runs are swept cooperatively into the
+        // active LedgerScope (the Phase 3 asyncMap pattern).
+        final before = journal.consumed;
+        final result = rule.call(object, host: host);
+        if (result is Future<bool>) {
+          return result.then((decision) {
+            _sweepCaptured(journal, before);
+            return decision;
+          });
+        }
+        _sweepCaptured(journal, before);
+        return result;
+      }
 
       case Purity.effectful:
         // The rule's decision is a recorded effect. On the recording
         // side `run` executes the rule exactly once; on the replay
         // side ReplayJournal.verdict serves the recorded verdict and
         // ignores `run`.
-        return journal.verdict(
-          ruleLabel: ruleLabel,
-          input: _encodeForVerdict(object),
-          run: () => rule.call(object, host: host),
-        );
+        final before = journal.consumed;
+        return journal
+            .verdict(
+              ruleLabel: ruleLabel,
+              input: _encodeForVerdict(object),
+              run: () => rule.call(object, host: host),
+            )
+            .then((decision) {
+          _sweepCaptured(journal, before);
+          return decision;
+        });
+    }
+  }
+
+  /// Cooperatively hands records written by the rule to the active
+  /// [LedgerScope] (Phase 3 pattern). No-op without a ledger scope or
+  /// on the replay side, where the journal is consumed rather than
+  /// written.
+  static void _sweepCaptured(EffectJournal journal, int before) {
+    if (journal is! RecordingJournal) return;
+    for (final record in journal.recordsSince(before)) {
+      LedgerScope.captureEffect(record);
     }
   }
 
