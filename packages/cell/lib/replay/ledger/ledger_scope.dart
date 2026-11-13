@@ -61,7 +61,12 @@ class LedgerScope {
       zoneValues: {_key: scope.withParent(previous)},
     );
     try {
-      return await zoned.run(body);
+      // Review fix: push the scope onto the JournalScope stack too, so
+      // `JournalScope.effectiveJournal` resolves operators to THIS scope
+      // during a ledgered run — their effects flow into the backing
+      // journal and the entry sweep instead of a detached operator
+      // journal the ledger never sees.
+      return await zoned.run(() => JournalScope.run(scope, body));
     } finally {
       await scope.drain();
       // (review): surface a component's refusal after the
@@ -122,19 +127,16 @@ class LedgerScope {
     // record access that costs ~0.5 ms per call inside future callbacks
     // (debug VM), which is exactly where the queued append will run.
     final cellId = effectiveReceipt.cell.id;
-    final journal = EffectJournal.current;
     // Capture only the records written since the previous
     // immediate append (a per-scope watermark), not the whole journal.
     // Without the watermark, a burst of apply pulses would attribute
-    // every earlier pulse's records to each later entry.
-    final effects = journal is RecordingJournal
-        ? journal
-            .recordsSince(scope._journalWatermark)
-            .toList(growable: false)
-        : const <EffectRecord>[];
-    if (journal is RecordingJournal) {
-      scope._journalWatermark = journal.consumed;
-    }
+    // every earlier pulse's records to each later entry. (Review fix:
+    // the sweep reads the SCOPE's backing journal — the scope is now the
+    // ambient journal during a ledgered run.)
+    final effects = scope._journal
+        .recordsSince(scope._journalWatermark)
+        .toList(growable: false);
+    scope._journalWatermark = scope._journal.consumed;
     unawaited(scope.recordAndAppend(
       pulse: pulse,
       receipt: effectiveReceipt,
@@ -210,7 +212,7 @@ class LedgerScope {
 ///
 /// The leading underscore keeps it out of the user-facing surface;
 /// `CellGraph.run` constructs it.
-class LedgerScopeImpl {
+class LedgerScopeImpl implements EffectJournal {
   final Ledger ledger;
   final LedgerScopeImpl? parent;
   final List<StateDelta> _pending = [];
@@ -252,25 +254,164 @@ class LedgerScopeImpl {
     _pending.add(delta);
   }
 
+  // ── EffectJournal delegation (review fix) ─────────────────────────
+  //
+  // The scope is pushed onto the JournalScope stack by LedgerScope.run,
+  // so `JournalScope.effectiveJournal` resolves operators to THIS scope
+  // during a ledgered run. Every effect the operators record lands in
+  // the backing recording journal AND is cooperatively captured into
+  // `_pendingEffects`, so deferred windows and immediate appends both
+  // sweep it into the entry. Previously the scope did not implement
+  // EffectJournal at all, and debounce/throttle/fromStream/fromFuture
+  // effects never entered the ledger.
+
+  final RecordingJournal _journal = RecordingJournal();
+
+  void _captureSince(int before) {
+    for (final record in _journal.recordsSince(before)) {
+      _pendingEffects.add(record);
+    }
+  }
+
+  @override
+  int get consumed => _journal.consumed;
+
+  @override
+  DateTime clock() {
+    final before = _journal.records.length;
+    final result = _journal.clock();
+    _captureSince(before);
+    return result;
+  }
+
+  @override
+  String uuid() {
+    final before = _journal.records.length;
+    final result = _journal.uuid();
+    _captureSince(before);
+    return result;
+  }
+
+  @override
+  Future<T> io<T>({
+    required String label,
+    required Object? input,
+    required Future<T> Function() run,
+    Object? Function(T)? serializeOutput,
+  }) async {
+    final before = _journal.records.length;
+    final result = await _journal.io<T>(
+      label: label,
+      input: input,
+      run: run,
+      serializeOutput: serializeOutput,
+    );
+    _captureSince(before);
+    return result;
+  }
+
+  @override
+  Future<void> timer({
+    required Duration duration,
+    required Object? input,
+    required FutureOr<void> Function() onFire,
+  }) async {
+    final before = _journal.records.length;
+    final pending =
+        _journal.timer(duration: duration, input: input, onFire: onFire);
+    // RecordingJournal.timer appends the TimerEffect SYNCHRONOUSLY
+    // (before awaiting the fire), matching the recording's schedule-time
+    // semantics. Capture it NOW so the deferred window of the pulse that
+    // scheduled the timer carries it even when the fire happens after
+    // the window closed.
+    _captureSince(before);
+    await pending;
+  }
+
+  @override
+  void push() {
+    // The JournalScope stack owns ordering; nothing to do here.
+  }
+
+  @override
+  void pop() {
+    // The JournalScope stack owns ordering; nothing to do here.
+  }
+
+  @override
+  Future<bool> verdict({
+    required String ruleLabel,
+    required Object? input,
+    required FutureOr<bool> Function() run,
+  }) async {
+    final before = _journal.records.length;
+    final result = await _journal.verdict(
+      ruleLabel: ruleLabel,
+      input: input,
+      run: run,
+    );
+    _captureSince(before);
+    return result;
+  }
+
+  @override
+  void policyTick({
+    required String policyLabel,
+    required String cellId,
+    required Object? input,
+  }) {
+    final before = _journal.records.length;
+    _journal.policyTick(
+      policyLabel: policyLabel,
+      cellId: cellId,
+      input: input,
+    );
+    _captureSince(before);
+  }
+
+  @override
+  void assertExhausted() {
+    _journal.assertExhausted();
+  }
+
+  @override
+  List<Map<String, Object?>> toJson() => _journal.toJson();
+
   /// Opens a deferred pulse window: the append runs one event-loop turn
   /// later, once the microtask queue (and with it the pulse's
   /// asynchronous effect continuations) has settled.
+  ///
+  /// Review fix: the DELTAS are snapshotted-and-cleared *now* — they
+  /// were captured synchronously while this pulse's receptor ran, and a
+  /// second window opened before either microtask used to steal them
+  /// (both windows shared one `_pending` bag). Effects stay shared for
+  /// one turn by design (burst attribution is the documented deferred
+  /// limitation), but the ambient-journal watermark advances at close so
+  /// a later immediate `recordPulse` cannot re-sweep the same records
+  /// onto its entry.
   void openWindow({
     required Pulse pulse,
     required ApplyReceipt receipt,
     required String cellId,
   }) {
+    final deltas = List<StateDelta>.from(_pending);
+    _pending.clear();
     final done = Future<void>.delayed(Duration.zero).then((_) {
       // Still current scope? The zone captured at scheduling keeps
       // `LedgerScope.current` resolving here even after the enclosing
       // run's body returned (drain waits for this window).
       final effects = List<EffectRecord>.of(_pendingEffects);
       _pendingEffects.clear();
+      // The captured effects are attributed to THIS window's entry;
+      // advance the watermark past them so the next immediate append's
+      // recordsSince sweep does not attach them again.
+      _journalWatermark = _journal.consumed;
       unawaited(recordAndAppend(
         pulse: pulse,
         receipt: receipt,
         cellId: cellId,
         effects: effects,
+        deltas: deltas,
       ));
     });
     _windows.add(done);
@@ -298,9 +439,10 @@ class LedgerScopeImpl {
     required ApplyReceipt receipt,
     required String cellId,
     required List<EffectRecord> effects,
+    List<StateDelta>? deltas,
   }) {
-    final deltas = List<StateDelta>.from(_pending);
-    _pending.clear();
+    final deltaList = deltas ?? List<StateDelta>.from(_pending);
+    if (deltas == null) _pending.clear();
     final extraEffects = List<EffectRecord>.of(_pendingEffects);
     _pendingEffects.clear();
     final allEffects = <EffectRecord>{...effects, ...extraEffects}.toList(
@@ -312,7 +454,7 @@ class LedgerScopeImpl {
         receipt: receipt,
         cellId: cellId,
         effects: allEffects,
-        deltas: deltas,
+        deltas: deltaList,
       ),
     );
     // Keep the chain alive after a failed append; the failure is still

@@ -88,15 +88,16 @@ abstract final class Cli {
   // ── commands ────────────────────────────────────────────────────────
 
   static Future<int> _verify(List<String> args) async {
+    // Review fix: `--strict` was parsed and silently ignored (verify has
+    // no lenient mode). The flag is no longer accepted; chain-only
+    // verification IS the strict behaviour.
     final opts = _parse(args, {
       'ledger': _Opt.required,
       'graph': _Opt.optional,
       'format': _Opt.optional,
-      'strict': _Opt.flag,
     });
     final ledgerPath = opts['ledger']!;
     final format = opts['format'] ?? 'human';
-    final strict = opts['strict'] == 'true';
 
     // We cannot reconstruct a Ledger without a CellGraph today —
     // the graph is an engine input. So `verify` without `--graph` can
@@ -122,7 +123,6 @@ abstract final class Cli {
       store: opened.store,
       genesisHash: opened.genesisHash,
       format: format,
-      strict: strict,
     );
   }
 
@@ -130,7 +130,6 @@ abstract final class Cli {
     required LedgerStore store,
     required String genesisHash,
     required String format,
-    required bool strict,
   }) async {
     // A placeholder graph lets us reuse `Ledger.verify`. The graph is
     // not consulted for chain verification except for the genesis
@@ -207,11 +206,15 @@ abstract final class Cli {
       genesisHash: openedB.genesisHash,
     );
 
-    final diffs = <_LedgerDiff>[];
-    final aEntries = <int, LedgerEntry>{};
-    await for (final e in ledgerA.entriesSince(0)) {
-      aEntries[e.seq] = e;
-    }
+    // Review fix: `diff` had no finally around the closes — an
+    // exception (e.g. a corrupt second file) leaked the open file
+    // handles on Windows.
+    try {
+      final diffs = <_LedgerDiff>[];
+      final aEntries = <int, LedgerEntry>{};
+      await for (final e in ledgerA.entriesSince(0)) {
+        aEntries[e.seq] = e;
+      }
     await for (final e in ledgerB.entriesSince(0)) {
       final a = aEntries.remove(e.seq);
       if (a == null) {
@@ -257,9 +260,11 @@ abstract final class Cli {
         }
       }
     }
-    await ledgerA.close();
-    await ledgerB.close();
-    return diffs.isEmpty ? 0 : 1;
+      return diffs.isEmpty ? 0 : 1;
+    } finally {
+      await ledgerA.close();
+      await ledgerB.close();
+    }
   }
 
   static Future<int> _fork(List<String> args) async {

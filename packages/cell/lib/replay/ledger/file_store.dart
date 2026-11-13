@@ -17,11 +17,10 @@ import 'package:cell/cell.dart'
 /// A [LedgerStore] backed by a single JSONL file.
 ///
 /// **One ledger per file.** Appending is `writeFrom` in append mode with
-/// a trailing newline — the OS guarantees the write is atomic up to
-/// `PIPE_BUF` (4096 bytes on Linux, smaller on some platforms). Entries
-/// larger than `PIPE_BUF` are not atomic on append; the store rejects
-/// them at `append` time with a loud error rather than silently
-/// corrupting the file.
+/// a trailing newline. A single writer appends entries sequentially and
+/// flushes after each one; a crash between flushes is detected by
+/// `verify` on reopen. There is no entry-size limit — entries carry the
+/// materialised pulse body and can legitimately grow with the payload.
 ///
 /// ### Non-obvious: no fsync per append
 ///
@@ -113,14 +112,14 @@ class FileLedgerStore implements LedgerStore {
       );
     }
     final line = '${canonicalJsonEncode(entry.toJson())}\n';
+    // Review fix: the entry-size cap was removed. Entries now carry the
+    // materialised pulse body (`pulseJson`), which pushes ordinary
+    // payloads past the old 4096-byte bound — the durable store must be
+    // able to hold the history the engine depends on. The former
+    // PIPE_BUF-based rationale never applied to regular files anyway
+    // (see the class docs). Very large payloads are the caller's own
+    // memory/disk tradeoff.
     final bytes = utf8.encode(line);
-    if (bytes.length > 4096) {
-      throw StateError(
-        'FileLedgerStore.append: entry ${entry.seq} is ${bytes.length} '
-        'bytes, exceeding PIPE_BUF (4096). Reduce the payload size, or '
-        'use a store that supports atomic multi-block appends.',
-      );
-    }
     await _raf!.writeFrom(bytes);
     await _raf.flush();
     _lastSeqCache = entry.seq;

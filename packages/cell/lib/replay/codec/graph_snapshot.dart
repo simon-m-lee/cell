@@ -66,15 +66,24 @@ class CellGraphSnapshot {
     if (rawCells is! List) {
       throw const FormatException('CellGraphSnapshot: cells must be a list');
     }
+    // Review fix: a non-map cell entry is corruption and must be LOUD
+    // — `whereType<Map>()` used to silently drop such cells and return
+    // a snapshot that quietly omits part of the graph.
+    final cells = <CellSnapshot>[];
+    for (final raw in rawCells) {
+      if (raw is! Map) {
+        throw const FormatException(
+          'CellGraphSnapshot: cells contains a non-map entry',
+        );
+      }
+      cells.add(CellSnapshot.fromJson(raw.cast<String, Object?>()));
+    }
     return CellGraphSnapshot(
       graphId: json['graphId'] as String,
       schemaVersion: version,
       lastLedgerSeq: (json['lastLedgerSeq'] as int?) ?? -1,
       parentLedgerHash: json['parentLedgerHash'] as String?,
-      cells: rawCells
-          .whereType<Map>()
-          .map((m) => CellSnapshot.fromJson(m.cast<String, Object?>()))
-          .toList(growable: false),
+      cells: cells,
     );
   }
 }

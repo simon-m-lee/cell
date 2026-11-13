@@ -32,6 +32,8 @@ class Ledger {
   final HashChain _chain;
   final StreamController<LedgerEntry> _tail =
       StreamController<LedgerEntry>.broadcast();
+  /// Serialises append execution across scopes (see appendInternal).
+  Future<void> _appendTail = Future<void>.value();
   bool _closed = false;
 
   Ledger._(this.graph, this.store, this._chain);
@@ -148,23 +150,43 @@ class Ledger {
   /// not use this — entries must carry the deltas that only
   /// `postProcessRule` captures.
   ///
-  /// ### Non-obvious: no internal serialisation
+  /// ### Non-obvious: appends are serialised on this ledger
   ///
-  /// `seq` is assigned from `lastSeq + 1` without a lock. `LedgerScope`
-  /// serialises appends on its own `_tail` chain, so scoped recording is
-  /// safe; a direct caller mixing `appendInternal` with concurrent
-  /// appends (including `ReplayEngineFork` appends racing another
-  /// writer on the same ledger) must serialise itself.
+  /// `seq` is assigned from `lastSeq + 1`; two scopes running
+  /// concurrently (overlapping `graph.run` calls allocate one scope
+  /// each) used to race on it. Review fix: appends queue on an internal
+  /// chain owned by the ledger, so seq assignment and the store write
+  /// are serialised across scopes — overlapping runs produce entries in
+  /// completion order instead of racing. Nested (awaited) runs were
+  /// already safe through the scope chain.
   Future<void> appendInternal({
     required Pulse pulse,
     required ApplyReceipt receipt,
     required String cellId,
     required List<EffectRecord> effects,
     required List<StateDelta> deltas,
-  }) async {
+  }) {
     if (_closed) {
       throw StateError('Ledger is closed');
     }
+    final task = _appendTail.then((_) => _appendInternalNow(
+          pulse: pulse,
+          receipt: receipt,
+          cellId: cellId,
+          effects: effects,
+          deltas: deltas,
+        ));
+    _appendTail = task.catchError((_) {});
+    return task;
+  }
+
+  Future<void> _appendInternalNow({
+    required Pulse pulse,
+    required ApplyReceipt receipt,
+    required String cellId,
+    required List<EffectRecord> effects,
+    required List<StateDelta> deltas,
+  }) async {
     final prevHash = (await store.lastHash) ?? _chain.genesisHash;
     final seq = (await store.lastSeq) + 1;
     final at = DateTime.now();

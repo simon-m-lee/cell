@@ -280,11 +280,13 @@ class CellGraph {
 
   Object? _snapshotValue(Cell cell) {
     if (cell is ValueCell) {
-      // ValueCell<V>.value is V?; the caller's V may not be JSON-
-      // encodable. Canonical encoder throws loudly on failure, which is
-      // the right behaviour — the journal's payload-codec registration will
-      // give the caller a place to plug in their own.
-      return cell.value;
+      // Review fix: encode with the SAME codec the ledger deltas use
+      // (`_encodeForLedger`) instead of storing the raw `cell.value` —
+      // a DateTime or other non-JSON live value used to throw inside
+      // canonicalJsonEncode when the snapshot was fingerprinted (e.g.
+      // the fork's originalSnapshotHash). JSON types pass through
+      // unchanged.
+      return ValueCell._encodeForLedger(cell.value);
     }
     // Non-ValueCell cells (ingress, derived, hub, etc.) have no
     // persistent state, so they snapshot to `null`. The snapshot still

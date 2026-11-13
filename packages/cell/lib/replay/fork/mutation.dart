@@ -39,8 +39,12 @@ part of '../../cell.dart';
 /// dropped, the journal is not consumed, which means subsequent entries
 /// would see the wrong effects. The fork engine handles this by **also**
 /// dropping the entry's effects from the fork ledger — the fork's
-/// entries have their own effects, recorded during the fork's replay,
-/// not inherited from the parent. This is why the fork ledger
-/// re-appends each replayed pulse even when the mutation returns
-/// `pulse` unchanged: the effects have to be re-recorded.
+/// entries carry the PARENT's effect records forward (the fork serves
+/// the parent's `ReplayJournal`; it never re-runs effectful `io`
+/// against the real world). Consequence: a mutation whose replacement
+/// pulse would perform *different* I/O diverges instead of recording a
+/// new history — what-if over effects (live re-recording) is a later
+/// forking revision. The fork ledger re-appends each replayed pulse
+/// even when the mutation returns `pulse` unchanged so the fork's
+/// history stays self-verifiable without the parent.
 typedef Mutation = Pulse? Function(LedgerEntry entry, Pulse pulse);

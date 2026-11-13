@@ -106,6 +106,17 @@ class ReplayEngine {
       if (options.maxEntries != null && replayed >= options.maxEntries!) {
         break;
       }
+      // Review fix: a fork ledger's seq 0 is the ForkRecord marker
+      // (cell `fork:<id>`), not a replayed pulse — replaying it always
+      // diverged. Make the usage error loud instead: fork replays must
+      // start at seq 1.
+      if (entry.seq == 0 && entry.receipt.id.startsWith('fork:')) {
+        throw StateError(
+          'ReplayEngine.replay: seq 0 of a fork ledger is the '
+          'ForkRecord marker, not an entry to replay. Replay a fork '
+          'with fromSeq: 1.',
+        );
+      }
 
       final divergence = await _replayOne(
         entry: entry,
@@ -190,12 +201,15 @@ class ReplayEngine {
     }
     final cell = registered.cell;
 
-    // Version check. If the target's live receptor/rule
-    // versions do not match the ledger's, try the version registry. If
-    // neither matches, fail loudly (a version boundary without a
+    // Version check. If the target's live receptor/rule versions do
+    // not match the ledger's, the version registry supplies the
+    // historical pair — which the dispatch below actually RUNS (review
+    // fix: a registry hit used to authorise the live implementation).
+    // If neither matches, fail loudly (a version boundary without a
     // translator is a divergence, not a guess).
-    final versionMismatch = _checkVersions(entry: entry, target: target);
-    if (versionMismatch != null) return versionMismatch;
+    final versionCheck = _checkVersions(entry: entry, target: target);
+    if (versionCheck.report != null) return versionCheck.report!;
+    final historicalReceptor = versionCheck.receptor;
 
     // 3. Reconstruct the input pulse. If it cannot be reconstructed,
     //    the entry is hand-crafted; treat as divergence.
@@ -266,7 +280,12 @@ class ReplayEngine {
     //    divergence flag in step 6.
     try {
       await JournalScope.run(replayJournal, () async {
-        await _dispatch(target: target, cell: cell, pulse: pulse);
+        await _dispatch(
+          target: target,
+          cell: cell,
+          pulse: pulse,
+          historicalReceptor: historicalReceptor,
+        );
         if (options.settleAfterDispatch) {
           await Future<void>.delayed(Duration.zero);
         }
@@ -313,21 +332,22 @@ class ReplayEngine {
     return entry.effects[index];
   }
 
-  /// Version enforcement. Returns a [DivergenceReport] when the
+  /// Version enforcement. Returns a non-null [DivergenceReport] when the
   /// ledger's recorded receptor/rule versions cannot be satisfied by
-  /// the target graph (no registry entry and no live match).
+  /// the target graph (no registry entry and no live match), and the
+  /// historical [Receptor] when the registry supplied one.
   ///
-  /// ### Non-obvious: the registry *gates*, it does not *install*
+  /// ### The registry *installs*, not just gates (review fix)
   ///
-  /// A registry hit proves the recorded version is available and
-  /// dispatch proceeds with the graph's live receptor — `resolve` is not
-  /// used to swap in the historical implementation, and the recorded
-  /// `contextVersion` / `ContextTranslatorRegistry` are not consulted by
-  /// the engine. The governance layer therefore prevents silent wrong-version replay
-  /// (the loud boundary); installing the registered historical
-  /// receptor/rule pair and translating contexts *during* dispatch is
-  /// the deferred translator-dispatch item.
-  static DivergenceReport? _checkVersions({
+  /// A registry hit no longer authorises the live implementation: the
+  /// registered historical receptor is returned and the dispatch clones
+  /// and activates it on the target cell, so a registered v1 actually
+  /// RUNS beside a live v2. The registered pair's rule version must also
+  /// match the recorded rule version. What remains deferred: running
+  /// the registered historical *rule* through the pipeline (the
+  /// receptor alone cannot re-execute `TestCell` validation) and
+  /// consulting the `ContextTranslatorRegistry` during dispatch.
+  static ({DivergenceReport? report, Receptor? receptor}) _checkVersions({
     required LedgerEntry entry,
     required CellGraph target,
   }) {
@@ -342,41 +362,64 @@ class ReplayEngine {
       final live = target[cellId]!.cell._nucleus;
       if (live.receptor.version == '0.0.0' &&
           live.testRule.version == '0.0.0') {
-        return null;
+        return (report: null, receptor: null);
       }
-      return DivergenceReport(
-        seq: entry.seq,
-        expected: 'unversioned ledger',
-        actual: 'live receptor version ${live.receptor.version}',
-        reason: 'ledger has no version information, but the target graph '
-            'is versioned; refusing to guess whether the receptor '
-            'implementation is the one that produced the entry',
+      return (
+        report: DivergenceReport(
+          seq: entry.seq,
+          expected: 'unversioned ledger',
+          actual: 'live receptor version ${live.receptor.version}',
+          reason: 'ledger has no version information, but the target graph '
+              'is versioned; refusing to guess whether the receptor '
+              'implementation is the one that produced the entry',
+        ),
+        receptor: null,
       );
     }
 
-    // The version registry wins when it has the recorded version.
-    if (target.versions.has(cellId: cellId, version: ledgerReceptorVersion)) {
-      return null;
+    // The version registry wins when it has the recorded version — and
+    // its historical receptor is what dispatch will run.
+    final resolved =
+        target.versions.resolve(cellId: cellId, version: ledgerReceptorVersion);
+    if (resolved != null) {
+      if (resolved.testRule.version != ledgerRuleVersion) {
+        return (
+          report: DivergenceReport(
+            seq: entry.seq,
+            expected: 'rule version $ledgerRuleVersion',
+            actual: 'registered rule version ${resolved.testRule.version}',
+            reason: 'the version registry resolves receptor version '
+                '$ledgerReceptorVersion but its rule version '
+                '${resolved.testRule.version} does not match the recorded '
+                'rule version $ledgerRuleVersion',
+          ),
+          receptor: null,
+        );
+      }
+      return (report: null, receptor: resolved.receptor);
     }
 
     // Otherwise the live implementation must match exactly.
     final live = target[cellId]!.cell._nucleus;
     if (live.receptor.version == ledgerReceptorVersion &&
         live.testRule.version == ledgerRuleVersion) {
-      return null;
+      return (report: null, receptor: null);
     }
 
-    return DivergenceReport(
-      seq: entry.seq,
-      expected: 'version $ledgerReceptorVersion / $ledgerRuleVersion',
-      actual: 'version ${live.receptor.version} / ${live.testRule.version}',
-      reason: 'version boundary: the ledger recorded receptor version '
-          '$ledgerReceptorVersion and rule version $ledgerRuleVersion, '
-          'but the target graph has versions '
-          '${live.receptor.version} / ${live.testRule.version}. Register '
-          'the recorded version in the graph\'s VersionRegistry '
-          '(graph.registerVersion), or record a ledger at the current '
-          'version.',
+    return (
+      report: DivergenceReport(
+        seq: entry.seq,
+        expected: 'version $ledgerReceptorVersion / $ledgerRuleVersion',
+        actual: 'version ${live.receptor.version} / ${live.testRule.version}',
+        reason: 'version boundary: the ledger recorded receptor version '
+            '$ledgerReceptorVersion and rule version $ledgerRuleVersion, '
+            'but the target graph has versions '
+            '${live.receptor.version} / ${live.testRule.version}. Register '
+            'the recorded version in the graph\'s VersionRegistry '
+            '(graph.registerVersion), or record a ledger at the current '
+            'version.',
+      ),
+      receptor: null,
     );
   }
 
@@ -384,14 +427,29 @@ class ReplayEngine {
   /// straight through the cell's receptor — the same path the original
   /// emit/apply machinery used — without re-entering `Cell.apply` or
   /// the ledger hooks (no LedgerScope is active, so nothing is
-  /// re-recorded).
+  /// re-recorded). When [historicalReceptor] is supplied (a version
+  /// registry hit), a fresh clone is activated on the target cell and
+  /// THAT implementation runs instead of the live one.
   static Future<Pulse?> _dispatch({
     required CellGraph target,
     required Cell cell,
     required Pulse pulse,
+    Receptor? historicalReceptor,
   }) async {
     final receptor = cell._nucleus.receptor;
-    final result = receptor.call(pulse);
+    if (historicalReceptor == null) {
+      final result = receptor.call(pulse);
+      if (result is Future<Pulse?>) return await result;
+      return result;
+    }
+    final historical = historicalReceptor.clone;
+    if (!historical.activate(cell)) {
+      throw StateError(
+        'ReplayEngine._dispatch: the registered historical receptor '
+        'could not be activated on cell "${cell.id}"',
+      );
+    }
+    final result = historical.call(pulse);
     if (result is Future<Pulse?>) return await result;
     return result;
   }

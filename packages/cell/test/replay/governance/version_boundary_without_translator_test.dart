@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cell/cell.dart';
 import 'package:test/test.dart';
 
@@ -6,6 +8,22 @@ class _VersionedRule extends TestCell<Cell> {
   final String version;
   _VersionedRule({required this.version})
       : super((_, {host, arguments, user}) => true);
+}
+
+class _VersionedReceptor extends ReceptorBase<Cell> {
+  @override
+  final String version;
+  final List<int> calls;
+  _VersionedReceptor({required this.version, required this.calls})
+      : super();
+  @override
+  Receptor<Cell> get clone =>
+      _VersionedReceptor(version: version, calls: calls);
+  @override
+  FutureOr<Pulse?> call(covariant Pulse incoming) {
+    if (incoming.payload is int) calls.add(incoming.payload as int);
+    return super.call(incoming);
+  }
 }
 
 void main() {
@@ -48,34 +66,105 @@ void main() {
     await ledger.close();
   });
 
-  test('registering the recorded version in the registry lets replay pass',
+  test('registering the recorded version makes the historical receptor run',
       () async {
-    final src = Cell.ingress<int>(testRule: _VersionedRule(version: '1.0.0'));
-    final graph = (CellGraph.builder()..register('src', src.cell)).build();
+    // Record with a versioned (receptor, rule) pair at 1.0.0.
+    final v1calls = <int>[];
+    final v1Receptor =
+        _VersionedReceptor(version: '1.0.0', calls: v1calls);
+    final cell = Cell.governed(
+      receptor: v1Receptor,
+      testRule: _VersionedRule(version: '1.0.0'),
+    );
+    final graph = (CellGraph.builder()..register('c', cell)).build();
     final ledger = await graph.bindLedger(
       store: InMemoryLedgerStore(
         genesisHash: Ledger.genesisHashOf(graph.id),
       ),
     );
     await graph.run(() async {
-      src.emit(1);
-      src.emit(2);
+      await cell.apply<Pulse<int>>((
+        function: (int payload) => Pulse<int>(payload),
+        arguments: (positionalArguments: [1], namedArguments: null),
+        compensation: null,
+      ));
+      await cell.apply<Pulse<int>>((
+        function: (int payload) => Pulse<int>(payload),
+        arguments: (positionalArguments: [2], namedArguments: null),
+        compensation: null,
+      ));
+    });
+    expect(v1calls, [1, 2]);
+
+    // Rebuild with the live pair at 2.0.0 and register the historical
+    // 1.0.0 pair. Review contract: a registry hit must RUN the
+    // historical receptor — not authorise the live one.
+    CellGraphRegistry.forceReset();
+    final v2calls = <int>[];
+    final cell2 = Cell.governed(
+      receptor: _VersionedReceptor(version: '2.0.0', calls: v2calls),
+      testRule: _VersionedRule(version: '2.0.0'),
+    );
+    final graph2 = (CellGraph.builder()..register('c', cell2)).build();
+    graph2.versions.register(
+      cellId: 'c',
+      version: '1.0.0',
+      receptor: v1Receptor,
+      testRule: _VersionedRule(version: '1.0.0'),
+    );
+    v1calls.clear();
+
+    final result = await ReplayEngine.replay(ledger: ledger, target: graph2);
+    expect(result.success, isTrue, reason: result.divergences.toString());
+    expect(v1calls, [1, 2],
+        reason: 'the registered historical receptor must actually run');
+    expect(v2calls, isEmpty,
+        reason: 'the live v2 receptor must not be used for recorded v1');
+    await ledger.close();
+  });
+
+  test('a registry pair whose rule version differs is refused', () async {
+    final cell = Cell.governed(
+      receptor: Receptor.passThrough,
+      testRule: _VersionedRule(version: '1.0.0'),
+    );
+    final graph = (CellGraph.builder()..register('c', cell)).build();
+    final ledger = await graph.bindLedger(
+      store: InMemoryLedgerStore(
+        genesisHash: Ledger.genesisHashOf(graph.id),
+      ),
+    );
+    await graph.run(() async {
+      await cell.apply<Pulse<int>>((
+        function: (int payload) => Pulse<int>(payload),
+        arguments: (positionalArguments: [1], namedArguments: null),
+        compensation: null,
+      ));
     });
 
     CellGraphRegistry.forceReset();
-    final src2 = Cell.ingress<int>(testRule: _VersionedRule(version: '2.0.0'));
-    final graph2 = (CellGraph.builder()..register('src', src2.cell)).build();
-    // The recorded (receptor, rule) pair is available at the recorded
-    // version, so the engine dispatches instead of failing.
+    final cell2 = Cell.governed(
+      receptor: Receptor.passThrough,
+      testRule: _VersionedRule(version: '2.0.0'),
+    );
+    final graph2 = (CellGraph.builder()..register('c', cell2)).build();
+    // Receptor version matches, rule version does not: the reviewer's
+    // "rule version is not rechecked" case must now fail loudly.
     graph2.versions.register(
-      cellId: 'src',
+      cellId: 'c',
       version: '0.0.0',
       receptor: Receptor.passThrough,
       testRule: _VersionedRule(version: '0.0.0'),
     );
 
-    final result = await ReplayEngine.replay(ledger: ledger, target: graph2);
-    expect(result.success, isTrue, reason: result.divergences.toString());
+    await expectLater(
+      ReplayEngine.replay(ledger: ledger, target: graph2),
+      throwsA(isA<ReplayDivergenceException>().having(
+        (e) => e.report?.reason,
+        'reason',
+        contains('rule version'),
+      )),
+    );
     await ledger.close();
   });
 

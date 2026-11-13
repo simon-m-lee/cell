@@ -117,9 +117,11 @@ class LedgerEntry {
         deltas.map((d) => d.toJson()).toList(growable: false),
       );
 
-  /// SHA-256 of the receipt. The `ledgerSeq` and `pulseDigest` fields are
-  /// excluded so a receipt's digest is stable across the back-fill that
-  /// happens between `apply` and `append`.
+  /// SHA-256 of the receipt. The digest is computed over the SAME
+  /// canonical JSON form the entry stores — including the back-filled
+  /// `ledgerSeq`, `pulseDigest` and governance version fields (review
+  /// fix: the doc previously claimed those were excluded;
+  /// `_receiptJson` has always included them).
   ///
   /// Reloaded entries carry their original stored receipt JSON (a live
   /// `Function` cannot be serialised), so the digest is computed over

@@ -13,6 +13,20 @@ part of '../../cell.dart';
 /// pulse processing is journaled as a `PolicyTickEffect`. On replay,
 /// the tick is consumed from the journal and re-applied to the
 /// `CycleChecker` — the cycle-checker reseed fix.
+///
+/// ### Honest boundary (review fix): the checker is reseeded, not the
+/// policy's *state*
+///
+/// `ReplayJournal.policyTick` consumes the record and never calls
+/// `policy.call` — that call is what updates the policy's event count,
+/// arms the TTL timer, and reclaims the cell on the live path, and the
+/// TTL timer itself is a raw Dart timer, not a journal effect.
+/// Consequence: a governed cell can replay with matching deltas but a
+/// different *lifetime* — an entry where the limit would have tripped
+/// still commits, and later pulses that the recording dropped are not
+/// dropped on replay. Full policy-state fidelity (TTL and event-limit
+/// bookkeeping through the journal) is deferred work; what the current
+/// engine guarantees is tick ORDER parity through the checker reseed.
 abstract final class PolicyReplay {
   /// Records (or replays) a policy tick.
   ///

@@ -57,6 +57,17 @@ class StateDelta {
         'at': at.toUtc().toIso8601String(),
       };
 
+  /// ### Non-obvious: a `null` value and a missing key parse identically
+  ///
+  /// `toJson` drops null `before`/`after` keys, so a digest cannot
+  /// distinguish "the value was null" from "the key was dropped"
+  /// (round-tripping preserves the null either way). Recorded deltas
+  /// always carry both fields through `_encodeForLedger` — a genuine
+  /// null encodes as a dropped key — and the hash chain is what makes
+  /// tampering with the stored JSON loud; an explicit null marker was
+  /// deliberately not introduced because it would change every stored
+  /// delta digest and invalidate existing ledgers.
+
   factory StateDelta.fromJson(Map<String, Object?> json) => StateDelta(
         cellId: json['cellId'] as String,
         before: json['before'],

@@ -76,6 +76,13 @@ class _CellGraphRegistry {
   /// that will no longer resolve after the reset.
   @visibleForTesting
   static void forceReset() {
+    resetForFork();
+  }
+
+  /// The same reset, for the library's own use: `CellGraph.fork` hands
+  /// the isolate's id namespace to the fresh fork graph (the parent is
+  /// finished in this isolate — see the fork docs).
+  static void resetForFork() {
     _byNucleus.clear();
     _byId.clear();
     _ReplayCellRegistry.forceReset();

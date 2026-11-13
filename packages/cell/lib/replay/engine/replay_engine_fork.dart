@@ -184,10 +184,22 @@ extension ReplayEngineFork on ReplayEngine {
     final cellId = entry.receiptCellId;
     final cell = fork.graph[cellId]!.cell;
 
-    // The fork's actual before-value — read BEFORE dispatch. (The doc
+    // Version enforcement (review fix: the fork replay used to skip
+    // _checkVersions entirely, so a version boundary passed silently).
+    final versionCheck =
+        ReplayEngine._checkVersions(entry: entry, target: fork.graph);
+    if (versionCheck.report != null) return versionCheck.report;
+
+    // The fork's actual before-values — read BEFORE dispatch. (The doc
     // assumed the parent entry's before; that equality holds only until
     // the first mutation, after which the fork's history is its own.)
-    final Object? beforeValue = cell is ValueCell ? cell.value : null;
+    final beforeEncoded = <String, Object?>{};
+    for (final root in fork.graph.roots) {
+      final c = root.cell;
+      if (c is ValueCell) {
+        beforeEncoded[root.name] = ValueCell._encodeForLedger(c.value);
+      }
+    }
 
     // Build the replay journal from the PARENT entry's effects. (Review
     // fix: the fork used a fresh RecordingJournal here, which re-ran the
@@ -201,11 +213,12 @@ extension ReplayEngineFork on ReplayEngine {
     // before the journal is checked.
     try {
       await JournalScope.run(replayJournal, () async {
-        final receptor = cell._nucleus.receptor;
-        final result = receptor.call(mutatedPulse);
-        if (result is Future<Pulse?>) {
-          await result;
-        }
+        await ReplayEngine._dispatch(
+          target: fork.graph,
+          cell: cell,
+          pulse: mutatedPulse,
+          historicalReceptor: versionCheck.receptor,
+        );
         if (options.settleAfterDispatch) {
           await Future<void>.delayed(Duration.zero);
         }
@@ -230,15 +243,26 @@ extension ReplayEngineFork on ReplayEngine {
       );
     }
 
-    // Capture the delta the fork produced. For a ValueCell, the before
-    // is the state the fork's baseline + previous replays left; the
-    // after is what this dispatch actually produced.
+    // Capture the deltas the fork produced. Review fix: ALL registered
+    // ValueCells are snapshotted before/after dispatch, not only the
+    // receipt cell — downstream cells the pulse also wrote would
+    // otherwise never enter the fork ledger, and a later replay of the
+    // fork would check only one cell. The `before` is the state the
+    // fork's baseline + previous replays left; `after` is what this
+    // dispatch actually produced.
     final forkDeltas = <StateDelta>[];
-    if (cell is ValueCell) {
+    for (final root in fork.graph.roots) {
+      final c = root.cell;
+      if (c is! ValueCell) continue;
+      final after = ValueCell._encodeForLedger(c.value);
+      final before = beforeEncoded[root.name];
+      if (canonicalJsonEncode(before) == canonicalJsonEncode(after)) {
+        continue; // unchanged — no delta to record
+      }
       forkDeltas.add(StateDelta(
-        cellId: cellId,
-        before: ValueCell._encodeForLedger(beforeValue),
-        after: ValueCell._encodeForLedger(cell.value),
+        cellId: root.name,
+        before: before,
+        after: after,
         at: DateTime.now(),
       ));
     }

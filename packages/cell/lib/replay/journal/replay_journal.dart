@@ -133,7 +133,14 @@ class ReplayJournal implements EffectJournal {
       return served as T;
     } on TypeError catch (e, st) {
       // Consumed but unusable: surface as a replay divergence instead of
-      // a raw TypeError.
+      // a raw TypeError — AND latch the divergence (review fix: the
+      // previous bare throw left `_diverged` false, so an operator error
+      // contract could swallow the exception and `assertExhausted`
+      // would pass if this was the last effect).
+      _diverged = true;
+      _divergenceReason ??= 'I/O output type mismatch for "$label": '
+          'the recorded output cannot be used as the requested type '
+          '($e)';
       throw ReplayDivergenceException(
         'I/O output type mismatch for "$label": the recorded output '
         'cannot be used as the requested type ($e)\n$st',

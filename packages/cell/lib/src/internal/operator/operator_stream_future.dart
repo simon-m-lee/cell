@@ -96,6 +96,9 @@ Cell _fromStream<T>(
       // the engine's ReplayEngine re-injects during replay; the live path
       // emits the actual value either way, synchronously as before.
       final effective = JournalScope.effectiveJournal(journal);
+      final scope = LedgerScope.current;
+      final before =
+          effective is RecordingJournal ? effective.records.length : 0;
       unawaited(JournalScope.run(
         effective,
         () => effective.io(
@@ -103,12 +106,30 @@ Cell _fromStream<T>(
           input: value,
           run: () async => value,
         ),
-      ));
+      ).then((_) {
+        // Review fix: hand the io records to the ledger scope, exactly
+        // like asyncMap's cooperative capture. Previously fromStream
+        // effects never entered the ledger.
+        if (scope != null && effective is RecordingJournal) {
+          for (final record in effective.recordsSince(before)) {
+            LedgerScope.captureEffect(record);
+          }
+        }
+      }));
+      final output = Pulse<T>.governed(payload: value, source: host);
       JournalScope.runSync(effective, () {
-        host._nucleus.receptor.call(
-          Pulse<T>.governed(payload: value, source: host),
-        );
+        host._nucleus.receptor.call(output);
       });
+      // Review fix: the operator emitted a pulse without going through
+      // apply/ingress — previously no entry was ever written (and the
+      // captured delta sat in `_pending` until the next pulse stole it).
+      // Defer the append one turn so the io record lands in the window.
+      LedgerScope.recordPulseDeferred(
+        pulse: output,
+        emitCell: host,
+        emitFunction: _streamEmitMarker,
+        emittedValue: value,
+      );
       // Removed: redundant lifecycle(value, cell: host) call.
       // passThrough is not governed, but the cell is.
       // ReceptorBase._proceed handles the lifecycle policy tick automatically.
@@ -158,6 +179,15 @@ Cell _fromStream<T>(
 /// graph reacts), but the failure is not journalled as an effect — replay
 /// cannot reconstruct the error pulse. Journaling future errors is
 /// deferred to a later revision (error-pulse reconstruction).
+///
+/// ### Ledger attribution gap (documented)
+///
+/// The future/stream continuation runs in the zone where the operator
+/// was *constructed*, so an operator built before `graph.run` emits
+/// outside the ledger scope and writes no entry. Construct the operator
+/// inside a ledgered run when the emission must be recorded; detached
+/// stream/future emissions (and their error pulses) remain a later
+/// revision's concern.
 Cell _fromFuture<T>(
   Future<T> future, {
   required EffectJournal journal,
@@ -181,6 +211,9 @@ Cell _fromFuture<T>(
   future.then((value) {
     if (!cell.isInvalidated) {
       final effective = JournalScope.effectiveJournal(journal);
+      final scope = LedgerScope.current;
+      final before =
+          effective is RecordingJournal ? effective.records.length : 0;
       unawaited(JournalScope.run(
         effective,
         () => effective.io(
@@ -188,12 +221,26 @@ Cell _fromFuture<T>(
           input: null,
           run: () async => value,
         ),
-      ));
+      ).then((_) {
+        if (scope != null && effective is RecordingJournal) {
+          for (final record in effective.recordsSince(before)) {
+            LedgerScope.captureEffect(record);
+          }
+        }
+      }));
+      final output = Pulse<T>.governed(payload: value, source: cell);
       JournalScope.runSync(effective, () {
-        cell._nucleus.receptor.call(
-          Pulse<T>.governed(payload: value, source: cell),
-        );
+        cell._nucleus.receptor.call(output);
       });
+      // Review fix: same as fromStream — the operator emitted without
+      // apply/ingress, so no entry was ever written. Record a deferred
+      // window carrying the io and the captured delta.
+      LedgerScope.recordPulseDeferred(
+        pulse: output,
+        emitCell: cell,
+        emitFunction: _streamEmitMarker,
+        emittedValue: value,
+      );
     }
   }, onError: (Object error, StackTrace stackTrace) {
     if (!cell.isInvalidated) {
@@ -212,3 +259,7 @@ Cell _fromFuture<T>(
 
   return cell;
 }
+
+/// Stable marker for the synthetic receipts written when fromStream /
+/// fromFuture emit under a ledger (the receipt function symbol).
+Object? _streamEmitMarker(Object? _) => null;

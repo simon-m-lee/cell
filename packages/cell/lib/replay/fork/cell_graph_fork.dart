@@ -78,11 +78,17 @@ extension CellGraphFork on CellGraph {
     //    any atSeq below the head.)
     final parentHead = await parent.hashAtSeq(atSeq);
 
-    // 3. Build the fresh graph first: the ForkRecord's snapshot hash
-    //    must describe the PARENT'S STATE AT atSeq, not whatever state
-    //    the live receiver happens to be in now (review fix: the
-    //    previous order fingerprinted `this.snapshot()` — live values
-    //    possibly past the fork point — and labelled it with atSeq).
+    // 3. Build the fresh graph. Review fix: the process-wide cell id
+    //    registry never unregisters dropped graphs, so a fresh graph
+    //    with the same names would collide with the PARENT's live
+    //    registrations and `buildFreshGraph()` would throw. The fork
+    //    takes over the isolate's registry: the parent checks above are
+    //    done, and the parent's ledger entries resolve by the recorded
+    //    id STRINGS (not the live registry), so replays stay correct.
+    //    The parent graph must not be appended to afterwards in this
+    //    isolate (its cells lost their registered names) — rebuild the
+    //    parent from a fresh registry if it must keep running.
+    _CellGraphRegistry.resetForFork();
     final freshGraph = buildFreshGraph();
     if (freshGraph.ledger != null) {
       throw StateError(

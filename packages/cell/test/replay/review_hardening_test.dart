@@ -943,6 +943,225 @@ void main() {
         reason: 'a system context must decode back to an ungoverned pulse');
     expect(decoded.payload, 5);
   });
+
+  // ── Fourth review hardening ───────────────────────────────────────
+
+  test('fork builds its fresh graph without the caller resetting the registry',
+      () async {
+    final counter = Cell.state<int>(initial: 0);
+    final graph = (CellGraph.builder(graphId: 'fork-nore')
+          ..registerState('c', counter))
+        .build();
+    final ledger = await graph.bindLedger(
+      store: InMemoryLedgerStore(
+        genesisHash: Ledger.genesisHashOf(graph.id),
+      ),
+    );
+    await graph.run(() async {
+      counter.update(1);
+      counter.update(2);
+    });
+
+    // NO forceReset inside the factory: fork itself takes over the
+    // isolate's id namespace (previously this threw a registration
+    // collision while the parent graph was alive).
+    final fork = await graph.fork(
+      parent: ledger,
+      atSeq: 1,
+      buildFreshGraph: () {
+        final c = Cell.state<int>(initial: 0);
+        return (CellGraph.builder(graphId: 'fork-nore')
+              ..registerState('c', c))
+            .build();
+      },
+      buildStore: (genesis) => InMemoryLedgerStore(genesisHash: genesis),
+    );
+    expect((fork.graph['c']!.cell as ValueCell<int>).value, 2);
+    await fork.verify();
+    await ledger.close();
+  });
+
+  test('fromFuture constructed inside a ledgered run records its entry',
+      () async {
+    CellGraphRegistry.forceReset();
+    final completer = Completer<int>();
+    final counter = Cell.state<int>(initial: 0);
+    final graph = (CellGraph.builder(graphId: 'ff-ledger')
+          ..registerState('c', counter))
+        .build();
+    final ledger = await graph.bindLedger(
+      store: InMemoryLedgerStore(
+        genesisHash: Ledger.genesisHashOf(graph.id),
+      ),
+    );
+    await graph.run(() async {
+      // Constructed INSIDE the run, the operator's continuation zone
+      // inherits the ledger scope, so the emission can be attributed.
+      final cell = Cell.fromFuture(
+        completer.future,
+        journal: RecordingJournal(),
+      );
+      cell; // keep the operator alive for the run
+      completer.complete(7);
+      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(Duration.zero);
+    });
+    expect(await ledger.lastSeq, 0,
+        reason: 'fromFuture must write its own entry (previously none)');
+    final entry = await ledger.entriesSince(0).first;
+    expect(entry.effects.map((e) => e.kind), contains('io'),
+        reason: 'the io record must land in the ledger entry');
+    await ledger.close();
+  });
+
+  test('debounce under a ledger attributes its timer effect', () async {
+    CellGraphRegistry.forceReset();
+    final src = Cell.ingress<int>();
+    final debounced = Cell.debounce(
+      src.cell,
+      const Duration(milliseconds: 5),
+      journal: RecordingJournal(),
+    );
+    final graph = (CellGraph.builder(graphId: 'deb-ledger')
+          ..register('src', src.cell)
+          ..register('d', debounced))
+        .build();
+    final ledger = await graph.bindLedger(
+      store: InMemoryLedgerStore(
+        genesisHash: Ledger.genesisHashOf(graph.id),
+      ),
+    );
+    await graph.run(() async {
+      src.emit(1);
+      await Future<void>.delayed(const Duration(milliseconds: 30));
+    });
+    final entry = await ledger.entriesSince(0).first;
+    expect(entry.effects.map((e) => e.kind), contains('timer'),
+        reason: 'the debounce timer must be captured into the entry');
+    await ledger.close();
+  });
+
+  test('the file store accepts entries larger than 4096 bytes', () async {
+    final dir = await Directory.systemTemp.createTemp('big_entry');
+    final path = '${dir.path}/ledger.jsonl';
+    CellGraphRegistry.forceReset();
+    final counter = Cell.state<String>(initial: '');
+    final graph = (CellGraph.builder(graphId: 'big-e')
+          ..registerState('c', counter))
+        .build();
+    final ledger = await graph.bindLedger(
+      store: await FileLedgerStore.open(
+        path,
+        genesisHash: Ledger.genesisHashOf(graph.id),
+      ),
+    );
+    await graph.run(() async {
+      counter.update('x' * 6000);
+    });
+    await ledger.close();
+
+    final reopened = await Ledger.open(
+      graph: graph,
+      store: await FileLedgerStore.open(
+        path,
+        genesisHash: Ledger.genesisHashOf(graph.id),
+      ),
+      genesisHash: Ledger.genesisHashOf(graph.id),
+    );
+    await reopened.verify();
+    await reopened.close();
+    await dir.delete(recursive: true);
+  });
+
+  test('replaying a fork ledger from seq 0 fails loudly', () async {
+    final counter = Cell.state<int>(initial: 0);
+    final graph = (CellGraph.builder(graphId: 'fork-s0')
+          ..registerState('c', counter))
+        .build();
+    final ledger = await graph.bindLedger(
+      store: InMemoryLedgerStore(
+        genesisHash: Ledger.genesisHashOf(graph.id),
+      ),
+    );
+    await graph.run(() async {
+      counter.update(1);
+    });
+    final fork = await graph.fork(
+      parent: ledger,
+      atSeq: 0,
+      buildFreshGraph: () {
+        CellGraphRegistry.forceReset();
+        final c = Cell.state<int>(initial: 0);
+        return (CellGraph.builder(graphId: 'fork-s0')
+              ..registerState('c', c))
+            .build();
+      },
+      buildStore: (genesis) => InMemoryLedgerStore(genesisHash: genesis),
+    );
+    CellGraphRegistry.forceReset();
+    final third = Cell.state<int>(initial: 0);
+    final thirdGraph = (CellGraph.builder(graphId: 'fork-s0')
+          ..registerState('c', third))
+        .build();
+    await expectLater(
+      ReplayEngine.replay(ledger: fork.ledger, target: thirdGraph),
+      throwsA(isA<StateError>().having(
+        (e) => '$e',
+        'message',
+        contains('fromSeq: 1'),
+      )),
+    );
+    await ledger.close();
+  });
+
+  test('snapshots encode non-JSON values instead of throwing', () {
+    CellGraphRegistry.forceReset();
+    final counter = Cell.state<DateTime>(
+      initial: DateTime.utc(2026, 11, 12),
+    );
+    final graph = (CellGraph.builder(graphId: 'dt-snap')
+          ..registerState('c', counter))
+        .build();
+    // Used to throw inside canonicalJsonEncode when fingerprinted.
+    final snapshot = graph.snapshot();
+    expect(fingerprint(snapshot.toJson()), isNotEmpty);
+  });
+
+  test('snapshot fromJson rejects corrupt cell entries', () {
+    expect(
+      () => CellGraphSnapshot.fromJson({
+        'graphId': 'g',
+        'schemaVersion': 1,
+        'lastLedgerSeq': -1,
+        'cells': ['not a map'],
+      }),
+      throwsA(isA<FormatException>()),
+    );
+  });
+
+  test('overlapping graph.run appends serialise without racing', () async {
+    final counter = Cell.state<int>(initial: 0);
+    final graph = (CellGraph.builder(graphId: 'overlap')
+          ..registerState('c', counter))
+        .build();
+    final ledger = await graph.bindLedger(
+      store: InMemoryLedgerStore(
+        genesisHash: Ledger.genesisHashOf(graph.id),
+      ),
+    );
+    final a = graph.run(() async {
+      counter.update(1);
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+    });
+    final b = graph.run(() async {
+      counter.update(2);
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+    });
+    await Future.wait([a, b]);
+    expect(await ledger.lastSeq, 1);
+    await ledger.verify();
+    await ledger.close();
+  });
 }
 
 class _EffectfulAllowRule extends TestCell<Cell> with Effectful {

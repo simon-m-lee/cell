@@ -215,17 +215,34 @@ class _JournalTimer {
     required this.input,
     required this.onFire,
   }) {
+    final j = journal;
+    final before = j is RecordingJournal ? j.records.length : 0;
     _pending = journal
         .timer(duration: duration, input: input, onFire: () {
           if (_cancelled) return;
           onFire();
         })
+        .then((_) {
+          // Review fix: cooperative ledger capture. Under a ledgered
+          // run the timer record went to the operator's own journal;
+          // hand it to the active scope so the deferred window of the
+          // pulse that scheduled the timer carries it (previously
+          // debounce/throttle effects never entered the ledger).
+          if (LedgerScope.current != null && j is RecordingJournal) {
+            for (final record in j.recordsSince(before)) {
+              LedgerScope.captureEffect(record);
+            }
+          }
+        })
         .catchError((Object e, StackTrace st) {
-          // A timer that throws in its callback is the caller's bug, not
-          // the journal's. Surface it through the pulse's onError path —
-          // which is what the previous, non-journalled timer did via the
-          // zone.
+          // A timer that throws in its callback is the caller's bug.
+          // Surface it loudly: poison the ledger scope (reported at the
+          // graph.run boundary) and rethrow so the failure is not
+          // discarded — the previous implementation swallowed it here.
           _cancelled = true;
+          final scope = LedgerScope.current;
+          if (scope != null) scope.poison(e);
+          Error.throwWithStackTrace(e, st);
         });
   }
 
