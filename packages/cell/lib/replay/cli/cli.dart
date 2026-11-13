@@ -98,7 +98,6 @@ abstract final class Cli {
     final format = opts['format'] ?? 'human';
     final strict = opts['strict'] == 'true';
 
-    final opened = await _openStore(ledgerPath);
     // We cannot reconstruct a Ledger without a CellGraph in Phase 8 —
     // the graph is a Phase 5 input. So `verify` without `--graph` can
     // only verify the *chain*, not replay. This is the honest
@@ -106,18 +105,24 @@ abstract final class Cli {
     //
     // Phase 8.1 will add `--graph-snapshot` to reconstruct the target
     // graph from a snapshot, which is Phase 5.1's job.
-    if (opts['graph'] == null) {
-      return _verifyChainOnly(
-        store: opened.store,
-        genesisHash: opened.genesisHash,
-        format: format,
-        strict: strict,
+    //
+    // Non-obvious: this check runs BEFORE `_openStore` — rejecting the
+    // flag after opening the store would leak the file's
+    // RandomAccessFile on Windows (the doc's original ordering).
+    if (opts['graph'] != null) {
+      throw _UsageException(
+        '--graph is not supported in Phase 8; verify only checks the '
+        'ledger chain. Full replay verification is Phase 8.1 '
+        '(requires Phase 5.1 snapshot reconstruction).',
       );
     }
-    throw _UsageException(
-      '--graph is not supported in Phase 8; verify only checks the '
-      'ledger chain. Full replay verification is Phase 8.1 '
-      '(requires Phase 5.1 snapshot reconstruction).',
+
+    final opened = await _openStore(ledgerPath);
+    return _verifyChainOnly(
+      store: opened.store,
+      genesisHash: opened.genesisHash,
+      format: format,
+      strict: strict,
     );
   }
 
