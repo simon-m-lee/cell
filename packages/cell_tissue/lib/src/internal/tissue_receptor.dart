@@ -49,7 +49,7 @@ class _PassThroughTissueReceptor implements TissueReceptor<Never, Never> {
   @override
   Purity get purity => Purity.pure;
 
-  /// Unversioned (`0.0.0`) until Phase 3 stamps receptor versions.
+  /// Unversioned (`0.0.0`) until the journal layer stamps receptor versions.
   @override
   String get version => '0.0.0';
 }

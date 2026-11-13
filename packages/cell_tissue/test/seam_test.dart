@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 //
-// Phase 3.2 of CONTRIBUTING-AI-DOC.md (package:cell_tissue variant):
+// Mirrors CONTRIBUTING-AI-DOC.md (package:cell_tissue variant):
 // the same grep seam rule that fails a Mitose run also fails this
 // package's own CI.
 

@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 //
-// Phase 3.3 of CONTRIBUTING-AI-DOC.md: `dart run tool/ai_preflight.dart`
+// Mirrors CONTRIBUTING-AI-DOC.md: `dart run tool/ai_preflight.dart`
 // must exit 0 on master. This test imports the same logic so CI fails the
 // moment a pin drifts.
 

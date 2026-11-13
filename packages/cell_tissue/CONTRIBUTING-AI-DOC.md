@@ -1,6 +1,6 @@
 # CONTRIBUTING-AI-DOC — AI-facing doc-comment convention for `package:cell_tissue`
 
-Implements Phase 1 of the AI-facing documentation enhancement. The normative format is the
+Implements the first iteration of the AI-facing documentation enhancement. The normative format is the
 `### AI Agent Guide` block appended to public doc comments; see
 `packages/cell/CONTRIBUTING-AI-DOC.md` for the canonical spec (same rules,
 Tissue-specific content below).
@@ -14,7 +14,7 @@ Tissue-specific content below).
 3. **Live signature pins against `cell_tissue:`** — e.g.
    `` `TissueList<E>({testRule, ...})` — pinned at `cell_tissue: 1.0.0` ``.
 4. **Guide pointers** use `HowTo-Mitose-Tissue.md` §2.x with the stable anchor
-   added in Phase 2 (`#tissue-list`, `#tissue-set`, `#tissue-map`,
+   added in the anchor update (`#tissue-list`, `#tissue-set`, `#tissue-map`,
    `#tissue-queue`, `#tissue-value`, `#tissue-testtissue`, `#tissue-deputies`).
 5. **Cross-layer** states when to leave Tissue: entry is `Cell.ingress`, the
    decision is a `cell_flow` instruction, and `Cell.observe` is the only glue
@@ -35,5 +35,5 @@ Tissue-specific content below).
 
 ## Coverage
 
-Phase 1 covers the five collection types, `TestTissue`, and the deputy /
+The first iteration covers the five collection types, `TestTissue`, and the deputy /
 `.unmodifiable` surface (the whole public Tissue layer — it is small).
