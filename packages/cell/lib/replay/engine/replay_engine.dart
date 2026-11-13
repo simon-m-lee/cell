@@ -147,7 +147,10 @@ class ReplayEngine {
     // 2. Resolve the target cell. If the ledger refers to a cell that is
     //    not in the target graph, that is a hard divergence: the
     //    recording is for a graph that is not the one being replayed.
-    final cellId = entry.receipt.cell.id;
+    //    The recorded id — not the live receipt cell's re-resolved id —
+    //    must be used: the live registry may have been reset since the
+    //    recording.
+    final cellId = entry.receiptCellId;
     final registered = target[cellId];
     if (registered == null) {
       return DivergenceReport(

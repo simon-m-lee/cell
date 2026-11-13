@@ -59,7 +59,7 @@ abstract final class PulseReconstructor {
     }
 
     StateDelta? delta;
-    final cellId = entry.receipt.cell.id;
+    final cellId = entry.receiptCellId;
     for (final d in entry.deltas) {
       if (d.cellId == cellId) {
         delta = d;

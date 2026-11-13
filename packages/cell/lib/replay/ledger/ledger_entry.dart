@@ -59,7 +59,9 @@ class LedgerEntry {
 
   /// The original receipt JSON, carried by reloaded entries so that
   /// `receiptDigest` and `toJson` stay byte-identical to the stored
-  /// form (a live `Function` cannot be serialised).
+  /// form (a live `Function` cannot be serialised). Append-created
+  /// entries carry it too, so the recorded cell id never depends on the
+  /// live registry's state.
   final Map<String, Object?>? _storedReceiptJson;
 
   const LedgerEntry({
@@ -71,7 +73,8 @@ class LedgerEntry {
     required this.effects,
     required this.deltas,
     required this.at,
-  }) : _storedReceiptJson = null;
+    Map<String, Object?>? receiptJson,
+  }) : _storedReceiptJson = receiptJson;
 
   LedgerEntry._restored({
     required this.seq,
@@ -84,6 +87,13 @@ class LedgerEntry {
     required this.at,
     required Map<String, Object?> storedReceiptJson,
   }) : _storedReceiptJson = storedReceiptJson;
+
+  /// The cell id recorded in the receipt — the value captured when the
+  /// entry was appended. `receipt.cell.id` re-resolves through the live
+  /// registry and can change after `CellGraphRegistry.forceReset`;
+  /// the recorded id cannot.
+  String get receiptCellId =>
+      (_storedReceiptJson?['cell'] ?? receipt.cell.id) as String;
 
   /// SHA-256 of the effects list. Used by `HashChain.nextHash`.
   String get effectsDigest => fingerprint(

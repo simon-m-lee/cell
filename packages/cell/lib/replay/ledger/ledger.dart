@@ -167,8 +167,8 @@ class Ledger {
       pulseDigest: pulseDigest,
     );
 
-    final receiptDigest =
-        fingerprint(LedgerEntry._receiptJson(filledReceipt, cellId));
+    final receiptJson = LedgerEntry._receiptJson(filledReceipt, cellId);
+    final receiptDigest = fingerprint(receiptJson);
     final hash = _chain.nextHash(
       prevHash: prevHash,
       seq: seq,
@@ -188,6 +188,7 @@ class Ledger {
       effects: List.unmodifiable(effects),
       deltas: List.unmodifiable(deltas),
       at: at,
+      receiptJson: receiptJson,
     );
     await store.append(entry);
     if (!_tail.isClosed) _tail.add(entry);
