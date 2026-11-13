@@ -39,6 +39,15 @@ class ForkLedgerStore implements LedgerStore {
 
   ForkLedgerStore({required this.record, required this.inner});
 
+  /// Writes the synthetic seq-0 [ForkRecord] entry into [inner] without
+  /// appending a real entry.
+  ///
+  /// Phase 8 addition: the CLI's `fork` command must produce a fork
+  /// ledger *file* whose `seq 0` is the `ForkRecord` even before any
+  /// replay appends. Without this, an empty fork file would only gain
+  /// its synthetic entry on the first `append`.
+  Future<void> materialize() => _ensureInjected();
+
   /// The fork's chain genesis. [inner] must have been created with this
   /// value — `CellGraphFork.fork` passes it to the caller's store
   /// factory.

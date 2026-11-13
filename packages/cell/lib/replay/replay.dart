@@ -80,7 +80,12 @@ export '../cell.dart'
         CellGraphVersions,
         CellGraphTranslators,
         TestCellReplay,
-        PolicyReplay;
+        PolicyReplay,
+        // Phase 8 — tooling (visualisation; the CLI itself is a
+        // standalone dart:io library at lib/replay/cli/cli.dart, see
+        // its file header for why it cannot be exported here).
+        CellGraphVisualise,
+        LedgerVisualise;
 // FileLedgerStore is a standalone library (it imports dart:io, which
 // must not leak into the web-safe core).
 export 'ledger/file_store.dart' show FileLedgerStore;

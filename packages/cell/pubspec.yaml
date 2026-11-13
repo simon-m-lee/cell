@@ -12,6 +12,9 @@ documentation: https://github.com/simon-m-lee/cell/tree/master/packages/cell#rea
 
 resolution: workspace
 
+executables:
+  cell_replay: cell-replay
+
 environment:
   sdk: '>=3.5.0 <4.0.0'
 

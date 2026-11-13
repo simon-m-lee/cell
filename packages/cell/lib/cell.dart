@@ -255,3 +255,6 @@ part 'replay/governance/version_registry.dart';
 part 'replay/governance/context_translator.dart';
 part 'replay/governance/testcell_replay.dart';
 part 'replay/governance/policy_replay.dart';
+
+/// Replay module — visualisation (Phase 8).
+part 'replay/visualise.dart';
