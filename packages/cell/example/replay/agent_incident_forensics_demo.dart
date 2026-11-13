@@ -109,7 +109,9 @@ Future<void> main() async {
       .build();
 
   final ledger = await graph.bindLedger(
-    store: InMemoryLedgerStore(genesisHash: 'acme-refund-2025-11-13'),
+    store: InMemoryLedgerStore(
+      genesisHash: Ledger.genesisHashOf(graph.id),
+    ),
   );
 
   print('  graph.id       = ${graph.id}');
@@ -134,45 +136,45 @@ Future<void> main() async {
 
   await graph.run(() async {
     for (final req in requests) {
-      // Each request's LLM call is recorded in its own journal so the
-      // ledger entry for `agent.apply` captures exactly that call's
-      // effect (and only that call's effect).
-      await JournalScope.run(RecordingJournal(), () async {
-        final decision = await EffectJournal.current.io<_LLMDecision>(
-          label: 'llmDecide(request=${req.id})',
-          input: req.id,
-          run: () async => _simulatedLLM(req),
-          serializeOutput: (d) => d.toJson(),
-        );
+      // The LLM decision is a DRIVER-side call (the demo plays the
+      // service desk); what the ledger records is the *decision's
+      // outcome* — the amount passed to `issueRefund` as the apply
+      // argument, which the replay re-commits through the receptor.
+      // The decision itself is journaled in a local recording journal
+      // for traceability (not ambient: ambient effects would be
+      // captured into the ledger entry, and a driver-side effect has
+      // no receptor to consume it during replay).
+      final journal = RecordingJournal();
+      final decision = await journal.io<_LLMDecision>(
+        label: 'llmDecide(request=${req.id})',
+        input: req.id,
+        run: () async => _simulatedLLM(req),
+        serializeOutput: (d) => d.toJson(),
+      );
 
-        await agent.apply<int>((
-          function: agent.issueRefund,
-          arguments: (
-            positionalArguments: [decision.amount],
-            namedArguments: null,
-          ),
-          compensation: null,
-        ));
-      });
+      await agent.apply<Pulse<int>>((
+        function: agent.issueRefund,
+        arguments: (
+          positionalArguments: [decision.amount],
+          namedArguments: null,
+        ),
+        compensation: null,
+      ));
 
       // Status update — pure mutation, no journal needed.
-      await JournalScope.run(RecordingJournal(), () async {
-        await status.cell.apply<String>((
-          function: (String s) => Pulse<String>(s),
-          arguments: (positionalArguments: ['processed'], namedArguments: null),
-          compensation: null,
-        ));
-      });
+      await status.cell.apply<Pulse<String>>((
+        function: (String s) => Pulse<String>(s),
+        arguments: (positionalArguments: ['processed'], namedArguments: null),
+        compensation: null,
+      ));
 
       // Running total — pure mutation, no journal needed.
-      await JournalScope.run(RecordingJournal(), () async {
-        final newTotal = (total.cell.value ?? 0) + (agent.value ?? 0);
-        await total.cell.apply<int>((
-          function: (int t) => Pulse<int>(t),
-          arguments: (positionalArguments: [newTotal], namedArguments: null),
-          compensation: null,
-        ));
-      });
+      final newTotal = (total.cell.value ?? 0) + (agent.value ?? 0);
+      await total.cell.apply<Pulse<int>>((
+        function: (int t) => Pulse<int>(t),
+        arguments: (positionalArguments: [newTotal], namedArguments: null),
+        compensation: null,
+      ));
 
       print(
         '  req ${req.id} (${req.customerId}): '
@@ -239,7 +241,7 @@ Future<void> main() async {
     return;
   }
   print('  ✓ replay reproduced the recorded state exactly');
-  print('  ✓ the LLM\'s $10,000 hallucination is now provable');
+  print('  ✓ the LLM\'s \$10,000 hallucination is now provable');
   print('');
 
   // ─────────────────────────────────────────────────────────────────
@@ -264,7 +266,7 @@ Future<void> main() async {
             ..registerState('total', Cell.state<int>(initial: 150)))
           .build();
     },
-    store: InMemoryLedgerStore(genesisHash: 'fork-genesis'),
+    buildStore: (genesis) => InMemoryLedgerStore(genesisHash: genesis),
   );
 
   print('  forkId        = ${_short(fork.record.forkId)}');
@@ -277,10 +279,10 @@ Future<void> main() async {
   var runningTotal = 150;
   var currentAmount = 0;
 
-  final forkResult = await ReplayEngine.replayFork(
+  final forkResult = await ReplayEngineFork.replayFork(
     fork: fork,
     mutation: (entry, pulse) {
-      final cellId = entry.receipt.cell.id;
+      final cellId = entry.receiptCellId;
 
       switch (cellId) {
         case 'agent':

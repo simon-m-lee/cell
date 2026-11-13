@@ -47,7 +47,7 @@ Future<bool> _runDemo(Directory tempDir) async {
   print('');
 
   final ledgerPath = '${tempDir.path}/ledger.jsonl';
-  const genesis = 'acme-treasury-2025-11-13';
+  String genesis = ''; // set from the built graph id (Phase 4 contract)
 
   // ─────────────────────────────────────────────────────────────────
   // 1. Build the graph and bind a durable ledger
@@ -63,6 +63,7 @@ Future<bool> _runDemo(Directory tempDir) async {
         ..registerState('target', target)
         ..registerState('count', count))
       .build();
+  genesis = Ledger.genesisHashOf(graph.id);
 
   final ledger = await graph.bindLedger(
     store: await FileLedgerStore.open(ledgerPath, genesisHash: genesis),
@@ -179,7 +180,7 @@ Future<bool> _runDemo(Directory tempDir) async {
             ..registerState('count', Cell.state<int>(initial: 0)))
           .build();
     },
-    store: InMemoryLedgerStore(genesisHash: 'fork-genesis'),
+    buildStore: (genesis) => InMemoryLedgerStore(genesisHash: genesis),
   );
 
   print('  forkId              = ${fork.record.forkId}');
@@ -188,7 +189,7 @@ Future<bool> _runDemo(Directory tempDir) async {
   print('  originalSnapshotHash= ${_short(fork.record.originalSnapshotHash)}');
   print('');
 
-  final forkResult = await ReplayEngine.replayFork(
+  final forkResult = await ReplayEngineFork.replayFork(
     fork: fork,
     mutation: (entry, pulse) {
       // Each transfer is 3 entries: source, target, count.
@@ -263,7 +264,8 @@ Future<bool> _runDemo(Directory tempDir) async {
   final strictSource = Cell.state<int>(
     initial: 100000,
     testRule: TestCell<Cell>((object, {host, arguments, user}) {
-      return (object as int) >= 50000;
+      final payload = (object as Pulse).payload;
+      return (payload as int) >= 50000;
     }),
   );
   final strictTarget = Cell.state<int>(initial: 0);
