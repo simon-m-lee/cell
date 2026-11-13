@@ -45,16 +45,21 @@ class Ledger {
   /// genesis hash is `fingerprint({'graphId': graph.id})`; the store's
   /// own `genesisHash` must match, or this throws — a store created for
   /// graph `G` can never silently serve graph `H`.
+  ///
+  /// [genesisHash] overrides the chain genesis — Phase 6's fork ledgers
+  /// chain from their `ForkRecord.genesisHash`, not from the graph id.
   static Future<Ledger> open({
     required CellGraph graph,
     required LedgerStore store,
+    String? genesisHash,
   }) async {
-    final chain = HashChain(genesisHashOf(graph.id));
+    final chain = HashChain(genesisHash ?? genesisHashOf(graph.id));
     if (store.genesisHash != chain.genesisHash) {
       throw StateError(
         'Ledger.open: store genesis hash "${store.genesisHash}" does not '
         'match graph "${graph.id}" (expected "${chain.genesisHash}"). '
-        'Construct the store with Ledger.genesisHashOf(graph.id).',
+        'Construct the store with Ledger.genesisHashOf(graph.id), or '
+        'with the explicit genesis hash this ledger is chained from.',
       );
     }
     return Ledger._(graph, store, chain);
@@ -65,8 +70,10 @@ class Ledger {
   static Future<Ledger> openVerified({
     required CellGraph graph,
     required LedgerStore store,
+    String? genesisHash,
   }) async {
-    final ledger = await open(graph: graph, store: store);
+    final ledger =
+        await open(graph: graph, store: store, genesisHash: genesisHash);
     await ledger.verify();
     return ledger;
   }

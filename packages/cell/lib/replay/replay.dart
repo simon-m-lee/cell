@@ -58,7 +58,18 @@ export '../cell.dart'
         ReplayOptions,
         ReplayResult,
         DivergenceReport,
-        PulseReconstructor;
+        PulseReconstructor,
+        // Phase 6 — what-if branching.
+        ForkHandle,
+        ForkRecord,
+        ForkPolicy,
+        Mutation,
+        ForkLedgerStore,
+        ForkIntegrityException,
+        CellGraphFork,
+        ReplayEngineFork,
+        ForkVerify,
+        ForkParentLookup;
 // FileLedgerStore is a standalone library (it imports dart:io, which
 // must not leak into the web-safe core).
 export 'ledger/file_store.dart' show FileLedgerStore;

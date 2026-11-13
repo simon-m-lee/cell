@@ -239,3 +239,13 @@ part 'replay/engine/divergence.dart';
 part 'replay/engine/replay_result.dart';
 part 'replay/engine/reconstruct_pulse.dart';
 part 'replay/engine/replay_engine.dart';
+part 'replay/engine/replay_engine_fork.dart';
+
+/// Replay module — what-if branching (Phase 6).
+part 'replay/fork/fork_record.dart';
+part 'replay/fork/fork_policy.dart';
+part 'replay/fork/mutation.dart';
+part 'replay/fork/fork.dart';
+part 'replay/fork/fork_ledger_store.dart';
+part 'replay/fork/cell_graph_fork.dart';
+part 'replay/fork/fork_verify.dart';
