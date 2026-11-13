@@ -1,0 +1,77 @@
+// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
+// for details. Use of this source code is governed by a MIT or
+// Apache-2.0 license that can be found in the LICENSE file.
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+part of '../../cell.dart';
+
+/// Reconstructs the input [Pulse] that produced a [LedgerEntry].
+///
+/// ### What is stored, honestly
+///
+/// The ledger stores `pulseDigest` — a hash of the pulse's full JSON,
+/// including its wall-clock timestamp. A hash is one-way: the exact
+/// recorded pulse can never be rebuilt byte-for-byte. What the ledger
+/// *does* store in recoverable form is the mutation's observable
+/// payload:
+///
+/// * the receipt's positional arguments (for `apply`/`emit` entries the
+///   first argument is the value the caller passed), and
+/// * each `StateDelta.after` (the exact committed value).
+///
+/// The reconstruction therefore rebuilds a *semantically equivalent*
+/// pulse from those values, not the byte-identical recorded one. The
+/// authoritative state check is the delta comparison (see
+/// `ReplayEngine._verifyDeltas`), which compares committed values
+/// against `delta.after` — not a pulse digest, which can never match.
+///
+/// ### The two paths
+///
+/// * **Arguments path** — the receipt carries positional arguments. The
+///   first argument is the payload the caller submitted (ingress emits
+///   store the emitted value; `ValueCell` emit receipts store the
+///   emitted value as their single positional argument).
+/// * **Delta path** — no positional arguments, but the entry recorded
+///   the committed `after` value. The pulse is rebuilt from the cell's
+///   own delta (matched by cell id), falling back to the last delta.
+///
+/// A hand-crafted entry with neither produces `null`, which the engine
+/// reports as a divergence — an entry that cannot be interpreted is not
+/// a record of a mutation.
+abstract final class PulseReconstructor {
+  /// Reconstructs the input pulse for [entry], or returns `null` if the
+  /// entry cannot be reconstructed.
+  ///
+  /// [cell] is the resolved target cell; it is used to populate the
+  /// pulse's `source` field, which matters for `TestPulseRule`
+  /// validation.
+  static Pulse<dynamic>? reconstruct({
+    required LedgerEntry entry,
+    required Cell cell,
+  }) {
+    final args = entry.receipt.arguments.positionalArguments;
+    if (args != null && args.isNotEmpty) {
+      return Pulse<dynamic>(
+        args.first,
+        source: cell,
+      );
+    }
+
+    StateDelta? delta;
+    final cellId = entry.receipt.cell.id;
+    for (final d in entry.deltas) {
+      if (d.cellId == cellId) {
+        delta = d;
+        break;
+      }
+    }
+    delta ??= entry.deltas.isEmpty ? null : entry.deltas.last;
+    if (delta == null) return null;
+
+    return Pulse<dynamic>(
+      delta.after,
+      source: cell,
+    );
+  }
+}

@@ -14,6 +14,17 @@ part of '../../cell.dart';
 /// [ReplayDivergenceException]. This is the mechanism the plan describes
 /// as "reordered effects diverge loudly".
 ///
+/// ### Non-obvious: validation happens *before* consumption
+///
+/// A record is only consumed (cursor advanced) after its kind, label,
+/// and input have been validated. A mismatched attempt leaves the
+/// record unconsumed, which is what lets `assertExhausted` (and Phase
+/// 5's engine) report the divergence after a detached mapper
+/// continuation has swallowed the thrown exception. Any failed attempt
+/// also latches [diverged] so that a replay which *touched* a mismatch
+/// can never report success, even when all records happen to be
+/// consumed afterwards.
+///
 /// ### Non-obvious: the `run` and `onFire` closures are *ignored*
 ///
 /// On the replay side, the caller's `run` callback is not executed. If
@@ -26,6 +37,16 @@ part of '../../cell.dart';
 class ReplayJournal implements EffectJournal {
   final List<EffectRecord> _records;
   int _cursor = 0;
+  bool _diverged = false;
+  String? _divergenceReason;
+
+  /// Whether any consumption attempt has diverged from the recording,
+  /// even if the thrown exception was caught by the caller (e.g. an
+  /// operator's mapper error contract).
+  bool get diverged => _diverged;
+
+  /// The first divergence reason, if [diverged] is true.
+  String? get divergenceReason => _divergenceReason;
 
   /// Creates a replay journal from a recorded log. The list must be in
   /// ordinal order (which `RecordingJournal.toJson` guarantees).
@@ -59,13 +80,13 @@ class ReplayJournal implements EffectJournal {
   }) async {
     final record = _consume<IoEffect>(IoEffect);
     if (record.label != label) {
-      throw ReplayDivergenceException(
+      _fail(
         'I/O label mismatch: expected "$label", recorded "${record.label}"',
         ordinal: record.ordinal,
       );
     }
     if (record.inputDigest != fingerprint(input)) {
-      throw ReplayDivergenceException(
+      _fail(
         'I/O input mismatch for "$label": the replay attempted an effect '
         'whose input differs from the recorded one. The receptor has '
         'changed since the recording was taken.',
@@ -73,7 +94,7 @@ class ReplayJournal implements EffectJournal {
       );
     }
     if (record.rawOutput == null) {
-      throw ReplayDivergenceException(
+      _fail(
         'I/O effect "$label" cannot be replayed: rawOutput was not '
         'recorded. Pass serializeOutput to RecordingJournal.io.',
         ordinal: record.ordinal,
@@ -90,14 +111,14 @@ class ReplayJournal implements EffectJournal {
   }) async {
     final record = _consume<TimerEffect>(TimerEffect);
     if (record.scheduled != duration) {
-      throw ReplayDivergenceException(
+      _fail(
         'timer duration mismatch: expected $duration, '
         'recorded ${record.scheduled}',
         ordinal: record.ordinal,
       );
     }
     if (record.inputDigest != fingerprint(input)) {
-      throw ReplayDivergenceException(
+      _fail(
         'timer input mismatch: the replay attempted a timer with a '
         'different input than the recorded one.',
         ordinal: record.ordinal,
@@ -122,6 +143,12 @@ class ReplayJournal implements EffectJournal {
 
   @override
   void assertExhausted() {
+    if (_diverged) {
+      throw ReplayDivergenceException(
+        _divergenceReason!,
+        ordinal: _cursor < _records.length ? _records[_cursor].ordinal : null,
+      );
+    }
     if (remaining != 0) {
       throw ReplayDivergenceException(
         'ReplayJournal exhausted with $remaining unused effect(s). '
@@ -136,22 +163,36 @@ class ReplayJournal implements EffectJournal {
   @override
   List<Map<String, Object?>> toJson() => const []; // Replay never writes.
 
+  /// Latch a divergence and throw. The latch makes the failure visible
+  /// even when the thrown exception is swallowed by an operator's
+  /// mapper error contract; `assertExhausted` rethrows it afterwards.
+  Never _fail(String message, {int? ordinal}) {
+    _diverged = true;
+    _divergenceReason ??= message;
+    throw ReplayDivergenceException(message, ordinal: ordinal);
+  }
+
   T _consume<T extends EffectRecord>(Type type) {
     if (_cursor >= _records.length) {
-      throw ReplayDivergenceException(
+      _fail(
         'ReplayJournal is empty, but the receptor attempted another '
         'effect of type $type. The receptor now performs more effects '
         'than were recorded.',
       );
     }
-    final record = _records[_cursor++];
+    final record = _records[_cursor];
     if (record is! T) {
-      throw ReplayDivergenceException(
+      _fail(
         'Effect kind mismatch at ordinal ${record.ordinal}: expected '
         '$type, recorded ${record.runtimeType}.',
         ordinal: record.ordinal,
       );
     }
+    // Kind validated: commit the consumption. Field-level validation
+    // (label/input/rawOutput) happens after this point in the callers;
+    // a field mismatch therefore leaves this record UNCONSUMED, which is
+    // the load-bearing detail for Phase 5's divergence diagnostics.
+    _cursor++;
     return record;
   }
 }
@@ -167,10 +208,25 @@ class ReplayDivergenceException implements Exception {
   final String message;
   final int? ordinal;
 
-  ReplayDivergenceException(this.message, {this.ordinal});
+  /// Phase 5: the ledger seq at which the divergence occurred.
+  final int? seq;
+
+  /// Phase 5: the full report, when available.
+  final DivergenceReport? report;
+
+  ReplayDivergenceException(
+    this.message, {
+    this.ordinal,
+    this.seq,
+    this.report,
+  });
 
   @override
-  String toString() =>
-      'ReplayDivergenceException${ordinal != null ? ' (ordinal $ordinal)' : ''}: '
-      '$message';
+  String toString() {
+    final buf = StringBuffer('ReplayDivergenceException');
+    if (seq != null) buf.write(' (seq $seq)');
+    if (ordinal != null) buf.write(' (ordinal $ordinal)');
+    buf.write(': $message');
+    return buf.toString();
+  }
 }

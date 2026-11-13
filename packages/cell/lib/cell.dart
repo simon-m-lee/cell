@@ -129,6 +129,8 @@ export 'package:synchronized/synchronized.dart';
 // need `fingerprint`; the canonical encoder/fingerprint are exported so
 // `package:cell/cell.dart` consumers get the full Phase 1 surface.
 import 'package:cell/replay/codec/fingerprint.dart';
+import 'package:cell/replay/codec/canonical_json.dart'
+    show canonicalJsonEncode;
 export 'package:cell/replay/codec/canonical_json.dart'
     show canonicalJsonEncode, canonicalJsonDecode;
 export 'package:cell/replay/codec/fingerprint.dart' show fingerprint;
@@ -230,3 +232,10 @@ part 'replay/ledger/ledger_store.dart';
 part 'replay/ledger/in_memory_store.dart';
 part 'replay/ledger/ledger.dart';
 part 'replay/ledger/ledger_scope.dart';
+
+/// Replay module — the replay engine (Phase 5).
+part 'replay/engine/replay_options.dart';
+part 'replay/engine/divergence.dart';
+part 'replay/engine/replay_result.dart';
+part 'replay/engine/reconstruct_pulse.dart';
+part 'replay/engine/replay_engine.dart';
