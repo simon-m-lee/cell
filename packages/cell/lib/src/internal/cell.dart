@@ -533,6 +533,12 @@ abstract class CellBase implements Cell {
   /// governed `onComplete` callbacks.
   FutureOr<ApplyOutcome<R>> _acceptExecuted<R>(R result, ApplyReceipt receipt) {
     if (result is Pulse) {
+      // Phase 4: loud pre-commit validation for ledgered graphs — a
+      // non-JSON-encodable pulse payload must never commit (see
+      // ValueCell._emit).
+      if (LedgerScope.current != null) {
+        ValueCell._encodeForLedger(result.payload);
+      }
       final handled = _nucleus.receptor.call(result);
       if (handled is Future<Pulse?>) {
         return handled.then((_) {

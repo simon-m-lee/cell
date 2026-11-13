@@ -109,9 +109,17 @@ class LedgerEntry {
   /// for [receiptDigest]. Named arguments are stored by *symbol name*
   /// (not `Symbol("x")`), so the form is identical whether it is
   /// produced from a live receipt or from a reloaded one.
-  static Map<String, Object?> _receiptJson(ApplyReceipt receipt) => {
+  ///
+  /// [cellId] is the pre-resolved cell id. `Cell.id` walks the nucleus
+  /// principal chain through a dynamic record access that is expensive
+  /// inside future callbacks (where the append runs); the coordinated
+  /// append path resolves it once in the caller's direct context and
+  /// passes it down.
+  static Map<String, Object?> _receiptJson(ApplyReceipt receipt,
+          [String? cellId]) =>
+      {
         'id': receipt.id,
-        'cell': receipt.cell.id,
+        'cell': cellId ?? receipt.cell.id,
         'function': receipt.function.toString(),
         'arguments': _encodeArgs(receipt.arguments),
         'timestamp': receipt.timestamp.toUtc().toIso8601String(),

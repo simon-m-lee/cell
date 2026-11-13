@@ -133,6 +133,7 @@ class Ledger {
   Future<void> appendInternal({
     required Pulse pulse,
     required ApplyReceipt receipt,
+    required String cellId,
     required List<EffectRecord> effects,
     required List<StateDelta> deltas,
   }) async {
@@ -167,7 +168,7 @@ class Ledger {
     );
 
     final receiptDigest =
-        fingerprint(LedgerEntry._receiptJson(filledReceipt));
+        fingerprint(LedgerEntry._receiptJson(filledReceipt, cellId));
     final hash = _chain.nextHash(
       prevHash: prevHash,
       seq: seq,

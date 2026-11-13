@@ -134,6 +134,11 @@ class ValueCellAsync<V> extends ModifiableAsync<ValueCell<V>> {
       // the committed outcome — an async-rejected mutation must resolve
       // false, not true.
       if (identical(v, _cell.value) || v == _cell.value) return false;
+      // Phase 4: loud pre-commit validation for ledgered graphs (see
+      // ValueCell._emit).
+      if (LedgerScope.current != null) {
+        ValueCell._encodeForLedger(v);
+      }
       final receptor = _cell._nucleus.receptor;
       final result = receptor.call(v == null ? Pulse<V>(null) : Pulse<V>(v));
       if (result is Future<Pulse?>) {

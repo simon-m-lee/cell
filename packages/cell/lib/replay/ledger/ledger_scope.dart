@@ -107,6 +107,11 @@ class LedgerScope {
           function: emitFunction ?? ((Object? _) => null),
           emittedValue: emittedValue,
         );
+    // Resolve the cell id HERE, in the caller's direct context:
+    // `Cell.id` walks the nucleus principal chain through a dynamic
+    // record access that costs ~0.5 ms per call inside future callbacks
+    // (debug VM), which is exactly where the queued append will run.
+    final cellId = effectiveReceipt.cell.id;
     final journal = EffectJournal.current;
     final effects = journal is RecordingJournal
         ? journal
@@ -117,6 +122,7 @@ class LedgerScope {
     unawaited(scope.recordAndAppend(
       pulse: pulse,
       receipt: effectiveReceipt,
+      cellId: cellId,
       effects: effects,
     ));
   }
@@ -172,6 +178,7 @@ class LedgerScopeImpl {
   Future<void> recordAndAppend({
     required Pulse pulse,
     required ApplyReceipt receipt,
+    required String cellId,
     required List<EffectRecord> effects,
   }) {
     final deltas = List<StateDelta>.from(_pending);
@@ -180,6 +187,7 @@ class LedgerScopeImpl {
       (_) => ledger.appendInternal(
         pulse: pulse,
         receipt: receipt,
+        cellId: cellId,
         effects: effects,
         deltas: deltas,
       ),

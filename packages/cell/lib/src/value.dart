@@ -324,22 +324,30 @@ class ValueCell<V> extends CellBase {
   /// by `ValueCell` and `ValueNucleus`. You don't need to call it directly.
   static Instruction postProcessRule =
       Instruction<ValueCell, Pulse, Pulse>((pulse, {cell, user}) {
-    final before = cell!._nucleus.state.value;
-    cell._nucleus.state.value = pulse.payload;
-    final after = cell._nucleus.state.value;
-
-    // Phase 4: capture the delta if a ledger is bound. `LedgerScope.current`
-    // is a zone lookup; when no ledger is bound, it returns null and the
-    // whole capture is one `null` check.
     final scope = LedgerScope.current;
-    if (scope != null) {
-      scope.captureDelta(StateDelta(
-        cellId: cell.id,
-        before: _encodeForLedger(before),
-        after: _encodeForLedger(after),
-        at: DateTime.now(),
-      ));
+    if (scope == null) {
+      cell!._nucleus.state.value = pulse.payload;
+      return pulse;
     }
+
+    // Phase 4: capture the delta if a ledger is bound. The encoding
+    // happens BEFORE the commit: a non-JSON-encodable payload must
+    // never reach the state box. The entry points (_emit/apply) already
+    // validate the common path loudly at the caller's call site; this
+    // pre-commit check closes the residual path where a transform
+    // produces a non-encodable payload (the pipeline's error contract
+    // swallows a throw here, so the write is simply dropped instead of
+    // committed-and-silently-unrecorded).
+    final before = cell!._nucleus.state.value;
+    final encodedBefore = _encodeForLedger(before);
+    final encodedAfter = _encodeForLedger(pulse.payload);
+    cell._nucleus.state.value = pulse.payload;
+    scope.captureDelta(StateDelta(
+      cellId: cell.id,
+      before: encodedBefore,
+      after: encodedAfter,
+      at: DateTime.now(),
+    ));
     return pulse;
   });
 
@@ -591,6 +599,13 @@ class ValueCell<V> extends CellBase {
 
   bool _emit(V? v) {
     if (!identical(v, value) && v != value) {
+      // Phase 4: a ledgered graph records this write; the value must be
+      // JSON-encodable. Throwing here (before any commit) is the loud
+      // failure the plan requires — inside the receptor pipeline the
+      // same error would be swallowed by the framework's error contract.
+      if (LedgerScope.current != null) {
+        _encodeForLedger(v);
+      }
       final receptor = _nucleus.receptor;
       final result = receptor.call(v == null ? Pulse<V>(null) : Pulse<V>(v));
       // Phase 4: the direct emit path bypasses `Cell.apply` (no receipt
