@@ -101,6 +101,11 @@ class ReplayEngine {
     // Pulse bodies resolve their parent chains by digest; the engine
     // registers each reconstructed pulse as it replays earlier entries.
     final parentsByDigest = <String, Pulse<dynamic>>{};
+    // Timer fires are deferred to after the entry loop (see
+    // ReplayJournal.deferredFires): the recording's trailing edges
+    // happened between entries, and firing inside the consuming entry
+    // moved downstream writes one entry too early.
+    final deferredFires = <FutureOr<void> Function()>[];
 
     await for (final entry in ledger.entriesSince(fromSeq)) {
       if (options.maxEntries != null && replayed >= options.maxEntries!) {
@@ -124,6 +129,7 @@ class ReplayEngine {
         options: options,
         checkBaseline: checkBaseline,
         parentsByDigest: parentsByDigest,
+        deferredFires: deferredFires,
       );
 
       replayed++;
@@ -138,6 +144,14 @@ class ReplayEngine {
           );
         }
       }
+    }
+
+    // Run the deferred timer fires — the recording's trailing edges —
+    // after every entry has replayed and every delta check has passed.
+    // The fires may write the target cells; their downstream effect is
+    // exactly what the recorded deltas of the following entries expect.
+    for (final fire in deferredFires) {
+      await fire();
     }
 
     final success = divergences.isEmpty;
@@ -160,6 +174,7 @@ class ReplayEngine {
     required ReplayOptions options,
     required bool checkBaseline,
     required Map<String, Pulse<dynamic>> parentsByDigest,
+    required List<FutureOr<void> Function()> deferredFires,
   }) async {
     // 1. Verify the receipt's back-filled fields (if requested).
     if (options.verifyReceipts) {
@@ -268,7 +283,8 @@ class ReplayEngine {
 
     // 5. Build a ReplayJournal from the entry's effects and run the
     //    pulse through the target graph inside that journal's scope.
-    final replayJournal = ReplayJournal(entry.effects);
+    final replayJournal =
+        ReplayJournal(entry.effects, deferredFires: deferredFires);
 
     // 6. Dispatch. The pulse's processing must be journalled; the
     //    asynchronous continuations (asyncMap mappers, deferred timer

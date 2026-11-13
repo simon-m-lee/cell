@@ -111,6 +111,10 @@ Cell _debounce(
           journal: JournalScope.effectiveJournal(journal),
           duration: duration,
           input: pulse.payload,
+          // Review fix: the debounce fire is an OUTPUT (the trailing
+          // emission). Engine replays run it after the entry loop so the
+          // downstream write lands where the recording's did.
+          fireAtEnd: true,
           onFire: () {
             final pending = state.pending;
             state.cancel();

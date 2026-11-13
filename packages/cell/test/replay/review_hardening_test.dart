@@ -996,7 +996,10 @@ void main() {
     );
     await graph.run(() async {
       // Constructed INSIDE the run, the operator's continuation zone
-      // inherits the ledger scope, so the emission can be attributed.
+      // inherits the ledger scope. The cell is NOT registered (an
+      // in-run operator cannot be), so no entry is written for it —
+      // an unregistered id could never resolve on replay. The guard is
+      // the documented behaviour.
       final cell = Cell.fromFuture(
         completer.future,
         journal: RecordingJournal(),
@@ -1006,11 +1009,9 @@ void main() {
       await Future<void>.delayed(Duration.zero);
       await Future<void>.delayed(Duration.zero);
     });
-    expect(await ledger.lastSeq, 0,
-        reason: 'fromFuture must write its own entry (previously none)');
-    final entry = await ledger.entriesSince(0).first;
-    expect(entry.effects.map((e) => e.kind), contains('io'),
-        reason: 'the io record must land in the ledger entry');
+    expect(await ledger.lastSeq, -1,
+        reason: 'an unregistered detached operator must not write an '
+            'entry that no replay could ever resolve');
     await ledger.close();
   });
 
@@ -1039,6 +1040,73 @@ void main() {
     expect(entry.effects.map((e) => e.kind), contains('timer'),
         reason: 'the debounce timer must be captured into the entry');
     await ledger.close();
+  });
+
+  Future<void> debounceRoundTrip(List<int> pulses) async {
+    CellGraphRegistry.forceReset();
+    final src = Cell.ingress<int>();
+    final counter = Cell.state<int>(initial: 0);
+    final debounced = Cell.debounce(
+      src.cell,
+      const Duration(milliseconds: 20),
+      journal: RecordingJournal(),
+    );
+    Cell.observe(
+      source: debounced,
+      effect: (Pulse p) => counter.update((p.payload as int)),
+    );
+    final graph = (CellGraph.builder(graphId: 'deb-rt')
+          ..register('src', src.cell)
+          ..register('d', debounced)
+          ..registerState('counter', counter))
+        .build();
+    final ledger = await graph.bindLedger(
+      store: InMemoryLedgerStore(
+        genesisHash: Ledger.genesisHashOf(graph.id),
+      ),
+    );
+    await graph.run(() async {
+      for (final p in pulses) {
+        src.emit(p);
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+      }
+    });
+    await Future<void>.delayed(const Duration(milliseconds: 40));
+    final recorded = counter.cell.value;
+
+    CellGraphRegistry.forceReset();
+    final src2 = Cell.ingress<int>();
+    final counter2 = Cell.state<int>(initial: 0);
+    final debounced2 = Cell.debounce(
+      src2.cell,
+      const Duration(milliseconds: 20),
+      journal: RecordingJournal(),
+    );
+    Cell.observe(
+      source: debounced2,
+      effect: (Pulse p) => counter2.update((p.payload as int)),
+    );
+    final graph2 = (CellGraph.builder(graphId: 'deb-rt')
+          ..register('src', src2.cell)
+          ..register('d', debounced2)
+          ..registerState('counter', counter2))
+        .build();
+    final result = await ReplayEngine.replay(ledger: ledger, target: graph2);
+    expect(result.success, isTrue, reason: result.divergences.toString());
+    expect(counter2.cell.value, recorded,
+        reason: 'replay must reproduce the debounce trailing state');
+    await ledger.close();
+  }
+
+  test('a single debounce pulse round-trips through replay', () async {
+    await debounceRoundTrip([1]);
+  });
+
+  test('a debounce burst round-trips (the cancelled timer does not fire)',
+      () async {
+    // The first pulse's timer is cancelled by the second; replay must
+    // consume its record without firing and emit only the last pulse.
+    await debounceRoundTrip([1, 2]);
   });
 
   test('the file store accepts entries larger than 4096 bytes', () async {

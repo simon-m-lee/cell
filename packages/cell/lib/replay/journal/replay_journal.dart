@@ -50,7 +50,21 @@ class ReplayJournal implements EffectJournal {
 
   /// Creates a replay journal from a recorded log. The list must be in
   /// ordinal order (which `RecordingJournal.toJson` guarantees).
-  ReplayJournal(List<EffectRecord> records) : _records = records;
+  ///
+  /// [deferredFires] changes the timer semantics for ENGINE replay: fire
+  /// callbacks are collected instead of run inside the consuming entry,
+  /// and the engine runs them after the entry loop. (Review fix: the
+  /// eager fire landed a debounce trailing edge one entry before the
+  /// recording's, breaking the recorded baseline of the next entry.
+  /// Direct journal users — the tests — pass nothing and keep the eager
+  /// behaviour.)
+  ReplayJournal(
+    List<EffectRecord> records, {
+    List<FutureOr<void> Function()>? deferredFires,
+  })  : _records = records,
+        _deferredFires = deferredFires;
+
+  final List<FutureOr<void> Function()>? _deferredFires;
 
   @override
   int get consumed => _cursor;
@@ -154,6 +168,7 @@ class ReplayJournal implements EffectJournal {
     required Duration duration,
     required Object? input,
     required FutureOr<void> Function() onFire,
+    bool fireAtEnd = false,
   }) async {
     final record = _peek<TimerEffect>(TimerEffect);
     if (record.scheduled != duration) {
@@ -171,6 +186,13 @@ class ReplayJournal implements EffectJournal {
       );
     }
     _commit();
+    // Review fix: a recorded timer that was CANCELLED before it fired
+    // must not fire during replay — the recording already re-armed (or
+    // dropped) it, and firing here would emit a pulse the recording
+    // never produced.
+    if (record.cancelled) {
+      return;
+    }
     // On the replay side, `onFire` IS called — it is the *internal
     // continuation* of the debounce/throttle state machine. What is
     // skipped is the actual `Timer` wait. The callback is deferred one
@@ -178,6 +200,19 @@ class ReplayJournal implements EffectJournal {
     // synchronous burst that scheduled it, and that ordering is exactly
     // what lets a superseded debounce/throttle timer be cancelled before
     // its fire callback runs during replay.
+    //
+    // Engine replays pass `deferredFires` and OUTPUT fires (a debounce
+    // trailing edge) are marked with `fireAtEnd`: they run AFTER the
+    // entry loop, at the point in the causal order where the recording's
+    // trailing edge actually happened — firing them inside the consuming
+    // entry moved downstream writes one entry too early and broke the
+    // next entry's recorded baseline. INTERNAL fires (a throttle gate
+    // release, the default) stay eager: the next entry needs the
+    // released gate.
+    if (_deferredFires != null && fireAtEnd) {
+      _deferredFires!.add(onFire);
+      return;
+    }
     await Future<void>.delayed(Duration.zero);
     await onFire();
   }

@@ -69,10 +69,18 @@ abstract class EffectJournal {
   /// the callback is called when it fires. On the replay side, the
   /// callback is called in journal order, not against a real timer. This
   /// is what makes `debounce`/`throttle` replayable.
+  ///
+  /// [fireAtEnd] hints the ENGINE replay semantics: `true` for timers
+  /// whose fire is an OUTPUT (a debounce trailing edge — it must run
+  /// after the entry loop so the downstream write lands where the
+  /// recording's did), `false` for timers whose fire is INTERNAL state
+  /// (a throttle gate release — it must run promptly so the next entry
+  /// sees the released gate). Recording ignores the hint.
   Future<void> timer({
     required Duration duration,
     required Object? input,
     required FutureOr<void> Function() onFire,
+    bool fireAtEnd = false,
   });
 
   /// Push this journal onto the stack. Must be paired with [pop].
@@ -148,6 +156,7 @@ class NullJournal implements EffectJournal {
     required Duration duration,
     required Object? input,
     required FutureOr<void> Function() onFire,
+    bool fireAtEnd = false,
   }) =>
       _no('timer(${duration.inMilliseconds}ms)');
 
@@ -206,22 +215,34 @@ class _JournalTimer {
   final Duration duration;
   final Object? input;
   final void Function() onFire;
+  final bool fireAtEnd;
   bool _cancelled = false;
+  bool _fired = false;
   Future<void>? _pending;
+  final RecordingJournal? _recording;
+  final int _recordIndex;
 
   _JournalTimer({
     required this.journal,
     required this.duration,
     required this.input,
     required this.onFire,
-  }) {
+    this.fireAtEnd = false,
+  })  : _recording = journal is RecordingJournal ? journal : null,
+        _recordIndex = journal is RecordingJournal ? journal.records.length : -1 {
     final j = journal;
     final before = j is RecordingJournal ? j.records.length : 0;
     _pending = journal
-        .timer(duration: duration, input: input, onFire: () {
-          if (_cancelled) return;
-          onFire();
-        })
+        .timer(
+          duration: duration,
+          input: input,
+          onFire: () {
+            if (_cancelled) return;
+            _fired = true;
+            onFire();
+          },
+          fireAtEnd: fireAtEnd,
+        )
         .then((_) {
           // Review fix: cooperative ledger capture. Under a ledgered
           // run the timer record went to the operator's own journal;
@@ -248,6 +269,19 @@ class _JournalTimer {
 
   void cancel() {
     _cancelled = true;
+    // Review fix: mark the recorded TimerEffect as cancelled so replay
+    // consumes it WITHOUT firing — otherwise a superseded debounce
+    // timer fires during replay and emits a pulse the recording never
+    // produced. A timer that ALREADY fired is not marked (the debounce
+    // state machine calls cancel() from inside its own fire callback;
+    // that must not retroactively suppress the fire it just performed).
+    if (!_fired &&
+        _recording != null &&
+        _recordIndex >= 0 &&
+        _recordIndex < _recording!.records.length) {
+      final record = _recording!.records[_recordIndex];
+      if (record is TimerEffect) record.cancelled = true;
+    }
     // The journal's timer primitive does not expose a cancel; on the
     // replay side, cancellation is a matter of not invoking the callback
     // when it would fire. The `_cancelled` flag above handles that. On

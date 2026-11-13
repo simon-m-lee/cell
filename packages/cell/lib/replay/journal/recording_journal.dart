@@ -113,6 +113,7 @@ class RecordingJournal implements EffectJournal {
     required Duration duration,
     required Object? input,
     required FutureOr<void> Function() onFire,
+    bool fireAtEnd = false,
   }) async {
     final at = _clockSource();
     // Review fix: append the record BEFORE awaiting the fire callback.

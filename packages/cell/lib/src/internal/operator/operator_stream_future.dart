@@ -95,41 +95,39 @@ Cell _fromStream<T>(
       // Record the event through the journal. The recorded value is what
       // the engine's ReplayEngine re-injects during replay; the live path
       // emits the actual value either way, synchronously as before.
-      final effective = JournalScope.effectiveJournal(journal);
-      final scope = LedgerScope.current;
-      final before =
-          effective is RecordingJournal ? effective.records.length : 0;
+      // Review fix: a user-pushed RecordingJournal still wins (the
+      // ambient-journal contract), but the LEDGER scope is excluded —
+      // attaching the io to the ledger entry made replay diverge with an
+      // unused effect (the detached listener never consumes it), so under
+      // a scope the io stays in the operator's own journal as the
+      // observation's forensic record.
+      final ambient = JournalScope.effectiveJournal(journal);
+      final observationJournal = ambient is LedgerScopeImpl ? journal : ambient;
       unawaited(JournalScope.run(
-        effective,
-        () => effective.io(
+        observationJournal,
+        () => observationJournal.io(
           label: streamLabel,
           input: value,
           run: () async => value,
         ),
-      ).then((_) {
-        // Review fix: hand the io records to the ledger scope, exactly
-        // like asyncMap's cooperative capture. Previously fromStream
-        // effects never entered the ledger.
-        if (scope != null && effective is RecordingJournal) {
-          for (final record in effective.recordsSince(before)) {
-            LedgerScope.captureEffect(record);
-          }
-        }
-      }));
+      ));
       final output = Pulse<T>.governed(payload: value, source: host);
-      JournalScope.runSync(effective, () {
+      JournalScope.runSync(observationJournal, () {
         host._nucleus.receptor.call(output);
       });
       // Review fix: the operator emitted a pulse without going through
       // apply/ingress — previously no entry was ever written (and the
       // captured delta sat in `_pending` until the next pulse stole it).
-      // Defer the append one turn so the io record lands in the window.
-      LedgerScope.recordPulseDeferred(
-        pulse: output,
-        emitCell: host,
-        emitFunction: _streamEmitMarker,
-        emittedValue: value,
-      );
+      // Only REGISTERED cells are recorded: an unregistered cell's id is
+      // `nucleus:<hex>`, which no replay can ever resolve.
+      if (CellGraphRegistry.isRegistered(host.id)) {
+        LedgerScope.recordPulseDeferred(
+          pulse: output,
+          emitCell: host,
+          emitFunction: _streamEmitMarker,
+          emittedValue: value,
+        );
+      }
       // Removed: redundant lifecycle(value, cell: host) call.
       // passThrough is not governed, but the cell is.
       // ReceptorBase._proceed handles the lifecycle policy tick automatically.
@@ -210,37 +208,33 @@ Cell _fromFuture<T>(
 
   future.then((value) {
     if (!cell.isInvalidated) {
-      final effective = JournalScope.effectiveJournal(journal);
-      final scope = LedgerScope.current;
-      final before =
-          effective is RecordingJournal ? effective.records.length : 0;
+      // Review fix: same ambient-vs-ledger rule as fromStream.
+      final ambient = JournalScope.effectiveJournal(journal);
+      final observationJournal = ambient is LedgerScopeImpl ? journal : ambient;
       unawaited(JournalScope.run(
-        effective,
-        () => effective.io(
+        observationJournal,
+        () => observationJournal.io(
           label: futureLabel,
           input: null,
           run: () async => value,
         ),
-      ).then((_) {
-        if (scope != null && effective is RecordingJournal) {
-          for (final record in effective.recordsSince(before)) {
-            LedgerScope.captureEffect(record);
-          }
-        }
-      }));
+      ));
       final output = Pulse<T>.governed(payload: value, source: cell);
-      JournalScope.runSync(effective, () {
+      JournalScope.runSync(observationJournal, () {
         cell._nucleus.receptor.call(output);
       });
       // Review fix: same as fromStream — the operator emitted without
-      // apply/ingress, so no entry was ever written. Record a deferred
-      // window carrying the io and the captured delta.
-      LedgerScope.recordPulseDeferred(
-        pulse: output,
-        emitCell: cell,
-        emitFunction: _streamEmitMarker,
-        emittedValue: value,
-      );
+      // apply/ingress, so no entry was ever written. Only REGISTERED
+      // cells are recorded: an unregistered cell's id is `nucleus:<hex>`,
+      // which no replay can ever resolve.
+      if (CellGraphRegistry.isRegistered(cell.id)) {
+        LedgerScope.recordPulseDeferred(
+          pulse: output,
+          emitCell: cell,
+          emitFunction: _streamEmitMarker,
+          emittedValue: value,
+        );
+      }
     }
   }, onError: (Object error, StackTrace stackTrace) {
     if (!cell.isInvalidated) {

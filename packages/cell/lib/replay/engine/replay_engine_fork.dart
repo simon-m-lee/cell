@@ -79,6 +79,7 @@ extension ReplayEngineFork on ReplayEngine {
     int replayed = 0;
     int? firstDivergedAt;
     final parentsByDigest = <String, Pulse<dynamic>>{};
+    final deferredFires = <FutureOr<void> Function()>[];
 
     await for (final entry in parent.entriesSince(startSeq)) {
       if (options.maxEntries != null && replayed >= options.maxEntries!) {
@@ -144,6 +145,7 @@ extension ReplayEngineFork on ReplayEngine {
         mutatedPulse: mutatedPulse,
         fork: fork,
         options: options,
+        deferredFires: deferredFires,
       );
 
       replayed++;
@@ -158,6 +160,12 @@ extension ReplayEngineFork on ReplayEngine {
           );
         }
       }
+    }
+
+    // Run the deferred timer fires after the fork's entry loop, exactly
+    // like the main engine.
+    for (final fire in deferredFires) {
+      await fire();
     }
 
     return ReplayResult(
@@ -180,6 +188,7 @@ extension ReplayEngineFork on ReplayEngine {
     required Pulse mutatedPulse,
     required ForkHandle fork,
     required ReplayOptions options,
+    required List<FutureOr<void> Function()> deferredFires,
   }) async {
     final cellId = entry.receiptCellId;
     final cell = fork.graph[cellId]!.cell;
@@ -206,7 +215,8 @@ extension ReplayEngineFork on ReplayEngine {
     // effectful operators' `io` against the real world. The fork replays
     // the parent's entry, so its effects must be SERVED from the
     // parent's records — exactly like the main engine.)
-    final replayJournal = ReplayJournal(entry.effects);
+    final replayJournal =
+        ReplayJournal(entry.effects, deferredFires: deferredFires);
 
     // Run the mutated pulse through the cell's receptor, settling the
     // microtask queue so asynchronous effect continuations finish

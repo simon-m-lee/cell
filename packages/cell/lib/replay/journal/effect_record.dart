@@ -248,7 +248,14 @@ class TimerEffect extends EffectRecord {
   final int scheduledAtMillis;
   final int firedAtMillis;
 
-  const TimerEffect({
+  /// Whether the recorded timer was cancelled before it fired (review
+  /// fix). The recording side marks this when a debounce/throttle timer
+  /// is superseded; replay consumes the record but must NOT invoke the
+  /// fire callback — otherwise a cancelled timer fires during replay and
+  /// the graph diverges from its own recording.
+  bool cancelled;
+
+  TimerEffect({
     required super.ordinal,
     required super.inputDigest,
     required super.outputDigest,
@@ -256,6 +263,7 @@ class TimerEffect extends EffectRecord {
     required this.scheduled,
     required this.scheduledAtMillis,
     required this.firedAtMillis,
+    this.cancelled = false,
   });
 
   @override
@@ -266,6 +274,7 @@ class TimerEffect extends EffectRecord {
         'scheduled': scheduled.inMicroseconds,
         'scheduledAtMillis': scheduledAtMillis,
         'firedAtMillis': firedAtMillis,
+        'cancelled': cancelled,
       };
 
   static TimerEffect fromJson(Map<String, Object?> json) => TimerEffect(
@@ -276,6 +285,7 @@ class TimerEffect extends EffectRecord {
         scheduled: Duration(microseconds: json['scheduled'] as int),
         scheduledAtMillis: json['scheduledAtMillis'] as int,
         firedAtMillis: json['firedAtMillis'] as int,
+        cancelled: json['cancelled'] as bool? ?? false,
       );
 }
 

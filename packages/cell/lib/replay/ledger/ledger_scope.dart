@@ -315,10 +315,15 @@ class LedgerScopeImpl implements EffectJournal {
     required Duration duration,
     required Object? input,
     required FutureOr<void> Function() onFire,
+    bool fireAtEnd = false,
   }) async {
     final before = _journal.records.length;
-    final pending =
-        _journal.timer(duration: duration, input: input, onFire: onFire);
+    final pending = _journal.timer(
+      duration: duration,
+      input: input,
+      onFire: onFire,
+      fireAtEnd: fireAtEnd,
+    );
     // RecordingJournal.timer appends the TimerEffect SYNCHRONOUSLY
     // (before awaiting the fire), matching the recording's schedule-time
     // semantics. Capture it NOW so the deferred window of the pulse that
