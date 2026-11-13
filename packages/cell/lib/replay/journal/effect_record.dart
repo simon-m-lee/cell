@@ -10,7 +10,7 @@ part of '../../cell.dart';
 ///
 /// Every field is a JSON primitive (except [at] which is a `DateTime`
 /// serialised to ISO-8601 in [toJson]). The record is designed to be
-/// stored verbatim in the ledger (Phase 4), so its canonical form is
+/// stored verbatim in the ledger, so its canonical form is
 /// pinned by this codec and never extended without a schema version bump.
 ///
 /// ### Non-obvious: input/output digests, not raw values
@@ -152,7 +152,7 @@ class UuidEffect extends EffectRecord {
 /// required — the digest alone cannot reconstruct the response.
 class IoEffect extends EffectRecord {
   /// A semantic label, e.g. `'http.GET /profile/42'`. Used by the CLI
-  /// (Phase 8) for legibility.
+  /// for legibility.
   final String label;
 
   /// The raw response, JSON-encoded, or `null` if the recorder did not
@@ -203,11 +203,11 @@ class IoEffect extends EffectRecord {
 /// A stream event. Records the event's stream label, the digest of the
 /// value, and optionally the raw value.
 ///
-/// ### Non-obvious: codec-only in Phase 8
+/// ### Non-obvious: codec-only today
 ///
 /// No journal operation produces or consumes `StreamEffect` yet — the
 /// journalled operators record stream events as [IoEffect]s. The type
-/// exists so the schema is stable for Phase 5.1's dedicated stream
+/// exists so the schema is stable for a later dedicated stream
 /// journaling (per-event sequence tags).
 class StreamEffect extends EffectRecord {
   final String streamLabel;
@@ -330,7 +330,7 @@ class VerdictEffect extends EffectRecord {
 /// Recorded once per `(policy, cell)` tick during a pulse wave. On
 /// replay, the tick is consumed from the journal and re-applied to the
 /// `CycleChecker` so diamond graphs do not spuriously detect cycles
-/// (the C4 fix the previous phase deferred).
+/// (the cycle-checker fix the previous revision deferred).
 class PolicyTickEffect extends EffectRecord {
   /// A stable label for the policy, e.g. `'cachePolicy'`.
   final String policyLabel;

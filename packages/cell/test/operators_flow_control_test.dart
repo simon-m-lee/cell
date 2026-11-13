@@ -44,7 +44,7 @@ int sumInts(Iterable<Cell> cells) {
 }
 
 void main() {
-  group('Phase 2: Flow Control Operators', () {
+  group('Flow Control Operators', () {
     group('Cell.debounce', () {
       test('creates a debounce cell with default leading false', () {
         final source = Cell.ingress<int>();

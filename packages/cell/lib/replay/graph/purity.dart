@@ -15,7 +15,7 @@ part of '../../cell.dart';
 ///   their inputs alone.
 /// * [readOnlyExternal] cells observe the outside world (a clock, a
 ///   read-only database, an environment variable) but do not mutate it.
-///   They *can* be replayed, but only through an `EffectJournal` (Phase 3)
+///   They *can* be replayed, but only through an `EffectJournal`
 ///   that records every read so the same observations replay identically.
 /// * [effectful] cells both read and write the outside world (network,
 ///   disk, notifications). They must be journalled; without a journal they
@@ -32,7 +32,7 @@ part of '../../cell.dart';
 /// `CellGraph` can then refuse to treat a declared-effectful cell as if it
 /// were replayable.
 ///
-/// See the plan's D2 (purity boundary) and Phase 3 for the enforcement
+/// See the purity boundary and the journal for the enforcement
 /// mechanism (the `Effectful` mixin).
 enum Purity {
   /// No observable effect on the outside world; replay is exact.

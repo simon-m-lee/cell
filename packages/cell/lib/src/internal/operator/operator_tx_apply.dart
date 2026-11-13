@@ -759,7 +759,7 @@ class _ApplyTransactionScopeImpl extends ApplyTransactionScope {
   Future<void> commit() async {
     _ensureOpen();
 
-    // Phase 1: integrity-gate re-validation. A rule may have been
+    // the serialisation layer: integrity-gate re-validation. A rule may have been
     // tightened between staging and commit — this pre-pass catches that
     // *before* any command executes, so no forward-path work is done if
     // the batch is already invalid. Whitelist membership is NOT checked:
@@ -793,7 +793,7 @@ class _ApplyTransactionScopeImpl extends ApplyTransactionScope {
       }
     }
 
-    // Phase 2: execution. Each command is invoked in staging order. On any
+    // the graph registry: execution. Each command is invoked in staging order. On any
     // failure or veto, previously-executed commands are compensated exactly
     // once, in reverse-staging order, via _compensateExecutedOnly().
     Object? firstFailure;

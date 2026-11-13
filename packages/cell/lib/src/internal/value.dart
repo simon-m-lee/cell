@@ -134,7 +134,7 @@ class ValueCellAsync<V> extends ModifiableAsync<ValueCell<V>> {
       // the committed outcome — an async-rejected mutation must resolve
       // false, not true.
       if (identical(v, _cell.value) || v == _cell.value) return false;
-      // Phase 4: loud pre-commit validation for ledgered graphs (see
+      // Loud pre-commit validation for ledgered graphs (see
       // ValueCell._emit).
       if (LedgerScope.current != null) {
         ValueCell._encodeForLedger(v);
@@ -144,7 +144,7 @@ class ValueCellAsync<V> extends ModifiableAsync<ValueCell<V>> {
       if (result is Future<Pulse?>) {
         final committed = await result;
         if (committed is Pulse) {
-          // Phase 4: the async emit path is the direct-value path's
+          // The async emit path is the direct-value path's
           // counterpart; ledger the committed pulse.
           LedgerScope.recordPulse(
             pulse: committed,

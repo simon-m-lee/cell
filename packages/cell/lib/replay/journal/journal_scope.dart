@@ -13,7 +13,7 @@ part of '../../cell.dart';
 /// pushes a `ReplayJournal` on top. The inner branch sees its replay
 /// journal; when it pops, the outer recording resumes.
 ///
-/// The stack lives in a `Zone` — this is the *only* place in the plan
+/// The stack lives in a `Zone` — this is the only place in the design
 /// where a Zone is used, and it is used because Dart has no task-local
 /// storage primitive. Unlike a general "put the journal in the zone"
 /// pattern, the stack is drained on scope exit, so a spawned task that
@@ -95,7 +95,7 @@ abstract final class JournalScope {
   }
 
   /// The journal an effectful operator should actually use: the ambient
-  /// journal when an outer scope has pushed one (Phase 5's `ReplayEngine`
+  /// journal when an outer scope has pushed one (the `ReplayEngine`
   /// pushes a per-entry [ReplayJournal] around the dispatch), otherwise
   /// the journal the operator captured at construction.
   ///

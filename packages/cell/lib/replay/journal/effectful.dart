@@ -12,14 +12,14 @@ part of '../../cell.dart';
 /// a journal — the receptor body must call `journal.clock()`,
 /// `journal.io(...)`, etc. explicitly. What the mixin provides is:
 ///
-/// 1. **A compiler-enforced contract** at the retrofit sites. Phase 3
+/// 1. **A compiler-enforced contract** at the retrofit sites. The journal
 ///    changes `asyncMap` and friends to accept a non-optional `journal:`
 ///    parameter, and the `Effectful` mixin is how the framework
 ///    signatures communicate "this receptor must be journalled".
 ///
 /// 2. **A stable `purity` override.** Any class mixing in `Effectful`
 ///    reports [Purity.effectful] from [Receptor.purity] and
-///    [TestCell.purity]. The [CellGraph] uses this in Phase 5 to refuse
+///    [TestCell.purity]. The [CellGraph] uses this in the engine to refuse
 ///    an *exact* (journal-free) replay of a cell whose purity is
 ///    `effectful` — so a user who forgets to journal gets a loud failure
 ///    at graph construction, not a silent divergence during replay.
@@ -42,7 +42,7 @@ mixin Effectful {
 /// but do not mutate it (clocks, environment variables, read-only
 /// database lookups). Reports [Purity.readOnlyExternal].
 ///
-/// Phase 3 introduces this to distinguish the two journaling costs:
+/// This distinguishes the two journaling costs:
 /// recording a *read* is one effect per observation; recording a *write*
 /// is also one effect, but a write cannot be replayed at all (only its
 /// effects log is), so `readOnlyExternal` is *more* replayable than
@@ -55,7 +55,7 @@ mixin EffectfulReadOnly {
 /// (`asyncMap`, `fromStream`, `fromFuture`). It behaves exactly like
 /// `Receptor.passThrough` but reports [Purity.effectful], so
 /// `CellGraph.purityOf` classifies the operator's cell correctly and
-/// Phase 5 refuses an exact (journal-free) replay.
+/// The engine refuses an exact (journal-free) replay.
 class _EffectfulPassThroughReceptor extends _Receptor<Cell>
     with Effectful {
   _EffectfulPassThroughReceptor() : super();

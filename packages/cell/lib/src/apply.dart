@@ -178,11 +178,11 @@ typedef ApplyReceipt = ({
   DateTime timestamp,
   int? txSequence,
   bool vetted,
-  // Phase 4 — populated by Ledger.appendInternal; null on the receipt
+  // Populated by Ledger.appendInternal; null on the receipt
   // returned by Cell.apply, non-null on the receipt stored in the ledger.
   int? ledgerSeq,
   String? pulseDigest,
-  // Phase 7 — governance replay. Populated by Ledger.appendInternal from
+  // Governance replay. Populated by Ledger.appendInternal from
   // the cell's live receptor/test-rule/context versions.
   String? receptorVersion,
   String? ruleVersion,

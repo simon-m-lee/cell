@@ -25,7 +25,7 @@ part of '../../cell.dart';
 /// ### Non-obvious: the hook sees the *reconstructed* pulse, not the
 /// recorded payload
 ///
-/// The engine reconstructs the input pulse from the entry (Phase 5's
+/// The engine reconstructs the input pulse from the entry (the replay
 /// `PulseReconstructor`), then calls the hook. This means the hook has
 /// access to the pulse's `source`, `timestamp`, and `priority` — not
 /// just the payload. A mutation that wants to inject a different
@@ -37,7 +37,7 @@ part of '../../cell.dart';
 ///
 /// The effects belong to the entry's `ReplayJournal`. If the entry is
 /// dropped, the journal is not consumed, which means subsequent entries
-/// would see the wrong effects. Phase 6 handles this by **also**
+/// would see the wrong effects. The fork engine handles this by **also**
 /// dropping the entry's effects from the fork ledger — the fork's
 /// entries have their own effects, recorded during the fork's replay,
 /// not inherited from the parent. This is why the fork ledger

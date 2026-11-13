@@ -9,7 +9,7 @@ part of '../../cell.dart';
 /// A registered cell graph: the unit of identity and replay in the
 /// framework.
 ///
-/// A [CellGraph] is the *container* that Phase 4's `Ledger` and Phase 5's
+/// A [CellGraph] is the *container* that the `Ledger` and the
 /// `ReplayEngine` operate on. Its invariants are:
 ///
 /// * **Every cell in the graph has a stable `id`.** Registered cells'
@@ -19,9 +19,9 @@ part of '../../cell.dart';
 ///   the `bind`/`Synapses` graph, *in strict mode*. Reachability is
 ///   computed at `build()` time and re-validated lazily.
 /// * **No two cells share a name.** Enforced by `CellGraphBuilder`.
-/// * **Every cell's purity is known.** Phase 3 will refuse to journal a
+/// * **Every cell's purity is known.** The journal refuses to record a
 ///   cell whose receptor and rule are both [Purity.pure] without
-///   admitting that journaling is a no-op; Phase 5 will refuse to replay
+///   admitting that journaling is a no-op; the engine refuses to replay
 ///   an `effectful` cell that was not journalled.
 ///
 /// ### Strict vs. unrestricted
@@ -39,7 +39,7 @@ part of '../../cell.dart';
 /// but it does not `dispose` them, and a `cell` obtained from outside the
 /// graph continues to function after the graph is dropped. That is
 /// deliberate — the graph is metadata, not a lifecycle manager. The
-/// lifecycle manager is [EphemeralPolicy] (Phase 3 will hook into it).
+/// lifecycle manager is [EphemeralPolicy] (the journal hooks into it).
 class CellGraph {
   final String graphId;
   final bool strict;
@@ -90,10 +90,10 @@ class CellGraph {
   /// [Purity.pure]; otherwise the *weaker* (more external) of the two
   /// wins.
   ///
-  /// This is a Phase 2 stub: [Receptor.purity] and [TestCell.purity]
-  /// default to `pure` today, and Phase 3 will populate them. The method
+  /// [Receptor.purity] and [TestCell.purity]
+  /// default to `pure` today; the journal layer populates them. The method
   /// exists now so callers can already query it and so tests can assert
-  /// the invariant holds as Phase 3 lands.
+  /// the invariant holds.
   Purity purityOf(String name) {
     final registered = _byName[name];
     if (registered == null) {
@@ -110,7 +110,7 @@ class CellGraph {
     return a.index >= b.index ? a : b;
   }
 
-  /// The set of pulse sources the graph recognizes. Used by Phase 3 to
+  /// The set of pulse sources the graph recognizes. Used by the journal to
   /// enforce that a journalled pulse's `source` is a registered cell.
   Set<String> get registeredIds => Set.unmodifiable(_byName.keys);
 
@@ -176,11 +176,11 @@ class CellGraph {
   /// is observed at runtime.
   ///
   /// The violation rule is deliberately scoped to `bind` edges: that is
-  /// the user-facing wiring surface and the Plan's Phase 2 exit criterion
+  /// the user-facing wiring surface and the graph's acceptance criterion
   /// ("unregistered bind in a graph is rejected"). Synapse edges are how
   /// the framework wires operator internals (e.g. `asyncMap`'s internal
   /// bridge cell, terminal observers), which users cannot register; those
-  /// are traversed for completeness but are Phase 3's journal concern.
+  /// are traversed for completeness but are the journal's concern.
   ///
   /// In unrestricted mode, this method does nothing.
   void _validateReachability() {
@@ -215,7 +215,7 @@ class CellGraph {
     }
   }
 
-  // Runtime bind gate; Phase 3+ wires it into synapse linking so late
+  // Runtime bind gate; the journal wires it into synapse linking so late
   // binds are checked as they happen.
   // ignore: unused_element
   void _validateBindTarget(Cell bind) {
@@ -233,14 +233,14 @@ class CellGraph {
 
   /// Produces a [CellGraphSnapshot] of the current cell states.
   ///
-  /// **Phase 1 limitation:** the snapshot serialises only the JSON-
+  /// **Limitation:** the snapshot serialises only the JSON-
   /// encodable value of each cell. `ValueCell` values that are not
-  /// JSON-encodable require the user to register a payload codec (Phase 3
-  /// adds this). For Phase 2, a snapshot of a `ValueCell<int>` or
+  /// JSON-encodable require the user to register a payload codec (the journal
+  /// adds this). A snapshot of a `ValueCell<int>` or
   /// `ValueCell<String>` works; anything else throws.
   ///
-  /// [lastLedgerSeq] and [parentLedgerHash] are Phase 4 concerns; Phase 2
-  /// takes them as arguments so the snapshot's *shape* is final and Phase 4
+  /// [lastLedgerSeq] and [parentLedgerHash] are ledger concerns; the graph
+  /// takes them as arguments so the snapshot's *shape* is final and the ledger
   /// only needs to populate them.
   CellGraphSnapshot snapshot({
     int lastLedgerSeq = -1,
@@ -282,27 +282,27 @@ class CellGraph {
     if (cell is ValueCell) {
       // ValueCell<V>.value is V?; the caller's V may not be JSON-
       // encodable. Canonical encoder throws loudly on failure, which is
-      // the right behaviour — Phase 3's payload codec registration will
+      // the right behaviour — the journal's payload-codec registration will
       // give the caller a place to plug in their own.
       return cell.value;
     }
     // Non-ValueCell cells (ingress, derived, hub, etc.) have no
     // persistent state, so they snapshot to `null`. The snapshot still
-    // records their config fingerprint so Phase 5 can detect a
+    // records their config fingerprint so the engine can detect a
     // reconfiguration.
     return null;
   }
 
   String _receptorVersion(Cell cell) {
-    // Phase 2 default: `0.0.0` until Phase 3 stamps the actual version.
-    // The version string is what gets stored in the ledger; Phase 5
+    // Default: `0.0.0` until the journal layer stamps the actual version.
+    // The version string is what gets stored in the ledger; the engine
     // uses it to dispatch to the correct receptor implementation.
     return cell._nucleus.receptor.version;
   }
 
   String _receptorName(Receptor receptor) {
-    // A stable name for the receptor. Phase 3 will override this with a
-    // registered name; Phase 2 falls back to `runtimeType`, which is at
+    // A stable name for the receptor. The journal layer overrides this with a
+    // registered name; the fallback is `runtimeType`, which is at
     // least stable within a Dart VM.
     return receptor.runtimeType.toString();
   }

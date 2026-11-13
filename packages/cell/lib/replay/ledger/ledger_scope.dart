@@ -64,7 +64,7 @@ class LedgerScope {
       return await zoned.run(body);
     } finally {
       await scope.drain();
-      // Phase-8.3 (review): surface a component's refusal after the
+      // (review): surface a component's refusal after the
       // body, outside the receptor pipeline where it cannot be
       // swallowed. The first poison wins.
       final poison = scope.poisonReason;
@@ -123,7 +123,7 @@ class LedgerScope {
     // (debug VM), which is exactly where the queued append will run.
     final cellId = effectiveReceipt.cell.id;
     final journal = EffectJournal.current;
-    // Phase 7: capture only the records written since the previous
+    // Capture only the records written since the previous
     // immediate append (a per-scope watermark), not the whole journal.
     // Without the watermark, a burst of apply pulses would attribute
     // every earlier pulse's records to each later entry.
@@ -144,7 +144,7 @@ class LedgerScope {
   }
 
   /// Records a pulse whose *observable settlement* happens
-  /// asynchronously (Phase 5: ingress emits whose downstream operators
+  /// asynchronously (ingress emits whose downstream operators
   /// perform effects in detached continuations). The entry is appended
   /// one event-loop turn later — after the microtask queue settles, and
   /// with it the operator's cooperative [captureEffect] calls — so the
@@ -152,7 +152,7 @@ class LedgerScope {
   ///
   /// Bursts of emits that do not wait for their asynchronous work to
   /// settle share one settlement turn; their effect attribution is a
-  /// Phase 5.1+ concern (pulse-tagged effect windows).
+  /// A later revision's concern (pulse-tagged effect windows).
   static void recordPulseDeferred({
     required Pulse pulse,
     ApplyReceipt? receipt,
@@ -218,7 +218,7 @@ class LedgerScopeImpl {
   final List<Future<void>> _windows = [];
   Future<void> _tail = Future<void>.value();
 
-  /// Phase 7: how many ambient-journal records the immediate
+  /// How many ambient-journal records the immediate
   /// [LedgerScope.recordPulse] path has already attributed. Each
   /// immediate append sweeps only records written after this watermark.
   int _journalWatermark = 0;

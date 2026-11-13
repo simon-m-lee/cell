@@ -464,6 +464,6 @@ the upstream cell or use `CellGraph.unrestricted()` in tests only.
   the framework's own testing helpers.
 - `guide/HowTo-Causal-Replay.md` — the in-depth guide, including the
   seven-item pre-flight checklist.
-- `test/replay/phase*/` — the framework's own test suite, one
+- `test/replay/` — the framework's own test suite, one
   directory per phase.
 ```

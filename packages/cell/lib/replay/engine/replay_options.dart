@@ -22,7 +22,7 @@ class ReplayOptions {
   ///
   /// Continuing is **never** safe for verification — the resulting state
   /// is not the recorded state — but it is useful for the CLI's
-  /// `replay diff` command (Phase 8), which wants the *full* list of
+  /// `replay diff` command, which wants the *full* list of
   /// divergences, not just the first.
   final bool failOnDivergence;
 
@@ -39,17 +39,17 @@ class ReplayOptions {
   /// Asynchronous receptor continuations (asyncMap mappers, deferred
   /// timer fires) complete in microtasks; without the settle the engine
   /// would assert exhaustion before the receptor had consumed its
-  /// effects. (The Phase 5 doc called this flag `reseedCycleChecker`;
-  /// the cycle-checker reseed itself is a Phase 7 concern, so the flag
+  /// effects. (The engine design called this flag `reseedCycleChecker`;
+  /// the cycle-checker reseed itself is a governance concern, so the flag
   /// carries the settle behaviour that is actually load-bearing for
-  /// this phase's exit criteria.)
+  /// the engine's acceptance criteria.)
   ///
   /// ### Non-obvious: one settle is one event-loop turn
   ///
   /// A chain of N unawaited timers needs one turn per hop; a single
   /// settle covers one level. Deep unawaited chains (and real-timer
   /// waits longer than a microtask flush) are the pulse-tagged-window
-  /// territory of Phase 5.1 — receptors that await their work are fully
+  /// territory of a later revision — receptors that await their work are fully
   /// covered by the single turn.
   final bool settleAfterDispatch;
 

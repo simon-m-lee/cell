@@ -343,7 +343,7 @@ Future<void> main() async {
   print('    reading #7\'s alert level flipped to critical (its recorded');
   print('    counter entry does not exist — the recording had no alert');
   print('    for #7, so there is nothing to mutate; adding the missing');
-  print('    4th increment would be pulse injection, a Phase 6.1 feature).');
+  print('    4th increment would be pulse injection, a a later forking revision feature).');
   print('');
 
   // ─────────────────────────────────────────────────────────────────

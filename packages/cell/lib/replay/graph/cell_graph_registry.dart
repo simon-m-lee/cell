@@ -10,7 +10,7 @@ part of '../../cell.dart';
 ///
 /// The registry itself is `_CellGraphRegistry` (private to the library);
 /// this class exposes the minimum public surface needed by tests and the
-/// Phase 8 CLI. It is deliberately not part of the normal API surface —
+/// CLI-only hook. It is deliberately not part of the normal API surface —
 /// users should not need it outside tests.
 abstract final class CellGraphRegistry {
   /// Whether [id] is currently claimed by any registered cell in this

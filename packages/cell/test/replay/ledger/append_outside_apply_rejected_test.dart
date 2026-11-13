@@ -91,7 +91,7 @@ void main() {
 
   test(
       'a hand-crafted appendInternal entry has an empty delta list — '
-      'verify passes, replay (Phase 5) will reject it', () async {
+      'verify passes, replay (the replay engine) will reject it', () async {
     final counter = Cell.state<int>(initial: 0);
     final graph = (CellGraph.builder()..registerState('c', counter)).build();
     final store = InMemoryLedgerStore(

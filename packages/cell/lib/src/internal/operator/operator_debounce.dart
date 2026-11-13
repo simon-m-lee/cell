@@ -12,7 +12,7 @@ part of '../../../cell.dart';
 
 /// Emits only after [source] has been quiet for [duration].
 ///
-/// Phase 3 (D6 breaking change): the wait is the non-determinism, so
+/// the journal (D6 breaking change): the wait is the non-determinism, so
 /// `journal:` is required — the timer runs through the journal's `timer`
 /// primitive. On replay, the fire callback is invoked in journal order
 /// instead of after a real wait.
@@ -75,7 +75,7 @@ Cell _debounce(
     testRule: TestCell.allowAll,
     synapses: Synapses.disabled,
     receptor: Receptor(
-      // Phase 5: prefer an outer ambient journal (ReplayEngine) over the
+      // the replay engine: prefer an outer ambient journal (ReplayEngine) over the
       // construction-time journal.
       (cell, pulse, {user}) =>
           JournalScope.runSync(JournalScope.effectiveJournal(journal), () {

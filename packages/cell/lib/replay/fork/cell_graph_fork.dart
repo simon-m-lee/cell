@@ -9,7 +9,7 @@ part of '../../cell.dart';
 /// Forking extensions for [CellGraph].
 ///
 /// Provided as an extension so `cell_graph.dart` does not gain a `fork`
-/// method — the plan's Phase 6 diff surface keeps `cell_graph.dart`
+/// method — the fork diff surface keeps `cell_graph.dart`
 /// unchanged and puts all fork code in `fork/`. The trade-off is that
 /// `graph.fork(...)` is only available when `replay.dart` is imported,
 /// which is correct: fork is a replay concern, not a graph concern.
@@ -21,13 +21,13 @@ extension CellGraphFork on CellGraph {
   /// `CellGraphBuilder` invocation the original graph was built from.
   /// The fork's `CellGraph` will be the result of calling this factory —
   /// the fork does not clone `this`'s cells, because cell cloning is
-  /// a Phase 5.1 concern and cloning is *not* required for the
+  /// a snapshot-reconstruction concern and cloning is *not* required for the
   /// isolated fork policy (the fresh graph's cells are the fork's
   /// working state).
   ///
   /// [buildStore] is the fork's ledger store factory. It receives the
   /// fork's chain genesis (`ForkRecord.genesisHash`) and must construct
-  /// a store with that genesis — Phase 4 stores enforce their genesis
+  /// a store with that genesis — ledger stores enforce their genesis
   /// hash, and the fork genesis is only known once the fork record
   /// exists. (The doc's caller-supplied store cannot satisfy the
   /// genesis check; a factory is the honest shape.)
@@ -57,8 +57,8 @@ extension CellGraphFork on CellGraph {
     if (policy != ForkPolicy.isolated) {
       throw UnimplementedError(
         'CellGraph.fork: ForkPolicy.${policy.name} is not implemented '
-        'in Phase 6. Phase 6 only supports isolated forks; sharedTopology '
-        'and dropUnreached require Phase 5.1 snapshot reconstruction.',
+        'in this release. The fork engine only supports isolated forks; '
+        'sharedTopology and dropUnreached require snapshot reconstruction.',
       );
     }
     if (atSeq < 0) {

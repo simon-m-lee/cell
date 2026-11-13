@@ -71,7 +71,7 @@ Pulse<T> taggedPulse<T>(
 }
 
 void main() {
-  group('Phase 4: Advanced & Transactions', () {
+  group('Advanced & Transactions', () {
     group('Cell.sanitized', () {
       test('sanitized redacts sensitive data', () async {
         final source = Cell.ingress<String>();

@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 //
-// Phase 3.1 of CONTRIBUTING-AI-DOC.md: every `Minimal compilable
+// Mirrors CONTRIBUTING-AI-DOC.md: every `Minimal compilable
 // example` in the `### AI Agent Guide` doc blocks must compile under
 // `dart analyze`, run, and exit 0.
 

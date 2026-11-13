@@ -27,7 +27,7 @@ import 'package:cell/cell.dart'
 ///
 /// A truly durable ledger `fsync`s each entry. That is a synchronous
 /// syscall (~0.1-10 ms depending on the device), and doing it per append
-/// would cap the ledger at ~100 entries/sec on an SD card. The plan's C5
+/// would cap the ledger at ~100 entries/sec on an SD card. The performance
 /// gate (`<5%` regression on the pure path) cannot tolerate that.
 /// Instead, `FileLedgerStore` **flushes** after each append (writes go to
 /// the OS buffer) and **fsyncs on `close`**. A crash between flushes

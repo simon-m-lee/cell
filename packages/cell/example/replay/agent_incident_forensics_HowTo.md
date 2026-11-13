@@ -339,7 +339,7 @@ replay engine.
 The demo's cells have no `TestCell`. A production refund agent would
 likely have one — for example, a rule that rejects refunds above a
 threshold unless a manager approves. In the current framework, the
-`apply` path's `TestActionRule` is not journalled (Phase 7 covers the
+`apply` path's `TestActionRule` is not journalled (the governance layer covers the
 *pulse* path only). If you need replayable `apply` verdicts, record a
 new ledger at the current receptor version.
 
@@ -474,5 +474,5 @@ replayable mutations.
 - `example/replay/whatif_branch.dart` — minimal fork and mutation.
 - `guide/HowTo-Causal-Replay.md` — the seven-item checklist and
   pre-flight guide.
-- `test/replay/phase*/` — the framework's own test suite, one
+- `test/replay/` — the framework's own test suite, one
   directory per phase.

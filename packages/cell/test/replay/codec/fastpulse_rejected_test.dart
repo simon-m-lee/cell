@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-// Phase 1, exit item 5: `PulseCodec.toJson` rejects the un-materialised
+// the serialisation layer, exit item 5: `PulseCodec.toJson` rejects the un-materialised
 // flyweight pulses. The types themselves are private to the `cell` library,
 // but the public API produces them — `Cell.ingress` emits `_FastPulse` and
 // `Pulse.withStep` returns `_StepPulse` — so the reject path is testable

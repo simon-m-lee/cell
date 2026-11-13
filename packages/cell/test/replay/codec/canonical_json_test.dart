@@ -4,8 +4,8 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-// Phase 1, exit item 7: this file deliberately imports ONLY the replay
-// barrel — the Phase 1 public API must be usable without importing
+// This file deliberately imports ONLY the replay
+// barrel — the the serialisation layer public API must be usable without importing
 // `package:cell/cell.dart`.
 import 'package:cell/replay.dart';
 
@@ -106,7 +106,7 @@ void main() {
   });
 
   group('barrel surface', () {
-    test('package:cell/replay.dart alone exposes the Phase 1 API', () {
+    test('package:cell/replay.dart alone exposes the the serialisation layer API', () {
       // Compile-time proof: these identifiers resolve through the barrel
       // without importing package:cell/cell.dart.
       final snapshot = CellSnapshot(
@@ -131,7 +131,7 @@ void main() {
         PulseContextCodec,
         CellSnapshot,
         CellGraphSnapshot,
-        // Phase 2 — registry + identity.
+        // the graph registry — registry + identity.
         Purity,
         CellGraph,
         CellGraphBuilder,

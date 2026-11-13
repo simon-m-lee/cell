@@ -217,7 +217,7 @@ abstract class NucleusBase implements Nucleus {
   /// The persisted identity of the cell this nucleus powers. Resolved as
   /// follows:
   ///
-  ///   1. If a `CellGraph` (Phase 2) has registered this nucleus, its
+  ///   1. If a `CellGraph` has registered this nucleus, its
   ///      registered name.
   ///   2. Otherwise, the `identityHashCode` of the root principal.
   ///
@@ -233,7 +233,7 @@ abstract class NucleusBase implements Nucleus {
   String get id => _resolveId();
 
   String _resolveId() {
-    // Phase 2: a graph-assigned name wins. The walk visits our own nucleus
+    // A graph-assigned name wins. The walk visits our own nucleus
     // first, then the principal chain — a deputy whose principal is
     // registered resolves to the principal's name, which is the identity
     // contract ("the ledger treats them as the same cell for state

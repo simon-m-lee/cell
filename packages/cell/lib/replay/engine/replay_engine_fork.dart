@@ -9,7 +9,7 @@ part of '../../cell.dart';
 /// Fork-aware replay: replays a parent ledger into a fork handle,
 /// applying a [Mutation] to each entry.
 ///
-/// This is Phase 6's core addition to `ReplayEngine`. It shares the
+/// The fork engine's core addition to `ReplayEngine`. It shares the
 /// engine's reconstruction machinery but:
 ///
 /// * **Applies the mutation** before dispatch: `mutation(entry, pulse)`
@@ -51,9 +51,9 @@ extension ReplayEngineFork on ReplayEngine {
   /// world, and the fork's ledger stores the same effect list the
   /// parent recorded. Consequence: a mutation that replaces a pulse
   /// whose I/O *differs* from the parent's will diverge instead of
-  /// becoming the fork's history. Phase 6 what-if is defined over
+  /// becoming the fork's history. What-if is defined over
   /// **pulses**, not effects; re-recording mutated effects (a fresh
-  /// RecordingJournal + live I/O) is the deferred Phase 6.1 item. When
+  /// RecordingJournal + live I/O) is a later forking revision. When
   /// a mutation drops an entry, nothing is appended.
   static Future<ReplayResult> replayFork({
     required ForkHandle fork,
@@ -70,7 +70,7 @@ extension ReplayEngineFork on ReplayEngine {
     final parent = fork.parent;
     final startSeq = fork.record.divergedAt + 1;
 
-    // Phase 8 hardening (review fix): never replay a corrupt history,
+    // Hardening (review fix): never replay a corrupt history,
     // and never append onto a corrupt fork chain.
     await parent.verify();
     await fork.ledger.verify();

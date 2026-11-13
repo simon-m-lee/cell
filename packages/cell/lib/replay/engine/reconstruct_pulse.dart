@@ -47,7 +47,7 @@ abstract final class PulseReconstructor {
   /// pulse's `source` field on the heuristic fallback path, which
   /// matters for `TestPulseRule` validation.
   ///
-  /// ### Phase-8.3: the pulse body is the primary path
+  /// ### The pulse body is the primary path
   ///
   /// Entries appended by `Ledger.appendInternal` now store the
   /// materialised pulse JSON (`entry.pulseJson`), and `Ledger.verify`

@@ -140,7 +140,7 @@ The documented **Core 16** — ordered for a learning path: get data in → hold
 
 Each works with defaults: `Receptor.passThrough`, `TestCell.allowAll`, `Context.system`, `Synapses.enabled`.
 
-### Phase 1 — Get data in, hold state, react
+### Get data in, hold state, react
 
 #### 1. `Cell.state<V>()`
 
@@ -216,7 +216,7 @@ static Cell derive<I extends Pulse, O extends Pulse>({
 | **Behavior** | Result is an `EvolvedPulse` (causal lineage preserved). `project` returning `null` suppresses the signal. |
 | **Use when** | View-models, formatting, type conversion, extracting a field, implicit filtering. |
 
-### Phase 2 — Shape streams
+### Shape streams
 
 #### 5. `Cell.debounce()`
 
@@ -262,7 +262,7 @@ static Cell throttle(
 | **Behavior** | Default: first pulse immediate, rest of the window dropped. `trailing: true` also emits the last pulse when the window ends. |
 | **Use when** | Scroll / pointer sampling, API rate limits, ~60 fps UI, sensor downsampling. |
 
-### Phase 3 — Go async
+### Go async
 
 #### 8. `Cell.asyncMap<S, T>()`
 
@@ -330,7 +330,7 @@ static Cell switchMap<S, T>(Cell source, Cell Function(S value) mapper)
 | **Behavior** | Does **not** emit the source value. Unlinks the previous inner cell automatically. Silent until the current inner cell emits. |
 | **Use when** | Selected user / tab / locale → active upstream. Contrast with `asyncMap`, which maps to a `Future`, not a `Cell`. |
 
-### Phase 4 — Combine and route
+### Combine and route
 
 #### 12. `Cell.synthesis<P>()`
 
@@ -397,7 +397,7 @@ Missing sensitivity is treated as `Sensitivity.public` (no redaction). Redacted 
 
 **Use when:** UI / log / telemetry views of PII or credentials. This is a building block, not a compliance program.
 
-### Phase 5 — Orchestration
+### Orchestration
 
 #### 15. `Cell.transaction()`
 
@@ -1075,7 +1075,7 @@ Files are named `test_*.dart`, not `*_test.dart`. Therefore:
 - `dart test test` is a name filter, not a directory
 - Pass explicit files (see [`TEST_VERIFICATION.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell/TEST_VERIFICATION.md))
 
-**1115** tests in **20** files. Last full run: **1115 passed / 0 failed / 0 skipped**. Measured `lib/` line coverage: **95.9%** (3397 / 3541). Suites cover Cell (including `valve` and `OpenCell.perform`), Pulse (`PulseExtension.map` / `cast` via `PulseExtension(pulse)`), Nucleus (`isInvalidated` follows a hosted `EphemeralPolicy`), Receptor (`pipeline` reaction / `isGoverned` / `PulseShell`), Instruction, Synapses (`FilterRule` parent/`fromRecord`, `PropagationStrategy.sample`), TestCell / TestRule, Context / DeputyContext / PulseContext, commons, `transaction`, `txApply`, and operator phases 1–4.
+**1115** tests in **20** files. Last full run: **1115 passed / 0 failed / 0 skipped**. Measured `lib/` line coverage: **95.9%** (3397 / 3541). Suites cover Cell (including `valve` and `OpenCell.perform`), Pulse (`PulseExtension.map` / `cast` via `PulseExtension(pulse)`), Nucleus (`isInvalidated` follows a hosted `EphemeralPolicy`), Receptor (`pipeline` reaction / `isGoverned` / `PulseShell`), Instruction, Synapses (`FilterRule` parent/`fromRecord`, `PropagationStrategy.sample`), TestCell / TestRule, Context / DeputyContext / PulseContext, commons, `transaction`, `txApply`, and the operator suites.
 
 ```bash
 dart analyze lib

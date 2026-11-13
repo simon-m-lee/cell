@@ -141,7 +141,7 @@ class PulseCodec {
         throw ArgumentError(
           'PulseCodec.fromJson: parentDigest present but no parent '
           'provided. Supply the reconstructed parent, or use the ledger '
-          'API (Phase 5) which resolves parents by digest.',
+          'ledger API which resolves parents by digest.',
         );
       }
       final actual = fingerprint(toJson(parent));
@@ -391,21 +391,21 @@ class _NullPayloadPulse extends _SinglePulseBase<dynamic> {
 
 /// A minimal, in-process registry used by [PulseCodec] to resolve a source
 /// cell id back to a `Cell` handle. Populated by `CellGraph.register`
-/// (Phase 2). Empty in a pure Phase 1 build, in which case `_sourceFromId`
+/// (graph registration). Empty in a serialisation-only build, in which case `_sourceFromId`
 /// returns `null` and the reconstructed pulse has no source — which is
-/// fine, because Phase 1 tests do not depend on source identity.
+/// fine, because serialisation tests do not depend on source identity.
 ///
-/// Kept deliberately private so the public Phase 2 registry can replace
+/// Kept deliberately private so the public graph registry can replace
 /// this implementation without breaking any code that imports the codec.
 class _ReplayCellRegistry {
   static final Map<String, Cell> _cells = {};
 
-  // ignore: unused_element — Phase 2 `CellGraph.register` hooks here.
+  // ignore: unused_element — `CellGraph.register` hooks here.
   static void register(String id, Cell cell) {
     _cells[id] = cell;
   }
 
-  // ignore: unused_element — Phase 2 teardown hook.
+  // ignore: unused_element — graph teardown hook.
   static void unregister(String id) {
     _cells.remove(id);
   }

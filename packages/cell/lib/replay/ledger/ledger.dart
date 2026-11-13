@@ -11,18 +11,18 @@ part of '../../cell.dart';
 /// A `Ledger` is bound to a [CellGraph] and a [LedgerStore]. It is the
 /// authoritative history of the graph; the graph's current state is a
 /// *derived* value that can be reconstructed by replaying the ledger
-/// from a snapshot (Phase 5).
+/// from a snapshot.
 ///
 /// ### Non-obvious: `Ledger.appendInternal` is not called by users
 ///
-/// The plan says "append from inside a receptor is rejected". The
+/// The design says "append from inside a receptor is rejected". The
 /// enforcement is: `appendInternal` is `@internal` and only invoked from
 /// `_LedgerScopeImpl.recordAndAppend`, which is pushed by `Cell.apply`
 /// and the `ValueCell` emit path (with the delta captured by
 /// `postProcessRule`). A user who calls `appendInternal` directly will
 /// hit the `@internal` warning in a strict analyzer config; more
 /// importantly, they will not have the delta and will produce an entry
-/// whose `deltaDigest` is `fingerprint([])`, which Phase 5's
+/// whose `deltaDigest` is `fingerprint([])`, which the engine's
 /// `ReplayEngine` rejects as a divergence at replay time. That is the
 /// correct outcome: the ledger is not a general-purpose journal, it is a
 /// *coordinated* record, and the coordination lives in `LedgerScope`.
@@ -46,7 +46,7 @@ class Ledger {
   /// own `genesisHash` must match, or this throws — a store created for
   /// graph `G` can never silently serve graph `H`.
   ///
-  /// [genesisHash] overrides the chain genesis — Phase 6's fork ledgers
+  /// [genesisHash] overrides the chain genesis — fork ledgers
   /// chain from their `ForkRecord.genesisHash`, not from the graph id.
   static Future<Ledger> open({
     required CellGraph graph,
@@ -129,7 +129,7 @@ class Ledger {
               'got ${entry.hash}',
         );
       }
-      // Phase-8.3 (review): when the pulse body is stored, its digest
+      // (review): when the pulse body is stored, its digest
       // must match pulseDigest — a tampered pulse body fails here.
       if (entry.pulseJson != null &&
           fingerprint(entry.pulseJson!) != entry.pulseDigest) {
@@ -170,7 +170,7 @@ class Ledger {
     final at = DateTime.now();
     // The pulse flowing through apply/emit is often a _FastPulse or has
     // _StepPulse ancestors; the digest is over the canonical materialised
-    // form. Phase-8.3 (review): the materialised JSON is now STORED as
+    // form. (review): the materialised JSON is now STORED as
     // the entry's pulse body, so replay can reconstruct the exact pulse
     // and verify() can check the body against the digest. Both the body
     // and the digest come from this ONE materialisation — re-materialising
@@ -194,7 +194,7 @@ class Ledger {
       vetted: receipt.vetted,
       ledgerSeq: seq,
       pulseDigest: pulseDigest,
-      // Phase 7: capture the governance versions that produced the
+      // Capture the governance versions that produced the
       // entry. Unversioned components report '0.0.0'.
       receptorVersion: receipt.cell._nucleus.receptor.version,
       ruleVersion: receipt.cell._nucleus.testRule.version,

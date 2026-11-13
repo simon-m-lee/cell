@@ -8,11 +8,11 @@ part of '../../cell.dart';
 
 /// Policy-tick journaling for [EphemeralPolicy].
 ///
-/// Phase 3 journaled timers and Phase 5 deferred policy-tick reseeding.
-/// Phase 7 closes the loop: every tick of an `EphemeralPolicy` during
+/// The journal records timers and the engine deferred policy-tick reseeding.
+/// The governance layer closes the loop: every tick of an `EphemeralPolicy` during
 /// pulse processing is journaled as a `PolicyTickEffect`. On replay,
 /// the tick is consumed from the journal and re-applied to the
-/// `CycleChecker` — the C4 fix the plan requires.
+/// `CycleChecker` — the cycle-checker reseed fix.
 abstract final class PolicyReplay {
   /// Records (or replays) a policy tick.
   ///
@@ -25,7 +25,7 @@ abstract final class PolicyReplay {
   /// The journal input is the pulse's *payload* — the pulse object
   /// itself is not stable across record/replay, its payload is. The
   /// policy callback still receives the pulse (preserving the
-  /// pre-Phase-7 contract) on the recording side only.
+  /// pre--7 contract) on the recording side only.
   static void tick({
     required EphemeralPolicy policy,
     required Cell cell,

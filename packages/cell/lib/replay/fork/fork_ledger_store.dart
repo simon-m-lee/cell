@@ -23,7 +23,7 @@ part of '../../cell.dart';
 /// recomputed hash would differ from the stored one.
 ///
 /// The synthetic entry is also **injected into the inner store** on the
-/// first append: the inner store's genesis check (Phase 4) must pass
+/// first append: the inner store's genesis check must pass
 /// against the fork record's genesis hash, and it can only pass for the
 /// synthetic entry itself.
 class ForkLedgerStore implements LedgerStore {
@@ -42,7 +42,7 @@ class ForkLedgerStore implements LedgerStore {
   /// Writes the synthetic seq-0 [ForkRecord] entry into [inner] without
   /// appending a real entry.
   ///
-  /// Phase 8 addition: the CLI's `fork` command must produce a fork
+  /// Tooling addition: the CLI's `fork` command must produce a fork
   /// ledger *file* whose `seq 0` is the `ForkRecord` even before any
   /// replay appends. Without this, an empty fork file would only gain
   /// its synthetic entry on the first `append`.
@@ -121,7 +121,7 @@ class ForkLedgerStore implements LedgerStore {
       id: 'fork:${record.forkId}',
       cell: cell,
       function: _forkRecordMarker,
-      // Phase-8.3 (review): the fork record itself is embedded as the
+      // (review): the fork record itself is embedded as the
       // first positional argument of the synthetic entry, so the FILE
       // carries the record — not just the one-way genesis hash — and
       // ForkVerify can compare the stored record against the handle's.

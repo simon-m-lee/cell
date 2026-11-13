@@ -8,7 +8,7 @@ part of '../../cell.dart';
 
 /// A serialisable snapshot of an entire cell graph.
 ///
-/// Sits alongside `Ledger` (Phase 4) as one of the two persistence units.
+/// Sits alongside `Ledger` as one of the two persistence units.
 /// A snapshot is the *state* at a point in time; a ledger is the *history*
 /// that produced it. Both are needed for replay: replay replays the ledger
 /// from a snapshot's `lastLedgerSeq`.
@@ -20,13 +20,13 @@ class CellGraphSnapshot {
   /// can be detected on read and routed to a migration path.
   final int schemaVersion;
 
-  /// The ledger sequence number at which this snapshot was taken. Phase 4
-  /// supplies this; Phase 1 accepts it verbatim (or `-1` for a snapshot
+  /// The ledger sequence number at which this snapshot was taken. The ledger
+  /// supplies this; the serialisation layer accepts it verbatim (or `-1` for a snapshot
   /// taken before any ledger exists).
   final int lastLedgerSeq;
 
-  /// Merkle root of the ledger *up to* [lastLedgerSeq]. Phase 4 computes
-  /// it; Phase 1 serialises it opaquely.
+  /// Merkle root of the ledger *up to* [lastLedgerSeq]. The ledger computes
+  /// it; the serialisation layer serialises it opaquely.
   final String? parentLedgerHash;
 
   /// Per-cell snapshots, sorted by id.
@@ -44,7 +44,7 @@ class CellGraphSnapshot {
   /// serialised representation of `CellGraphSnapshot`, `CellSnapshot`,
   /// `PulseCodec`, or `PulseContextCodec` changes in a way that old data
   /// cannot parse.
-  static const int currentSchemaVersion = 2; // Phase 7: effect+receipt schema
+  static const int currentSchemaVersion = 2; // effect+receipt schema
 
   Map<String, Object?> toJson() => {
         'graphId': graphId,

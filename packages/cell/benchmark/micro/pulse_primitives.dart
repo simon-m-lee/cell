@@ -1,6 +1,6 @@
 // Pins the per-pulse primitive costs that dominate every propagation
 // benchmark. The `get<T>` exception-miss cost is included as a control:
-// Phase 1 of the performance work replaced these misses with shape-tagged
+// The first performance iteration replaced these misses with shape-tagged
 // direct reads, and this file is the regression pin for that.
 //
 // Run: dart run benchmark/micro/pulse_primitives.dart

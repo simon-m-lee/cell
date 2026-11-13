@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 //
-// Phase 6.1 of CONTRIBUTING-AI-DOC.md: structured log of real AI agent
+// a later forking revision of CONTRIBUTING-AI-DOC.md: structured log of real AI agent
 // failures. Every entry is reviewed quarterly; each review produces a
 // doc-comment, macro, or code change within one sprint.
 //

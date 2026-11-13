@@ -1148,7 +1148,7 @@ abstract interface class Receptor<C extends Cell> {
   /// The receptor's effect footprint.
   ///
   /// Defaults to [Purity.pure]. Custom receptors that perform external I/O
-  /// must override this (see `Effectful` in Phase 3).
+  /// must override this (see `Effectful`).
   ///
   /// The graph uses this in [CellGraph.purityOf] to decide whether a cell
   /// is exactly replayable, journal-replayable, or not replayable at all.
@@ -1156,11 +1156,11 @@ abstract interface class Receptor<C extends Cell> {
 
   /// A stable version string identifying this receptor's implementation.
   ///
-  /// Used by Phase 5's replay engine to dispatch to the correct receptor
+  /// Used by the replay engine to dispatch to the correct receptor
   /// when the ledger's recorded version differs from the current one. The
   /// default is `'0.0.0'`, which is treated as "unversioned" — a receptor
   /// with an unversioned implementation cannot be replayed across
-  /// implementation changes, and Phase 5 will refuse to do so.
+  /// implementation changes, and the replay engine will refuse to do so.
   String get version;
 
   /// The underlying [Instruction] used for pass-through transformations.

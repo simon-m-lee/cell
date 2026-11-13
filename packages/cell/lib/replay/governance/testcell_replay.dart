@@ -8,14 +8,14 @@ part of '../../cell.dart';
 
 /// Purity-aware invocation of a [TestCell].
 ///
-/// Phase 5 called `cell.validate(...)` unconditionally. Phase 7 checks
+/// the replay engine called `cell.validate(...)` unconditionally. the governance layer checks
 /// the rule's purity and routes accordingly:
 ///
 /// * **[Purity.pure]** — call the rule. Its decision is a function of
 ///   its input; replay re-computes it exactly.
 /// * **[Purity.readOnlyExternal]** — call the rule inside a journal
 ///   scope. Its decision is re-computed, but its *observations* are
-///   served from the journal (Phase 3).
+///   served from the journal (the journal).
 /// * **[Purity.effectful]** — do **not** call the rule on replay;
 ///   consume its recorded `VerdictEffect`. On the recording side the
 ///   rule runs once inside `journal.verdict` and its decision is
@@ -53,10 +53,10 @@ abstract final class TestCellReplay {
 
       case Purity.readOnlyExternal: {
         // The rule runs; its external reads go through the journal.
-        // The journal is already in scope (Phase 3), so the rule's
+        // The journal is already in scope (the journal), so the rule's
         // `journal.io(...)` calls will be served from it. Records
         // written while the rule runs are swept cooperatively into the
-        // active LedgerScope (the Phase 3 asyncMap pattern).
+        // active LedgerScope (the the journal asyncMap pattern).
         final before = journal.consumed;
         final result = rule.call(object, host: host);
         if (result is Future<bool>) {
@@ -89,7 +89,7 @@ abstract final class TestCellReplay {
   }
 
   /// Cooperatively hands records written by the rule to the active
-  /// [LedgerScope] (Phase 3 pattern). No-op without a ledger scope or
+  /// [LedgerScope] (the journal pattern). No-op without a ledger scope or
   /// on the replay side, where the journal is consumed rather than
   /// written.
   static void _sweepCaptured(EffectJournal journal, int before) {

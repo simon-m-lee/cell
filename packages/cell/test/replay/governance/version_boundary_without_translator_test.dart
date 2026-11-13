@@ -81,7 +81,7 @@ void main() {
 
   test('unversioned ledger replays against an unversioned target', () async {
     // Plain cells report version '0.0.0'; the ledger records '0.0.0'
-    // and the Phase 5/6 replay path is unaffected.
+    // and the the replay engine/6 replay path is unaffected.
     final counter = Cell.state<int>(initial: 0);
     final graph = (CellGraph.builder()..registerState('c', counter)).build();
     final ledger = await graph.bindLedger(

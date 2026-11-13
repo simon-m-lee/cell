@@ -75,7 +75,7 @@ dart run --observe benchmark/memory/evolution_chain.dart
 | Doc claim | Benchmark | Pass criterion |
 |---|---|---|
 | "mask eliminates the Nullable Field Tax" | `micro/nucleus_construction.dart` | Nucleus with defaults is not slower than the plain-class control (still fails: ~235×) |
-| "zero-latency propagation" | `propagation/chain_depth.dart` | Single-hop pass-through < 10 µs mean (currently ~5-6 µs after Phase 6) |
+| "zero-latency propagation" | `propagation/chain_depth.dart` | Single-hop pass-through < 10 µs mean (currently ~5-6 µs after the observer hot-path work) |
 | "Flyweight … minimize heap footprint" | `memory/per_cell_footprint.dart` | < 1.5 KB per Cell (passes: ~1.1 KB after lazy-synapses fix); stretch: < 500 B |
 | "zero-overhead when no policy" | `propagation/governed_vs_ungoverned.dart` | Governed < 2× ungoverned |
 | "PriorityQueue … O(log n)" | `synapses/propagation_strategies.dart` | Batched dispatch scales sub-linearly with fan-out |
@@ -83,13 +83,13 @@ dart run --observe benchmark/memory/evolution_chain.dart
 | "Locks held only during commit" | `transaction/value_transaction.dart` | Isolation levels don't change single-cell commit cost materially |
 | Per-pulse primitive costs | `micro/pulse_primitives.dart` | Pulse construction < 1 µs; single hop < 10 µs; exception-miss control pins the shape-tag gain |
 
-Phase 1 (exception-free shape-tagged pulse reads + cached nucleus/receptor
+Iteration 1 (exception-free shape-tagged pulse reads + cached nucleus/receptor
 accessor resolution) took the single-hop emit from ~170 µs to ~14 µs.
-Phase 2 (cached per-cell step string, lazily-materialized CycleChecker
+Iteration 2 (cached per-cell step string, lazily-materialized CycleChecker
 sets, copy-on-write broadcast sets with deferred mid-broadcast link/unlink)
 took it to ~9.7 µs, `Cell.distinct` duplicate-heavy input to ~7 µs per value,
 and turned the depth-50 chain from ~8.3 s/pulse (exponential) into ~9.2 ms
-(linear). Phase 3 (lightweight `_StepPulse` lineage node instead of a full
+(linear). Iteration 3 (lightweight `_StepPulse` lineage node instead of a full
 mask per hop, unrolled pipeline stage sequence, O(1) `last` on every pulse
 shape) cut `withStep` from ~0.25 µs to ~0.06 µs and removed the remaining
 per-stage allocations; the end-to-end number now hovers around ~10 µs with
@@ -105,7 +105,7 @@ cached accessor fields on `_Nucleus` and `_Receptor`. The original
 <128 B criterion is not reachable without a fused single-object redesign,
 so the gate is now <1.5 KB/cell with a <500 B stretch.
 
-Phase 6 (observer hot path) made `_StepPulse` fully flat (plain
+Iteration 6 (observer hot path) made `_StepPulse` fully flat (plain
 parent/step fields, zero records per hop), fast-pathed the common
 `Cell.observe` observer inside the sync broadcast (direct reaction call
 with inline terminal accounting), and made `SynapsesBase.isEmpty`/`isNotEmpty`

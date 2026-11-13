@@ -31,8 +31,8 @@ void main() {
     expect(graph.purityOf('derived'), Purity.pure);
   });
 
-  test('asyncMap reports effectful (Phase 3 flip)', () {
-    // Phase 2 pinned `pure` as a marker; Phase 3's journal retrofit flips
+  test('asyncMap reports effectful (the journal flip)', () {
+    // the graph registry pinned `pure` as a marker; the journal's journal retrofit flips
     // it: asyncMap is effectful and requires a journal.
     final src = Cell.ingress<int>();
     final map = Cell.asyncMap<int, String>(

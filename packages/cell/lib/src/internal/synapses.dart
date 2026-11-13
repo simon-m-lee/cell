@@ -8,7 +8,7 @@ part of '../../cell.dart';
 /// Terminalises a pulse that a propagation strategy decided to drop or
 /// supersede.
 ///
-/// Phase 8 hardening (review fix): filter suppression, throttle drops,
+/// Hardening (review fix): filter suppression, throttle drops,
 /// debounce replacements, audit replacements, and `persistent` buffer
 /// replacement all used to abandon the pulse without touching its branch
 /// counter — a pulse carrying `onComplete` never fired its callback, and
@@ -148,7 +148,7 @@ class AsyncSynapses<P extends Pulse, L extends Cell>
           final receptor = c._nucleus.receptor;
           final f = receptor.async.call(pulse);
           delivered++;
-          // Phase 8 hardening (review fix): a rejecting async receptor
+          // Hardening (review fix): a rejecting async receptor
           // must not abort the fan-out via Future.wait, and must not
           // strand the branch counter. Fail the pulse, perform this
           // delivery's terminal decrement ourselves, and keep waiting
@@ -571,7 +571,7 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell>
   /// `_debounced` strategy keeps the pending pulse in the timer's closure,
   /// which made a superseded pulse unreachable — and its completion
   /// counter stranded. Tracking it here lets a replacement terminalise
-  /// its predecessor (Phase 8 hardening).
+  /// its predecessor (hardening).
   PulseBase? _debouncedPending;
 
   /// Initializes a new [SynapsesBase] instance, acting as the **Network

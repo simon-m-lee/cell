@@ -7,13 +7,10 @@ works, and how to use it correctly. It is self-contained: [Part II](#part-ii--th
 is the 15-minute path and [Part VI](#part-vi--the-invariants-and-where-they-are-enforced)
 summarises the invariants; the seven-item pre-flight checklist is in
 [The seven-item pre-flight checklist](#the-seven-item-pre-flight-checklist)
-below. The companion design documents are:
-
-- `research/Causal-Replay/Plan.md` and `Phase-1.md` … `Phase-8.md` — the
-  design plan this implementation was built from.
+below.
 
 Everything in this guide is written against the **shipped** API in
-`package:cell` at the end of Phase 8 (commit series through `c85a36e0`).
+`package:cell` (commit series through `c85a36e0`).
 Code samples are the same shapes used by the framework's own test suite
 (`test/replay/`) and the executable demos in `example/replay/`.
 
@@ -26,7 +23,7 @@ Code samples are the same shapes used by the framework's own test suite
   - [2. What it is not](#2-what-it-is-not)
   - [3. The recording loop](#3-the-recording-loop)
   - [4. The replay loop](#4-the-replay-loop)
-  - [5. The eight phases at a glance](#5-the-eight-phases-at-a-glance)
+  - [5. The layers at a glance](#5-the-layers-at-a-glance)
 - [Part II — The 15-minute path](#part-ii--the-15-minute-path)
 - [Part III — The machinery, in depth](#part-iii--the-machinery-in-depth)
   - [6. Stable identity: registration and `Cell.id`](#6-stable-identity-registration-and-cellid)
@@ -106,7 +103,7 @@ Three ideas carry the whole design:
   the auditor can replay and then ask "which pulse made this delta?"
 - **Not a database migration tool.** Replay across a graph *shape* change
   (a rewired receptor, a renamed cell) is a **migration**, not a replay.
-  The framework refuses; migration is the future Phase 9.
+  The framework refuses; migration is the future a future migration revision.
 - **Not cross-process without registration.** An unregistered cell's id is
   a process-local hash and cannot be addressed from a ledger file.
 
@@ -180,9 +177,9 @@ During replay, per ledger entry:
 5. **Delta verification** — after dispatch, every recorded delta's `after`
    value is compared with the target cell's current value.
 
-## 5. The eight phases at a glance
+## 5. The layers at a glance
 
-| Phase | Deliverable | Why it matters |
+| # | Deliverable | Why it matters |
 |---|---|---|
 | 1 | Canonical JSON, `fingerprint`, `PulseCodec`, `CellGraphSnapshot` (schema v2) | Byte-stable serialisation; everything the chain hashes is canonical |
 | 2 | `Cell.id` (principal-chain walk), `CellGraph`/builder/registry, `Purity` | Stable identity across processes; strict reachability |
@@ -190,7 +187,7 @@ During replay, per ledger entry:
 | 4 | `StateDelta`, `HashChain`, `LedgerEntry`, `LedgerStore` (InMemory/File), `Ledger.appendInternal`, `LedgerScope` | The tamper-evident history and recording coordination |
 | 5 | `ReplayEngine.replay`, `ReplayOptions`, `DivergenceReport`, `ReplayResult`, `PulseReconstructor`, `ReplayDivergenceException` | The replay loop and its diagnostics |
 | 6 | `ForkRecord`, `ForkPolicy.isolated`, `ForkHandle`, `ForkLedgerStore`, `CellGraphFork.fork`, `ReplayEngineFork.replayFork`, `ForkVerify` | What-if branches bound to the parent's hash at the fork point |
-| 7 | `VerdictEffect`/`PolicyTickEffect`, `DeputyContext.version`, `VersionRegistry`, `ContextTranslator`, `TestCellReplay`, `PolicyReplay`, engine `_checkVersions` | Governance replay: versions, purity dispatch, policy-tick ordering (C4) |
+| 7 | `VerdictEffect`/`PolicyTickEffect`, `DeputyContext.version`, `VersionRegistry`, `ContextTranslator`, `TestCellReplay`, `PolicyReplay`, engine `_checkVersions` | Governance replay: versions, purity dispatch, policy-tick ordering |
 | 8 | `cell-replay` CLI, `CellGraphVisualise`/`LedgerVisualise`, the guide and checklist below, ledger-store conformance suite, determinism gate, three demos | Tooling that turns a ledger into evidence |
 
 ---
@@ -276,7 +273,7 @@ Three details that matter even in this minimal example:
   custom rule or a custom receptor that does the arithmetic.
 - **The genesis hash is derived, not invented.** A store whose genesis
   does not match `Ledger.genesisHashOf(graph.id)` is rejected at
-  `bindLedger`/`Ledger.open` (Phase 6 enforcement). The examples in early
+  `bindLedger`/`Ledger.open` (the fork engine enforcement). The examples in early
   drafts of the phase docs passed arbitrary strings; that no longer works.
 - **`ReplayEngine.replay` refuses a ledgered target.** The target graph
   must be a *fresh* graph (no ledger bound); replay reconstructs state,
@@ -294,7 +291,7 @@ framework reports *which* item failed — loudly, not silently.
 | 3 | Mutations inside `graph.run` | Non-`run` mutations are silently unrecorded; the replay test (item 7) catches them |
 | 4 | I/O operators journalled | The five operators require `journal:`; omitting it is a compile error |
 | 5 | Purity declared | Default is `pure`; an I/O rule that declares `pure` fails the determinism check |
-| 6 | Versions stamped | Versioned receptors fail the Phase 7 version check at a boundary; built-ins stay unversioned by design |
+| 6 | Versions stamped | Versioned receptors fail the the governance version check at a boundary; built-ins stay unversioned by design |
 | 7 | A replay test passes | `ReplayEngine.replay` against a fresh graph asserts `result.success` |
 
 Each item is enforced at a specific place in the source; see [Part VI](#part-vi--the-invariants-and-where-they-are-enforced)
@@ -350,9 +347,9 @@ final graph = (CellGraph.builder(graphId: 'g1')
 - The ledger can say "cell `counter` changed from 1 to 2" and the replay
   process can find "counter" again.
 - `graph['counter']` resolves a `RegisteredCell` (`.cell`, `.name`).
-- `CellGraphSnapshot` (Phase 1) can serialise the registered shape; its
-  `currentSchemaVersion` is **2** as of Phase 7. `fromJson` accepts
-  versions `<= current`, so pre-Phase-7 snapshots still parse.
+- `CellGraphSnapshot` (the serialisation layer) can serialise the registered shape; its
+  `currentSchemaVersion` is **2** as of the governance layer. `fromJson` accepts
+  versions `<= current`, so pre--7 snapshots still parse.
 
 ## 7. Purity: the declaration boundary
 
@@ -387,12 +384,12 @@ observation must flow:
 abstract class EffectJournal {
   static EffectJournal get current => JournalScope.current;
   int get consumed;
-  DateTime clock();                    // Phase 3
-  String uuid();                       // Phase 3
-  Future<T> io<T>({...});              // Phase 3
-  Future<void> timer({...});           // Phase 3
-  Future<bool> verdict({...});         // Phase 7
-  void policyTick({...});              // Phase 7
+  DateTime clock();                    // the journal
+  String uuid();                       // the journal
+  Future<T> io<T>({...});              // the journal
+  Future<void> timer({...});           // the journal
+  Future<bool> verdict({...});         // the governance layer
+  void policyTick({...});              // the governance layer
   void push(); void pop();             // journal-scope bookkeeping
   void assertExhausted();              // replay-side completeness
   List<Map<String, Object?>> toJson(); // canonical effect log
@@ -445,7 +442,7 @@ assertExhausted()      → diverged?  → rethrow the latched reason
                        → ok
 ```
 
-### Verdicts and policy ticks (Phase 7)
+### Verdicts and policy ticks
 
 `journal.verdict(...)` wraps an `effectful` test rule:
 
@@ -462,7 +459,7 @@ assertExhausted()      → diverged?  → rethrow the latched reason
   `inputDigest` — the input is the pulse's *payload*, because a pulse
   object itself is not stable across record and replay); the policy
   callback is **not** re-invoked. The existing `CycleChecker.tickPolicy`
-  guard still applies the tick on both sides, which is the Phase 7 C4
+  guard still applies the tick on both sides, which is the the cycle-checker reseed
   fix: tick *order* is now part of the recorded history.
 
 ## 9. `JournalScope`: the ambient journal
@@ -483,7 +480,7 @@ Design details worth knowing:
 - The scope does **not** inherit into spawned tasks. A `Future` scheduled
   before the scope exits keeps the zone, but a task spawned in a *new*
   zone gets `NullJournal` — which fails loudly. This is deliberate: an
-  un-journalled effect in a detached task is exactly the bug the plan
+  un-journalled effect in a detached task is exactly the bug the design
   wants surfaced.
 - The ambient journal participates in ledger capture (see §12): the
   immediate append path sweeps `recordsSince(watermark)`, and the
@@ -523,7 +520,7 @@ Rules that make these replayable:
   the active `LedgerScope` (`recordsSince(before)` → `captureEffect`), so
   the entry that caused the emission carries its effects.
 - `fromStream`'s host is governed with a lifecycle policy; each event
-  journals one I/O record **and one policy tick** (the Phase 7 C4
+  journals one I/O record **and one policy tick** (the the cycle-checker reseed
   addition — existing tests updated accordingly).
 - `debounce`/`throttle` timers go through `journal.timer(...)`; on replay
   the fire callbacks run in journal order without waiting for real time.
@@ -569,7 +566,7 @@ reason)`.
 | `effects` | the entry's `EffectRecord` list |
 | `deltas` | `StateDelta` list (`cellId`, `before`, `after`, `at`) |
 | `at` | wall-clock time (forensic; never compared by replay) |
-| `receiptCellId` | the recorded cell id (Phase 5 fix: the cell *name* in the receipt, not the live object's current id) |
+| `receiptCellId` | the recorded cell id (the replay engine fix: the cell *name* in the receipt, not the live object's current id) |
 | `receiptDigest` / `effectsDigest` / `deltaDigest` | the digested sub-JSONs |
 
 ### The receipt (12 fields)
@@ -585,15 +582,15 @@ reason)`.
   bool vetted,
   int? ledgerSeq,               // back-filled by appendInternal
   String? pulseDigest,          // back-filled by appendInternal
-  String? receptorVersion,      // Phase 7: '0.0.0' when unversioned
-  String? ruleVersion,          // Phase 7
-  String? contextVersion,       // Phase 7
+  String? receptorVersion,      // the governance layer: '0.0.0' when unversioned
+  String? ruleVersion,          // the governance layer
+  String? contextVersion,       // the governance layer
 })
 ```
 
-The three Phase 7 version fields are populated by
+The three the governance version fields are populated by
 `Ledger.appendInternal` from the live nucleus and the cell's
-`DeputyContext`; `LedgerEntry.fromJson` defaults pre-Phase-7 ledgers to
+`DeputyContext`; `LedgerEntry.fromJson` defaults pre--7 ledgers to
 `'0.0.0'` (unversioned).
 
 ### Stores
@@ -628,7 +625,7 @@ The scope has three capture channels:
 2. **Immediate effects.** The synchronous mutation path
    (`ValueCell.update`, `Cell.apply`) calls `LedgerScope.recordPulse`,
    which sweeps the ambient `RecordingJournal`'s records since a
-   per-scope **watermark** into the entry. The watermark (a Phase 7
+   per-scope **watermark** into the entry. The watermark (a the governance layer
    fix) is load-bearing: without it, a burst of applies attributes every
    earlier pulse's records to each later entry.
 3. **Deferred windows.** The ingress/emit path calls
@@ -727,7 +724,7 @@ final fork = await graph.fork(
   },
   buildStore: (genesis) =>       // store factory, not a store
       InMemoryLedgerStore(genesisHash: genesis),
-  policy: ForkPolicy.isolated,   // the only Phase 6 policy
+  policy: ForkPolicy.isolated,   // the only the fork engine policy
 );
 ```
 
@@ -752,7 +749,7 @@ Key semantics:
   fork is expected to diverge — the fork's ledger records what the fork
   actually did.
 - **Only `ForkPolicy.isolated` ships.** `sharedTopology` and
-  `dropUnreached` require Phase 5.1 snapshot reconstruction and throw
+  `dropUnreached` require a later revision snapshot reconstruction and throw
   `UnimplementedError`.
 
 ### Verifying a fork
@@ -830,9 +827,9 @@ await graph.translators.translate(v1ctx, target: '2.0.0');
 `ContextTranslatorRegistry.translate` returns the source unchanged when
 the versions are equal, throws `UnimplementedError` when no translator
 exists (the loud failure the exit criteria require), and verifies the
-translator's output version. Phase 7 registers the machinery and enforces
+translator's output version. the governance layer registers the machinery and enforces
 the boundary; wiring translators *into* the engine dispatch loop is the
-deferred Phase 7.1 item.
+deferred a later governance revision item.
 
 ### Purity dispatch (`TestCellReplay`)
 
@@ -843,7 +840,7 @@ The receptor pipeline no longer calls the rule directly. It calls
   framework's pulse contract depends on it).
 - `readOnlyExternal` → `rule.call(...)` with the journal in scope, then
   a cooperative sweep hands records the rule wrote to the `LedgerScope`
-  (the Phase 3 `asyncMap` pattern).
+  (the the journal `asyncMap` pattern).
 - `effectful` → `journal.verdict(...)`; the rule runs once on the
   recording side and never on the replay side.
 
@@ -881,18 +878,18 @@ Exit codes: `0` success · `1` verification failure / diff found ·
 `2` usage error · `3` internal error. `dart run bin/cell_replay.dart
 --help` prints the usage text.
 
-Two Phase 8 scope decisions worth internalising:
+Two CLI scope decisions worth internalising:
 
-- **`verify` checks the chain only.** `--graph` is rejected (Phase 8.1
-  needs Phase 5.1 snapshot reconstruction). The chain guarantee is real:
+- **`verify` checks the chain only.** `--graph` is rejected (planned CLI work
+  needs a later revision snapshot reconstruction). The chain guarantee is real:
   it proves no byte of history was altered after recording.
 - **The genesis compromise.** A ledger file does not carry its genesis;
   the CLI reads the first entry's `prevHash` and trusts it. A ledger
   whose *first* entry was tampered would pass genesis binding — this is
-  documented in the help text and fixed by the Phase 8.1 `--genesis`
+  documented in the help text and fixed by a future `--genesis` flag
   flag.
 - **`fork` writes the `ForkRecord` genesis**, no entries after it.
-  `--replaceSeq` (fork-with-replay) is Phase 8.1.
+  `--replaceSeq` (fork-with-replay) is planned CLI work.
 
 `inspect` prints the human summary (`entries`, `deltas`, `cells`,
 `span`) or canonical JSON; `visualise` output pastes directly into
@@ -1121,7 +1118,7 @@ Replay consumes the tick and validates `(policyLabel, cellId, input)` in
 order; the policy callback is **not** re-invoked (so the tick count is
 zero on replay — the recorded tick *is* the history). A tick-order
 mismatch is a `ReplayDivergenceException` with the offending ordinal.
-This is what closes the plan's C4 concern: a diamond graph can no longer
+This is what closes the cycle-checker concern: a diamond graph can no longer
 trip the `CycleChecker` spuriously during replay, because the tick order
 is journaled.
 
@@ -1224,9 +1221,9 @@ dart run bin/cell_replay.dart diff --ledgerA a.jsonl --ledgerB b.jsonl
 #     seq 2: hash mismatch (A=… B=…)                             exit 1
 ```
 
-`verify` is chain-only in Phase 8; the auditor's *replay* comparison is
+`verify` is chain-only; the auditor's *replay* comparison is
 done in code (recipe R1 / `example/replay/audit_ledger.dart`) until
-Phase 8.1 ships `--graph`.
+A future CLI revision ships `--graph`.
 
 ## R12. Reading a divergence report
 
@@ -1262,9 +1259,9 @@ names the failure class, `expected`/`actual` are the compared values, and
 | `version boundary without translator` | Live versions differ from the ledger's | `graph.versions.register(...)` or replay at the recorded version |
 | `ReplayDivergenceException: pulse could not be reconstructed` | Entry lacks arguments and deltas | Only hand-crafted entries hit this; use `Ledger.appendInternal` |
 | Replay succeeds but state differs in your own inspection | You mutated outside `graph.run`, or the rule has an un-journalled side effect | Move mutations into the scope; route side effects through the journal |
-| Windows: temp ledger files "in use by another process" | A `FileLedgerStore` was opened and never closed (e.g. a command rejected an argument *after* opening the file) | Close stores in `finally`; validate flags before opening files (fixed for `verify --graph` in Phase 8) |
+| Windows: temp ledger files "in use by another process" | A `FileLedgerStore` was opened and never closed (e.g. a command rejected an argument *after* opening the file) | Close stores in `finally`; validate flags before opening files (fixed for `verify --graph`) |
 | Fork `verify()` throws `ForkIntegrityException: fork genesis binding failed` | The parent changed after the fork was taken, or the record was forged | Re-fork from the current parent; audit who produced the record |
-| `UnimplementedError: ForkPolicy.sharedTopology …` | Non-isolated fork policy requested | Phase 6 ships isolated only; keep the fresh-graph factory |
+| `UnimplementedError: ForkPolicy.sharedTopology …` | Non-isolated fork policy requested | the fork engine ships isolated only; keep the fresh-graph factory |
 | Determinism check fails | A test uses real clocks/randomness without journalling | Give `RecordingJournal` a fixed `clockSource`/`uuidSource`/`timerScheduler`, or mark genuinely non-replayable tests `@Skip` |
 
 ---
@@ -1273,7 +1270,7 @@ names the failure class, `expected`/`actual` are the compared values, and
 
 | # | Invariant | Enforced at |
 |---|---|---|
-| 1 | Serialisation is canonical and byte-stable | `canonicalJsonEncode` (Phase 1); `PulseCodec.materialise` before fingerprinting |
+| 1 | Serialisation is canonical and byte-stable | `canonicalJsonEncode` (the serialisation layer); `PulseCodec.materialise` before fingerprinting |
 | 2 | Identity is registered and stable | `CellGraphBuilder.build` reachability check; `Cell.id` principal walk; `receiptCellId` |
 | 3 | Every effect is declared and journaled | `Purity` + `Effectful`/`EffectfulReadOnly`; `NullJournal` loud sentinel; journal exhaustion |
 | 4 | The chain is append-only and tamper-evident | `HashChain.nextHash` composition; `Ledger.verify`; store genesis + seq/prevHash checks |
@@ -1288,7 +1285,7 @@ names the failure class, `expected`/`actual` are the compared values, and
 
 # Part VII — Scope, deferred work, and migration
 
-### Shipped (Phases 1–8)
+### Shipped
 
 Codecs and fingerprints; stable identity and graphs; the full
 `EffectJournal` machinery and the five journalled operators; ledgers,
@@ -1299,24 +1296,24 @@ translators, purity dispatch and policy-tick journaling; the `cell-replay`
 CLI, visualisation, the conformance suite, the determinism gate, the
 guide and the three demos.
 
-### Deferred, with the exit that unblocks each
+### Deferred, with the work that unblocks each
 
-- **Phase 5.1 — snapshot reconstruction.** `CellGraphSnapshot` exists and
+- **Snapshot reconstruction.** `CellGraphSnapshot` exists and
   round-trips, but rebuilding a *live* `CellGraph` from a snapshot needs
   per-cell factories. Unblocks `verify --graph` and the non-isolated fork
   policies.
-- **Phase 7.1 — translator dispatch and apply-path verdicts.** Wiring
+- **Translator dispatch and apply-path verdicts.** Wiring
   `ContextTranslator` into the engine's dispatch loop, and journaling
   `TestActionRule` verdicts on the apply path.
-- **Phase 8.1 — CLI completion.** `--genesis` (replacing the first-entry
+- **CLI completion.** `--genesis` (replacing the first-entry
   trust), `verify --graph`, `fork --replaceSeq`/`--replacePayloadJson`,
   `visualise --mode pulses`.
 - **Release bookkeeping.** The `cell` package version remains `1.1.0`;
-  the Phase 7 doc anticipates a breaking `2.0.0` bump plus a CHANGELOG
-  entry when the replay surface is released (decision D6, deferred).
-- **Phase 9 — migration.** Replay across graph *shape* changes is a
+  the governance design anticipates a breaking `2.0.0` bump plus a CHANGELOG
+  entry when the replay surface is released (a release decision, deferred).
+- **Migration (future).** Replay across graph *shape* changes is a
   migration problem: translating receptors, renaming cells, and
-  re-binding identities. The version machinery (Phase 7) is the
+  re-binding identities. The version machinery (the governance layer) is the
   foundation migration will build on.
 
 ### The boundary line, one more time
@@ -1344,7 +1341,7 @@ guide and the three demos.
 | **Genesis hash** | `Ledger.genesisHashOf(graph.id)` — the chain's starting point; stores enforce it |
 | **Entry** | One `LedgerEntry`: pulse + receipt + effects + deltas, hashed together |
 | **Delta** | `StateDelta(cellId, before, after, at)` — one state transition |
-| **Receipt** | The 12-field record of who applied what, including the Phase 7 versions |
+| **Receipt** | The 12-field record of who applied what, including the the governance versions |
 | **`LedgerScope`** | The recording coordinator: deltas, immediate-effect watermark, deferred windows |
 | **`graph.run`** | Pushes the `LedgerScope`; mutations inside are recorded |
 | **Replay engine** | `ReplayEngine.replay` — per-entry version check, pulse reconstruction, dispatch, journal and delta verification |
@@ -1364,7 +1361,7 @@ guide and the three demos.
 
 ---
 
-*Generated against the shipped Phase 8 API. If a code sample in this
+*Generated against the shipped API. If a code sample in this
 guide does not compile, trust `dart analyze` over the prose: the
 authoritative signatures live in `packages/cell/lib`, and the
 authoritative usage patterns live in `packages/cell/test/replay/` and

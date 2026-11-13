@@ -24,13 +24,13 @@ part of '../../cell.dart';
 /// * a tree structure that must be rebuilt on every append (O(n) unless
 ///   you grow it incrementally, which complicates the store contract);
 /// * a larger on-disk format (each internal node is a row);
-/// * a decision about how to handle *forked* ledgers (Phase 6) that is
+/// * a decision about how to handle *forked* ledgers that is
 ///   different for a tree than for a chain.
 ///
 /// A hash chain gives the *linearity* guarantee — any tamper breaks the
 /// chain from the tampered entry onward, and `verify()` catches it in a
-/// single sequential pass. That is the guarantee Phase 4 needs. Merkle
-/// proofs are a Phase 6+ concern; if they are added, `HashChain` becomes
+/// single sequential pass. That is the guarantee the ledger needs. Merkle
+/// proofs are a later concern; if they are added, `HashChain` becomes
 /// the leaf hash and a parallel `MerkleTree` sits alongside it.
 class HashChain {
   /// The graph id that seeds the chain. Stored as the genesis `prevHash`.

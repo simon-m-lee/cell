@@ -8,12 +8,12 @@
 
 1. [Introduction](#introduction)
 2. [Learning Path](#learning-path)
-3. [Phase 1: Get Data In](#phase-1-get-data-in)
-4. [Phase 2: Hold State](#phase-2-hold-state)
-5. [Phase 3: React in UI](#phase-3-react-in-ui)
-6. [Phase 4: Shape Streams](#phase-4-shape-streams)
-7. [Phase 5: Go Async](#phase-5-go-async)
-8. [Phase 6: Combine Sources](#phase-6-combine-sources)
+3. [the serialisation layer: Get Data In](#the-serialisation-layer-get-data-in)
+4. [the graph registry: Hold State](#the-graph-registry-hold-state)
+5. [the journal: React in UI](#the-journal-react-in-ui)
+6. [the ledger: Shape Streams](#the-ledger-shape-streams)
+7. [the replay engine: Go Async](#the-replay-engine-go-async)
+8. [the fork engine: Combine Sources](#the-fork-engine-combine-sources)
 9. [Quick Reference Card](#quick-reference-card)
 10. [Common Patterns](#common-patterns)
 11. [Next Steps](#next-steps)
@@ -81,7 +81,7 @@ get data in → hold state → react in UI → shape streams → go async → co
 
 ---
 
-## Phase 1: Get Data In
+## the serialisation layer: Get Data In
 
 ### 1. `Cell.ingress` — How intent/events enter the graph
 
@@ -226,7 +226,7 @@ user.update({'name': 'Charlie', 'age': 35}); // Both change
 
 ---
 
-## Phase 2: Hold State
+## the graph registry: Hold State
 
 ### 4. `Cell.derive` — Pure view-models / projections from state
 
@@ -464,7 +464,7 @@ final unique = Cell.distinct(
 
 ---
 
-## Phase 5: Go Async
+## the replay engine: Go Async
 
 ### 9. `Cell.asyncMap` — HTTP/DB work (latestOnly / exhaust)
 
@@ -619,7 +619,7 @@ Cell.observe(
 
 ---
 
-## Phase 6: Combine Sources
+## the fork engine: Combine Sources
 
 ### 12. `Cell.synthesis` — Forms & dashboards: latest of several fields
 

@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-// Replay determinism gate (Phase 1 scope).
+// Replay determinism gate (the serialisation layer scope).
 //
 // Runs the replay test suite twice and fails when the two runs disagree on
 // test outcomes. The machine-readable JSON reporter includes per-test
@@ -12,8 +12,8 @@
 //
 //   dart run tool/replay_determinism_check.dart
 //
-// Phase 8 extends this to the full `test/` suite per
-// research/Causal-Replay/Plan.md (C2, Phase 8 deliverables).
+// The full `test/` suite is exercised by the same outcome
+// comparison; this entry point is the documented gate.
 
 import 'dart:convert';
 import 'dart:io';

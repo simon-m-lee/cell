@@ -73,11 +73,11 @@ void main() {
     expect(json['lastSeq'], 2);
   });
 
-  test('verify --graph is rejected as Phase 8.1', () async {
+  test('verify --graph is rejected until a future CLI revision', () async {
     final out = await _capture(() => Cli.run(
         ['verify', '--ledger', ledgerPath, '--graph', 'snapshot.json']));
     expect(out.exitCode, 2);
-    expect(out.stderr, contains('Phase 8.1'));
+    expect(out.stderr, contains('planned CLI work'));
   });
 
   test('diff reports identical ledgers as exit 0', () async {
@@ -129,7 +129,7 @@ void main() {
     expect(firstEntry['seq'], 0);
     expect((firstEntry['receipt'] as Map)['id'], startsWith('fork:'));
 
-    // Phase-8.3 (review): the fork FILE carries the record itself — the
+    // (review): the fork FILE carries the record itself — the
     // synthetic seq-0 entry's first positional argument is
     // ForkRecord.toJson — and parentHeadHash must be the parent's hash
     // AT --at (ForkVerify compares against hashAtSeq(divergedAt)).
@@ -167,7 +167,7 @@ void main() {
     expect(verify.exitCode, 0, reason: verify.stderr);
   });
 
-  test('fork rejects --replaceSeq as Phase 8.1', () async {
+  test('fork rejects --replaceSeq until a future CLI revision', () async {
     final out = await _capture(() => Cli.run([
           'fork',
           '--ledger',
@@ -180,7 +180,7 @@ void main() {
           '2',
         ]));
     expect(out.exitCode, 2);
-    expect(out.stderr, contains('Phase 8.1'));
+    expect(out.stderr, contains('planned CLI work'));
   });
 
   test('visualise emits mermaid and dot', () async {

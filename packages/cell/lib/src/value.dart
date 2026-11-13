@@ -330,7 +330,7 @@ class ValueCell<V> extends CellBase {
       return pulse;
     }
 
-    // Phase 4: capture the delta if a ledger is bound. The encoding
+    // Capture the delta if a ledger is bound. The encoding
     // happens BEFORE the commit: a non-JSON-encodable payload must
     // never reach the state box. The entry points (_emit/apply) already
     // validate the common path loudly at the caller's call site; this
@@ -345,7 +345,7 @@ class ValueCell<V> extends CellBase {
       encodedBefore = _encodeForLedger(before);
       encodedAfter = _encodeForLedger(pulse.payload);
     } catch (e, st) {
-      // Phase 8 hardening (review fix): the pipeline's error contract
+      // Hardening (review fix): the pipeline's error contract
       // swallows a throw here, which used to mean "write silently
       // dropped and unrecorded" with no observable signal at all. Fail
       // the pulse instead — the drop is now visible on the pulse's
@@ -367,7 +367,7 @@ class ValueCell<V> extends CellBase {
 
   /// Encodes a ValueCell value for the ledger. Handles primitives, lists,
   /// maps, and `DateTime`. Values that are not JSON-encodable (custom
-  /// user types) throw a `StateError` — this is the loud failure the plan
+  /// user types) throw a `StateError` — this is the loud failure the design
   /// requires for non-serialisable state in a ledgered graph.
   static Object? _encodeForLedger(Object? v) {
     if (v == null || v is num || v is bool || v is String) return v;
@@ -380,7 +380,7 @@ class ValueCell<V> extends CellBase {
     throw StateError(
       'ValueCell: value of type ${v.runtimeType} is not JSON-encodable '
       'and cannot be recorded in a Ledger. Provide a custom codec '
-      '(Phase 3+ work) or store the value as a primitive in a '
+      '(journal work) or store the value as a primitive in a '
       'ValueCell<String>/int/etc.',
     );
   }
@@ -613,9 +613,9 @@ class ValueCell<V> extends CellBase {
 
   bool _emit(V? v) {
     if (!identical(v, value) && v != value) {
-      // Phase 4: a ledgered graph records this write; the value must be
+      // A ledgered graph records this write; the value must be
       // JSON-encodable. Throwing here (before any commit) is the loud
-      // failure the plan requires — inside the receptor pipeline the
+      // failure the design requires — inside the receptor pipeline the
       // same error would be swallowed by the framework's error contract.
       if (LedgerScope.current != null) {
         _encodeForLedger(v);
@@ -623,12 +623,12 @@ class ValueCell<V> extends CellBase {
       final receptor = _nucleus.receptor;
       final input = v == null ? Pulse<V>(null) : Pulse<V>(v);
       final result = receptor.call(input);
-      // Phase 4: the direct emit path bypasses `Cell.apply` (no receipt
+      // The direct emit path bypasses `Cell.apply` (no receipt
       // exists yet), so the ledger hook synthesises one from the cell
       // and the emitted value.
       if (result is Pulse) {
         LedgerScope.recordPulse(
-          // Phase-8.3 (review): record the INPUT pulse, not `result`.
+          // (review): record the INPUT pulse, not `result`.
           // The ledger entry must store the pulse THIS cell received;
           // `result` is the transform's output (for a state cell, the
           // new value), and replaying that as the input double-applies

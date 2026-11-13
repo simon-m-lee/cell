@@ -14,7 +14,7 @@ part of '../../cell.dart';
 /// pulse sequence will produce the same result.
 class CellSnapshot {
   /// Stable, graph-scoped cell identifier. Assigned by `CellGraph.register`
-  /// (Phase 2). For Phase 1 standalone use, callers may supply a manual
+  /// (graph registration). For standalone use, callers may supply a manual
   /// id, or the snapshot captures `cell.id` (see `Cell.id`), which
   /// falls back to `nucleus:<hex>` when no graph has registered the cell.
   final String id;
@@ -23,7 +23,7 @@ class CellSnapshot {
   final String configFingerprint;
 
   /// The receptor's stable version string (see `Receptor.version`, D4).
-  /// Empty for the framework's built-in receptors until Phase 2 stamps
+  /// Empty for the framework's built-in receptors until graph registration stamps
   /// them.
   final String receptorVersion;
 

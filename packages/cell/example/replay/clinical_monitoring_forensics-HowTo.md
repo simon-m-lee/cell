@@ -170,7 +170,7 @@ is a pure mutation.
 
 **Why one scope per reading, not one per cell mutation?** If the scope
 wrapped all three `apply` calls, each entry's `effects` list would
-include the `IoEffect`, and Phase 5's replay would try to serve the
+include the `IoEffect`, and the engine's replay would try to serve the
 score effect *three times per reading*, which the `ReplayJournal`'s
 strict consumption check would refuse. Each `apply` has its own scope
 in the refund-agent demo and should have its own here. This demo
@@ -333,7 +333,7 @@ backed by a specific artefact that a reviewer can independently verify.
 The demo's cells have no `TestCell`. A production monitor would likely
 have one — for example, a rule that rejects any alert escalation unless
 a supervisor has approved the current threshold. `TestCell` verdicts on
-the `apply` path are not journalled in the current build (Phase 7
+the `apply` path are not journalled in the current build (the governance layer
 covers the *pulse* path). The demo avoids `TestCell` for this reason.
 
 If your application needs effectful `TestCell` verdicts on `apply`,
@@ -488,5 +488,5 @@ source. For production code, register upstream cells explicitly.
 - `example/replay/whatif_branch.dart` — minimal fork and mutation.
 - `guide/HowTo-Causal-Replay.md` — the seven-item checklist and
   pre-flight guide.
-- `test/replay/phase*/` — the framework's own test suite, one
+- `test/replay/` — the framework's own test suite, one
   directory per phase.

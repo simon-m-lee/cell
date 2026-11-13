@@ -27,10 +27,10 @@
   - [nucleus_test.dart](#file-11-nucleus_test.dart-40-tests)
   - [operator_async_map_test.dart](#file-12-operator_async_map_test.dart-2-tests)
   - [operator_from_stream_test.dart](#file-13-operator_from_stream_test.dart-3-tests)
-  - [operators_phase1_foundation_test.dart](#file-14-operators_phase1_foundation_test.dart-65-tests)
-  - [operators_phase2_flow_control_test.dart](#file-15-operators_phase2_flow_control_test.dart-45-tests)
-  - [operators_phase3_async_routing_test.dart](#file-16-operators_phase3_async_routing_test.dart-63-tests)
-  - [operators_phase4_advanced_transactions_test.dart](#file-17-operators_phase4_advanced_transactions_test.dart-39-tests)
+  - [operators_foundation_test.dart](#file-14-operators_foundation_test.dart-65-tests)
+  - [operators_flow_control_test.dart](#file-15-operators_flow_control_test.dart-45-tests)
+  - [operators_async_routing_test.dart](#file-16-operators_async_routing_test.dart-63-tests)
+  - [operators_advanced_transactions_test.dart](#file-17-operators_advanced_transactions_test.dart-39-tests)
   - [propagation_policy_test.dart](#file-18-propagation_policy_test.dart-37-tests)
   - [pulse_test.dart](#file-19-pulse_test.dart-159-tests)
   - [receptor_instruction_future_test.dart](#file-20-receptor_instruction_future_test.dart-2-tests)
@@ -96,10 +96,10 @@ No `lib/` file is below 70% in this lcov.
 | 11 | nucleus_test.dart | 366 | 40 | 12.6 KB | nucleus test; groups: Nucleus, empty / Nucleolus, Construction & defaults, Nucleus.create, Activation, evolve… |
 | 12 | operator_async_map_test.dart | 98 | 2 | 2.6 KB | operator async map test; groups: Cell.asyncMap latestOnly with concurrency=1 |
 | 13 | operator_from_stream_test.dart | 115 | 3 | 3.3 KB | operator from stream test; groups: Cell.fromStream + EphemeralPolicy |
-| 14 | operators_phase1_foundation_test.dart | 1,066 | 65 | 37.3 KB | operators phase1 foundation test; groups: Cell.state, Basic State, State with evolve, Ingest, Edge Cases, Cell.ingress… |
-| 15 | operators_phase2_flow_control_test.dart | 819 | 45 | 24.0 KB | operators phase2 flow control test; groups: Phase 2: Flow Control Operators, Cell.debounce, Cell.throttle, Cell.distinct, Cell.synthesis, Combined Operators… |
-| 16 | operators_phase3_async_routing_test.dart | 1,117 | 63 | 33.3 KB | operators phase3 async routing test; groups: Phase 3: Async & Routing Operators, Cell.asyncMap, Cell.hub, Cell.switchMap, Cell.fromFuture, Cell.fromStream… |
-| 17 | operators_phase4_advanced_transactions_test.dart | 800 | 39 | 25.1 KB | operators phase4 advanced transactions test; groups: Phase 4: Advanced & Transactions, Cell.sanitized, Cell.open, Combined Operators, Edge Cases & Error Handling, toString |
+| 14 | operators_foundation_test.dart | 1,066 | 65 | 37.3 KB | operators foundation test; groups: Cell.state, Basic State, State with evolve, Ingest, Edge Cases, Cell.ingress… |
+| 15 | operators_flow_control_test.dart | 819 | 45 | 24.0 KB | operators flow control test; groups: Flow Control Operators, Cell.debounce, Cell.throttle, Cell.distinct, Cell.synthesis, Combined Operators… |
+| 16 | operators_async_routing_test.dart | 1,117 | 63 | 33.3 KB | operators async routing test; groups: Async & Routing Operators, Cell.asyncMap, Cell.hub, Cell.switchMap, Cell.fromFuture, Cell.fromStream… |
+| 17 | operators_advanced_transactions_test.dart | 800 | 39 | 25.1 KB | operators advanced transactions test; groups: Advanced & Transactions, Cell.sanitized, Cell.open, Combined Operators, Edge Cases & Error Handling, toString |
 | 18 | propagation_policy_test.dart | 680 | 37 | 24.9 KB | propagation policy test; groups: PropagationPolicy, Construction & Defaults, Strategy: immediate, Strategy: debounced, Strategy: throttled, Strategy: batched… |
 | 19 | pulse_test.dart | 1,908 | 159 | 71.2 KB | pulse test; groups: Pulse, Construction, withStep vs evolve distinction, Evolution, Composition, Shell… |
 | 20 | receptor_instruction_future_test.dart | 84 | 2 | 2.5 KB | receptor instruction future test; groups: Receptor.pipeline with Instruction.future + postProcess |
@@ -728,7 +728,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - no ephemeralPolicy → no invalidation and events stay at 0
 - the caller policy hooks run exactly once per event
 
-### File 14: operators_phase1_foundation_test.dart (65 tests)
+### File 14: operators_foundation_test.dart (65 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -819,12 +819,12 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - ingress + derive + observe
 - state + derive + state
 
-### File 15: operators_phase2_flow_control_test.dart (45 tests)
+### File 15: operators_flow_control_test.dart (45 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
 | *(all groups)* | 45 |
-| Phase 2: Flow Control Operators | |
+| Flow Control Operators | |
 | Cell.debounce | |
 | Cell.throttle | |
 | Cell.distinct | |
@@ -881,12 +881,12 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - distinct cell toString
 - synthesis cell toString
 
-### File 16: operators_phase3_async_routing_test.dart (63 tests)
+### File 16: operators_async_routing_test.dart (63 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
 | *(all groups)* | 63 |
-| Phase 3: Async & Routing Operators | |
+| Async & Routing Operators | |
 | Cell.asyncMap | |
 | Cell.hub | |
 | Cell.switchMap | |
@@ -962,12 +962,12 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - fromFuture cell toString
 - fromStream cell toString
 
-### File 17: operators_phase4_advanced_transactions_test.dart (39 tests)
+### File 17: operators_advanced_transactions_test.dart (39 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
 | *(all groups)* | 39 |
-| Phase 4: Advanced & Transactions | |
+| Advanced & Transactions | |
 | Cell.sanitized | |
 | Cell.open | |
 | Combined Operators | |
@@ -1836,10 +1836,10 @@ dart test \
   test/nucleus_test.dart \
   test/operator_async_map_test.dart \
   test/operator_from_stream_test.dart \
-  test/operators_phase1_foundation_test.dart \
-  test/operators_phase2_flow_control_test.dart \
-  test/operators_phase3_async_routing_test.dart \
-  test/operators_phase4_advanced_transactions_test.dart \
+  test/operators_foundation_test.dart \
+  test/operators_flow_control_test.dart \
+  test/operators_async_routing_test.dart \
+  test/operators_advanced_transactions_test.dart \
   test/propagation_policy_test.dart \
   test/pulse_test.dart \
   test/receptor_instruction_future_test.dart \
@@ -1865,25 +1865,25 @@ Status: **green**.
 <details><summary>tail of test log</summary>
 
 ```
-0:06 +1165: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling fromFuture with already completed future                                    
-00:06 +1166: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling fromFuture with already completed future                                    
-00:06 +1166: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling fromStream with error after values (no cancelOnError)                       
-00:06 +1167: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling fromStream with error after values (no cancelOnError)                       
-00:06 +1167: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling hub with multicast and priority                                             
-00:06 +1168: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling hub with multicast and priority                                             
-00:06 +1168: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
-00:06 +1169: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
-00:06 +1169: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString asyncMap cell toString                                                                         
-00:06 +1170: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString asyncMap cell toString                                                                         
-00:06 +1170: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString hub toString                                                                                   
-00:06 +1171: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString hub toString                                                                                   
-00:06 +1171: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString switchMap cell toString                                                                        
-00:06 +1172: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString switchMap cell toString                                                                        
-00:06 +1172: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromFuture cell toString                                                                       
-00:06 +1173: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromFuture cell toString                                                                       
-00:06 +1173: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                       
-00:06 +1174: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                       
-00:07 +1174: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                       
+0:06 +1165: test/operators_async_routing_test.dart: Async & Routing Operators Edge Cases & Error Handling fromFuture with already completed future                                    
+00:06 +1166: test/operators_async_routing_test.dart: Async & Routing Operators Edge Cases & Error Handling fromFuture with already completed future                                    
+00:06 +1166: test/operators_async_routing_test.dart: Async & Routing Operators Edge Cases & Error Handling fromStream with error after values (no cancelOnError)                       
+00:06 +1167: test/operators_async_routing_test.dart: Async & Routing Operators Edge Cases & Error Handling fromStream with error after values (no cancelOnError)                       
+00:06 +1167: test/operators_async_routing_test.dart: Async & Routing Operators Edge Cases & Error Handling hub with multicast and priority                                             
+00:06 +1168: test/operators_async_routing_test.dart: Async & Routing Operators Edge Cases & Error Handling hub with multicast and priority                                             
+00:06 +1168: test/operators_async_routing_test.dart: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
+00:06 +1169: test/operators_async_routing_test.dart: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
+00:06 +1169: test/operators_async_routing_test.dart: Async & Routing Operators toString asyncMap cell toString                                                                         
+00:06 +1170: test/operators_async_routing_test.dart: Async & Routing Operators toString asyncMap cell toString                                                                         
+00:06 +1170: test/operators_async_routing_test.dart: Async & Routing Operators toString hub toString                                                                                   
+00:06 +1171: test/operators_async_routing_test.dart: Async & Routing Operators toString hub toString                                                                                   
+00:06 +1171: test/operators_async_routing_test.dart: Async & Routing Operators toString switchMap cell toString                                                                        
+00:06 +1172: test/operators_async_routing_test.dart: Async & Routing Operators toString switchMap cell toString                                                                        
+00:06 +1172: test/operators_async_routing_test.dart: Async & Routing Operators toString fromFuture cell toString                                                                       
+00:06 +1173: test/operators_async_routing_test.dart: Async & Routing Operators toString fromFuture cell toString                                                                       
+00:06 +1173: test/operators_async_routing_test.dart: Async & Routing Operators toString fromStream cell toString                                                                       
+00:06 +1174: test/operators_async_routing_test.dart: Async & Routing Operators toString fromStream cell toString                                                                       
+00:07 +1174: test/operators_async_routing_test.dart: Async & Routing Operators toString fromStream cell toString                                                                       
 00:07 +1174: All tests passed!
 ```
 
@@ -1958,10 +1958,10 @@ test/
 ├── nucleus_test.dart  (40 tests, 12.6 KB, 366 lines)
 ├── operator_async_map_test.dart  (2 tests, 2.6 KB, 98 lines)
 ├── operator_from_stream_test.dart  (3 tests, 3.3 KB, 115 lines)
-├── operators_phase1_foundation_test.dart  (65 tests, 37.3 KB, 1,066 lines)
-├── operators_phase2_flow_control_test.dart  (45 tests, 24.0 KB, 819 lines)
-├── operators_phase3_async_routing_test.dart  (63 tests, 33.3 KB, 1,117 lines)
-├── operators_phase4_advanced_transactions_test.dart  (39 tests, 25.1 KB, 800 lines)
+├── operators_foundation_test.dart  (65 tests, 37.3 KB, 1,066 lines)
+├── operators_flow_control_test.dart  (45 tests, 24.0 KB, 819 lines)
+├── operators_async_routing_test.dart  (63 tests, 33.3 KB, 1,117 lines)
+├── operators_advanced_transactions_test.dart  (39 tests, 25.1 KB, 800 lines)
 ├── propagation_policy_test.dart  (37 tests, 24.9 KB, 680 lines)
 ├── pulse_test.dart  (159 tests, 71.2 KB, 1,908 lines)
 ├── receptor_instruction_future_test.dart  (2 tests, 2.5 KB, 84 lines)

@@ -11,14 +11,14 @@ part of '../../cell.dart';
 /// Each operation consumes the next recorded effect of the matching kind
 /// and asserts that its input digest matches. On mismatch (wrong kind,
 /// wrong input, or journal empty), the replay **fails loudly** with a
-/// [ReplayDivergenceException]. This is the mechanism the plan describes
+/// [ReplayDivergenceException]. This is the mechanism the design describes
 /// as "reordered effects diverge loudly".
 ///
 /// ### Non-obvious: validation happens *before* consumption
 ///
 /// A record is only consumed (cursor advanced) after its kind, label,
 /// and input have been validated. A mismatched attempt leaves the
-/// record unconsumed, which is what lets `assertExhausted` (and Phase
+/// record unconsumed, which is what lets `assertExhausted` (and 
 /// 5's engine) report the divergence after a detached mapper
 /// continuation has swallowed the thrown exception. Any failed attempt
 /// also latches [diverged] so that a replay which *touched* a mismatch
@@ -56,7 +56,7 @@ class ReplayJournal implements EffectJournal {
   int get consumed => _cursor;
 
   /// The number of effects remaining to be consumed. Used by
-  /// [assertExhausted] and by Phase 5's divergence diagnostics.
+  /// [assertExhausted] and by the engine's divergence diagnostics.
   int get remaining => _records.length - _cursor;
 
   @override
@@ -290,7 +290,7 @@ class ReplayJournal implements EffectJournal {
 
   /// Advances the cursor past the currently peeked record. Only called
   /// after the record's fields validated — a field mismatch leaves the
-  /// record unconsumed, which is the load-bearing detail for Phase 5's
+  /// record unconsumed, which is the load-bearing detail for the engine's
   /// divergence diagnostics (the mismatched effect stays identifiable).
   void _commit() {
     _cursor++;
@@ -302,16 +302,16 @@ class ReplayJournal implements EffectJournal {
 /// Catching this exception is the *only* correct response to a
 /// divergence — the replay has produced a state that does not match the
 /// ledger, and continuing would silently corrupt the caller's
-/// understanding of the recording. Phase 5's `DivergenceReport` wraps
+/// understanding of the recording. `DivergenceReport` wraps
 /// this with the ledger's `seq` and the before/after state, for the CLI.
 class ReplayDivergenceException implements Exception {
   final String message;
   final int? ordinal;
 
-  /// Phase 5: the ledger seq at which the divergence occurred.
+  /// The ledger seq at which the divergence occurred.
   final int? seq;
 
-  /// Phase 5: the full report, when available.
+  /// The full report, when available.
   final DivergenceReport? report;
 
   ReplayDivergenceException(

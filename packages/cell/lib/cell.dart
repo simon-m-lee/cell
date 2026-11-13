@@ -127,7 +127,7 @@ export 'package:synchronized/synchronized.dart';
 
 // Replay module — canonical serialisation foundations. The codec parts below
 // need `fingerprint`; the canonical encoder/fingerprint are exported so
-// `package:cell/cell.dart` consumers get the full Phase 1 surface.
+// `package:cell/cell.dart` consumers get the full serialisation surface.
 import 'package:cell/replay/codec/fingerprint.dart';
 import 'package:cell/replay/codec/canonical_json.dart'
     show canonicalJsonEncode;
@@ -194,7 +194,7 @@ part 'src/internal/operator/operator_transaction.dart';
 part 'src/internal/operator/operator_hub.dart';
 part 'src/internal/operator/operator_tx_apply.dart';
 
-/// Replay module — serialisation foundations (Phase 1).
+/// Replay module — serialisation foundations.
 /// These are parts, not separate libraries: the codecs reach into private
 /// pulse/context records (`_parent`, `_record`, `_Pulse`), so they must
 /// live inside the `cell` library.
@@ -203,7 +203,7 @@ part 'replay/codec/pulse_codec.dart';
 part 'replay/codec/cell_snapshot.dart';
 part 'replay/codec/graph_snapshot.dart';
 
-/// Replay module — cell registry and graph identity (Phase 2).
+/// Replay module — cell registry and graph identity.
 /// Also parts: the builder and graph reach into `cell._nucleus` and the
 /// process-wide `_CellGraphRegistry`.
 part 'replay/graph/purity.dart';
@@ -213,7 +213,7 @@ part 'replay/graph/cell_graph_registry.dart';
 part 'replay/graph/cell_graph_builder.dart';
 part 'replay/graph/cell_graph.dart';
 
-/// Replay module — the EffectJournal (Phase 3, critical path).
+/// Replay module — the EffectJournal (critical path).
 part 'replay/journal/effect_record.dart';
 part 'replay/journal/effect_journal.dart';
 part 'replay/journal/journal_scope.dart';
@@ -221,7 +221,7 @@ part 'replay/journal/recording_journal.dart';
 part 'replay/journal/replay_journal.dart';
 part 'replay/journal/effectful.dart';
 
-/// Replay module — the durable ledger (Phase 4).
+/// Replay module — the durable ledger.
 /// `file_store.dart` is NOT a part: it imports `dart:io`, which must not
 /// leak into the web-safe core library; it is a standalone library
 /// exported by the replay barrel.
@@ -233,7 +233,7 @@ part 'replay/ledger/in_memory_store.dart';
 part 'replay/ledger/ledger.dart';
 part 'replay/ledger/ledger_scope.dart';
 
-/// Replay module — the replay engine (Phase 5).
+/// Replay module — the replay engine.
 part 'replay/engine/replay_options.dart';
 part 'replay/engine/divergence.dart';
 part 'replay/engine/replay_result.dart';
@@ -241,7 +241,7 @@ part 'replay/engine/reconstruct_pulse.dart';
 part 'replay/engine/replay_engine.dart';
 part 'replay/engine/replay_engine_fork.dart';
 
-/// Replay module — what-if branching (Phase 6).
+/// Replay module — what-if branching.
 part 'replay/fork/fork_record.dart';
 part 'replay/fork/fork_policy.dart';
 part 'replay/fork/mutation.dart';
@@ -250,11 +250,11 @@ part 'replay/fork/fork_ledger_store.dart';
 part 'replay/fork/cell_graph_fork.dart';
 part 'replay/fork/fork_verify.dart';
 
-/// Replay module — governance replay (Phase 7).
+/// Replay module — governance replay.
 part 'replay/governance/version_registry.dart';
 part 'replay/governance/context_translator.dart';
 part 'replay/governance/testcell_replay.dart';
 part 'replay/governance/policy_replay.dart';
 
-/// Replay module — visualisation (Phase 8).
+/// Replay module — visualisation.
 part 'replay/visualise.dart';

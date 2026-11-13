@@ -417,7 +417,7 @@ class _PassThroughReceptor implements Receptor<Never> {
   @override
   Purity get purity => Purity.pure;
 
-  /// Phase 2 default: `0.0.0` means "unversioned" until Phase 3 stamps
+  /// Default: `0.0.0` means "unversioned" until the journal layer stamps
   /// actual receptor versions.
   @override
   String get version => '0.0.0';
@@ -588,7 +588,7 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   @override
   late final C cell;
 
-  /// Default effect footprint: [Purity.pure]. Phase 3 populates this for
+  /// Default effect footprint: [Purity.pure]. The journal layer populates this for
   /// the built-in operators (`asyncMap` → effectful, `fromStream` →
   /// effectful, `debounce`/`throttle` → readOnlyExternal); custom
   /// receptors that perform external I/O must override it.
@@ -596,12 +596,12 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   Purity get purity => Purity.pure;
 
   /// Default version: `'0.0.0'` ("unversioned"). User receptors override
-  /// with a stable string so the Phase 5 replay engine can dispatch by
+  /// with a stable string so the replay engine can dispatch by
   /// version.
   ///
   /// ### Non-obvious: the built-in operator bridges stay `'0.0.0'`
   ///
-  /// Phase 3 deliberately did **not** stamp the built-in operator
+  /// The journal layer deliberately did **not** stamp the built-in operator
   /// receptors. Unversioned means "no version contract": an unversioned
   /// ledger replays against an unversioned target across releases, and
   /// an implementation change surfaces as a journal/delta divergence
@@ -789,7 +789,7 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
       return null;
     }
 
-    // Phase 7: purity-aware validation. Pure rules re-run; effectful
+    // Purity-aware validation. Pure rules re-run; effectful
     // rules serve their recorded verdict from the journal (they are not
     // re-called on replay); readOnlyExternal rules re-run with their
     // observations served from the journal. Sync rules stay sync.
@@ -887,7 +887,7 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
       // guard, a pulse emitted by the head of a bound chain would be counted
       // again at every governed downstream cell that inherits the same policy.
       if (pulse._checker.tickPolicy(ephemeralPolicy)) {
-        // Phase 7: the tick is journaled as a PolicyTickEffect; on the
+        // The tick is journaled as a PolicyTickEffect; on the
         // replay side the journal validates the tick (order, policy,
         // cell, input) instead of re-running the policy callback.
         PolicyReplay.tick(

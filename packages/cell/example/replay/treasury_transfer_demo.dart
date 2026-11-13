@@ -47,7 +47,7 @@ Future<bool> _runDemo(Directory tempDir) async {
   print('');
 
   final ledgerPath = '${tempDir.path}/ledger.jsonl';
-  String genesis = ''; // set from the built graph id (Phase 4 contract)
+  String genesis = ''; // set from the built graph id (the ledger contract)
 
   // ─────────────────────────────────────────────────────────────────
   // 1. Build the graph and bind a durable ledger

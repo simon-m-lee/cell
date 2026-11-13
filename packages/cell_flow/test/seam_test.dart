@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 //
-// Phase 3.2 of CONTRIBUTING-AI-DOC.md (package:cell_flow variant): the
+// Mirrors CONTRIBUTING-AI-DOC.md (package:cell_flow variant): the
 // seam grep rules that fail a Mitose run also fail this package's own CI.
 
 import 'dart:io';

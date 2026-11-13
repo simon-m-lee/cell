@@ -19,7 +19,7 @@
 /// every cell in the graph was **registered** with a `CellGraph`
 /// (`register`/`registerState`). An unregistered cell's id is a
 /// process-local identity hash and cannot be addressed from a ledger
-/// file — registration is what makes identity stable (Phase 2).
+/// file — registration is what makes identity stable.
 library;
 
 export 'codec/canonical_json.dart'
@@ -30,18 +30,18 @@ export 'codec/fingerprint.dart' show fingerprint;
 // the barrel re-exports them from there.
 export '../cell.dart'
     show
-        // Phase 1 — serialisation.
+        // Serialisation.
         PulseCodec,
         PulseContextCodec,
         CellSnapshot,
         CellGraphSnapshot,
-        // Phase 2 — registry + identity.
+        // Registry + identity.
         Purity,
         CellGraph,
         CellGraphBuilder,
         RegisteredCell,
         CellGraphRegistry,
-        // Phase 3 — journal.
+        // Journal.
         EffectJournal,
         EffectRecord,
         ClockEffect,
@@ -49,7 +49,7 @@ export '../cell.dart'
         IoEffect,
         StreamEffect,
         TimerEffect,
-        // Phase 7 — governance effect kinds.
+        // Governance effect kinds.
         VerdictEffect,
         PolicyTickEffect,
         NullJournal,
@@ -59,7 +59,7 @@ export '../cell.dart'
         JournalScope,
         Effectful,
         EffectfulReadOnly,
-        // Phase 4 — ledger.
+        // Ledger.
         StateDelta,
         Ledger,
         LedgerEntry,
@@ -67,13 +67,13 @@ export '../cell.dart'
         InMemoryLedgerStore,
         LedgerIntegrityException,
         LedgerScope,
-        // Phase 5 — replay engine.
+        // Replay engine.
         ReplayEngine,
         ReplayOptions,
         ReplayResult,
         DivergenceReport,
         PulseReconstructor,
-        // Phase 6 — what-if branching.
+        // What-if branching.
         ForkHandle,
         ForkRecord,
         ForkPolicy,
@@ -84,7 +84,7 @@ export '../cell.dart'
         ReplayEngineFork,
         ForkVerify,
         ForkParentLookup,
-        // Phase 7 — governance replay.
+        // Governance replay.
         VersionRegistry,
         ContextTranslator,
         ContextTranslatorRegistry,
@@ -92,7 +92,7 @@ export '../cell.dart'
         CellGraphTranslators,
         TestCellReplay,
         PolicyReplay,
-        // Phase 8 — tooling (visualisation; the CLI itself is a
+        // Tooling (visualisation; the CLI itself is a
         // standalone dart:io library at lib/replay/cli/cli.dart, see
         // its file header for why it cannot be exported here).
         CellGraphVisualise,
@@ -100,5 +100,5 @@ export '../cell.dart'
 // FileLedgerStore is a standalone library (it imports dart:io, which
 // must not leak into the web-safe core).
 export 'ledger/file_store.dart' show FileLedgerStore;
-// Phase 5+ grows this list: ReplayEngine, … — see
-// research/Causal-Replay/Plan.md.
+// Later layers grow this list: ReplayEngine, … — see the
+// individual library docs.

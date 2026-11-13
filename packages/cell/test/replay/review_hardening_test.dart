@@ -12,12 +12,12 @@ import 'package:cell/cell.dart';
 import 'package:cell/replay.dart';
 import 'package:test/test.dart';
 
-/// Regression tests for the Phase 8 code-review hardening fixes:
+/// Regression tests for the the tooling layer code-review hardening fixes:
 ///
 /// * asyncMap mapper errors fail the source pulse (no more silent
 ///   swallow);
 /// * asyncMap refuses `concurrency > 1` / `latestOnly` while a ledger is
-///   recording (shared-journal attribution is a Phase 5.1 item);
+///   recording (shared-journal attribution is a a later revision item);
 /// * propagation drops (filter suppression, throttle window) terminalise
 ///   the pulse so `onComplete` fires;
 /// * the async fan-out survives a rejecting downstream and still

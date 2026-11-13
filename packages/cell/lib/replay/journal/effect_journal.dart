@@ -87,7 +87,7 @@ abstract class EffectJournal {
   /// On the recording side, [run] is executed and its boolean decision
   /// is recorded as a `VerdictEffect`. On the replay side, the recorded
   /// decision is served and [run] is **not** executed — the rule is not
-  /// re-called (Phase 7 purity dispatch).
+  /// re-called (purity dispatch).
   Future<bool> verdict({
     required String ruleLabel,
     required Object? input,
@@ -106,7 +106,7 @@ abstract class EffectJournal {
   });
 
   /// Assert that the journal has been fully consumed (replay side) or
-  /// that no pending un-journalled work remains (recording side). Phase 5
+  /// that no pending un-journalled work remains (recording side). The engine
   /// calls this after each pulse.
   void assertExhausted();
 
@@ -119,7 +119,7 @@ abstract class EffectJournal {
 ///
 /// Deliberately not a no-op. A "null" journal that silently dropped
 /// effects would make every effectful cell non-replayable *without* any
-/// warning, which is precisely the failure mode the plan forbids (D3).
+/// warning, which is precisely the failure mode the design forbids.
 class NullJournal implements EffectJournal {
   /// Singleton.
   static const instance = NullJournal._();
@@ -236,7 +236,7 @@ class _JournalTimer {
     // when it would fire. The `_cancelled` flag above handles that. On
     // the recording side, the actual Dart timer is cancelled by the
     // journal implementation (RecordingJournal's default scheduler is
-    // Future.delayed, which cannot be cancelled — a known Phase 3.1 item
+    // Future.delayed, which cannot be cancelled — a known journal-limitation item
     // to swap it for a Timer-backed scheduler).
     _pending?.ignore();
   }

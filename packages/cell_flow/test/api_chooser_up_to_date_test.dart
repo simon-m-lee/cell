@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 //
-// Phase 6.2 of CONTRIBUTING-AI-DOC.md: the AI-facing decision matrix is
+// Mirrors CONTRIBUTING-AI-DOC.md: the AI-facing decision matrix is
 // generated from the `### AI Agent Guide` blocks and cannot drift.
 
 import 'dart:io';

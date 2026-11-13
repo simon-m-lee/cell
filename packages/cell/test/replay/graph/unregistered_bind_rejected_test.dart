@@ -20,11 +20,11 @@ void main() {
     expect(builder.build, throwsStateError);
   });
 
-  test('terminal observers do not trip strict reachability (Phase 2 scope)', () {
+  test('terminal observers do not trip strict reachability (the graph registry scope)', () {
     final upstream = Cell.state<int>(initial: 0);
     // The observer is a downstream of `upstream` via its synapses — an
     // operator-internal wiring edge. Strict mode validates bind edges;
-    // synapse plumbing (observers, asyncMap's bridge) is Phase 3's
+    // synapse plumbing (observers, asyncMap's bridge) is the journal's
     // journal concern.
     final observer = Cell.observe(
       source: upstream.cell,

@@ -12,7 +12,7 @@ part of '../../cell.dart';
 /// Deliberately **process-wide, not graph-scoped**. Two cells in the same
 /// process cannot share an `id` even if they belong to different graphs —
 /// that is the whole point of a stable identity. The registry refuses
-/// duplicate registration, which is how the Phase 2 exit criterion
+/// duplicate registration, which is how the graph acceptance criterion
 /// ("two cells with the same `id` fail registration") is enforced.
 ///
 /// The registry is keyed by `Nucleus` (identity), not by `Cell`. This is
@@ -64,7 +64,7 @@ class _CellGraphRegistry {
 
   /// Removes [nucleus] from the registry. Returns the previous id, or
   /// `null` if the nucleus was not registered.
-  // ignore: unused_element — Phase 3+ teardown hook (graph drop, tests).
+  // ignore: unused_element — journal teardown hook (graph drop, tests).
   static String? unregister(Nucleus nucleus) {
     final id = _byNucleus.remove(nucleus);
     if (id != null) _byId.remove(id);
@@ -82,7 +82,7 @@ class _CellGraphRegistry {
   }
 
   /// Diagnostic: a snapshot of the current registry contents. Not part of
-  /// the public API; exists so tests and the CLI (Phase 8) can inspect
+  /// the public API; exists so tests and the CLI can inspect
   /// collisions.
   static Map<String, String> snapshot() {
     final out = <String, String>{};

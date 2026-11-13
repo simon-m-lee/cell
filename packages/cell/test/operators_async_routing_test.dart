@@ -47,7 +47,7 @@ SpokeRegistration spoke({
     );
 
 void main() {
-  group('Phase 3: Async & Routing Operators', () {
+  group('Async & Routing Operators', () {
     group('Cell.asyncMap', () {
       test('asyncMap transforms values from a state cell', () async {
         final source = Cell.state<int>(initial: 0);

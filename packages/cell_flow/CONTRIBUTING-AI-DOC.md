@@ -1,6 +1,6 @@
 # CONTRIBUTING-AI-DOC — AI-facing doc-comment convention for `package:cell_flow`
 
-Implements Phase 1 of the AI-facing documentation enhancement. The normative format is the
+Implements the first iteration of the AI-facing documentation enhancement. The normative format is the
 `### AI Agent Guide` block appended to public doc comments; see
 `packages/cell/CONTRIBUTING-AI-DOC.md` for the canonical spec (same rules,
 Flow-specific content below).
@@ -16,18 +16,18 @@ Flow-specific content below).
 3. **Live signature pins against `cell_flow:`** — e.g.
    `` `Flow.map<S, T>(...)` — pinned at `cell_flow: 1.0.0` ``.
 4. **Guide pointers** use `HowTo-Mitose-Flow.md` §3.x with the stable anchor
-   added in Phase 2 (`#flow-create`, `#flow-transform`, `#flow-filter-take-skip`,
+   added in the anchor update (`#flow-create`, `#flow-transform`, `#flow-filter-take-skip`,
    `#flow-flatten`, `#flow-combine`, `#flow-time`, `#flow-collect-control`).
 5. **Cross-layer** states when to leave Flow and open the Cell or Tissue HowTo
    (ingress/observe are Cell; `events.add` is Tissue via `Cell.observe`).
 6. **Minimal compilable examples** are synchronous (or microtask-only) so the
-   Phase 3 test stays fast. They use the public `package:cell_flow/cell_flow.dart`
+   The doc-example test stays fast. They use the public `package:cell_flow/cell_flow.dart`
    surface; instruction classes are exercised via their own doc blocks with a
    `src/instruction/` import in the generated example file.
 
 ## Machinery
 
-| Tool / test | Phase | What it enforces |
+| Tool / test | Role | What it enforces |
 |---|---|---|
 | `tool/generate_ai_examples.dart` + `test/ai_guide_examples_test.dart` | 3.1 | Every `Minimal compilable example` compiles and runs, exit 0. |
 | `test/seam_test.dart` | 3.2 | No Tissue write inside a `FlowInstructionBase` subclass in `example/`. |
@@ -38,6 +38,6 @@ Flow-specific content below).
 
 ## Coverage policy
 
-Phase 1 covers the HowTo §3 catalog families and the `FlowInstruction` family
+The first iteration covers the HowTo §3 catalog families and the `FlowInstruction` family
 (PR B scope). The remaining ~50 operators are covered by `FEATURES-Flow.md`;
 they receive guide blocks incrementally in later passes.

@@ -8,7 +8,7 @@ part of '../../cell.dart';
 
 /// Visualisation for [CellGraph] and [Ledger].
 ///
-/// Phase 8 ships two modes for each:
+/// The visualisation tooling ships two modes for each:
 ///
 /// * **`cells`** — the graph's topology. Nodes are cells; edges are
 ///   `bind`/`Synapses` links. This is the *structural* view: "what

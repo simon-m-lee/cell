@@ -16,15 +16,15 @@ part of '../../cell.dart';
 ///
 /// ### Non-obvious: the target graph is provided, not reconstructed
 ///
-/// Phase 5 does **not** reconstruct a graph from a `CellGraphSnapshot`
-/// — that is Phase 5.1 (a payload-codec-driven concern; the current
-/// Phase 1 snapshot does not store enough to rebuild a graph's cells
-/// from scratch without the codec registry that Phase 3+ builds). The
+/// The engine does **not** reconstruct a graph from a `CellGraphSnapshot`
+/// — that is a later revision (a payload-codec-driven concern; the current
+/// The snapshot does not store enough to rebuild a graph's cells
+/// from scratch without the payload-codec registry). The
 /// caller provides the target graph, typically freshly built from the
-/// same `CellGraphBuilder` that produced the original. The plan's
+/// same `CellGraphBuilder` that produced the original. The design's
 /// exit criterion "replay 500 pulses against an identical graph"
 /// describes exactly this: the target is *the same graph shape*, not a
-/// reconstructed one. Phase 5.1 will relax this, and the `ReplayEngine`
+/// reconstructed one. A later revision will relax this, and the `ReplayEngine`
 /// API does not need to change.
 ///
 /// ### What is verified per entry
@@ -43,7 +43,7 @@ part of '../../cell.dart';
 /// against a reconstructed pulse. The digest hashes the pulse's full
 /// JSON including its wall-clock timestamp; a hash is one-way and a
 /// reconstruction can never match it byte-for-byte. The delta
-/// comparison is the authoritative state check. (The Phase 5 doc's
+/// comparison is the authoritative state check. (The engine design's
 /// step 9 check would fail on every entry; this engine documents that
 /// honestly instead.)
 class ReplayEngine {
@@ -71,7 +71,7 @@ class ReplayEngine {
   /// exhaustion checks then cannot see either. The honest gate is on
   /// the recording side (`NullJournal` fails loudly, and every
   /// `effectful` rule writes a verdict); a dedicated purity
-  /// pre-validation is a Phase 5.1 hardening.
+  /// pre-validation is a later hardening.
   static Future<ReplayResult> replay({
     required Ledger ledger,
     required CellGraph target,
@@ -88,7 +88,7 @@ class ReplayEngine {
       );
     }
 
-    // Phase 8 hardening (review fix): never replay a corrupt history.
+    // Hardening (review fix): never replay a corrupt history.
     // One pass recomputes every hash of the chain; a tampered ledger
     // fails here with a LedgerIntegrityException instead of producing a
     // confusing downstream divergence.
@@ -190,7 +190,7 @@ class ReplayEngine {
     }
     final cell = registered.cell;
 
-    // Phase 7: version check. If the target's live receptor/rule
+    // Version check. If the target's live receptor/rule
     // versions do not match the ledger's, try the version registry. If
     // neither matches, fail loudly (a version boundary without a
     // translator is a divergence, not a guess).
@@ -313,7 +313,7 @@ class ReplayEngine {
     return entry.effects[index];
   }
 
-  /// Phase 7 version enforcement. Returns a [DivergenceReport] when the
+  /// Version enforcement. Returns a [DivergenceReport] when the
   /// ledger's recorded receptor/rule versions cannot be satisfied by
   /// the target graph (no registry entry and no live match).
   ///
@@ -323,10 +323,10 @@ class ReplayEngine {
   /// dispatch proceeds with the graph's live receptor — `resolve` is not
   /// used to swap in the historical implementation, and the recorded
   /// `contextVersion` / `ContextTranslatorRegistry` are not consulted by
-  /// the engine. Phase 7 therefore prevents silent wrong-version replay
+  /// the engine. The governance layer therefore prevents silent wrong-version replay
   /// (the loud boundary); installing the registered historical
   /// receptor/rule pair and translating contexts *during* dispatch is
-  /// the deferred Phase 7.1 item.
+  /// the deferred translator-dispatch item.
   static DivergenceReport? _checkVersions({
     required LedgerEntry entry,
     required CellGraph target,
@@ -336,7 +336,7 @@ class ReplayEngine {
     final ledgerRuleVersion = entry.receipt.ruleVersion;
 
     if (ledgerReceptorVersion == null || ledgerRuleVersion == null) {
-      // Phase 4-6 ledger without version fields. If the live versions
+      // Ledger without version fields. If the live versions
       // are also unversioned ('0.0.0'), treat as equal; otherwise
       // refuse to guess.
       final live = target[cellId]!.cell._nucleus;
@@ -416,8 +416,8 @@ class ReplayEngine {
       final cell = registered.cell;
       if (cell is! ValueCell) {
         // Non-ValueCell cells do not have a `value`; the delta for such
-        // a cell (if any) records a different kind of state. Phase 5
-        // does not verify these; Phase 5.1 will, when the payload codec
+        // a cell (if any) records a different kind of state. The engine
+        // does not verify these; a later revision will, when the payload codec
         // gains support for non-ValueCell state snapshots.
         continue;
       }

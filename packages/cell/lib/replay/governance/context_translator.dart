@@ -70,7 +70,7 @@ class ContextTranslatorRegistry {
   /// Translates [source] from its own version to [target]. If they are
   /// equal, returns [source] unchanged (no translation needed). If no
   /// translator is registered, throws [UnimplementedError] — a loud
-  /// failure, as the plan's exit criterion requires.
+  /// failure, as the design's exit criterion requires.
   Future<DeputyContext> translate(
     DeputyContext source, {
     required String target,

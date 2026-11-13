@@ -27,7 +27,7 @@ part of '../../cell.dart';
 /// (cell, name) pair. Passing a `RegisteredCell` where a `Cell` is
 /// expected requires calling `.cell`. This is deliberate — the compiler
 /// is the enforcement that a registered cell and a raw cell are not
-/// interchangeable, which is what makes Phase 2's "unregistered bind
+/// interchangeable, which is what makes the "unregistered bind
 /// rejected" check possible without heuristics.
 class RegisteredCell {
   /// The underlying cell.

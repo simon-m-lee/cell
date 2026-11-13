@@ -9,8 +9,8 @@ part of '../../cell.dart';
 /// Maps `(cellId, version)` to the receptor and test rule that
 /// implemented that version.
 ///
-/// Phase 5's `ReplayEngine` dispatched to whatever receptor was live.
-/// Phase 7's engine consults the `VersionRegistry` first: if the
+/// the engine's `ReplayEngine` dispatched to whatever receptor was live.
+/// the governance layer's engine consults the `VersionRegistry` first: if the
 /// registry has an entry for `(cellId, version)`, that is used;
 /// otherwise, the live receptor is used **only if its version matches**
 /// the ledger's; otherwise, replay fails loudly.
@@ -21,7 +21,7 @@ part of '../../cell.dart';
 /// different version histories (a test graph and a production graph).
 /// A process-wide registry would allow the test graph's version to
 /// shadow the production graph's, which is exactly the kind of ambient
-/// coupling Phase 7 exists to prevent. The registry is created lazily
+/// coupling the governance layer exists to prevent. The registry is created lazily
 /// by `CellGraphVersions.versions` and lives for the graph's lifetime.
 class VersionRegistry {
   final Map<String, Map<String, _VersionedImpl>> _byCellVersion = {};

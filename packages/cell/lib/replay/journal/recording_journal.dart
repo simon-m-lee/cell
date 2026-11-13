@@ -15,7 +15,7 @@ part of '../../cell.dart';
 /// ### Non-obvious: recording happens *after* the operation, not before
 ///
 /// If the operation throws, there is no effect to record — the throw
-/// propagates and the ledger (Phase 4) records the *failure*, not an
+/// propagates and the ledger records the *failure*, not an
 /// effect. This is deliberate: a failed I/O call is not a re-runnable
 /// observation; the caller must decide whether to retry (in which case
 /// the retry is the new effect).
@@ -188,12 +188,12 @@ class RecordingJournal implements EffectJournal {
       _records.map((r) => r.toJson()).toList(growable: false);
 
   /// The most recently recorded effect, or `null` if none yet. Used by
-  /// Phase 5's cooperative ledger capture: an effectful operator hands
+  /// The engine's cooperative ledger capture: an effectful operator hands
   /// its just-recorded effect to the active [LedgerScope] so the entry
   /// for the pulse that caused it carries the effect.
   EffectRecord? get lastRecord => _records.isEmpty ? null : _records.last;
 
-  /// All recorded effects, in ordinal order (unmodifiable). Phase 5's
+  /// All recorded effects, in ordinal order (unmodifiable). The engine's
   /// cooperative capture uses [recordsSince] to hand the active ledger
   /// scope every effect a single mapper invocation recorded.
   List<EffectRecord> get records => List.unmodifiable(_records);

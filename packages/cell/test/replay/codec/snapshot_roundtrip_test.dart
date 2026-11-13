@@ -110,7 +110,7 @@ void main() {
       expect(derived.id, isNot(state.cell.id));
     });
 
-    test('a deputy shares its principal id (Phase 1 behaviour)', () async {
+    test('a deputy shares its principal id (the serialisation layer behaviour)', () async {
       final cell = Cell.ingress<int>().cell;
       final deputy = await cell.deputy(testRule: TestCell.readOnly);
       expect(deputy.id, cell.id);

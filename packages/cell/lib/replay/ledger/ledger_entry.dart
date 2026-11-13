@@ -45,7 +45,7 @@ class LedgerEntry {
   /// received from `apply`, plus the two back-filled fields.
   final ApplyReceipt receipt;
 
-  /// The effects recorded during this pulse's processing (Phase 3's
+  /// The effects recorded during this pulse's processing (the journal's
   /// `EffectRecord`s), in ordinal order.
   final List<EffectRecord> effects;
 
@@ -59,7 +59,7 @@ class LedgerEntry {
 
   /// The materialised pulse JSON (`PulseCodec.toJson` of the
   /// materialised input pulse), when the entry was produced by a
-  /// Phase-8.3+ append. This is the pulse *body* — the reviewer's
+  /// post-hardening append. This is the pulse *body* — the reviewer's
   /// closing criterion: `fingerprint(pulseJson)` equals [pulseDigest],
   /// and replay reconstructs the exact pulse (payload, type, context,
   /// priority, parent chain, trace) from it instead of the
@@ -151,7 +151,7 @@ class LedgerEntry {
         // them on the *store's* copy of the receipt, not the caller's.
         'ledgerSeq': receipt.ledgerSeq,
         'pulseDigest': receipt.pulseDigest,
-        // Phase 7 — governance versions (defaulted for old ledgers).
+        // Governance versions (defaulted for old ledgers).
         'receptorVersion': receipt.receptorVersion,
         'ruleVersion': receipt.ruleVersion,
         'contextVersion': receipt.contextVersion,
@@ -217,7 +217,7 @@ class LedgerEntry {
   /// `_ReplayCellRegistry`. If the cell is not registered (e.g. the
   /// ledger is being opened before the graph was rebuilt), the receipt
   /// is reconstructed with a **placeholder** cell whose `id` matches the
-  /// recorded one but whose nucleus is an empty stub. Phase 5's
+  /// recorded one but whose nucleus is an empty stub. The
   /// `ReplayEngine` refuses to process an entry whose receipt points at
   /// a placeholder, which is the correct behaviour: replaying into a
   /// graph that does not contain the cell is a divergence.
@@ -248,7 +248,7 @@ class LedgerEntry {
       // tampering, not an old format.
       ledgerSeq: rawReceipt['ledgerSeq'] as int?,
       pulseDigest: rawReceipt['pulseDigest'] as String?,
-      // Phase 7 — governance versions; '0.0.0' for pre-Phase-7 ledgers.
+      // Governance versions; '0.0.0' for older ledgers.
       receptorVersion: rawReceipt['receptorVersion'] as String? ?? '0.0.0',
       ruleVersion: rawReceipt['ruleVersion'] as String? ?? '0.0.0',
       contextVersion: rawReceipt['contextVersion'] as String? ?? '0.0.0',
@@ -316,7 +316,7 @@ class LedgerEntry {
 
 /// A `Cell` stand-in used when a ledger entry is reconstructed before
 /// its cell is registered. Never used for anything other than logging;
-/// Phase 5's `ReplayEngine` rejects any entry whose receipt points at
+/// The `ReplayEngine` rejects any entry whose receipt points at
 /// one of these.
 class _PlaceholderCell extends CellBase {
   final String _id;

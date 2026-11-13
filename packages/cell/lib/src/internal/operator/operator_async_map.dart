@@ -12,7 +12,7 @@ part of '../../../cell.dart';
 
 /// Maps each upstream payload through an async function and emits results.
 ///
-/// Phase 3 (D6 breaking change): the mapper takes a **required named
+/// the journal (D6 breaking change): the mapper takes a **required named
 /// `journal` parameter** and the factory takes a `journal:` argument —
 /// asyncMap is effectful, and its I/O must go through the journal. The
 /// mapper runs inside `JournalScope.run(journal, …)`, so both the
@@ -37,7 +37,7 @@ part of '../../../cell.dart';
 /// * switch → cancel interest in in-flight when a newer value arrives
 /// * exhaust → refuse new values until the current in-flight work finishes
 ///
-/// ### Ledger attribution (Phase 8 hardening)
+/// ### Ledger attribution (hardening)
 ///
 /// Concurrent mapper invocations share one [EffectJournal]; a positional
 /// `recordsSince(before)` window over that shared sequence cannot tell
@@ -45,7 +45,7 @@ part of '../../../cell.dart';
 /// `concurrency > 1` and `latestOnly` therefore throw a loud
 /// [StateError] instead of silently cross-contaminating ledger entries.
 /// Pulse-tagged effect windows (the correct attribution) are the
-/// deferred Phase 5.1 item; the default `concurrency: 0` remains
+/// deferred a later revision item; the default `concurrency: 0` remains
 /// available, and attributes correctly when emissions wait for their
 /// async work to settle.
 Cell _asyncMap<S, T>(
@@ -67,7 +67,7 @@ Cell _asyncMap<S, T>(
     );
   }
 
-  // Phase 8.3 hardening (review): the ONLY ledger-attributable mode is
+  // Hardening (review): the ONLY ledger-attributable mode is
   // serial execution. The default `concurrency: 0` means unlimited
   // in-flight — exactly the overlapping case the positional
   // recordsSince window cannot attribute. Refuse loudly wherever the
@@ -83,7 +83,7 @@ Cell _asyncMap<S, T>(
       'concurrency: $concurrency (0 = unlimited), latestOnly: '
       '$latestOnly. Concurrent mapper invocations share one journal '
       'and their effects would cross-contaminate ledger entries; '
-      'pulse-tagged effect windows are the deferred Phase 5.1 fix. '
+      'pulse-tagged effect windows are the deferred a later revision fix. '
       'Use concurrency: 1, or record without a ledger.',
     );
   }
@@ -168,7 +168,7 @@ class _AsyncMapState<S, T> {
       return; // ignore new values until idle
     }
 
-    // Phase 8.3 hardening (review): same refusal as the factory, for
+    // Hardening (review): same refusal as the factory, for
     // operators constructed before the ledger was bound. Throwing here
     // would be swallowed by the receptor pipeline (`pulse._fail`); the
     // scope is poisoned instead and `LedgerScope.run` rethrows at the
@@ -180,7 +180,7 @@ class _AsyncMapState<S, T> {
         'concurrency: $concurrency (0 = unlimited), latestOnly: '
         '$latestOnly. Concurrent mapper invocations share one journal '
         'and their effects would cross-contaminate ledger entries; '
-        'pulse-tagged effect windows are the deferred Phase 5.1 fix. '
+        'pulse-tagged effect windows are the deferred a later revision fix. '
         'Use concurrency: 1, or record without a ledger.',
       ));
       return; // refuse: do not start the mapper under this ledger
@@ -214,7 +214,7 @@ class _AsyncMapState<S, T> {
           // The mapper runs inside JournalScope.run so that its I/O is
           // journalled — and so `EffectJournal.current` inside the mapper
           // resolves to the same journal as its `journal:` parameter.
-          // Phase 5: the ambient journal wins when an outer scope has
+          // the replay engine: the ambient journal wins when an outer scope has
           // pushed one (ReplayEngine's per-entry ReplayJournal); the
           // construction-time journal is the fallback for recording.
           final effective = JournalScope.effectiveJournal(journal);
@@ -224,13 +224,13 @@ class _AsyncMapState<S, T> {
             effective,
             () => mapper(next.value, journal: effective),
           );
-          // Phase 5 cooperative ledger capture: hand the just-recorded
+          // the replay engine cooperative ledger capture: hand the just-recorded
           // effects to the active LedgerScope so the entry for the pulse
           // that caused this mapping carries them — every effect the
           // mapper invocation produced, not only the last one. Only for
           // RecordingJournal-backed runs (replays have no ledger scope).
           //
-          // Phase 5.1 caveat: this positional window is only sound while
+          // a later revision caveat: this positional window is only sound while
           // invocations do not overlap; overlapping configurations are
           // refused loudly at enqueue time (see above).
           final ledgerScope = LedgerScope.current;
@@ -242,7 +242,7 @@ class _AsyncMapState<S, T> {
           if (latestOnly && gen != _generation) return; // superseded
           onResult(result);
         } catch (e, st) {
-          // Phase 8 hardening: the mapper failed. Route the failure to
+          // hardening: the mapper failed. Route the failure to
           // the source pulse's onError channel instead of swallowing it
           // — a swallowed failure is invisible to the recording (and to
           // every downstream waiting on the pulse). No emission happens,

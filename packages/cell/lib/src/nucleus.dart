@@ -487,7 +487,7 @@ abstract interface class Nucleus {
   /// The persisted identity of the cell this nucleus powers.
   ///
   /// Resolved by [NucleusBase]: a graph-registered name once `CellGraph`
-  /// (Phase 2) lands, otherwise the hex `identityHashCode` of the root
+  /// lands, otherwise the hex `identityHashCode` of the root
   /// principal — stable within a process. See `Cell.id` for the full
   /// identity contract; `id` is deliberately parallel to `hashCode`, which
   /// stays a set-membership key.

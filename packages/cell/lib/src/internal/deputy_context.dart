@@ -135,7 +135,7 @@ enum Mandate<V> with GovernanceMixin<Mandate<V>, V> implements Governance<V> {
   /// * `Clearance.administrative` – link/unlink cells.
   clearance<Clearance>(true),
 
-  /// **Phase 7.** The semantic version of the mandate. Used by
+  /// The semantic version of the mandate. Used by
   /// [VersionRegistry] for replay dispatch.
   ///
   /// **Type**: [String] (SemVer)
@@ -485,10 +485,10 @@ class DeputyContext extends ContextBase {
     String? justification,
     Map<String, dynamic>? constraints,
     Map<String, dynamic>? others,
-    String version = '1.0.0', // Phase 7
+    String version = '1.0.0',
   }) : this.fromEntries(<GovernanceEntry>[
           Mandate.authority.entry(authority),
-          Mandate.version.entry(version), // Phase 7
+          Mandate.version.entry(version),
           if (role != null) Mandate.role.entry(role),
           if (isolation != null) Mandate.isolation.entry(isolation),
           if (clearance != Clearance.standard)
@@ -499,7 +499,7 @@ class DeputyContext extends ContextBase {
 
   /// The semantic version of this mandate.
   ///
-  /// Used by the Phase 7 version machinery to dispatch a replay to the
+  /// Used by the governance version machinery to dispatch a replay to the
   /// correct [ContextTranslator] when the current context schema differs
   /// from the one recorded in the ledger. Defaults to `'1.0.0'`; the
   /// system context reports `'0.0.0'` (unversioned).
@@ -1296,7 +1296,7 @@ enum Isolation {
 
   /// **Level 4: Logical Air-Gap (Total)**
   /// The deputy is completely decoupled. While it can ingest system state during
-  /// the **Ingress Phase**, it is physically prevented from emitting signals
+  /// the **Ingress **, it is physically prevented from emitting signals
   /// that reach the global distribution graph. Used for analytical observers
   /// and isolated internal reasoning within a **Secure Enclave**.
   total;
@@ -1613,7 +1613,7 @@ enum PriorityTier {
 /// **Integrity Gate ([TestCell])** utilizes the sensitivity tier to
 /// determine if a specific agent possesses the required [Clearance] to
 /// authorize the signal's **Ingress** or to perform a state mutation during
-/// the **Transformation Phase**.
+/// the **Transformation **.
 ///
 /// ### When to use
 /// Attach a sensitivity level to a pulse to indicate its data classification.

@@ -12,7 +12,7 @@
 // `cell.dart` core (the published package declares `platforms: web`).
 // This is the same rule that keeps `file_store.dart` standalone — see
 // AGENTS.md. The `bin/cell_replay.dart` entry point imports this file
-// directly; the Phase 8 doc's "part of cell.dart + barrel export"
+// directly; the tooling design's "part of cell.dart + barrel export"
 // sketch would have made the whole core library un-web-compilable.
 library;
 
@@ -98,22 +98,22 @@ abstract final class Cli {
     final format = opts['format'] ?? 'human';
     final strict = opts['strict'] == 'true';
 
-    // We cannot reconstruct a Ledger without a CellGraph in Phase 8 —
-    // the graph is a Phase 5 input. So `verify` without `--graph` can
+    // We cannot reconstruct a Ledger without a CellGraph today —
+    // the graph is an engine input. So `verify` without `--graph` can
     // only verify the *chain*, not replay. This is the honest
     // limitation; `verify --graph <snapshot.json>` is the full check.
     //
-    // Phase 8.1 will add `--graph-snapshot` to reconstruct the target
-    // graph from a snapshot, which is Phase 5.1's job.
+    // A future CLI revision will add `--graph-snapshot` to reconstruct the target
+    // graph from a snapshot, which is snapshot reconstruction's job.
     //
     // Non-obvious: this check runs BEFORE `_openStore` — rejecting the
     // flag after opening the store would leak the file's
     // RandomAccessFile on Windows (the doc's original ordering).
     if (opts['graph'] != null) {
       throw _UsageException(
-        '--graph is not supported in Phase 8; verify only checks the '
-        'ledger chain. Full replay verification is Phase 8.1 '
-        '(requires Phase 5.1 snapshot reconstruction).',
+        '--graph is not supported yet; verify only checks the '
+        'ledger chain. Full replay verification is planned CLI work '
+        '(requires snapshot reconstruction).',
       );
     }
 
@@ -135,7 +135,7 @@ abstract final class Cli {
     // A placeholder graph lets us reuse `Ledger.verify`. The graph is
     // not consulted for chain verification except for the genesis
     // binding, which we pin with the explicit `genesisHash` read from
-    // the file (Phase 6: `Ledger.open` enforces the store's genesis).
+    // the file (`Ledger.open` enforces the store's genesis).
     // Note: `CellGraph.unrestricted()` is `@visibleForTesting`, so the
     // CLI builds a non-strict placeholder instead.
     final placeholder = (CellGraph.builder(
@@ -276,27 +276,27 @@ abstract final class Cli {
     final outPath = opts['out']!;
     final format = opts['format'] ?? 'human';
 
-    // For Phase 8, `fork` requires the caller to have the graph
-    // factory available. The CLI cannot reconstruct the graph (Phase
+    // For now, `fork` requires the caller to have the graph
+    // factory available. The CLI cannot reconstruct the graph (
     // 5.1's job). We therefore support only the "fork into a fresh
     // ledger without replaying" mode, which produces a valid fork
-    // record and no entries after it. Full fork-with-replay is Phase
+    // record and no entries after it. Full fork-with-replay is 
     // 8.1.
     //
     // The exit criterion "fork CLI works end-to-end" is met by the
     // `fork --at N --out path` invocation producing a valid fork
     // ledger whose `seq 0` is the ForkRecord and whose `verify()`
-    // passes. `--replaceSeq` is documented as Phase 8.1.
+    // passes. `--replaceSeq` is documented as planned CLI work.
     if (opts['replaceSeq'] != null) {
       throw _UsageException(
-        '--replaceSeq is not supported in Phase 8; fork-with-replay '
-        'is Phase 8.1 (requires Phase 5.1 graph reconstruction).',
+        '--replaceSeq is not supported yet; fork-with-replay '
+        'is planned CLI work (requires graph reconstruction).',
       );
     }
     if (opts['replacePayloadJson'] != null) {
       throw _UsageException(
-        '--replacePayloadJson is not supported in Phase 8; '
-        'fork-with-replay is Phase 8.1.',
+        '--replacePayloadJson is not supported yet; '
+        'fork-with-replay is planned CLI work.',
       );
     }
 
@@ -325,7 +325,7 @@ abstract final class Cli {
       // taken below the head.
       final parentHeadHash = await parentLedger.hashAtSeq(atSeq);
 
-      // Compute the parent's snapshot hash (Phase 8 fork binding). The
+      // Compute the parent's snapshot hash (fork binding). The
       // CLI cannot rebuild the parent graph, so the snapshot is a
       // placeholder fingerprint of the chain position; the binding that
       // matters for verification is parentHeadHash (hashAtSeq above).
@@ -450,12 +450,12 @@ abstract final class Cli {
   /// Opens the ledger file at [path] and derives its genesis hash from
   /// the first entry's `prevHash`.
   ///
-  /// ### Known compromise (flagged in the Phase 8 doc, §12)
+  /// ### Known compromise
   ///
   /// A ledger file does not carry its own genesis hash, so the CLI
   /// trusts the file's first `prevHash` as the genesis. A ledger whose
   /// *first entry* was tampered with would pass the genesis binding.
-  /// Phase 8.1 adds a required `--genesis` flag; until then this is
+  /// A future CLI revision adds a required `--genesis` flag; until then this is
   /// the honest behaviour and it is documented here and in the help.
   static Future<_OpenedStore> _openStore(String path) async {
     final file = File(path);
@@ -547,9 +547,9 @@ USAGE
   cell-replay inspect   --ledger <path> [--format human|json]
 
 NOTE
-  verify checks the hash chain only in Phase 8 (full replay verification
-  is Phase 8.1). The ledger's genesis hash is read from the first entry's
-  prevHash; Phase 8.1 adds an explicit --genesis flag.
+  verify checks the hash chain only (full replay verification
+  is planned CLI work). The ledger's genesis hash is read from the first entry's
+  prevHash; a future CLI revision adds an explicit --genesis flag.
 
 EXIT CODES
   0  success

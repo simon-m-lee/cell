@@ -16,7 +16,7 @@ import 'canonical_json.dart';
 ///
 /// * [CellSnapshot.configFingerprint] — identifies a cell's receptor + rule
 ///   + context configuration. A cell whose fingerprint changed between
-///   recording and replay is a hard divergence (Phase 5).
+///   recording and replay is a hard divergence.
 /// * PulseDigest — identifies a pulse's fully expanded lineage. Two pulses
 ///   with the same digest are byte-identical, which the ledger uses to
 ///   reconstruct without storing the whole chain per entry.

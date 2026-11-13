@@ -39,7 +39,7 @@ typedef IngressHandle<I> = ({
   ///
   /// This is the most common way to bridge imperative code (like UI events)
   /// into the reactive fabric. The handle automatically wraps the [input]
-  /// in a [Pulse] and initiates the **Ingress Phase**.
+  /// in a [Pulse] and initiates the **Ingress **.
   ///
   /// Returns `true` if the signal successfully passed the **Integrity Gate**.
   bool Function(I input) emit,
@@ -236,7 +236,7 @@ abstract class CellBase implements Cell {
   /// A stable identifier for this cell handle.
   ///
   /// Delegates to the nucleus, which resolves the id. For ordinary use this
-  /// is the root principal's identity hash; for registered cells (Phase 2)
+  /// is the root principal's identity hash; for registered cells (the graph registry)
   /// it is the graph-assigned name.
   ///
   /// This is *additive*. `hashCode` is unchanged; `id` is a parallel
@@ -533,7 +533,7 @@ abstract class CellBase implements Cell {
   /// governed `onComplete` callbacks.
   FutureOr<ApplyOutcome<R>> _acceptExecuted<R>(R result, ApplyReceipt receipt) {
     if (result is Pulse) {
-      // Phase 4: loud pre-commit validation for ledgered graphs — a
+      // the ledger: loud pre-commit validation for ledgered graphs — a
       // non-JSON-encodable pulse payload must never commit (see
       // ValueCell._emit).
       if (LedgerScope.current != null) {
@@ -542,7 +542,7 @@ abstract class CellBase implements Cell {
       final handled = _nucleus.receptor.call(result);
       if (handled is Future<Pulse?>) {
         return handled.then((_) {
-          // Phase 4: if a ledger is bound, record the entry. The deltas
+          // the ledger: if a ledger is bound, record the entry. The deltas
           // were captured by postProcessRule during the receptor call;
           // the append is queued on the scope and drained on scope exit.
           LedgerScope.recordPulse(pulse: result, receipt: receipt);

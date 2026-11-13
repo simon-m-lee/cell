@@ -84,7 +84,7 @@ class CellGraphBuilder {
       throw ArgumentError(
         'CellGraphBuilder.register: cell is already registered '
         'under "$existing"; cannot re-register as "$name". '
-        'If you need a distinct name, use a deputy (Phase 3+).',
+        'If you need a distinct name, use a deputy.',
       );
     }
     if (existing == null && !_CellGraphRegistry.register(nucleus, name)) {
@@ -101,7 +101,7 @@ class CellGraphBuilder {
     final wrapped = RegisteredCell(cell, effectiveName);
     _registered.add(wrapped);
     _byName[effectiveName] = wrapped;
-    // Phase 4: keep the Phase 1 source registry in sync so ledger entries
+    // Keep the serialisation-layer source registry in sync so ledger entries
     // can resolve receipt cells back to live cells in this process.
     _ReplayCellRegistry.register(effectiveName, cell);
     return wrapped;

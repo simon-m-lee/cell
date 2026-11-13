@@ -1,8 +1,8 @@
 ## Unreleased
 
-> **Causal Replay** (plan: `research/Causal-Replay/Plan.md`, Phases 1–8).
-> This is the breaking release the Phase 7 doc anticipates: the package
-> version will bump to **2.0.0** with this entry (decision D6). The
+> **Causal Replay** — the in-depth replay release.
+> This is the breaking release the governance design anticipates: the package
+> version will bump to **2.0.0** with this entry (a release decision). The
 > `pubspec.yaml` still reads `1.1.0` until the release is cut.
 
 ### Causal Replay
@@ -20,7 +20,7 @@ sequence, the expected and actual values, and a reason.
 
 - **Replay surface**: The new barrel exports the full replay API — `CellGraph`/`CellGraphBuilder`/`RegisteredCell`/`CellGraphRegistry`, `EffectJournal` and all effect records (`ClockEffect`, `UuidEffect`, `IoEffect`, `StreamEffect`, `TimerEffect`, `VerdictEffect`, `PolicyTickEffect`), `RecordingJournal`/`ReplayJournal`/`NullJournal`, `JournalScope`, `Effectful`/`EffectfulReadOnly`, `StateDelta`, `Ledger`/`LedgerEntry`/`LedgerStore`/`InMemoryLedgerStore`/`LedgerIntegrityException`, `LedgerScope`, `ReplayEngine`/`ReplayOptions`/`ReplayResult`/`DivergenceReport`/`ReplayDivergenceException`/`PulseReconstructor`, the fork surface (`ForkRecord`, `ForkPolicy`, `Mutation`, `ForkHandle`, `ForkLedgerStore`, `CellGraphFork`, `ReplayEngineFork`, `ForkVerify`, `ForkParentLookup`, `ForkIntegrityException`), the governance surface (`VersionRegistry`, `ContextTranslator`/`ContextTranslatorRegistry`, `CellGraphVersions`/`CellGraphTranslators`, `TestCellReplay`, `PolicyReplay`), and the visualisation extensions (`CellGraphVisualise`, `LedgerVisualise`). `FileLedgerStore` remains a standalone `dart:io` library at `package:cell/replay/ledger/file_store.dart`.
 - **Canonical serialisation**: `canonicalJsonEncode`/`canonicalJsonDecode` and `fingerprint` (SHA-256 over canonical JSON) underpin every digest; `PulseCodec` materialises pulses before fingerprinting so digests are byte-stable across processes.
-- **`CellGraphSnapshot`**: Graph-shape snapshots round-trip through canonical JSON; `currentSchemaVersion` is now **2** (Phase 7). `fromJson` accepts versions `<= current`, so pre-Phase-7 snapshots still parse.
+- **`CellGraphSnapshot`**: Graph-shape snapshots round-trip through canonical JSON; `currentSchemaVersion` is now **2** (the governance layer). `fromJson` accepts versions `<= current`, so pre--7 snapshots still parse.
 
 ### Identity, purity, and the effect journal
 
@@ -32,26 +32,26 @@ sequence, the expected and actual values, and a reason.
 ### Ledger, recording, and replay
 
 - **Hash chain**: `Ledger.genesisHashOf(graph.id)` genesis; each entry hashes pulse digest + receipt digest + effects digest + delta digest + timestamp; `Ledger.verify()` recomputes every hash in one pass. Stores enforce their genesis hash (`Ledger.open` accepts an explicit override for reopening).
-- **Receipts**: `ApplyReceipt` now carries 12 fields — the Phase 7 `receptorVersion`/`ruleVersion`/`contextVersion` are back-filled by `Ledger.appendInternal` from the live nucleus and serialised into every entry; pre-Phase-7 ledgers default to `'0.0.0'` on read.
+- **Receipts**: `ApplyReceipt` now carries 12 fields — the the governance layer `receptorVersion`/`ruleVersion`/`contextVersion` are back-filled by `Ledger.appendInternal` from the live nucleus and serialised into every entry; pre--7 ledgers default to `'0.0.0'` on read.
 - **Recording coordination**: `graph.run` pushes the `LedgerScope`; `ValueCell.postProcessRule` captures `StateDelta` before commit (non-encodable payloads never reach the state box); the immediate append path sweeps ambient-journal records since a per-scope watermark (each entry gets exactly its own effects); deferred windows plus cooperative `captureEffect` attribute async operator effects to the entry that caused them.
 - **Replay engine**: `ReplayEngine.replay(ledger:, target:, fromSeq:, options:)` refuses a ledgered target, runs the version check, reconstructs the input pulse (arguments-first, else delta `after`), dispatches under a per-entry `ReplayJournal`, settles the microtask queue, asserts journal exhaustion, and verifies every delta's `after` against the target's current value. `ReplayOptions.strict` throws on the first divergence; `ReplayOptions.diff` collects the full list.
 
 ### Forks
 
-- **What-if branches**: `graph.fork(parent:, atSeq:, buildFreshGraph:, buildStore:)` (Phase 6: isolated policy only) captures the parent's hash at the fork point, baseline-replays parent entries `0..atSeq` into the fresh graph, and seeds a fork ledger whose synthetic seq 0 is the `ForkRecord`. `ReplayEngineFork.replayFork(fork:, mutation:)` replays from `divergedAt + 1`; a `Mutation` may replace (`Pulse`) or drop (`null`) an entry, and the fork writes its own history.
+- **What-if branches**: `graph.fork(parent:, atSeq:, buildFreshGraph:, buildStore:)` (the fork engine: isolated policy only) captures the parent's hash at the fork point, baseline-replays parent entries `0..atSeq` into the fresh graph, and seeds a fork ledger whose synthetic seq 0 is the `ForkRecord`. `ReplayEngineFork.replayFork(fork:, mutation:)` replays from `divergedAt + 1`; a `Mutation` may replace (`Pulse`) or drop (`null`) an entry, and the fork writes its own history.
 - **Fork verification**: `fork.verify()` checks the parent chain, the fork chain, and the genesis binding (`ForkRecord.parentHeadHash` vs the parent's hash at `divergedAt`); failures throw `ForkIntegrityException`.
 
 ### Governance replay
 
 - **Versions everywhere**: `Receptor.version` and `TestCell.version` (default `'0.0.0'`), and `DeputyContext.version` (default `'1.0.0'`, system `'0.0.0'`; `Mandate.version` is a static pillar). Each ledger entry records the versions that produced it; the engine fails loudly at a version boundary unless the graph's per-graph `VersionRegistry` has the recorded version.
 - **Purity dispatch**: `TestCellReplay.invoke` routes rules by purity — pure rules re-run; `effectful` rules serve their recorded `VerdictEffect` and are never re-called on replay; `readOnlyExternal` rules re-run with observations served from the journal.
-- **Policy ticks (C4)**: every tick of a hosted `EphemeralPolicy` is journaled as a `PolicyTickEffect` (policy, cell, and payload digests validated in order on replay); the policy callback is not re-invoked during replay.
-- **Context translators**: `ContextTranslator`/`ContextTranslatorRegistry` bridge mandate schema versions directionally; `translate` throws `UnimplementedError` when no translator exists (wiring translators into engine dispatch is the deferred Phase 7.1 item).
+- **Policy ticks**: every tick of a hosted `EphemeralPolicy` is journaled as a `PolicyTickEffect` (policy, cell, and payload digests validated in order on replay); the policy callback is not re-invoked during replay.
+- **Context translators**: `ContextTranslator`/`ContextTranslatorRegistry` bridge mandate schema versions directionally; `translate` throws `UnimplementedError` when no translator exists (wiring translators into engine dispatch is the deferred a later governance revision item).
 
 ### Tooling, docs, and demos
 
-- **`cell-replay` CLI**: new `bin/cell_replay.dart` + `pubspec` executable (`cell_replay: cell-replay`) with `verify`, `diff`, `fork`, `visualise` (mermaid/DOT, `deltas`/`cells` modes), and `inspect`; exit codes 0/1/2/3. Phase 8 scope: `verify` checks the chain only (`--graph` is Phase 8.1), and the CLI derives the genesis from the first entry's `prevHash` (the `--genesis` flag is Phase 8.1).
-- **Guides**: new `guide/HowTo-Causal-Replay.md` — the in-depth guide (mental model, machinery deep-dives, twelve recipes, the seven-item pre-flight checklist, failure modes, invariants). The earlier Phase 8 `guide/HowTo-Replay.md` checklist was folded into it and the file retired.
+- **`cell-replay` CLI**: new `bin/cell_replay.dart` + `pubspec` executable (`cell_replay: cell-replay`) with `verify`, `diff`, `fork`, `visualise` (mermaid/DOT, `deltas`/`cells` modes), and `inspect`; exit codes 0/1/2/3. Scope: `verify` checks the chain only (`--graph` is planned CLI work), and the CLI derives the genesis from the first entry's `prevHash` (the `--genesis` flag is planned CLI work).
+- **Guides**: new `guide/HowTo-Causal-Replay.md` — the in-depth guide (mental model, machinery deep-dives, twelve recipes, the seven-item pre-flight checklist, failure modes, invariants). The earlier `guide/HowTo-Replay.md` checklist was folded into it and the file retired.
 - **Demos**: `example/replay/record_and_replay.dart`, `example/replay/whatif_branch.dart`, and `example/replay/audit_ledger.dart` run to completion with assertions passing.
 - **Ledger-store conformance suite**: `test/replay/ledger_store_conformance.dart` — the acceptance criterion for any downstream `LedgerStore`; runs against `InMemoryLedgerStore` and `FileLedgerStore` (durable reopen included).
 - **Determinism gate**: `dart run tool/replay_determinism_check.dart` runs the replay suite twice and fails when outcomes differ.
@@ -151,7 +151,7 @@ and `Cell()` heap footprint ~2.7 KB to ~1.1 KB.
 - **`ReceptorAsync`**: Documented the priority-ordered internal queue and the timestamp-granularity causal-order guarantee.
 - **`Cell.debounce`**: Documented the deliberate `leading`-mode deviation from classic Rx `debounceTime` (lone pulses emit both immediately and on the trailing timer).
 - **`TestActionRule`**: Documented that user rules receive the action `Function` and arguments - not the surrounding `ApplyCommand` (its compensation blueprint stays in the framework's ledger machinery).
-- **Benchmark README**: Documents the layout, pass criteria, measured Phase 1-5 results, and baseline maintenance.
+- **Benchmark README**: Documents the layout, pass criteria, measured the serialisation layer-5 results, and baseline maintenance.
 - **Package README**: Added a feature-first Overview — a governance tagline, a capability comparison against plain Dart state (`setState` / `ValueNotifier` / `Stream`), a "transaction ready" snippet (`command(...).run()`, `Cell.txApply`, `Cell.transaction`), and a table of contents.
 
 ### Tests
@@ -328,7 +328,7 @@ This release promotes the **cell** core from **Beta (Public Preview)** to **Rele
 ### Hardening
 - **Unit tests:** 1115 tests in 20 files under `packages/cell/test/`; last full run **1115 passed / 0 failed / 0 skipped** (~7 s with coverage).
 - **Line coverage:** **95.9%** of instrumented `lib/` lines (3397 / 3541), collected with `dart test --coverage=coverage` and merged to lcov. See `TEST_VERIFICATION.md`.
-- **Dedicated suites:** `test_context.dart`, `test_cell_policy.dart`, `test_test_rule_meta.dart`, `test_commons.dart`, `test_deputy.dart`, plus operator phases 1–4 and core type suites.
+- **Dedicated suites:** `test_context.dart`, `test_cell_policy.dart`, `test_test_rule_meta.dart`, `test_commons.dart`, `test_deputy.dart`, plus the operator suites and core type suites.
 - **High-coverage surfaces:** `internal/cell.dart` 100%, `internal/receptor.dart` 100%, `operator_debounce.dart` 100%, `internal/test_cell.dart` 100%, `value.dart` 100%, `test_cell.dart` 100%, `test_rule.dart` 100%, `internal/value.dart` 100%, `internal/pulse_extensions.dart` 100%, `synapses.dart` 100%, `internal/deputy_context.dart` 99.1%, `internal/synapses.dart` 98.9%, `operator_tx_apply.dart` 97.8%, `commons.dart` 97.6%, `deputy.dart` 100%, `internal/deputy.dart` 94.4%, `cell_policy.dart` 97.6%, `test_rule_meta.dart` 100%, `internal/nucleus.dart` 94.1%, `internal/pulse.dart` 90.4%, `receptor.dart` 90.5%.
 - **Contract alignment:** Suites drive operators through `Cell.ingress` / `Cell.observe`, synthesis aggregators return `Pulse`, receptors activate before `call`, `Synapses.link` requires host identity, and `Cell.txApply` enqueues only `modifiable` tear-offs. Test files are `test_*.dart` (bare `dart test` finds nothing).
 

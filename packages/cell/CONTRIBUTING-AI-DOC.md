@@ -1,7 +1,7 @@
 # CONTRIBUTING-AI-DOC — AI-facing doc-comment convention for `package:cell`
 
 This file is the normative spec for the `### AI Agent Guide` blocks in public
-doc comments. It implements Phase 1 of the AI-facing documentation enhancement (the doc-comment convention below).
+doc comments. It implements the first iteration of the AI-facing documentation enhancement (the doc-comment convention below).
 
 ## Why this exists
 
@@ -43,7 +43,7 @@ Append — never replace existing prose — to the symbol's `///` doc comment:
 /// 3. `test/ai_guide_examples_test.dart` group `<Symbol>` passes.
 /// 4. The snippet below compiles under `dart analyze`.
 ///
-/// **Minimal compilable example** (compiled as part of Phase 3's doc-example test):
+/// **Minimal compilable example** (compiled by the doc-example test):
 /// ```dart
 /// final IngressHandle<String> gate = Cell.ingress<String>();
 /// Cell.observe(source: gate.cell, effect: (Pulse p) => print(p.payload));
@@ -68,7 +68,7 @@ Append — never replace existing prose — to the symbol's `///` doc comment:
 4. **Do NOT confuse with** — name the sibling and the one-line difference.
    Both sides of a confusing pair carry the line.
 5. **Guide pointer with section number** — `HowTo-Mitose-Cell.md §3.1 "…"
-   (#cell-ingress)`. The section number is a stable anchor added by Phase 2.
+   (#cell-ingress)`. The section number is a stable anchor.
    Point at the HowTo; never restate it (restating drifts).
 6. **Cross-layer** — when to abandon this factory and open a different layer
    HowTo.
@@ -81,7 +81,7 @@ Append — never replace existing prose — to the symbol's `///` doc comment:
 
 ## Machinery that consumes this file
 
-| Tool / test | Phase | What it enforces |
+| Tool / test | Role | What it enforces |
 |---|---|---|
 | `tool/generate_ai_examples.dart` + `test/ai_guide_examples_test.dart` | 3.1 | Every `Minimal compilable example` compiles and runs, exit 0. |
 | `test/seam_test.dart` | 3.2 | Grep seam rules (no `TestCell` on Tissue; no Tissue writes in instructions) fail the package's own CI, not just a Mitose run. |

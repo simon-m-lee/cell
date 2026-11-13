@@ -57,7 +57,7 @@ extension ForkVerify on ForkHandle {
       );
     }
 
-    // 4. Verify the embedded fork record (Phase-8.3 review fix): the
+    // 4. Verify the embedded fork record (review fix): the
     //    fork FILE's synthetic seq-0 entry carries the record as its
     //    first positional argument. The record's own genesis hash must
     //    match the chain's, and every field must match the handle's —

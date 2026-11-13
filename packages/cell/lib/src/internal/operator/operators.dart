@@ -281,7 +281,7 @@ IngressHandle<I> _ingress<I>(
       final synapses = nucleus.synapses;
       if (synapses != Synapses.disabled) {
         synapses.call(pulse);
-        // Phase 5: ingress emits bypass `Cell.apply` entirely; this hook
+        // the replay engine: ingress emits bypass `Cell.apply` entirely; this hook
         // is what puts them in the ledger. Deferred: downstream
         // operators (asyncMap) settle their effects in microtasks, and
         // the entry must carry those effects.
@@ -364,14 +364,14 @@ EgressHandle<P> _observe<P extends Pulse>(
 /// Creates a cell that emits the values of a Dart [Stream].
 ///
 /// The subscription is cancelled automatically when the cell is invalidated.
-/// Moved to `operator_stream_future.dart` in Phase 3 (journal retrofit).
+/// Moved to `operator_stream_future.dart` in the journal (journal retrofit).
 
 // ─────────────────────────────────────────────────────────────
 // operator - fromFuture
 // ─────────────────────────────────────────────────────────────
 
 /// Creates a cell that emits the result of a [Future] exactly once.
-/// Moved to `operator_stream_future.dart` in Phase 3 (journal retrofit).
+/// Moved to `operator_stream_future.dart` in the journal (journal retrofit).
 
 // ─────────────────────────────────────────────────────────────
 // Multi-lock acquisition (reusable)

@@ -27,7 +27,7 @@ void main() {
     await controller.close();
 
     expect(seen, [1, 2, 3]);
-    // Phase 7 (C4): the fromStream host is governed with a lifecycle
+    // the governance layer (C4): the fromStream host is governed with a lifecycle
     // policy; each event journals one I/O record AND one policy tick.
     expect(journal.consumed, 6);
 
