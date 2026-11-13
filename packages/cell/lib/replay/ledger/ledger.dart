@@ -172,6 +172,13 @@ class Ledger {
       vetted: receipt.vetted,
       ledgerSeq: seq,
       pulseDigest: pulseDigest,
+      // Phase 7: capture the governance versions that produced the
+      // entry. Unversioned components report '0.0.0'.
+      receptorVersion: receipt.cell._nucleus.receptor.version,
+      ruleVersion: receipt.cell._nucleus.testRule.version,
+      contextVersion: receipt.cell.context is DeputyContext
+          ? (receipt.cell.context as DeputyContext).version
+          : '0.0.0',
     );
 
     final receiptJson = LedgerEntry._receiptJson(filledReceipt, cellId);

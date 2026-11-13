@@ -38,6 +38,9 @@ export '../cell.dart'
         IoEffect,
         StreamEffect,
         TimerEffect,
+        // Phase 7 — governance effect kinds.
+        VerdictEffect,
+        PolicyTickEffect,
         NullJournal,
         RecordingJournal,
         ReplayJournal,

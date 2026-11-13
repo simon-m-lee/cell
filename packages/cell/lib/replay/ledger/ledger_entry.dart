@@ -139,6 +139,10 @@ class LedgerEntry {
         // them on the *store's* copy of the receipt, not the caller's.
         'ledgerSeq': receipt.ledgerSeq,
         'pulseDigest': receipt.pulseDigest,
+        // Phase 7 — governance versions (defaulted for old ledgers).
+        'receptorVersion': receipt.receptorVersion,
+        'ruleVersion': receipt.ruleVersion,
+        'contextVersion': receipt.contextVersion,
       };
 
   /// The canonical JSON form of an [ApplyArguments] record. Named
@@ -229,6 +233,10 @@ class LedgerEntry {
       vetted: (rawReceipt['vetted'] as bool?) ?? true,
       ledgerSeq: rawReceipt['ledgerSeq'] as int?,
       pulseDigest: rawReceipt['pulseDigest'] as String?,
+      // Phase 7 — governance versions; '0.0.0' for pre-Phase-7 ledgers.
+      receptorVersion: rawReceipt['receptorVersion'] as String? ?? '0.0.0',
+      ruleVersion: rawReceipt['ruleVersion'] as String? ?? '0.0.0',
+      contextVersion: rawReceipt['contextVersion'] as String? ?? '0.0.0',
     );
 
     final rawEffects = json['effects'];

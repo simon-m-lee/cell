@@ -181,7 +181,12 @@ typedef ApplyReceipt = ({
   // Phase 4 — populated by Ledger.appendInternal; null on the receipt
   // returned by Cell.apply, non-null on the receipt stored in the ledger.
   int? ledgerSeq,
-  String? pulseDigest
+  String? pulseDigest,
+  // Phase 7 — governance replay. Populated by Ledger.appendInternal from
+  // the cell's live receptor/test-rule/context versions.
+  String? receptorVersion,
+  String? ruleVersion,
+  String? contextVersion
 });
 
 /// The official, auditable result of submitting an [ApplyCommand].
@@ -479,6 +484,9 @@ final class ApplyLedger {
         vetted: vetted,
         ledgerSeq: null,
         pulseDigest: null,
+        receptorVersion: null,
+        ruleVersion: null,
+        contextVersion: null,
       );
 }
 

@@ -44,7 +44,7 @@ class CellGraphSnapshot {
   /// serialised representation of `CellGraphSnapshot`, `CellSnapshot`,
   /// `PulseCodec`, or `PulseContextCodec` changes in a way that old data
   /// cannot parse.
-  static const int currentSchemaVersion = 1;
+  static const int currentSchemaVersion = 2; // Phase 7: effect+receipt schema
 
   Map<String, Object?> toJson() => {
         'graphId': graphId,

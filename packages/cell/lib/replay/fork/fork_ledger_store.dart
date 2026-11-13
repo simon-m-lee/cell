@@ -101,6 +101,9 @@ class ForkLedgerStore implements LedgerStore {
       vetted: true,
       ledgerSeq: 0,
       pulseDigest: '',
+      receptorVersion: '0.0.0',
+      ruleVersion: '0.0.0',
+      contextVersion: '0.0.0',
     );
     final receiptJson =
         LedgerEntry._receiptJson(receipt, 'fork:${record.forkId}');

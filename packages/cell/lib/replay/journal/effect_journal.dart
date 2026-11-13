@@ -82,6 +82,29 @@ abstract class EffectJournal {
   /// Pop this journal from the stack.
   void pop();
 
+  /// Record (or replay) an `effectful` [TestCell] verdict.
+  ///
+  /// On the recording side, [run] is executed and its boolean decision
+  /// is recorded as a `VerdictEffect`. On the replay side, the recorded
+  /// decision is served and [run] is **not** executed — the rule is not
+  /// re-called (Phase 7 purity dispatch).
+  Future<bool> verdict({
+    required String ruleLabel,
+    required Object? input,
+    required FutureOr<bool> Function() run,
+  });
+
+  /// Record (or replay) a single [EphemeralPolicy] tick.
+  ///
+  /// On the recording side, a `PolicyTickEffect` is written. On the
+  /// replay side, the recorded tick is consumed and validated; the
+  /// caller then re-applies it to the `CycleChecker` (the C4 fix).
+  void policyTick({
+    required String policyLabel,
+    required String cellId,
+    required Object? input,
+  });
+
   /// Assert that the journal has been fully consumed (replay side) or
   /// that no pending un-journalled work remains (recording side). Phase 5
   /// calls this after each pulse.
@@ -127,6 +150,22 @@ class NullJournal implements EffectJournal {
     required FutureOr<void> Function() onFire,
   }) =>
       _no('timer(${duration.inMilliseconds}ms)');
+
+  @override
+  Future<bool> verdict({
+    required String ruleLabel,
+    required Object? input,
+    required FutureOr<bool> Function() run,
+  }) =>
+      _no('verdict($ruleLabel)');
+
+  @override
+  void policyTick({
+    required String policyLabel,
+    required String cellId,
+    required Object? input,
+  }) =>
+      _no('policyTick($policyLabel@$cellId)');
 
   Never _no(String what) {
     throw StateError(

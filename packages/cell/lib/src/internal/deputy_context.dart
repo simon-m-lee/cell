@@ -135,6 +135,18 @@ enum Mandate<V> with GovernanceMixin<Mandate<V>, V> implements Governance<V> {
   /// * `Clearance.administrative` – link/unlink cells.
   clearance<Clearance>(true),
 
+  /// **Phase 7.** The semantic version of the mandate. Used by
+  /// [VersionRegistry] for replay dispatch.
+  ///
+  /// **Type**: [String] (SemVer)
+  /// **Mutability**: **Static Pillar** (Invariant)
+  ///
+  /// The version is a static pillar because it declares the *schema*
+  /// of the mandate, not an operational parameter — a deputy cannot
+  /// "evolve" its own mandate version. If the schema changes, the
+  /// translator changes; the version stays what it was.
+  version<String>(false),
+
   /// The required **Observability Granularity** and rigor of the causal trace.
   ///
   /// **Type**: [AuditLevel]
@@ -404,8 +416,9 @@ class _DeputyContextSystem implements DeputyContext {
   @override
   String? get topology => null;
 
+  /// The system context is unversioned.
   @override
-  String? get version => null;
+  String get version => '0.0.0';
 
   @override
   String? get identity => null;
@@ -472,8 +485,10 @@ class DeputyContext extends ContextBase {
     String? justification,
     Map<String, dynamic>? constraints,
     Map<String, dynamic>? others,
+    String version = '1.0.0', // Phase 7
   }) : this.fromEntries(<GovernanceEntry>[
           Mandate.authority.entry(authority),
+          Mandate.version.entry(version), // Phase 7
           if (role != null) Mandate.role.entry(role),
           if (isolation != null) Mandate.isolation.entry(isolation),
           if (clearance != Clearance.standard)
@@ -481,6 +496,29 @@ class DeputyContext extends ContextBase {
           if (justification != null) Mandate.justification.entry(justification),
           if (constraints != null) Mandate.constraints.entry(constraints),
         ], others: others, parent: baseContext);
+
+  /// The semantic version of this mandate.
+  ///
+  /// Used by the Phase 7 version machinery to dispatch a replay to the
+  /// correct [ContextTranslator] when the current context schema differs
+  /// from the one recorded in the ledger. Defaults to `'1.0.0'`; the
+  /// system context reports `'0.0.0'` (unversioned).
+  ///
+  /// ### Non-obvious: version is not *authority*
+  ///
+  /// A deputy context's `version` is orthogonal to its `clearance`,
+  /// `authority`, and `isolation`. Two contexts with the same fields but
+  /// different versions are **different mandates** for the purposes of
+  /// replay — the version declares which translator (if any) applies.
+  @override
+  String get version => get<String?>(
+        () => _record.map[Mandate.version] ??
+            (_parent is DeputyContext
+                ? (_parent as DeputyContext).version
+                : null),
+        orElse: null,
+      ) ??
+      '1.0.0';
 
   /// Synthesizes a **Delegated Governance Environment** from a collection of
   /// strongly-typed mandate entries.

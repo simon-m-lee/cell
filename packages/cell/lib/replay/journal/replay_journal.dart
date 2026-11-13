@@ -146,6 +146,63 @@ class ReplayJournal implements EffectJournal {
   void pop() {}
 
   @override
+  Future<bool> verdict({
+    required String ruleLabel,
+    required Object? input,
+    required FutureOr<bool> Function() run,
+  }) async {
+    final record = _peek<VerdictEffect>(VerdictEffect);
+    if (record.ruleLabel != ruleLabel) {
+      _fail(
+        'verdict rule label mismatch: expected "$ruleLabel", '
+        'recorded "${record.ruleLabel}"',
+        ordinal: record.ordinal,
+      );
+    }
+    if (record.inputDigest != fingerprint(input)) {
+      _fail(
+        'verdict input mismatch for rule "$ruleLabel": the replay '
+        'asked about a different input than the recording did.',
+        ordinal: record.ordinal,
+      );
+    }
+    _commit();
+    return record.verdict;
+  }
+
+  @override
+  void policyTick({
+    required String policyLabel,
+    required String cellId,
+    required Object? input,
+  }) {
+    final record = _peek<PolicyTickEffect>(PolicyTickEffect);
+    if (record.policyLabel != policyLabel) {
+      _fail(
+        'policy tick label mismatch: expected "$policyLabel", '
+        'recorded "${record.policyLabel}"',
+        ordinal: record.ordinal,
+      );
+    }
+    if (record.cellId != cellId) {
+      _fail(
+        'policy tick cell mismatch: expected "$cellId", '
+        'recorded "${record.cellId}"',
+        ordinal: record.ordinal,
+      );
+    }
+    if (record.inputDigest != fingerprint(input)) {
+      _fail(
+        'policy tick input mismatch for "$policyLabel@$cellId": the '
+        'replay ticked a different input than the recording did.',
+        ordinal: record.ordinal,
+      );
+    }
+    _commit();
+    // The tick is consumed; the caller applies it to the CycleChecker.
+  }
+
+  @override
   void assertExhausted() {
     if (_diverged) {
       throw ReplayDivergenceException(

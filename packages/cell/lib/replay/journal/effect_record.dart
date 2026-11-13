@@ -80,6 +80,10 @@ sealed class EffectRecord {
         return StreamEffect.fromJson(json);
       case 'timer':
         return TimerEffect.fromJson(json);
+      case 'verdict':
+        return VerdictEffect.fromJson(json);
+      case 'policyTick':
+        return PolicyTickEffect.fromJson(json);
       default:
         throw FormatException('EffectRecord: unknown kind "$kind"');
     }
@@ -253,5 +257,95 @@ class TimerEffect extends EffectRecord {
         scheduled: Duration(microseconds: json['scheduled'] as int),
         scheduledAtMillis: json['scheduledAtMillis'] as int,
         firedAtMillis: json['firedAtMillis'] as int,
+      );
+}
+
+/// The decision reached by an `effectful` [TestCell].
+///
+/// Recorded once per rule call. On replay, the rule is **not called
+/// again**; the recorded decision is served. This is what makes an
+/// `effectful` test rule replayable without re-executing its external
+/// checks.
+///
+/// The `inputDigest` is a fingerprint of the object being tested (for
+/// a pulse, its canonical JSON; for a value, its canonical JSON). It
+/// lets `ReplayJournal` assert that the rule is being asked about the
+/// same input it was asked about during recording.
+class VerdictEffect extends EffectRecord {
+  /// The rule's decision.
+  final bool verdict;
+
+  /// A stable label for the rule, e.g. `'AdminRule@1.0.0'`.
+  final String ruleLabel;
+
+  const VerdictEffect({
+    required super.ordinal,
+    required super.inputDigest,
+    required super.outputDigest,
+    required super.at,
+    required this.verdict,
+    required this.ruleLabel,
+  });
+
+  @override
+  String get kind => 'verdict';
+
+  @override
+  Map<String, Object?> payloadJson() => {
+        'verdict': verdict,
+        'ruleLabel': ruleLabel,
+      };
+
+  static VerdictEffect fromJson(Map<String, Object?> json) => VerdictEffect(
+        ordinal: json['ordinal'] as int,
+        inputDigest: json['inputDigest'] as String,
+        outputDigest: json['outputDigest'] as String,
+        at: DateTime.parse(json['at'] as String),
+        verdict: json['verdict'] as bool,
+        ruleLabel: json['ruleLabel'] as String,
+      );
+}
+
+/// A single tick of an [EphemeralPolicy].
+///
+/// Recorded once per `(policy, cell)` tick during a pulse wave. On
+/// replay, the tick is consumed from the journal and re-applied to the
+/// `CycleChecker` so diamond graphs do not spuriously detect cycles
+/// (the C4 fix the previous phase deferred).
+class PolicyTickEffect extends EffectRecord {
+  /// A stable label for the policy, e.g. `'cachePolicy'`.
+  final String policyLabel;
+
+  /// The cell on which the policy ticked. Necessary because a pulse
+  /// can visit multiple cells, and only the cell being ticked matters
+  /// to the `CycleChecker`.
+  final String cellId;
+
+  const PolicyTickEffect({
+    required super.ordinal,
+    required super.inputDigest,
+    required super.outputDigest,
+    required super.at,
+    required this.policyLabel,
+    required this.cellId,
+  });
+
+  @override
+  String get kind => 'policyTick';
+
+  @override
+  Map<String, Object?> payloadJson() => {
+        'policyLabel': policyLabel,
+        'cellId': cellId,
+      };
+
+  static PolicyTickEffect fromJson(Map<String, Object?> json) =>
+      PolicyTickEffect(
+        ordinal: json['ordinal'] as int,
+        inputDigest: json['inputDigest'] as String,
+        outputDigest: json['outputDigest'] as String,
+        at: DateTime.parse(json['at'] as String),
+        policyLabel: json['policyLabel'] as String,
+        cellId: json['cellId'] as String,
       );
 }

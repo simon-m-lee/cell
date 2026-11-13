@@ -125,6 +125,42 @@ class RecordingJournal implements EffectJournal {
   }
 
   @override
+  Future<bool> verdict({
+    required String ruleLabel,
+    required Object? input,
+    required FutureOr<bool> Function() run,
+  }) async {
+    final at = _clockSource();
+    final result = await run();
+    _records.add(VerdictEffect(
+      ordinal: _nextOrdinal++,
+      inputDigest: fingerprint(input),
+      outputDigest: fingerprint(result),
+      at: at,
+      verdict: result,
+      ruleLabel: ruleLabel,
+    ));
+    return result;
+  }
+
+  @override
+  void policyTick({
+    required String policyLabel,
+    required String cellId,
+    required Object? input,
+  }) {
+    final at = _clockSource();
+    _records.add(PolicyTickEffect(
+      ordinal: _nextOrdinal++,
+      inputDigest: fingerprint(input),
+      outputDigest: fingerprint('$policyLabel@$cellId'),
+      at: at,
+      policyLabel: policyLabel,
+      cellId: cellId,
+    ));
+  }
+
+  @override
   void push() {}
 
   @override
