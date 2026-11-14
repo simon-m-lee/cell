@@ -98,7 +98,8 @@ async `run()` measures ~0 µs, which makes benchmark_harness explode the
 iteration count and queue millions of pending timers (the CI run #11
 exit-124 hang).
 
-`regression-budgets.json` carries a temporary 100% budget for
+`regression-budgets.json` carried a temporary 100% budget for
 `add (async rule, serialized)` to absorb the one-time measurement shift
-caused by that harness fix; delete the entry after the next
-**rebaseline-benchmarks** run commits a fresh baseline.
+caused by that harness fix; the entry was removed after the
+**rebaseline-benchmarks** run of 2026-11-14 committed a fresh baseline.
+The file may remain — an empty budgets file is a no-op for the gate.
