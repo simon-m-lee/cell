@@ -380,6 +380,12 @@ abstract class CellBase implements Cell {
       }
     } on StateError {
       rethrow;
+    } on NoSuchMethodError {
+      // Cross-package subclasses (cell_tissue) shadow `_nucleus` with a
+      // getter whose super chain bottoms out in an abstract member until
+      // their own constructor body runs. Reading it during this super
+      // constructor legitimately fails and is not a caller error — same
+      // contract as the LateError case below.
     } catch (e, st) {
       // Cross-package subclasses (cell_tissue) shadow `_nucleus` with a
       // getter that is unusable until their own constructor body runs.
