@@ -1,14 +1,17 @@
 // Regression gate: compares a current benchmark JSON against the checked-in
 // baseline and fails when any benchmark regressed beyond its budget.
 //
-// Two-tier budget, because GitHub-hosted `ubuntu-latest` runners vary
+// Three-tier budget, because GitHub-hosted `ubuntu-latest` runners vary
 // measurably between machines: benchmarks with a baseline >=
 // --large-baseline (default 10000 us) are stable across runners and are
-// gated at --max-regression (default 0.15 = 15%); smaller benchmarks
-// routinely swing tens of percent between runner machines, so they are
-// gated at --max-regression-small (default 0.5 = 50%). Benchmarks whose
-// baseline is below --min-baseline (default 10 us) sit inside the
-// measurement quantization noise and are reported but not gated.
+// gated at --max-regression (default 0.15 = 15%); mid-size benchmarks
+// (>= --micro-baseline, default 200 us) swing tens of percent between
+// runner machines, so they are gated at --max-regression-small
+// (default 0.5 = 50%); benchmarks below 200 us sit in the micro tier and
+// routinely swing >100% between machines, so they are gated at
+// --max-regression-micro (default 2.0 = 200%). Benchmarks whose baseline
+// is below --min-baseline (default 10 us) sit inside the measurement
+// quantization noise and are reported but not gated.
 //
 // Run: dart run benchmark/compare.dart --baseline benchmark/baseline.json
 //        --current current.json
@@ -27,7 +30,9 @@ Future<void> main(List<String> args) async {
   var budgetsPath = '';
   var maxRegression = 0.15;
   var maxRegressionSmall = 0.5;
+  var maxRegressionMicro = 2.0;
   var largeBaseline = 10000.0; // us
+  var microBaseline = 200.0; // us
   var minBaseline = 10.0; // us
 
   for (var i = 0; i < args.length; i++) {
@@ -41,8 +46,12 @@ Future<void> main(List<String> args) async {
       maxRegression = double.parse(args[i + 1]);
     } else if (args[i] == '--max-regression-small' && i + 1 < args.length) {
       maxRegressionSmall = double.parse(args[i + 1]);
+    } else if (args[i] == '--max-regression-micro' && i + 1 < args.length) {
+      maxRegressionMicro = double.parse(args[i + 1]);
     } else if (args[i] == '--large-baseline' && i + 1 < args.length) {
       largeBaseline = double.parse(args[i + 1]);
+    } else if (args[i] == '--micro-baseline' && i + 1 < args.length) {
+      microBaseline = double.parse(args[i + 1]);
     } else if (args[i] == '--min-baseline' && i + 1 < args.length) {
       minBaseline = double.parse(args[i + 1]);
     }
@@ -106,7 +115,11 @@ Future<void> main(List<String> args) async {
     final afterUs = (after as num).toDouble();
     final delta = (afterUs - before) / before;
     final limit = budgets[name] ??
-        (before >= largeBaseline ? maxRegression : maxRegressionSmall);
+        (before >= largeBaseline
+            ? maxRegression
+            : before >= microBaseline
+                ? maxRegressionSmall
+                : maxRegressionMicro);
     if (delta > limit) {
       regressions.add('$name: ${before.toStringAsFixed(2)} -> '
           '${afterUs.toStringAsFixed(2)} us (${(delta * 100).toStringAsFixed(1)}% '
@@ -135,6 +148,8 @@ Future<void> main(List<String> args) async {
 
   stdout.writeln('All gated benchmarks within budget '
       '(>= ${largeBaseline.toStringAsFixed(0)} us: ${maxRegression * 100}%, '
-      'smaller: ${maxRegressionSmall * 100}%'
+      '${microBaseline.toStringAsFixed(0)}-${largeBaseline.toStringAsFixed(0)} us: '
+      '${maxRegressionSmall * 100}%, < ${microBaseline.toStringAsFixed(0)} us: '
+      '${maxRegressionMicro * 100}%'
       '${budgets.isEmpty ? '' : ', custom budgets: ${budgets.length}'}).');
 }

@@ -2,8 +2,9 @@
 
 Mirrors the `cell` package's suite: every benchmark runs **outside** the
 `cell_flow` library (public API only), under `dart run` (never `dart test`),
-and ships `baseline.json` plus a two-tier regression gate (15% for
-benchmarks >= 10 ms baseline, 50% for smaller ones — see `compare.dart`).
+and ships `baseline.json` plus a three-tier regression gate (15% for
+benchmarks >= 10 ms baseline, 50% for 200 us - 10 ms, 200% below 200 us —
+see `compare.dart`).
 
 ## Layout
 
@@ -39,7 +40,8 @@ dart run benchmark/runner.dart --out current.json --runs 3 --retries 1
 # Nightly additions (rxdart comparisons + 50k stress)
 dart run benchmark/runner.dart --nightly --out current.json
 
-# Regression gate (two-tier budget: 15% for >= 10 ms baselines, 50% below;
+# Regression gate (three-tier budget: 15% for >= 10 ms, 50% for 200 us -
+# 10 ms, 200% below 200 us;
 # regression-budgets.json overrides the tier for the wall-clock benchmarks)
 dart run benchmark/compare.dart \
   --baseline benchmark/baseline.json \

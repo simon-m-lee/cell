@@ -40,7 +40,8 @@ dart run benchmark/runner.dart --out current.json
 # CI-style: median of 3 runs per file, one retry on a per-file timeout
 dart run benchmark/runner.dart --out current.json --runs 3 --retries 1
 
-# Regression gate (fails on regressions beyond the two-tier budget; see
+# Regression gate (fails on regressions beyond the three-tier budget: 15%
+# for >= 10 ms baselines, 50% for 200 us - 10 ms, 200% below 200 us; see
 # compare.dart for the tiers)
 dart run benchmark/compare.dart \
   --baseline benchmark/baseline.json \
