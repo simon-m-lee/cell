@@ -716,6 +716,11 @@ abstract class UnmodifiableTissueValueBase<V, C extends TissueValue<V>>
   @override
   Iterable<Function> get modifiable => <Function>{};
 
+  @override
+  void restoreValue(V? prior) {
+    throw UnsupportedError('Unmodifiable operation');
+  }
+
   /// The internal constructor that materialises a read‑only, live view of a
   /// reactive single value.
   ///
@@ -900,6 +905,21 @@ mixin TissueValueMixin<V, C extends TissueValue<V>>
   set value(V? value) {
     if (this is! Unmodifiable) {
       set(value);
+    }
+  }
+
+  /// Transaction rollback write: restores [prior] into storage and
+  /// notifies observers without running validation or [set]. The value
+  /// path's counterpart to [ValueCell.restoreValue].
+  @override
+  void restoreValue(V? prior) {
+    if (this is! Unmodifiable) {
+      if (identical(prior, _nucleus.container.store.value) ||
+          prior == _nucleus.container.store.value) {
+        return;
+      }
+      _nucleus.container.store.value = prior;
+      _nucleus.synapses.call(Pulse<V>(prior));
     }
   }
 
