@@ -1,0 +1,48 @@
+name: cell_flutter
+description: Flutter widget bindings for Mitosis cells.
+version: 0.6.0
+homepage: https://github.com/simon-m-lee/cell
+repository: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter
+issue_tracker: https://github.com/simon-m-lee/cell/issues
+documentation: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter#readme
+topics:
+  - flutter
+  - reactive
+  - state-management
+  - cell
+  - mitosis
+environment:
+  # cell 1.1.0 requires Dart >= 3.5.0; Flutter 3.24 is the first stable
+  # Flutter release that ships Dart 3.5, so the binding's floor is 3.24.
+  sdk: '>=3.5.0 <4.0.0'
+  flutter: '>=3.24.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  # `testing.dart` imports flutter_test from lib/; the standard pattern for
+  # testing-support packages (bloc_test, mocktail, mockito) is to declare the
+  # test package as a regular dependency. Consumer apps add `cell_flutter`
+  # itself to their dev_dependencies, so this never reaches release builds.
+  flutter_test:
+    sdk: flutter
+  cell: '>=1.1.0 <2.0.0'   # current stable; includes the replay round-trip fix
+  flutter_hooks: ^0.20.5   # optional hooks sub-library (lib/hooks.dart)
+dev_dependencies:
+  flutter_lints: ^4.0.0
+  test: ^1.30.0
+flutter:
+  uses-material-design: false
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  windows:
+  web:
+
+# Local workspace resolution: cell_flutter targets the in-repo cell
+# (replay round-trip API: required `journal:` parameters, commit 05b4895d)
+# rather than the published cell 1.1.0.
+dependency_overrides:
+  cell:
+    path: ../cell

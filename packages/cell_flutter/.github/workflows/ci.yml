@@ -1,0 +1,33 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          # Flutter 3.24 is the first stable release shipping Dart 3.5,
+          # which `cell` 1.1.0 requires.
+          flutter-version: '3.24.x'
+          channel: 'stable'
+      - run: flutter pub get
+      - run: dart format --set-exit-if-changed lib test example
+      - run: flutter analyze
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+          channel: 'stable'
+      - run: flutter pub get
+      - run: flutter test --coverage

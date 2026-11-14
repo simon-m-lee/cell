@@ -1,0 +1,9 @@
+# https://dart.dev/guides/libraries/private-files
+# Created by `dart pub`
+.dart_tool/
+
+# Library packages don't commit lockfiles (example/ keeps its own).
+pubspec.lock
+
+# Generated test coverage and build output
+coverage/

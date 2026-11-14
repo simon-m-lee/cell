@@ -1,0 +1,72 @@
+name: Hardening
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 3 * * 1' # weekly Monday 3am UTC
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+      - run: flutter pub get
+      - run: flutter test test/fuzz --dart-define=FUZZ_SEEDS=60 --dart-define=FUZZ_SECONDS=30
+
+  soak:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+      - run: flutter pub get
+      - run: flutter test test/soak/soak_test.dart
+
+  benchmark:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+      - run: cd benchmark && flutter pub get
+      - run: cd benchmark && flutter test
+
+  snippets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+      - run: flutter pub get
+      - run: dart run tool/extract_snippets.dart --check
+      - run: flutter test test/migration/_extracted_test.dart
+
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+      - run: dart run tool/check_links.dart
+
+  accessibility:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+      - run: cd example && flutter pub get
+      - run: cd example && flutter test test/accessibility_test.dart
