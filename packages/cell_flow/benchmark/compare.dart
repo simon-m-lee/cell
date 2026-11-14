@@ -12,12 +12,19 @@
 //
 // Run: dart run benchmark/compare.dart --baseline benchmark/baseline.json
 //        --current current.json
+//
+// Optional --budgets <file> overrides the tier budget per benchmark (JSON
+// map of benchmark name -> max regression, e.g. 0.5 = 50%). Use it for
+// benchmarks whose measurement is dominated by a fixed wall-clock timer
+// wait and therefore swings with scheduler noise rather than with
+// framework performance.
 import 'dart:convert';
 import 'dart:io';
 
 Future<void> main(List<String> args) async {
   var baselinePath = 'benchmark/baseline.json';
   var currentPath = 'current.json';
+  var budgetsPath = '';
   var maxRegression = 0.15;
   var maxRegressionSmall = 0.5;
   var largeBaseline = 10000.0; // us
@@ -28,6 +35,8 @@ Future<void> main(List<String> args) async {
       baselinePath = args[i + 1];
     } else if (args[i] == '--current' && i + 1 < args.length) {
       currentPath = args[i + 1];
+    } else if (args[i] == '--budgets' && i + 1 < args.length) {
+      budgetsPath = args[i + 1];
     } else if (args[i] == '--max-regression' && i + 1 < args.length) {
       maxRegression = double.parse(args[i + 1]);
     } else if (args[i] == '--max-regression-small' && i + 1 < args.length) {
@@ -55,6 +64,30 @@ Future<void> main(List<String> args) async {
   final baseline = jsonDecode(baselineFile.readAsStringSync()) as Map;
   final current = jsonDecode(currentFile.readAsStringSync()) as Map;
 
+  final budgets = <String, double>{};
+  if (budgetsPath.isNotEmpty) {
+    final budgetsFile = File(budgetsPath);
+    if (!budgetsFile.existsSync()) {
+      stderr.writeln('Budgets file not found: $budgetsPath');
+      exitCode = 2;
+      return;
+    }
+    final decoded = jsonDecode(budgetsFile.readAsStringSync());
+    if (decoded is! Map) {
+      stderr.writeln('Budgets file must be a JSON object: $budgetsPath');
+      exitCode = 2;
+      return;
+    }
+    for (final entry in decoded.entries) {
+      final value = entry.value;
+      if (value is num) {
+        budgets[entry.key as String] = value.toDouble();
+      } else {
+        stderr.writeln('Skipping non-numeric budget entry: ${entry.key}');
+      }
+    }
+  }
+
   final regressions = <String>[];
   final missing = <String>[];
   final notGated = <String>[];
@@ -72,7 +105,8 @@ Future<void> main(List<String> args) async {
     }
     final afterUs = (after as num).toDouble();
     final delta = (afterUs - before) / before;
-    final limit = before >= largeBaseline ? maxRegression : maxRegressionSmall;
+    final limit = budgets[name] ??
+        (before >= largeBaseline ? maxRegression : maxRegressionSmall);
     if (delta > limit) {
       regressions.add('$name: ${before.toStringAsFixed(2)} -> '
           '${afterUs.toStringAsFixed(2)} us (${(delta * 100).toStringAsFixed(1)}% '
@@ -101,5 +135,6 @@ Future<void> main(List<String> args) async {
 
   stdout.writeln('All gated benchmarks within budget '
       '(>= ${largeBaseline.toStringAsFixed(0)} us: ${maxRegression * 100}%, '
-      'smaller: ${maxRegressionSmall * 100}%).');
+      'smaller: ${maxRegressionSmall * 100}%'
+      '${budgets.isEmpty ? '' : ', custom budgets: ${budgets.length}'}).');
 }

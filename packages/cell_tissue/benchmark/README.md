@@ -20,6 +20,10 @@ Mirrors the `cell` package's suite: every benchmark runs outside the
 ```bash
 # From packages/cell_tissue
 dart run benchmark/runner.dart --out current.json   # full PR suite
+
+# CI-style: median of 3 runs per file, one retry on a per-file timeout
+dart run benchmark/runner.dart --out current.json --runs 3 --retries 1
+
 dart run benchmark/compare.dart \
   --baseline benchmark/baseline.json --current current.json
 dart run benchmark/compare/vs_plain_collections.dart
@@ -32,10 +36,14 @@ Regenerate `baseline.json` with the **rebaseline-benchmarks** workflow
 (`.github/workflows/rebaseline-benchmarks.yml`) so the reference scores
 are measured on the same `ubuntu-latest` machine class that runs the
 regression gate, then commit the downloaded artifact (this also covers
-the research sub-suite baseline under `benchmark/tissue/`). Re-run
-whenever the CI image or the Dart SDK changes. Local numbers will differ
-from CI; the runner kills any benchmark file that exceeds its per-file
-timeout (default 2 minutes) so a hang fails fast.
+the research sub-suite baseline under `benchmark/tissue/`). CI and the
+rebaseline workflow both run each file `--runs 3` and compare the
+**median**, and both pin the Dart SDK to the version the baselines were
+recorded with. Re-run whenever the CI image or the Dart SDK changes.
+Local numbers will differ from CI; the runner kills any benchmark file
+that exceeds its per-file timeout (default 2 minutes) so a hang fails
+fast, and CI passes `--retries 1` so a single timeout on a busy shared
+runner is re-run once before the job fails.
 
 ## Pass criteria
 

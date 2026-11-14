@@ -3,8 +3,11 @@ name: benchmark
 on:
   pull_request:
     paths:
+      - '.github/workflows/benchmark.yml'
       - 'packages/cell/lib/**'
       - 'packages/cell/benchmark/**'
+      - 'packages/cell_flow/lib/**'
+      - 'packages/cell_flow/benchmark/**'
       - 'packages/cell_tissue/lib/**'
       - 'packages/cell_tissue/benchmark/**'
   push:
@@ -15,16 +18,19 @@ on:
 jobs:
   pr-suite:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: packages/cell
     steps:
       - uses: actions/checkout@v5
       - uses: dart-lang/setup-dart@v1
+        with:
+          # Baselines were recorded with this SDK; bump together with a rebaseline.
+          sdk: '3.14.0'
       - run: dart pub get
       - name: Run benchmarks
-        run: dart run benchmark/runner.dart --out current.json
+        run: dart run benchmark/runner.dart --out current.json --runs 3 --retries 1
       - name: Compare against baseline
         run: |
           dart run benchmark/compare.dart \
@@ -34,40 +40,57 @@ jobs:
 
   pr-suite-tissue:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     defaults:
       run:
         working-directory: packages/cell_tissue
     steps:
       - uses: actions/checkout@v5
       - uses: dart-lang/setup-dart@v1
+        with:
+          # Baselines were recorded with this SDK; bump together with a rebaseline.
+          sdk: '3.14.0'
       - run: dart pub get
       - name: Run benchmarks
-        run: dart run benchmark/runner.dart --out current.json
+        run: dart run benchmark/runner.dart --out current.json --runs 3 --retries 1
       - name: Compare against baseline
         run: |
-          dart run benchmark/compare.dart             --baseline benchmark/baseline.json             --current current.json             --max-regression 0.15
+          dart run benchmark/compare.dart \
+            --baseline benchmark/baseline.json \
+            --current current.json \
+            --max-regression 0.15
       - name: Run research sub-suite
-        run: dart run benchmark/tissue/runner.dart --full --out benchmark/tissue/current.json
+        run: dart run benchmark/tissue/runner.dart --full --runs 3 --retries 1 --out benchmark/tissue/current.json
       - name: Compare research sub-suite against baseline
         run: |
-          dart run benchmark/tissue/compare.dart             --baseline benchmark/tissue/baseline.json             --current benchmark/tissue/current.json             --max-regression 0.15
+          dart run benchmark/tissue/compare.dart \
+            --baseline benchmark/tissue/baseline.json \
+            --current benchmark/tissue/current.json \
+            --max-regression 0.15 \
+            --budgets benchmark/tissue/regression-budgets.json
 
   pr-suite-flow:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: packages/cell_flow
     steps:
       - uses: actions/checkout@v5
       - uses: dart-lang/setup-dart@v1
+        with:
+          # Baselines were recorded with this SDK; bump together with a rebaseline.
+          sdk: '3.14.0'
       - run: dart pub get
       - name: Run benchmarks
-        run: dart run benchmark/runner.dart --out current.json
+        run: dart run benchmark/runner.dart --out current.json --runs 3 --retries 1
       - name: Compare against baseline
         run: |
-          dart run benchmark/compare.dart             --baseline benchmark/baseline.json             --current current.json             --max-regression 0.15
+          dart run benchmark/compare.dart \
+            --baseline benchmark/baseline.json \
+            --current current.json \
+            --max-regression 0.15 \
+            --budgets benchmark/regression-budgets.json
 
   nightly-full:
     if: github.event_name == 'schedule'
@@ -79,6 +102,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: dart-lang/setup-dart@v1
+        with:
+          # Baselines were recorded with this SDK; bump together with a rebaseline.
+          sdk: '3.14.0'
       - run: dart pub get
       - name: Heavy propagation stress
         run: dart run benchmark/synapses/high_frequency.dart

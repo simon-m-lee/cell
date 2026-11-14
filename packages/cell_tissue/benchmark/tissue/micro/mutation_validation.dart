@@ -1,4 +1,15 @@
-// Validation overhead: allowAll vs a custom per-element rule.
+// Validation overhead: allowAll vs a custom per-element rule vs the async
+// facade round-trip with an async rule.
+//
+// Known limitation: the tissue mutation dispatch currently evaluates an
+// async rule's Future with `== true` on the synchronous path, so an async
+// rule rejects every mutation (see the suite README). This benchmark pins
+// the async-facade round-trip cost so the number moves when that dispatch
+// gains real FutureOr support. It deliberately extends
+// AsyncBenchmarkBase: a sync BenchmarkBase with an async run() measures
+// ~0 us, and benchmark_harness then multiplies the iteration count by
+// 1000 per pass — that queued millions of pending timers and made the
+// process appear to hang (CI run 11's exit-124).
 //
 // Run: dart run benchmark/tissue/micro/mutation_validation.dart
 import 'package:benchmark_harness/benchmark_harness.dart';
@@ -32,7 +43,7 @@ class PositiveRuleAdd extends BenchmarkBase {
   }
 }
 
-class AsyncRuleAdd extends BenchmarkBase {
+class AsyncRuleAdd extends AsyncBenchmarkBase {
   AsyncRuleAdd() : super('add (async rule, serialized)');
 
   final list = TissueList<int>(
@@ -48,8 +59,8 @@ class AsyncRuleAdd extends BenchmarkBase {
   }
 }
 
-void main() {
+Future<void> main() async {
   NoRuleAdd().report();
   PositiveRuleAdd().report();
-  AsyncRuleAdd().report();
+  await AsyncRuleAdd().report();
 }

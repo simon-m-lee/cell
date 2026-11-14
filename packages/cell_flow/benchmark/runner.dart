@@ -3,6 +3,15 @@
 // the results as JSON for the regression gate.
 //
 // Run (from packages/cell_flow): dart run benchmark/runner.dart --out current.json
+//
+// Flags:
+//   --nightly                 include rxdart comparisons + 50k stress
+//   --out <file>              JSON output (default current.json)
+//   --runs <n>                measure each file n times, write the median
+//                             (default 1; CI uses 3 to blunt shared-runner noise)
+//   --retries <n>             re-run a file up to n extra times if it times out
+//                             (default 0; CI uses 1 to survive one-off stalls)
+//   --file-timeout <seconds>  per-file wall-clock budget (default 120)
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -99,44 +108,83 @@ Future<({int exitCode, String stdoutText, String stderrText})> runFile(
 Future<void> main(List<String> args) async {
   var out = 'current.json';
   var nightly = false;
+  var runs = 1;
+  var retries = 0;
   var fileTimeout = defaultFileTimeout;
   for (var i = 0; i < args.length; i++) {
     if (args[i] == '--out' && i + 1 < args.length) {
       out = args[i + 1];
     } else if (args[i] == '--nightly') {
       nightly = true;
+    } else if (args[i] == '--runs' && i + 1 < args.length) {
+      runs = int.parse(args[i + 1]);
+    } else if (args[i] == '--retries' && i + 1 < args.length) {
+      retries = int.parse(args[i + 1]);
     } else if (args[i] == '--file-timeout' && i + 1 < args.length) {
       fileTimeout = Duration(seconds: int.parse(args[i + 1]));
     }
   }
+  if (runs < 1 || retries < 0) {
+    stderr.writeln('--runs must be >= 1 and --retries must be >= 0');
+    exitCode = 2;
+    return;
+  }
 
   final suite = nightly ? [...prSuite, ...nightlySuite] : prSuite;
-  final results = <String, double>{};
+  // Collect every measurement; the written JSON holds the per-benchmark
+  // median so one noisy run on a shared CI runner cannot trip the gate.
+  final samples = <String, List<double>>{};
   for (final file in suite) {
-    stdout.writeln('== $file ==');
-    final run = await runFile(file, timeout: fileTimeout);
-    stdout.write(run.stdoutText);
-    stderr.write(run.stderrText);
-    if (run.exitCode != 0) {
-      if (run.exitCode == 124) {
-        stderr.writeln(
-            'FAILED: $file (timed out after ${fileTimeout.inSeconds}s)');
-      } else {
-        stderr.writeln('FAILED: $file (exit ${run.exitCode})');
+    for (var run = 1; run <= runs; run++) {
+      var attempt = 1;
+      String? capturedStdout;
+      while (true) {
+        stdout.writeln('== $file (run $run/$runs'
+            '${attempt > 1 ? ', retry $attempt' : ''}) ==');
+        final result = await runFile(file, timeout: fileTimeout);
+        stdout.write(result.stdoutText);
+        stderr.write(result.stderrText);
+        if (result.exitCode == 0) {
+          capturedStdout = result.stdoutText;
+          break;
+        }
+        if (result.exitCode == 124 && attempt <= retries) {
+          stderr.writeln('RETRYING: $file timed out (attempt $attempt)');
+          attempt++;
+          continue;
+        }
+        if (result.exitCode == 124) {
+          stderr.writeln(
+              'FAILED: $file (timed out after ${fileTimeout.inSeconds}s)');
+        } else {
+          stderr.writeln('FAILED: $file (exit ${result.exitCode})');
+        }
+        exitCode = result.exitCode;
+        return;
       }
-      exitCode = run.exitCode;
-      return;
-    }
-    for (final line in LineSplitter.split(run.stdoutText)) {
-      final match = linePattern.firstMatch(line.trim());
-      if (match != null) {
-        results[match.group(1)!] = double.parse(match.group(2)!);
+      for (final line in LineSplitter.split(capturedStdout)) {
+        final match = linePattern.firstMatch(line.trim());
+        if (match != null) {
+          samples
+              .putIfAbsent(match.group(1)!, () => [])
+              .add(double.parse(match.group(2)!));
+        }
       }
     }
+  }
+
+  final results = <String, double>{};
+  for (final entry in samples.entries) {
+    final values = entry.value..sort();
+    final middle = values.length ~/ 2;
+    results[entry.key] = values.length.isOdd
+        ? values[middle]
+        : (values[middle - 1] + values[middle]) / 2;
   }
 
   File(out).writeAsStringSync(
     '${const JsonEncoder.withIndent('  ').convert(results)}\n',
   );
-  stdout.writeln('Wrote ${results.length} benchmark results to $out');
+  stdout.writeln('Wrote ${results.length} benchmark results to $out '
+      '(median of $runs run${runs == 1 ? '' : 's'} per file)');
 }

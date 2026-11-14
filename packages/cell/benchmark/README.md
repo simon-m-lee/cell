@@ -37,6 +37,9 @@ dart run benchmark/propagation/chain_depth.dart
 # The full PR suite -> current.json
 dart run benchmark/runner.dart --out current.json
 
+# CI-style: median of 3 runs per file, one retry on a per-file timeout
+dart run benchmark/runner.dart --out current.json --runs 3 --retries 1
+
 # Regression gate (fails on regressions beyond the two-tier budget; see
 # compare.dart for the tiers)
 dart run benchmark/compare.dart \
@@ -137,14 +140,20 @@ testing enough — tighten the workload before tuning the criterion.
 `baseline.json` is the reference score set. Because the regression gate
 runs on GitHub-hosted `ubuntu-latest` runners, the baseline must be
 measured on that same machine class — a maintainer-machine baseline and a
-CI run on different CPU/OS never line up for noisy microbenchmarks.
+CI run on different CPU/OS never line up for noisy microbenchmarks. CI and
+the rebaseline workflow both run each benchmark file `--runs 3` and compare
+the **median**, so a single noisy measurement cannot trip the gate; the
+workflow also pins the Dart SDK (`3.14.0`, recorded in the rebaseline
+artifact) to keep gate runs and baselines on the same toolchain.
 
 To re-baseline (also required whenever the CI image or Dart SDK changes):
 
-1. Run the **rebaseline-benchmarks** workflow from the Actions tab
+1. Bump the pinned SDK in `.github/workflows/benchmark.yml` and
+   `.github/workflows/rebaseline-benchmarks.yml` together.
+2. Run the **rebaseline-benchmarks** workflow from the Actions tab
    (`.github/workflows/rebaseline-benchmarks.yml`).
-2. Download the `benchmark-baselines` artifact.
-3. Copy the three `baseline.json` files back into
+3. Download the `benchmark-baselines` artifact.
+4. Copy the three `baseline.json` files back into
    `packages/{cell,cell_tissue,cell_flow}/benchmark/` (and the research
    suite baseline into `packages/cell_tissue/benchmark/tissue/`), then
    commit them. The artifact also records the Dart SDK version used.
@@ -158,6 +167,9 @@ dart run benchmark/runner.dart --out benchmark/baseline.json
 The runner kills any benchmark file that exceeds its per-file timeout
 (default 2 minutes, `--file-timeout <seconds>` to override), so a hanging
 benchmark fails the suite in seconds instead of stalling the CI job.
+CI passes `--retries 1` so a single timeout on a busy shared runner is
+re-run once before the job fails; a benchmark that times out twice (or
+exits non-zero) still fails the suite immediately.
 
 ## What not to do
 

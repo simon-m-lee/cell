@@ -54,10 +54,16 @@ dart run benchmark/tissue/runner.dart --out benchmark/tissue/current.json
 # Full research suite: +13 more files
 dart run benchmark/tissue/runner.dart --full --out benchmark/tissue/current.json
 
-# Regression gate (two-tier budget: 15% for >= 10 ms baselines, 50% below)
+# CI-style: median of 3 runs per file, one retry on a per-file timeout
+dart run benchmark/tissue/runner.dart --full --runs 3 --retries 1 \
+  --out benchmark/tissue/current.json
+
+# Regression gate (two-tier budget: 15% for >= 10 ms baselines, 50% below;
+# regression-budgets.json carries the temporary async-rule transition budget)
 dart run benchmark/tissue/compare.dart \
   --baseline benchmark/tissue/baseline.json \
-  --current benchmark/tissue/current.json
+  --current benchmark/tissue/current.json \
+  --budgets benchmark/tissue/regression-budgets.json
 
 # Memory (requires the VM service)
 dart run --observe benchmark/tissue/memory/per_tissue_footprint.dart
@@ -78,3 +84,21 @@ The fitness tests under `test/tissue/fitness/` are the acceptance criteria:
 if `unmodifiable_is_live_test.dart` or `batch_metadata_preserved_test.dart`
 fails, the corresponding benchmark number is meaningless no matter how fast
 it is.
+
+### Known limitation: async validation rules
+
+`TestTissue` rules may return `FutureOr<bool>`, but the synchronous
+mutation dispatch compares the result with `== true`, so a rule that
+returns a `Future` currently **rejects every mutation** (both `add` and
+`list.async.add` silently drop the element). Until the dispatch gains real
+`FutureOr` support, `micro/mutation_validation.dart` pins the
+async-facade round-trip cost so the number moves when that support lands;
+it extends `AsyncBenchmarkBase` because a synchronous harness with an
+async `run()` measures ~0 µs, which makes benchmark_harness explode the
+iteration count and queue millions of pending timers (the CI run #11
+exit-124 hang).
+
+`regression-budgets.json` carries a temporary 100% budget for
+`add (async rule, serialized)` to absorb the one-time measurement shift
+caused by that harness fix; delete the entry after the next
+**rebaseline-benchmarks** run commits a fresh baseline.

@@ -6,7 +6,9 @@ name: rebaseline-benchmarks
 #
 # Run manually via the Actions tab ("Run workflow"), download the artifact,
 # and commit the updated baseline.json files. Re-run this whenever the CI
-# image or the Dart SDK changes (see the benchmark READMEs).
+# image or the Dart SDK changes (see the benchmark READMEs). The SDK is
+# pinned here and in benchmark.yml so baselines and gate runs always use
+# the same toolchain; bump both files together.
 
 on:
   workflow_dispatch:
@@ -17,10 +19,13 @@ permissions:
 jobs:
   rebaseline:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v5
       - uses: dart-lang/setup-dart@v1
+        with:
+          # Baselines were recorded with this SDK; bump together with benchmark.yml.
+          sdk: '3.14.0'
 
       - name: Record SDK version
         run: dart --version > sdk-version.txt
@@ -29,23 +34,23 @@ jobs:
         working-directory: packages/cell
         run: |
           dart pub get
-          dart run benchmark/runner.dart --out benchmark/baseline.json
+          dart run benchmark/runner.dart --runs 3 --out benchmark/baseline.json
 
       - name: Rebaseline cell_tissue
         working-directory: packages/cell_tissue
         run: |
           dart pub get
-          dart run benchmark/runner.dart --out benchmark/baseline.json
+          dart run benchmark/runner.dart --runs 3 --out benchmark/baseline.json
 
       - name: Rebaseline cell_tissue research suite
         working-directory: packages/cell_tissue
-        run: dart run benchmark/tissue/runner.dart --full --out benchmark/tissue/baseline.json
+        run: dart run benchmark/tissue/runner.dart --full --runs 3 --retries 1 --out benchmark/tissue/baseline.json
 
       - name: Rebaseline cell_flow
         working-directory: packages/cell_flow
         run: |
           dart pub get
-          dart run benchmark/runner.dart --out benchmark/baseline.json
+          dart run benchmark/runner.dart --runs 3 --out benchmark/baseline.json
 
       - uses: actions/upload-artifact@v4
         with:

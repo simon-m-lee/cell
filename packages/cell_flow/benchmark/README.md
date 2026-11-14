@@ -33,18 +33,35 @@ benchmarks >= 10 ms baseline, 50% for smaller ones — see `compare.dart`).
 # PR suite (~30 files)
 dart run benchmark/runner.dart --out current.json
 
+# CI-style: median of 3 runs per file, one retry on a per-file timeout
+dart run benchmark/runner.dart --out current.json --runs 3 --retries 1
+
 # Nightly additions (rxdart comparisons + 50k stress)
 dart run benchmark/runner.dart --nightly --out current.json
 
-# Regression gate (two-tier budget: 15% for >= 10 ms baselines, 50% below)
+# Regression gate (two-tier budget: 15% for >= 10 ms baselines, 50% below;
+# regression-budgets.json overrides the tier for the wall-clock benchmarks)
 dart run benchmark/compare.dart \
   --baseline benchmark/baseline.json \
-  --current current.json
+  --current current.json \
+  --budgets benchmark/regression-budgets.json
 
 # Memory (requires the VM service)
 dart run --observe benchmark/memory/instruction_footprint.dart
 dart run --observe benchmark/memory/flow_handle_footprint.dart
 ```
+
+## Regression budgets
+
+`regression-budgets.json` gives the benchmarks whose measured `run()` body
+awaits a fixed wall-clock timer wait (20-100 ms of `Future.delayed`) a 50%
+budget instead of the 15% large-baseline tier. Their measurements are
+dominated by scheduler/timer noise, so the strict 15% tier flaked on
+shared `ubuntu-latest` runners even with medians; a >50% move is still
+caught. The file is passed to `compare.dart` via `--budgets` in CI
+(`.github/workflows/benchmark.yml`). When you rename a benchmark, update
+the budget key too — an orphaned budget is harmless, but a renamed
+benchmark silently falls back to its tier budget.
 
 ## Pass criteria
 
@@ -87,11 +104,16 @@ price of governance, not a parity target. Each hop pays roughly:
 Regenerate `baseline.json` with the **rebaseline-benchmarks** workflow
 (`.github/workflows/rebaseline-benchmarks.yml`) so the reference scores
 are measured on the same `ubuntu-latest` machine class that runs the
-regression gate, then commit the downloaded artifact. Re-run whenever the
-CI image or the Dart SDK changes. For local experiments only,
+regression gate, then commit the downloaded artifact. CI and the
+rebaseline workflow both run each file `--runs 3` and compare the
+**median**, and both pin the Dart SDK to the version the baselines were
+recorded with. Re-run whenever the CI image or the Dart SDK changes. For
+local experiments only,
 `dart run benchmark/runner.dart --out benchmark/baseline.json` produces a
 local baseline (numbers will differ from CI).
 
 The runner kills any benchmark file that exceeds its per-file timeout
 (default 2 minutes, `--file-timeout <seconds>` to override), so a hanging
-benchmark fails the suite fast instead of stalling the CI job.
+benchmark fails the suite fast instead of stalling the CI job. CI passes
+`--retries 1` so a single timeout on a busy shared runner is re-run once
+before the job fails.
