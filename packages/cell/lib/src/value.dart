@@ -303,6 +303,8 @@ class ValueNucleus<V> extends NucleusBase {
   }
 }
 
+const Object _seedUnset = Object();
+
 /// A state‑bearing reactive node – the primary way to manage persistent
 /// state in the Cell Framework.
 ///
@@ -481,16 +483,14 @@ class ValueCell<V> extends CellBase {
   /// ### Parameters:
   /// * [nucleus]: **Required.** The [ValueNucleus] that defines the behavior,
   ///   storage schema, and environmental [Context] for this cell.
-  /// * [initial]: An optional initial state of type [V?]. If provided, it
-  ///   populates the cell's storage immediately, overwriting any
-  ///   previous data in the nucleus's associated [Box].
-  ///
-  /// ### Returns:
-  /// A fully hydrated [ValueCell] instance ready for reactive interaction.
-  ValueCell.fromNucleus(ValueNucleus<V> super.nucleus, {V? initial})
+  /// * [initial]: An optional initial state of type [V?]. When passed —
+  ///   including an explicit `null` — it overwrites whatever the nucleus
+  ///   currently holds. Omitting it leaves the nucleus untouched.
+  ValueCell.fromNucleus(ValueNucleus<V> super.nucleus,
+      {Object? initial = _seedUnset})
       : super.fromNucleus() {
-    if (initial != null) {
-      _nucleus.state.value = initial;
+    if (!identical(initial, _seedUnset)) {
+      _nucleus.state.value = initial as V?;
     }
   }
 
@@ -609,6 +609,20 @@ class ValueCell<V> extends CellBase {
   /// private `_emit`. Unmodifiable deputies reject the write silently.
   set value(V? value) {
     _emit(value);
+  }
+
+  /// Writes [prior] into storage and notifies observers without running
+  /// `evolve`.
+  ///
+  /// Transaction rollback must not go through [value]: that setter re-enters
+  /// the transform, so restoring `5` on a cell whose evolve adds the delta
+  /// applies the delta a second time.
+  void restoreValue(V? prior) {
+    if (identical(prior, _nucleus.state.value) || prior == _nucleus.state.value) {
+      return;
+    }
+    _nucleus.state.value = prior;
+    _nucleus.synapses.call(Pulse<V>(prior));
   }
 
   bool _emit(V? v) {

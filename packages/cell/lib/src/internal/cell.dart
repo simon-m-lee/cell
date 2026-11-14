@@ -39,7 +39,7 @@ typedef IngressHandle<I> = ({
   ///
   /// This is the most common way to bridge imperative code (like UI events)
   /// into the reactive fabric. The handle automatically wraps the [input]
-  /// in a [Pulse] and initiates the **Ingress **.
+  /// in a [Pulse] and initiates the **Ingress Phase**.
   ///
   /// Returns `true` if the signal successfully passed the **Integrity Gate**.
   bool Function(I input) emit,
@@ -233,19 +233,6 @@ abstract class CellBase implements Cell {
   @override
   final Nucleus _nucleus;
 
-  /// A stable identifier for this cell handle.
-  ///
-  /// Delegates to the nucleus, which resolves the id. For ordinary use this
-  /// is the root principal's identity hash; for registered cells (the graph registry)
-  /// it is the graph-assigned name.
-  ///
-  /// This is *additive*. `hashCode` is unchanged; `id` is a parallel
-  /// identity intended to be persisted. The `@override` is load-bearing:
-  /// without it, a subclass could declare a different `id` with no compile
-  /// error, silently shadowing the interface's contract.
-  @override
-  String get id => _nucleus.id;
-
   /// The propagation step label used by `ReceptorBase._proceed`.
   ///
   /// The value is constant per cell (it only depends on the cell's context
@@ -266,6 +253,11 @@ abstract class CellBase implements Cell {
   /// when the nucleus does not carry a lock (e.g., a deputy whose principal
   /// has none).
   Lock? get lock => _nucleus.lock;
+
+  /// Wire identity. Delegates to the nucleus so deputies and their principal
+  /// share one id unless a graph registration overrides it.
+  @override
+  String get id => _nucleus.id;
 
   /// Initializes a new cell instance with specific behaviors and connections.
   ///
@@ -359,12 +351,22 @@ abstract class CellBase implements Cell {
         final synapses = bind._nucleus.synapses;
         final linkResult = synapses.link(bind, downstreamCell: this);
         if (linkResult is Future<bool>) {
-          // `bind` construction assumes synchronous TestCell.link rules. An
-          // explicitly async gate is still driven to completion; a rejection
-          // is contained here (there is no pulse to fail during
-          // construction) so it does not become an unhandled zone error.
-          unawaited(
-              linkResult.then((_) {}, onError: (Object e, StackTrace st) {}));
+          // An async gate still has to finish. A rejection or a `false`
+          // result used to be discarded, which returned a cell that was
+          // never linked. Surface it on the current zone.
+          unawaited(linkResult.then((accepted) {
+            if (accepted == false && !identical(synapses, Synapses.disabled)) {
+              Zone.current.handleUncaughtError(
+                StateError(
+                  'Cell construction failed: the upstream link was rejected '
+                  'by the link gate.',
+                ),
+                StackTrace.current,
+              );
+            }
+          }, onError: (Object e, StackTrace st) {
+            Zone.current.handleUncaughtError(e, st);
+          }));
         } else if (linkResult == false &&
             !identical(synapses, Synapses.disabled)) {
           // A disabled egress registry legitimately refuses every link
@@ -378,7 +380,14 @@ abstract class CellBase implements Cell {
       }
     } on StateError {
       rethrow;
-    } catch (_) {}
+    } catch (e, st) {
+      // Cross-package subclasses (cell_tissue) shadow `_nucleus` with a
+      // getter that is unusable until their own constructor body runs.
+      // `LateError` is not a public type on every SDK, so match by name.
+      if (e.runtimeType.toString() != 'LateError') {
+        Zone.current.handleUncaughtError(e, st);
+      }
+    }
   }
 
   @override

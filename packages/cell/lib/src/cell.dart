@@ -466,26 +466,26 @@ abstract interface class Cell {
   /// - **HowTo**: See `guide/HowTo-Start.md` for a guide on bridging
   ///   imperative and reactive code.
   /// {@category Core 16 Operators}
-///
-/// ### AI Agent Guide
-/// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
-/// **When to use:** A BRD says "capture X" (an external fact enters the system) — identity, class, quantity, location, tick bus, ACK.
-/// **When NOT to use:**
-///   {@macro ai-do-not-create-cell-as-policy}
-/// **Live signature:** `Cell.ingress<I>({refine, ephemeralPolicy, source, context, receptor, testRule, synapses, forceLock})` — pinned at `cell: 1.1.0`
-/// **Do NOT confuse with:** `Cell.state` (retained value, not stateless entry).
-/// **Guide:** `HowTo-Mitose-Cell.md` §3.1 "Cell.ingress — how the desk enters the graph" (#cell-ingress)
-/// **Example:** `example/ingress_demo.dart`
-/// **Cross-layer:** moves to `cell_flow` if the BRD says "wait for silence" or "rate-limit".
-/// **Minimal compilable example**
-/// ```dart
-/// final gate = Cell.ingress<int>(
-///   testRule: TestCell((v, {arguments, host, user}) => v is int && v >= 0),
-/// );
-/// gate.emit(1);
-/// gate.emit(-1); // rejected by the TestCell gate
-/// print('ok');
-/// ```
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** A BRD says "capture X" (an external fact enters the system) — identity, class, quantity, location, tick bus, ACK.
+  /// **When NOT to use:**
+  ///   {@macro ai-do-not-create-cell-as-policy}
+  /// **Live signature:** `Cell.ingress<I>({refine, ephemeralPolicy, source, context, receptor, testRule, synapses, forceLock})` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Cell.state` (retained value, not stateless entry).
+  /// **Guide:** `HowTo-Mitose-Cell.md` §3.1 "Cell.ingress — how the desk enters the graph" (#cell-ingress)
+  /// **Example:** `example/ingress_demo.dart`
+  /// **Cross-layer:** moves to `cell_flow` if the BRD says "wait for silence" or "rate-limit".
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final gate = Cell.ingress<int>(
+  ///   testRule: TestCell((v, {arguments, host, user}) => v is int && v >= 0),
+  /// );
+  /// gate.emit(1);
+  /// gate.emit(-1); // rejected by the TestCell gate
+  /// print('ok');
+  /// ```
   static IngressHandle<I> ingress<I>({
     Pulse<I?>? Function(Cell host, Pulse<I> input)? refine,
     EphemeralPolicy? ephemeralPolicy,
@@ -570,23 +570,23 @@ abstract interface class Cell {
   /// - **HowTo**: See `guide/HowTo-Start.md` for a comprehensive guide on
   ///   state management and reactive patterns.
   /// {@category Core 16 Operators}
-///
-/// ### AI Agent Guide
-/// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
-/// **When to use:** A BRD says "retain X" and the WalkThrough named **no** Tissue book; a setting read at any time (not a governed reserve).
-/// **When NOT to use:**
-///   {@macro ai-do-not-create-cell-to-hold-a-collection}
-/// **Live signature:** `Cell.state<V>({initial, evolve, testRule})` — pinned at `cell: 1.1.0`
-/// **Do NOT confuse with:** `Cell.ingress` (stateless entry) and `TissueValue` (governed reserve book in `cell_tissue`).
-/// **Guide:** `HowTo-Mitose-Cell.md` §2 "Cell.* factories this HowTo covers" (#cell-factories)
-/// **Example:** `example/state_demo.dart`
-/// **Cross-layer:** prefer `TissueValue<V>` from `cell_tissue` when the WalkThrough named a reserve / pool book.
-/// **Minimal compilable example**
-/// ```dart
-/// final counter = Cell.state<int>(initial: 0);
-/// counter.update(5);
-/// print(counter.cell.value); // 5
-/// ```
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** A BRD says "retain X" and the WalkThrough named **no** Tissue book; a setting read at any time (not a governed reserve).
+  /// **When NOT to use:**
+  ///   {@macro ai-do-not-create-cell-to-hold-a-collection}
+  /// **Live signature:** `Cell.state<V>({initial, evolve, testRule})` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Cell.ingress` (stateless entry) and `TissueValue` (governed reserve book in `cell_tissue`).
+  /// **Guide:** `HowTo-Mitose-Cell.md` §2 "Cell.* factories this HowTo covers" (#cell-factories)
+  /// **Example:** `example/state_demo.dart`
+  /// **Cross-layer:** prefer `TissueValue<V>` from `cell_tissue` when the WalkThrough named a reserve / pool book.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final counter = Cell.state<int>(initial: 0);
+  /// counter.update(5);
+  /// print(counter.cell.value); // 5
+  /// ```
   static StateHandle<V> state<V>({
     V? initial,
     Pulse<V>? Function(ValueCell<V> host, Pulse input)? evolve,
@@ -658,27 +658,27 @@ abstract interface class Cell {
   /// - **Example**: See `example/observe_demo.dart` for a complete executable
   ///   walkthrough of UI side-effects, terminal lifecycle management, and forensic logging.
   /// {@category Core 16 Operators}
-///
-/// ### AI Agent Guide
-/// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
-/// **When to use:** A pulse has already been *decided* and a book / side effect must move — the **only** Flow → Tissue glue in a Mitose Demo.
-/// **When NOT to use:**
-///   {@macro ai-do-not-observe-to-decide}
-/// **Live signature:** `Cell.observe<P extends Pulse>({required Cell source, required void Function(P) effect, bool initiallyStarted = true})` — pinned at `cell: 1.1.0`
-/// **Do NOT confuse with:** `Cell.ingress` (entry into the graph, not exit from it).
-/// **Guide:** `HowTo-Mitose-Cell.md` §3.2 "Cell.observe — the only Flow → Tissue glue" (#cell-observe)
-/// **Example:** `example/observe_demo.dart`
-/// **Cross-layer:** the decision itself lives in a `cell_flow` instruction; the books live in `cell_tissue`.
-/// **Minimal compilable example**
-/// ```dart
-/// final events = Cell.ingress<String>();
-/// final o = Cell.observe(
-///   source: events.cell,
-///   effect: (Pulse p) => print('got ${p.payload}'),
-/// );
-/// events.emit('x');
-/// o.stop();
-/// ```
+  ///
+  /// ### AI Agent Guide
+  /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
+  /// **When to use:** A pulse has already been *decided* and a book / side effect must move — the **only** Flow → Tissue glue in a Mitose Demo.
+  /// **When NOT to use:**
+  ///   {@macro ai-do-not-observe-to-decide}
+  /// **Live signature:** `Cell.observe<P extends Pulse>({required Cell source, required void Function(P) effect, bool initiallyStarted = true})` — pinned at `cell: 1.1.0`
+  /// **Do NOT confuse with:** `Cell.ingress` (entry into the graph, not exit from it).
+  /// **Guide:** `HowTo-Mitose-Cell.md` §3.2 "Cell.observe — the only Flow → Tissue glue" (#cell-observe)
+  /// **Example:** `example/observe_demo.dart`
+  /// **Cross-layer:** the decision itself lives in a `cell_flow` instruction; the books live in `cell_tissue`.
+  /// **Minimal compilable example**
+  /// ```dart
+  /// final events = Cell.ingress<String>();
+  /// final o = Cell.observe(
+  ///   source: events.cell,
+  ///   effect: (Pulse p) => print('got ${p.payload}'),
+  /// );
+  /// events.emit('x');
+  /// o.stop();
+  /// ```
   static EgressHandle<P> observe<P extends Pulse>({
     required Cell source,
     required void Function(P pulse) effect,
@@ -689,6 +689,15 @@ abstract interface class Cell {
         effect: effect,
         initiallyStarted: initiallyStarted,
       );
+
+  /// Last pulse retained for late subscribers, or `null` if [cell] has not
+  /// emitted one.
+  ///
+  /// State-like operators (`fromFuture`, `fromStream`, `asyncMap`, `derive`)
+  /// retain the pulse they emit. [Cell.ingress] does not — a late listener
+  /// must not replay a click. [ValueCell] callers should read [ValueCell.value]
+  /// instead; this is the equivalent for cells that have no synchronous value.
+  static Pulse? latestPulse(Cell cell) => _latestForLateObservers[cell];
 
   /// Synthesizes a new [Cell] that acts as a **Reactive Projection** (or View)
   /// of an existing source cell.
@@ -769,16 +778,15 @@ abstract interface class Cell {
     required Cell source,
     required O? Function(I input) project,
   }) {
-    // Implementation links the receptor to the projection logic
     return Cell(
       bind: source,
       receptor: Receptor((cell, pulse, {user}) {
-        try {
-          return project(pulse as I);
-        } catch (e) {
-          // Internal integrity check for type mismatch
-          return null;
+        if (pulse is! I) return null;
+        final projected = project(pulse);
+        if (projected != null) {
+          _retainLatest(cell, projected);
         }
+        return projected;
       }),
     );
   }

@@ -159,8 +159,7 @@ class FilterRule<P extends Pulse> {
   /// ### Returns:
   /// The transformed pulse, or `null` if the pulse was filtered out.
   P? call(P pulse) {
-    P? out;
-    out = pulse;
+    P? out = pulse;
     try {
       final rule = _rule;
       if (rule != null) {
@@ -177,13 +176,14 @@ class FilterRule<P extends Pulse> {
           }
         }
       }
-    } catch (_) {}
+    } catch (_) {
+      // A throwing rule — or a strategy whose result cannot be assigned to
+      // P — is swallowed: the original pulse keeps flowing to the parent.
+    }
 
-    if (out != null) {
-      final parent = _parent;
-      if (parent != null) {
-        out = parent.call(out);
-      }
+    final parent = _parent;
+    if (out != null && parent != null) {
+      out = parent.call(out);
     }
     return out;
   }

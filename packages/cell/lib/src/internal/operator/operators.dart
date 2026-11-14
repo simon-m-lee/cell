@@ -329,6 +329,22 @@ IngressHandle<I> _ingress<I>(
 // operator - observe
 // ─────────────────────────────────────────────────────────────
 
+/// Last pulse from state-like operators (`fromFuture`, `fromStream`,
+/// `asyncMap`, `derive`). Late subscribers read it via [Cell.latestPulse].
+/// Ingress cells do not write here — replaying an event is not state.
+final Expando<Pulse> _latestForLateObservers =
+    Expando<Pulse>('cell.latestPulse');
+
+/// Kept alive for the process lifetime. A Finalizer that is itself
+/// unreachable will never run, which would leak the subscription it was
+/// supposed to cancel.
+final Finalizer<void Function()> _cellDetach =
+    Finalizer<void Function()>((cancel) => cancel());
+
+void _retainLatest(Cell cell, Pulse pulse) {
+  _latestForLateObservers[cell] = pulse;
+}
+
 EgressHandle<P> _observe<P extends Pulse>(
     {required Cell bind,
     required void Function(P pulse) effect,
@@ -338,15 +354,49 @@ EgressHandle<P> _observe<P extends Pulse>(
     bool initiallyStarted = true,
     bool forceLock = false}) {
   final cancel = Box<bool>(!initiallyStarted);
-  bool start() => cancel.value = false;
-  bool stop() => cancel.value = true;
-  final receptor = _Receptor(reaction: (pulse, cell, {dynamic user}) {
-    if (cancel.value == false) {
-      effect(pulse as P);
+  // The governed constructor links immediately. `stop` unlinks so the
+  // source does not retain the observer (and its effect closure) forever.
+  Cell? observer;
+  var unlinked = false;
+
+  void start() {
+    final current = observer;
+    if (current == null) return;
+    cancel.value = false;
+    if (unlinked) {
+      unlinked = false;
+      bind._nucleus.synapses.link(bind, downstreamCell: current);
     }
+  }
+
+  void stop() {
+    cancel.value = true;
+    final current = observer;
+    if (current == null || unlinked) return;
+    unlinked = true;
+    bind._nucleus.synapses.unlink(bind, downstreamCell: current);
+    // Link validation is allowed to be async. If it completes after this
+    // unlink, it would re-add the observer. Check again on the next turn.
+    scheduleMicrotask(() {
+      if (cancel.value == true) {
+        unlinked = true;
+        bind._nucleus.synapses.unlink(bind, downstreamCell: current);
+      }
+    });
+  }
+
+  final receptor = _Receptor(reaction: (Pulse pulse, Cell cell, {dynamic user}) {
+    if (cancel.value != false) {
+      // An async link gate can register this observer after stop().
+      // Detach on the next pulse so the source does not keep it.
+      unlinked = true;
+      bind._nucleus.synapses.unlink(bind, downstreamCell: cell);
+      return null;
+    }
+    effect(pulse as P);
     return null;
   });
-  final cell = Cell.governed(
+  observer = Cell.governed(
       bind: bind,
       context: context,
       receptor: receptor,
@@ -354,7 +404,12 @@ EgressHandle<P> _observe<P extends Pulse>(
       ephemeralPolicy: ephemeralPolicy,
       testRule: testRule,
       synapses: Synapses.disabled);
-  return (cell: cell, start: start, stop: stop);
+  // `stop` during construction ran before [observer] was assigned, so the
+  // unlink has to happen now. Not-yet-started observers take the same path.
+  if (cancel.value == true) {
+    stop();
+  }
+  return (cell: observer, start: start, stop: stop);
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -410,17 +465,19 @@ Future<T> _withLocksAt<T>(
   );
 }
 
-/// Convenience: acquire the locks of [cells] in a deterministic order.
+/// Acquires the locks of [cells] in a deterministic total order.
 ///
-/// [order] sorts a *copy* of [cells] before locks are read. Default is
-/// `hashCode` ascending (deadlock-free for any participant set).
+/// [order] sorts a *copy* of [cells] before locks are read. The default
+/// order is cell id, then [identityHashCode]. Ordering by [Cell.hashCode]
+/// is not a total order: equal hashes leave the sort unstable, so two
+/// transactions can lock the same cells in opposite orders and deadlock.
 Future<T> withCellLocks<T>(
   Iterable<Cell> cells,
   Future<T> Function() body, {
   int Function(Cell a, Cell b)? order,
 }) {
   final sorted = List<Cell>.from(cells);
-  sorted.sort(order ?? (a, b) => a.hashCode.compareTo(b.hashCode));
+  sorted.sort(order ?? _cellLockOrder);
 
   // Prefer the public CellBase.lock accessor: reaching into the private
   // `_nucleus` member fails for cross-package Cell implementations whose
@@ -428,4 +485,10 @@ Future<T> withCellLocks<T>(
   // have no lock to acquire.
   final locks = sorted.map((c) => c is CellBase ? c.lock : null);
   return withLocks(locks, body);
+}
+
+int _cellLockOrder(Cell a, Cell b) {
+  final byId = a.id.compareTo(b.id);
+  if (byId != 0) return byId;
+  return identityHashCode(a).compareTo(identityHashCode(b));
 }

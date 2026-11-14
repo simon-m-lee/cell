@@ -967,17 +967,26 @@ TransactionScope _transaction([
               priors.add((cell: change.cell, value: prior));
               await apply(change.cell, change.newValue);
               applied.add((cell: change.cell, value: change.newValue));
-            } catch (_) {
+            } catch (e, st) {
+              Object? restoreError;
+              StackTrace? restoreStack;
               for (final prior in priors.reversed) {
                 if (prior.cell is ValueCell) {
                   try {
-                    (prior.cell as ValueCell).value = prior.value;
-                  } catch (_) {
-                    // Best effort: an unmodifiable projection cannot be
-                    // restored, and that surfaces through the original
-                    // exception below.
+                    (prior.cell as ValueCell).restoreValue(prior.value);
+                  } catch (re, rst) {
+                    restoreError ??= re;
+                    restoreStack ??= rst;
                   }
                 }
+              }
+              if (restoreError != null) {
+                Error.throwWithStackTrace(
+                  StateError(
+                    'Transaction rollback failed after $e: $restoreError',
+                  ),
+                  restoreStack ?? st,
+                );
               }
               rethrow;
             }

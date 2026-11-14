@@ -105,11 +105,14 @@ Cell _asyncMap<S, T>(
     forceLock: forceLock,
   );
 
+  final outputRef = WeakReference<Cell>(outputCell);
+
   void emitResult(T value) {
-    if (outputCell.isInvalidated) return;
-    outputCell._nucleus.receptor.call(
-      Pulse<T>.governed(payload: value, source: outputCell),
-    );
+    final host = outputRef.target;
+    if (host == null || host.isInvalidated) return;
+    final pulse = Pulse<T>.governed(payload: value, source: host);
+    _retainLatest(host, pulse);
+    host._nucleus.receptor.call(pulse);
   }
 
   final bridge = Cell.governed(
@@ -119,17 +122,34 @@ Cell _asyncMap<S, T>(
     synapses: Synapses.disabled,
     receptor: Receptor(
       (cell, pulse, {user}) {
-        if (outputCell.isInvalidated) return null;
+        final host = outputRef.target;
+        if (host == null || host.isInvalidated) return null;
         final payload = pulse.payload;
         if (payload is! S) return null;
 
-        state.enqueue(payload, pulse: pulse as PulseBase, onResult: emitResult);
+        state.enqueue(
+          payload,
+          pulse: pulse as PulseBase,
+          onResult: emitResult,
+          // Mapper failures must not emit on the output cell (the
+          // "no emission" contract): they fail the source pulse instead,
+          // so the causal chain records them and later values still map.
+          onError: (error, stackTrace) {},
+        );
         return null; // do not forward source pulse
       },
     ),
   );
 
   state.retain(bridge);
+  // The bridge closes over [outputRef], not [outputCell]. When the caller
+  // drops the output, this finalizer unlinks the bridge so the source
+  // does not retain it for the rest of the source's life.
+  void unlinkBridge() {
+    source._nucleus.synapses.unlink(source, downstreamCell: bridge);
+  }
+
+  _cellDetach.attach(outputCell, unlinkBridge, detach: outputCell);
   return outputCell;
 }
 
@@ -162,6 +182,7 @@ class _AsyncMapState<S, T> {
     S value, {
     required PulseBase pulse,
     required void Function(T value) onResult,
+    required void Function(Object error, StackTrace stackTrace) onError,
   }) {
     // ── exhaustMap: drop upstream while busy ─────────────────
     if (exhaust && _busy) {
@@ -187,19 +208,26 @@ class _AsyncMapState<S, T> {
     }
 
     if (latestOnly) {
+      // Dart futures cannot be cancelled. A newer generation drops the
+      // queued value and ignores the in-flight result (and its error)
+      // when it completes; the future itself runs to the end.
       _generation++;
       _queue
         ..clear()
         ..add((value: value, pulse: pulse));
-      _pump(onResult, generation: _generation);
+      _pump(onResult, onError, generation: _generation);
       return;
     }
 
     _queue.add((value: value, pulse: pulse));
-    _pump(onResult, generation: _generation);
+    _pump(onResult, onError, generation: _generation);
   }
 
-  void _pump(void Function(T value) onResult, {required int generation}) {
+  void _pump(
+    void Function(T value) onResult,
+    void Function(Object error, StackTrace stackTrace) onError, {
+    required int generation,
+  }) {
     while (_queue.isNotEmpty) {
       if (concurrency > 0 && _inFlight >= concurrency) break;
       // exhaust uses concurrency effectively as 1 when in flight via enqueue gate;
@@ -242,12 +270,14 @@ class _AsyncMapState<S, T> {
           if (latestOnly && gen != _generation) return; // superseded
           onResult(result);
         } catch (e, st) {
-          // hardening: the mapper failed. Route the failure to
-          // the source pulse's onError channel instead of swallowing it
-          // — a swallowed failure is invisible to the recording (and to
-          // every downstream waiting on the pulse). No emission happens,
-          // matching the documented "errors produce no output" contract.
+          // Superseded work must not emit. A newer latestOnly generation
+          // already owns the output; surfacing this failure would clobber it.
+          // The future itself cannot be cancelled.
+          if (latestOnly && gen != _generation) return;
+          // Source-pulse onError keeps the failure on the causal chain;
+          // the output cell must not emit (the "no emission" contract).
           next.pulse._fail(e, stackTrace: st);
+          onError(e, st);
         } finally {
           _inFlight--;
           // Always drain. In `latestOnly` mode `enqueue` has already cleared
@@ -256,7 +286,7 @@ class _AsyncMapState<S, T> {
           // configuration leaves the queued latest value stranded when the
           // superseded future finishes (its `gen` no longer matches
           // `_generation`).
-          _pump(onResult, generation: _generation);
+          _pump(onResult, onError, generation: _generation);
         }
       });
     }

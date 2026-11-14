@@ -29,10 +29,10 @@ part of '../../../cell.dart';
 ///
 /// ### Error handling gap (documented, a later revision)
 ///
-/// `onError` currently only cancels the subscription when
-/// `cancelOnError` is set — the error itself is neither emitted as a
-/// pulse nor journalled, so replay omits it. Journaling stream errors as
-/// effect records is deferred to a later revision (error-pulse reconstruction).
+/// `onError` only cancels the subscription when `cancelOnError` is set —
+/// the error itself is neither emitted as a pulse nor journalled, so
+/// replay omits it. Journaling stream errors as effect records is
+/// deferred to a later revision (error-pulse reconstruction).
 ///
 /// The subscription is cancelled automatically when the cell is
 /// invalidated.
@@ -92,9 +92,11 @@ Cell _fromStream<T>(
         cancelSubscription();
         return;
       }
-      // Record the event through the journal. The recorded value is what
-      // the engine's ReplayEngine re-injects during replay; the live path
-      // emits the actual value either way, synchronously as before.
+      // Record the event through the journal before the live pulse is
+      // emitted. `JournalScope.run` returns a Future and used to be
+      // unawaited, so the emission ran before the record was written.
+      // `runSync` invokes `io` before this function continues.
+      //
       // Review fix: a user-pushed RecordingJournal still wins (the
       // ambient-journal contract), but the LEDGER scope is excluded —
       // attaching the io to the ledger entry made replay diverge with an
@@ -103,15 +105,15 @@ Cell _fromStream<T>(
       // observation's forensic record.
       final ambient = JournalScope.effectiveJournal(journal);
       final observationJournal = ambient is LedgerScopeImpl ? journal : ambient;
-      unawaited(JournalScope.run(
-        observationJournal,
-        () => observationJournal.io(
+      JournalScope.runSync(observationJournal, () {
+        observationJournal.io(
           label: streamLabel,
           input: value,
           run: () async => value,
-        ),
-      ));
+        );
+      });
       final output = Pulse<T>.governed(payload: value, source: host);
+      _retainLatest(host, output);
       JournalScope.runSync(observationJournal, () {
         host._nucleus.receptor.call(output);
       });
@@ -136,18 +138,16 @@ Cell _fromStream<T>(
         cancelSubscription();
       }
     },
-    onError: (Object error, StackTrace st) {
-      if (cancelOnError) {
-        cancelSubscription();
-      }
+    onError: (Object error, StackTrace _) {
+      // The error is neither emitted as a pulse nor journalled (see the
+      // header); cancelOnError only decides whether the subscription ends.
+      if (cancelOnError) cancelSubscription();
     },
     onDone: cancelSubscription,
     cancelOnError: cancelOnError,
   );
 
-  Finalizer<void Function()>(
-    (cancel) => cancel(),
-  ).attach(cell, cancelSubscription, detach: cell);
+  _cellDetach.attach(cell, cancelSubscription, detach: cell);
 
   return cell;
 }
@@ -209,17 +209,19 @@ Cell _fromFuture<T>(
   future.then((value) {
     if (!cell.isInvalidated) {
       // Review fix: same ambient-vs-ledger rule as fromStream.
+      // Record before emit. `run` used to be unawaited, so the pulse
+      // could leave before the journal appended the io.
       final ambient = JournalScope.effectiveJournal(journal);
       final observationJournal = ambient is LedgerScopeImpl ? journal : ambient;
-      unawaited(JournalScope.run(
-        observationJournal,
-        () => observationJournal.io(
+      JournalScope.runSync(observationJournal, () {
+        observationJournal.io(
           label: futureLabel,
           input: null,
           run: () async => value,
-        ),
-      ));
+        );
+      });
       final output = Pulse<T>.governed(payload: value, source: cell);
+      _retainLatest(cell, output);
       JournalScope.runSync(observationJournal, () {
         cell._nucleus.receptor.call(output);
       });
@@ -236,17 +238,17 @@ Cell _fromFuture<T>(
         );
       }
     }
-  }, onError: (Object error, StackTrace stackTrace) {
+  }, onError: (Object error, StackTrace _) {
     if (!cell.isInvalidated) {
       final effective = JournalScope.effectiveJournal(journal);
+      final output = Pulse<Object>.governed(
+        payload: error,
+        type: 'error',
+        source: cell,
+      );
+      _retainLatest(cell, output);
       JournalScope.runSync(effective, () {
-        cell._nucleus.receptor.call(
-          Pulse<Object>.governed(
-            payload: error,
-            type: 'error',
-            source: cell,
-          ),
-        );
+        cell._nucleus.receptor.call(output);
       });
     }
   });

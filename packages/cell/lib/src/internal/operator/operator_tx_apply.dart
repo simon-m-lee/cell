@@ -880,13 +880,18 @@ class _ApplyTransactionScopeImpl extends ApplyTransactionScope {
     try {
       body(this);
       await commit();
-    } catch (e) {
+    } catch (e, st) {
       if (!_finished) {
         try {
           await rollback();
-        } catch (_) {}
+        } catch (rollbackError, rollbackStack) {
+          Error.throwWithStackTrace(
+            StateError('txApply rollback failed after $e: $rollbackError'),
+            rollbackStack,
+          );
+        }
       }
-      rethrow;
+      Error.throwWithStackTrace(e, st);
     }
   }
 }
