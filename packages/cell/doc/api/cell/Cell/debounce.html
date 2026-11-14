@@ -57,6 +57,7 @@
 <span class="returntype"><a href="../../cell/Cell-class.html">Cell</a></span>
 <span class="name ">debounce</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="debounce-param-source"><span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span></li>
 <li><span class="parameter" id="debounce-param-duration"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, {</span></li>
+<li><span class="parameter" id="debounce-param-journal"><span>required</span> <span class="type-annotation"><a href="../../cell/EffectJournal-class.html">EffectJournal</a></span> <span class="parameter-name">journal</span>, </span></li>
 <li><span class="parameter" id="debounce-param-leading"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">leading</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="debounce-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
 </ol>})
@@ -130,7 +131,11 @@ reactive patterns and scheduling.
 <strong>Cross-layer:</strong> identical semantics available as <code>Flow.debounce</code> in <code>cell_flow</code>.
 <strong>Minimal compilable example</strong></p>
 <pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;String&gt;();
-final db = Cell.debounce(src.cell, const Duration(milliseconds: 50));
+final db = Cell.debounce(
+  src.cell,
+  const Duration(milliseconds: 50),
+  journal: RecordingJournal(),
+);
 final o = Cell.observe(source: db, effect: (Pulse p) =&gt; print(p.payload));
 src.emit('a');
 src.emit('b');
@@ -146,12 +151,14 @@ o.stop();
   <pre class="language-dart"><code class="language-dart">static Cell debounce(
   Cell source,
   Duration duration, {
+  required EffectJournal journal,
   bool leading = false,
   EphemeralPolicy? ephemeralPolicy,
 }) =&gt;
     _debounce(
       source,
       duration,
+      journal: journal,
       leading: leading,
       ephemeralPolicy: ephemeralPolicy,
     );</code></pre>

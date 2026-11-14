@@ -56,6 +56,7 @@
       
 <span class="returntype"><a href="../../cell/Cell-class.html">Cell</a></span>
 <span class="name ">fromStream</span>&lt;<wbr><span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="fromStream-param-stream"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">stream</span>, {</span></li>
+<li><span class="parameter" id="fromStream-param-journal"><span>required</span> <span class="type-annotation"><a href="../../cell/EffectJournal-class.html">EffectJournal</a></span> <span class="parameter-name">journal</span>, </span></li>
 <li><span class="parameter" id="fromStream-param-cancelOnError"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">cancelOnError</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="fromStream-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
 </ol>})
@@ -138,7 +139,10 @@ walkthrough of bridging external real-time data.
 <strong>Example:</strong> <code>test/operator_from_stream_test.dart</code>
 <strong>Cross-layer:</strong> the orchestration equivalent is <code>Flow.fromStream</code> in <code>cell_flow</code>.
 <strong>Minimal compilable example</strong></p>
-<pre class="language-dart"><code class="language-dart">final s = Cell.fromStream&lt;int&gt;(Stream.fromIterable([1, 2, 3]));
+<pre class="language-dart"><code class="language-dart">final s = Cell.fromStream&lt;int&gt;(
+  Stream.fromIterable([1, 2, 3]),
+  journal: RecordingJournal(),
+);
 final o = Cell.observe(source: s, effect: (Pulse p) =&gt; print(p.payload));
 await Future&lt;void&gt;.delayed(const Duration(milliseconds: 30));
 o.stop();
@@ -151,11 +155,13 @@ o.stop();
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static Cell fromStream&lt;T&gt;(
   Stream&lt;T&gt; stream, {
+  required EffectJournal journal,
   bool cancelOnError = false,
   EphemeralPolicy? ephemeralPolicy,
 }) =&gt;
     _fromStream&lt;T&gt;(
       stream,
+      journal: journal,
       cancelOnError: cancelOnError,
       ephemeralPolicy: ephemeralPolicy,
     );</code></pre>

@@ -145,7 +145,12 @@ Future&lt;void&gt; call(covariant P pulse) async {
   if (_filter != null) {
     p = _filter!(pulse) as PulseBase?;
   }
-  if (p == null) return;
+  if (p == null) {
+    &#47;&#47; The filter suppressed the pulse for this egress: this branch is
+    &#47;&#47; terminal.
+    _terminalizePulse(pulse as PulseBase);
+    return;
+  }
 
   final strategy = _policy?.strategy ?? PropagationStrategy.immediate;
   switch (strategy) {
@@ -184,9 +189,14 @@ Future&lt;void&gt; call(covariant P pulse) async {
     case PropagationStrategy.persistent:
       final buffer = _buffer;
       if (buffer != null) {
+        final replaced = buffer.firstOrNull;
         buffer
           ..clear()
           ..add(p);
+        if (replaced is PulseBase &amp;&amp; !identical(replaced, p)) {
+          &#47;&#47; The previous persisted pulse is superseded.
+          _terminalizePulse(replaced);
+        }
       }
       await _broadcast(p);
       break;

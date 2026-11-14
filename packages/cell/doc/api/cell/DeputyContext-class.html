@@ -108,7 +108,7 @@ shares the same state as the principal but applies these governance rules.</p>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="DeputyContext.new" class="callable">
-          <span class="name"><a href="../cell/DeputyContext/DeputyContext.html">DeputyContext</a></span><span class="signature">({<span class="parameter" id="-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="-param-authority"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">authority</span>, </span><span class="parameter" id="-param-role"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">role</span>, </span><span class="parameter" id="-param-isolation"><span class="type-annotation"><a href="../cell/Isolation.html">Isolation</a>?</span> <span class="parameter-name">isolation</span> = <span class="default-value">Isolation.scoped</span>, </span><span class="parameter" id="-param-clearance"><span class="type-annotation"><a href="../cell/Clearance.html">Clearance</a></span> <span class="parameter-name">clearance</span> = <span class="default-value">Clearance.standard</span>, </span><span class="parameter" id="-param-justification"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">justification</span>, </span><span class="parameter" id="-param-constraints"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">constraints</span>, </span><span class="parameter" id="-param-others"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">others</span></span>})</span>
+          <span class="name"><a href="../cell/DeputyContext/DeputyContext.html">DeputyContext</a></span><span class="signature">({<span class="parameter" id="-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="-param-authority"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">authority</span>, </span><span class="parameter" id="-param-role"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">role</span>, </span><span class="parameter" id="-param-isolation"><span class="type-annotation"><a href="../cell/Isolation.html">Isolation</a>?</span> <span class="parameter-name">isolation</span> = <span class="default-value">Isolation.scoped</span>, </span><span class="parameter" id="-param-clearance"><span class="type-annotation"><a href="../cell/Clearance.html">Clearance</a></span> <span class="parameter-name">clearance</span> = <span class="default-value">Clearance.standard</span>, </span><span class="parameter" id="-param-justification"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">justification</span>, </span><span class="parameter" id="-param-constraints"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">constraints</span>, </span><span class="parameter" id="-param-others"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">others</span>, </span><span class="parameter" id="-param-version"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">version</span> = <span class="default-value">&#39;1.0.0&#39;</span></span>})</span>
         </dt>
         <dd>
           Initializes a <strong>Formal Mandate</strong> for a <a href="../cell/Deputy-mixin.html">Deputy</a>, establishing the legal
@@ -470,16 +470,15 @@ represents.
 
 </dd>
 
-        <dt id="version" class="property inherited">
-  <span class="name"><a href="../cell/ContextBase/version.html">version</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+        <dt id="version" class="property">
+  <span class="name"><a href="../cell/DeputyContext/version.html">version</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
   
 
 </dt>
-<dd class="inherited">
-  The schema or ontological version used to interpret the metadata
-within this context.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+<dd>
+  The semantic version of this mandate.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
 

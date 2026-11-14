@@ -55,8 +55,9 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../cell/Cell-class.html">Cell</a></span>
-<span class="name ">fromFuture</span>&lt;<wbr><span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="fromFuture-param-future"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">future</span></span></li>
-</ol>)
+<span class="name ">fromFuture</span>&lt;<wbr><span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="fromFuture-param-future"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">future</span>, {</span></li>
+<li><span class="parameter" id="fromFuture-param-journal"><span>required</span> <span class="type-annotation"><a href="../../cell/EffectJournal-class.html">EffectJournal</a></span> <span class="parameter-name">journal</span>, </span></li>
+</ol>})
 
       
 
@@ -127,7 +128,7 @@ of bridging legacy async APIs into forensic pipelines.
 <strong>Example:</strong> <code>test/receptor_instruction_future_test.dart</code>
 <strong>Cross-layer:</strong> the orchestration equivalent is <code>Flow.fromFuture</code> in <code>cell_flow</code>.
 <strong>Minimal compilable example</strong></p>
-<pre class="language-dart"><code class="language-dart">final f = Cell.fromFuture&lt;int&gt;(Future.value(7));
+<pre class="language-dart"><code class="language-dart">final f = Cell.fromFuture&lt;int&gt;(Future.value(7), journal: RecordingJournal());
 final o = Cell.observe(source: f, effect: (Pulse p) =&gt; print(p.payload));
 await Future&lt;void&gt;.delayed(const Duration(milliseconds: 10));
 o.stop();
@@ -138,7 +139,11 @@ o.stop();
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Cell fromFuture&lt;T&gt;(Future&lt;T&gt; future) =&gt; _fromFuture&lt;T&gt;(future);</code></pre>
+  <pre class="language-dart"><code class="language-dart">static Cell fromFuture&lt;T&gt;(
+  Future&lt;T&gt; future, {
+  required EffectJournal journal,
+}) =&gt;
+    _fromFuture&lt;T&gt;(future, journal: journal);</code></pre>
 </section>
 
 

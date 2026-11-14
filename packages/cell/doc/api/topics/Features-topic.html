@@ -248,7 +248,7 @@ Standard <code>dart test</code> execution requires configuration or explicit fil
 <h2 id="5-standard-entry-operators">5. Standard Entry Operators</h2>
 <p>The documented <strong>Core 16</strong> — ordered for a learning path: get data in → hold state → react → shape streams → go async → combine → isolate writes.</p>
 <p>Each works with defaults: <code>Receptor.passThrough</code>, <code>TestCell.allowAll</code>, <code>Context.system</code>, <code>Synapses.enabled</code>.</p>
-<h3 id="phase-1--get-data-in-hold-state-react">Phase 1 — Get data in, hold state, react</h3>
+<h3 id="get-data-in-hold-state-react">Get data in, hold state, react</h3>
 <h4 id="1-cellstatev">1. <code>Cell.state&lt;V&gt;()</code></h4>
 <p>Persistent mutable state atom.</p>
 <pre class="language-dart"><code class="language-dart">static StateHandle&lt;V&gt; state&lt;V&gt;({
@@ -368,7 +368,7 @@ Standard <code>dart test</code> execution requires configuration or explicit fil
 </tr>
 </tbody>
 </table>
-<h3 id="phase-2--shape-streams">Phase 2 — Shape streams</h3>
+<h3 id="shape-streams">Shape streams</h3>
 <h4 id="5-celldebounce">5. <code>Cell.debounce()</code></h4>
 <p>Emit after a silence window (Rx <code>debounceTime</code>).</p>
 <pre class="language-dart"><code class="language-dart">static Cell debounce(Cell source, Duration duration, {bool leading = false, EphemeralPolicy? ephemeralPolicy})
@@ -440,7 +440,7 @@ Standard <code>dart test</code> execution requires configuration or explicit fil
 </tr>
 </tbody>
 </table>
-<h3 id="phase-3--go-async">Phase 3 — Go async</h3>
+<h3 id="go-async">Go async</h3>
 <h4 id="8-cellasyncmaps-t">8. <code>Cell.asyncMap&lt;S, T&gt;()</code></h4>
 <p>Map each payload to a <code>Future&lt;T&gt;</code> with concurrency control.</p>
 <pre class="language-dart"><code class="language-dart">static Cell asyncMap&lt;S, T&gt;(
@@ -553,7 +553,7 @@ Standard <code>dart test</code> execution requires configuration or explicit fil
 </tr>
 </tbody>
 </table>
-<h3 id="phase-4--combine-and-route">Phase 4 — Combine and route</h3>
+<h3 id="combine-and-route">Combine and route</h3>
 <h4 id="12-cellsynthesisp">12. <code>Cell.synthesis&lt;P&gt;()</code></h4>
 <p>Aggregate several sources into one consensus pulse.</p>
 <pre class="language-dart"><code class="language-dart">static Cell synthesis&lt;P extends Pulse&gt;(
@@ -633,7 +633,7 @@ Standard <code>dart test</code> execution requires configuration or explicit fil
 </code></pre>
 <p>Missing sensitivity is treated as <code>Sensitivity.public</code> (no redaction). Redacted pulses are <code>EvolvedPulse</code> instances (lineage kept).</p>
 <p><strong>Use when:</strong> UI / log / telemetry views of PII or credentials. This is a building block, not a compliance program.</p>
-<h3 id="phase-5--orchestration">Phase 5 — Orchestration</h3>
+<h3 id="orchestration">Orchestration</h3>
 <h4 id="15-celltransaction">15. <code>Cell.transaction()</code></h4>
 <p>Multi-cell buffered writes. Locks are taken at <strong>commit</strong>, not for the whole <code>begin</code>…<code>commit</code> window.</p>
 <pre class="language-dart"><code class="language-dart">static TransactionScope transaction([
@@ -1897,7 +1897,7 @@ Categories include Getting Started, Core, Core 16 Operators, Transactions, Gover
 <li><code>dart test test</code> is a name filter, not a directory</li>
 <li>Pass explicit files (see <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/TEST_VERIFICATION.md"><code>TEST_VERIFICATION.md</code></a>)</li>
 </ul>
-<p><strong>1115</strong> tests in <strong>20</strong> files. Last full run: <strong>1115 passed / 0 failed / 0 skipped</strong>. Measured <code>lib/</code> line coverage: <strong>95.9%</strong> (3397 / 3541). Suites cover Cell (including <code>valve</code> and <code>OpenCell.perform</code>), Pulse (<code>PulseExtension.map</code> / <code>cast</code> via <code>PulseExtension(pulse)</code>), Nucleus (<code>isInvalidated</code> follows a hosted <code>EphemeralPolicy</code>), Receptor (<code>pipeline</code> reaction / <code>isGoverned</code> / <code>PulseShell</code>), Instruction, Synapses (<code>FilterRule</code> parent/<code>fromRecord</code>, <code>PropagationStrategy.sample</code>), TestCell / TestRule, Context / DeputyContext / PulseContext, commons, <code>transaction</code>, <code>txApply</code>, and operator phases 1–4.</p>
+<p><strong>1115</strong> tests in <strong>20</strong> files. Last full run: <strong>1115 passed / 0 failed / 0 skipped</strong>. Measured <code>lib/</code> line coverage: <strong>95.9%</strong> (3397 / 3541). Suites cover Cell (including <code>valve</code> and <code>OpenCell.perform</code>), Pulse (<code>PulseExtension.map</code> / <code>cast</code> via <code>PulseExtension(pulse)</code>), Nucleus (<code>isInvalidated</code> follows a hosted <code>EphemeralPolicy</code>), Receptor (<code>pipeline</code> reaction / <code>isGoverned</code> / <code>PulseShell</code>), Instruction, Synapses (<code>FilterRule</code> parent/<code>fromRecord</code>, <code>PropagationStrategy.sample</code>), TestCell / TestRule, Context / DeputyContext / PulseContext, commons, <code>transaction</code>, <code>txApply</code>, and the operator suites.</p>
 <pre class="language-bash"><code class="language-bash">dart analyze lib
 # PowerShell — all suites:
 dart test @(Get-ChildItem test/test_*.dart | ForEach-Object { "test/$($_.Name)" })
@@ -2378,6 +2378,12 @@ dart doc .
       <li class="section-title">Libraries</li>
       <li><a href="../cell_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
       <li><a href="../cell_api_chooser/">doc\api_chooser</a></li>
+      <li><a href="../replay/">replay</a></li>
+      <li><a href="../replay_cli_cli/">replay\cli\cli</a></li>
+      <li><a href="../replay_codec_canonical_json/">replay\codec\canonical_json</a></li>
+      <li><a href="../replay_codec_fingerprint/">replay\codec\fingerprint</a></li>
+      <li><a href="../replay_ledger_file_store/">replay\ledger\file_store</a></li>
+      <li><a href="../replay_replay/">replay\replay</a></li>
       <li class="section-subtitle">Features</li>
         <li class="section-subitem"><a href="../cell/">cell</a></li>
 </ol>

@@ -133,13 +133,25 @@ FutureOr&lt;Pulse?&gt; call(covariant Pulse incoming) {
     return null;
   }
 
-  final validation = cell.validate(incoming, host: cell);
+  &#47;&#47; Purity-aware validation. Pure rules re-run; effectful
+  &#47;&#47; rules serve their recorded verdict from the journal (they are not
+  &#47;&#47; re-called on replay); readOnlyExternal rules re-run with their
+  &#47;&#47; observations served from the journal. Sync rules stay sync.
+  final validation = TestCellReplay.invoke(
+    rule: cell.validate,
+    object: incoming,
+    host: cell,
+    journal: JournalScope.current,
+    ruleLabel: &#39;${cell.validate.runtimeType}@${cell.validate.version}&#39;,
+  );
   if (validation is Future&lt;bool&gt;) {
-    return validation.then((isValid) =&gt; isValid ? _proceed(incoming) : null);
-  } else if (!validation) {
+    return validation.then(
+      (isValid) =&gt; isValid ? _proceed(incoming) : null,
+    );
+  }
+  if (!validation) {
     return null;
   }
-
   return _proceed(incoming);
 }</code></pre>
 </section>

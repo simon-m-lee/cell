@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the fork method from the CellGraphFork extension, for the Dart programming language.">
+  <title>fork method - CellGraphFork extension - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/CellGraphFork.html">CellGraphFork</a></li>
+    <li class="self-crumb">fork method</li>
+  </ol>
+  <div class="self-name">fork</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;CellGraphFork-extension-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">fork</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/ForkHandle-class.html">ForkHandle</a></span>&gt;</span></span>
+<span class="name ">fork</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="fork-param-parent"><span>required</span> <span class="type-annotation"><a href="../../cell/Ledger-class.html">Ledger</a></span> <span class="parameter-name">parent</span>, </span></li>
+<li><span class="parameter" id="fork-param-atSeq"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">atSeq</span>, </span></li>
+<li><span class="parameter" id="fork-param-buildFreshGraph"><span>required</span> <span class="type-annotation"><a href="../../cell/CellGraph-class.html">CellGraph</a></span> <span class="parameter-name">buildFreshGraph</span>(), </span></li>
+<li><span class="parameter" id="fork-param-buildStore"><span>required</span> <span class="type-annotation"><a href="../../cell/LedgerStore-class.html">LedgerStore</a></span> <span class="parameter-name">buildStore</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-genesisHash"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">genesisHash</span></span></li>
+</ol>), </span></li>
+<li><span class="parameter" id="fork-param-policy"><span class="type-annotation"><a href="../../cell/ForkPolicy.html">ForkPolicy</a></span> <span class="parameter-name">policy</span> = <span class="default-value">ForkPolicy.isolated</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Forks <code>this</code> graph at <code>atSeq</code> of <code>parent</code>.</p>
+<p><code>buildFreshGraph</code> is a factory that builds a <em>fresh</em> <code>CellGraph</code>
+with the same shape as <code>this</code>. Typically it closes over the same
+<code>CellGraphBuilder</code> invocation the original graph was built from.
+The fork's <code>CellGraph</code> will be the result of calling this factory —
+the fork does not clone <code>this</code>'s cells, because cell cloning is
+a snapshot-reconstruction concern and cloning is <em>not</em> required for the
+isolated fork policy (the fresh graph's cells are the fork's
+working state).</p>
+<p><code>buildStore</code> is the fork's ledger store factory. It receives the
+fork's chain genesis (<code>ForkRecord.genesisHash</code>) and must construct
+a store with that genesis — ledger stores enforce their genesis
+hash, and the fork genesis is only known once the fork record
+exists. (The doc's caller-supplied store cannot satisfy the
+genesis check; a factory is the honest shape.)</p>
+<p>The fresh graph is brought to the parent's state at <code>atSeq</code> by
+replaying parent entries <code>0..atSeq</code> into it (the <strong>baseline
+replay</strong>) — the fork ledger does not contain those entries; they
+belong to the parent.</p>
+<p>Returns a <a href="../../cell/ForkHandle-class.html">ForkHandle</a> whose <code>graph</code> is the fresh graph, whose
+<code>ledger</code> is a fork ledger seeded by the <code>ForkRecord</code>, and whose
+<code>record</code> is the <code>ForkRecord</code>.</p>
+<h3 id="non-obvious-atseq-is-the-parents-sequence-not-the">Non-obvious: <code>atSeq</code> is the <em>parent</em>'s sequence, not the</h3>
+<p>fork's</p>
+<p>If <code>atSeq == 100</code>, the fork's <code>ForkRecord.divergedAt</code> is 100 and
+the fork replays from parent seq 101. <code>atSeq == 0</code> forks at the
+parent's first entry — the fork's baseline is that entry's state.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Future&lt;ForkHandle&gt; fork({
+  required Ledger parent,
+  required int atSeq,
+  required CellGraph Function() buildFreshGraph,
+  required LedgerStore Function(String genesisHash) buildStore,
+  ForkPolicy policy = ForkPolicy.isolated,
+}) async {
+  if (policy != ForkPolicy.isolated) {
+    throw UnimplementedError(
+      &#39;CellGraph.fork: ForkPolicy.${policy.name} is not implemented &#39;
+      &#39;in this release. The fork engine only supports isolated forks; &#39;
+      &#39;sharedTopology and dropUnreached require snapshot reconstruction.&#39;,
+    );
+  }
+  if (atSeq &lt; 0) {
+    throw ArgumentError.value(
+      atSeq,
+      &#39;atSeq&#39;,
+      &#39;must be &gt;= 0 (the fork baseline includes parent seq atSeq)&#39;,
+    );
+  }
+
+  &#47;&#47; 1. Verify the parent is valid before forking from it.
+  await parent.verify();
+
+  &#47;&#47; 2. The fork binds to the parent&#39;s hash AT atSeq — the same value
+  &#47;&#47;    fork.verify() compares against. (The doc stored the parent&#39;s
+  &#47;&#47;    HEAD hash here, which its own verify() would then reject for
+  &#47;&#47;    any atSeq below the head.)
+  final parentHead = await parent.hashAtSeq(atSeq);
+
+  &#47;&#47; 3. Build the fresh graph. Review fix: the process-wide cell id
+  &#47;&#47;    registry never unregisters dropped graphs, so a fresh graph
+  &#47;&#47;    with the same names would collide with the PARENT&#39;s live
+  &#47;&#47;    registrations and `buildFreshGraph()` would throw. The fork
+  &#47;&#47;    takes over the isolate&#39;s registry: the parent checks above are
+  &#47;&#47;    done, and the parent&#39;s ledger entries resolve by the recorded
+  &#47;&#47;    id STRINGS (not the live registry), so replays stay correct.
+  &#47;&#47;    The parent graph must not be appended to afterwards in this
+  &#47;&#47;    isolate (its cells lost their registered names) — rebuild the
+  &#47;&#47;    parent from a fresh registry if it must keep running.
+  _CellGraphRegistry.resetForFork();
+  final freshGraph = buildFreshGraph();
+  if (freshGraph.ledger != null) {
+    throw StateError(
+      &#39;CellGraph.fork: buildFreshGraph returned a graph bound to a &#39;
+      &#39;ledger. The fork graph must be unbound.&#39;,
+    );
+  }
+
+  &#47;&#47; 4. Baseline replay: bring the fresh graph to the parent&#39;s state
+  &#47;&#47;    at atSeq. This is what makes the fork&#39;s starting state equal
+  &#47;&#47;    the parent&#39;s recorded state at the fork point; the doc&#39;s
+  &#47;&#47;    expected alternative states (e.g. 16000 in the what-if test)
+  &#47;&#47;    assume it.
+  if (await parent.lastSeq &gt;= 0) {
+    await ReplayEngine.replay(
+      ledger: parent,
+      target: freshGraph,
+      options: ReplayOptions(maxEntries: atSeq + 1),
+    );
+  }
+
+  &#47;&#47; 5. Now the fork point is materialised: fingerprint the
+  &#47;&#47;    baseline-replayed graph&#39;s snapshot as the fork&#39;s
+  &#47;&#47;    originalSnapshotHash.
+  final snapshotHash = fingerprint(
+    freshGraph.snapshot(lastLedgerSeq: atSeq).toJson(),
+  );
+
+  &#47;&#47; 6. Build the ForkRecord.
+  final record = ForkRecord(
+    forkId: const Uuid().v4(),
+    originalLedgerId: parent.graph.id,
+    divergedAt: atSeq,
+    originalSnapshotHash: snapshotHash,
+    parentHeadHash: parentHead,
+    at: DateTime.now(),
+  );
+
+  &#47;&#47; 7. Wrap the caller&#39;s store so the fork&#39;s genesis is the
+  &#47;&#47;    ForkRecord.
+  final forkStore = ForkLedgerStore(
+    record: record,
+    inner: buildStore(record.genesisHash),
+  );
+
+  &#47;&#47; 8. Open the fork&#39;s ledger, chained from the ForkRecord.
+  final forkLedger = await Ledger.open(
+    graph: freshGraph,
+    store: forkStore,
+    genesisHash: record.genesisHash,
+  );
+
+  return ForkHandle._(
+    graph: freshGraph,
+    ledger: forkLedger,
+    record: record,
+    parent: parent,
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/CellGraphFork.html">CellGraphFork</a></li>
+    <li class="self-crumb">fork method</li>
+</ol>
+
+    <h5>CellGraphFork extension on <a href="../../cell/CellGraph-class.html">CellGraph</a></h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

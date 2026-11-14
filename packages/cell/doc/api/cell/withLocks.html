@@ -64,7 +64,12 @@
     </section>
     
 <section class="desc markdown">
-  <p>Acquires <code>locks</code> in the given order, runs <code>body</code>, then releases them
+  <p>Creates a cell that emits the values of a Dart <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a>.</p>
+<p>The subscription is cancelled automatically when the cell is invalidated.
+Moved to <code>operator_stream_future.dart</code> in the journal (journal retrofit).
+Creates a cell that emits the result of a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> exactly once.
+Moved to <code>operator_stream_future.dart</code> in the journal (journal retrofit).
+Acquires <code>locks</code> in the given order, runs <code>body</code>, then releases them
 in reverse order (LIFO unwind of nested <code>synchronized</code> sections).</p>
 <h3 id="when-to-use">When to use</h3>
 <p>Any time several <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>s must be held together without deadlock risk.
@@ -79,7 +84,30 @@ nested sections unwind and every lock is released.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;T&gt; withLocks&lt;T&gt;(
+  <pre class="language-dart"><code class="language-dart">&#47;&#47; ─────────────────────────────────────────────────────────────
+&#47;&#47; operator - fromFuture
+&#47;&#47; ─────────────────────────────────────────────────────────────
+
+&#47;&#47;&#47; Creates a cell that emits the result of a [Future] exactly once.
+&#47;&#47;&#47; Moved to `operator_stream_future.dart` in the journal (journal retrofit).
+
+&#47;&#47; ─────────────────────────────────────────────────────────────
+&#47;&#47; Multi-lock acquisition (reusable)
+&#47;&#47; ─────────────────────────────────────────────────────────────
+
+&#47;&#47;&#47; Acquires [locks] in the given order, runs [body], then releases them
+&#47;&#47;&#47; in reverse order (LIFO unwind of nested `synchronized` sections).
+&#47;&#47;&#47;
+&#47;&#47;&#47; ### When to use
+&#47;&#47;&#47; Any time several [Lock]s must be held together without deadlock risk.
+&#47;&#47;&#47; Callers are responsible for sorting [locks] deterministically first.
+&#47;&#47;&#47;
+&#47;&#47;&#47; ### How it works
+&#47;&#47;&#47; Builds a nest of `lock.synchronized(...)` calls. The innermost
+&#47;&#47;&#47; callback is [body]. When [body] finishes (success or error) the
+&#47;&#47;&#47; nested sections unwind and every lock is released.
+&#47;&#47;&#47;
+Future&lt;T&gt; withLocks&lt;T&gt;(
   Iterable&lt;Lock?&gt; locks,
   Future&lt;T&gt; Function() body,
 ) {

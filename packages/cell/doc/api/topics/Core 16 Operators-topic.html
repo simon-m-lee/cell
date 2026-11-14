@@ -52,12 +52,12 @@
 <ol>
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#learning-path">Learning Path</a></li>
-<li><a href="#phase-1-get-data-in">Phase 1: Get Data In</a></li>
-<li><a href="#phase-2-hold-state">Phase 2: Hold State</a></li>
-<li><a href="#phase-3-react-in-ui">Phase 3: React in UI</a></li>
-<li><a href="#phase-4-shape-streams">Phase 4: Shape Streams</a></li>
-<li><a href="#phase-5-go-async">Phase 5: Go Async</a></li>
-<li><a href="#phase-6-combine-sources">Phase 6: Combine Sources</a></li>
+<li><a href="#the-serialisation-layer-get-data-in">the serialisation layer: Get Data In</a></li>
+<li><a href="#the-graph-registry-hold-state">the graph registry: Hold State</a></li>
+<li><a href="#the-journal-react-in-ui">the journal: React in UI</a></li>
+<li><a href="#the-ledger-shape-streams">the ledger: Shape Streams</a></li>
+<li><a href="#the-replay-engine-go-async">the replay engine: Go Async</a></li>
+<li><a href="#the-fork-engine-combine-sources">the fork engine: Combine Sources</a></li>
 <li><a href="#quick-reference-card">Quick Reference Card</a></li>
 <li><a href="#common-patterns">Common Patterns</a></li>
 <li><a href="#next-steps">Next Steps</a></li>
@@ -110,7 +110,7 @@
 </code></pre>
 <p><code>Cell.valve</code> and <code>Cell.open</code> are used in <code>/example</code> but are not part of this 16.</p>
 <hr>
-<h2 id="phase-1-get-data-in">Phase 1: Get Data In</h2>
+<h2 id="the-serialisation-layer-get-data-in">the serialisation layer: Get Data In</h2>
 <h3 id="1-cellingress--how-intentevents-enter-the-graph">1. <code>Cell.ingress</code> — How intent/events enter the graph</h3>
 <p><strong>Purpose:</strong> Create a manual entry point for external events (UI clicks, network messages, hardware sensors).</p>
 <p><strong>When to use:</strong></p>
@@ -240,7 +240,7 @@ user.update({'age': 30});         // Age changes to 30
 user.update({'name': 'Charlie', 'age': 35}); // Both change
 </code></pre>
 <hr>
-<h2 id="phase-2-hold-state">Phase 2: Hold State</h2>
+<h2 id="the-graph-registry-hold-state">the graph registry: Hold State</h2>
 <h3 id="4-cellderive--pure-view-models--projections-from-state">4. <code>Cell.derive</code> — Pure view-models / projections from state</h3>
 <p><strong>Purpose:</strong> Create a derived value that transforms one source into another.</p>
 <p><strong>When to use:</strong></p>
@@ -451,7 +451,7 @@ final debounced = Cell.debounce(source, Duration(milliseconds: 300));
 );
 </code></pre>
 <hr>
-<h2 id="phase-5-go-async">Phase 5: Go Async</h2>
+<h2 id="the-replay-engine-go-async">the replay engine: Go Async</h2>
 <h3 id="9-cellasyncmap--httpdb-work-latestonly--exhaust">9. <code>Cell.asyncMap</code> — HTTP/DB work (latestOnly / exhaust)</h3>
 <p><strong>Purpose:</strong> Run background tasks for each input, with configurable concurrency control.</p>
 <p><strong>When to use:</strong></p>
@@ -584,7 +584,7 @@ Cell.observe(
 );
 </code></pre>
 <hr>
-<h2 id="phase-6-combine-sources">Phase 6: Combine Sources</h2>
+<h2 id="the-fork-engine-combine-sources">the fork engine: Combine Sources</h2>
 <h3 id="12-cellsynthesis--forms--dashboards-latest-of-several-fields">12. <code>Cell.synthesis</code> — Forms &amp; dashboards: latest of several fields</h3>
 <p><strong>Purpose:</strong> Merge multiple source cells into one, reacting when any source changes.</p>
 <p><strong>When to use:</strong></p>
@@ -1102,6 +1102,12 @@ whatever else is listening.
       <li class="section-title">Libraries</li>
       <li><a href="../cell_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
       <li><a href="../cell_api_chooser/">doc\api_chooser</a></li>
+      <li><a href="../replay/">replay</a></li>
+      <li><a href="../replay_cli_cli/">replay\cli\cli</a></li>
+      <li><a href="../replay_codec_canonical_json/">replay\codec\canonical_json</a></li>
+      <li><a href="../replay_codec_fingerprint/">replay\codec\fingerprint</a></li>
+      <li><a href="../replay_ledger_file_store/">replay\ledger\file_store</a></li>
+      <li><a href="../replay_replay/">replay\replay</a></li>
       <li class="section-subtitle">Features</li>
         <li class="section-subitem"><a href="../cell/">cell</a></li>
 </ol>

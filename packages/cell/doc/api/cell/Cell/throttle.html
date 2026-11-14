@@ -57,6 +57,7 @@
 <span class="returntype"><a href="../../cell/Cell-class.html">Cell</a></span>
 <span class="name ">throttle</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="throttle-param-source"><span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span></li>
 <li><span class="parameter" id="throttle-param-duration"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, {</span></li>
+<li><span class="parameter" id="throttle-param-journal"><span>required</span> <span class="type-annotation"><a href="../../cell/EffectJournal-class.html">EffectJournal</a></span> <span class="parameter-name">journal</span>, </span></li>
 <li><span class="parameter" id="throttle-param-leading"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">leading</span> = <span class="default-value">true</span>, </span></li>
 <li><span class="parameter" id="throttle-param-trailing"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">trailing</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
@@ -129,7 +130,11 @@ walkthrough of frequency-based rate limiting.
 <strong>Cross-layer:</strong> identical semantics available as <code>Flow.throttle</code> in <code>cell_flow</code>.
 <strong>Minimal compilable example</strong></p>
 <pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
-final th = Cell.throttle(src.cell, const Duration(milliseconds: 50));
+final th = Cell.throttle(
+  src.cell,
+  const Duration(milliseconds: 50),
+  journal: RecordingJournal(),
+);
 final o = Cell.observe(source: th, effect: (Pulse p) =&gt; print(p.payload));
 src.emit(1);
 src.emit(2); // throttled
@@ -145,10 +150,17 @@ o.stop();
   <pre class="language-dart"><code class="language-dart">static Cell throttle(
   Cell source,
   Duration duration, {
+  required EffectJournal journal,
   bool leading = true,
   bool trailing = false,
 }) =&gt;
-    _throttle(source, duration, leading: leading, trailing: trailing);</code></pre>
+    _throttle(
+      source,
+      duration,
+      journal: journal,
+      leading: leading,
+      trailing: trailing,
+    );</code></pre>
 </section>
 
 
