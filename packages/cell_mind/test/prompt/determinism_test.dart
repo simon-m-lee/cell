@@ -59,6 +59,62 @@ void main() {
       replay.assertExhausted();
     });
 
+    test('replaying a dedicated-session recording reconstructs the history',
+        () async {
+      var calls = 0;
+      final recording = RecordingJournal();
+      final config = tinyConfig(sessionMode: SessionMode.dedicated);
+      final src = Cell.ingress<int>();
+      final handle = cognitive(
+        cell: src.cell,
+        policy: TestCell.allowAll,
+        verdictPolicy: promptedPolicyWith(
+          config: config,
+          prompt: (_) async {
+            calls++;
+            return acceptResponse;
+          },
+          journal: recording,
+        ),
+      );
+      // Two decisions: the second one renders the first turn as
+      // history. Recording and replay share the config instance (its id
+      // participates in the disposition inputs).
+      await handle.cognitive.apply<Object?>(commandFor(read, [7]));
+      await handle.cognitive.apply<Object?>(commandFor(read, [8]));
+      expect(calls, 2);
+
+      final replay = ReplayJournal(
+        recording.toJson().map(EffectRecord.fromJson).toList(growable: false),
+      );
+      // Replay with the SAME config instance (id participates in disposition inputs).
+      final src2 = Cell.ingress<int>();
+      final replayPolicy = promptedPolicyWith(
+        config: config,
+        prompt: (_) async {
+          calls++;
+          return rejectResponse;
+        },
+        journal: replay,
+      );
+      final handle2 = cognitive(
+        cell: src2.cell,
+        policy: TestCell.allowAll,
+        verdictPolicy: replayPolicy,
+      );
+      await handle2.cognitive.apply<Object?>(commandFor(read, [7]));
+      await handle2.cognitive.apply<Object?>(commandFor(read, [8]));
+      expect(calls, 2, reason: 'Replay never invokes the LLM.');
+      expect(replayPolicy.session!.length, 4,
+          reason: 'The conversation is reconstructed from served appends.');
+      expect(replayPolicy.session!.messages[1].content, acceptResponse);
+      expect(
+        handle2.decisions.every((d) => d.verdict is Accept),
+        isTrue,
+      );
+      replay.assertExhausted();
+    });
+
     test('recorded and replayed decisions are verdict-identical', () async {
       final recording = RecordingJournal();
       final config = tinyConfig();

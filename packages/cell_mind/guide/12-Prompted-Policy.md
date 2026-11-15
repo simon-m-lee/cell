@@ -375,14 +375,19 @@ abstract interface class VerdictCache {
 }
 ```
 
-- **`VerdictCacheKey`** — the five input fingerprints:
+- **`VerdictCacheKey`** — the six input fingerprints:
   `(configId, configVersion, cellContextFingerprint,
   pulseContextFingerprint, decisionFingerprint, sessionFingerprint)`.
   `fingerprint` is the sha256 of the joined components — the map key.
-- **`VerdictCacheEntry`** — `(verdict, at)`; `at` drives TTL.
-- **`InMemoryVerdictCache`** — the default: TTL-bounded, LRU-evicted
-  (`ttl`, `maxEntries`; defaults from the config's `verdictCacheTtl` /
-  `maxVerdictCacheEntries`).
+  `composite` exposes the raw joined string for audit.
+- **`VerdictCacheEntry`** — `(verdict, storedAt, originalLatency,
+  fromPromptCache)`. `storedAt` drives TTL; `originalLatency` records
+  the producing LLM call (zero when the entry came from a
+  prompt-cache hit, marked by `fromPromptCache: true`).
+- **`InMemoryVerdictCache`** — the default: TTL-bounded,
+  access-order-LRU-evicted (`ttl`, `maxEntries`; defaults from the
+  config's `verdictCacheTtl` / `maxVerdictCacheEntries`), plus a
+  read-only LRU-ordered `keys` view for diagnostics.
 
 **Identity rules (D3):**
 
@@ -393,6 +398,11 @@ abstract interface class VerdictCache {
 - Fingerprints cover exactly the dimensions the renderer emits
   (`traceId` included; pulse timestamps never rendered and never
   fingerprinted).
+
+**Manual diagnostics (D9):** the fingerprint functions are public —
+`cellContextFingerprint`, `pulseContextFingerprint`,
+`decisionFingerprint` — so you can build a `VerdictCacheKey` by hand
+and ask "would this request hit?" before making the call.
 
 **Design notes:**
 

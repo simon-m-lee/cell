@@ -423,10 +423,10 @@ final class PromptedPolicy implements VerdictPolicy {
     return VerdictCacheKey(
       configId: config.id,
       configVersion: config.version,
-      cellContextFingerprint: _cellContextFingerprint(context),
+      cellContextFingerprint: cellContextFingerprint(context),
       pulseContextFingerprint:
-          object is Pulse ? _pulseContextFingerprint(object) : '',
-      decisionFingerprint: _decisionFingerprint(object, arguments: arguments),
+          object is Pulse ? pulseContextFingerprint(object) : '',
+      decisionFingerprint: decisionFingerprint(object, arguments: arguments),
       sessionFingerprint: _sessionFingerprintOf(session),
     );
   }
@@ -516,7 +516,7 @@ final class PromptedPolicy implements VerdictPolicy {
           label: 'mind.prompt.cache.hit',
           input: key.fingerprint,
           run: () async => {
-            'type': 'mind.prompt.cache.hit',
+            'type': 'mind.verdict_cache_hit',
             'version': VerdictCacheHitEffect.schemaVersion,
             'configId': config.id,
             'configVersion': config.version,
@@ -540,7 +540,7 @@ final class PromptedPolicy implements VerdictPolicy {
           label: 'mind.prompt.cache.hit',
           input: key.fingerprint,
           run: () async => {
-            'type': 'mind.prompt.cache.hit',
+            'type': 'mind.verdict_cache_hit',
             'version': VerdictCacheHitEffect.schemaVersion,
             'configId': config.id,
             'configVersion': config.version,
@@ -563,7 +563,11 @@ final class PromptedPolicy implements VerdictPolicy {
             _keyFor(object, context: host.context, arguments: arguments);
         verdictCache?.store(
           storedKey,
-          VerdictCacheEntry(verdict: verdict, at: DateTime.now()),
+          VerdictCacheEntry(
+            verdict: verdict,
+            storedAt: DateTime.now(),
+            fromPromptCache: true,
+          ),
         );
         return verdict;
 
@@ -650,7 +654,14 @@ final class PromptedPolicy implements VerdictPolicy {
         _keyFor(object, context: host.context, arguments: arguments);
     verdictCache?.store(
       storedKey,
-      VerdictCacheEntry(verdict: verdict, at: DateTime.now()),
+      VerdictCacheEntry(
+        verdict: verdict,
+        storedAt: DateTime.now(),
+        originalLatency: Duration(
+          milliseconds: served['latencyMillis'] as int? ?? 0,
+        ),
+        fromPromptCache: false,
+      ),
     );
     return verdict;
   }

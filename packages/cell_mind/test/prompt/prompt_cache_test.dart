@@ -238,5 +238,88 @@ void main() {
       expect(appends, hasLength(1),
           reason: 'policy2\'s journal holds its own append only');
     });
+
+    test('verdict-cache entries carry provenance metadata', () async {
+      final sharedVerdict = InMemoryVerdictCache();
+      final config = PromptConfig.custom(
+        id: 'pc-entry-meta',
+        version: '1.0.0',
+        description: 'd',
+        systemPrompt: 's',
+        userTemplate: '{{context}}\n\n{{decision}}',
+      );
+      // LLM call: entry records the original latency and LLM origin.
+      final src1 = Cell.ingress<int>();
+      final handle1 = cognitive(
+        cell: src1.cell,
+        policy: TestCell.allowAll,
+        verdictPolicy: promptedPolicyWith(
+          config: config,
+          prompt: mockPrompt(acceptResponse),
+          journal: RecordingJournal(),
+          verdictCache: sharedVerdict,
+        ),
+      );
+      await applyOnce(handle1, 7);
+      expect(sharedVerdict.keys, hasLength(1));
+      final llmEntry = sharedVerdict.lookup(sharedVerdict.keys.single);
+      expect(llmEntry, isNotNull);
+      expect(llmEntry!.fromPromptCache, isFalse);
+      expect(llmEntry.originalLatency.isNegative, isFalse);
+
+      // Prompt-cache hit into a FRESH verdict cache: entry marks the
+      // prompt-cache origin with zero original latency.
+      final freshVerdict = InMemoryVerdictCache();
+      final src2 = Cell.ingress<int>();
+      final handle2 = cognitive(
+        cell: src2.cell,
+        policy: TestCell.allowAll,
+        verdictPolicy: promptedPolicyWith(
+          config: config,
+          prompt: mockPrompt(acceptResponse),
+          journal: RecordingJournal(),
+          verdictCache: freshVerdict,
+        ),
+      );
+      await applyOnce(handle2, 7);
+      expect(freshVerdict.keys, hasLength(1));
+      final hitEntry = freshVerdict.lookup(freshVerdict.keys.single);
+      expect(hitEntry, isNotNull);
+      expect(hitEntry!.fromPromptCache, isTrue);
+      expect(hitEntry.originalLatency, Duration.zero);
+    });
+
+    test('hit effects serialize with the canonical type tag', () async {
+      final config = PromptConfig.custom(
+        id: 'pc-tag',
+        version: '1.0.0',
+        description: 'd',
+        systemPrompt: 's',
+        userTemplate: '{{context}}\n\n{{decision}}',
+      );
+      final journal = RecordingJournal();
+      final src = Cell.ingress<int>();
+      final handle = cognitive(
+        cell: src.cell,
+        policy: TestCell.allowAll,
+        verdictPolicy: promptedPolicyWith(
+          config: config,
+          prompt: mockPrompt(acceptResponse),
+          journal: journal,
+        ),
+      );
+      await applyOnce(handle, 7);
+      await applyOnce(handle, 7); // verdict-cache hit
+      final record =
+          journal.toJson().whereType<Map<String, Object?>>().singleWhere(
+                (e) =>
+                    e['kind'] == 'io' && e['label'] == 'mind.prompt.cache.hit',
+              );
+      final effect = verdictCacheHitEffectFromMap(
+        (record['rawOutput'] as Map).cast<String, dynamic>(),
+      );
+      expect(effect.toMap()['type'], 'mind.verdict_cache_hit');
+      expect(effect.cacheKey, hasLength(64));
+    });
   });
 }

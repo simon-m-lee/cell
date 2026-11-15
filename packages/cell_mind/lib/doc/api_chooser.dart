@@ -67,6 +67,10 @@
 ///   layer + async warming)
 /// - **Second tier:** the rendered-prompt cache under
 ///   `PromptConfig.cacheTtl`
+/// - **Manual diagnostics:** `cellContextFingerprint` /
+///   `pulseContextFingerprint` / `decisionFingerprint` +
+///   `VerdictCacheKey.composite` / `InMemoryVerdictCache.keys` —
+///   ask "would this request hit?" before calling
 ///
 /// ## Choose a session
 ///

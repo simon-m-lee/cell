@@ -567,9 +567,13 @@ wc -l guide/07-XAI.md guide/08-Agents.md        # 416 / 421 (each ≥ 400)
 
 ### Test-level note
 
-- `test/bridge/determinism_test.dart` ("replaying a toolRouter run")
-  has an intermittent environmental flake when the file is run in
-  isolation repeatedly: the asyncMap result pulse occasionally never
-  reaches the observer. The test was hardened (subscription settle,
-  condition polling with generous timeouts), and the full suite — the CI
-  gate — passes consistently.
+- **Fixed in 1.1.0:** `test/bridge/determinism_test.dart` ("replaying a
+  toolRouter run") intermittently diverged at the `mind.tool.result`
+  replay input. Root cause: `RecordingJournal.clock()` returns
+  microsecond-precision wall-clock time while the journal stores epoch
+  millis (and replay restores millis); `durationMillis` computed from
+  the micro-precision difference flapped at millisecond boundaries.
+  `toolRouter` now derives `startAt`/`endAt` from millisecond-truncated
+  journal clocks (`_clockMs`), so recorded and replayed durations
+  always match. The test is additionally hardened (subscription
+  settle, awaited emission, condition polling).

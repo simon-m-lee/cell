@@ -220,9 +220,10 @@ final class VerdictCacheHitEffect {
     required this.lookupLatency,
   });
 
-  /// Serializes this effect.
+  /// Serializes this effect. The `type` tag is
+  /// `'mind.verdict_cache_hit'` (the plan's canonical tag).
   Map<String, dynamic> toMap() => {
-        'type': 'mind.prompt.cache.hit',
+        'type': 'mind.verdict_cache_hit',
         'version': schemaVersion,
         'configId': configId,
         'configVersion': configVersion,

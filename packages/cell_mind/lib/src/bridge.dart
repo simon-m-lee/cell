@@ -466,7 +466,11 @@ Cell toolRouter({
       // Journal-derived timestamps throughout: replays restore the
       // same clock sequence, so both `at` and `duration` reproduce
       // exactly (wall-clock durations would never fingerprint-match).
-      final startAt = journal.clock();
+      // The duration is computed from MILLISECOND-truncated instants —
+      // the recording journal stores epoch millis, and replay restores
+      // exactly that precision; mixing in sub-millisecond wall-clock
+      // leftovers made `durationMillis` flap at ms boundaries.
+      final startAt = _clockMs(journal);
       await _recordBridgeEffect(
         journal,
         MindToolDispatchEffect(
@@ -485,7 +489,7 @@ Cell toolRouter({
           run: () => tools[verb]!(typedArgs),
           serializeOutput: _encodable,
         );
-        final endAt = journal.clock();
+        final endAt = _clockMs(journal);
         await _recordBridgeEffect(
           journal,
           MindToolResultEffect(
@@ -579,4 +583,13 @@ PulseContext _aiContext({
   final base = baseContext;
   if (base == null) return PulseContext.fromEntries(entries);
   return PulseContext.fromEntries(entries, parent: base);
+}
+
+/// Returns [journal.clock()] truncated to milliseconds — the precision
+/// the replay journal restores. Durations and timestamps derived from
+/// journal clocks must use this form, or sub-millisecond wall-clock
+/// leftovers flap the effect fingerprints at ms boundaries.
+DateTime _clockMs(EffectJournal journal) {
+  final t = journal.clock();
+  return DateTime.fromMillisecondsSinceEpoch(t.millisecondsSinceEpoch);
 }

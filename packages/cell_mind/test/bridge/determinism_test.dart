@@ -17,7 +17,7 @@ Pulse pulseWith(dynamic payload, {double? confidence}) =>
     );
 
 void main() {
-  /// Polls until [condition] holds — the asyncMap replay path runs
+  /// Polls until [condition] holds — the asyncMap pipeline runs
   /// through several journal-served microtask hops and fixed sleeps
   /// flake under load.
   Future<void> waitUntil(bool Function() condition) async {
@@ -52,7 +52,11 @@ void main() {
           effect: (Pulse p) {
             observed1.add(p);
           });
-      source.emit(pulseWith({'verb': 'echo', 'args': {}}, confidence: 0.9));
+      // Let the observation link settle, then await the emission
+      // (the asyncMap mapper completes before emitAsync resolves).
+      await Future<void>.delayed(Duration.zero);
+      await source
+          .emitAsync(pulseWith({'verb': 'echo', 'args': {}}, confidence: 0.9));
       await waitUntil(() => observed1.isNotEmpty);
       expect((observed1.single.payload as Pulse).type, 'mind.tool.result.echo');
       sub1.stop();
@@ -80,8 +84,17 @@ void main() {
           effect: (Pulse p) {
             observed2.add(p);
           });
-      source2.emit(pulseWith({'verb': 'echo', 'args': {}}, confidence: 0.9));
-      await waitUntil(() => observed2.isNotEmpty);
+      await Future<void>.delayed(Duration.zero);
+      await source2
+          .emitAsync(pulseWith({'verb': 'echo', 'args': {}}, confidence: 0.9));
+      final replayDeadline = DateTime.now().add(const Duration(seconds: 5));
+      while (observed2.isEmpty && DateTime.now().isBefore(replayDeadline)) {
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+      }
+      if (observed2.isEmpty) {
+        fail('Timed out waiting for the replay result: '
+            'consumed=${replay.consumed} remaining=${replay.remaining}');
+      }
       expect(calls, 1, reason: 'The tool never re-ran on replay.');
       final payload = (observed2.single.payload as Pulse).payload as Map;
       expect(payload['result'], 'first-run');

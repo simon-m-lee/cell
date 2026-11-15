@@ -79,6 +79,15 @@ final class VerdictCacheKey {
         '|$sessionFingerprint',
       );
 
+  /// The raw joined components (`configId|configVersion|...`), kept
+  /// for audit and diagnostics. [fingerprint] is the sha256 of this
+  /// string.
+  String get composite => '$configId|$configVersion'
+      '|$cellContextFingerprint'
+      '|$pulseContextFingerprint'
+      '|$decisionFingerprint'
+      '|$sessionFingerprint';
+
   /// Serializes this key.
   Map<String, dynamic> toMap() => {
         'configId': configId,
@@ -112,20 +121,24 @@ final class VerdictCacheKey {
       'VerdictCacheKey($configId@$configVersion, ${fingerprint.substring(0, 12)}…)';
 }
 
-/// One stored verdict with its capture time.
+/// One stored verdict with its capture time and provenance metadata.
 ///
 /// ### When to use
 /// Stored by [VerdictCache.store] and returned by
-/// [VerdictCache.lookup]. The `at` stamp drives TTL expiry in
-/// [InMemoryVerdictCache].
+/// [VerdictCache.lookup]. The [storedAt] stamp drives TTL expiry in
+/// [InMemoryVerdictCache]; [originalLatency] and [fromPromptCache]
+/// record how the verdict was first produced (audit).
 ///
 /// ### How it works
-/// An immutable `(verdict, at)` value object with
-/// `toMap` / `fromMap`.
+/// An immutable value object with `toMap` / `fromMap`.
 ///
 /// ### Non-obvious
 /// - **The verdict is the source of truth.** Caches serve the stored
 ///   verdict, never a re-parse of a stored response.
+/// - **`fromPromptCache` marks second-tier hits.** The entry was
+///   first produced by an LLM call when `false`; `true` means it was
+///   populated from a prompt-cache hit (and `originalLatency` is
+///   [Duration.zero]).
 ///
 /// ### See also
 /// - [VerdictCache], [VerdictCacheKey]
@@ -143,14 +156,29 @@ final class VerdictCacheEntry {
   final Verdict verdict;
 
   /// The capture time (TTL reference).
-  final DateTime at;
+  final DateTime storedAt;
 
-  const VerdictCacheEntry({required this.verdict, required this.at});
+  /// The latency of the original LLM call that produced this verdict.
+  /// Zero for entries populated from a prompt-cache hit.
+  final Duration originalLatency;
+
+  /// Whether the verdict came from a full LLM call (`false`) or from
+  /// a prompt-cache hit (`true`).
+  final bool fromPromptCache;
+
+  const VerdictCacheEntry({
+    required this.verdict,
+    required this.storedAt,
+    this.originalLatency = Duration.zero,
+    this.fromPromptCache = false,
+  });
 
   /// Serializes this entry.
   Map<String, dynamic> toMap() => {
         'verdict': verdict.toMap(),
-        'at': _isoAt(at),
+        'storedAt': _isoAt(storedAt),
+        'originalLatencyMillis': originalLatency.inMilliseconds,
+        'fromPromptCache': fromPromptCache,
       };
 
   /// Reconstructs an entry from [VerdictCacheEntry.toMap] output.
@@ -159,7 +187,11 @@ final class VerdictCacheEntry {
         verdict: verdictFromMap(
           (map['verdict'] as Map).cast<String, dynamic>(),
         ),
-        at: DateTime.parse(map['at'] as String),
+        storedAt:
+            DateTime.parse(map['storedAt'] as String? ?? map['at'] as String),
+        originalLatency:
+            Duration(milliseconds: map['originalLatencyMillis'] as int? ?? 0),
+        fromPromptCache: map['fromPromptCache'] as bool? ?? false,
       );
 }
 
@@ -225,8 +257,13 @@ abstract interface class VerdictCache {
 ///
 /// ### Non-obvious
 /// - **TTL is wall-clock**, evaluated per lookup — expired entries
-///   also vanish on [evictExpired].
+///   also vanish on [evictExpired]. Accessing an entry does not
+///   extend its TTL.
 /// - **`ttl: Duration.zero`** makes every lookup a miss (disabled).
+/// - **Access-order LRU since 1.1.0.** The plan's first draft
+///   described insert-order eviction; the shipped implementation
+///   refreshes recency on every hit (strict LRU). See
+///   `_phase8_verdict.md` F9.2.
 ///
 /// ### See also
 /// - [VerdictCache], [VerdictCacheEntry]
@@ -261,7 +298,7 @@ final class InMemoryVerdictCache implements VerdictCache {
     if (ttl == Duration.zero) return null;
     final entry = _entries.remove(key);
     if (entry == null) return null;
-    if (DateTime.now().difference(entry.at) > ttl) {
+    if (DateTime.now().difference(entry.storedAt) > ttl) {
       evictExpired();
       return null;
     }
@@ -285,9 +322,15 @@ final class InMemoryVerdictCache implements VerdictCache {
   @override
   int get size => _entries.length;
 
+  /// The keys currently stored, least-recently-used first.
+  ///
+  /// Read-only diagnostic view — useful for audit ("what is cached?")
+  /// and manual inspection without mutating LRU order.
+  List<VerdictCacheKey> get keys => _entries.keys.toList(growable: false);
+
   @override
   void evictExpired() {
     final now = DateTime.now();
-    _entries.removeWhere((_, entry) => now.difference(entry.at) > ttl);
+    _entries.removeWhere((_, entry) => now.difference(entry.storedAt) > ttl);
   }
 }

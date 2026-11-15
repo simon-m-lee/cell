@@ -420,7 +420,9 @@ Any change to this manifest requires a deprecation cycle or a MAJOR version bump
 
 ### VerdictCacheEntry
 - `final Verdict verdict;`
-- `final DateTime at;`
+- `final DateTime storedAt;`
+- `final Duration originalLatency;`
+- `final bool fromPromptCache;`
 - `Map<String, dynamic> toMap() => {`
 - `VerdictCacheEntry(`
 

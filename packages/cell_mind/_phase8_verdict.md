@@ -171,3 +171,58 @@ share entries.
 Population order is append-first, then store — a repeat of the same
 decision with the evolved session state hits the entry, and the repeat
 does not create a new conversation turn.
+
+## Phase 9 (revised Phase 8 spec — verdict caching) alignment
+
+Phase-9.md is the revised Phase 8 plan (verdict caching, no sessions).
+The shipped 1.1.0 already implements its three-tier pipeline; this
+section records the alignment pass:
+
+### F9.1 — `VerdictCacheEntry` matches the plan's fields
+
+`storedAt` (TTL reference, the plan's name for the capture stamp),
+`originalLatency` (the producing LLM call's latency; zero for
+prompt-cache-sourced entries), and `fromPromptCache` (origin marker)
+ship per §7.1. `fromMap` tolerates the earlier `at`-only shape.
+
+### F9.2 — `InMemoryVerdictCache` is strict LRU, not insert-order
+
+The plan's draft described insert-order eviction and deferred strict
+LRU to a later `accessOrder` flag. The shipped implementation
+refreshes recency on every hit (access-order LRU) — a superset of the
+draft behavior, tested (`a lookup hit refreshes LRU recency`). The
+`accessOrder` toggle remains unnecessary and is not shipped.
+
+### F9.3 — Fingerprint functions are public
+
+`cellContextFingerprint`, `pulseContextFingerprint`, and
+`decisionFingerprint` ship as documented public functions (D9 manual
+"would this request hit?" diagnostics). The session fingerprint stays
+on `PromptSession.fingerprint()` — the revised plan predates sessions.
+
+### F9.4 — `VerdictCacheKey.composite` + canonical hit-effect tag
+
+`composite` exposes the raw joined components (the plan's storage-key
+shape); `fingerprint` remains the sha256 map key. The
+`VerdictCacheHitEffect` map `type` is the plan's canonical
+`'mind.verdict_cache_hit'`; the journal label stays
+`'mind.prompt.cache.hit'` (replay dispatches on labels).
+
+### F9.5 — `InMemoryVerdictCache.keys` diagnostic
+
+A read-only LRU-ordered key view ships for audit and manual
+inspection (D9).
+
+### F9.6 — Journal-clock precision fix (bridge replay divergence)
+
+The intermittent `test/bridge/determinism_test.dart` replay divergence
+was traced to a real precision bug, not test flake:
+`RecordingJournal.clock()` returns microsecond wall-clock time while
+clock records store epoch **millis** — replay restores millis.
+`toolRouter`'s `durationMillis = endAt.difference(startAt)` therefore
+flapped at millisecond boundaries (floor of a sub-ms-true difference
+vs the ms-epoch difference), making the `mind.tool.result` effect
+input diverge on replay ~half the time. Fix: `toolRouter` derives both
+instants from millisecond-truncated journal clocks (`_clockMs`), the
+exact precision replay restores. 25/25 repeated file runs green
+after the fix (previously ~1/3 failed).

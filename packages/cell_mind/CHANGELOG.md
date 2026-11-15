@@ -29,10 +29,15 @@ two-tier cache and embedded in a journaled conversation window.
 - **`PromptConfigRegistry`** — versioned lookup: A/B testing and
   runtime rollback.
 - **Verdict caching (three-tier fast path)** —
-  `VerdictCache` / `InMemoryVerdictCache` (TTL + LRU) /
-  `VerdictCacheKey` / `VerdictCacheEntry`, plus the output-keyed
-  prompt cache: verdict-cache hits skip rendering and the LLM;
-  prompt-cache hits skip the LLM.
+  `VerdictCache` / `InMemoryVerdictCache` (TTL + access-order LRU +
+  diagnostic `keys`) / `VerdictCacheKey` (`fingerprint` +
+  `composite`) / `VerdictCacheEntry` (`storedAt`, `originalLatency`,
+  `fromPromptCache`), plus the output-keyed prompt cache:
+  verdict-cache hits skip rendering and the LLM; prompt-cache hits
+  skip the LLM.
+- **Public fingerprint functions** — `cellContextFingerprint`,
+  `pulseContextFingerprint`, `decisionFingerprint` for manual
+  "would this request hit?" diagnostics.
 - **Chat sessions** — `PromptSession` / `ChatMessage` / `ChatRole` /
   `SessionMode` (`stateless` / `dedicated` / `shared`); deterministic
   pair-granular compaction; content-only fingerprints that

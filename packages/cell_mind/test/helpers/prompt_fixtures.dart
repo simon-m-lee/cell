@@ -31,7 +31,8 @@ const deferResponse = '{"verdict":"defer","resolver":"approval"}';
 /// Each call gets a fresh id — tests stay isolated from the
 /// process-wide content-addressed cache. Use a fixed-id custom config
 /// when the test wants to exercise config-mode cache sharing.
-PromptConfig tinyConfig({Duration? cacheTtl}) => PromptConfig.custom(
+PromptConfig tinyConfig({Duration? cacheTtl, SessionMode? sessionMode}) =>
+    PromptConfig.custom(
       id: 'tiny-${Identity.next()}',
       version: '1.0.0',
       description: 'Tiny test config',
@@ -39,6 +40,7 @@ PromptConfig tinyConfig({Duration? cacheTtl}) => PromptConfig.custom(
       userTemplate: '{{context}}\n\n{{decision}}',
       examples: const [],
       cacheTtl: cacheTtl,
+      sessionMode: sessionMode,
     );
 
 /// A context fixture exercising several dimensions.

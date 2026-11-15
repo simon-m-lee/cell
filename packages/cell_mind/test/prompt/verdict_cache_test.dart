@@ -24,6 +24,11 @@ void main() {
       expect(RegExp(r'^[0-9a-f]+$').hasMatch(fp), isTrue);
     });
 
+    test('composite exposes the raw joined components', () {
+      expect(key('s').composite, 'c|1.0.0|a|b|d|s');
+      expect(key('').composite, endsWith('|'));
+    });
+
     test('equal components produce equal keys', () {
       expect(key('s'), key('s'));
       expect(key('s').hashCode, key('s').hashCode);
@@ -72,12 +77,27 @@ void main() {
     test('round-trips through toMap/fromMap', () {
       final entry = VerdictCacheEntry(
         verdict: const Reject('no', {'k': 'v'}),
-        at: DateTime.utc(2026, 11, 15, 12),
+        storedAt: DateTime.utc(2026, 11, 15, 12),
+        originalLatency: const Duration(milliseconds: 42),
+        fromPromptCache: true,
       );
       final restored = VerdictCacheEntry.fromMap(entry.toMap());
       expect(restored.verdict, isA<Reject>());
       expect((restored.verdict as Reject).reason, 'no');
-      expect(restored.at, DateTime.utc(2026, 11, 15, 12));
+      expect(restored.storedAt, DateTime.utc(2026, 11, 15, 12));
+      expect(restored.originalLatency, const Duration(milliseconds: 42));
+      expect(restored.fromPromptCache, isTrue);
+    });
+
+    test('fromMap tolerates the legacy at-only shape', () {
+      final restored = VerdictCacheEntry.fromMap({
+        'verdict': const Accept().toMap(),
+        'at': '2026-11-15T12:00:00.000Z',
+      });
+      expect(restored.verdict, isA<Accept>());
+      expect(restored.storedAt, DateTime.utc(2026, 11, 15, 12));
+      expect(restored.originalLatency, Duration.zero);
+      expect(restored.fromPromptCache, isFalse);
     });
   });
 
@@ -86,7 +106,7 @@ void main() {
       final cache = InMemoryVerdictCache();
       final entry = VerdictCacheEntry(
         verdict: const Accept(),
-        at: DateTime.now(),
+        storedAt: DateTime.now(),
       );
       cache.store(key('s'), entry);
       expect(cache.lookup(key('s')), same(entry));
@@ -104,7 +124,7 @@ void main() {
       );
       cache.store(
         key('s'),
-        VerdictCacheEntry(verdict: const Accept(), at: DateTime.now()),
+        VerdictCacheEntry(verdict: const Accept(), storedAt: DateTime.now()),
       );
       expect(cache.lookup(key('s')), isNotNull);
       // Insert an already-expired entry.
@@ -112,7 +132,7 @@ void main() {
         key('t'),
         VerdictCacheEntry(
           verdict: const Accept(),
-          at: DateTime.now().subtract(const Duration(seconds: 5)),
+          storedAt: DateTime.now().subtract(const Duration(seconds: 5)),
         ),
       );
       expect(cache.lookup(key('t')), isNull);
@@ -122,7 +142,7 @@ void main() {
       final cache = InMemoryVerdictCache(ttl: Duration.zero);
       cache.store(
         key('s'),
-        VerdictCacheEntry(verdict: const Accept(), at: DateTime.now()),
+        VerdictCacheEntry(verdict: const Accept(), storedAt: DateTime.now()),
       );
       expect(cache.lookup(key('s')), isNull);
     });
@@ -132,7 +152,7 @@ void main() {
       for (var i = 0; i < 3; i++) {
         cache.store(
           key('s$i'),
-          VerdictCacheEntry(verdict: const Accept(), at: DateTime.now()),
+          VerdictCacheEntry(verdict: const Accept(), storedAt: DateTime.now()),
         );
       }
       expect(cache.size, 2);
@@ -145,16 +165,16 @@ void main() {
       final cache = InMemoryVerdictCache(maxEntries: 2);
       cache.store(
         key('s0'),
-        VerdictCacheEntry(verdict: const Accept(), at: DateTime.now()),
+        VerdictCacheEntry(verdict: const Accept(), storedAt: DateTime.now()),
       );
       cache.store(
         key('s1'),
-        VerdictCacheEntry(verdict: const Accept(), at: DateTime.now()),
+        VerdictCacheEntry(verdict: const Accept(), storedAt: DateTime.now()),
       );
       expect(cache.lookup(key('s0')), isNotNull); // s0 now most recent
       cache.store(
         key('s2'),
-        VerdictCacheEntry(verdict: const Accept(), at: DateTime.now()),
+        VerdictCacheEntry(verdict: const Accept(), storedAt: DateTime.now()),
       );
       expect(cache.lookup(key('s1')), isNull,
           reason: 's1 was least recently used');
@@ -165,13 +185,13 @@ void main() {
       final cache = InMemoryVerdictCache(maxEntries: 2);
       cache.store(
         key('s'),
-        VerdictCacheEntry(verdict: const Accept(), at: DateTime.now()),
+        VerdictCacheEntry(verdict: const Accept(), storedAt: DateTime.now()),
       );
       cache.store(
         key('s'),
         VerdictCacheEntry(
           verdict: const Reject('no'),
-          at: DateTime.now(),
+          storedAt: DateTime.now(),
         ),
       );
       expect(cache.size, 1);
@@ -182,7 +202,7 @@ void main() {
       final cache = InMemoryVerdictCache();
       cache.store(
         key('s'),
-        VerdictCacheEntry(verdict: const Accept(), at: DateTime.now()),
+        VerdictCacheEntry(verdict: const Accept(), storedAt: DateTime.now()),
       );
       cache.clear();
       expect(cache.size, 0);
@@ -193,13 +213,13 @@ void main() {
       final cache = InMemoryVerdictCache(ttl: const Duration(hours: 1));
       cache.store(
         key('fresh'),
-        VerdictCacheEntry(verdict: const Accept(), at: DateTime.now()),
+        VerdictCacheEntry(verdict: const Accept(), storedAt: DateTime.now()),
       );
       cache.store(
         key('stale'),
         VerdictCacheEntry(
           verdict: const Accept(),
-          at: DateTime.now().subtract(const Duration(hours: 2)),
+          storedAt: DateTime.now().subtract(const Duration(hours: 2)),
         ),
       );
       cache.evictExpired();
@@ -212,6 +232,75 @@ void main() {
       expect(
         () => InMemoryVerdictCache(ttl: const Duration(seconds: -1)),
         throwsArgumentError,
+      );
+    });
+  });
+
+  group('public fingerprint functions', () {
+    final context = Context(
+      domains: 'finance',
+      constraints: {'max': 100, 'min': 1},
+    );
+
+    Pulse pulse(Map<String, int> payload) => Pulse<Map<String, int>>.governed(
+          payload: payload,
+          type: 'amount',
+          context: PulseContext.fromEntries([
+            Provenance.actor.entry('llm'),
+            Provenance.confidence.entry(0.9),
+            Provenance.traceId.entry('t-1'),
+          ]),
+        );
+
+    test('same inputs fingerprint identically', () {
+      expect(cellContextFingerprint(context), cellContextFingerprint(context));
+      expect(
+        pulseContextFingerprint(pulse({'amount': 5})),
+        pulseContextFingerprint(pulse({'amount': 5})),
+      );
+      expect(
+        decisionFingerprint(pulse({'amount': 5})),
+        decisionFingerprint(pulse({'amount': 5})),
+      );
+    });
+
+    test('different inputs produce different fingerprints', () {
+      expect(
+        cellContextFingerprint(context),
+        isNot(cellContextFingerprint(Context.system)),
+      );
+      // The payload participates in the decision fingerprint, not the
+      // provenance fingerprint.
+      expect(
+        decisionFingerprint(pulse({'amount': 5})),
+        isNot(decisionFingerprint(pulse({'amount': 6}))),
+      );
+    });
+
+    test('map values are order-independent', () {
+      final a = Context(constraints: {'max': 100, 'min': 1});
+      final b = Context(constraints: {'min': 1, 'max': 100});
+      expect(cellContextFingerprint(a), cellContextFingerprint(b));
+    });
+
+    test('traceId participates in the pulse context fingerprint', () {
+      final withTrace = Pulse<Map<String, int>>.governed(
+        payload: const {},
+        context: PulseContext.fromEntries([
+          Provenance.actor.entry('llm'),
+          Provenance.traceId.entry('t-1'),
+        ]),
+      );
+      final otherTrace = Pulse<Map<String, int>>.governed(
+        payload: const {},
+        context: PulseContext.fromEntries([
+          Provenance.actor.entry('llm'),
+          Provenance.traceId.entry('t-2'),
+        ]),
+      );
+      expect(
+        pulseContextFingerprint(withTrace),
+        isNot(pulseContextFingerprint(otherTrace)),
       );
     });
   });
