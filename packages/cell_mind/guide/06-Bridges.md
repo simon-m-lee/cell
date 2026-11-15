@@ -238,7 +238,14 @@ this: a tool returning `'second-run'` on replay still yields
 
 Effect timestamps truncate to milliseconds: the replay clock restores
 epochs at millisecond precision, and wall-clock durations would never
-fingerprint-match (see `_phase5_verdict.md` B2).
+fingerprint-match (see `_phase5_verdict.md` B2). Phase 9 hardened this
+further: **durations computed from journal clocks must use
+millisecond-truncated instants** — the recording journal stores clock
+effects as epoch millis, so `endAt.difference(startAt)` over
+microsecond-precision `clock()` return values flapped `durationMillis`
+at ms boundaries and made `mind.tool.result` replay inputs diverge
+intermittently. `toolRouter` now uses `_clockMs` for both instants
+(`_phase8_verdict.md` F9.6).
 
 ### §6.3 — What replay does (and doesn't) do
 
@@ -290,6 +297,22 @@ verdictPolicy: learnedVerdictPolicy(),  // learned defer rules apply
 ---
 
 ## §8 — Common patterns
+
+### §8.0 — Bridges vs prompted policies (Phase 8/9)
+
+Two ways to involve an LLM, and they solve different problems:
+
+| | Bridge (`completion` / `toolRouter`) | Prompted policy (`promptedPolicyWith`) |
+|---|---|---|
+| Role | Sensor/actuator — the model produces *data* | Decision layer — the model produces a *verdict* |
+| Position | Upstream cell; its pulses flow into `cognitive()` | The `verdictPolicy:` slot inside `cognitive()` |
+| Output | Pulses (`mind.completion.result`, `mind.tool.result.*`) | `Accept` / `Reject` / `Defer` in the decision log |
+| Caching | None | Three-tier (verdict cache → prompt cache → LLM) |
+| Sessions | None | `PromptSession` with three `SessionMode`s |
+| Replay | Journaled effects, tools never re-invoked | Disposition-driven; adapter never invoked |
+
+They compose: a `toolRouter` gathers facts, then a prompted policy
+judges the gathered pulse. See `guide/12-Prompted-Policy.md`.
 
 ### §8.1 — LLM chat completion
 

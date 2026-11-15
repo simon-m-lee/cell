@@ -564,6 +564,19 @@ Total: 50 runtime tests; 184 across the package.
   (`principal-rejected`, `policy-rejected`, `composite-rejected`) as
   part of the public contract; they are load-bearing for XAI
   narratives.
+- **Phase 8/9 (prompt)** makes `VerdictPolicy.call` async-capable:
+  the return type widened to `FutureOr<Verdict>`, so a prompted policy
+  can await an LLM (or serve a cache hit) inside the same decision
+  wave. The recording runtime awaits it; synchronous verdict policies
+  are unaffected. Prompted decisions land in the same `Decision` log —
+  a verdict-cache hit is recorded like any other decision, with the
+  served verdict as its `verdict` field. The journal additionally
+  records the pipeline branch: `mind.prompt` (LLM call),
+  `mind.prompt.cache.hit` (cache hit), session effects, and an internal
+  disposition record that makes replay take the identical branch.
+  Attribution reasons are unchanged: a prompted `Reject` is still
+  attributed by the runtime's existing principal/policy/composite
+  model (`guide/12-Prompted-Policy.md`).
 
 ---
 
@@ -574,6 +587,8 @@ Total: 50 runtime tests; 184 across the package.
 CognitiveHandle<C> cognitive<C extends Cell>({
   required C cell,
   Policy policy = TestCell.allowAll,
+  VerdictPolicy? verdictPolicy,
+  Future<bool> Function(Decision, Verdict)? onDeferred,
   int maxDecisions = 10000,
 });
 

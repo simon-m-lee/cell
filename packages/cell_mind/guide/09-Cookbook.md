@@ -1,4 +1,4 @@
-# Cookbook — fifteen real-world recipes
+# Cookbook — sixteen real-world recipes
 
 *Copy a recipe, adapt it, move on. Every recipe below is compiled and
 asserted by `test/cookbook/NN_*.dart`.*
@@ -128,7 +128,13 @@ Pulses with `confidence < 0.9` are rejected with
 `Reject('policy-rejected')`; the decision log carries the exact
 confidence value for the audit.
 
-**See:** `guide/06-Bridges.md` §3.
+**Since Phase 8/9** the same confidence can be enforced *before* the
+LLM is asked at all: `PromptConfig.policyDecider()` renders the
+confidence into the prompt, and a prompted policy memoizes the verdict
+so a re-issued low-confidence decision is a cache hit, not a second
+model call (recipe 16).
+
+**See:** `guide/06-Bridges.md` §3, `guide/12-Prompted-Policy.md`.
 
 ---
 
@@ -393,6 +399,59 @@ carries ids, timestamps, and the context version.
 
 ---
 
+## Recipe 16 — Prompted policy with verdict caching and a chat session
+
+**Context:** an LLM decides Accept/Reject/Defer per decision; repeat
+inputs must not re-invoke the model; a multi-turn window must be
+visible to later turns.
+
+```dart
+var calls = 0;
+final config = PromptConfig.custom(
+  id: 'fraud-review',
+  version: '1.0.0',
+  description: 'multi-turn fraud review',
+  systemPrompt: defaultSystemPrompt,
+  userTemplate: '{{context}}\n\n{{decision}}',
+  sessionMode: SessionMode.dedicated,
+);
+final gate = Cell.ingress<Map<String, int>>(context: context);
+final policy = promptedPolicyWith(
+  config: config,
+  prompt: (prompt) async {
+    calls++;
+    return mySdk.complete(prompt); // {"verdict":"accept",...}
+  },
+  journal: journal,
+);
+final handle = cognitive(
+  cell: gate.cell,
+  policy: contextAware(),  // structural gate first — cache is post-structural
+  verdictPolicy: policy,
+  onDeferred: approvalResolver(queue),
+);
+
+await gate.ingest(pulse);   // calls == 1
+await gate.ingest(pulse);   // verdict-cache hit: no call, no new turn
+// The next DIFFERENT decision's prompt contains the prior turns under
+// `## Conversation History`; policy.session exposes the window.
+```
+
+**Non-obvious:**
+
+- The repeat hit is only free while the session state is unchanged —
+  every successful decision appends a turn, so the *next* distinct
+  decision keys differently (by design).
+- `conform(config:, prompt:, cases:)` measures the model against the
+  config without touching caches or sessions — run it on deploy.
+- Cache hits journal `mind.prompt.cache.hit`; replays serve the
+  recorded branch and never invoke the adapter.
+
+**See:** `guide/12-Prompted-Policy.md`; the runnable version is
+`example/10_prompted_policy.dart` (36 hard checks).
+
+---
+
 ## Cookbook summary
 
 | # | Recipe | Modules |
@@ -412,6 +471,9 @@ carries ids, timestamps, and the context version.
 | 13 | Deterministic training | learning + replay |
 | 14 | Cross-domain handoff | policy + deputy |
 | 15 | XAI compliance report | xai |
+| 16 | Prompted policy + verdict caching + sessions | prompt |
 
-Each recipe is pinned by `test/cookbook/NN_*.dart` — CI catches any
+Recipes 1–15 are pinned by `test/cookbook/NN_*.dart`; recipe 16
+(Phase 8/9) is pinned by `test/prompt/` and
+`example/10_prompted_policy.dart` — CI catches any
 drift between the printed code and the real API.

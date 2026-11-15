@@ -252,6 +252,28 @@ missing metadata); the learned opinion runs last (pass-through when no
 rule matches). A learned reject can only narrow a structural accept —
 never widen it.
 
+**Three layers since Phase 8/9:** `contextAware() + learnedPolicy()`
+in the `policy:` slot, then a prompted policy in the `verdictPolicy:`
+slot:
+
+```dart
+final handle = cognitive(
+  cell: gate.cell,
+  policy: contextAware() + learnedPolicy(), // structural → learned
+  verdictPolicy: promptedPolicyWith(        // LLM nuance, memoized
+    config: PromptConfig.policyDecider(),
+    prompt: myLLM,
+    journal: journal,
+  ),
+);
+```
+
+The same narrowing rule applies: a prompted verdict can only narrow
+what structural and learned policy accepted. Learned outcomes can be
+recorded for prompted decisions too — `recordOutcome` works on any
+decision id, so a bandit can learn which prompted verdicts worked
+(`guide/12-Prompted-Policy.md`).
+
 ---
 
 ## §9 — Deploying the trained policy
@@ -290,6 +312,13 @@ Record completions as decisions (Phase 5 bridges emit into the same
 channel); reward by downstream acceptance. Learned rules per prompt
 category (vector = `strategy: probabilistic` × `purpose`) reject the
 categories that consistently fail.
+
+Since Phase 8/9 there are two ways to put an LLM in the loop, and
+they compose: **bridges** (`completion`, `toolRouter`) act as
+sensors/actuators whose pulses flow into `cognitive()` decisions;
+**prompted policies** decide *inside* the decision wave by asking the
+LLM for a verdict (memoized, journaled, replayable). Outcomes from
+either kind of decision feed the same trainer.
 
 ### §10.3 — Attribute learning (preview)
 

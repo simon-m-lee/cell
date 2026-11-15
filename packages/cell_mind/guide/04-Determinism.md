@@ -95,6 +95,16 @@ determinism tests assert for the trainer.
   journal` — a training run is an effect (external state = the new
   `Context`), and replaying it re-reads the decision log from the
   journal, not the live tissue.
+- **The prompted policy (Phase 8/9, `effectful`)** journals its whole
+  pipeline: `mind.prompt` (full prompt + response + `cacheKey` +
+  `sessionFingerprint`), `mind.prompt.cache.hit` (served verdict),
+  `mind.session.init/append/clear/compact`, plus one internal
+  **disposition** record per decision that stores which branch the
+  decision took (`verdict-cache-hit` / `prompt-cache-hit` / `llm` /
+  `prompt-too-long`). Replay serves the disposition: a recorded cache
+  hit never re-renders, a recorded LLM call never becomes a cache hit,
+  and session exchanges are reconstructed from the served effect maps.
+  The adapter therefore **never runs on replay**.
 
 `NullJournal` fails loudly by design. `cell_mind` never defaults a
 journal and never catches the sentinel's failure.
@@ -121,6 +131,21 @@ The failure modes, each with its guard:
 5. **The unversioned trap.** A log full of `'0.0.0'` stamps cannot be
    replayed across implementation changes. Guard: documentation + the
    examples stamp their contexts.
+6. **Prompted replay with a different config instance.** The
+   disposition input is `'${key.fingerprint}|${config.maxPromptChars}'`
+   and the key includes the config id — a fresh config instance (e.g.
+   `tinyConfig()` with a new id) diverges loudly. Guard: recording and
+   replay share the same config instance (or the same id + version).
+7. **Session state mismatch.** A mutated or cleared session between
+   recording and replay surfaces as `ReplayDivergenceException` at the
+   first fingerprint mismatch — louder than a fail-closed reject.
+8. **Sub-millisecond clock leftovers in effect durations.** The
+   journal stores clock effects as epoch *millis*; replay restores
+   exactly that. Durations derived from journal clocks must therefore
+   be computed from millisecond-truncated instants — the Phase 9
+   `toolRouter` fix (`_clockMs`, see `_phase8_verdict.md` F9.6) —
+   otherwise `durationMillis` flaps at ms boundaries and replay
+   diverges intermittently.
 
 ---
 
@@ -197,6 +222,15 @@ before merge:
 5. **Where does replay get its data?** The `ReplayJournal`, not the
    live tissue — the trainer re-reads the decision log from the journal
    on replay.
+
+Phase 8/9 answered all five: the LLM call is `journal.io('mind.prompt')`
+(the adapter never runs on replay), the caches are consulted only under
+the journaled disposition, session mutations are journaled effects,
+`PromptConfig.id + version` stamp the artifact, and fingerprints (not
+wall-clock timestamps) key the caches. The one Phase 9 repair:
+journal-clock-derived durations must be computed from
+millisecond-truncated instants (`_clockMs`) because clock effects
+record epoch millis (F9.6).
 
 ---
 

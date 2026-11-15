@@ -5,7 +5,7 @@ constrain, and what Phase 0 discovered about the substrate.*
 
 ---
 
-## The nine principles
+## The eleven principles
 
 Every module in `cell_mind` is measured against these nine rules. When a
 review question starts with "why can't we just …", the answer is one of
@@ -177,6 +177,45 @@ benchmarked (`benchmark/micro/recording_cost.dart`), and the guides say
 **Phase 0 verification:** F6 (deputy state sharing — the mechanism dynamic
 mode builds on) and F7 (pulse round-trip through `apply`).
 
+### P10 — Prompted verdicts memoize by content, not by identity (Phase 8/9)
+
+- The verdict cache key is the sha256 of
+  `(config.id | version | cell-context-fp | pulse-context-fp |
+  decision-fp | session-fp)`; the prompt cache key is the sha256 of
+  `(config.id | version | sha256(renderedPrompt))`. Identical content
+  ⇒ identical key ⇒ identical verdict, across processes and time.
+- Fingerprints cover exactly the dimensions the renderer emits
+  (`traceId` included; pulse timestamps never rendered or hashed), so
+  cache identity and prompt determinism cannot drift apart.
+- `config.version` participates in every key — bumping a version is a
+  deliberate, total invalidation; there is no accidental staleness
+  path.
+
+**Enables:** repeat decisions at ~5 µs (verdict-cache hit) instead of
+a network round-trip; A/B testing via versioned registry keys.
+
+**Forbids:** wall-clock timestamps in cache keys; identity-based
+`==` on keys; serving a prompt-cache entry when the verdict cache
+already answered (the tiers are strictly ordered).
+
+### P11 — A conversation is journal state, not ambient state (Phase 8/9)
+
+- Sessions are per-decision accumulators of `(user, assistant)` pairs
+  with content-only fingerprints; empty sessions fingerprint `''` —
+  stateless and empty-session decisions share keys and prompt layout.
+- Every session mutation is a journal effect (`init`, `append`,
+  `clear`, `compact`); compaction drops whole pairs only, never a
+  partial turn.
+- Cache population follows D14 order: append first, then store under
+  the **post-append** key — a repeat decision hits the cache and does
+  not create a new turn.
+
+**Enables:** multi-turn chat, cross-policy shared windows, and replay
+that reconstructs the exact conversation without re-invoking the LLM.
+
+**Forbids:** timestamped fingerprints, partial-pair compaction, cache
+stores under the pre-append key.
+
 ---
 
 ## How the principles constrain the API
@@ -195,6 +234,8 @@ checklist used in every phase review.
 | P7 | `required EffectJournal journal` on effectful APIs | defaulted journals / no-journal overloads |
 | P8 | purity declared per module and documented | clock-reading policies declared `pure` |
 | P9 | `cognitive(...)` + `testRule: contextAware()` | silent automatic wrapping of every cell |
+| P10 | `promptedPolicyWith(config:, prompt:, journal:)` + `VerdictCache` | timestamped cache keys, identity-based key equality |
+| P11 | `PromptSession` + `SessionMode` + journaled session effects | partial-turn compaction, ambient conversation state |
 
 ### The static-mode contract
 
@@ -337,6 +378,26 @@ await JournalScope.run(replay, () => ...);
 probe it. Sharing is proven behaviourally: the deputy's synapses receive
 the principal's transitions (F6). Dynamic mode leans on this — the
 cognitive cell and the principal must see the same waves.
+
+### D8 — Journal clocks store millis; derive durations from millis (Phase 9)
+
+`RecordingJournal.clock()` returns microsecond wall-clock time, but
+the clock *effect* stores epoch milliseconds — and replay restores
+exactly the millis. Any duration computed by subtracting two
+`clock()` return values can therefore disagree with the duration a
+replay recomputes (floor of a sub-ms difference vs the ms-epoch
+difference). `toolRouter`'s `_clockMs` truncates both instants to
+milliseconds first (`_phase8_verdict.md` F9.6). New journal-driven
+timing code must do the same.
+
+### D9 — Replay requires the same config identity for prompted decisions
+
+The prompted disposition's input is
+`'${key.fingerprint}|${config.maxPromptChars}'` and the key includes
+`config.id` — a recording and its replay must share the same config
+instance (or identical id + version), or the first disposition
+diverges loudly. This is intentional: cache identity and journal
+identity are one hash.
 
 ---
 

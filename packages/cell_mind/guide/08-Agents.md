@@ -153,6 +153,41 @@ Three agents, `consensusThreshold: 0.7` — two of three must agree.
 Distinct mandates (`authority`, `clearance`, `isolation`) per agent;
 the substrate's deputy machinery enforces what the mandate allows.
 
+### §9.4 — Prompted agents sharing a conversation (Phase 8/9)
+
+Each agent can host its own prompted policy; give two policies the
+same `PromptSession` with `SessionMode.shared` and every agent's
+decisions become turns the other agents see — the verdict cache keys
+stay correct because the session fingerprint is content-only:
+
+```dart
+PromptConfig sharedConfig() => PromptConfig.custom(
+      id: 'reviewers',
+      version: '1.0.0',
+      description: 'shared review window',
+      systemPrompt: defaultSystemPrompt,
+      userTemplate: '{{context}}\n\n{{decision}}',
+      sessionMode: SessionMode.shared, // requires session:
+    );
+final window = PromptSession(id: 'reviewers');
+final reviewerA = promptedPolicyWith(
+  config: sharedConfig(),
+  prompt: llmA,
+  journal: journal,
+  session: window,
+);
+final reviewerB = promptedPolicyWith(
+  config: sharedConfig(),
+  prompt: llmB,
+  journal: journal,
+  session: window,
+);
+```
+
+Per-agent sessions use `SessionMode.dedicated` (one window per
+policy). Stateless is the default. Full reference:
+`guide/12-Prompted-Policy.md`.
+
 ---
 
 ## §10 — What agents can and cannot do (v1)
@@ -163,6 +198,7 @@ the substrate's deputy machinery enforces what the mandate allows.
 | Record/learn independently | Multi-round argument exchange |
 | Vote in single-round debates | Distributed multi-process agents |
 | Defer via `verdictPolicy` + `ApprovalQueue` | Learning transfer between agents |
+| Prompted verdicts per agent (Phase 8/9) | Prompt tuning from outcomes |
 
 ---
 

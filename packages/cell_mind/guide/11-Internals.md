@@ -219,6 +219,10 @@ remaining organ limitation is API-level: organ `deputy` accepts only
 | `lib/src/xai.dart` | `DecisionPath`, `explain*`, `otelSpans` |
 | `lib/src/agent.dart` | `AgentSpec`, `spawn`, `debate` |
 | `lib/src/outcomes.dart` | `Outcome`, `recordOutcomes` |
+| `lib/src/prompt_policy.dart` | `promptedPolicy`, `promptedPolicyWith`, `PromptedPolicy`, `conform` |
+| `lib/src/prompt_config.dart` | `PromptConfig`, `PromptExample`, `PromptConfigRegistry`, `SessionMode` |
+| `lib/src/prompt_session.dart` | `PromptSession`, `ChatMessage`, `ChatRole` |
+| `lib/src/verdict_cache.dart` | `VerdictCache`, `InMemoryVerdictCache`, `VerdictCacheKey`, `VerdictCacheEntry` |
 | `lib/src/internal/recording_test_cell.dart` | the recorder |
 | `lib/src/internal/bandit.dart` | bandit trainer |
 | `lib/src/internal/context_vector.dart` | decision vectorization |
@@ -229,6 +233,14 @@ remaining organ limitation is API-level: organ `deputy` accepts only
 | `lib/src/internal/policy_helpers.dart` | verb/domain helpers |
 | `lib/src/internal/decisions.dart` | `Decision` record |
 | `lib/src/internal/verdicts.dart` | verdict classes |
+| `lib/src/internal/fingerprint.dart` | `cellContextFingerprint`, `pulseContextFingerprint`, `decisionFingerprint` |
+| `lib/src/internal/prompt_effect.dart` | `PromptEffect`, `VerdictCacheHitEffect`, session effects |
+| `lib/src/internal/prompt_cache.dart` | output-keyed prompt cache (static per config) |
+| `lib/src/internal/config_renderer.dart` | template + session rendering |
+| `lib/src/internal/session_renderer.dart` | conversation-history block |
+| `lib/src/internal/config_validation.dart` | `PromptConfig.validate` checks |
+| `lib/src/internal/config_presets.dart` | `policyDecider` / `classifier` / `extractor` |
+| `lib/src/internal/conformance.dart` | `conform` runner |
 
 ---
 
@@ -236,10 +248,12 @@ remaining organ limitation is API-level: organ `deputy` accepts only
 
 The system is four moving parts composed deliberately: a **gate**
 (policy), a **mirror** (recorder deputy), a **ledger** (decision +
-outcome lists), and a **fold** (trainer). Everything else — approval,
-bridges, agents, XAI — is those parts wired to a use case. When
-debugging, find which of the four is lying; the invariants in §12
-name the expected truth.
+outcome lists), and a **fold** (trainer). Phase 8/9 adds a fifth: the
+**memoized prompt pipeline** (fingerprint → verdict cache → render →
+prompt cache → LLM → session, journaled branch-by-branch). Everything
+else — approval, bridges, agents, XAI — is those parts wired to a use
+case. When debugging, find which of the parts is lying; the invariants
+in §12 name the expected truth.
 
 ---
 
@@ -264,6 +278,16 @@ The rule that makes training byte-identical under replay:
 `test/cookbook/13_deterministic_train.dart` pins the property:
 two training runs — one recording, one replay — produce equal
 `policyBlock`s.
+
+Phase 8/9 extends the same contract to prompted decisions
+(`test/prompt/determinism_test.dart`): the **disposition** effect
+records which branch a decision took, so replay re-takes that branch
+— a recorded cache hit never re-renders, a recorded LLM call never
+becomes a hit, and session exchanges rebuild from served appends.
+Phase 9 repaired the one precision leak: durations derived from
+journal clocks must use millisecond-truncated instants (`_clockMs` in
+`lib/src/bridge.dart`) because clock effects store epoch millis
+(F9.6).
 
 ---
 
@@ -309,6 +333,9 @@ Missing provenance is elided; nothing is invented. Pinned by
 | Debate no-vote | `AgentSpec.routeIn` missing |
 | Organ crash in `cognitive` | organ stems can't host recorders — host the ingress |
 | Narrative null provenance | action decision (no pulse) — expected |
+| Prompt rejects `prompt-too-long` | rendered prompt over `maxPromptChars` |
+| Repeat decision still calls the LLM | session appended (key changed) or TTL zeroed |
+| Replay diverges at disposition | config id/version differs from recording |
 
 ---
 
@@ -325,6 +352,11 @@ Missing provenance is elided; nothing is invented. Pinned by
   `benchmark/micro/bridge_cost.dart`.
 - `spawn_cost.dart` and `xai_cost.dart` bound agent construction and
   narrative rendering.
+- Prompted policy: `benchmark/micro/prompted_policy_cost.dart` —
+  render ~22k/s, parse ~246k/s, verdict-cache-hit decision ~6.9k/s,
+  prompt-cache-hit decision ~5.8k/s, full cache-miss decision ~1.7k/s
+  (mock adapter). The verdict cache pays for itself against any real
+  network round-trip.
 
 ---
 

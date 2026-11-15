@@ -358,9 +358,11 @@ The LLM can veto; it can never override the structural gate. See
   [XAI](guide/07-XAI.md) · [Agents](guide/08-Agents.md)
 - [Prompted Policy](guide/12-Prompted-Policy.md) — the 1.1.0 prompt
   layer: `PromptConfig`, both modes, the cache, replay, conformance
-- [Cookbook](guide/09-Cookbook.md) — 15 recipes, each with a test
+- [Cookbook](guide/09-Cookbook.md) — 16 recipes, each with a test
 - [Design Notes](guide/10-Design-Notes.md) ·
   [Internals](guide/11-Internals.md)
+- [Architecture](ARCHITECTURE-Mind.md) — the design and implementation
+  architecture across phases 0–9
 
 ## Stability
 

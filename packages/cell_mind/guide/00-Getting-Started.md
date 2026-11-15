@@ -98,6 +98,7 @@ ingress ──pulse──▶ [Policy] ──▶ cognitive deputy ──▶ downs
                     (gate)     │
                                ├──▶ Decision log ──▶ explain/XAI
                                ├──▶ outcomes ──▶ trainOffline ──▶ Context
+                               ├──▶ verdictPolicy ──▶ verdict cache ──▶ LLM
                                └──▶ Defer ──▶ ApprovalQueue ──▶ committed
 ```
 
@@ -106,6 +107,10 @@ ingress ──pulse──▶ [Policy] ──▶ cognitive deputy ──▶ downs
   that passes, and records the verdict.
 - **Learning** is offline and portable: a `TrainedPolicy` is data,
   not a live cell.
+- **Prompted policies** (Phase 8/9) sit behind the structural gates:
+  they render the Context into a prompt, query any AI, and memoize
+  the verdict with a three-tier cache (verdict cache → prompt cache →
+  LLM) plus optional stateful chat sessions.
 - **Deferral** never blocks the wave: the resolution arrives
   out-of-band through `ApprovalQueue.committed`.
 
@@ -122,6 +127,7 @@ ingress ──pulse──▶ [Policy] ──▶ cognitive deputy ──▶ downs
 | bridges | `completion`, `streamCompletion`, `streamChunks`, `toolRouter` | `guide/06-Bridges.md` |
 | xai | `DecisionPath`, `explainPulse`, `explainSource`, `otelSpans` | `guide/07-XAI.md` |
 | agents | `AgentSpec`, `spawn`, `AgentRuntime`, `debate` | `guide/08-Agents.md` |
+| prompt | `promptedPolicy`, `promptedPolicyWith`, `PromptedPolicy`, `PromptConfig`, `PromptConfigRegistry`, `conform`, `PromptSession`, `SessionMode`, `VerdictCache`, `InMemoryVerdictCache` | `guide/12-Prompted-Policy.md` |
 | cross-cutting | `Verdict`, `Outcome`, journaling | `guide/09-Cookbook.md` |
 
 The curated index lives at `lib/doc/api_chooser.dart` — read it when
@@ -191,6 +197,27 @@ explainPulse(pulse, handle)?.toNarrative();   // audit line
 otelSpans(handle.decisions, tracer: adapter); // tracing
 ```
 
+### 6.6 — Ask an AI, once (verdict caching)
+
+```dart
+final policy = promptedPolicyWith(
+  config: PromptConfig.policyDecider(),
+  prompt: (prompt) async => mySdk.complete(prompt), // your adapter
+  journal: journal,
+);
+
+final handle = cognitive(
+  cell: gate.cell,
+  policy: contextAware(),     // structural gate runs first
+  verdictPolicy: policy,      // LLM nuance, memoized
+  onDeferred: approvalResolver(queue),
+);
+```
+
+The same `(config, context, decision, session)` state is answered once:
+a repeat decision is a verdict-cache hit — no prompt, no LLM call, no
+new conversation turn. See `guide/12-Prompted-Policy.md`.
+
 ---
 
 ## §7 — Next steps
@@ -202,7 +229,8 @@ otelSpans(handle.decisions, tracer: adapter); // tracing
 3. **Read the runtime guide** — `guide/02-Runtime.md` explains the
    recording deputy and the decision record.
 4. **Add humans** with `guide/05-Approval.md`, **add models** with
-   `guide/06-Bridges.md`.
+   `guide/06-Bridges.md`, **add prompt-driven verdicts** with
+   `guide/12-Prompted-Policy.md` (Phase 8/9: caching + chat sessions).
 5. **Check the limitations** in `KNOWN_ISSUES.md` before designing
    around them.
 
@@ -223,7 +251,7 @@ transport-agnostic by design (bring your own HTTP client).
 
 ---
 
-## §9 — The v1.0 stability guarantee
+## §9 — The stability guarantee (v1.0 frozen, 1.1 additive)
 
 Every public type, method, and typedef shipped in `1.0.0` is frozen
 in `FROZEN_API.md`. A future PR that changes a signature must run:
@@ -236,6 +264,12 @@ diff FROZEN_API.md /tmp/current_api.md
 Any diff triggers either a deprecation cycle or a `2.0.0` bump.
 Bugs ship as `1.0.x` patches; new capabilities as `1.x.0`.
 
+`1.1.0` (Phase 8/9) added the **prompt** module additively —
+prompted policy, verdict caching, and chat sessions. Its one
+signature change is source-compatible: `VerdictPolicy.call` widened
+to `FutureOr<Verdict>` (async verdict policies), which is why a
+prompted policy can await an LLM.
+
 ---
 
 ## §10 — The acceptance pipeline
@@ -244,20 +278,27 @@ Bugs ship as `1.0.x` patches; new capabilities as `1.x.0`.
 fraud-detection flow that runs every module end-to-end (policy →
 deferral → approval → bridge → learning → deployment → debate →
 XAI) with hard checks, in under 5 seconds.
+`example/10_prompted_policy.dart` extends it with the Phase 8/9
+surface: config mode, replay, defer, dedicated/shared sessions,
+verdict-cache hits, classifier and extractor presets.
 
 ```bash
 dart run example/09_acceptance.dart
+dart run example/10_prompted_policy.dart
 ```
 
-If that program fails, the framework is not ready — it is also the
-CI smoke test.
+If those programs fail, the framework is not ready — they are also
+the CI smoke tests.
 
 ---
 
 ## §11 — Where to go from here
 
-- Cookbook: `guide/09-Cookbook.md` (15 recipes with tests)
+- Cookbook: `guide/09-Cookbook.md` (16 recipes with tests)
+- Prompted policy: `guide/12-Prompted-Policy.md` (Phase 8/9 —
+  rendering, three-tier caching, chat sessions, conformance)
 - Design rationale: `guide/10-Design-Notes.md`
+- Architecture: `ARCHITECTURE-Mind.md` (phases 0–9, end to end)
 - Maintainer view: `guide/11-Internals.md`
 - Known limitations: `KNOWN_ISSUES.md`
 - Migration from 0.x: `CHANGELOG.md` → `1.0.0` entry
@@ -303,6 +344,17 @@ ingress to the blend and host the handle on the ingress (recipe 10).
 journaled io effects, so replay never re-invokes the world. Training
 is deterministic under replay.
 
+**Q: How do I query an LLM for a verdict?**
+`promptedPolicyWith(config:, prompt:, journal:)` in the
+`verdictPolicy:` slot. Repeat inputs are served from the verdict
+cache without a call; `Defer` verdicts route to `onDeferred`. See
+`guide/12-Prompted-Policy.md`.
+
+**Q: Why did my prompted decision call the LLM twice?**
+A successful decision appends a turn to the session (dedicated/shared
+modes), which changes the verdict-cache key. Stateless configs never
+do this; repeats in the same session state are cache hits.
+
 ---
 
 ## §13 — Troubleshooting quick reference
@@ -316,6 +368,9 @@ is deterministic under replay.
 | Decision count 0 | traffic bypasses the view | route through `handle.cognitive` |
 | Replay divergence | effect fingerprints differ | ms-truncate timestamps; exact maps |
 | Debate no-vote | missing `routeIn` | pass `source.ingest` |
+| Reject `prompt-too-long` | rendered prompt over `maxPromptChars` | shorten template/history or raise the bound |
+| Reject `parse-error-*` / `prompt-error` | adapter output malformed or call failed | check `PromptConfig.outputSchema` and the adapter |
+| Repeated decision still calls the LLM | session grew (key changed) | use stateless mode or repeat with the same session state |
 
 ---
 

@@ -55,6 +55,28 @@ final handle = cognitive(
 Evaluation order: principal rule → bool policy → verdict policy. A
 rejection in an earlier slot never reaches a later one.
 
+Since Phase 8/9 the verdict slot can also be **prompt-driven**:
+
+```dart
+final handle = cognitive(
+  cell: cell,
+  policy: contextAware() + learnedPolicy(),         // bool slot
+  verdictPolicy: promptedPolicyWith(                // LLM verdict slot
+    config: PromptConfig.policyDecider(),           // may answer Defer
+    prompt: myLLM,
+    journal: journal,
+  ),
+  onDeferred: approvalResolver(queue),
+);
+```
+
+A prompted `Defer` (or a cached one) routes through `onDeferred`
+exactly like a hand-written rule's `Defer`: same resolver contract,
+same two-decision audit trail, same wave-honest drop. The prompted
+policy never consults the LLM when structural policy already rejected
+— deferral of an accepted-by-structure decision is the LLM's only
+escalation path (`guide/12-Prompted-Policy.md`).
+
 ### §2.3 — Composition rules
 
 `VerdictPolicy.+` short-circuits on the first `Accept` or `Reject`;
@@ -241,6 +263,12 @@ so the pending queue itself is a complete audit record.
 | `mind.approval.expired` | TTL sweeper removes a request |
 | `mind.approval.disposed` | queue disposal (pending count) |
 
+A prompted policy in the same handle journals its own pipeline
+alongside these (`mind.prompt`, `mind.prompt.cache.hit`,
+`mind.session.*`, disposition) — the journal is one interleaved
+sequence, so the audit trail shows *why* the deferral happened
+(prompt + response) before *who* resolved it.
+
 ---
 
 ## §8 — `learnedVerdictPolicy()`
@@ -301,7 +329,28 @@ onDeferred: approvalResolver(queue),
 with a block rule
 `{when: {domains: 'audit'}, action: 'defer', resolver: 'approval'}`.
 
-### §9.3 — Emergency override
+### §9.3 — Prompted policy + approval
+
+```dart
+final handle = cognitive(
+  cell: gate.cell,
+  policy: contextAware(),
+  verdictPolicy: promptedPolicyWith(
+    config: PromptConfig.policyDecider(), // LLM may answer Defer
+    prompt: myLLM,
+    journal: journal,
+  ),
+  onDeferred: approvalResolver(queue),
+);
+```
+
+The LLM decides Accept/Reject on routine traffic (memoized by the
+verdict cache); anything it cannot decide confidently becomes a
+`Defer('approval')` that lands in `queue.pending` for a human. A
+cached verdict behaves identically to a fresh one — including
+deferral.
+
+### §9.4 — Emergency override
 
 An operator who needs to let one pulse through immediately can observe
 `queue.pending`, approve the request, and re-ingest the value through

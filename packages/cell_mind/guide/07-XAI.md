@@ -17,6 +17,16 @@ The decision log is already the evidence. XAI adds the **projection**:
 - `otelSpans` — OTel-compatible spans from the log via a minimal
   `Tracer` abstraction.
 
+**Prompted decisions (Phase 8/9) explain like every other decision:**
+the `Decision.verdict` carries the LLM's `Reject.reason` /
+`Defer.resolver` / annotations, so `toNarrative()` names the reason
+the model gave. The deeper evidence lives in the journal:
+`mind.prompt` holds the full rendered prompt + response +
+`cacheKey`, and `mind.prompt.cache.hit` marks a served verdict. What
+XAI intentionally cannot reconstruct is the model's *internal*
+reasoning — the prompt/response pair is the boundary of the evidence
+(see §8).
+
 ---
 
 ## §2 — `DecisionPath` — the read-only view

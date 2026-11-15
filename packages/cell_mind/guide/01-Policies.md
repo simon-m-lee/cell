@@ -50,7 +50,7 @@ Cell.ingress<String>(context: context, testRule: gate); // static mode
 
 ---
 
-## §2 — The fifteen factories
+## §2 — The fifteen factories (plus the Phase 8/9 verdict factories)
 
 ### §2.1 — Domain: `domainPolicy`, `requiresDomainPolicy`
 
@@ -314,6 +314,32 @@ policies, `complianceOverlapPolicy`, `authorityPolicy`, `clearancePolicy`,
 `actorPolicy`/`purposePolicy` (need caller allowlists) and `notOlderThan`
 (needs a clock) — compose them on top.
 
+### §2.15 — Prompted policies (Phase 8/9)
+
+`promptedPolicy` and `promptedPolicyWith` are **not** `TestCell`
+factories — they are `VerdictPolicy` factories for the
+`verdictPolicy:` slot of `cognitive()`. They render the decision's
+`Context` into a prompt, query any AI through your adapter, and
+memoize the parsed verdict with a three-tier cache (verdict cache →
+prompt cache → LLM), optionally against a stateful chat session.
+
+```dart
+final handle = cognitive(
+  cell: gate.cell,
+  policy: contextAware(),               // structural gate runs FIRST
+  verdictPolicy: promptedPolicyWith(    // LLM nuance, memoized
+    config: PromptConfig.policyDecider(),
+    prompt: myLLM,
+    journal: journal,
+  ),
+  onDeferred: approvalResolver(queue),
+);
+```
+
+The trust boundary is unchanged: a prompted verdict (or its cached
+copy) can never accept what structural policy rejected. Full
+reference: `guide/12-Prompted-Policy.md`.
+
 ---
 
 ## §3 — The object-type dispatch model
@@ -541,6 +567,10 @@ context) are pinned by the Phase 0 fitness suite.
   knows how to honour `Defer`.
 - No recording — the decision log is Phase 2.
 - No learning — the trainer is Phase 3.
+- **No prompted verdicts here** — `promptedPolicy` /
+  `promptedPolicyWith` (Phase 8/9) are `VerdictPolicy` factories that
+  compose with these gates, not replacements for them
+  (`guide/12-Prompted-Policy.md`).
 - No `cell_organ` hard dependency — policies compose with `TestStem` at
   the seam documented in `guide/10-Design-Notes.md`.
 
