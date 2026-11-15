@@ -385,11 +385,12 @@ Any diff requires a deprecation cycle or a MAJOR bump.
 
 | Want | Read |
 |---|---|
-| The design principles (P1–P9 + phase findings) | `guide/10-Design-Notes.md` |
+| The design principles (P1–P11 + phase findings) | `guide/10-Design-Notes.md` |
 | What `cell` guarantees `cell_mind` relies on | `test/fitness/cell_contract_test.dart` |
 | Known limitations + post-1.0 roadmap | `KNOWN_ISSUES.md` |
 | Phase roadmap | `research/Mind/Plan.md` |
 | The definition of working | `example/09_acceptance.dart` |
+| A live, end-to-end payment gateway | `example/11_payguard_live.dart` (DeepSeek via `.deepcode/settings.json`, mock fallback) |
 
 ## Development
 

@@ -281,10 +281,19 @@ XAI) with hard checks, in under 5 seconds.
 `example/10_prompted_policy.dart` extends it with the Phase 8/9
 surface: config mode, replay, defer, dedicated/shared sessions,
 verdict-cache hits, classifier and extractor presets.
+`example/11_payguard_live.dart` is the real-life version: a payment
+gateway that queries a **live DeepSeek LLM** (settings from
+`.deepcode/settings.json` at the repository root, or
+`DEEPSEEK_API_KEY`) through the prompted-policy pipeline — with
+verdict caching, chat sessions, HITL approval, offline learning, XAI
+narratives, replay, and conformance. Without DeepSeek settings it
+falls back to a deterministic mock, so it always runs.
 
 ```bash
 dart run example/09_acceptance.dart
 dart run example/10_prompted_policy.dart
+dart run example/11_payguard_live.dart            # live DeepSeek
+dart run example/11_payguard_live.dart --conformance
 ```
 
 If those programs fail, the framework is not ready — they are also
