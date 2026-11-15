@@ -76,6 +76,12 @@ jobs:
           test/cookbook/14_cross_domain.dart
           test/cookbook/15_xai_compliance.dart
         working-directory: packages/cell_mind
+      - name: Example 10 (prompted policy)
+        run: dart run example/10_prompted_policy.dart
+        working-directory: packages/cell_mind
+      - name: Prompted policy benchmark
+        run: dart run benchmark/micro/prompted_policy_cost.dart
+        working-directory: packages/cell_mind
 
   docs:
     name: dart doc

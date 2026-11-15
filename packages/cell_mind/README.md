@@ -299,9 +299,10 @@ See `guide/01-Policies.md` for the full reference.
 
 ## When it doesn't
 
-- **You need an AI SDK.** No LLM clients, no prompt templates, no model
-  serving. `cell_mind` is the policy layer around such systems, not the
-  systems themselves.
+- **You need an AI SDK.** No LLM clients, no model serving, no vendor
+  adapters. `cell_mind` is the policy layer around such systems: since
+  `1.1.0` it *queries* them through your ~10-line `PromptFunction`
+  adapter, but it never transports.
 - **You need a new runtime.** Every primitive is a composition of `cell`
   types (`TestCell`, `Pulse`, `Context`, `ApplyCommand`, `EffectJournal`).
 - **You need a decision engine that replaces a cell's receptor.** `cell_mind`
@@ -324,6 +325,26 @@ await gate.ingest(Pulse<int>.governed(
 print(handle.decisions.last.verdict.type); // accept
 ```
 
+### Prompted policy (1.1.0)
+
+```dart
+final policy = promptedPolicyWith(
+  config: PromptConfig.policyDecider(),
+  prompt: (prompt) async => mySdk.complete(prompt), // your adapter
+  journal: journal,
+);
+final handle = cognitive(
+  cell: gate.cell,
+  policy: contextAware(),          // structural gate — runs first
+  verdictPolicy: policy,           // LLM nuance — runs second
+  onDeferred: approvalResolver(queue),
+);
+```
+
+The LLM can veto; it can never override the structural gate. See
+[Prompted Policy](guide/12-Prompted-Policy.md) and
+`example/10_prompted_policy.dart`.
+
 ## Documentation
 
 - [Getting Started](guide/00-Getting-Started.md) — five minutes to a
@@ -335,15 +356,19 @@ print(handle.decisions.last.verdict.type); // accept
   [Determinism](guide/04-Determinism.md) ·
   [Approval](guide/05-Approval.md) · [Bridges](guide/06-Bridges.md) ·
   [XAI](guide/07-XAI.md) · [Agents](guide/08-Agents.md)
+- [Prompted Policy](guide/12-Prompted-Policy.md) — the 1.1.0 prompt
+  layer: `PromptConfig`, both modes, the cache, replay, conformance
 - [Cookbook](guide/09-Cookbook.md) — 15 recipes, each with a test
 - [Design Notes](guide/10-Design-Notes.md) ·
   [Internals](guide/11-Internals.md)
 
 ## Stability
 
-`cell_mind 1.0.0` is the frozen API. See
+`cell_mind 1.0.0` is the frozen API; `1.1.0` adds the prompt module
+(additive; one source-compatible widening of `VerdictPolicy.call` to
+`FutureOr<Verdict>`). See
 [`FROZEN_API.md`](FROZEN_API.md) for the complete manifest. Future
-versions follow semver: `1.0.x` (patches), `1.x.0` (new APIs),
+versions follow semver: `1.0.x`/`1.1.x` (patches), `1.x.0` (new APIs),
 `2.0.0` (breaking changes with a documented migration).
 
 ```bash

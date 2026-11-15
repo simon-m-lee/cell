@@ -40,8 +40,10 @@ library cell_mind;
 
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:cell_tissue/cell_tissue.dart';
+import 'package:crypto/crypto.dart' show sha256;
 
 export 'package:cell/cell.dart';
 export 'package:cell_tissue/cell_tissue.dart';
@@ -66,3 +68,15 @@ part 'src/internal/bridge_effects.dart';
 part 'src/internal/buffered_chunks.dart';
 part 'src/internal/narrative.dart';
 part 'src/internal/debate_effects.dart';
+part 'src/internal/prompt_effect.dart';
+part 'src/internal/prompt_cache.dart';
+part 'src/internal/default_system_prompt.dart';
+part 'src/internal/context_renderer.dart';
+part 'src/internal/decision_renderer.dart';
+part 'src/internal/verdict_parser.dart';
+part 'src/internal/config_validation.dart';
+part 'src/internal/config_renderer.dart';
+part 'src/internal/config_presets.dart';
+part 'src/prompt_config.dart';
+part 'src/prompt_policy.dart';
+part 'src/internal/conformance.dart';

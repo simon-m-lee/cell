@@ -1,5 +1,42 @@
 # Known Issues
 
+## v1.1.0 — Prompted policy (final state)
+
+All Phase 8 findings are documented and resolved or accepted. The
+prompt module is additive on the frozen 1.0 API; the one signature
+change is the source-compatible widening of `VerdictPolicy.call` to
+`FutureOr<Verdict>` (see `_phase8_verdict.md` F8.1 and
+`CHANGELOG.md`).
+
+### Accepted limitations
+
+- **No LLM SDK adapters, no retries, no rate limits.** The framework
+  queries the model through your `PromptFunction`; transport is user
+  code (guide 12 §16).
+- **No framework-side timeout.** A `TimeoutException` thrown by the
+  adapter is captured as `Reject('prompt-timeout')`; enforcing a
+  deadline is adapter code.
+- **Conformance ignores annotations** — comparison is by verdict type,
+  `Reject.reason`, and `Defer.resolver` (parser-added `reason` /
+  `confidence` would fail every hand-built expectation).
+- **Cache TTL is wall-clock, per process.** Cross-process caching is
+  out of scope; the journal is the durable layer.
+- **Prompts store rendered text** (including the few-shot examples).
+  If prompts carry sensitive data, redact at the journal layer.
+- **`conform` targets verdict-shaped configs.** The classifier /
+  extractor shapes have no conformance path in 1.1.0 (their converters
+  are user code).
+- **The `others` catch-all map is not rendered** — the public
+  `Context` interface does not expose it through a getter.
+
+### Post-1.1 roadmap (deferred)
+
+- `promptedAnnotations()` (LLM as decision support) and prompt tuning
+  from outcomes (Phase 9)
+- Sampling (LLM on N% of decisions), multi-LLM voting, prompt
+  versioning migration tool (v1.2)
+- `cell_mind_openai` / `cell_mind_anthropic` satellite adapters
+
 ## v1.0.0 — Final state
 
 All Phase 0–6 findings are documented and resolved or accepted.

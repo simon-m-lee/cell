@@ -124,6 +124,8 @@ final class _RecordingTestCell<C extends Cell> extends TestCell<C> {
         isArgumentEvaluation,
         start,
       );
+    } on ReplayDivergenceException {
+      rethrow;
     } on Exception {
       // A throwing rule fails closed — and the failure is recorded.
       _record(
@@ -211,92 +213,50 @@ final class _RecordingTestCell<C extends Cell> extends TestCell<C> {
         _record(object, arguments, false, const Accept(), start);
         return true;
       }
-      final verdict =
+      final result =
           verdictPolicy.call(object, host: viewHost, arguments: arguments);
-      if (verdict is Defer) {
-        if (isArgumentEvaluation) {
-          _record(
+      if (result is Future<Verdict>) {
+        // Async verdict policies (1.1.0): prompted policies must query
+        // an LLM before they can decide. Await, then record — errors
+        // fail closed exactly like the synchronous path.
+        return result.then(
+          (verdict) => _handleVerdict(
             object,
+            viewHost,
             arguments,
-            true,
-            Reject('defer-in-argument-validation', verdict.annotations),
+            isArgumentEvaluation,
             start,
-          );
-          return false;
-        }
-        final deferredDecision = _buildDecision(
-          object,
-          arguments,
-          verdict,
-          start,
-        );
-        final resolver = _onDeferred;
-        if (resolver == null) {
-          _record(
-            object,
-            arguments,
-            false,
-            Reject('defer-no-resolver', verdict.annotations),
-            start,
-          );
-          return false;
-        }
-        // Wave-honest Defer: the pulse is recorded as a Defer decision
-        // and dropped from this wave (fail closed). The resolver runs
-        // OUT-OF-BAND — human latency must never block a pulse wave —
-        // and its resolution is recorded as a follow-up decision linked
-        // by `decisionId`. Delivery after approval is the resolver's
-        // job (the ApprovalQueue commits the value to `committed`;
-        // applications observe it and re-ingest if desired).
-        _onDecision(deferredDecision);
-        unawaited(
-          resolver(deferredDecision, verdict).then((approved) {
+            verdict,
+          ),
+          onError: (Object e, StackTrace st) {
+            // Replay divergences and programming Errors are NOT policy
+            // failures: divergences must propagate loudly (tampered
+            // ledger), and `ArgumentError`s from config validation must
+            // reach the caller instead of being recorded as rejections.
+            if (e is ReplayDivergenceException || e is! Exception) {
+              Error.throwWithStackTrace(e, st);
+            }
             _record(
               object,
               arguments,
-              false,
-              approved
-                  ? Accept({
-                      'deferredBy': verdict.resolver,
-                      'decisionId': deferredDecision.id,
-                      ...verdict.annotations,
-                    })
-                  : Reject(
-                      'defer-rejected',
-                      {
-                        'deferredBy': verdict.resolver,
-                        'decisionId': deferredDecision.id,
-                        ...verdict.annotations,
-                      },
-                    ),
-              start,
-            );
-            return approved;
-          }).catchError((Object e, StackTrace st) {
-            // A resolver may throw anything — `StateError` is an
-            // `Error`, not an `Exception` — and all of it fails closed.
-            _record(
-              object,
-              arguments,
-              false,
-              Reject(
-                'defer-resolver-failed',
-                {
-                  'deferredBy': verdict.resolver,
-                  'decisionId': deferredDecision.id,
-                  'error': e.toString(),
-                },
-              ),
+              isArgumentEvaluation,
+              const Reject('composite-rejected'),
               start,
             );
             return false;
-          }),
+          },
         );
-        return false;
       }
-
-      _record(object, arguments, isArgumentEvaluation, verdict, start);
-      return verdict is Accept;
+      return _handleVerdict(
+        object,
+        viewHost,
+        arguments,
+        isArgumentEvaluation,
+        start,
+        result,
+      );
+    } on ReplayDivergenceException {
+      rethrow;
     } on Exception {
       _record(
         object,
@@ -307,6 +267,102 @@ final class _RecordingTestCell<C extends Cell> extends TestCell<C> {
       );
       return false;
     }
+  }
+
+  FutureOr<bool> _handleVerdict(
+    dynamic object,
+    Cell viewHost,
+    dynamic arguments,
+    bool isArgumentEvaluation,
+    DateTime start,
+    Verdict verdict,
+  ) {
+    if (verdict is Defer) {
+      if (isArgumentEvaluation) {
+        _record(
+          object,
+          arguments,
+          true,
+          Reject('defer-in-argument-validation', verdict.annotations),
+          start,
+        );
+        return false;
+      }
+      final deferredDecision = _buildDecision(
+        object,
+        arguments,
+        verdict,
+        start,
+      );
+      final resolver = _onDeferred;
+      if (resolver == null) {
+        _record(
+          object,
+          arguments,
+          false,
+          Reject('defer-no-resolver', verdict.annotations),
+          start,
+        );
+        return false;
+      }
+      // Wave-honest Defer: the pulse is recorded as a Defer decision
+      // and dropped from this wave (fail closed). The resolver runs
+      // OUT-OF-BAND — human latency must never block a pulse wave —
+      // and its resolution is recorded as a follow-up decision linked
+      // by `decisionId`. Delivery after approval is the resolver's
+      // job (the ApprovalQueue commits the value to `committed`;
+      // applications observe it and re-ingest if desired).
+      _onDecision(deferredDecision);
+      unawaited(
+        resolver(deferredDecision, verdict).then((approved) {
+          _record(
+            object,
+            arguments,
+            false,
+            approved
+                ? Accept({
+                    'deferredBy': verdict.resolver,
+                    'decisionId': deferredDecision.id,
+                    ...verdict.annotations,
+                  })
+                : Reject(
+                    'defer-rejected',
+                    {
+                      'deferredBy': verdict.resolver,
+                      'decisionId': deferredDecision.id,
+                      ...verdict.annotations,
+                    },
+                  ),
+            start,
+          );
+          return approved;
+        }).catchError((Object e, StackTrace st) {
+          // A resolver may throw anything — `StateError` is an
+          // `Error`, not an `Exception` — and all of it fails closed.
+          _record(
+            object,
+            arguments,
+            false,
+            Reject(
+              'defer-resolver-failed',
+              {
+                'deferredBy': verdict.resolver,
+                'decisionId': deferredDecision.id,
+                'error': e.toString(),
+              },
+            ),
+            start,
+          );
+          return false;
+        }),
+      );
+      return false;
+    }
+
+    // The caller (`_afterVerdict`) already wraps this call in the
+    // fail-closed catch; this method stays plain.
+    _record(object, arguments, isArgumentEvaluation, verdict, start);
+    return verdict is Accept;
   }
 
   Decision _buildDecision(

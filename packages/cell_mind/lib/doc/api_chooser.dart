@@ -13,9 +13,11 @@
 /// 3. **Learn from outcomes?** → `trainOffline` + `learnedPolicy`
 /// 4. **Defer a decision to a human?** → `VerdictPolicy` +
 ///    `ApprovalQueue`
-/// 5. **Talk to an LLM or external system?** → the `bridge` module
+/// 5. **Query an AI for the verdict?** → `promptedPolicy` /
+///    `promptedPolicyWith` + `PromptConfig`
 ///
-/// **Stability:** Stable since `cell_mind 1.0.0`.
+/// **Stability:** Stable since `cell_mind 1.0.0`; prompt module added in
+/// `cell_mind 1.1.0`.
 ///
 /// ## Choose a decision primitive
 ///
@@ -24,6 +26,7 @@
 /// | Simple accept/reject | `Policy` |
 /// | Accept/reject/defer | `VerdictPolicy` |
 /// | Record decisions | `CognitiveHandle` |
+/// | LLM-decided accept/reject/defer | `promptedPolicyWith` |
 ///
 /// ## Choose a policy
 ///
@@ -33,11 +36,44 @@
 /// - **Confidence-gated:** `confidencePolicy`
 /// - **Strategy-gated:** `strategyPolicy`
 /// - **Full stack:** `contextAware` or `paranoid`
+/// - **LLM nuance on top of structure:** `promptedPolicyWith` in the
+///   `verdictPolicy:` slot of `cognitive`
 ///
 /// ## Choose a deferral
 ///
 /// - **Human approval:** `ApprovalQueue` + `approvalResolver`
 /// - **Custom resolver:** `onDeferred` callback on `cognitive`
+///
+/// ## Choose a prompt mode
+///
+/// - **One-off prompt:** `promptedPolicy(...)` — inline, per-instance
+///   cache
+/// - **Reusable/versionable prompt:** `promptedPolicyWith(config:)` —
+///   shared, content-addressed cache keyed by config id + version
+/// - **Registry lookup:** `promptedPolicyWith(configId:)` +
+///   `PromptConfigRegistry` for A/B testing and rollback
+///
+/// ## Choose a prompt config
+///
+/// - **Accept / reject / defer:** `PromptConfig.policyDecider()`
+/// - **Label classification:** `PromptConfig.classifier(labels:)` +
+///   `labelToVerdict`
+/// - **Structured extraction:** `PromptConfig.extractor(fields:)` +
+///   `extractionToVerdict`
+/// - **Anything else:** `PromptConfig.custom(...)`
+///
+/// ## Verify a config against a real LLM
+///
+/// - **Pre-deploy gate:** `conform` → `PromptConformanceReport`
+/// - **Case definition:** `ConformanceCase(context:, decision:,
+///   expected:)`
+///
+/// ## Customize the prompt pipeline
+///
+/// - **Context rendering:** `renderContext` / `ContextRenderer`
+/// - **Decision rendering:** `renderDecision` / `DecisionRenderer`
+/// - **Response parsing:** `parseVerdict` / `VerdictParser`
+/// - **Adapter:** `PromptFunction` — wrap your SDK in ~10 lines
 ///
 /// ## Choose a bridge
 ///
@@ -64,11 +100,13 @@
 ///
 /// ## Do NOT use `cell_mind` for
 ///
-/// - HTTP clients → user code or satellite packages
+/// - HTTP clients / LLM SDK adapters → user code or satellite packages
+///   (wrap them in a `PromptFunction`)
 /// - Model serving / inference → out of scope
 /// - Training loops / fine-tuning → Python + a custom `Trainer`
 /// - Vector databases → out of scope
-/// - Prompt templating → out of scope
+/// - Retry logic / rate limiting on LLM calls → user code inside the
+///   adapter
 ///
 /// {@category Organ}
 library;

@@ -1007,15 +1007,25 @@ Policy learnedPolicy() {
 ///   Defer" bugs from mixed composition.
 /// - **`+` chains verdict policies.** A composite short-circuits on
 ///   the first `Accept` or `Reject`; only `Defer` propagates through.
+/// - **Async verdicts are supported (1.1.0).** [call] may return a
+///   `Future<Verdict>` — prompted policies must query an LLM before
+///   they can decide. The recording runtime awaits the future before
+///   recording the decision.
 ///
 /// {@category Organ}
 /// {@category Policy}
 /// {@category Approval}
 ///
-/// **Stability:** Stable since `cell_mind 1.0.0`.
+/// **Stability:** Stable since `cell_mind 1.0.0`; async return type
+/// since `cell_mind 1.1.0` (source-compatible for synchronous rules).
 abstract interface class VerdictPolicy {
-  /// Evaluates the rule and returns the verdict.
-  Verdict call(dynamic object, {required Cell host, dynamic arguments});
+  /// Evaluates the rule and returns the verdict — synchronously or,
+  /// since `1.1.0`, asynchronously (an LLM-backed policy).
+  FutureOr<Verdict> call(
+    dynamic object, {
+    required Cell host,
+    dynamic arguments,
+  });
 
   /// Chains two verdict policies: the first `Accept`/`Reject` wins;
   /// a `Defer` propagates to [other].
@@ -1023,7 +1033,7 @@ abstract interface class VerdictPolicy {
 }
 
 final class _VerdictPolicy implements VerdictPolicy {
-  final Verdict Function(
+  final FutureOr<Verdict> Function(
     dynamic object, {
     required Cell host,
     dynamic arguments,
@@ -1032,7 +1042,11 @@ final class _VerdictPolicy implements VerdictPolicy {
   const _VerdictPolicy(this._rule);
 
   @override
-  Verdict call(dynamic object, {required Cell host, dynamic arguments}) =>
+  FutureOr<Verdict> call(
+    dynamic object, {
+    required Cell host,
+    dynamic arguments,
+  }) =>
       _rule(object, host: host, arguments: arguments);
 
   @override
@@ -1047,12 +1061,21 @@ final class _CompositeVerdictPolicy implements VerdictPolicy {
   const _CompositeVerdictPolicy(this._first, this._second);
 
   @override
-  Verdict call(dynamic object, {required Cell host, dynamic arguments}) {
-    final verdict = _first.call(object, host: host, arguments: arguments);
-    if (verdict is Defer) {
+  FutureOr<Verdict> call(
+    dynamic object, {
+    required Cell host,
+    dynamic arguments,
+  }) {
+    final first = _first.call(object, host: host, arguments: arguments);
+    if (first is Future<Verdict>) {
+      return first.then((verdict) => verdict is Defer
+          ? _second.call(object, host: host, arguments: arguments)
+          : verdict);
+    }
+    if (first is Defer) {
       return _second.call(object, host: host, arguments: arguments);
     }
-    return verdict;
+    return first;
   }
 
   @override
@@ -1084,13 +1107,21 @@ final class _CompositeVerdictPolicy implements VerdictPolicy {
 /// Author rules that need `Defer`: threshold crossings, low
 /// confidence, "ask a human" conditions.
 ///
+/// ### Non-obvious
+/// The rule may return a `Future<Verdict>` (since 1.1.0) — the
+/// recording runtime awaits it before recording the decision.
+///
 /// {@category Policy}
 /// {@category Approval}
 ///
-/// **Stability:** Stable since `cell_mind 1.0.0`.
+/// **Stability:** Stable since `cell_mind 1.0.0`; async rule type
+/// since `cell_mind 1.1.0` (source-compatible).
 VerdictPolicy verdictPolicy(
-  Verdict Function(dynamic object, {required Cell host, dynamic arguments})
-      rule,
+  FutureOr<Verdict> Function(
+    dynamic object, {
+    required Cell host,
+    dynamic arguments,
+  }) rule,
 ) =>
     _VerdictPolicy(rule);
 

@@ -89,6 +89,9 @@ void main() {
       'DecisionPath',
       'spawn',
       'debate',
+      'promptedPolicy',
+      'PromptConfig',
+      'conform',
     ]) {
       expect(chooser, contains(module));
     }
@@ -105,6 +108,8 @@ void main() {
       'xai.dart',
       'agent.dart',
       'outcomes.dart',
+      'prompt_policy.dart',
+      'prompt_config.dart',
     ]) {
       expect(manifest, contains(file));
     }

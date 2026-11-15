@@ -1,9 +1,9 @@
 name: cell_mind
 description: >-
   Cognitive policy for the Cell framework — Context-aware decisions at
-  runtime, decision log with replay, and Context accumulation via offline
-  reinforcement learning.
-version: 1.0.0
+  runtime, decision log with replay, Context accumulation via offline
+  reinforcement learning, and prompted policy for LLM verdicts.
+version: 1.1.0
 
 homepage: https://github.com/simon-m-lee/cell
 repository: https://github.com/simon-m-lee/cell/tree/master/packages/cell_mind
@@ -18,6 +18,7 @@ environment:
 dependencies:
   cell: ^1.1.0
   cell_tissue: ^1.0.0
+  crypto: ^3.0.0
 
 dev_dependencies:
   benchmark_harness: ^2.3.0

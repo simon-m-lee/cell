@@ -4,6 +4,84 @@ All notable changes to `cell_mind` are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and the package
 adheres to [Semantic Versioning](https://semver.org/).
 
+## 1.1.0
+
+**Prompt-driven policy.** A `Context` becomes a prompt, any AI answers,
+and the answer becomes a `Verdict` in the existing `cognitive()`
+pipeline — with a portable, versionable `PromptConfig`, a content-
+addressed cache, journaled replay, conformance testing, and a
+structural-first trust boundary.
+
+### Added
+
+- **`promptedPolicy(...)`** — inline mode: one-off prompts with a
+  per-instance cache.
+- **`promptedPolicyWith(config: / configId:)`** — config mode: the
+  primary API; shares one renderer, parser, cache, and journal effect
+  with inline mode.
+- **`PromptConfig`** — portable, JSON-serializable, semantically
+  versioned configuration (`policyDecider` / `classifier` /
+  `extractor` presets + `custom`).
+- **`PromptExample`** — structured few-shot triples.
+- **`PromptConfigRegistry`** — versioned lookup: A/B testing and
+  runtime rollback.
+- **`conform`** — first-class conformance testing against a specific
+  LLM (`ConformanceCase`, `PromptConformanceReport`,
+  `ConformanceFailure`).
+- **`PromptEffect`** — the journaled record of every LLM call
+  (`label: 'mind.prompt'`), carrying the full prompt and response.
+- **`PromptFunction`, `ContextRenderer`, `DecisionRenderer`,
+  `VerdictParser`** — the typed, replaceable pipeline primitives.
+- **`renderContext`, `renderDecision`, `parseVerdict`** — the default
+  deterministic renderer and the fail-closed parser as public
+  functions.
+- **Content-addressed cache** keyed by
+  `sha256(config.id | version | contextHash | decisionHash |
+  systemPromptHash)`; config-mode instances share, inline instances
+  are per-instance. Cache hits still journal — replay stays exact.
+- `crypto: ^3.0.0` dependency (the only new dependency).
+- `guide/12-Prompted-Policy.md`, `example/10_prompted_policy.dart`,
+  `benchmark/micro/prompted_policy_cost.dart`, 14 test files under
+  `test/prompt/` (~150 tests).
+
+### Changed
+
+- **`VerdictPolicy.call` may now return `Future<Verdict>`** (return
+  type widened to `FutureOr<Verdict>`); the recording runtime awaits
+  it. **Source-compatible** with every 1.0 implementation — rules
+  that return `Verdict` still compile unchanged. This is the only
+  signature change in the frozen manifest (see `FROZEN_API.md`).
+- `verdictPolicy(...)` accepts `FutureOr<Verdict>` rules.
+- Argument-level rule evaluations no longer reach a prompted policy:
+  the LLM decides about the command *with* its arguments at the
+  command decision (adapter cost is one call per decision).
+- `tool/freeze_api.dart` now emits a deterministic manifest header —
+  CI can diff a fresh generation against the committed file without
+  timestamp noise.
+
+### Fixed
+
+- Replay divergences from the prompt journal now propagate loudly
+  (`ReplayDivergenceException`) instead of being recorded as
+  `composite-rejected` decisions.
+
+### Migration from 1.0.0
+
+- **No breaking changes.** Every 1.0 public API is preserved; the
+  `VerdictPolicy` widening is source-compatible.
+- The LLM adapter is your code: wrap your SDK in ~10 lines of
+  `(String prompt) async => response`.
+
+### Phase 8 — prompt
+
+- `FROZEN_API.md` diff is additive for the prompt module; the one
+  signature change (`VerdictPolicy.call` → `FutureOr<Verdict>`) is
+  documented above and in `_phase8_verdict.md`.
+
+### Known issues
+
+See [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md).
+
 ## 1.0.0
 
 **Cell Mind reaches 1.0.** The public API is now stable — every type,

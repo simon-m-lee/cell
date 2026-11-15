@@ -12,11 +12,18 @@ import 'dart:io';
 /// top-level declarations and their public member signatures are
 /// listed so a future PR can diff against the frozen state.
 ///
+/// The header is **deterministic** (the version and freeze date are
+/// fixed constants) so CI can diff a fresh generation against the
+/// committed manifest without timestamp noise. Bump the constants when
+/// cutting a new frozen manifest.
+///
 /// Usage:
 /// ```bash
 /// dart tool/freeze_api.dart > FROZEN_API.md
 /// ```
 Future<void> main() async {
+  const frozenVersion = '1.1.0';
+  const frozenDate = '2026-11-15';
   final files = Directory('lib/src')
       .listSync()
       .whereType<File>()
@@ -25,10 +32,10 @@ Future<void> main() async {
     ..sort((a, b) => a.path.compareTo(b.path));
 
   final buffer = StringBuffer()
-    ..writeln('# Cell Mind — Frozen API (v1.0.0)')
+    ..writeln('# Cell Mind — Frozen API (v$frozenVersion)')
     ..writeln()
-    ..writeln('Frozen on: ${DateTime.now().toUtc().toIso8601String()}')
-    ..writeln('Frozen by: cell_mind 1.0.0 tag')
+    ..writeln('Frozen on: $frozenDate')
+    ..writeln('Frozen by: cell_mind $frozenVersion tag')
     ..writeln('Generator: tool/freeze_api.dart')
     ..writeln()
     ..writeln('Any change to this manifest requires a deprecation cycle '

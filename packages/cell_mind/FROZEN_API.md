@@ -1,7 +1,7 @@
-# Cell Mind — Frozen API (v1.0.0)
+# Cell Mind — Frozen API (v1.1.0)
 
-Frozen on: 2026-11-15T12:20:38.558676Z
-Frozen by: cell_mind 1.0.0 tag
+Frozen on: 2026-11-15
+Frozen by: cell_mind 1.1.0 tag
 Generator: tool/freeze_api.dart
 
 Any change to this manifest requires a deprecation cycle or a MAJOR version bump.
@@ -251,12 +251,116 @@ Any change to this manifest requires a deprecation cycle or a MAJOR version bump
 
 ### verdictPolicy (function)
 - `VerdictPolicy verdictPolicy((
-  Verdict Function(dynamic object, {required Cell host, dynamic arguments})
-      rule,
+  FutureOr<Verdict> Function(
+    dynamic object, {
+    required Cell host,
+    dynamic arguments,
+  }) rule,
 ))`
 
 ### learnedVerdictPolicy (function)
 - `VerdictPolicy learnedVerdictPolicy(())`
+
+## lib/src\prompt_config.dart
+
+### PromptConfig
+- `final String id;`
+- `final String version;`
+- `final String description;`
+- `final String systemPrompt;`
+- `final String userTemplate;`
+- `final Map<String, dynamic> outputSchema;`
+- `final List<PromptExample> examples;`
+- `final Map<String, dynamic> parameters;`
+- `final Duration cacheTtl;`
+- `final int maxPromptChars;`
+- `PromptConfig(`
+- `Map<String, dynamic> toMap() => {`
+
+### PromptExample
+- `final String context;`
+- `final String decision;`
+- `final String response;`
+- `String render() =>`
+- `Map<String, dynamic> toMap() => {`
+
+### PromptConfigRegistry
+- (sealed hierarchy — no public members)
+
+### ConformanceCase
+- `final Context context;`
+- `final dynamic decision;`
+- `final Verdict expected;`
+
+### PromptConformanceReport
+- `final int total;`
+- `final int passed;`
+- `final List<ConformanceFailure> failures;`
+- `final Duration totalLatency;`
+- `final Duration averageLatency;`
+- `final String configId;`
+- `final String configVersion;`
+
+### ConformanceFailure
+- `final ConformanceCase testCase;`
+- `final Verdict actual;`
+- `final String? reason;`
+
+### conform (function)
+- `Future<PromptConformanceReport> conform(({
+  required PromptConfig config,
+  required PromptFunction prompt,
+  required List<ConformanceCase> cases,
+  EffectJournal? journal,
+}))`
+
+## lib/src\prompt_policy.dart
+
+### PromptFunction (typedef)
+
+- `= Future<String> Function(String prompt)`
+
+### ContextRenderer (typedef)
+
+- `= String Function(Context context)`
+
+### DecisionRenderer (typedef)
+
+- `= String Function(
+  dynamic object, {
+  Cell? host,
+  dynamic arguments,
+})`
+
+### VerdictParser (typedef)
+
+- `= Verdict Function(String rawResponse)`
+
+### promptedPolicy (function)
+- `VerdictPolicy promptedPolicy(({
+  required PromptFunction prompt,
+  required EffectJournal journal,
+  String? systemPrompt,
+  ContextRenderer? contextRenderer,
+  DecisionRenderer? decisionRenderer,
+  VerdictParser? verdictParser,
+  Duration? cacheTtl,
+  int maxPromptChars = 32000,
+}))`
+
+### promptedPolicyWith (function)
+- `VerdictPolicy promptedPolicyWith(({
+  PromptConfig? config,
+  String? configId,
+  String? configVersion,
+  required PromptFunction prompt,
+  required EffectJournal journal,
+  Verdict Function(String label)? labelToVerdict,
+  Verdict Function(Map<String, dynamic> extracted)? extractionToVerdict,
+  ContextRenderer? contextRenderer,
+  DecisionRenderer? decisionRenderer,
+  VerdictParser? verdictParser,
+}))`
 
 ## lib/src\runtime.dart
 
