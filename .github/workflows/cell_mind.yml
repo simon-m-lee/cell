@@ -1,0 +1,130 @@
+name: cell_mind
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/cell_mind/**'
+      - 'packages/cell/**'
+      - 'packages/cell_tissue/**'
+      - 'packages/cell_organ/**'
+  pull_request:
+    paths:
+      - 'packages/cell_mind/**'
+
+jobs:
+  fitness:
+    name: Fitness (cell contract)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - run: dart pub get
+        working-directory: packages/cell_mind
+      - name: Run fitness tests (must pass before anything else)
+        run: dart test test/fitness/ -r expanded
+        working-directory: packages/cell_mind
+
+  analyze:
+    needs: fitness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - run: dart pub get
+        working-directory: packages/cell_mind
+      - name: Analyze
+        run: dart analyze --fatal-infos --fatal-warnings
+        working-directory: packages/cell_mind
+      - name: Format check
+        run: dart format --set-exit-if-changed lib/ test/ example/ benchmark/ tool/
+        working-directory: packages/cell_mind
+      - name: No TODO/FIXME in lib/
+        run: '! grep -rn "TODO:\|FIXME:" lib/ || exit 1'
+        working-directory: packages/cell_mind
+      - name: No @Deprecated in lib/
+        run: '! grep -rn "@Deprecated" lib/ || exit 1'
+        working-directory: packages/cell_mind
+
+  test:
+    needs: fitness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - run: dart pub get
+        working-directory: packages/cell_mind
+      - name: Module tests
+        run: dart test -r expanded
+        working-directory: packages/cell_mind
+      - name: Cookbook tests (numbered names — explicit discovery)
+        run: >-
+          dart test -r expanded
+          test/cookbook/01_domain_ingress.dart
+          test/cookbook/02_authority_deputy.dart
+          test/cookbook/03_gdpr_gate.dart
+          test/cookbook/04_sensitivity_redact.dart
+          test/cookbook/05_llm_confidence.dart
+          test/cookbook/06_hitl_approval.dart
+          test/cookbook/07_multi_agent_debate.dart
+          test/cookbook/08_learn_from_rejections.dart
+          test/cookbook/09_replay_log.dart
+          test/cookbook/10_blend_cognitive.dart
+          test/cookbook/11_test_stem_seam.dart
+          test/cookbook/12_custom_defer.dart
+          test/cookbook/13_deterministic_train.dart
+          test/cookbook/14_cross_domain.dart
+          test/cookbook/15_xai_compliance.dart
+        working-directory: packages/cell_mind
+
+  docs:
+    name: dart doc
+    needs: fitness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - run: dart pub get
+        working-directory: packages/cell_mind
+      - name: Build docs with link validation
+        run: dart doc --validate-links
+        working-directory: packages/cell_mind
+      - name: Frozen API manifest is up to date
+        run: |
+          dart tool/freeze_api.dart > /tmp/current_api.md
+          diff FROZEN_API.md /tmp/current_api.md
+        working-directory: packages/cell_mind
+
+  coverage:
+    name: Coverage gate
+    needs: fitness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - run: dart pub get
+        working-directory: packages/cell_mind
+      - name: Coverage run
+        run: dart test --coverage=coverage
+        working-directory: packages/cell_mind
+      - name: Format lcov
+        run: >-
+          dart run coverage:format_coverage --lcov
+          --in=coverage --out=coverage/lcov.info --report-on=lib
+        working-directory: packages/cell_mind
+      - name: Report line coverage for lib/
+        run: |
+          dart run tool/coverage_report.dart coverage/lcov.info
+        working-directory: packages/cell_mind
+
+  publish:
+    name: Publish dry-run
+    needs: fitness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - run: dart pub get
+        working-directory: packages/cell_mind
+      - name: Publish dry-run (root pubignore neutralisation included)
+        run: tool/release-publish.sh --dry-run packages/cell_mind
