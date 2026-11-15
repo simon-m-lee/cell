@@ -263,6 +263,8 @@ Any change to this manifest requires a deprecation cycle or a MAJOR version bump
 
 ## lib/src\prompt_config.dart
 
+### SessionMode (enum)
+
 ### PromptConfig
 - `final String id;`
 - `final String version;`
@@ -273,6 +275,11 @@ Any change to this manifest requires a deprecation cycle or a MAJOR version bump
 - `final List<PromptExample> examples;`
 - `final Map<String, dynamic> parameters;`
 - `final Duration cacheTtl;`
+- `final Duration verdictCacheTtl;`
+- `final int maxVerdictCacheEntries;`
+- `final SessionMode sessionMode;`
+- `final int maxSessionMessages;`
+- `final int maxSessionChars;`
 - `final int maxPromptChars;`
 - `PromptConfig(`
 - `Map<String, dynamic> toMap() => {`
@@ -336,6 +343,14 @@ Any change to this manifest requires a deprecation cycle or a MAJOR version bump
 
 - `= Verdict Function(String rawResponse)`
 
+### PromptedPolicy
+- `final PromptConfig config;`
+- `final PromptSession? session;`
+- `final PromptFunction prompt;`
+- `final EffectJournal journal;`
+- `final VerdictCache? verdictCache;`
+- `Future<void> _journalSessionInit(PromptSession session) async {`
+
 ### promptedPolicy (function)
 - `VerdictPolicy promptedPolicy(({
   required PromptFunction prompt,
@@ -345,22 +360,42 @@ Any change to this manifest requires a deprecation cycle or a MAJOR version bump
   DecisionRenderer? decisionRenderer,
   VerdictParser? verdictParser,
   Duration? cacheTtl,
+  VerdictCache? verdictCache,
   int maxPromptChars = 32000,
 }))`
 
 ### promptedPolicyWith (function)
-- `VerdictPolicy promptedPolicyWith(({
+- `PromptedPolicy promptedPolicyWith(({
   PromptConfig? config,
   String? configId,
   String? configVersion,
   required PromptFunction prompt,
   required EffectJournal journal,
+  VerdictCache? verdictCache,
+  PromptSession? session,
   Verdict Function(String label)? labelToVerdict,
   Verdict Function(Map<String, dynamic> extracted)? extractionToVerdict,
   ContextRenderer? contextRenderer,
   DecisionRenderer? decisionRenderer,
   VerdictParser? verdictParser,
 }))`
+
+## lib/src\prompt_session.dart
+
+### ChatRole (enum)
+
+### ChatMessage
+- `final ChatRole role;`
+- `final String content;`
+- `Map<String, dynamic> toMap() => {`
+
+### PromptSession
+- `final String id;`
+- `final int maxMessages;`
+- `final int maxChars;`
+- `PromptSession({`
+- `String fingerprint() {`
+- `Map<String, dynamic> toMap() => {`
 
 ## lib/src\runtime.dart
 
@@ -370,6 +405,32 @@ Any change to this manifest requires a deprecation cycle or a MAJOR version bump
 - `final Policy policy;`
 - `final TissueList<Decision> decisions;`
 - `final IngressHandle<Pulse> outcomes;`
+
+## lib/src\verdict_cache.dart
+
+### VerdictCacheKey
+- `final String configId;`
+- `final String configVersion;`
+- `final String cellContextFingerprint;`
+- `final String pulseContextFingerprint;`
+- `final String decisionFingerprint;`
+- `final String sessionFingerprint;`
+- `Map<String, dynamic> toMap() => {`
+- `String toString() =>`
+
+### VerdictCacheEntry
+- `final Verdict verdict;`
+- `final DateTime at;`
+- `Map<String, dynamic> toMap() => {`
+- `VerdictCacheEntry(`
+
+### VerdictCache
+- `int get size;`
+
+### InMemoryVerdictCache
+- `final Duration ttl;`
+- `final int maxEntries;`
+- `InMemoryVerdictCache({`
 
 ## lib/src\xai.dart
 

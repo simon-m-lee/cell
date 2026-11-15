@@ -47,11 +47,34 @@
 /// ## Choose a prompt mode
 ///
 /// - **One-off prompt:** `promptedPolicy(...)` — inline, per-instance
-///   cache
+///   caches, always stateless
 /// - **Reusable/versionable prompt:** `promptedPolicyWith(config:)` —
-///   shared, content-addressed cache keyed by config id + version
+///   shared, content-addressed caches keyed by config id + version
 /// - **Registry lookup:** `promptedPolicyWith(configId:)` +
 ///   `PromptConfigRegistry` for A/B testing and rollback
+/// - **Conversation window:** `SessionMode.dedicated` (per-policy
+///   `PromptedPolicy.session`) or `SessionMode.shared` (one
+///   `PromptSession` across policies)
+///
+/// ## Choose a cache
+///
+/// - **Default memoization:** `InMemoryVerdictCache` (TTL + LRU),
+///   configured via `PromptConfig.verdictCacheTtl` /
+///   `maxVerdictCacheEntries`
+/// - **Cross-policy sharing:** pass one `VerdictCache` to several
+///   `promptedPolicyWith` calls
+/// - **Distributed backend:** implement `VerdictCache` (sync front
+///   layer + async warming)
+/// - **Second tier:** the rendered-prompt cache under
+///   `PromptConfig.cacheTtl`
+///
+/// ## Choose a session
+///
+/// - **Messages:** `ChatMessage` + `ChatRole`
+/// - **History object:** `PromptSession` (bounds, compaction,
+///   content-only fingerprints)
+/// - **Mode:** `SessionMode.stateless` / `dedicated` / `shared`
+/// - **Reset:** `PromptedPolicy.clearSession()` (journaled)
 ///
 /// ## Choose a prompt config
 ///

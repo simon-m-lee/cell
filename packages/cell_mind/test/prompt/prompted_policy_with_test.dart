@@ -151,7 +151,7 @@ void main() {
               label == 'spam' ? const Reject('spam detected') : const Accept(),
         ),
       );
-      await handle.cognitive.apply<Object?>(commandFor(read, [0]));
+      await handle.cognitive.apply<Object?>(commandFor(read, [1]));
       final verdict = handle.decisions.single.verdict as Reject;
       expect(verdict.reason, 'spam detected');
     });
@@ -168,7 +168,7 @@ void main() {
           journal: journal,
         ),
       );
-      await handle.cognitive.apply<Object?>(commandFor(read, [0]));
+      await handle.cognitive.apply<Object?>(commandFor(read, [2]));
       final verdict = handle.decisions.single.verdict as Reject;
       expect(verdict.reason, 'missing-label-to-verdict');
     });
@@ -189,7 +189,7 @@ void main() {
                   : const Accept(),
         ),
       );
-      await handle.cognitive.apply<Object?>(commandFor(read, [0]));
+      await handle.cognitive.apply<Object?>(commandFor(read, [3]));
       final verdict = handle.decisions.single.verdict as Reject;
       expect(verdict.reason, 'amount too large');
     });
@@ -206,7 +206,7 @@ void main() {
           journal: journal,
         ),
       );
-      await handle.cognitive.apply<Object?>(commandFor(read, [0]));
+      await handle.cognitive.apply<Object?>(commandFor(read, [4]));
       final verdict = handle.decisions.single.verdict as Reject;
       expect(verdict.reason, 'missing-extraction-to-verdict');
     });

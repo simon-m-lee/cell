@@ -114,10 +114,60 @@ against the committed manifest with zero noise.
 | Gate | Result |
 |---|---|
 | `dart analyze --fatal-infos --fatal-warnings` | 0 issues |
-| Phase 8 tests (`test/prompt/`) | 155/155 |
-| Full suite (Phase 1–8) | 555+ pass |
+| Phase 8 tests (`test/prompt/`, incl. 8.1) | 231/231 |
+| Full suite (Phase 1–8.1) | 633/633 |
 | `example/10_prompted_policy.dart` | all hard checks pass |
 | `benchmark/micro/prompted_policy_cost.dart` | renders 22.5k/s, parses 247k/s, cache-miss 2.0k decisions/s, cache-hit 5.3k decisions/s |
 | `FROZEN_API.md` vs `1.0.0` | additive prompt module; one documented widening (F8.1) |
 | Doc audit | every new public declaration carries the seven required sections |
-| `guide/12-Prompted-Policy.md` | 781 lines |
+| `guide/12-Prompted-Policy.md` | 1006 lines (21 sections + appendices) |
+
+## Phase 8.1 supplement (verdict caching + chat sessions)
+
+### F8.11 — Journal-driven disposition effect
+
+The three-tier pipeline records one internal dispatcher effect per
+decision (`label: 'mind.prompt.disposition'`) whose raw output is the
+recorded branch (`verdict-cache-hit` / `prompt-cache-hit` / `llm` /
+`prompt-too-long`). Recording computes the disposition from the live
+caches inside the effect's `run` closure; replay serves the recorded
+disposition, so both sides take the same branch without re-running
+cache lookups. This is what makes replay of cache-hit recordings exact
+(D13) — the plan left the mechanism unspecified.
+
+### F8.12 — `PromptedPolicy.operator +` returns `VerdictPolicy`
+
+The plan's `PromptedPolicy operator +(...)` would lose the session
+handle on composition. The composite returns a plain `VerdictPolicy`
+(`_CompositeVerdictPolicy`); documented.
+
+### F8.13 — Session mismatch fails loud, not `Reject('session-mismatch')`
+
+Session fingerprint mismatches surface as
+`ReplayDivergenceException` at the first mismatched input digest
+(disposition keys, append inputs, compaction inputs) — stronger than
+the plan's fail-closed `Reject` and consistent with Phase 8's
+divergence handling.
+
+### F8.14 — `clearSession()` journals fire-and-forget
+
+`clearSession()` is synchronous per the plan; its
+`SessionClearedEffect` is recorded via an unawaited `journal.io`. The
+`RecordingJournal` appends records in invocation order (async bodies
+run to their first await synchronously, microtasks resume FIFO), so
+the clear lands before any subsequent decision's effects — replay
+consumes it at the same point.
+
+### F8.15 — Prompt cache key changed to hash(config, renderedPrompt)
+
+Per D2 the second tier is output-keyed:
+`sha256(config.id | config.version | sha256(renderedPrompt))`. Session
+history participates through the rendered prompt; version bumps
+invalidate; empty sessions render exactly like stateless prompts and
+share entries.
+
+### F8.16 — Verdict cache stores under the post-append key (D14)
+
+Population order is append-first, then store — a repeat of the same
+decision with the evolved session state hits the entry, and the repeat
+does not create a new conversation turn.

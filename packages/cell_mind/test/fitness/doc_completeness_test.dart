@@ -92,6 +92,9 @@ void main() {
       'promptedPolicy',
       'PromptConfig',
       'conform',
+      'PromptSession',
+      'VerdictCache',
+      'PromptedPolicy',
     ]) {
       expect(chooser, contains(module));
     }
@@ -110,6 +113,8 @@ void main() {
       'outcomes.dart',
       'prompt_policy.dart',
       'prompt_config.dart',
+      'prompt_session.dart',
+      'verdict_cache.dart',
     ]) {
       expect(manifest, contains(file));
     }

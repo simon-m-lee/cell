@@ -6,6 +6,53 @@
 
 part of '../../cell_mind.dart';
 
+/// How a prompted policy handles conversation state.
+///
+/// ### When to use
+/// Set on [PromptConfig.sessionMode]. The default [stateless] renders
+/// every decision independently; [dedicated] gives a policy its own
+/// conversation; [shared] connects several policies to one
+/// user-provided [PromptSession].
+///
+/// ### How it works
+/// The mode decides session creation at `promptedPolicyWith` time:
+/// - `stateless` — no session object at all.
+/// - `dedicated` — a session is auto-created and exposed via
+///   [PromptedPolicy.session].
+/// - `shared` — the caller's `session:` argument is used directly
+///   (required; throws otherwise).
+///
+/// ### Non-obvious
+/// - **Inline mode is always stateless.** Sessions belong to a
+///   portable config.
+/// - **A `session:` argument is ignored in every mode except
+///   `shared`.**
+///
+/// ### See also
+/// - [PromptSession], [PromptedPolicy], `promptedPolicyWith`
+///
+/// ## AI Agent Guide
+/// - Pick `dedicated` for per-policy conversation tracking, `shared`
+///   for multi-agent coordination over one window.
+///
+/// {@category Organ}
+/// {@category Prompt}
+/// {@category Session}
+///
+/// **Stability:** Stable since `cell_mind 1.1.0`.
+enum SessionMode {
+  /// No session — each decision rendered independently. Default.
+  stateless,
+
+  /// A session auto-created by `promptedPolicyWith`. Accessible via
+  /// `PromptedPolicy.session`.
+  dedicated,
+
+  /// A session provided by the user via `session:`. Can be shared
+  /// across multiple policies.
+  shared,
+}
+
 /// A portable, LLM-agnostic configuration for prompted policy
 /// decisions.
 ///
@@ -73,9 +120,26 @@ final class PromptConfig {
   /// call the LLM itself and does not enforce these.
   final Map<String, dynamic> parameters;
 
-  /// How long an in-process cached response stays valid. Zero
-  /// disables caching.
+  /// How long a cached rendered prompt stays valid. Zero disables the
+  /// prompt cache.
   final Duration cacheTtl;
+
+  /// How long a cached verdict stays valid. Zero disables verdict
+  /// caching (the default [InMemoryVerdictCache] is then not
+  /// created).
+  final Duration verdictCacheTtl;
+
+  /// The LRU bound of the default verdict cache.
+  final int maxVerdictCacheEntries;
+
+  /// How the policy handles conversation state.
+  final SessionMode sessionMode;
+
+  /// The session message-count bound (compaction trigger).
+  final int maxSessionMessages;
+
+  /// The session total-character bound (compaction trigger).
+  final int maxSessionChars;
 
   /// The maximum rendered prompt length in characters. Longer prompts
   /// fail closed with `Reject('prompt-too-long')`.
@@ -108,6 +172,11 @@ final class PromptConfig {
     this.examples = const [],
     this.parameters = const {'temperature': 0.0, 'json_mode': true},
     this.cacheTtl = const Duration(hours: 1),
+    this.verdictCacheTtl = const Duration(hours: 1),
+    this.maxVerdictCacheEntries = 10000,
+    this.sessionMode = SessionMode.stateless,
+    this.maxSessionMessages = 40,
+    this.maxSessionChars = 20000,
     this.maxPromptChars = 32000,
   });
 
@@ -142,6 +211,11 @@ final class PromptConfig {
     List<PromptExample>? examples,
     Map<String, dynamic>? parameters,
     Duration? cacheTtl,
+    Duration? verdictCacheTtl,
+    int? maxVerdictCacheEntries,
+    SessionMode? sessionMode,
+    int? maxSessionMessages,
+    int? maxSessionChars,
     int? maxPromptChars,
   }) =>
       PromptConfig(
@@ -154,6 +228,11 @@ final class PromptConfig {
         examples: examples ?? const [],
         parameters: parameters ?? const {'temperature': 0.0, 'json_mode': true},
         cacheTtl: cacheTtl ?? const Duration(hours: 1),
+        verdictCacheTtl: verdictCacheTtl ?? const Duration(hours: 1),
+        maxVerdictCacheEntries: maxVerdictCacheEntries ?? 10000,
+        sessionMode: sessionMode ?? SessionMode.stateless,
+        maxSessionMessages: maxSessionMessages ?? 40,
+        maxSessionChars: maxSessionChars ?? 20000,
         maxPromptChars: maxPromptChars ?? 32000,
       );
 
@@ -167,17 +246,22 @@ final class PromptConfig {
   ///
   /// ### Determinism
   /// Rendered prompts are byte-for-byte identical for the same
-  /// `(config, context, decision)` triple.
-  String render(
-          {required Context context, required dynamic decision, Cell? host}) =>
+  /// `(config, context, decision, session)` quadruple.
+  String render({
+    required Context context,
+    required dynamic decision,
+    Cell? host,
+    PromptSession? session,
+  }) =>
       _renderPromptConfig(
         this,
         contextFragment: renderContext(context),
         decisionFragment: renderDecision(decision, host: host),
+        session: session,
       );
 
-  /// Serializes this config (JSON-encodable; `cacheTtl` in
-  /// milliseconds).
+  /// Serializes this config (JSON-encodable; `cacheTtl` and
+  /// `verdictCacheTtl` in milliseconds).
   Map<String, dynamic> toMap() => {
         'id': id,
         'version': version,
@@ -188,6 +272,11 @@ final class PromptConfig {
         'examples': examples.map((e) => e.toMap()).toList(),
         'parameters': parameters,
         'cacheTtl': cacheTtl.inMilliseconds,
+        'verdictCacheTtl': verdictCacheTtl.inMilliseconds,
+        'maxVerdictCacheEntries': maxVerdictCacheEntries,
+        'sessionMode': sessionMode.name,
+        'maxSessionMessages': maxSessionMessages,
+        'maxSessionChars': maxSessionChars,
         'maxPromptChars': maxPromptChars,
       };
 
@@ -210,6 +299,15 @@ final class PromptConfig {
         parameters: (map['parameters'] as Map?)?.cast<String, dynamic>() ??
             const {'temperature': 0.0, 'json_mode': true},
         cacheTtl: Duration(milliseconds: map['cacheTtl'] as int? ?? 3600000),
+        verdictCacheTtl:
+            Duration(milliseconds: map['verdictCacheTtl'] as int? ?? 3600000),
+        maxVerdictCacheEntries: map['maxVerdictCacheEntries'] as int? ?? 10000,
+        sessionMode: SessionMode.values.firstWhere(
+          (m) => m.name == map['sessionMode'],
+          orElse: () => SessionMode.stateless,
+        ),
+        maxSessionMessages: map['maxSessionMessages'] as int? ?? 40,
+        maxSessionChars: map['maxSessionChars'] as int? ?? 20000,
         maxPromptChars: map['maxPromptChars'] as int? ?? 32000,
       );
 }

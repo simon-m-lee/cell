@@ -38,6 +38,16 @@ void _validatePromptConfig(PromptConfig config) {
     '(one of "verdict", "label", or "fields")',
   );
   check(!config.cacheTtl.isNegative, 'cacheTtl must be non-negative');
+  check(
+    !config.verdictCacheTtl.isNegative,
+    'verdictCacheTtl must be non-negative',
+  );
+  check(
+    config.maxVerdictCacheEntries >= 1,
+    'maxVerdictCacheEntries must be >= 1',
+  );
+  check(config.maxSessionMessages >= 2, 'maxSessionMessages must be >= 2');
+  check(config.maxSessionChars >= 100, 'maxSessionChars must be >= 100');
   check(config.maxPromptChars >= 100, 'maxPromptChars must be >= 100');
 
   for (var i = 0; i < config.examples.length; i++) {

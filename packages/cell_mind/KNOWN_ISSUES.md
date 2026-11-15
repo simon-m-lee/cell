@@ -12,29 +12,44 @@ change is the source-compatible widening of `VerdictPolicy.call` to
 
 - **No LLM SDK adapters, no retries, no rate limits.** The framework
   queries the model through your `PromptFunction`; transport is user
-  code (guide 12 §16).
+  code (guide 12 §21).
 - **No framework-side timeout.** A `TimeoutException` thrown by the
   adapter is captured as `Reject('prompt-timeout')`; enforcing a
   deadline is adapter code.
 - **Conformance ignores annotations** — comparison is by verdict type,
   `Reject.reason`, and `Defer.resolver` (parser-added `reason` /
   `confidence` would fail every hand-built expectation).
-- **Cache TTL is wall-clock, per process.** Cross-process caching is
-  out of scope; the journal is the durable layer.
-- **Prompts store rendered text** (including the few-shot examples).
-  If prompts carry sensitive data, redact at the journal layer.
+- **Caches are wall-clock, per process.** Cross-process caching is out
+  of scope; the journal is the durable layer. Distributed verdict
+  caches are user implementations of `VerdictCache` (sync front layer
+  + async warming).
+- **Prompts store rendered text** (including few-shot examples and
+  session history). If prompts carry sensitive data, redact at the
+  journal layer.
 - **`conform` targets verdict-shaped configs.** The classifier /
   extractor shapes have no conformance path in 1.1.0 (their converters
   are user code).
 - **The `others` catch-all map is not rendered** — the public
   `Context` interface does not expose it through a getter.
+- **Sessions are in-memory and append-only between clears.**
+  Persistence is `toMap` / `fromMap` (user code); summarization and
+  hierarchical compaction are Phase 9; branching/forking is v1.2.
+- **`session.clear()` does not journal.** Use
+  `PromptedPolicy.clearSession()` for replayable clears.
+- **Replay requires the same config id + version as the recording**
+  (the config id participates in the verdict cache key that identifies
+  journal dispositions). A changed config diverges loudly.
+- **Session fingerprint mismatches surface as
+  `ReplayDivergenceException`**, not the plan's `Reject('session-mismatch')` —
+  a louder, safer failure (see `_phase8_verdict.md` F8.13).
 
 ### Post-1.1 roadmap (deferred)
 
 - `promptedAnnotations()` (LLM as decision support) and prompt tuning
   from outcomes (Phase 9)
+- Session summarization / hierarchical compaction (Phase 9)
 - Sampling (LLM on N% of decisions), multi-LLM voting, prompt
-  versioning migration tool (v1.2)
+  versioning migration tool, session branching (v1.2)
 - `cell_mind_openai` / `cell_mind_anthropic` satellite adapters
 
 ## v1.0.0 — Final state
@@ -549,3 +564,12 @@ dart run benchmark/micro/xai_cost.dart          # narrative/span cost
 dart run benchmark/micro/spawn_cost.dart        # agent construction cost
 wc -l guide/07-XAI.md guide/08-Agents.md        # 416 / 421 (each ≥ 400)
 ```
+
+### Test-level note
+
+- `test/bridge/determinism_test.dart` ("replaying a toolRouter run")
+  has an intermittent environmental flake when the file is run in
+  isolation repeatedly: the asyncMap result pulse occasionally never
+  reaches the observer. The test was hardened (subscription settle,
+  condition polling with generous timeouts), and the full suite — the CI
+  gate — passes consistently.

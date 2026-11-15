@@ -6,43 +6,56 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ## 1.1.0
 
-**Prompt-driven policy.** A `Context` becomes a prompt, any AI answers,
-and the answer becomes a `Verdict` in the existing `cognitive()`
-pipeline — with a portable, versionable `PromptConfig`, a content-
-addressed cache, journaled replay, conformance testing, and a
-structural-first trust boundary.
+**Prompt-driven policy, verdict caching, and stateful chat sessions.**
+A `Context` becomes a prompt, any AI answers, and the answer becomes a
+`Verdict` in the existing `cognitive()` pipeline — memoized by a
+two-tier cache and embedded in a journaled conversation window.
 
 ### Added
 
-- **`promptedPolicy(...)`** — inline mode: one-off prompts with a
-  per-instance cache.
+- **`promptedPolicy(...)`** — inline mode: one-off prompts with
+  per-instance caches, always stateless.
 - **`promptedPolicyWith(config: / configId:)`** — config mode: the
-  primary API; shares one renderer, parser, cache, and journal effect
-  with inline mode.
+  primary API; shares one renderer, parser, cache, and journal-effect
+  family with inline mode.
+- **`PromptedPolicy`** — the returned `VerdictPolicy` with
+  `.session` access and journaled `clearSession()`.
 - **`PromptConfig`** — portable, JSON-serializable, semantically
   versioned configuration (`policyDecider` / `classifier` /
-  `extractor` presets + `custom`).
+  `extractor` presets + `custom`); now with `verdictCacheTtl`,
+  `maxVerdictCacheEntries`, `sessionMode`, `maxSessionMessages`,
+  `maxSessionChars`, and session-aware `render`.
 - **`PromptExample`** — structured few-shot triples.
 - **`PromptConfigRegistry`** — versioned lookup: A/B testing and
   runtime rollback.
+- **Verdict caching (three-tier fast path)** —
+  `VerdictCache` / `InMemoryVerdictCache` (TTL + LRU) /
+  `VerdictCacheKey` / `VerdictCacheEntry`, plus the output-keyed
+  prompt cache: verdict-cache hits skip rendering and the LLM;
+  prompt-cache hits skip the LLM.
+- **Chat sessions** — `PromptSession` / `ChatMessage` / `ChatRole` /
+  `SessionMode` (`stateless` / `dedicated` / `shared`); deterministic
+  pair-granular compaction; content-only fingerprints that
+  participate in the verdict cache key.
 - **`conform`** — first-class conformance testing against a specific
   LLM (`ConformanceCase`, `PromptConformanceReport`,
-  `ConformanceFailure`).
-- **`PromptEffect`** — the journaled record of every LLM call
-  (`label: 'mind.prompt'`), carrying the full prompt and response.
+  `ConformanceFailure`); bypasses caches and sessions.
+- **Journal effects** — `PromptEffect` (v1.1.0: `cacheKey`,
+  `sessionFingerprint`, `sessionId`), `VerdictCacheHitEffect`,
+  `SessionInitializedEffect`, `SessionAppendedEffect`,
+  `SessionClearedEffect`, `SessionCompactedEffect`, each with
+  replay semantics.
 - **`PromptFunction`, `ContextRenderer`, `DecisionRenderer`,
   `VerdictParser`** — the typed, replaceable pipeline primitives.
 - **`renderContext`, `renderDecision`, `parseVerdict`** — the default
   deterministic renderer and the fail-closed parser as public
   functions.
-- **Content-addressed cache** keyed by
-  `sha256(config.id | version | contextHash | decisionHash |
-  systemPromptHash)`; config-mode instances share, inline instances
-  are per-instance. Cache hits still journal — replay stays exact.
 - `crypto: ^3.0.0` dependency (the only new dependency).
-- `guide/12-Prompted-Policy.md`, `example/10_prompted_policy.dart`,
-  `benchmark/micro/prompted_policy_cost.dart`, 14 test files under
-  `test/prompt/` (~150 tests).
+- `guide/12-Prompted-Policy.md` (21 sections + appendices),
+  `example/10_prompted_policy.dart` (session + cache demos),
+  `benchmark/micro/prompted_policy_cost.dart` (verdict-cache-hit /
+  prompt-cache-hit / session-render costs), 22 test files under
+  `test/prompt/` (230+ tests).
 
 ### Changed
 
@@ -64,6 +77,9 @@ structural-first trust boundary.
 - Replay divergences from the prompt journal now propagate loudly
   (`ReplayDivergenceException`) instead of being recorded as
   `composite-rejected` decisions.
+- Verdict-cache population follows D14 order (append to the session
+  first, then store under the post-append key) so repeated decisions
+  hit without polluting the conversation.
 
 ### Migration from 1.0.0
 
@@ -71,8 +87,11 @@ structural-first trust boundary.
   `VerdictPolicy` widening is source-compatible.
 - The LLM adapter is your code: wrap your SDK in ~10 lines of
   `(String prompt) async => response`.
+- Replay requires the same config instance (or a config with the
+  same id + version) as the recording — the config id participates in
+  the verdict cache key that identifies journal dispositions.
 
-### Phase 8 — prompt
+### Phase 8 + 8.1 — prompt
 
 - `FROZEN_API.md` diff is additive for the prompt module; the one
   signature change (`VerdictPolicy.call` → `FutureOr<Verdict>`) is

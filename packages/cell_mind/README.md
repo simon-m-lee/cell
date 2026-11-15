@@ -364,7 +364,8 @@ The LLM can veto; it can never override the structural gate. See
 
 ## Stability
 
-`cell_mind 1.0.0` is the frozen API; `1.1.0` adds the prompt module
+`cell_mind 1.0.0` is the frozen API; `1.1.0` adds the prompt module —
+prompted policy, two-tier verdict caching, and stateful chat sessions
 (additive; one source-compatible widening of `VerdictPolicy.call` to
 `FutureOr<Verdict>`). See
 [`FROZEN_API.md`](FROZEN_API.md) for the complete manifest. Future

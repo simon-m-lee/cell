@@ -163,7 +163,8 @@ void main() {
       expect(calls, 2);
     });
 
-    test('cacheTtl zero disables caching', () async {
+    test('cacheTtl zero disables the prompt cache (verdict cache off too)',
+        () async {
       var calls = 0;
       final src = Cell.ingress<int>();
       final handle = cognitive(
@@ -177,6 +178,7 @@ void main() {
             systemPrompt: 's',
             userTemplate: '{{context}}\n\n{{decision}}',
             cacheTtl: Duration.zero,
+            verdictCacheTtl: Duration.zero,
           ),
           prompt: (_) async {
             calls++;
@@ -188,6 +190,34 @@ void main() {
       await applyOnce(handle, 7);
       await applyOnce(handle, 7);
       expect(calls, 2);
+    });
+
+    test('verdictCacheTtl zero disables verdict caching only', () async {
+      var calls = 0;
+      final src = Cell.ingress<int>();
+      final handle = cognitive(
+        cell: src.cell,
+        policy: TestCell.allowAll,
+        verdictPolicy: promptedPolicyWith(
+          config: PromptConfig.custom(
+            id: 'cache-verdict-zero',
+            version: '1.0.0',
+            description: 'd',
+            systemPrompt: 's',
+            userTemplate: '{{context}}\n\n{{decision}}',
+            verdictCacheTtl: Duration.zero,
+          ),
+          prompt: (_) async {
+            calls++;
+            return acceptResponse;
+          },
+          journal: RecordingJournal(),
+        ),
+      );
+      await applyOnce(handle, 7);
+      await applyOnce(handle, 7);
+      // The prompt cache (second tier) still serves the repeat decision.
+      expect(calls, 1);
     });
 
     test('two policies sharing a config id+version share the cache', () async {
@@ -235,7 +265,8 @@ void main() {
       expect(calls, 1);
     });
 
-    test('cache hits still journal one PromptEffect per decision', () async {
+    test('cache hits journal VerdictCacheHitEffect instead of PromptEffect',
+        () async {
       final journal = RecordingJournal();
       final src = Cell.ingress<int>();
       final handle = cognitive(
@@ -255,11 +286,27 @@ void main() {
       );
       await applyOnce(handle, 7);
       await applyOnce(handle, 7);
-      final promptEffects =
-          journal.toJson().whereType<Map<String, Object?>>().where(
-                (e) => e['kind'] == 'io' && e['label'] == 'mind.prompt',
-              );
-      expect(promptEffects, hasLength(2));
+      final records = journal.toJson().whereType<Map<String, Object?>>();
+      final promptEffects = records.where(
+        (e) => e['kind'] == 'io' && e['label'] == 'mind.prompt',
+      );
+      final cacheHits = records.where(
+        (e) => e['kind'] == 'io' && e['label'] == 'mind.prompt.cache.hit',
+      );
+      final dispositions = records.where(
+        (e) => e['kind'] == 'io' && e['label'] == 'mind.prompt.disposition',
+      );
+      expect(promptEffects, hasLength(1),
+          reason: 'only the first decision calls the LLM');
+      expect(cacheHits, hasLength(1),
+          reason: 'the second decision is a verdict cache hit');
+      expect(dispositions, hasLength(2),
+          reason: 'every decision records its disposition');
+      final hit = verdictCacheHitEffectFromMap(
+        (cacheHits.single['rawOutput'] as Map).cast<String, dynamic>(),
+      );
+      expect(hit.configId, 'cache-journal');
+      expect(hit.verdict, isA<Accept>());
     });
 
     test('errors are not cached', () async {

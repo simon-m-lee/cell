@@ -7,9 +7,10 @@
 part of '../../cell_mind.dart';
 
 /// Assembles the complete prompt for one decision from a
-/// [PromptConfig] and the pre-rendered context/decision fragments.
+/// [PromptConfig], the pre-rendered context/decision fragments, and an
+/// optional [PromptSession].
 ///
-/// Layout (byte-for-byte deterministic):
+/// Stateless layout (also used for empty sessions — byte-for-byte):
 ///
 /// ```text
 /// <systemPrompt>
@@ -26,25 +27,59 @@ part of '../../cell_mind.dart';
 /// <outputSchema as JSON>
 /// ```
 ///
+/// Session-aware layout (non-empty session):
+///
+/// ```text
+/// <systemPrompt>
+///
+/// ### Example 1
+/// ... (examples, unchanged)
+///
+/// ## Conversation History
+///
+/// ### User
+/// <turn 1 user content>
+///
+/// ### Assistant
+/// <turn 1 verdict JSON>
+/// ...
+///
+/// ## Current Request
+///
+/// <userTemplate with the CURRENT fragments substituted>
+///
+/// ## Expected Output
+///
+/// <outputSchema as JSON>
+/// ```
+///
 /// Only `{{context}}` and `{{decision}}` are substituted; any other
-/// `{{...}}` pattern is literal (D7). Missing placeholders are
-/// allowed — validation warns in the guide, it does not reject.
+/// `{{...}}` pattern is literal. Missing placeholders are allowed.
 String _renderPromptConfig(
   PromptConfig config, {
   required String contextFragment,
   required String decisionFragment,
+  PromptSession? session,
 }) {
   final user = config.userTemplate
       .replaceAll('{{context}}', contextFragment)
       .replaceAll('{{decision}}', decisionFragment);
+  final history = (session == null || session.isEmpty)
+      ? ''
+      : _renderSessionHistory(session);
   final buffer = StringBuffer()..write(config.systemPrompt);
   for (var i = 0; i < config.examples.length; i++) {
     buffer
       ..write('\n\n### Example ${i + 1}\n\n')
       ..write(config.examples[i].render());
   }
+  buffer.write('\n\n');
+  if (history.isNotEmpty) {
+    buffer
+      ..write(history)
+      ..write('## Current Request\n\n');
+  }
   buffer
-    ..write('\n\n')
     ..write(user)
     ..write('\n\n## Expected Output\n\n')
     ..write(jsonEncode(config.outputSchema))

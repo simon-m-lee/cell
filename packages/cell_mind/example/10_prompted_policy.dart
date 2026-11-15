@@ -301,6 +301,152 @@ Future<void> main() async {
   );
   await queue.dispose();
 
+  // ── 10. Dedicated session: conversation history in the prompt ─────
+  final sessionPrompts = <String>[];
+  Future<String> sessionLlm(String prompt) async {
+    sessionPrompts.add(prompt);
+    return _mockLlm(prompt);
+  }
+
+  final sessionConfig = PromptConfig.custom(
+    id: 'session-demo',
+    version: '1.0.0',
+    description: 'multi-turn fraud review',
+    systemPrompt: 'SYSTEM-RULES',
+    userTemplate: '{{context}}\n\n{{decision}}',
+    sessionMode: SessionMode.dedicated,
+    maxSessionMessages: 40,
+    maxSessionChars: 20000,
+  );
+  final sessionGate = Cell.ingress<Map<String, int>>(context: context);
+  final sessionPolicy = promptedPolicyWith(
+    config: sessionConfig,
+    prompt: sessionLlm,
+    journal: RecordingJournal(),
+  );
+  final sessionHandle = cognitive(
+    cell: sessionGate.cell,
+    policy: TestCell.allowAll,
+    verdictPolicy: sessionPolicy,
+  );
+  _check(sessionPolicy.session != null,
+      'dedicated mode exposes the auto-created session');
+  _check(
+    sessionHandle.decisions.isEmpty,
+    'the session starts with an empty decision log',
+  );
+  await sessionGate.ingest(amountPulse(5000, traceId: 's1'));
+  await Future<void>.delayed(const Duration(milliseconds: 20));
+  await sessionGate.ingest(amountPulse(25000, traceId: 's2'));
+  await Future<void>.delayed(const Duration(milliseconds: 20));
+  await sessionGate.ingest(amountPulse(9000, traceId: 's3'));
+  await Future<void>.delayed(const Duration(milliseconds: 20));
+  _check(sessionPolicy.session!.length == 6,
+      'three decisions accumulate six messages');
+  final lastPrompt = sessionPrompts.last;
+  _check(lastPrompt.contains('## Conversation History'),
+      'the LLM sees prior turns');
+  _check(lastPrompt.contains('## Current Request'),
+      'the current request is separated');
+  _check(
+    lastPrompt.contains('"amount":25000'),
+    'history includes the rejected transaction',
+  );
+
+  // ── 11. Verdict cache: repeats serve without the LLM ──────────────
+  var cacheCalls = 0;
+  final cacheGate = Cell.ingress<Map<String, int>>(context: context);
+  final cachePolicy = promptedPolicyWith(
+    config: PromptConfig.custom(
+      id: 'cache-demo',
+      version: '1.0.0',
+      description: 'cached reviews',
+      systemPrompt: 'CACHE-RULES',
+      userTemplate: '{{context}}\n\n{{decision}}',
+    ),
+    prompt: (_) async {
+      cacheCalls++;
+      return '{"verdict":"accept","reason":"within limits"}';
+    },
+    journal: RecordingJournal(),
+  );
+  final cacheHandle = cognitive(
+    cell: cacheGate.cell,
+    policy: TestCell.allowAll,
+    verdictPolicy: cachePolicy,
+  );
+  await cacheGate.ingest(amountPulse(5000, traceId: 'c1'));
+  await Future<void>.delayed(const Duration(milliseconds: 20));
+  final callsAfterFirst = cacheCalls;
+  await cacheGate.ingest(amountPulse(5000, traceId: 'c1'));
+  await Future<void>.delayed(const Duration(milliseconds: 20));
+  _check(cacheCalls == callsAfterFirst,
+      'the identical repeat is a verdict cache hit');
+  _check(
+    cacheHandle.decisions.where((d) => d.pulse != null).length >= 2,
+    'both decisions were recorded',
+  );
+
+  // ── 12. Shared session across two policies ────────────────────────
+  final shared = PromptSession(id: 'multi-agent');
+  PromptConfig sharedConfig() => PromptConfig.custom(
+        id: 'shared-demo',
+        version: '1.0.0',
+        description: 'shared window',
+        systemPrompt: 'SHARED-RULES',
+        userTemplate: '{{context}}\n\n{{decision}}',
+        sessionMode: SessionMode.shared,
+      );
+  final agentA = promptedPolicyWith(
+    config: sharedConfig(),
+    prompt: (_) async => '{"verdict":"accept","reason":"within limits"}',
+    journal: RecordingJournal(),
+    session: shared,
+  );
+  final agentB = promptedPolicyWith(
+    config: sharedConfig(),
+    prompt: (_) async => '{"verdict":"reject","reason":"policy violation"}',
+    journal: RecordingJournal(),
+    session: shared,
+  );
+  final agentAGate = Cell.ingress<Map<String, int>>(context: context);
+  final agentAHandle = cognitive(
+    cell: agentAGate.cell,
+    policy: TestCell.allowAll,
+    verdictPolicy: agentA,
+  );
+  await agentAGate.ingest(amountPulse(5000, traceId: 'sh1'));
+  await Future<void>.delayed(const Duration(milliseconds: 20));
+  final agentBGate = Cell.ingress<Map<String, int>>(context: context);
+  final agentBHandle = cognitive(
+    cell: agentBGate.cell,
+    policy: TestCell.allowAll,
+    verdictPolicy: agentB,
+  );
+  await agentBGate.ingest(amountPulse(5000, traceId: 'sh2'));
+  await Future<void>.delayed(const Duration(milliseconds: 20));
+  _check(shared.length == 4, 'two policies accumulate into the shared window');
+  _check(
+      shared.messages[1].content ==
+          '{"verdict":"accept","reason":"within limits"}',
+      'agent A turn recorded');
+  _check(
+      shared.messages[3].content ==
+          '{"verdict":"reject","reason":"policy violation"}',
+      'agent B turn recorded');
+  _check(
+    agentAHandle.decisions
+        .where((d) => d.pulse != null)
+        .every((d) => d.verdict is Accept),
+    'agent A accepted',
+  );
+  _check(
+    agentBHandle.decisions
+        .where((d) => d.pulse != null)
+        .every((d) => d.verdict is Reject),
+    'agent B rejected',
+  );
+
   // ── 9. Classifier + extractor presets ─────────────────────────────
   final classifierHandle = cognitive(
     cell: Cell.ingress<int>().cell,

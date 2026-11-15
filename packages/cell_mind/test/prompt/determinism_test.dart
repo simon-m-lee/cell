@@ -16,12 +16,16 @@ void main() {
     test('replaying a recorded session does not re-invoke the LLM', () async {
       var calls = 0;
       final recording = RecordingJournal();
+      // Recording and replay must share the same config instance: the
+      // disposition input includes the config id (via the verdict
+      // cache key).
+      final config = tinyConfig();
       final src = Cell.ingress<int>();
       final handle = cognitive(
         cell: src.cell,
         policy: TestCell.allowAll,
         verdictPolicy: promptedPolicyWith(
-          config: tinyConfig(),
+          config: config,
           prompt: (_) async {
             calls++;
             return acceptResponse;
@@ -41,7 +45,7 @@ void main() {
         cell: src2.cell,
         policy: TestCell.allowAll,
         verdictPolicy: promptedPolicyWith(
-          config: tinyConfig(),
+          config: config,
           prompt: (_) async {
             calls++;
             return rejectResponse;
@@ -57,12 +61,13 @@ void main() {
 
     test('recorded and replayed decisions are verdict-identical', () async {
       final recording = RecordingJournal();
+      final config = tinyConfig();
       final src = Cell.ingress<int>();
       final handle = cognitive(
         cell: src.cell,
         policy: TestCell.allowAll,
         verdictPolicy: promptedPolicyWith(
-          config: tinyConfig(),
+          config: config,
           prompt: mockPrompt(rejectResponse),
           journal: recording,
         ),
@@ -77,7 +82,7 @@ void main() {
         cell: src2.cell,
         policy: TestCell.allowAll,
         verdictPolicy: promptedPolicyWith(
-          config: tinyConfig(),
+          config: config,
           prompt: mockPrompt(acceptResponse),
           journal: replay,
         ),
@@ -93,13 +98,14 @@ void main() {
     test('rendered prompts are byte-identical across recording and replay',
         () async {
       final recording = RecordingJournal();
+      final config = tinyConfig();
       final prompts = <String>[];
       final src = Cell.ingress<int>();
       final handle = cognitive(
         cell: src.cell,
         policy: TestCell.allowAll,
         verdictPolicy: promptedPolicyWith(
-          config: tinyConfig(),
+          config: config,
           prompt: mockPrompt(acceptResponse, log: prompts),
           journal: recording,
         ),
@@ -122,7 +128,7 @@ void main() {
         cell: src2.cell,
         policy: TestCell.allowAll,
         verdictPolicy: promptedPolicyWith(
-          config: tinyConfig(),
+          config: config,
           prompt: mockPrompt(acceptResponse, log: replayPrompts),
           journal: replay,
         ),
@@ -181,12 +187,13 @@ void main() {
 
     test('a recorded LLM error replays as the same rejection', () async {
       final recording = RecordingJournal();
+      final config = tinyConfig();
       final src = Cell.ingress<int>();
       final handle = cognitive(
         cell: src.cell,
         policy: TestCell.allowAll,
         verdictPolicy: promptedPolicyWith(
-          config: tinyConfig(),
+          config: config,
           prompt: (_) async => throw StateError('api down'),
           journal: recording,
         ),
@@ -205,7 +212,7 @@ void main() {
         cell: src2.cell,
         policy: TestCell.allowAll,
         verdictPolicy: promptedPolicyWith(
-          config: tinyConfig(),
+          config: config,
           prompt: mockPrompt(acceptResponse),
           journal: replay,
         ),
@@ -221,12 +228,13 @@ void main() {
     test('multiple decisions replay in order with the recorded verdicts',
         () async {
       final recording = RecordingJournal();
+      final config = tinyConfig();
       final src = Cell.ingress<int>();
       final handle = cognitive(
         cell: src.cell,
         policy: TestCell.allowAll,
         verdictPolicy: promptedPolicyWith(
-          config: tinyConfig(),
+          config: config,
           prompt: (_) async => acceptResponse,
           journal: recording,
         ),
@@ -244,7 +252,7 @@ void main() {
         cell: src2.cell,
         policy: TestCell.allowAll,
         verdictPolicy: promptedPolicyWith(
-          config: tinyConfig(),
+          config: config,
           prompt: (_) async => rejectResponse,
           journal: replay,
         ),
@@ -320,8 +328,11 @@ void main() {
       final effect = PromptEffect(
         configId: 'c',
         configVersion: '1.0.0',
+        cacheKey: 'k' * 64,
         contextHash: 'a' * 64,
         decisionHash: 'b' * 64,
+        sessionFingerprint: 's' * 64,
+        sessionId: 'session-1',
         prompt: 'p',
         response: 'r',
         at: DateTime.utc(2026, 11, 15, 12),
@@ -330,8 +341,11 @@ void main() {
       final restored = PromptEffect.fromMap(effect.toMap());
       expect(restored.configId, 'c');
       expect(restored.configVersion, '1.0.0');
+      expect(restored.cacheKey, 'k' * 64);
       expect(restored.contextHash, 'a' * 64);
       expect(restored.decisionHash, 'b' * 64);
+      expect(restored.sessionFingerprint, 's' * 64);
+      expect(restored.sessionId, 'session-1');
       expect(restored.prompt, 'p');
       expect(restored.response, 'r');
       expect(restored.at, DateTime.utc(2026, 11, 15, 12));
