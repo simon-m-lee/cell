@@ -287,7 +287,8 @@ gateway that queries a **live DeepSeek LLM** (settings from
 `DEEPSEEK_API_KEY`) through the prompted-policy pipeline — with
 verdict caching, chat sessions, HITL approval, offline learning, XAI
 narratives, replay, and conformance. Without DeepSeek settings it
-falls back to a deterministic mock, so it always runs.
+falls back to a deterministic mock, so it always runs. The full
+walkthrough lives next to it: `example/11_payguard_live.md`.
 
 ```bash
 dart run example/09_acceptance.dart

@@ -34,6 +34,8 @@
 //
 // Expect a handful of live DeepSeek calls (~15-40 s); every repeat
 // decision is a cache hit and costs nothing.
+//
+// Full walkthrough: example/11_payguard_live.md
 
 import 'dart:async';
 import 'dart:convert';
