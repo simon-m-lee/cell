@@ -383,6 +383,20 @@ mixin _TissueReceptorBaseStack {
       void process(TissuePulse event) {
         final payload = event.payload;
 
+        // Live views share the principal's store. The delta is already
+        // applied there; re-applying it into the same store would
+        // double-apply (zero-copy sync, not copy-then-mirror). Return
+        // before the generic-boundary assert below: a shared-store view
+        // applies nothing, so any pulse type (including the value path's
+        // ElementUpdatedRecord) is legitimate here.
+        final sharedStore = event.source is Tissue &&
+            identical(container.store,
+                (event.source as Tissue)._nucleus.container.store);
+
+        if (sharedStore) {
+          return;
+        }
+
         // A pulse whose element type does not line up with this deputy's E
         // is skipped by the `is TissuePulse<E>` checks below. Assert in
         // debug builds so generic-boundary evolutions surface during
@@ -392,18 +406,6 @@ mixin _TissueReceptorBaseStack {
               false,
               'TissuePulse element type does not match the '
               'deputy sync type parameter');
-        }
-
-        // Live views share the principal's store. The delta is already
-        // applied there; re-applying it into the same store would
-        // double-apply (zero-copy sync, not copy-then-mirror).
-        final sharedStore = event.source is Tissue &&
-            identical(container.store,
-                (event.source as Tissue)._nucleus.container.store);
-
-        if (sharedStore) {
-          (events ??= <TissuePulse<E>>[]).add(event as TissuePulse<E>);
-          return;
         }
 
         if (event.type == Tissue.elementAdded) {

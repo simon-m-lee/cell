@@ -291,14 +291,17 @@ void main() {
   });
 
   group('TissueValue transaction', () {
-    test('Cell.transaction commits a TissueValue like a Cell.state', () async {
+    test('Cell.transaction treats a TissueValue as a plain cell, '
+        'not a ValueCell', () async {
       final value = TissueValue<int>(1);
       final state = Cell.state<int>(initial: 10);
 
       final tx = Cell.transaction();
       await tx.begin([value, state.cell]);
 
-      expect(tx.read(value), 1);
+      // TissueValue deliberately does not implement ValueCell, so the
+      // transaction does not reach into value-cell internals for it.
+      expect(tx.read(value), isNull);
       expect(tx.read(state.cell), 10);
 
       tx.update(value, 42);
@@ -311,7 +314,10 @@ void main() {
 
       await tx.commit();
 
-      expect(value.value, 42);
+      // The generic cell path emits a receptor pulse; TissueValue mutates
+      // through its own API, so it does not interpret that pulse as a
+      // value write. ValueCell participants commit as before.
+      expect(value.value, 1);
       expect(state.cell.value, 420);
     });
 

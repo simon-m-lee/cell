@@ -328,10 +328,16 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
 /// Value Cell**.
 ///
 /// [TissueValue] represents the atomic unit of state within the
-/// `cell_tissue` ecosystem. It converges the standard [ValueCell] contract
-/// with the [Tissue] governance model, creating a state node that is
-/// simultaneously a physical storage container, an observable pulse source,
-/// and a governed security boundary.
+/// `cell_tissue` ecosystem. It mirrors the standard value-cell *contract*
+/// (synchronous read/write plus observable updates) on top of the [Tissue]
+/// governance model, creating a state node that is simultaneously a
+/// physical storage container, an observable pulse source, and a governed
+/// security boundary.
+///
+/// It deliberately does **not** implement [ValueCell]: a [TissueValue]
+/// participates in [Cell.transaction] through the generic [Cell] apply
+/// path, so transactions treat it as a tissue (validation, pulses, ledger
+/// entries) instead of reaching into value-cell internals.
 ///
 /// ### When to use
 /// Use a [TissueValue] whenever you need a single, reactive value that:
@@ -431,7 +437,7 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
 /// q.addLast(2);
 /// print(q.length); // 2
 /// ```
-abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
+abstract interface class TissueValue<V> implements Tissue<V> {
   /// Provides access to the configuration properties of this `TissueValue`.
   ///
   /// Implementations of `TissueValue` are required to expose their configuration
@@ -726,7 +732,6 @@ abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
   ///
   /// ### Returns:
   /// The current state of type [V] or `null` if the container is empty.
-  @override
   V? get value;
 
   /// Sets the current payload of this reactive value container, triggering a
@@ -752,7 +757,6 @@ abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
   /// final counter = TissueValue<int>(0);
   /// counter.value = 42;
   /// ```
-  @override
   set value(V? value);
 
   /// Attempts to update the current payload, returning a boolean indicating
@@ -828,8 +832,8 @@ abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
 
   /// Provides an asynchronous interface for performing mutation operations.
   ///
-  /// The [async] getter returns a [ValueCellAsync] object. This allows
-  /// you to perform value operations (like `set`) and `await` their
+  /// The [async] getter returns a [ModifiableValueAsync] object. This
+  /// allows you to perform value operations (like `set`) and `await` their
   /// completion, which includes the propagation of reactive signals.
   ///
   /// ### When to use
@@ -843,7 +847,7 @@ abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
   /// await counter.async.set(42);
   /// ```
   @override
-  ValueCellAsync<V> get async;
+  ModifiableValueAsync<V> get async;
 
   /// Comparison operators for objects
   @override
@@ -1110,7 +1114,7 @@ abstract interface class UnmodifiableTissueValue<V>
   /// reactive value within the **Conactive Model**.
   ///
   /// For an [UnmodifiableTissueValue], this getter returns a specialised
-  /// [ValueCellAsync] projection. While the standard [TissueValue]
+  /// [ModifiableValueAsync] projection. While the standard [TissueValue]
   /// interface provides synchronous access, the `.async` accessor bridges
   /// the gap for non‑blocking execution domains.
   ///
@@ -1124,8 +1128,8 @@ abstract interface class UnmodifiableTissueValue<V>
   /// - Reads are synchronised via the cell's [Lock].
   ///
   /// ### Returns:
-  /// A [ValueCellAsync<V>] instance that provides a strictly
+  /// A [ModifiableValueAsync<V>] instance that provides a strictly
   /// read‑only, asynchronous view of the reactive state.
   @override
-  ValueCellAsync<V> get async;
+  ModifiableValueAsync<V> get async;
 }

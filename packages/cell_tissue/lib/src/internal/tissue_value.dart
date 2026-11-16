@@ -363,7 +363,7 @@ class _TissueValue<V, C extends TissueValue<V>> extends TissueValueBase<V, C> {
   /// bound to external cells or require synchronization across different
   /// execution contexts.
   @override
-  ValueCellAsync<V> get async => ValueCellAsync<V>(this);
+  ModifiableValueAsync<V> get async => ModifiableValueAsync<V>(this);
 
   @override
   bool operator ==(Object other) {
@@ -475,7 +475,7 @@ abstract class TissueValueBase<V, C extends TissueValue<V>>
   /// final value = TissueValue<int>(0);
   /// await value.async.set(42);
   @override
-  ValueCellAsync<V> get async => ValueCellAsync<V>(this);
+  ModifiableValueAsync<V> get async => ModifiableValueAsync<V>(this);
 
   /// Returns the validation rule currently applied to this list.
   ///
@@ -662,7 +662,7 @@ class _UnmodifiableTissueValue<V, C extends TissueValue<V>>
   TestTissue<V, C> get validate => _nucleus.testRule;
 
   @override
-  ValueCellAsync<V> get async => _UnmodifiableModifiableValueAsync(this);
+  ModifiableValueAsync<V> get async => _UnmodifiableModifiableValueAsync(this);
 }
 
 /// The foundational base class for all read‑only reactive value views.
@@ -715,11 +715,6 @@ abstract class UnmodifiableTissueValueBase<V, C extends TissueValue<V>>
 
   @override
   Iterable<Function> get modifiable => <Function>{};
-
-  @override
-  void restoreValue(V? prior) {
-    throw UnsupportedError('Unmodifiable operation');
-  }
 
   /// The internal constructor that materialises a read‑only, live view of a
   /// reactive single value.
@@ -908,20 +903,6 @@ mixin TissueValueMixin<V, C extends TissueValue<V>>
     }
   }
 
-  /// Transaction rollback write: restores [prior] into storage and
-  /// notifies observers without running validation or [set]. The value
-  /// path's counterpart to [ValueCell.restoreValue].
-  @override
-  void restoreValue(V? prior) {
-    if (this is! Unmodifiable) {
-      if (identical(prior, _nucleus.container.store.value) ||
-          prior == _nucleus.container.store.value) {
-        return;
-      }
-      _nucleus.container.store.value = prior;
-      _nucleus.synapses.call(Pulse<V>(prior));
-    }
-  }
 
   /// Sets the current value and returns `true` if successful.
   ///
@@ -1188,10 +1169,8 @@ class ModifiableValueAsync<V> extends TissueModifiableAsync<V, TissueValue<V>> {
 
 /// Internal implementation of an unmodifiable async value wrapper that throws
 /// on any mutation.
-class _UnmodifiableModifiableValueAsync<V> implements ValueCellAsync<V> {
-  final TissueValue<V> _tissue;
-
-  const _UnmodifiableModifiableValueAsync(this._tissue);
+class _UnmodifiableModifiableValueAsync<V> extends ModifiableValueAsync<V> {
+  const _UnmodifiableModifiableValueAsync(super.tissue);
 
   /// The read-only async projection has no command surface.
   @override
@@ -1199,6 +1178,7 @@ class _UnmodifiableModifiableValueAsync<V> implements ValueCellAsync<V> {
           {ApplyTransactionScope? tx}) =>
       Future<ApplyOutcome<R>>.error(UnsupportedError('Unmodifiable operation'));
 
+  @override
   Future<bool> set(V? value) async {
     return Future.error(UnsupportedError('Unmodifiable operation'));
   }
@@ -1213,6 +1193,5 @@ class _UnmodifiableModifiableValueAsync<V> implements ValueCellAsync<V> {
     return Future<V?>.value(_tissue.value);
   }
 
-  @override
   Future<V?> get state => throw UnimplementedError();
 }
