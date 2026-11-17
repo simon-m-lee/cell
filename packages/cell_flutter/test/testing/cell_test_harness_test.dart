@@ -120,6 +120,14 @@ void main() {
       );
     });
 
+    testWidgets('emitAndSettle() after dispose throws', (tester) async {
+      harness.dispose();
+      expect(
+        () => harness.emitAndSettle<int>(tester, #counter, 5),
+        throwsA(isA<StateError>()),
+      );
+    });
+
     testWidgets('recordPulses() for missing id throws', (tester) async {
       expect(
         () => harness.recordPulses(#missing),

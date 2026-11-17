@@ -4,6 +4,8 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+import 'dart:async';
+
 import 'package:cell_flutter/cell_flutter.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -30,6 +32,23 @@ void main() {
 
       src.emit(9);
       expect(mirror.cell.value, 9);
+      mirror.dispose();
+    });
+
+    test('type-mismatched payloads are reported through the zone', () async {
+      final src = Cell.ingress<Object>();
+      final mirror = src.cell.asValueCell<int>();
+      final errors = <Object>[];
+
+      await runZonedGuarded(() async {
+        src.emit('not-an-int');
+        await Future<void>.delayed(Duration.zero);
+      }, (error, stack) => errors.add(error));
+
+      expect(errors, hasLength(1));
+      expect(errors.single, isA<StateError>());
+      // The mirror keeps its previous value on a mismatch.
+      expect(mirror.cell.value, isNull);
       mirror.dispose();
     });
 

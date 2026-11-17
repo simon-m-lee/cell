@@ -1,0 +1,1117 @@
+The request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+Failed to decode .dart_tool/package_config.json at D:\Users\Simon\Workspaces\cell\packages\cell_flutter_lints\example. Make sure to run `pub get` first.
+PathNotFoundException: Cannot open file, path = 'D:\Users\Simon\Workspaces\cell\packages\cell_flutter_lints\example\.dart_tool\pub\workspace_ref.json' (OS Error: The system cannot find the path specified, errno = 3)
+#0      _File.throwIfError (dart:io/file_impl.dart:779)
+#1      _File.openSync (dart:io/file_impl.dart:572)
+#2      _File.readAsBytesSync (dart:io/file_impl.dart:660)
+#3      _File.readAsStringSync (dart:io/file_impl.dart:715)
+#4      parsePackageConfig (package:custom_lint_core/src/package_utils.dart:142)
+#5      CustomLintProject.parse (package:custom_lint/src/workspace.dart:930)
+<asynchronous suspension>
+#6      Future.wait.<anonymous closure> (dart:async/future.dart:546)
+<asynchronous suspension>
+#7      CustomLintWorkspace.fromContextRoots (package:custom_lint/src/workspace.dart:515)
+<asynchronous suspension>
+#8      SocketCustomLintServerToClientChannel.create (package:custom_lint/src/v2/server_to_client_channel.dart:54)
+<asynchronous suspension>
+#9      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:362)
+<asynchronous suspension>
+#10     CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+<asynchronous suspension>
+#11     PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+<asynchronous suspension>
+#12     CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+<asynchronous suspension>
+
+at:
+#0      CustomLintProject.parse.<anonymous closure> (package:custom_lint/src/workspace.dart:933)
+#1      _rootRunBinary (dart:async/zone_root.dart:70)
+#2      _CustomZone.runBinary (dart:async/zone.dart:740)
+#3      _FutureListener.handleError (dart:async/future_impl.dart:237)
+#4      Future._propagateToListeners.handleError (dart:async/future_impl.dart:960)
+#5      Future._propagateToListeners (dart:async/future_impl.dart:981)
+#6      Future._completeErrorObject (dart:async/future_impl.dart:738)
+#7      Future._asyncCompleteErrorObject.<anonymous closure> (dart:async/future_impl.dart:832)
+#8      _rootRun (dart:async/zone_root.dart:35)
+#9      _CustomZone.run (dart:async/zone.dart:726)
+#10     _CustomZone.runGuarded (dart:async/zone.dart:625)
+#11     _CustomZone.bindCallbackGuarded.<anonymous closure> (dart:async/zone.dart:666)
+#12     _microtaskLoop (dart:async/schedule_microtask.dart:40)
+#13     _startMicrotaskLoop (dart:async/schedule_microtask.dart:49)
+#14     _runPendingImmediateCallback (dart:isolate-patch/isolate_patch.dart:127)
+#15     _RawReceivePort._handleMessage (dart:isolate-patch/isolate_patch.dart:194)
+
+The request analysis.setSubscriptions failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+Failed to decode .dart_tool/package_config.json at D:\Users\Simon\Workspaces\cell\packages\cell_flutter_lints\example. Make sure to run `pub get` first.
+PathNotFoundException: Cannot open file, path = 'D:\Users\Simon\Workspaces\cell\packages\cell_flutter_lints\example\.dart_tool\pub\workspace_ref.json' (OS Error: The system cannot find the path specified, errno = 3)
+#0      _File.throwIfError (dart:io/file_impl.dart:779)
+#1      _File.openSync (dart:io/file_impl.dart:572)
+#2      _File.readAsBytesSync (dart:io/file_impl.dart:660)
+#3      _File.readAsStringSync (dart:io/file_impl.dart:715)
+#4      parsePackageConfig (package:custom_lint_core/src/package_utils.dart:142)
+#5      CustomLintProject.parse (package:custom_lint/src/workspace.dart:930)
+<asynchronous suspension>
+#6      Future.wait.<anonymous closure> (dart:async/future.dart:546)
+<asynchronous suspension>
+#7      CustomLintWorkspace.fromContextRoots (package:custom_lint/src/workspace.dart:515)
+<asynchronous suspension>
+#8      SocketCustomLintServerToClientChannel.create (package:custom_lint/src/v2/server_to_client_channel.dart:54)
+<asynchronous suspension>
+#9      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:362)
+<asynchronous suspension>
+#10     CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+<asynchronous suspension>
+#11     PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+<asynchronous suspension>
+#12     CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+<asynchronous suspension>
+
+at:
+#0      CustomLintProject.parse.<anonymous closure> (package:custom_lint/src/workspace.dart:933)
+#1      _rootRunBinary (dart:async/zone_root.dart:70)
+#2      _CustomZone.runBinary (dart:async/zone.dart:740)
+#3      _FutureListener.handleError (dart:async/future_impl.dart:237)
+#4      Future._propagateToListeners.handleError (dart:async/future_impl.dart:960)
+#5      Future._propagateToListeners (dart:async/future_impl.dart:981)
+#6      Future._completeErrorObject (dart:async/future_impl.dart:738)
+#7      Future._asyncCompleteErrorObject.<anonymous closure> (dart:async/future_impl.dart:832)
+#8      _rootRun (dart:async/zone_root.dart:35)
+#9      _CustomZone.run (dart:async/zone.dart:726)
+#10     _CustomZone.runGuarded (dart:async/zone.dart:625)
+#11     _CustomZone.bindCallbackGuarded.<anonymous closure> (dart:async/zone.dart:666)
+#12     _microtaskLoop (dart:async/schedule_microtask.dart:40)
+#13     _startMicrotaskLoop (dart:async/schedule_microtask.dart:49)
+#14     _runPendingImmediateCallback (dart:isolate-patch/isolate_patch.dart:127)
+#15     _RawReceivePort._handleMessage (dart:isolate-patch/isolate_patch.dart:194)
+
+The request analysis.setPriorityFiles failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+Failed to decode .dart_tool/package_config.json at D:\Users\Simon\Workspaces\cell\packages\cell_flutter_lints\example. Make sure to run `pub get` first.
+PathNotFoundException: Cannot open file, path = 'D:\Users\Simon\Workspaces\cell\packages\cell_flutter_lints\example\.dart_tool\pub\workspace_ref.json' (OS Error: The system cannot find the path specified, errno = 3)
+#0      _File.throwIfError (dart:io/file_impl.dart:779)
+#1      _File.openSync (dart:io/file_impl.dart:572)
+#2      _File.readAsBytesSync (dart:io/file_impl.dart:660)
+#3      _File.readAsStringSync (dart:io/file_impl.dart:715)
+#4      parsePackageConfig (package:custom_lint_core/src/package_utils.dart:142)
+#5      CustomLintProject.parse (package:custom_lint/src/workspace.dart:930)
+<asynchronous suspension>
+#6      Future.wait.<anonymous closure> (dart:async/future.dart:546)
+<asynchronous suspension>
+#7      CustomLintWorkspace.fromContextRoots (package:custom_lint/src/workspace.dart:515)
+<asynchronous suspension>
+#8      SocketCustomLintServerToClientChannel.create (package:custom_lint/src/v2/server_to_client_channel.dart:54)
+<asynchronous suspension>
+#9      CustomLintServer._maybeSpawnCustomLintPlugin (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:362)
+<asynchronous suspension>
+#10     CustomLintServer._handleAnalysisSetContextRoots.<anonymous closure> (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:343)
+<asynchronous suspension>
+#11     PendingOperation.run (package:custom_lint/src/async_operation.dart:22)
+<asynchronous suspension>
+#12     CustomLintServer._handleRequest (package:custom_lint/src/v2/custom_lint_analyzer_plugin.dart:175)
+<asynchronous suspension>
+
+at:
+#0      CustomLintProject.parse.<anonymous closure> (package:custom_lint/src/workspace.dart:933)
+#1      _rootRunBinary (dart:async/zone_root.dart:70)
+#2      _CustomZone.runBinary (dart:async/zone.dart:740)
+#3      _FutureListener.handleError (dart:async/future_impl.dart:237)
+#4      Future._propagateToListeners.handleError (dart:async/future_impl.dart:960)
+#5      Future._propagateToListeners (dart:async/future_impl.dart:981)
+#6      Future._completeErrorObject (dart:async/future_impl.dart:738)
+#7      Future._asyncCompleteErrorObject.<anonymous closure> (dart:async/future_impl.dart:832)
+#8      _rootRun (dart:async/zone_root.dart:35)
+#9      _CustomZone.run (dart:async/zone.dart:726)
+#10     _CustomZone.runGuarded (dart:async/zone.dart:625)
+#11     _CustomZone.bindCallbackGuarded.<anonymous closure> (dart:async/zone.dart:666)
+#12     _microtaskLoop (dart:async/schedule_microtask.dart:40)
+#13     _startMicrotaskLoop (dart:async/schedule_microtask.dart:49)
+#14     _runPendingImmediateCallback (dart:isolate-patch/isolate_patch.dart:127)
+#15     _RawReceivePort._handleMessage (dart:isolate-patch/isolate_patch.dart:194)
+
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/avoid_cell_creation_in_build.dart:43:5: Error: Type 'ErrorReporter' not found.
+[custom_lint] 2026-11-16T16:08:50.266496     ErrorReporter reporter,
+[custom_lint] 2026-11-16T16:08:50.266496     ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/collection_selector_without_equals.dart:35:5: Error: Type 'ErrorReporter' not found.
+[custom_lint] 2026-11-16T16:08:50.266496     ErrorReporter reporter,
+[custom_lint] 2026-11-16T16:08:50.266496     ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/collection_selector_without_equals.dart:62:28: Error: Type 'TypeName' not found.
+[custom_lint] 2026-11-16T16:08:50.266496   bool _hasCollectionSlice(TypeName type) {
+[custom_lint] 2026-11-16T16:08:50.266496                            ^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart:37:5: Error: Type 'ErrorReporter' not found.
+[custom_lint] 2026-11-16T16:08:50.266496     ErrorReporter reporter,
+[custom_lint] 2026-11-16T16:08:50.266496     ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart:84:30: Error: Type 'RecursiveAstVisitor' not found.
+[custom_lint] 2026-11-16T16:08:50.266496 class _ReleaseFinder extends RecursiveAstVisitor<void> {
+[custom_lint] 2026-11-16T16:08:50.266496                              ^^^^^^^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:38:5: Error: Type 'ErrorReporter' not found.
+[custom_lint] 2026-11-16T16:08:50.266496     ErrorReporter reporter,
+[custom_lint] 2026-11-16T16:08:50.266496     ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:70:34: Error: Type 'RecursiveAstVisitor' not found.
+[custom_lint] 2026-11-16T16:08:50.266496 class _FieldHookObserver extends RecursiveAstVisitor<void> {
+[custom_lint] 2026-11-16T16:08:50.266496                                  ^^^^^^^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/avoid_cell_creation_in_build.dart:16:18: Error: Undefined name 'ErrorSeverity'.
+[custom_lint] 2026-11-16T16:08:50.266496   errorSeverity: ErrorSeverity.WARNING,
+[custom_lint] 2026-11-16T16:08:50.266496                  ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/collection_selector_without_equals.dart:16:18: Error: Undefined name 'ErrorSeverity'.
+[custom_lint] 2026-11-16T16:08:50.266496   errorSeverity: ErrorSeverity.WARNING,
+[custom_lint] 2026-11-16T16:08:50.266496                  ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart:17:18: Error: Undefined name 'ErrorSeverity'.
+[custom_lint] 2026-11-16T16:08:50.266496   errorSeverity: ErrorSeverity.WARNING,
+[custom_lint] 2026-11-16T16:08:50.266496                  ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:18:18: Error: Undefined name 'ErrorSeverity'.
+[custom_lint] 2026-11-16T16:08:50.266496   errorSeverity: ErrorSeverity.WARNING,
+[custom_lint] 2026-11-16T16:08:50.266496                  ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/avoid_cell_creation_in_build.dart:43:5: Error: 'ErrorReporter' isn't a type.
+[custom_lint] 2026-11-16T16:08:50.266496     ErrorReporter reporter,
+[custom_lint] 2026-11-16T16:08:50.266496     ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/avoid_cell_creation_in_build.dart:67:33: Error: The getter 'ancestors' isn't defined for the type 'AstNode'.
+[custom_lint] 2026-11-16T16:08:50.266496  - 'AstNode' is from 'package:analyzer/src/dart/ast/ast.dart' ('/C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/analyzer-8.4.0/lib/src/dart/ast/ast.dart').
+[custom_lint] 2026-11-16T16:08:50.266496 Try correcting the name to the name of an existing getter, or defining a getter or field named 'ancestors'.
+[custom_lint] 2026-11-16T16:08:50.266496     for (final ancestor in node.ancestors) {
+[custom_lint] 2026-11-16T16:08:50.266496                                 ^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/collection_selector_without_equals.dart:35:5: Error: 'ErrorReporter' isn't a type.
+[custom_lint] 2026-11-16T16:08:50.266496     ErrorReporter reporter,
+[custom_lint] 2026-11-16T16:08:50.266496     ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/collection_selector_without_equals.dart:62:28: Error: 'TypeName' isn't a type.
+[custom_lint] 2026-11-16T16:08:50.266496   bool _hasCollectionSlice(TypeName type) {
+[custom_lint] 2026-11-16T16:08:50.266496                            ^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart:37:5: Error: 'ErrorReporter' isn't a type.
+[custom_lint] 2026-11-16T16:08:50.266496     ErrorReporter reporter,
+[custom_lint] 2026-11-16T16:08:50.266496     ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart:45:26: Error: The getter 'staticElement' isn't defined for the type 'SimpleIdentifier'.
+[custom_lint] 2026-11-16T16:08:50.266496  - 'SimpleIdentifier' is from 'package:analyzer/src/dart/ast/ast.dart' ('/C:/Users/Simon/AppData/Loc
+[custom_lint] 2026-11-16T16:08:50.266496
+[custom_lint] 2026-11-16T16:08:50.266496 al/Pub/Cache/hosted/pub.dev/analyzer-8.4.0/lib/src/dart/ast/ast.dart').
+[custom_lint] 2026-11-16T16:08:50.266496 Try correcting the name to the name of an existing getter, or defining a getter or field named 'staticElement'.
+[custom_lint] 2026-11-16T16:08:50.266496       final field = left.staticElement;
+[custom_lint] 2026-11-16T16:08:50.266496                          ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart:79:25: Error: The argument type '_ReleaseFinder' can't be assigned to the parameter type 'AstVisitor<dynamic>'.
+[custom_lint] 2026-11-16T16:08:50.266496  - '_ReleaseFinder' is from 'package:cell_flutter_lints/src/rules/forgotten_cell_dispose.dart' ('/d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart').
+[custom_lint] 2026-11-16T16:08:50.266496  - 'AstVisitor' is from 'package:analyzer/src/dart/ast/ast.dart' ('/C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/analyzer-8.4.0/lib/src/dart/ast/ast.dart').
+[custom_lint] 2026-11-16T16:08:50.266496     dispose.body.accept(visitor);
+[custom_lint] 2026-11-16T16:08:50.266496                         ^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart:100:11: Error: Superclass has no method named 'visitMethodInvocation'.
+[custom_lint] 2026-11-16T16:08:50.266496     super.visitMethodInvocation(node);
+[custom_lint] 2026-11-16T16:08:50.266496           ^^^^^^^^^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart:95:18: Error: The getter 'staticElement' isn't defined for the type 'SimpleIdentifier'.
+[custom_lint] 2026-11-16T16:08:50.266496  - 'SimpleIdentifier' is from 'package:analyzer/src/dart/ast/ast.dart' ('/C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/analyzer-8.4.0/lib/src/dart/ast/ast.dart').
+[custom_lint] 2026-11-16T16:08:50.266496 Try correcting the name to the name of an existing getter, or defining a getter or field named 'staticElement'.
+[custom_lint] 2026-11-16T16:08:50.266496           target.staticElement == field &&
+[custom_lint] 2026-11-16T16:08:50.266496                  ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:38:5: Error: 'ErrorReporter' isn't a type.
+[custom_lint] 2026-11-16T16:08:50.266496     ErrorReporter reporter,
+[custom_lint] 2026-11-16T16:08:50.266496     ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:61:42: Error: The argument type '_FieldHookObserver' can't be assigned to the parameter type 'AstVisitor<dynamic>'.
+[custom_lint] 2026-11-16T16:08:50.266496  - '_FieldHookObserver' is from 'package:cell_flutter_lints/src/rules/unkeyed_hook_builder.dart' ('/d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart').
+[custom_lint] 2026-11-16T16:08:50.266496  - 'AstVisitor' is from 'package:analyzer/src/dart/ast/ast.dart' ('/C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/analyzer-8.4.0/lib/src/dart/ast/ast.dart').
+[custom_lint] 2026-11-16T16:08:50.266496       builderArg.first.expression.accept(visitor);
+[custom_lint] 2026-11-16T16:08:50.266496                                          ^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:76:11: Error: Superclass has no method named 'visitMethodInvocation'.
+[custom_lint] 2026-11-16T16:08:50.266496     super.visitMethodInvocation(node);
+[custom_lint] 2026-11-16T16:08:50.266496           ^^^^^^^^^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:82:11: Error: Superclass has no method named 'visitFunctionExpressionInvocation'.
+[custom_lint] 2026-11-16T16:08:50.266496     super.visitFunctionExpressionInvocation(node);
+[custom_lint] 2026-11-16T16:08:50.266496           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:98:18: Error: The getter 'staticElement' isn't defined for the type 'SimpleIdentifier'.
+[custom_lint] 2026-11-16T16:08:50.266496  - 'SimpleIdentifier' is from 'package:analyzer/src/dart/ast/ast.dart' ('/C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/analyzer-8.4.0/lib/src/dart/ast/ast.dart').
+[custom_lint] 2026-11-16T16:08:50.266496 Try correcting the name to the name of an existing getter, or defining a getter or field named 'staticElement'.
+[custom_lint] 2026-11-16T16:08:50.266496     if (argument.staticElement is FieldElement) {
+[custom_lint] 2026-11-16T16:08:50.266496                  ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:08:50.266496
+[custom_lint] 2026-11-16T16:08:50.266496
+Failed to start pluginsThe request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+Bad state: Failed to start the plugins.
+at:
+#0      SocketCustomLintServerToClientChannel._checkInitializationFail.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:223)
+<asynchronous suspension>
+#1      Future.any.onValue (dart:async/future.dart:637)
+<asynchronous suspension>
+
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/avoid_cell_creation_in_build.dart:43:5: Error: Type 'ErrorReporter' not found.
+[custom_lint] 2026-11-16T16:12:56.181563     ErrorReporter reporter,
+[custom_lint] 2026-11-16T16:12:56.181563     ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/collection_selector_without_equals.dart:35:5: Error: Type 'ErrorReporter' not found.
+[custom_lint] 2026-11-16T16:12:56.181563     ErrorReporter reporter,
+[custom_lint] 2026-11-16T16:12:56.181563     ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/collection_selector_without_equals.dart:62:28: Error: Type 'TypeName' not found.
+[custom_lint] 2026-11-16T16:12:56.181563   bool _hasCollectionSlice(TypeName type) {
+[custom_lint] 2026-11-16T16:12:56.181563                            ^^^^^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart:37:5: Error: Type 'ErrorReporter' not found.
+[custom_lint] 2026-11-16T16:12:56.181563     ErrorReporter reporter,
+[custom_lint] 2026-11-16T16:12:56.181563     ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart:84:30: Error: Type 'RecursiveAstVisitor' not found.
+[custom_lint] 2026-11-16T16:12:56.181563 class _ReleaseFinder extends RecursiveAstVisitor<void> {
+[custom_lint] 2026-11-16T16:12:56.181563                              ^^^^^^^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:38:5: Error: Type 'ErrorReporter' not found.
+[custom_lint] 2026-11-16T16:12:56.181563     ErrorReporter reporter,
+[custom_lint] 2026-11-16T16:12:56.181563     ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:70:34: Error: Type 'RecursiveAstVisitor' not found.
+[custom_lint] 2026-11-16T16:12:56.181563 class _FieldHookObserver extends RecursiveAstVisitor<void> {
+[custom_lint] 2026-11-16T16:12:56.181563                                  ^^^^^^^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/avoid_cell_creation_in_build.dart:16:18: Error: Undefined name 'ErrorSeverity'.
+[custom_lint] 2026-11-16T16:12:56.181563   errorSeverity: ErrorSeverity.WARNING,
+[custom_lint] 2026-11-16T16:12:56.181563                  ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/collection_selector_without_equals.dart:16:18: Error: Undefined name 'ErrorSeverity'.
+[custom_lint] 2026-11-16T16:12:56.181563   errorSeverity: ErrorSeverity.WARNING,
+[custom_lint] 2026-11-16T16:12:56.181563                  ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart:17:18: Error: Undefined name 'ErrorSeverity'.
+[custom_lint] 2026-11-16T16:12:56.181563   errorSeverity: ErrorSeverity.WARNING,
+[custom_lint] 2026-11-16T16:12:56.181563                  ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:18:18: Error: Undefined name 'ErrorSeverity'.
+[custom_lint] 2026-11-16T16:12:56.181563   errorSeverity: ErrorSeverity.WARNING,
+[custom_lint] 2026-11-16T16:12:56.181563                  ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/avoid_cell_creation_in_build.dart:43:5: Error: 'ErrorReporter' isn't a type.
+[custom_lint] 2026-11-16T16:12:56.181563     ErrorReporter reporter,
+[custom_lint] 2026-11-16T16:12:56.181563     ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/avoid_cell_creation_in_build.dart:67:33: Error: The getter 'ancestors' isn't defined for the type 'AstNode'.
+[custom_lint] 2026-11-16T16:12:56.181563  - 'AstNode' is from 'package:analyzer/src/dart/ast/ast.dart' ('/C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/analyzer-7.6.0/lib/src/dart/ast/ast.dart').
+[custom_lint] 2026-11-16T16:12:56.181563 Try correcting the name to the name of an existing getter, or defining a getter or field named 'ancestors'.
+[custom_lint] 2026-11-16T16:12:56.181563     for (final ancestor in node.ancestors) {
+[custom_lint] 2026-11-16T16:12:56.181563                                 ^^^^^^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/avoid_cell_creation_in_build.dart:79:43: Error: The getter 'name' isn't defined for the type 'NamedType'.
+[custom_lint] 2026-11-16T16:12:56.181563  - 'NamedType' is from 'package:analyzer/src/dart/ast/ast.dart' ('/C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/analyzer-7.6.0/lib/src/dart/ast/ast.dart').
+[custom_lint] 2026-11-16T16:12:56.181563 Try correcting the name to the name of an existing getter, or defining a getter or field named 'name'.
+[custom_lint] 2026-11-16T16:12:56.181563             creation.constructorName.type.name?.lexeme;
+[custom_lint] 2026-11-16T16:12:56.181563                                           ^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/collection_selector_without_equals.dart:35:5: Error: 'ErrorReporter' isn't a type.
+[custom_lint] 2026-11-16T16:12:56.181563     ErrorReporter reporter,
+[custom_lint] 2026-11-16T16:12:56.181563     ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/collection_selector_without_equals.dart:40:37: Error: The getter 'name' isn't defined for
+[custom_lint] 2026-11-16T16:12:56.181563
+[custom_lint] 2026-11-16T16:12:56.181563  the type 'NamedType'.
+[custom_lint] 2026-11-16T16:12:56.181563  - 'NamedType' is from 'package:analyzer/src/dart/ast/ast.dart' ('/C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/analyzer-7.6.0/lib/src/dart/ast/ast.dart').
+[custom_lint] 2026-11-16T16:12:56.181563 Try correcting the name to the name of an existing getter, or defining a getter or field named 'name'.
+[custom_lint] 2026-11-16T16:12:56.181563           node.constructorName.type.name?.lexeme;
+[custom_lint] 2026-11-16T16:12:56.181563                                     ^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/collection_selector_without_equals.dart:62:28: Error: 'TypeName' isn't a type.
+[custom_lint] 2026-11-16T16:12:56.181563   bool _hasCollectionSlice(TypeName type) {
+[custom_lint] 2026-11-16T16:12:56.181563                            ^^^^^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart:37:5: Error: 'ErrorReporter' isn't a type.
+[custom_lint] 2026-11-16T16:12:56.181563     ErrorReporter reporter,
+[custom_lint] 2026-11-16T16:12:56.181563     ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart:79:25: Error: The argument type '_ReleaseFinder' can't be assigned to the parameter type 'AstVisitor<dynamic>'.
+[custom_lint] 2026-11-16T16:12:56.181563  - '_ReleaseFinder' is from 'package:cell_flutter_lints/src/rules/forgotten_cell_dispose.dart' ('/d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart').
+[custom_lint] 2026-11-16T16:12:56.181563  - 'AstVisitor' is from 'package:analyzer/src/dart/ast/ast.dart' ('/C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/analyzer-7.6.0/lib/src/dart/ast/ast.dart').
+[custom_lint] 2026-11-16T16:12:56.181563     dispose.body.accept(visitor);
+[custom_lint] 2026-11-16T16:12:56.181563                         ^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart:100:11: Error: Superclass has no method named 'visitMethodInvocation'.
+[custom_lint] 2026-11-16T16:12:56.181563     super.visitMethodInvocation(node);
+[custom_lint] 2026-11-16T16:12:56.181563           ^^^^^^^^^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:38:5: Error: 'ErrorReporter' isn't a type.
+[custom_lint] 2026-11-16T16:12:56.181563     ErrorReporter reporter,
+[custom_lint] 2026-11-16T16:12:56.181563     ^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:43:37: Error: The getter 'name' isn't defined for the type 'NamedType'.
+[custom_lint] 2026-11-16T16:12:56.181563  - 'NamedType' is from 'package:analyzer/src/dart/ast/ast.dart' ('/C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/analyzer-7.6.0/lib/src/dart/ast/ast.dart').
+[custom_lint] 2026-11-16T16:12:56.181563 Try correcting the name to the name of an existing getter, or defining a getter or field named 'name'.
+[custom_lint] 2026-11-16T16:12:56.181563           node.constructorName.type.name?.lexeme;
+[custom_lint] 2026-11-16T16:12:56.181563                                     ^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:61:42: Error: The argument type '_FieldHookObserver' can't be assigned to the parameter type 'AstVisitor<dynamic>'.
+[custom_lint] 2026-11-16T16:12:56.181563  - '_FieldHookObserver' is from 'package:cell_flutter_lints/src/rules/unkeyed_hook_builder.dart' ('/d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart').
+[custom_lint] 2026-11-16T16:12:56.181563  - 'AstVisitor' is from 'package:analyzer/src/dart/ast/ast.dart' ('/C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/analyzer-7.6.0/lib/src/dart/ast/ast.dart').
+[custom_lint] 2026-11-16T16:12:56.181563       builderArg.first.expression.accept(visitor);
+[custom_lint] 2026-11-16T16:12:56.181563                                          ^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:76:11: Error: Superclass has no method named 'visitMethodInvocation'.
+[custom_lint] 2026-11-16T16:12:56.181563     super.visitMethodInvocation(node);
+[custom_lint] 2026-11-16T16:12:56.181563           ^^^^^^^^^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:12:56.181563 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:82:11: Error: Superclass has no method named 'visitFunctionExpressionInvocation'.
+[custom_lint] 2026-11-16T16:12:56.181563     super.visitFunctionExpressionInvocation(node);
+[custom_lint] 2026-11-16T16:12:56.181563           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:12:56.181563
+[custom_lint] 2026-11-16T16:12:56.181563
+Failed to start pluginsThe request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+Bad state: Failed to start the plugins.
+at:
+#0      SocketCustomLintServerToClientChannel._checkInitializationFail.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:223)
+<asynchronous suspension>
+#1      Future.any.onValue (dart:async/future.dart:637)
+<asynchronous suspension>
+
+[custom_lint] 2026-11-16T16:15:45.626484 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart:88:30: Error: Type 'RecursiveAstVisitor' not found.
+[custom_lint] 2026-11-16T16:15:45.626484 class _ReleaseFinder extends RecursiveAstVisitor<void> {
+[custom_lint] 2026-11-16T16:15:45.626484                              ^^^^^^^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:15:45.626484 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:78:34: Error: Type 'RecursiveAstVisitor' not found.
+[custom_lint] 2026-11-16T16:15:45.626484 class _FieldHookObserver extends RecursiveAstVisitor<void> {
+[custom_lint] 2026-11-16T16:15:45.626484                                  ^^^^^^^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:15:45.626484 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart:83:25: Error: The argument type '_ReleaseFinder' can't be assigned to the parameter type 'AstVisitor<dynamic>'.
+[custom_lint] 2026-11-16T16:15:45.626484  - '_ReleaseFinder' is from 'package:cell_flutter_lints/src/rules/forgotten_cell_dispose.dart' ('/d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart').
+[custom_lint] 2026-11-16T16:15:45.626484  - 'AstVisitor' is from 'package:analyzer/src/dart/ast/ast.dart' ('/C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/analyzer-8.4.0/lib/src/dart/ast/ast.dart').
+[custom_lint] 2026-11-16T16:15:45.626484     dispose.body.accept(visitor);
+[custom_lint] 2026-11-16T16:15:45.626484                         ^
+[custom_lint] 2026-11-16T16:15:45.626484 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart:104:11: Error: Superclass has no method named 'visitMethodInvocation'.
+[custom_lint] 2026-11-16T16:15:45.626484     super.visitMethodInvocation(node);
+[custom_lint] 2026-11-16T16:15:45.626484           ^^^^^^^^^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:15:45.626484 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:69:42: Error: The argument type '_FieldHookObserver' can't be assigned to the parameter type 'AstVisitor<dynamic>'.
+[custom_lint] 2026-11-16T16:15:45.626484  - '_FieldHookObserver' is from 'package:cell_flutter_lints/src/rules/unkeyed_hook_builder.dart' ('/d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart').
+[custom_lint] 2026-11-16T16:15:45.626484  - 'AstVisitor' is from 'package:analyzer/src/dart/ast/ast.dart' ('/C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/analyzer-8.4.0/lib/src/dart/ast/ast.dart').
+[custom_lint] 2026-11-16T16:15:45.626484       builderArg.first.expression.accept(visitor);
+[custom_lint] 2026-11-16T16:15:45.626484                                          ^
+[custom_lint] 2026-11-16T16:15:45.626484 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:87:11: Error: Superclass has no method named 'visitMethodInvocation'.
+[custom_lint] 2026-11-16T16:15:45.626484     super.visitMethodInvocation(node);
+[custom_lint] 2026-11-16T16:15:45.626484           ^^^^^^^^^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:15:45.626484 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:93:11: Error: Superclass has no method named 'visitFunctionExpressionInvocation'.
+[custom_lint] 2026-11-16T16:15:45.626484     super.visitFunctionExpressionInvocation(node);
+[custom_lint] 2026-11-16T16:15:45.626484           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:15:45.626484
+[custom_lint] 2026-11-16T16:15:45.626484
+Failed to start pluginsThe request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+Bad state: Failed to start the plugins.
+at:
+#0      SocketCustomLintServerToClientChannel._checkInitializationFail.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:223)
+<asynchronous suspension>
+#1      Future.any.onValue (dart:async/future.dart:637)
+<asynchronous suspension>
+
+[custom_lint] 2026-11-16T16:16:30.480598 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/avoid_cell_creation_in_build.dart:18:18: Error: Undefined name 'DiagnosticSeverity'.
+[custom_lint] 2026-11-16T16:16:30.480598   errorSeverity: DiagnosticSeverity.WARNING,
+[custom_lint] 2026-11-16T16:16:30.480598                  ^^^^^^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:16:30.480598 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/collection_selector_without_equals.dart:18:18: Error: Undefined name 'DiagnosticSeverity'.
+[custom_lint] 2026-11-16T16:16:30.480598   errorSeverity: DiagnosticSeverity.WARNING,
+[custom_lint] 2026-11-16T16:16:30.480598                  ^^^^^^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:16:30.480598 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/forgotten_cell_dispose.dart:19:18: Error: Undefined name 'DiagnosticSeverity'.
+[custom_lint] 2026-11-16T16:16:30.480598   errorSeverity: DiagnosticSeverity.WARNING,
+[custom_lint] 2026-11-16T16:16:30.480598                  ^^^^^^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:16:30.480598 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/unkeyed_hook_builder.dart:20:18: Error: Undefined name 'DiagnosticSeverity'.
+[custom_lint] 2026-11-16T16:16:30.480598   errorSeverity: DiagnosticSeverity.WARNING,
+[custom_lint] 2026-11-16T16:16:30.480598                  ^^^^^^^^^^^^^^^^^^
+[custom_lint] 2026-11-16T16:16:30.480598
+[custom_lint] 2026-11-16T16:16:30.480598
+Failed to start pluginsThe request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+Bad state: Failed to start the plugins.
+at:
+#0      SocketCustomLintServerToClientChannel._checkInitializationFail.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:223)
+<asynchronous suspension>
+#1      Future.any.onValue (dart:async/future.dart:637)
+<asynchronous suspension>
+
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.682568 R4 SEEN: _GoodScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.682568 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.682568 R4 SEEN: _AsyncScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.682568 R4 SEEN: ElevatedButton
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.682568 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.682568 R4 SEEN: _NestedWidget
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.682568 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.682568 R4 SEEN: CellBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.682568 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.716517 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.716517 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.718880 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.718880 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.718880 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.718880 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.718880 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.718880 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.718880 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.718880 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.718880 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.718880 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.718880 R4 SEEN: Column
+[cell_collection_selector_without_equals] 2026-11-16T16:21:49.718880 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.559472 R4 SEEN: _MissingDisposeScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.559472 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.573140 R4 SEEN: _NoDisposeMethodScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.573140 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.573140 R4 SEEN: _DisposedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.573140 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.573140 R4 SEEN: _StoppedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.573140 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.575145 R4 SEEN: _ForgottenRecorderScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.575145 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.575145 R4 SEEN: _LocalVariableScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.575145 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.575145 R4 SEEN: _UnrelatedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.575145 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.575145 R4 SEEN: _IgnoredScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.575145 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.638625 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.638625 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.638625 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.638625 R4 SEEN: ValueKey
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.638625 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.638625 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.638625 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.638625 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.638625 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.638625 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.638625 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.638625 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:21:50.638625 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.658703 R4 SEEN: _GoodScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.664805 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.664805 R4 SEEN: _AsyncScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.666889 R4 SEEN: ElevatedButton
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.666889 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.666889 R4 SEEN: _NestedWidget
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.666889 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.668894 R4 SEEN: CellBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.668894 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.698672 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.698672 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.698672 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.701941 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.701941 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.701941 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.701941 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.701941 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.701941 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.701941 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.701941 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.701941 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.701941 R4 SEEN: Column
+[cell_collection_selector_without_equals] 2026-11-16T16:22:08.705916 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.670658 R4 SEEN: _MissingDisposeScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.672664 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.672664 R4 SEEN: _NoDisposeMethodScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.672664 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.674137 R4 SEEN: _DisposedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.675140 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.675140 R4 SEEN: _StoppedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.675140 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.675140 R4 SEEN: _ForgottenRecorderScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.675140 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.676510 R4 SEEN: _LocalVariableScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.677004 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.677004 R4 SEEN: _UnrelatedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.677004 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.677004 R4 SEEN: _IgnoredScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.677004 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.744844 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.744844 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.744844 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.744844 R4 SEEN: ValueKey
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.744844 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.744844 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.744844 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.744844 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.744844 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.744844 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.744844 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.744844 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:09.744844 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.317047 R4 SEEN: _GoodScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.321404 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.322464 R4 SEEN: _AsyncScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.323681 R4 SEEN: ElevatedButton
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.324731 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.324731 R4 SEEN: _NestedWidget
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.324731 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.324731 R4 SEEN: CellBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.325789 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.353464 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.355819 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.356822 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.356822 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.357824 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.358125 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.358125 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.358125 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.358125 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.358125 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.360135 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.360135 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.360135 R4 SEEN: Column
+[cell_collection_selector_without_equals] 2026-11-16T16:22:34.360135 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.645248 R4 SEEN: _MissingDisposeScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.649734 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.650878 R4 SEEN: _NoDisposeMethodScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.650878 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.650878 R4 SEEN: _DisposedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.652358 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.652358 R4 SEEN: _StoppedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.653429 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.653429 R4 SEEN: _ForgottenRecorderScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.653429 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.654617 R4 SEEN: _LocalVariableScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.654617 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.654617 R4 SEEN: _UnrelatedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.654617 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.655726 R4 SEEN: _IgnoredScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.655726 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.737578 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.738798 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.739822 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.740835 R4 SEEN: ValueKey
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.740835 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.740835 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.742068 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.742068 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.742068 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.742068 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.743084 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.743084 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:35.743084 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.078872 R4 SEEN: _GoodScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.083038 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.084042 R4 SEEN: _AsyncScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.084042 R4 SEEN: ElevatedButton
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.086125 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.087129 R4 SEEN: _NestedWidget
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.087129 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.087129 R4 SEEN: CellBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.088132 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.110851 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.111944 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.113061 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.113061 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.114064 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.114064 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.115068 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.115068 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.115068 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.115068 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.116340 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.116340 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.117358 R4 SEEN: Column
+[cell_collection_selector_without_equals] 2026-11-16T16:22:55.118208 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.360610 R4 SEEN: _MissingDisposeScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.360610 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.360610 R4 SEEN: _NoDisposeMethodScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.360610 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.360610 R4 SEEN: _DisposedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.360610 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.360610 R4 SEEN: _StoppedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.366485 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.366485 R4 SEEN: _ForgottenRecorderScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.366485 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.366485 R4 SEEN: _LocalVariableScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.366485 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.366485 R4 SEEN: _UnrelatedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.366485 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.366485 R4 SEEN: _IgnoredScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.366485 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.458290 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.458290 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.459554 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.459554 R4 SEEN: ValueKey
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.460568 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.460568 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.460568 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.460568 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.460568 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.461575 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.461575 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.461575 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:22:56.464290 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.826068 R4 SEEN: _GoodScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.828166 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.829173 R4 SEEN: _AsyncScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.830176 R4 SEEN: ElevatedButton
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.831180 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.831485 R4 SEEN: _NestedWidget
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.831485 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.831485 R4 SEEN: CellBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.832484 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.854871 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.857179 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.857179 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.859185 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.860192 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.860192 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.860192 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.860192 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.861196 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.861196 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.861196 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.862204 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.862204 R4 SEEN: Column
+[cell_collection_selector_without_equals] 2026-11-16T16:23:27.862204 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:28.917449 R4 SEEN: _MissingDisposeScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:23:28.926082 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:28.928950 R4 SEEN: _NoDisposeMethodScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:23:28.928950 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:28.930960 R4 SEEN: _DisposedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:23:28.930960 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:28.930960 R4 SEEN: _StoppedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:23:28.932976 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:28.932976 R4 SEEN: _ForgottenRecorderScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:23:28.932976 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:28.932976 R4 SEEN: _LocalVariableScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:23:28.932976 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:28.932976 R4 SEEN: _UnrelatedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:23:28.932976 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:28.932976 R4 SEEN: _IgnoredScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:23:28.932976 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:29.028221 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:23:29.028221 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:29.033859 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:23:29.033859 R4 SEEN: ValueKey
+[cell_collection_selector_without_equals] 2026-11-16T16:23:29.035864 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:29.035864 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:23:29.035864 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:29.035864 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:23:29.035864 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:29.035864 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:23:29.035864 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:23:29.035864 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:23:29.035864 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.676971 R4 SEEN: _GoodScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.681170 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.681170 R4 SEEN: _AsyncScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.682228 R4 SEEN: ElevatedButton
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.685235 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.686463 R4 SEEN: _NestedWidget
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.686463 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.687470 R4 SEEN: CellBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.687470 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.740237 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.742708 R4 ARGS: [String, List<String>] equals=false
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.742708 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.743720 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.744821 R4 ARGS: [String, List<String>] equals=true
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.744821 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.744821 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.745823 R4 ARGS: [String, Set<String>] equals=false
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.745823 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.747258 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.747258 R4 ARGS: [String, Map<String, String>] equals=false
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.747258 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.747258 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.748690 R4 ARGS: [String, int] equals=false
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.748690 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.748690 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.749691 R4 ARGS: [String, List<String>] equals=false
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.749691 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.750811 R4 SEEN: Column
+[cell_collection_selector_without_equals] 2026-11-16T16:24:11.750811 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.000845 R4 SEEN: _MissingDisposeScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.003979 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.004981 R4 SEEN: _NoDisposeMethodScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.004981 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.005984 R4 SEEN: _DisposedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.005984 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.005984 R4 SEEN: _StoppedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.005984 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.005984 R4 SEEN: _ForgottenRecorderScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.006986 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.006986 R4 SEEN: _LocalVariableScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.006986 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.008490 R4 SEEN: _UnrelatedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.008490 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.008490 R4 SEEN: _IgnoredScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.009628 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.094388 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.095463 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.095463 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.097640 R4 SEEN: ValueKey
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.097640 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.097640 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.098647 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.098647 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.098647 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.099686 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.099686 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.100793 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:24:13.100793 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.308538 R4 SEEN: _GoodScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.308538 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.308538 R4 SEEN: _AsyncScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.324300 R4 SEEN: ElevatedButton
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.324300 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.324300 R4 SEEN: _NestedWidget
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.324300 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.324300 R4 SEEN: CellBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.324300 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.340435 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.340435 R4 ARGS: [String, List<String>] equals=false slice=true
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.340435 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.340435 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.356074 R4 ARGS: [String, List<String>] equals=true slice=true
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.356074 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.356074 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.356074 R4 ARGS: [String, Set<String>] equals=false slice=true
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.356074 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.356074 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.356074 R4 ARGS: [String, Map<String, String>] equals=false slice=true
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.356074 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.356074 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.356074 R4 ARGS: [String, int] equals=false slice=false
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.356074 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.356074 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.356074 R4 ARGS: [String, List<String>] equals=false slice=true
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.356074 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.356074 R4 SEEN: Column
+[cell_collection_selector_without_equals] 2026-11-16T16:24:41.356074 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.471874 R4 SEEN: _MissingDisposeScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.471874 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.471874 R4 SEEN: _NoDisposeMethodScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.471874 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.471874 R4 SEEN: _DisposedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.471874 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.471874 R4 SEEN: _StoppedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.471874 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.471874 R4 SEEN: _ForgottenRecorderScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.487810 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.487810 R4 SEEN: _LocalVariableScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.488356 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.488356 R4 SEEN: _UnrelatedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.488356 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.488356 R4 SEEN: _IgnoredScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.488356 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.559237 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.559237 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.559237 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.559237 R4 SEEN: ValueKey
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.559237 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.559237 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.559237 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.559237 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.559237 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.559237 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.559237 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.559237 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:24:42.559237 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.577850 R4 SEEN: _GoodScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.580966 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.581967 R4 SEEN: _AsyncScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.582985 R4 SEEN: ElevatedButton
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.582985 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.582985 R4 SEEN: _NestedWidget
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.584005 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.585025 R4 SEEN: CellBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.585025 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.610540 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.615030 R4 ARGS: [String, List<String>] equals=false slice=true
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.615030 R4 REPORTED
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.615030 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.616438 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.616438 R4 ARGS: [String, List<String>] equals=true slice=true
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.616438 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.617647 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.617647 R4 ARGS: [String, Set<String>] equals=false slice=true
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.618683 R4 REPORTED
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.618683 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.618683 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.619746 R4 ARGS: [String, Map<String, String>] equals=false slice=true
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.619746 R4 REPORTED
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.619746 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.620755 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.620755 R4 ARGS: [String, int] equals=false slice=false
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.620755 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.620755 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.621760 R4 ARGS: [String, List<String>] equals=false slice=true
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.621760 R4 REPORTED
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.621760 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.622779 R4 SEEN: Column
+[cell_collection_selector_without_equals] 2026-11-16T16:25:10.623789 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.629375 R4 SEEN: _MissingDisposeScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.630395 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.631419 R4 SEEN: _NoDisposeMethodScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.631419 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.632443 R4 SEEN: _DisposedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.632443 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.632443 R4 SEEN: _StoppedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.633468 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.634495 R4 SEEN: _ForgottenRecorderScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.634495 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.634495 R4 SEEN: _LocalVariableScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.635501 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.635501 R4 SEEN: _UnrelatedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.635501 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.636530 R4 SEEN: _IgnoredScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.636530 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.711877 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.711877 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.711877 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.711877 R4 SEEN: ValueKey
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.711877 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.711877 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.711877 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.711877 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.711877 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.711877 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.711877 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.711877 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:25:11.711877 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.524201 R4 SEEN: _GoodScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.529233 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.529233 R4 SEEN: _AsyncScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.529233 R4 SEEN: ElevatedButton
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.535084 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.535084 R4 SEEN: _NestedWidget
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.535084 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.535084 R4 SEEN: CellBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.535084 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.562285 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.566574 R4 ARGS: [String, List<String>] equals=false slice=true
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.566574 R4 REPORTED
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.568577 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.568577 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.568577 R4 ARGS: [String, List<String>] equals=true slice=true
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.568577 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.568577 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.568577 R4 ARGS: [String, Set<String>] equals=false slice=true
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.568577 R4 REPORTED
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.568577 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.568577 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.568577 R4 ARGS: [String, Map<String, String>] equals=false slice=true
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.568577 R4 REPORTED
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.568577 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.568577 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.568577 R4 ARGS: [String, int] equals=false slice=false
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.568577 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.576251 R4 SEEN: CellSelector
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.576251 R4 ARGS: [String, List<String>] equals=false slice=true
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.576251 R4 REPORTED
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.576251 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.576251 R4 SEEN: Column
+[cell_collection_selector_without_equals] 2026-11-16T16:25:41.576251 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.700869 R4 SEEN: _MissingDisposeScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.701872 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.702874 R4 SEEN: _NoDisposeMethodScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.702874 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.702874 R4 SEEN: _DisposedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.703880 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.703880 R4 SEEN: _StoppedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.705046 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.705046 R4 SEEN: _ForgottenRecorderScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.705046 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.706048 R4 SEEN: _LocalVariableScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.706048 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.706048 R4 SEEN: _UnrelatedScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.706048 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.707051 R4 SEEN: _IgnoredScreenState
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.707051 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.775116 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.776119 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.776119 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.777157 R4 SEEN: ValueKey
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.777157 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.777157 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.778334 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.778334 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.778334 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.778334 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.779338 R4 SEEN: Text
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.779338 R4 SEEN: HookBuilder
+[cell_collection_selector_without_equals] 2026-11-16T16:25:42.780546 R4 SEEN: Text
+[custom_lint] 2026-11-16T16:26:17.097356 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/collection_selector_without_equals.dart:45:37: Error: The getter 'function' isn't defined for the type 'InstanceCreationExpression'.
+[custom_lint] 2026-11-16T16:26:17.097356  - 'InstanceCreationExpression' is from 'package:analyzer/src/dart/ast/ast.dart' ('/C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/analyzer-8.4.0/lib/src/dart/ast/ast.dart').
+[custom_lint] 2026-11-16T16:26:17.097356 Try correcting the name to the name of an existing getter, or defining a getter or field named 'function'.
+[custom_lint] 2026-11-16T16:26:17.097356         print("R4 FUNC SEEN: ${node.function}");
+[custom_lint] 2026-11-16T16:26:17.097356                                     ^^^^^^^^
+[custom_lint] 2026-11-16T16:26:17.097356
+[custom_lint] 2026-11-16T16:26:17.097356
+Failed to start pluginsThe request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+Bad state: Failed to start the plugins.
+at:
+#0      SocketCustomLintServerToClientChannel._checkInitializationFail.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:223:11)
+<asynchronous suspension>
+#1      Future.any.onValue (dart:async/future.dart:637:5)
+<asynchronous suspension>
+
+[custom_lint] 2026-11-16T16:26:17.126747 _PrettyRequestFailure: {"code":"PLUGIN_ERROR","message":"Bad state: Failed to start the plugins.","stackTrace":"#0      SocketCustomLintServerToClientChannel._checkInitializationFail.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:223:11)\n<asynchronous suspension>\n#1      Future.any.onValue (dart:async/future.dart:637:5)\n<asynchronous suspension>\n"}
+[custom_lint] 2026-11-16T16:26:17.126747 #0      ChannelBase.sendRequest (package:custom_lint/src/server_isolate_channel.dart:82:7)
+[custom_lint] 2026-11-16T16:26:17.126747 <asynchronous suspension>
+[custom_lint] 2026-11-16T16:26:17.126747 #1      CustomLintRunner.initialize.<anonymous closure> (package:custom_lint/src/runner.dart:41:5)
+[custom_lint] 2026-11-16T16:26:17.126747 <asynchronous suspension>
+[custom_lint] 2026-11-16T16:26:17.126747 #2      _runServer.<anonymous closure> (package:custom_lint/custom_lint.dart:96:7)
+[custom_lint] 2026-11-16T16:26:17.126747 <asynchronous suspension>
+[custom_lint] 2026-11-16T16:26:17.126747 #3      _AsyncCompleter.complete (dart:async/future_impl.dart:96:3)
+[custom_lint] 2026-11-16T16:26:17.126747 <asynchronous suspension>
+[custom_lint] 2026-11-16T16:26:17.126747 #4      _runServer.<anonymous closure> (package:custom_lint/custom_lint.dart:126:19)
+[custom_lint] 2026-11-16T16:26:17.126747 <asynchronous suspension>
+[custom_lint] 2026-11-16T16:26:17.126747 #5      _runServer (package:custom_lint/custom_lint.dart:86:3)
+[custom_lint] 2026-11-16T16:26:17.126747 <asynchronous suspension>
+[custom_lint] 2026-11-16T16:26:17.126747 #6      customLint (package:custom_lint/custom_lint.dart:50:5)
+[custom_lint] 2026-11-16T16:26:17.126747 <asynchronous suspension>
+[custom_lint] 2026-11-16T16:26:17.126747 #7      entrypoint (file:///C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/custom_lint-0.8.1/bin/custom_lint.dart:68:3)
+[custom_lint] 2026-11-16T16:26:17.126747 <asynchronous suspension>
+[custom_lint] 2026-11-16T16:26:17.126747 #8      main (file:///C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/custom_lint-0.8.1/bin/custom_lint.dart:80:5)
+[custom_lint] 2026-11-16T16:26:17.126747 <asynchronous suspension>
+[custom_lint] 2026-11-16T16:26:17.126747
+[custom_lint] 2026-11-16T16:26:38.764494 /d:/Users/Simon/Workspaces/cell/packages/cell_flutter_lints/lib/src/rules/collection_selector_without_equals.dart:45:37: Error: The getter 'function' isn't defined for the type 'InstanceCreationExpression'.
+[custom_lint] 2026-11-16T16:26:38.764494  - 'InstanceCreationExpression' is from 'package:analyzer/src/dart/ast/ast.dart' ('/C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/analyzer-8.4.0/lib/src/dart/ast/ast.dart').
+[custom_lint] 2026-11-16T16:26:38.764494 Try correcting the name to the name of an existing getter, or defining a getter or field named 'function'.
+[custom_lint] 2026-11-16T16:26:38.764494         print("R4 FUNC SEEN: ${node.function}");
+[custom_lint] 2026-11-16T16:26:38.764494                                     ^^^^^^^^
+[custom_lint] 2026-11-16T16:26:38.764494
+[custom_lint] 2026-11-16T16:26:38.764494
+Failed to start pluginsThe request analysis.setContextRoots failed with the following error:
+RequestErrorCode.PLUGIN_ERROR
+Bad state: Failed to start the plugins.
+at:
+#0      SocketCustomLintServerToClientChannel._checkInitializationFail.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:223:11)
+<asynchronous suspension>
+#1      Future.any.onValue (dart:async/future.dart:637:5)
+<asynchronous suspension>
+
+[custom_lint] 2026-11-16T16:26:38.778247 _PrettyRequestFailure: {"code":"PLUGIN_ERROR","message":"Bad state: Failed to start the plugins.","stackTrace":"#0      SocketCustomLintServerToClientChannel._checkInitializationFail.<anonymous closure> (package:custom_lint/src/v2/server_to_client_channel.dart:223:11)\n<asynchronous suspension>\n#1      Future.any.onValue (dart:async/future.dart:637:5)\n<asynchronous suspension>\n"}
+[custom_lint] 2026-11-16T16:26:38.778247 #0      ChannelBase.sendRequest (package:custom_lint/src/server_isolate_channel.dart:82:7)
+[custom_lint] 2026-11-16T16:26:38.778247 <asynchronous suspension>
+[custom_lint] 2026-11-16T16:26:38.778247 #1      CustomLintRunner.initialize.<anonymous closure> (package:custom_lint/src/runner.dart:41:5)
+[custom_lint] 2026-11-16T16:26:38.778247 <asynchronous suspension>
+[custom_lint] 2026-11-16T16:26:38.778247 #2      _runServer.<anonymous closure> (package:custom_lint/custom_lint.dart:96:7)
+[custom_lint] 2026-11-16T16:26:38.778247 <asynchronous suspension>
+[custom_lint] 2026-11-16T16:26:38.778247 #3      _AsyncCompleter.complete (dart:async/future_impl.dart:96:3)
+[custom_lint] 2026-11-16T16:26:38.778247 <asynchronous suspension>
+[custom_lint] 2026-11-16T16:26:38.778247 #4      _runServer.<anonymous closure> (package:custom_lint/custom_lint.dart:126:19)
+[custom_lint] 2026-11-16T16:26:38.778247 <asynchronous suspension>
+[custom_lint] 2026-11-16T16:26:38.778247 #5      _runServer (package:custom_lint/custom_lint.dart:86:3)
+[custom_lint] 2026-11-16T16:26:38.778247 <asynchronous suspension>
+[custom_lint] 2026-11-16T16:26:38.778247 #6      customLint (package:custom_lint/custom_lint.dart:50:5)
+[custom_lint] 2026-11-16T16:26:38.778247 <asynchronous suspension>
+[custom_lint] 2026-11-16T16:26:38.778247 #7      entrypoint (file:///C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/custom_lint-0.8.1/bin/custom_lint.dart:68:3)
+[custom_lint] 2026-11-16T16:26:38.778247 <asynchronous suspension>
+[custom_lint] 2026-11-16T16:26:38.778247 #8      main (file:///C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/custom_lint-0.8.1/bin/custom_lint.dart:80:5)
+[custom_lint] 2026-11-16T16:26:38.778247 <asynchronous suspension>
+[custom_lint] 2026-11-16T16:26:38.778247
+[cell_collection_selector_without_equals] 2026-11-16T16:28:16.424794 R4F SEEN: 
+[cell_collection_selector_without_equals] 2026-11-16T16:28:39.673312 R4F SEEN: 
+[cell_collection_selector_without_equals] 2026-11-16T16:29:38.168245 R4F SEEN: 
+[cell_collection_selector_without_equals] 2026-11-16T16:30:17.682984 R4F SEEN: 
+[cell_collection_selector_without_equals] 2026-11-16T16:31:24.822418 ADDNODE FUNC: 
+[cell_collection_selector_without_equals] 2026-11-16T16:33:05.189056 ADDNODE FUNC: 
+[cell_collection_selector_without_equals] 2026-11-16T16:33:06.295047 ADDNODE FUNC: 
+[cell_collection_selector_without_equals] 2026-11-16T16:34:34.711466 ADDNODE FUNC: 
+[cell_collection_selector_without_equals] 2026-11-16T16:34:35.810389 ADDNODE FUNC: 
+[cell_collection_selector_without_equals] 2026-11-16T16:35:05.338621 ADDNODE FUNC: 
+[cell_collection_selector_without_equals] 2026-11-16T16:35:06.345147 ADDNODE FUNC: 
+[cell_collection_selector_without_equals] 2026-11-16T16:35:34.926105 ADDNODE FUNC: 
+[cell_collection_selector_without_equals] 2026-11-16T16:35:35.898087 ADDNODE FUNC: 
+[cell_collection_selector_without_equals] 2026-11-16T16:36:01.911096 ADDNODE FUNC: 
+[cell_collection_selector_without_equals] 2026-11-16T16:36:00.976261 ADDNODE FUNC: 
+[cell_collection_selector_without_equals] 2026-11-16T16:36:29.360603 ADDNODE FUNC: 
+[cell_collection_selector_without_equals] 2026-11-16T16:36:30.444633 ADDNODE FUNC: 
+[cell_collection_selector_without_equals] 2026-11-16T16:36:56.246207 ADDNODE FUNC: fromInit.update(1) fn=[PropertyAccessImpl]
+[cell_collection_selector_without_equals] 2026-11-16T16:36:57.231103 ADDNODE FUNC: mirror.dispose() fn=[PropertyAccessImpl]
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.488201 ADDNODE FUNC: fromInit.update(1) fn=[PropertyAccessImpl]
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.588992 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.590996 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.590996 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.590996 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.592272 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.592272 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.593274 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.593274 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.593274 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.593274 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.594387 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.594387 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.594387 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.594387 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.595517 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.595517 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.596740 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.596740 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.596740 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:27.597802 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.562677 ADDNODE FUNC: mirror.dispose() fn=[PropertyAccessImpl]
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.594262 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.595521 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.596522 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.597656 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.597656 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.598660 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.598660 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.598660 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.599685 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.599685 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.599685 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.599685 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.600689 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.600689 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.600689 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.600689 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.601988 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.601988 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.603127 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.603127 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.603127 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.603127 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.603127 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.604239 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.604239 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.604239 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.604239 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.607550 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.608551 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.608551 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.608551 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.608551 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.609556 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.609556 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.609556 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.609556 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.610559 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.610559 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.610559 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.610559 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.611628 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.611628 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.611628 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.611628 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.612630 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.612630 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.612630 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.612630 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.613634 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.613634 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.613634 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.613634 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.613634 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.614639 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.614639 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.614639 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.614639 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.615644 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.615644 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.615644 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.615644 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.616647 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.616647 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.616647 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.616647 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.616647 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.617686 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.617686 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.617686 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.617686 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.617686 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.617686 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.619047 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.619047 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.619047 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.619047 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.620106 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.620106 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.620106 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.621109 USECELL NODE:  src=
+[cell_collection_selector_without_equals] 2026-11-16T16:37:28.621109 USECELL NODE:  src=
+[custom_lint] 2026-11-16T20:08:50.723027 FileSystemException: writeFrom failed, path = '' (OS Error: The pipe is being closed, errno = 232)
+[custom_lint] 2026-11-16T20:08:50.723027 #0      _RandomAccessFile.writeFromSync (dart:io/file_impl.dart:999:7)
+[custom_lint] 2026-11-16T20:08:50.723027 #1      _StdConsumer.addStream.<anonymous closure> (dart:io/stdio.dart:328:17)
+[custom_lint] 2026-11-16T20:08:50.723027 #2      _rootRunUnary (dart:async/zone_root.dart:48:47)
+[custom_lint] 2026-11-16T20:08:50.723027 #3      _CustomZone.runUnary (dart:async/zone.dart:733:19)
+[custom_lint] 2026-11-16T20:08:50.723027 #4      _CustomZone.runUnaryGuarded (dart:async/zone.dart:633:7)
+[custom_lint] 2026-11-16T20:08:50.723027 #5      _BufferingStreamSubscription._sendData (dart:async/stream_impl.dart:381:11)
+[custom_lint] 2026-11-16T20:08:50.723027 #6      _BufferingStreamSubscription._add (dart:async/stream_impl.dart:312:7)
+[custom_lint] 2026-11-16T20:08:50.723027 #7      _SyncStreamControllerDispatch._sendData (dart:async/stream_controller.dart:798:19)
+[custom_lint] 2026-11-16T20:08:50.723027 #8      _StreamController._add (dart:async/stream_controller.dart:663:7)
+[custom_lint] 2026-11-16T20:08:50.723027 #9      _StreamController.add (dart:async/stream_controller.dart:618:5)
+[custom_lint] 2026-11-16T20:08:50.723027 #10     _StreamSinkImpl.add (dart:io/io_sink.dart:155:17)
+[custom_lint] 2026-11-16T20:08:50.723027 #11     _IOSinkImpl.write (dart:io/io_sink.dart:293:5)
+[custom_lint] 2026-11-16T20:08:50.723027 #12     _StdSink.writeln (dart:io/stdio.dart:442:13)
+[custom_lint] 2026-11-16T20:08:50.723027 #13     CliLogger.stdout (package:custom_lint/src/cli_logger.dart:32:15)
+[custom_lint] 2026-11-16T20:08:50.723027 #14     new SimpleProgress (package:cli_util/cli_logging.dart:187:12)
+[custom_lint] 2026-11-16T20:08:50.723027 #15     CliLogger.progress (package:custom_lint/src/cli_logger.dart:67:13)
+[custom_lint] 2026-11-16T20:08:50.723027 #16     _runServer.<anonymous closure> (package:custom_lint/custom_lint.dart:100:56)
+[custom_lint] 2026-11-16T20:08:50.723027 <asynchronous suspension>
+[custom_lint] 2026-11-16T20:08:50.723027 #17     _AsyncCompleter.complete (dart:async/future_impl.dart:96:3)
+[custom_lint] 2026-11-16T20:08:50.723027 <asynchronous suspension>
+[custom_lint] 2026-11-16T20:08:50.723027 #18     _runServer.<anonymous closure> (package:custom_lint/custom_lint.dart:126:19)
+[custom_lint] 2026-11-16T20:08:50.723027 <asynchronous suspension>
+[custom_lint] 2026-11-16T20:08:50.723027 #19     _runServer (package:custom_lint/custom_lint.dart:86:3)
+[custom_lint] 2026-11-16T20:08:50.723027 <asynchronous suspension>
+[custom_lint] 2026-11-16T20:08:50.723027 #20     customLint (package:custom_lint/custom_lint.dart:50:5)
+[custom_lint] 2026-11-16T20:08:50.723027 <asynchronous suspension>
+[custom_lint] 2026-11-16T20:08:50.723027 #21     entrypoint (file:///C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/custom_lint-0.8.1/bin/custom_lint.dart:68:3)
+[custom_lint] 2026-11-16T20:08:50.723027 <asynchronous suspension>
+[custom_lint] 2026-11-16T20:08:50.723027 #22     main (file:///C:/Users/Simon/AppData/Local/Pub/Cache/hosted/pub.dev/custom_lint-0.8.1/bin/custom_lint.dart:80:5)
+[custom_lint] 2026-11-16T20:08:50.723027 <asynchronous suspension>
+[custom_lint] 2026-11-16T20:08:50.723027

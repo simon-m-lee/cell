@@ -47,7 +47,7 @@
 | `CellSelector` over a 3-field record, 1000 updates of irrelevant fields | 1 (initial) |
 | Same workload on `CellBuilder` | 1000 |
 
-## Gate G3 verdict: FAIL on burst scenarios
+## Benchmark verdict: FAIL on burst scenarios
 
 The 1.5× gate passes on the primary display path (single builder:
 1.25× p50 / 1.15× p99) but **fails on multi-builder bursts** (ten
@@ -76,4 +76,4 @@ this is a `cell`-core concern, tracked for the 0.6.0 hardening cycle.
 single-builder display path, and `CellSelector` eliminates rebuilds for
 irrelevant updates entirely. Multi-builder burst scenarios exceed the
 gate; the honest verdict is recorded above and blocks the 1.0 gate
-(G3 → FAIL).
+(FAIL).

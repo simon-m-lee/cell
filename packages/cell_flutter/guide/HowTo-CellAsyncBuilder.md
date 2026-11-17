@@ -56,10 +56,10 @@ Two use cases:
    those pulses. Pass the known value here, or construct the cell before
    the widget tree mounts.
 
-## Concurrent `asyncMap` caveat (Gate G1.5)
+## Concurrent `asyncMap` caveat
 
 When the source is `Cell.asyncMap` with `concurrency > 0` or overlapping
-`latestOnly` futures, this widget inherits the framework's Gate G1.5
+`latestOnly` futures, this widget inherits the framework's
 caveat: concurrent effect attribution is tracked separately and not yet
 verified end-to-end. The widget's observation is correct; the caveat is
 about the source's replay fidelity.

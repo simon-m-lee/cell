@@ -1,0 +1,24 @@
+name: mitose_flutter
+description: The Flutter Mitose pipeline — turns a structured BRD into a
+  verified cell_flutter app.
+version: 0.1.0
+publish_to: none
+homepage: https://github.com/simon-m-lee/cell
+repository: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter/pipeline
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  # Published shape for the internal release; local development resolves
+  # the dependency through the override below.
+  cell_flutter: any
+  args: ^2.5.0
+
+dependency_overrides:
+  cell_flutter:
+    path: ../
+
+dev_dependencies:
+  test: ^1.25.0
+  lints: ^4.0.0

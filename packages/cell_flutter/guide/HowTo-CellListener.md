@@ -78,7 +78,7 @@ onPulse: (context, pulse) {
 ```
 
 Listeners over `Cell.asyncMap` sources with `concurrency > 0` inherit the
-framework's Gate G1.5 caveat: concurrent effect attribution is tracked
+framework's caveat: concurrent effect attribution is tracked
 separately by the `cell` core package and is not yet verified end-to-end.
 
 ## Async `onPulse` + `mounted` pattern

@@ -146,14 +146,21 @@ final streamProvider = StreamProvider<Tick>((ref) => api.ticks());
 
 ```dart
 // In your app these come from your API layer, e.g. api.fetchUser().
-final user = Cell.fromFuture<String>(Future.value('ada'));
-final ticks = Cell.fromStream<int>(Stream.value(1));
+final user = Cell.fromFuture<String>(
+    Future.value('ada'), journal: RecordingJournal());
+final ticks = Cell.fromStream<int>(
+    Stream.value(1), journal: RecordingJournal());
 ```
+
+The `journal:` argument is required by the in-repo `cell` core's replay
+round-trip (commit `05b4895d`); the published `cell` 1.1.x API does not
+have it.
 
 `AsyncValue` becomes `AsyncSnapshot` via `CellAsyncBuilder`:
 
 ```dart
-final user = Cell.fromFuture<String>(Future.value('ada'));
+final user = Cell.fromFuture<String>(
+    Future.value('ada'), journal: RecordingJournal());
 
 CellAsyncBuilder<String>(
   cell: user,

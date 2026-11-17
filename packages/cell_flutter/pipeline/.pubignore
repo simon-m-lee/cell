@@ -1,0 +1,6 @@
+# The committed reference apps are pipeline artifacts, not package
+# content.
+example/generated/
+
+# Throwaway phase-A gate check.
+.pa_check.mjs

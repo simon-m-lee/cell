@@ -9,7 +9,7 @@
 // matches the last emitted value.
 //
 // Caveat (documented in the CellAsyncBuilder dartdoc): the widget
-// observes `asyncMap` correctly; the tracked-separately Gate G1.5
+// observes `asyncMap` correctly; the tracked-separately
 // caveat concerns the source's replay fidelity, not the widget.
 
 import 'dart:async';
@@ -73,7 +73,8 @@ void main() {
       perSeed: fuzzSecondsPerSeed(),
       iterate: (tester, random, iteration) async {
         final completer = Completer<int>();
-        final cell = Cell.fromFuture<int>(completer.future, journal: RecordingJournal());
+        final cell =
+            Cell.fromFuture<int>(completer.future, journal: RecordingJournal());
         await tester.pumpWidget(MaterialApp(
           home: Scaffold(
             body: CellAsyncBuilder<int>(

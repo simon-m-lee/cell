@@ -12,7 +12,7 @@ it resolves automatically — just keep `cell_flutter` in your
 
 ```yaml
 dev_dependencies:
-  cell_flutter: ^0.4.0
+  cell_flutter: ^1.0.0
 ```
 
 ## Extension cheatsheet
@@ -103,7 +103,7 @@ Works on **any** `Cell` — derived cells, async operators, tissue
 collections. Every pulse is recorded regardless of type. Error pulses
 appear with `type == 'error'` and an `Object` payload; inspect
 `recorder.pulses` when you need the type. The per-source error table
-(inherited from Phase 3):
+(inherited from the async widgets):
 
 | Source | Emits error pulse |
 |---|---|

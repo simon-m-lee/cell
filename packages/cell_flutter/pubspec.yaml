@@ -1,6 +1,6 @@
 name: cell_flutter
 description: Flutter widget bindings for Mitosis cells.
-version: 0.6.0
+version: 1.0.0
 homepage: https://github.com/simon-m-lee/cell
 repository: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter
 issue_tracker: https://github.com/simon-m-lee/cell/issues
@@ -12,7 +12,7 @@ topics:
   - cell
   - mitosis
 environment:
-  # cell 1.1.0 requires Dart >= 3.5.0; Flutter 3.24 is the first stable
+  # cell 2.0.0 requires Dart >= 3.5.0; Flutter 3.24 is the first stable
   # Flutter release that ships Dart 3.5, so the binding's floor is 3.24.
   sdk: '>=3.5.0 <4.0.0'
   flutter: '>=3.24.0'
@@ -25,11 +25,20 @@ dependencies:
   # itself to their dev_dependencies, so this never reaches release builds.
   flutter_test:
     sdk: flutter
-  cell: '>=1.1.0 <2.0.0'   # current stable; includes the replay round-trip fix
+  # Published floor: cell 2.0.0 (the Causal Replay release). The replay
+  # round-trip API (required `journal:` parameters, commit 05b4895d) and
+  # the retained-pulse accessor `Cell.latestPulse` (which `retainedPulseOf`
+  # relies on for late-subscriber seeding) both shipped in that release.
+  cell: ^2.0.0
   flutter_hooks: ^0.20.5   # optional hooks sub-library (lib/hooks.dart)
 dev_dependencies:
   flutter_lints: ^4.0.0
   test: ^1.30.0
+  # Migration-guide fixtures: the "before" halves of the fixture
+  # pairs are written in these packages; they are test-only.
+  provider: ^6.1.5
+  flutter_riverpod: ^3.0.0
+  flutter_bloc: ^9.0.0
 flutter:
   uses-material-design: false
 platforms:
@@ -40,9 +49,8 @@ platforms:
   windows:
   web:
 
-# Local workspace resolution: cell_flutter targets the in-repo cell
-# (replay round-trip API: required `journal:` parameters, commit 05b4895d)
-# rather than the published cell 1.1.0.
+# Local workspace resolution only: remove (or replace with the published
+# `cell: ^2.0.0` constraint) when publishing this package.
 dependency_overrides:
   cell:
     path: ../cell

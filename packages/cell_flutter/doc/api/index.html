@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="cell_flutter API docs, for the Dart programming language.">
+  <title>cell_flutter - Dart API docs</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="static-assets/github.css?v1">
+  <link rel="stylesheet" href="static-assets/styles.css?v1">
+  <link rel="icon" href="static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="https://github.com/simon-m-lee/cell">cell_flutter package</a></li>
+  </ol>
+  <div class="self-name">cell_flutter</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div id="dartdoc-main-content" class="main-content">
+      
+<section class="desc markdown">
+  <h1 id="cell_flutter">cell_flutter</h1>
+<h2 id="install-and-import">Install and import</h2>
+<pre class="language-bash"><code class="language-bash">flutter pub add cell cell_flutter
+
+# optional: only if you use HookWidget
+flutter pub add flutter_hooks
+</code></pre>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flutter/cell_flutter.dart'; // app surface (re-exports package:cell)
+import 'package:cell_flutter/hooks.dart';         // optional: flutter_hooks integration
+import 'package:cell_flutter/testing.dart';       // test-only: pump/emit/assert helpers
+</code></pre>
+<hr>
+<blockquote>
+<p><strong>Flutter Widgets for Mitosis Cells</strong> — display, react, route, bridge, and test — with one import. Plain Flutter widgets plus a governed reactive graph.</p>
+</blockquote>
+<p><a href="https://flutter.dev"><img src="https://img.shields.io/badge/Flutter-3.24%2B-blue.svg" alt="Flutter"></a>
+<a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/LICENSE"><img src="https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg" alt="License"></a>
+<a href="#status"><img src="https://img.shields.io/badge/cell__flutter-1.0.0-blue.svg" alt="Version"></a>
+<a href="#status"><img src="https://img.shields.io/badge/Status-Stable-green.svg" alt="Status"></a></p>
+<p>This is the Flutter binding for the Cell Framework (Mitosis). Sibling packages add the core graph, stream combinators, and collections; this package adds the widget layer.</p>
+<hr>
+<h2 id="overview">Overview</h2>
+<p>A <strong>cell</strong> holds a value or relays a signal; a <strong>pulse</strong> is the immutable message that carries a change. <code>cell_flutter</code> binds that graph to Flutter's widget tree:</p>
+<ul>
+<li><strong>Live state display</strong> — <code>CellBuilder</code> shows a <code>ValueCell</code>'s current value and rebuilds only its own subtree on change. <code>CellSelector</code> rebuilds only when the slice it reads changes. <code>CellValueBuilder</code> does the same for any <code>Cell</code> (derived, async, tissue). Three widgets, three levels of granularity — no <code>AnimatedBuilder</code>, no <code>setState</code>, no manual subscription.</li>
+<li><strong>Side effects on pulses</strong> — <code>CellListener</code> invokes a handler once per pulse without rebuilding the tree. Navigation, snackbars, haptics, analytics. Same contract as <code>Cell.observe</code>, with a <code>BuildContext</code>.</li>
+<li><strong>Async state as <code>AsyncSnapshot</code></strong> — <code>CellAsyncBuilder</code> gives you the same <code>hasData</code> / <code>hasError</code> shape <code>StreamBuilder</code> and <code>FutureBuilder</code> produce, driven by any <code>Cell</code>. The builder branches loading / data / error without further plumbing.</li>
+<li><strong>App-level dependency injection</strong> — <code>CellScope</code> registers a small set of cells (<code>#auth</code>, <code>#theme</code>, <code>#featureFlags</code>) for subtree lookup by <code>Symbol</code>. Not a general locator; the DI escape hatch for genuinely global identifiers.</li>
+<li><strong>Zero-copy bridges</strong> — <code>asValueCell</code> mirrors any <code>Cell</code> into a <code>ValueCell</code> (with an explicit <code>dispose</code>); <code>asStream</code> bridges any <code>Cell</code> to a <code>Stream&lt;V?&gt;</code>; <code>CellNotifier</code> exposes a <code>ValueCell</code> as a Flutter <code>ValueNotifier</code>. Reach out of the widget tree without leaving the reactive graph.</li>
+<li><strong>A test surface you actually use</strong> — <code>pumpWithCells</code>, <code>pumpCell</code>, <code>emitAndSettle</code>, <code>emitAndPump</code>, <code>recordPulses</code>, <code>expectCellValue</code>, <code>expectCellGolden</code>, and <code>CellTestHarness</code> ship in one import (<code>package:cell_flutter/testing.dart</code>). Pump → emit → assert in three lines.</li>
+<li><strong>Optional hooks layer</strong> — <code>useCell</code>, <code>useCellValue</code>, <code>useCellNotifier</code>, <code>useCellListener</code>, and <code>useCellAsync</code> in <code>package:cell_flutter/hooks.dart</code>. Same contracts as the widgets, expressed as <code>flutter_hooks</code> hooks for <code>HookWidget</code> users, with two documented cell-swap caveats (<code>useCell</code> shows the previous slice for one frame, <code>useCellAsync</code> keeps the previous snapshot — key on the cell to reset). Application code that does not use <code>HookWidget</code> never sees them.</li>
+</ul>
+<p>Where plain Flutter state gives you <code>setState</code> and hand-rolled listeners, <code>cell_flutter</code> gives you a widget tree <strong>with a governance contract</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Plain Flutter (<code>setState</code> / <code>ValueNotifier</code> / <code>StreamBuilder</code>)</th>
+<th><code>cell_flutter</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Change notification</td>
+<td>Manual <code>addListener</code> or <code>StreamBuilder</code></td>
+<td>Built-in pulse graph — every widget subscribes to exactly what it reads</td>
+</tr>
+<tr>
+<td><strong>Transactions</strong></td>
+<td>None — <code>setState</code> is atomic per widget, not across widgets</td>
+<td>Fully available through the cell layer (<code>Cell.txApply</code> / <code>Cell.transaction</code>); the widget tree simply observes the committed state</td>
+</tr>
+<tr>
+<td>Validation</td>
+<td>Manual <code>if</code> checks in the widget</td>
+<td><code>TestCell</code> gates run before the pulse reaches the widget</td>
+</tr>
+<tr>
+<td>Restricted views</td>
+<td>Copy the data, or trust the child widget</td>
+<td><code>cell.unmodifiable</code> handed to <code>CellBuilder</code> = a read-only render</td>
+</tr>
+<tr>
+<td>Audit trail</td>
+<td>None</td>
+<td>The same <code>ApplyReceipt</code> the cell records is what the widget rendered</td>
+</tr>
+<tr>
+<td>Timing operators</td>
+<td>Hand-rolled <code>Timer</code> inside a <code>State</code></td>
+<td><code>Cell.debounce</code> / <code>Cell.throttle</code> / <code>Cell.distinct</code> operate upstream, invisible to the widget</td>
+</tr>
+<tr>
+<td>Async combinators</td>
+<td><code>FutureBuilder</code> / <code>StreamBuilder</code> per source</td>
+<td><code>Cell.asyncMap</code> / <code>switchMap</code> / <code>fromFuture</code> / <code>fromStream</code> share one <code>Cell</code>, rendered by one <code>CellAsyncBuilder</code></td>
+</tr>
+<tr>
+<td>Multi-source aggregation</td>
+<td><code>Future.wait</code> in <code>build</code></td>
+<td><code>Cell.synthesis</code> fans in, <code>CellBuilder</code>/<code>CellValueBuilder</code> renders the converged value</td>
+</tr>
+<tr>
+<td><strong>Test setup</strong></td>
+<td>Hand-rolled <code>pumpWidget</code> + <code>CellScope</code> + <code>addTearDown</code> per test</td>
+<td><code>pumpWithCells</code> / <code>pumpCell</code> / <code>emitAndSettle</code> / <code>CellTestHarness</code> ship with the package</td>
+</tr>
+</tbody>
+</table>
+<h2 id="the-30-line-counter">The 30-line counter</h2>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flutter/cell_flutter.dart';
+import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(const CounterApp());
+
+class CounterApp extends StatefulWidget {
+  const CounterApp({super.key});
+  @override
+  State&lt;CounterApp&gt; createState() =&gt; _CounterAppState();
+}
+
+class _CounterAppState extends State&lt;CounterApp&gt; {
+  late final StateHandle&lt;int&gt; _counter = Cell.state&lt;int&gt;(initial: 0);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Counter')),
+        body: Center(
+          child: CellBuilder&lt;int&gt;(
+            cell: _counter.cell.unmodifiable,
+            builder: (_, value) =&gt; Text('${value ?? 0}'),
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () =&gt; _counter.update((_counter.cell.value ?? 0) + 1),
+          child: const Icon(Icons.add),
+        ),
+      ),
+    );
+  }
+}
+</code></pre>
+<p>See <code>guide/HowTo-CellBuilder.md</code> for the full guide. The
+<code>example/lib/auth_flow.dart</code> example demonstrates <code>CellListener</code> and
+<code>CellScope</code> together; see <code>guide/HowTo-CellListener.md</code> and
+<code>guide/HowTo-CellScope.md</code>.</p>
+<blockquote>
+<p><strong>The whole cycle, in one breath:</strong></p>
+<pre class="language-dart"><code class="language-dart">final counter = Cell.state&lt;int&gt;(initial: 0);
+
+// Display it — one widget, one rebuild per change:
+CellBuilder&lt;int&gt;(
+  cell: counter.cell.unmodifiable,
+  builder: (_, v) =&gt; Text('${v ?? 0}'),
+);
+
+// React to it — side effect per pulse, no rebuild:
+CellListener&lt;int&gt;(
+  cell: counter.cell,
+  onPulse: (ctx, pulse) =&gt; HapticFeedback.lightImpact(),
+  child: const SizedBox.shrink(),
+);
+
+// Reach it from anywhere — no constructor threading:
+CellScope(
+  cells: {#counter: counter.cell},
+  child: const AppRoot(),
+);
+// Later, deep in the tree:
+// final counter = CellScope.valueOf&lt;int&gt;(context, #counter);
+
+// Test it — three lines, no boilerplate:
+await tester.pumpCell(cell: counter.cell, builder: (_, v) =&gt; Text('$v'));
+await tester.emitAndSettle(counter.cell, 5);
+expect(find.text('5'), findsOneWidget);
+</code></pre>
+</blockquote>
+<p>Defaults are pass-through and allow-all — the widget layer never requires learning <code>Nucleus</code>, <code>Receptor</code>, or <code>TestCell</code>. Those are available (through <code>cell</code>) when you need them.</p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#whats-new-in-01">What's new in 0.1</a></li>
+<li><a href="#when-it-fits">When it fits</a></li>
+<li><a href="#install">Install</a></li>
+<li><a href="#quick-example">Quick example</a></li>
+<li><a href="#core-widgets">Core widgets</a></li>
+<li><a href="#optional-hooks-layer">Optional hooks layer</a></li>
+<li><a href="#test-surface">Test surface</a></li>
+<li><a href="#how-much-you-need-to-know">How much you need to know</a></li>
+<li><a href="#documentation">Documentation</a></li>
+<li><a href="#ecosystem">Ecosystem</a></li>
+<li><a href="#status">Status</a></li>
+<li><a href="#license">License</a></li>
+</ul>
+<h2 id="whats-new-in-01">What's new in 0.1</h2>
+<p>This section is retained as the initial-release history (0.1.0 was the first published shape; the package is now at 0.6.0 — see <a href="#status">Status</a>). Three headline surfaces ship as stable-shaped, experimental-quality API.</p>
+<h3 id="widgets-that-display-react-route-bridge-and-test">Widgets that display, react, route, bridge, and test</h3>
+<p>The primary binding. <code>CellBuilder</code>, <code>CellSelector</code>, <code>CellValueBuilder</code>, <code>CellAsyncBuilder</code>, <code>CellListener</code>, <code>CellScope</code>, <code>CellNotifier</code>, <code>CellAsStream</code>, <code>CellAsValue</code> — plus the <code>.builder()</code> fluent sugar on <code>ValueCell</code>. One import (<code>package:cell_flutter/cell_flutter.dart</code>), full surface.</p>
+<pre class="language-dart"><code class="language-dart">final user = Cell.state&lt;User?&gt;(initial: null);
+
+CellSelector&lt;User, String&gt;(
+  cell: user.cell,
+  select: (u) =&gt; u?.name ?? '',
+  builder: (_, name) =&gt; Text(name),
+);
+</code></pre>
+<p><code>CellSelector</code> rebuilds when <code>user?.name</code> changes — not when the rest of the <code>User</code> does. That is the whole granularity argument, expressed as one widget.</p>
+<h3 id="optional-flutter_hooks-integration">Optional <code>flutter_hooks</code> integration</h3>
+<p>For <code>HookWidget</code> users. <code>useCell</code>, <code>useCellValue</code>, <code>useCellNotifier</code>, <code>useCellListener</code>, <code>useCellAsync</code> in <code>package:cell_flutter/hooks.dart</code> — the same contracts as the widgets, expressed as hooks so they compose with <code>useMemoized</code>, <code>useValueListenable</code>, <code>useAnimation</code>, and the rest of the hook ecosystem.</p>
+<pre class="language-dart"><code class="language-dart">class UserNameView extends HookWidget {
+  final ValueCell&lt;User&gt; user;
+  const UserNameView({required this.user, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final name = useCell&lt;User, String&gt;(
+      cell: user,
+      select: (u) =&gt; u?.name ?? '',
+    );
+    return Text(name);
+  }
+}
+</code></pre>
+<p>Application code that does not use <code>HookWidget</code> never imports <code>hooks.dart</code>; the hooks layer is opt-in. Two cell-swap caveats differ from the widgets and are documented in the hook docs: <code>useCell</code> shows the previous cell's slice for one frame after a swap, and <code>useCellAsync</code> keeps the previous snapshot across a swap. Key the enclosing <code>HookWidget</code> on the cell when reset-on-swap is required.</p>
+<h3 id="a-test-surface-that-ships-with-the-package">A test surface that ships with the package</h3>
+<p>The <code>package:cell_flutter/testing.dart</code> barrel exports the helpers a widget test actually needs:</p>
+<pre class="language-dart"><code class="language-dart">testWidgets('counter renders and updates', (tester) async {
+  final counter = Cell.state&lt;int&gt;(initial: 0);
+
+  await tester.pumpCell(
+    cell: counter.cell,
+    builder: (_, v) =&gt; Text('${v ?? 0}'),
+  );
+  expect(find.text('0'), findsOneWidget);
+
+  await tester.emitAndSettle(counter.cell, 5);
+  expect(find.text('5'), findsOneWidget);
+});
+</code></pre>
+<p><code>pumpCell</code> / <code>pumpWithCells</code> assemble the correct <code>MaterialApp</code> + <code>Scaffold</code> + <code>CellScope</code> frame. <code>emitAndSettle</code> / <code>emitAndPump</code> combine the write with the pumping a widget test needs. <code>recordPulses</code> captures the full pulse sequence for assertions the widget cannot express. <code>expectCellValue</code> / <code>expectCellGolden</code> add a cell-aware diagnostic or a golden image. <code>CellTestHarness</code> bundles multi-cell setups with auto-cleanup.</p>
+<hr>
+<h2 id="when-it-fits">When it fits</h2>
+<p><code>cell_flutter</code> is a good match if you want:</p>
+<ul>
+<li>Live state display with rebuild granularity (<code>CellBuilder</code> / <code>CellSelector</code> / <code>CellValueBuilder</code>)</li>
+<li>Side effects that fire on pulses, not on rebuilds (<code>CellListener</code>)</li>
+<li>Async state (<code>fromFuture</code>, <code>fromStream</code>, <code>asyncMap</code>) rendered as <code>AsyncSnapshot</code> (<code>CellAsyncBuilder</code>)</li>
+<li>App-level cells (auth, theme, feature flags) reachable from deep in the tree (<code>CellScope</code>)</li>
+<li>Zero-copy bridges to Flutter primitives (<code>CellNotifier</code>, <code>asValueCell</code>, <code>asStream</code>)</li>
+<li>Widget tests that do not hand-roll the pump frame (<code>testing.dart</code>)</li>
+</ul>
+<p>It is more machinery than you need for:</p>
+<ul>
+<li>A single <code>StatefulWidget</code> with <code>setState</code> and no cross-tree sharing</li>
+<li>A form-local controller that owns one value</li>
+<li>A <code>FutureBuilder</code> that reads one value once and never again</li>
+<li>A widget that does not already use cells in its state layer</li>
+</ul>
+<p><strong><code>cell_flutter</code> is the widget binding, not a state library.</strong> If your state model is not already cells, start with <code>cell</code> (the core). The widget layer is what makes a cell-based state model <em>visible</em> and <em>testable</em> in Flutter; it does not replace the state model itself.</p>
+<p>For Rx-style combinators (<code>merge</code>, <code>zip</code>, <code>scan</code>, windows), use <strong>cell_flow</strong>.</p>
+<hr>
+<h2 id="install">Install</h2>
+<p>From pub.dev:</p>
+<pre class="language-yaml"><code class="language-yaml">dependencies:
+  cell: ^2.0.0
+  cell_flutter: ^1.0.0  # stable — see Status below
+</code></pre>
+<p>From git:</p>
+<pre class="language-yaml"><code class="language-yaml">dependencies:
+  cell_flutter:
+    git:
+      url: https://github.com/simon-m-lee/cell.git
+      path: packages/cell_flutter
+</code></pre>
+<p>Requires Dart <code>&gt;=3.5.0 &lt;4.0.0</code> and Flutter <code>&gt;=3.24.0</code>. <code>cell_flutter</code> declares <code>flutter_test</code> as a <strong>regular dependency</strong> (the <code>bloc_test</code> / <code>mocktail</code> / <code>mockito</code> pattern), so <code>package:cell_flutter/testing.dart</code> resolves without an extra dependency. Adding <code>cell_flutter</code> to <code>dev_dependencies</code> in application code keeps the test import out of production builds.</p>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flutter/cell_flutter.dart';
+</code></pre>
+<hr>
+<h2 id="quick-example">Quick example</h2>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flutter/cell_flutter.dart';
+import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(const CounterApp());
+
+class CounterApp extends StatelessWidget {
+  const CounterApp({super.key});
+
+  @override
+  Widget build(BuildContext context) =&gt; MaterialApp(home: CounterScreen());
+}
+
+class CounterScreen extends StatefulWidget {
+  const CounterScreen({super.key});
+
+  @override
+  State&lt;CounterScreen&gt; createState() =&gt; _CounterScreenState();
+}
+
+class _CounterScreenState extends State&lt;CounterScreen&gt; {
+  // One cell, created once in initState — the same anti-pattern rules as
+  // any StatefulWidget apply: do not create the cell inside build().
+  final _counter = Cell.state&lt;int&gt;(initial: 0);
+
+  @override
+  void dispose() {
+    _counter.cell.invalidate();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CellBuilder&lt;int&gt;(
+          cell: _counter.cell,
+          builder: (_, v) =&gt; Text('${v ?? 0}', style: const TextStyle(fontSize: 48)),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () =&gt; _counter.update(1),
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+</code></pre>
+<p>Runnable demos live in <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter/example"><code>example/</code></a>. Start with <code>example/state_demo.dart</code>.</p>
+<hr>
+<h2 id="core-widgets">Core widgets</h2>
+<p>You can build most Flutter application UIs from these widgets. None of them require configuring <code>Receptor</code>, <code>TestCell</code>, <code>Context</code>, or <code>Synapses</code>.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Widget</th>
+<th>Use when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>CellBuilder</code></td>
+<td>Show a <code>ValueCell</code>'s current value</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>CellSelector</code></td>
+<td>Show one field of a <code>ValueCell</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>CellValueBuilder</code></td>
+<td>Show any <code>Cell</code> (derived, async, tissue)</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>CellAsyncBuilder</code></td>
+<td>Show loading / data / error as <code>AsyncSnapshot</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>CellListener</code></td>
+<td>Run a side effect on each pulse (no rebuild)</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>CellScope</code></td>
+<td>Reach app-level cells from deep in the tree</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>CellNotifier</code></td>
+<td>Get a <code>Listenable</code> for Flutter primitives</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>CellAsStream</code> (ext)</td>
+<td>Bridge any <code>Cell</code> to <code>Stream&lt;V?&gt;</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>CellAsValue</code> (ext)</td>
+<td>Mirror any <code>Cell</code> into a <code>ValueCell</code> (with explicit <code>dispose</code>)</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>ValueCellBuilder</code> (ext)</td>
+<td>Fluent <code>cell.builder((_, v) =&gt; …)</code> sugar</td>
+</tr>
+</tbody>
+</table>
+<p>Also implemented, outside that numbered set: <strong><code>MirroredCell</code></strong> (the record returned by <code>asValueCell</code>), <strong><code>snapshotForPulse</code> / <code>snapshotForCell</code></strong> (the pure snapshot decoders used by <code>CellAsyncBuilder</code>).</p>
+<p>Learning order: show state → react → route → bridge → isolate. Widgets 1–3 are enough for a first app.</p>
+<p><strong>Which display widget?</strong></p>
+<table>
+<thead>
+<tr>
+<th>Your source is…</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A <code>ValueCell</code> (<code>Cell.state</code> results)</td>
+<td><code>CellBuilder</code></td>
+</tr>
+<tr>
+<td>A <code>ValueCell</code>, but only one field matters</td>
+<td><code>CellSelector</code></td>
+</tr>
+<tr>
+<td>Any <code>Cell</code> (derived, async, tissue)</td>
+<td><code>CellValueBuilder</code></td>
+</tr>
+<tr>
+<td>An async <code>Cell</code>, and you need <code>AsyncSnapshot</code></td>
+<td><code>CellAsyncBuilder</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>CellBuilder</code> is the cheapest binding for a <code>ValueCell</code> and gets <code>ValueListenableBuilder</code>'s subtree isolation for free. Reach for <code>CellValueBuilder</code> only when the source is not a <code>ValueCell</code>. Reach for <code>CellSelector</code> when a <code>CellBuilder</code> would rebuild too often.</p>
+<hr>
+<h2 id="optional-hooks-layer">Optional hooks layer</h2>
+<p>For <code>HookWidget</code> users. Import separately:</p>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flutter/hooks.dart';
+</code></pre>
+<p>The hooks follow <code>flutter_hooks</code>' rules: unconditional, top-level, same order every build. Violations trigger <code>flutter_hooks</code>' own assertion.</p>
+<table>
+<thead>
+<tr>
+<th>Hook</th>
+<th>Equivalent widget</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>useCell</code></td>
+<td><code>CellSelector</code></td>
+<td>Slice-granular rebuild in a <code>HookWidget</code></td>
+</tr>
+<tr>
+<td><code>useCellValue</code></td>
+<td><code>CellBuilder</code></td>
+<td>Full-value rebuild in a <code>HookWidget</code></td>
+</tr>
+<tr>
+<td><code>useCellNotifier</code></td>
+<td><code>CellNotifier</code></td>
+<td>A <code>Listenable</code> for <code>useValueListenable</code> / <code>ValueListenableBuilder</code></td>
+</tr>
+<tr>
+<td><code>useCellListener</code></td>
+<td><code>CellListener</code></td>
+<td>Side effect per pulse (no rebuild)</td>
+</tr>
+<tr>
+<td><code>useCellAsync</code></td>
+<td><code>CellAsyncBuilder</code></td>
+<td><code>AsyncSnapshot</code> for async cells</td>
+</tr>
+</tbody>
+</table>
+<p>The hooks layer re-exports <code>flutter_hooks</code> and <code>cell_flutter</code>, so a <code>HookWidget</code> needs only the one import. <code>useCellAsync</code> inherits <code>CellAsyncBuilder</code>'s per-source error behavior and the concurrent-<code>asyncMap</code> caveat; see <code>use_cell_async.dart</code> for the full picture. Two cell-swap caveats differ from the widgets and are documented in the hook docs: <code>useCell</code> shows the previous cell's slice for one frame after a swap, and <code>useCellAsync</code> keeps the previous snapshot across a swap. Key the enclosing <code>HookWidget</code> on the cell when reset-on-swap is required.</p>
+<hr>
+<h2 id="test-surface">Test surface</h2>
+<p>Import from test files only:</p>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flutter/testing.dart';
+import 'package:flutter_test/flutter_test.dart';
+</code></pre>
+<p>The barrel exports every helper the binding provides, plus the application-facing surface they build on.</p>
+<table>
+<thead>
+<tr>
+<th>Helper</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pumpWithCells</code></td>
+<td>Pump inside a <code>CellScope</code> with a <code>MaterialApp</code> frame</td>
+</tr>
+<tr>
+<td><code>pumpCell</code></td>
+<td>Pump a bare <code>CellBuilder</code> (no <code>CellScope</code>)</td>
+</tr>
+<tr>
+<td><code>emitAndSettle</code></td>
+<td>Write a <code>ValueCell</code>, then <code>pumpAndSettle</code></td>
+</tr>
+<tr>
+<td><code>emitAndPump</code></td>
+<td>Write a <code>ValueCell</code>, then <code>pump([duration])</code></td>
+</tr>
+<tr>
+<td><code>recordPulses</code></td>
+<td>Capture the ordered pulse sequence from any <code>Cell</code></td>
+</tr>
+<tr>
+<td><code>PulseRecorder&lt;T&gt;</code></td>
+<td>The recorder type; exposes <code>pulses</code> and <code>payloads</code></td>
+</tr>
+<tr>
+<td><code>expectCellValue</code></td>
+<td>Assert a <code>ValueCell</code>'s value against a matcher</td>
+</tr>
+<tr>
+<td><code>expectCellGolden</code></td>
+<td>Capture a golden of a <code>CellBuilder</code> at the current value</td>
+</tr>
+<tr>
+<td><code>CellTestHarness</code></td>
+<td>Per-test registry: cells + recorders + pump/emit helpers</td>
+</tr>
+</tbody>
+</table>
+<p><code>CellTestHarness</code> is worth its ceremony for suites with 3+ cells or with cells reused across tests. For 1–2 cells, use the extensions directly.</p>
+<blockquote>
+<p><strong>Per-source error-pulse note.</strong> <code>recordPulses</code> records every pulse regardless of type. Only <code>Cell.fromFuture</code> currently emits <code>Pulse&lt;Object&gt;(type: 'error')</code> on the failure path in the core package; <code>Cell.fromStream</code> and <code>Cell.asyncMap</code> do not. See <code>record_pulses.dart</code> for the full explanation — it is the authoritative statement in the binding.</p>
+</blockquote>
+<hr>
+<h2 id="how-much-you-need-to-know">How much you need to know</h2>
+<p>Layers are optional, not a reading list.</p>
+<ol>
+<li><strong>Core widgets</strong> — <code>CellBuilder</code>, <code>CellListener</code>, <code>CellScope</code>. The intended default for Flutter application code.</li>
+<li><strong>Selector and async widgets</strong> — <code>CellSelector</code>, <code>CellValueBuilder</code>, <code>CellAsyncBuilder</code>. When the plain widgets rebuild too much or the source is not a <code>ValueCell</code>.</li>
+<li><strong>Bridges</strong> — <code>asValueCell</code>, <code>asStream</code>, <code>CellNotifier</code>. When reaching out to Flutter primitives or Dart interop.</li>
+<li><strong>Hooks</strong> — <code>useCell*</code> in <code>hooks.dart</code>. When using <code>HookWidget</code>.</li>
+<li><strong>Test surface</strong> — <code>testing.dart</code>. When writing widget tests.</li>
+</ol>
+<p>The underlying <code>cell</code> layers (<code>Receptor</code> / <code>Instruction</code>, <code>TestCell</code> / <code>Context</code>, <code>Nucleus</code> / <code>Cell.governed</code>) are still there — the widget layer simply does not require them. See <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/README.md"><code>cell</code>'s README</a> for the full stack.</p>
+<p>See <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/ARCHITECTURE-flutter.md">ARCHITECTURE-flutter.md</a> for the design rationale behind the widget-layer split and §11 for the known-gaps list.</p>
+<hr>
+<h2 id="documentation">Documentation</h2>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/guide/HowTo-CellBuilder.md">HowTo-CellBuilder.md</a></td>
+<td>Primary state display</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/guide/HowTo-CellSelector.md">HowTo-CellSelector.md</a></td>
+<td>Slice-granular rendering</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/guide/HowTo-CellValueBuilder.md">HowTo-CellValueBuilder.md</a></td>
+<td>Rendering any <code>Cell</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/guide/HowTo-CellAsyncBuilder.md">HowTo-CellAsyncBuilder.md</a></td>
+<td>Async sources and error pulses</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/guide/HowTo-CellListener.md">HowTo-CellListener.md</a></td>
+<td>Side effects without rebuilds</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/guide/HowTo-CellScope.md">HowTo-CellScope.md</a></td>
+<td>App-level cell DI</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/guide/HowTo-Hooks.md">HowTo-Hooks.md</a></td>
+<td><code>flutter_hooks</code> integration</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/guide/HowTo-Restoration.md">HowTo-Restoration.md</a></td>
+<td>Process-kill state survival</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/guide/HowTo-Forms.md">HowTo-Forms.md</a></td>
+<td>Text fields and form validation</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/guide/HowTo-Router.md">HowTo-Router.md</a></td>
+<td><code>go_router</code> bridge (<code>cell_flutter_router</code>)</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/guide/HowTo-Persistence.md">HowTo-Persistence.md</a></td>
+<td>Durable state (<code>cell_flutter_persistence</code>)</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/guide/HowTo-Testing.md">HowTo-Testing.md</a></td>
+<td>Pump, emit, and assert</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/ARCHITECTURE-flutter.md">ARCHITECTURE-flutter.md</a></td>
+<td>Why the pieces are shaped this way (known gaps in §11)</td>
+</tr>
+</tbody>
+</table>
+<p>Guides use <code>HowTo-*.md</code> (hyphens). Generate API docs with <code>dart doc .</code> and open <code>doc/api/index.html</code>.</p>
+<p>If a guide and the source disagree, <strong>the source is current</strong>.</p>
+<hr>
+<h2 id="ecosystem">Ecosystem</h2>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Delivery</th>
+<th>Adds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>cell</strong></td>
+<td>Now</td>
+<td>Nodes, pulses, operators, governance, transactions</td>
+</tr>
+<tr>
+<td><strong>cell_flow</strong></td>
+<td>Now</td>
+<td>100+ instruction factories on <code>Flow</code>, plus fluent chaining (<code>mapTo</code>, <code>asyncExpand</code>, <code>zip</code>, …)</td>
+</tr>
+<tr>
+<td><strong>cell_tissue</strong></td>
+<td>Now</td>
+<td>Reactive collections (list / map / set / queue)</td>
+</tr>
+<tr>
+<td><strong>cell_flutter</strong> (this)</td>
+<td>Now</td>
+<td>Flutter widget bindings for cells, pulses, and their pulse sequences</td>
+</tr>
+<tr>
+<td><strong>cell_flutter/hooks.dart</strong></td>
+<td>Now</td>
+<td>Optional <code>flutter_hooks</code> integration for <code>HookWidget</code> users</td>
+</tr>
+<tr>
+<td><strong>cell_flutter_router</strong></td>
+<td>Now</td>
+<td><code>go_router</code> bridge: <code>CellRouterStateMirror</code> / <code>CellRouterScope</code> / <code>useCellRouter</code></td>
+</tr>
+<tr>
+<td><strong>cell_flutter_persistence</strong></td>
+<td>Now</td>
+<td><code>SharedPreferencesAdapter</code>, <code>InMemoryAdapter</code>, <code>PersistedCell</code> write modes</td>
+</tr>
+<tr>
+<td><strong>cell_flutter_lints</strong></td>
+<td>Now</td>
+<td>Four <code>custom_lint</code> rules guarding known anti-patterns</td>
+</tr>
+</tbody>
+</table>
+<p>The widget layer renders cells regardless of which layer produced them: a <code>Cell.state</code> from <code>cell</code>, a <code>Flow</code> from <code>cell_flow</code>, a <code>TissueList</code> from <code>cell_tissue</code>. The three <code>CellBuilder</code> / <code>CellValueBuilder</code> / <code>CellAsyncBuilder</code> widgets are the universal bridge.</p>
+<hr>
+<h3 id="comparing-to-other-packages">Comparing to other packages</h3>
+<p>See <a href="doc/comparison.md"><code>doc/comparison.md</code></a> for an honest
+Provider / Riverpod / Bloc / cell_flutter comparison and a
+should-I-use-this decision guide.</p>
+<h3 id="migrating">Migrating</h3>
+<ul>
+<li><a href="guide/Migrating-From-Provider.md">Migrating from Provider</a></li>
+<li><a href="guide/Migrating-From-Riverpod.md">Migrating from Riverpod</a></li>
+<li><a href="guide/Migrating-From-Bloc.md">Migrating from Bloc</a></li>
+<li><a href="guide/Migrating-From-SetState.md">Migrating from setState</a></li>
+</ul>
+<p>Each guide's worked examples are fixture-verified
+(<code>test/migration/</code>) — the guide's code is executed and compared
+against the source package's code by the test suite.</p>
+<h3 id="lint-rules">Lint rules</h3>
+<p><a href="https://pub.dev/packages/cell_flutter_lints"><code>cell_flutter_lints</code></a>
+ships four <code>custom_lint</code> rules guarding the anti-patterns these docs
+warn about (cells created in <code>build</code>, unkeyed <code>HookBuilder</code>s,
+forgotten observation-link disposal, collection selectors without
+<code>equals</code>).</p>
+<hr>
+<h2 id="status">Status</h2>
+<p><strong>1.0.0 — stable.</strong> the production-readiness work is complete
+Completing it delivered: the <code>cell_flutter_router</code> and
+<code>cell_flutter_persistence</code> ecosystem packages, microbenchmark baselines
+with a 15% regression gate (<code>benchmark/</code>, <code>tool/benchmark.dart</code>), CI
+workflows for analysis/coverage/benchmarks/publish dry-runs
+(<code>.github/workflows/cell_flutter*.yml</code>), and the full documentation
+set. The suite is 364 tests (1 intentionally skipped: the release-mode devtools path) with ≥95% line coverage of <code>lib/</code>; the
+golden suite is regeneration-checked in CI; <code>dart doc</code> is warning-free.</p>
+<p>The 1.0.0 API freeze covers every public symbol in <code>cell_flutter.dart</code>
+and <code>hooks.dart</code>; breaking changes go through major versions per
+semver. See <a href="ARCHITECTURE-flutter.md">ARCHITECTURE-flutter.md §12</a> for
+the stability policy and roadmap.</p>
+<p>What 1.0.x guarantees:</p>
+<ul>
+<li><strong>Live display</strong>: <code>CellBuilder</code>, <code>CellSelector</code>, <code>CellValueBuilder</code> rebuild on the pulses they subscribe to, no more and no less.</li>
+<li><strong>Side effects</strong>: <code>CellListener</code> invokes its handler once per pulse, in order, and never rebuilds its child.</li>
+<li><strong>Async rendering</strong>: <code>CellAsyncBuilder</code> produces <code>AsyncSnapshot</code> transitions equivalent to <code>StreamBuilder</code> for the async sources it receives. Only <code>Cell.fromFuture</code> failures surface as <code>hasError</code>; <code>fromStream</code> / <code>asyncMap</code> failures do not emit error pulses in the core package (see <code>record_pulses.dart</code> and <code>test/error_pulse_sources_test.dart</code>).</li>
+<li><strong>Late-subscriber seeding (0.6.1)</strong>: a <code>fromFuture</code> / <code>fromStream</code> / <code>asyncMap</code> / <code>derive</code> cell that emitted before a widget subscribed <strong>is</strong> replayed into the first frame via <code>Cell.latestPulse</code> (<code>CellValueBuilder</code>, <code>CellAsyncBuilder</code>, <code>asValueCell</code>, <code>asStream</code> — see <code>test/seed_paths_test.dart</code>). The hooks layer is verified to match: <code>useCellAsync</code> seeds from the same retained pulse (0.7.0).</li>
+<li><strong>State restoration (0.8.0)</strong>: <code>restorableState</code> + <code>CellRestorationScope</code> persist primitive values through Flutter's <code>RestorationManager</code>; custom types need <code>toPrimitives</code> / <code>fromPrimitives</code> codecs (see <code>guide/HowTo-Restoration.md</code>).</li>
+<li><strong>Forms (0.9.0)</strong>: <code>CellTextField</code> / <code>CellFormField&lt;T&gt;</code> / <code>cellEditingController</code> bind Flutter form widgets two-way to cells; <code>Form.validate()</code> works unchanged (see <code>guide/HowTo-Forms.md</code>).</li>
+<li><strong>Error containment (0.9.0)</strong>: <code>CellErrorBoundary</code> renders a fallback for invalidated-cell and build-phase errors, with <code>reset()</code> recovery.</li>
+<li><strong>Virtualized lists (0.9.0)</strong>: <code>CellListView.builder</code> and <code>CellListView.keyed</code> render <code>List&lt;T&gt;</code> cells lazily; the keyed variant rebuilds only new keys and preserves item state across reorders.</li>
+<li><strong>Bridges</strong>: <code>asValueCell</code> mirrors a <code>Cell</code> into a <code>ValueCell</code>; <code>asStream</code> bridges to <code>Stream&lt;V?&gt;</code>; <code>CellNotifier</code> is a correct read-only <code>ValueListenable</code>.</li>
+<li><strong>Hooks</strong>: <code>useCell*</code> mirror the widget contracts, with <code>flutter_hooks</code>' rules inherited and two documented cell-swap caveats (see the hooks layer section).</li>
+<li><strong>Test surface</strong>: <code>pumpWithCells</code> / <code>pumpCell</code> / <code>emitAndSettle</code> / <code>emitAndPump</code> / <code>recordPulses</code> / <code>expectCellValue</code> / <code>expectCellGolden</code> / <code>CellTestHarness</code> behave as documented.</li>
+<li><strong>Router bridge (<code>cell_flutter_router</code>)</strong>: <code>CellRouterStateMirror</code> mirrors go/push/replace/pop/deep links into a restorable <code>CellRouterState</code> cell; <code>useCellRouter</code> provides a reactive controller. Tested against go_router 17 (the SDK-3.11-compatible line).</li>
+<li><strong>Persistence (<code>cell_flutter_persistence</code>)</strong>: <code>PersistedCell</code> composes a <code>RestorableCell</code> with a <code>CellPersistenceAdapter</code> (SharedPreferencesAsync or in-memory) under immediate / debounced / onAppPause write modes.</li>
+</ul>
+<p>What 1.0.x does <strong>not</strong> claim:</p>
+<ul>
+<li>Concurrent <code>Cell.asyncMap</code> effect attribution (tracked separately in <code>cell</code>).</li>
+<li>Error-pulse visibility for <code>Cell.fromStream</code> and <code>Cell.asyncMap</code> in the widget layer (they do not emit error pulses in the core package at present; see <code>record_pulses.dart</code>).</li>
+<li>Per-platform golden precision (see <code>HowTo-Testing.md</code> for the recommended per-platform override pattern).</li>
+<li>Production-readiness for the paths the failed 1.0.0 gates cover (G3 benchmarks, G6 CI-only fuzz, G10 usability).</li>
+</ul>
+<p>Feedback and issues are useful at this stage.</p>
+<pre class="language-bash"><code class="language-bash">flutter analyze lib
+flutter test
+dart format .
+dart doc .
+</code></pre>
+<hr>
+<h2 id="license">License</h2>
+<p>MIT or Apache-2.0. See <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/LICENSE">LICENSE</a>.</p>
+<h2 id="authors">Authors</h2>
+<p>Lee Man Hoi Simon. See <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/AUTHORS">AUTHORS</a> for copyright holders.</p>
+</section>
+
+
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <dt id="cell_flutter">
+  <span class="name"><a href="cell_flutter/">cell_flutter</a></span> 
+
+</dt>
+<dd>Flutter widget bindings for Mitosis <a href="cell_flutter/Cell-class.html">Cell</a>s.
+</dd>
+
+          <dt id="cell_flutter_hooks">
+  <span class="name"><a href="cell_flutter_hooks/">hooks</a></span> 
+
+</dt>
+<dd>Optional <code>flutter_hooks</code> integration for <code>cell_flutter</code>.
+</dd>
+
+          <dt id="cell_flutter_testing">
+  <span class="name"><a href="cell_flutter_testing/">testing</a></span> 
+
+</dt>
+<dd>Testing utilities for <code>cell_flutter</code>.
+</dd>
+
+        </dl>
+      </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="https://github.com/simon-m-lee/cell">cell_flutter package</a></li>
+</ol>
+
+    <h5 class="hidden-xs"><span class="package-name">cell_flutter</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="cell_flutter/">cell_flutter</a></li>
+      <li><a href="cell_flutter_hooks/">hooks</a></li>
+      <li><a href="cell_flutter_testing/">testing</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+</main>
+<footer>
+  <span class="no-break">
+    cell_flutter
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="static-assets/highlight.pack.js?v1"></script>
+<script src="static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

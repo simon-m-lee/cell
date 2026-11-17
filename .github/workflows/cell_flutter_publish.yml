@@ -1,0 +1,43 @@
+name: cell_flutter_publish
+
+# Publish dry-runs. The actual publish step is intentionally manual and
+# never runs from this workflow.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.9'
+          channel: stable
+          cache: true
+
+      - name: Dry-run cell_flutter
+        working-directory: packages/cell_flutter
+        run: |
+          flutter pub get
+          dart pub publish --dry-run
+
+      - name: Dry-run cell_flutter_router
+        working-directory: packages/cell_flutter_router
+        run: |
+          flutter pub get
+          dart pub publish --dry-run
+
+      - name: Dry-run cell_flutter_persistence
+        working-directory: packages/cell_flutter_persistence
+        run: |
+          flutter pub get
+          dart pub publish --dry-run
+
+      - name: Dry-run cell_flutter_lints
+        working-directory: packages/cell_flutter_lints
+        run: |
+          dart pub get
+          dart pub publish --dry-run

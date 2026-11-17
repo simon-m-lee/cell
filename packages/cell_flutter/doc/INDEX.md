@@ -29,7 +29,7 @@ The map to everything in `cell_flutter` 0.5.0.
 
 ## All guides
 
-**Phase 1–2 — State display and effects**
+**State display and effects**
 
 - `HowTo-CellBuilder.md` — the primary display widget; read-only views;
   rebuild granularity.
@@ -38,7 +38,7 @@ The map to everything in `cell_flutter` 0.5.0.
 - `HowTo-CellScope.md` — app-level DI for global cells; `of` /
   `maybeOf` / `valueOf`.
 
-**Phase 3 — Async and derived**
+**Async and derived**
 
 - `HowTo-CellAsyncBuilder.md` — async sources as `AsyncSnapshot`;
   per-source error behavior.
@@ -47,19 +47,19 @@ The map to everything in `cell_flutter` 0.5.0.
   `switchMap` into widgets.
 - `HowTo-Streams.md` — the `asStream` escape hatch.
 
-**Phase 4 — Hooks and debug**
+**Hooks and debug**
 
 - `HowTo-Hooks.md` — `useCell`, `useCellValue`, `useCellNotifier`,
   `useCellListener`, `useCellAsync`.
 - `HowTo-HotReload.md` — where cells live across hot reload.
 - `HowTo-Debugging.md` — the three debug diagnostics.
 
-**Phase 5 — Testing**
+**Testing**
 
 - `HowTo-Testing.md` — `pumpWithCells`, `emitAndSettle` (and its timer
   caveat), `recordPulses`, `CellTestHarness`, goldens.
 
-**Phase 6 — Migration**
+**Migration**
 
 - `MigratingFrom-Riverpod.md` — the primary adoption path, including
   what doesn't migrate.
@@ -88,7 +88,7 @@ The map to everything in `cell_flutter` 0.5.0.
 Honest boundaries, restated: the replay round-trip is verified for pure
 state, debounce, throttle, `fromFuture`, and `fromStream` (commit
 `05b4895d`); concurrent `asyncMap` attribution is tracked separately
-(Gate G1.5); only `Cell.fromFuture` emits error pulses today.
+; only `Cell.fromFuture` emits error pulses today.
 
 ## See also
 

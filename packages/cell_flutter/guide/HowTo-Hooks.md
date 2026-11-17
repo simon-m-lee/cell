@@ -83,7 +83,7 @@ completion pulse). The per-source error table is inherited from
 persists across cell swaps until the new cell emits. To reset, key the
 `HookWidget` on the cell (`key: ValueKey(cell)`).
 
-Over `asyncMap` with `concurrency > 0`, the hook inherits Gate G1.5:
+Over `asyncMap` with `concurrency > 0`, the hook inherits the caveat:
 concurrent effect attribution is tracked separately by the `cell` core
 package; the observation itself is correct.
 

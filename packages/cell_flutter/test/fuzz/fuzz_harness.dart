@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 //
-// Deterministic seeded fuzz harness for the 1.0 gate (Gate G6).
+// Deterministic seeded fuzz harness for the 1.0 gate.
 //
 // Configuration via --dart-define:
 //   FUZZ_SEEDS     total seeds across the whole fuzz suite (default 6)

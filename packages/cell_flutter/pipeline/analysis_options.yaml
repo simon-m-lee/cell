@@ -1,0 +1,6 @@
+include: package:lints/recommended.yaml
+
+analyzer:
+  exclude:
+    # The reference apps are analyzed from their own directories.
+    - example/generated/**

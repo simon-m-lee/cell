@@ -22,6 +22,24 @@ void main() {
       expect(received, [1, 2, 3]);
     });
 
+    test('seeds a ValueCell current value on listen', () async {
+      final counter = Cell.state<int>(initial: 7);
+      final received = <int?>[];
+
+      final sub = counter.cell.asStream<int>().listen(received.add);
+
+      // The retained-pulse seed serves ValueCell sources; the first event
+      // is delivered on the next microtask, so drain once before asserting.
+      await pumpEventQueue();
+      expect(received, [7]);
+
+      counter.update(8);
+      await pumpEventQueue();
+      expect(received, [7, 8]);
+
+      await sub.cancel();
+    });
+
     test('async emission with sync: false', () async {
       final src = Cell.ingress<int>();
       final received = <int?>[];

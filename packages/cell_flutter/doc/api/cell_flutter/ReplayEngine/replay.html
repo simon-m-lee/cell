@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the replay method from the ReplayEngine class, for the Dart programming language.">
+  <title>replay method - ReplayEngine class - cell_flutter library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_flutter</a></li>
+    <li><a href="../../cell_flutter/">cell_flutter.dart</a></li>
+    <li><a href="../../cell_flutter/ReplayEngine-class.html">ReplayEngine</a></li>
+    <li class="self-crumb">replay static method</li>
+  </ol>
+  <div class="self-name">replay</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flutter&#47;ReplayEngine-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">replay</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_flutter/ReplayResult-class.html">ReplayResult</a></span>&gt;</span></span>
+<span class="name ">replay</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="replay-param-ledger"><span>required</span> <span class="type-annotation"><a href="../../cell_flutter/Ledger-class.html">Ledger</a></span> <span class="parameter-name">ledger</span>, </span></li>
+<li><span class="parameter" id="replay-param-target"><span>required</span> <span class="type-annotation"><a href="../../cell_flutter/CellGraph-class.html">CellGraph</a></span> <span class="parameter-name">target</span>, </span></li>
+<li><span class="parameter" id="replay-param-fromSeq"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">fromSeq</span> = <span class="default-value">0</span>, </span></li>
+<li><span class="parameter" id="replay-param-options"><span class="type-annotation"><a href="../../cell_flutter/ReplayOptions-class.html">ReplayOptions</a></span> <span class="parameter-name">options</span> = <span class="default-value">ReplayOptions.strict</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Replays the ledger into <code>target</code>, starting at <code>fromSeq</code>.</p>
+<p><code>target</code> must be a graph bound to a <em>fresh</em> ledger store (or no
+ledger at all). The engine pushes a <strong>ReplayJournal</strong> per entry so
+the receptor's effectful calls are served from the recording, not
+re-executed against the real world.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>ledger</code>: The recorded history to replay.</li>
+<li><code>target</code>: The graph to replay into.</li>
+<li><code>fromSeq</code>: The first ledger sequence to replay.</li>
+<li><code>options</code>: Strictness flags; defaults to <a href="../../cell_flutter/ReplayOptions/strict-constant.html">ReplayOptions.strict</a>.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>On success, a <a href="../../cell_flutter/ReplayResult-class.html">ReplayResult</a> whose <code>newSnapshot</code> is the target
+graph's state at the end of replay. On failure (strict mode),
+throws <a href="../../cell_flutter/ReplayDivergenceException-class.html">ReplayDivergenceException</a>. In lenient mode, returns a
+result with <code>success == false</code> and non-empty <code>divergences</code>.</p>
+<h3 id="non-obvious-the-purity-gate-is-the-journal-not-a-pre-check">Non-obvious: the purity gate is the journal, not a pre-check</h3>
+<p>The engine does not consult <code>CellGraph.purityOf</code> up front. An
+<code>effectful</code> cell whose entry records no effects replays "fine" —
+but the only way to record <em>no</em> effects with an effectful
+component is to have journalled nothing, which the journal's
+exhaustion checks then cannot see either. The honest gate is on
+the recording side (<code>NullJournal</code> fails loudly, and every
+<code>effectful</code> rule writes a verdict); a dedicated purity
+pre-validation is a later hardening.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static Future&lt;ReplayResult&gt; replay({
+  required Ledger ledger,
+  required CellGraph target,
+  int fromSeq = 0,
+  ReplayOptions options = ReplayOptions.strict,
+}) async {
+  if (target.ledger != null) {
+    throw StateError(
+      &#39;ReplayEngine.replay: target graph &quot;${target.id}&quot; is bound to a &#39;
+      &#39;ledger. Replaying into a ledgered graph would re-append entries &#39;
+      &#39;and corrupt the history. Use a graph that is not bound to a &#39;
+      &#39;ledger (call unbindLedger first), or provide a graph built &#39;
+      &#39;from the same CellGraphBuilder that produced the original.&#39;,
+    );
+  }
+
+  &#47;&#47; Hardening (review fix): never replay a corrupt history.
+  &#47;&#47; One pass recomputes every hash of the chain; a tampered ledger
+  &#47;&#47; fails here with a LedgerIntegrityException instead of producing a
+  &#47;&#47; confusing downstream divergence.
+  await ledger.verify();
+
+  final divergences = &lt;DivergenceReport&gt;[];
+  int replayed = 0;
+  int? firstDivergedAt;
+  final checkBaseline = fromSeq == 0;
+  &#47;&#47; Pulse bodies resolve their parent chains by digest; the engine
+  &#47;&#47; registers each reconstructed pulse as it replays earlier entries.
+  final parentsByDigest = &lt;String, Pulse&lt;dynamic&gt;&gt;{};
+  &#47;&#47; Timer fires are deferred to after the entry loop (see
+  &#47;&#47; ReplayJournal.deferredFires): the recording&#39;s trailing edges
+  &#47;&#47; happened between entries, and firing inside the consuming entry
+  &#47;&#47; moved downstream writes one entry too early.
+  final deferredFires = &lt;FutureOr&lt;void&gt; Function()&gt;[];
+
+  await for (final entry in ledger.entriesSince(fromSeq)) {
+    if (options.maxEntries != null &amp;&amp; replayed &gt;= options.maxEntries!) {
+      break;
+    }
+    &#47;&#47; Review fix: a fork ledger&#39;s seq 0 is the ForkRecord marker
+    &#47;&#47; (cell `fork:&lt;id&gt;`), not a replayed pulse — replaying it always
+    &#47;&#47; diverged. Make the usage error loud instead: fork replays must
+    &#47;&#47; start at seq 1.
+    if (entry.seq == 0 &amp;&amp; entry.receipt.id.startsWith(&#39;fork:&#39;)) {
+      throw StateError(
+        &#39;ReplayEngine.replay: seq 0 of a fork ledger is the &#39;
+        &#39;ForkRecord marker, not an entry to replay. Replay a fork &#39;
+        &#39;with fromSeq: 1.&#39;,
+      );
+    }
+
+    final divergence = await _replayOne(
+      entry: entry,
+      target: target,
+      options: options,
+      checkBaseline: checkBaseline,
+      parentsByDigest: parentsByDigest,
+      deferredFires: deferredFires,
+    );
+
+    replayed++;
+    if (divergence != null) {
+      divergences.add(divergence);
+      firstDivergedAt ??= entry.seq;
+      if (options.failOnDivergence) {
+        throw ReplayDivergenceException(
+          divergence.reason,
+          seq: entry.seq,
+          report: divergence,
+        );
+      }
+    }
+  }
+
+  &#47;&#47; Run the deferred timer fires — the recording&#39;s trailing edges —
+  &#47;&#47; after every entry has replayed and every delta check has passed.
+  &#47;&#47; The fires may write the target cells; their downstream effect is
+  &#47;&#47; exactly what the recorded deltas of the following entries expect.
+  for (final fire in deferredFires) {
+    await fire();
+  }
+
+  final success = divergences.isEmpty;
+  return ReplayResult(
+    success: success,
+    entriesReplayed: replayed,
+    divergedAt: firstDivergedAt,
+    divergences: List.unmodifiable(divergences),
+    &#47;&#47; Tie the snapshot to the sequence the replay actually reached
+    &#47;&#47; (review fix: the default -1 made the snapshot unbound).
+    newSnapshot: target.snapshot(lastLedgerSeq: fromSeq + replayed - 1),
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_flutter</a></li>
+    <li><a href="../../cell_flutter/">cell_flutter</a></li>
+    <li><a href="../../cell_flutter/ReplayEngine-class.html">ReplayEngine</a></li>
+    <li class="self-crumb">replay static method</li>
+</ol>
+
+    <h5>ReplayEngine class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flutter
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

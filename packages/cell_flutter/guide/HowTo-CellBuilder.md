@@ -12,9 +12,9 @@
 ## When not to use
 
 - The value is a side-effect trigger (navigation, snackbar, haptics).
-  That's `CellListener` (Phase 2).
+  That's `CellListener`.
 - The source is a derived `Cell` (from `Cell.derive`, `Cell.synthesis`,
-  `Cell.switchMap`). That's `CellAsyncBuilder` or `asValueCell` (Phase 3).
+  `Cell.switchMap`). That's `CellAsyncBuilder` or `asValueCell`.
 
 ## Basic usage
 
@@ -111,17 +111,17 @@ outside `build` survive hot reload.
 
 ## What's coming
 
-- **Phase 2:** `CellListener` (side effects with mid-frame deferral) and
+- **Side effects:** `CellListener` (side effects with mid-frame deferral) and
   `CellScope` (app-level dependency injection via `InheritedWidget`).
-- **Phase 3:** `CellAsyncBuilder` (renders `Cell.fromFuture`,
+- **Async:** `CellAsyncBuilder` (renders `Cell.fromFuture`,
   `Cell.fromStream`, `Cell.asyncMap` outputs as `AsyncSnapshot`),
   `CellSelector` (rebuild on selected slice), `CellValueBuilder` (render
   any `Cell`), `asStream` and `asValueCell` extensions.
-- **Phase 4:** `flutter_hooks` integration, hot-reload hardening, debug
+- **Hooks and debug:** `flutter_hooks` integration, hot-reload hardening, debug
   infrastructure.
-- **Phase 5:** Testing utilities (`pumpWithCells`, `emitAndSettle`,
+- **Testing:** Testing utilities (`pumpWithCells`, `emitAndSettle`,
   `CellTestHarness`, `recordPulses`).
-- **Phase 6:** Migration guides, `CHOOSING.md`, end-to-end examples,
+- **Migration:** Migration guides, `CHOOSING.md`, end-to-end examples,
   accessibility audit.
 
 ## See also

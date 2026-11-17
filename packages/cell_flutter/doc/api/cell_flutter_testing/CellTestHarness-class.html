@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the CellTestHarness class from the cell_flutter_testing library, for the Dart programming language.">
+  <title>CellTestHarness class - cell_flutter_testing library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flutter</a></li>
+    <li><a href="../cell_flutter_testing/">testing.dart</a></li>
+    <li class="self-crumb">CellTestHarness class</li>
+  </ol>
+  <div class="self-name">CellTestHarness</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flutter_testing&#47;cell_flutter_testing-library-sidebar.html"
+    data-below-sidebar="cell_flutter_testing&#47;CellTestHarness-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">CellTestHarness</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>A per-test <strong>Cell Registry</strong> that bundles the cells a test suite needs,
+tracks their pulse recorders, and disposes both in one call.</p>
+<p><a href="../cell_flutter_testing/CellTestHarness-class.html">CellTestHarness</a> is the binding's <strong>Test Fixture</strong>. It wraps the two
+pieces that most cell-based tests share — a <code>Symbol</code>-keyed map of cells
+to register into a <a href="../cell_flutter/CellScope-class.html">CellScope</a>, and the <a href="../cell_flutter_testing/PulseRecorder-class.html">PulseRecorder</a>s opened on them —
+behind a single object whose <code>dispose</code> cleans up everything it created.
+The per-operation extensions (<code>pumpWithCells</code>, <code>emitAndSettle</code>,
+<code>recordPulses</code>) remain available; the harness simply layers ownership on
+top so tests with several cells do not have to track recorders by hand.</p>
+<h3 id="why-it-is-used">Why it is used</h3>
+<ul>
+<li><strong>Multi-cell tests</strong>: suites with 3+ cells, or with the same cells
+reused across many tests, benefit from a single fixture that knows
+every registration and every recorder. Per-test bookkeeping of "did I
+<code>addTearDown</code> the recorder?" disappears.</li>
+<li><strong>Recorder ownership</strong>: every recorder created via
+<a href="../cell_flutter_testing/CellTestHarness/recordPulses.html">recordPulses</a> is tracked and stopped on <a href="../cell_flutter_testing/CellTestHarness/dispose.html">dispose</a>. A recorder left
+running pins its source cell for the isolate's lifetime; the harness
+eliminates that failure mode by default.</li>
+<li><strong>Chainable setup</strong>: <code>add</code> returns the harness, so <code>setUp</code> reads as a
+single chain of registrations.</li>
+</ul>
+<h3 id="when-not-to-use-it">When <strong>not</strong> to use it</h3>
+<p>For a suite with 1–2 cells, the extension methods (<a href="../cell_flutter_testing/CellPumpWithCells.html">CellPumpWithCells</a>,
+<a href="../cell_flutter_testing/CellEmitAndSettle.html">CellEmitAndSettle</a>, <a href="../cell_flutter_testing/CellRecordPulses.html">CellRecordPulses</a>) are shorter — a few lines of
+<code>setUp</code>/<code>tearDown</code> beat a harness object. The harness is worth its
+ceremony only when there are enough registrations to justify it.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Registration</strong>: <a href="../cell_flutter_testing/CellTestHarness/add.html">add</a> inserts a cell under a <code>Symbol</code> key. The map
+is what <a href="../cell_flutter_testing/CellTestHarness/pump.html">pump</a> passes to <a href="../cell_flutter_testing/CellPumpWithCells/pumpWithCells.html">CellPumpWithCells.pumpWithCells</a>, so the
+same set of cells is scoped above every widget the test pumps.</li>
+<li><strong>Lookup</strong>: <a href="../cell_flutter_testing/CellTestHarness/cell.html">cell</a> and <a href="../cell_flutter_testing/CellTestHarness/valueCell.html">valueCell</a> retrieve a registration with
+optional type narrowing. A type mismatch throws <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a>; an
+unknown id throws too.</li>
+<li><strong>Recording</strong>: <a href="../cell_flutter_testing/CellTestHarness/recordPulses.html">recordPulses</a> opens a <a href="../cell_flutter_testing/PulseRecorder-class.html">PulseRecorder</a> on the cell at
+the given id and stores it for later disposal.</li>
+<li><strong>Pumping and emission</strong>: <a href="../cell_flutter_testing/CellTestHarness/pump.html">pump</a> and <a href="../cell_flutter_testing/CellTestHarness/emitAndSettle.html">emitAndSettle</a> delegate to the
+corresponding <code>WidgetTester</code> extensions, using the harness's
+registry as the scope.</li>
+<li><strong>Disposal</strong>: <a href="../cell_flutter_testing/CellTestHarness/dispose.html">dispose</a> stops every recorder and clears the registry.
+It is idempotent.</li>
+</ol>
+<h3 id="design-note-the-harness-owns-recorders-not-cells">Design Note: the harness owns <strong>recorders</strong>, not cells</h3>
+<p>The split is deliberate. A test's cells may outlive the harness (a
+suite-level <code>Cell.state</code> reused across tests, for example), and
+invalidating them during <code>tearDown</code> would break the next test. The
+harness therefore owns only the resources <strong>it created</strong> — the
+recorders — and leaves cell lifecycle entirely to the caller. Registering
+the same <a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a> twice replaces the previous entry without disposing it;
+<a href="../cell_flutter_testing/CellTestHarness/dispose.html">dispose</a> clears the map without invalidating the cells.</p>
+<h3 id="technical-details">Technical Details</h3>
+<ul>
+<li><strong>Symbol-keyed registry</strong>: matches <a href="../cell_flutter/CellScope-class.html">CellScope</a>'s design — the same
+map is passed to the scope in <a href="../cell_flutter_testing/CellTestHarness/pump.html">pump</a>, so registrations and lookups
+use the same keys. See <a href="../cell_flutter/CellScope-class.html">CellScope</a> for why <code>Symbol</code>s rather than
+type-keys.</li>
+<li><strong>Type narrowing is <code>ValueCell</code>-only</strong>: <code>Cell</code> carries no value type
+parameter, so <a href="../cell_flutter_testing/CellTestHarness/cell.html">cell</a> can only type-check <a href="../cell_flutter/ValueCell-class.html">ValueCell</a> registrations.
+<a href="../cell_flutter_testing/CellTestHarness/valueCell.html">valueCell</a> requires a <code>ValueCell&lt;V&gt;</code> and throws otherwise.</li>
+<li><strong>Disposal is idempotent and final</strong>: after <a href="../cell_flutter_testing/CellTestHarness/dispose.html">dispose</a>, <a href="../cell_flutter_testing/CellTestHarness/add.html">add</a>,
+<a href="../cell_flutter_testing/CellTestHarness/recordPulses.html">recordPulses</a>, and <a href="../cell_flutter_testing/CellTestHarness/pump.html">pump</a> throw <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a>. The registry is
+cleared; subsequent calls are programmer errors, not silent no-ops.</li>
+<li><strong>No <code>WidgetTester</code> ownership</strong>: the harness does not hold a tester.
+<a href="../cell_flutter_testing/CellTestHarness/pump.html">pump</a> and <a href="../cell_flutter_testing/CellTestHarness/emitAndSettle.html">emitAndSettle</a> take a tester argument per call so the same
+harness can serve multiple <code>testWidgets</code> bodies.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">late CellTestHarness harness;
+
+setUp(() {
+  harness = CellTestHarness()
+    ..add(#counter, Cell.state&lt;int&gt;(initial: 0).cell)
+    ..add(#auth, Cell.state&lt;AuthState?&gt;(initial: null).cell);
+});
+
+tearDown(() =&gt; harness.dispose());
+
+testWidgets('renders counter', (tester) async {
+  await harness.pump(tester: tester, child: LoginScreen());
+  await harness.emitAndSettle(tester, #counter, 5);
+  expect(find.text('5'), findsOneWidget);
+});
+
+testWidgets('records pulses', (tester) async {
+  final recorder = harness.recordPulses(#counter);
+  // harness.dispose() stops all recorders automatically.
+  expect(recorder.payloads, isEmpty);
+});
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell_flutter_testing/CellPumpWithCells/pumpWithCells.html">CellPumpWithCells.pumpWithCells</a> — the underlying scoped-pump helper.</li>
+<li><a href="../cell_flutter_testing/CellEmitAndSettle/emitAndSettle.html">CellEmitAndSettle.emitAndSettle</a> — the underlying emit-and-settle
+helper.</li>
+<li><a href="../cell_flutter_testing/CellRecordPulses/recordPulses.html">CellRecordPulses.recordPulses</a> — the underlying recorder constructor.</li>
+<li><a href="../cell_flutter/CellScope-class.html">CellScope</a> — the registry installed above every pumped tree.</li>
+<li><a href="../cell_flutter_testing/PulseRecorder-class.html">PulseRecorder</a> — the recorder type the harness tracks and disposes.</li>
+</ul>
+</section>
+
+
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="CellTestHarness.new" class="callable">
+          <span class="name"><a href="../cell_flutter_testing/CellTestHarness/CellTestHarness.html">CellTestHarness</a></span><span class="signature">()</span>
+        </dt>
+        <dd>
+          
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="cells" class="property">
+  <span class="name"><a href="../cell_flutter_testing/CellTestHarness/cells.html">cells</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter"><a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  The cells registered in this harness, in insertion order.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="add" class="callable">
+  <span class="name"><a href="../cell_flutter_testing/CellTestHarness/add.html">add</a></span><span class="signature">(<wbr><span class="parameter" id="add-param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span> <span class="parameter-name">id</span>, </span><span class="parameter" id="add-param-cell"><span class="type-annotation"><a href="../cell_flutter/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_flutter_testing/CellTestHarness-class.html">CellTestHarness</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Registers <code>cell</code> under <code>id</code>. Chainable.
+  
+
+</dd>
+
+        <dt id="cell" class="callable">
+  <span class="name"><a href="../cell_flutter_testing/CellTestHarness/cell.html">cell</a></span><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="cell-param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_flutter/Cell-class.html">Cell</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns the cell registered at <code>id</code>, narrowed to <code>ValueCell&lt;V&gt;</code> when
+the registration is a <code>ValueCell</code>.
+  
+
+</dd>
+
+        <dt id="dispose" class="callable">
+  <span class="name"><a href="../cell_flutter_testing/CellTestHarness/dispose.html">dispose</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Stops all recorders and clears the registry. Idempotent.
+  
+
+</dd>
+
+        <dt id="emitAndSettle" class="callable">
+  <span class="name"><a href="../cell_flutter_testing/CellTestHarness/emitAndSettle.html">emitAndSettle</a></span><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="emitAndSettle-param-tester"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/flutter_test/WidgetTester-class.html">WidgetTester</a></span> <span class="parameter-name">tester</span>, </span><span class="parameter" id="emitAndSettle-param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span> <span class="parameter-name">id</span>, </span><span class="parameter" id="emitAndSettle-param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sets the value of the cell at <code>id</code> and pumps the tree to settle.
+  
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="pump" class="callable">
+  <span class="name"><a href="../cell_flutter_testing/CellTestHarness/pump.html">pump</a></span><span class="signature">(<wbr>{<span class="parameter" id="pump-param-tester"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/flutter_test/WidgetTester-class.html">WidgetTester</a></span> <span class="parameter-name">tester</span>, </span><span class="parameter" id="pump-param-child"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span> <span class="parameter-name">child</span>, </span><span class="parameter" id="pump-param-wrapper"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span> <span class="parameter-name">wrapper</span>(<span class="parameter" id="param-child"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span> <span class="parameter-name">child</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Pumps <code>child</code> with the harness's registered cells in a <a href="../cell_flutter/CellScope-class.html">CellScope</a>.
+  
+
+</dd>
+
+        <dt id="recordPulses" class="callable">
+  <span class="name"><a href="../cell_flutter_testing/CellTestHarness/recordPulses.html">recordPulses</a></span><span class="signature">(<wbr><span class="parameter" id="recordPulses-param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_flutter_testing/PulseRecorder-class.html">PulseRecorder</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Records pulses from the cell registered at <code>id</code>.
+  
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="valueCell" class="callable">
+  <span class="name"><a href="../cell_flutter_testing/CellTestHarness/valueCell.html">valueCell</a></span><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="valueCell-param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_flutter/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns the <code>ValueCell&lt;V&gt;</code> registered at <code>id</code>.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flutter</a></li>
+    <li><a href="../cell_flutter_testing/">cell_flutter_testing</a></li>
+    <li class="self-crumb">CellTestHarness class</li>
+</ol>
+
+    <h5>cell_flutter_testing library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flutter
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

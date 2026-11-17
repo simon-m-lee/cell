@@ -132,7 +132,8 @@ void main() {
     testWidgets('AsyncValue → AsyncSnapshot via CellAsyncBuilder',
         (tester) async {
       final completer = Completer<String>();
-      final user = Cell.fromFuture<String>(completer.future, journal: RecordingJournal());
+      final user = Cell.fromFuture<String>(completer.future,
+          journal: RecordingJournal());
 
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(

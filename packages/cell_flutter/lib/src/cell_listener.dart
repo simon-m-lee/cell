@@ -10,34 +10,67 @@ import 'package:cell/cell.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
-/// Invokes [onPulse] for every pulse emitted by [cell]. Does not rebuild.
+/// A widget that invokes [onPulse] for every pulse emitted by [cell],
+/// **without** rebuilding its subtree.
 ///
-/// Use this for one-shot side effects: navigation, snackbars, haptics,
-/// analytics, logging. For state display (rendering the current value),
-/// use [CellBuilder] instead.
+/// [CellListener] is the binding's **Side-Effect Terminal**. Where
+/// `CellBuilder` is for *displaying* the current value, this widget is for
+/// *reacting* to the arrival of a pulse: navigation, snackbars, haptics,
+/// analytics, logging, dialog prompts, and other one-shot imperatives. Its
+/// [child] is passed through unchanged and never rebuilt by the listener —
+/// that is the entire point of the widget versus `CellBuilder`.
 ///
-/// ## Mid-frame deferral
+/// ### Why it is used
+/// - **Imperative side effects**: `Navigator.push`, `showSnackBar`,
+///   `HapticFeedback.lightImpact`, `analytics.logEvent` — anything that
+///   should happen once per pulse, not on every render.
+/// - **Zero rebuild cost**: because the [child] is stable, a listener in the
+///   widget tree does not cause Flutter to rebuild anything when its cell
+///   pulses. The side effect runs; the tree does not repaint.
+/// - **Widget-tree-scoped reaction**: unlike `Cell.observe` (which lives at
+///   the graph level and has no [BuildContext]), a `CellListener` fires with
+///   the widget's own [BuildContext] so handlers can reach
+///   `Theme.of`, `Navigator.of`, `ScaffoldMessenger.of`, `MediaQuery.of`.
 ///
-/// Pulses fired during Flutter's build or mid-frame phases are deferred to
-/// the frame's end. This means [onPulse] can safely call `Navigator.push`,
-/// `ScaffoldMessenger.showSnackBar`, `setState`, or any method that would
-/// otherwise throw "setState() or markNeedsBuild() called during build".
+/// ### How it works
+/// 1. **Bind**: on `initState`, the widget opens one `Cell.observe` link on
+///    [cell] and forwards each pulse into `_dispatch`.
+/// 2. **Dispatch**: if the pulse arrives outside a build phase (event
+///    handler, timer, microtask, animation), [onPulse] is invoked
+///    **synchronously** — no frame of latency is added. If it arrives
+///    during `persistentCallbacks` or `midFrameMicrotasks`, it is queued and
+///    delivered in order from a single post-frame callback. This makes it
+///    safe for [onPulse] to call `Navigator.push`, `showSnackBar`, or
+///    `setState` without tripping Flutter's *"setState() or markNeedsBuild()
+///    called during build"* error.
+/// 3. **Rebind**: if [cell] identity changes in `didUpdateWidget`, the old
+///    egress is stopped and a new one is bound. A change to [onPulse]
+///    identity does **not** rebind — `widget.onPulse` is read at invoke time,
+///    so a fresh closure per build costs nothing.
+/// 4. **Dispose**: the egress is stopped and the pending queue drained.
 ///
-/// Multiple pulses that arrive in the same frame are delivered in order,
-/// in a single post-frame callback.
+/// ### Design Note: `CellListener` vs. `CellBuilder`
+/// | | `CellBuilder<V>` | `CellListener<V>` |
+/// |---|---|---|
+/// | Rebuilds subtree | Yes | No |
+/// | Purpose | Display current value | Run one-shot side effect |
+/// | Source type | `ValueCell<V>` | Any `Cell` |
+/// | [BuildContext] | inherited from [ValueListenableBuilder] | this widget's own context |
+/// | [child] | builder returns it per build | passed through unchanged |
 ///
-/// Pulses fired outside the build phases (from event handlers, timers,
-/// microtasks, or animations) are delivered **synchronously** — no frame
-/// of latency is added.
+/// **Compose, do not substitute**: a subtree that needs to both display and
+/// react should contain both widgets — a `CellBuilder` for the display and a
+/// `CellListener` for the effect — rather than forcing either widget to do
+/// both jobs.
 ///
-/// ## Error pulses
-///
-/// `Cell.asyncMap`, `Cell.fromFuture`, and `Cell.fromStream` emit error
-/// pulses as `Pulse<Object>(type: 'error')`. Their `payload` is the
-/// underlying error, **not** a `V`. Because Dart's generics are covariant,
-/// a `CellListener<V>` over an error-emitting source receives the pulse as
-/// `Pulse<V>`, but `pulse.payload` resolves to `Object?` at runtime. Do not
-/// cast blindly:
+/// ### Pulse semantics
+/// - **Data pulses** are delivered to [onPulse] in emission order.
+/// - **Error pulses** (`pulse.type == 'error'`) arrive as `Pulse<V>` at the
+///   type level, but their `payload` is the underlying error object, **not**
+///   a `V`. Only `Cell.fromFuture` emits these on its failure path;
+///   `Cell.fromStream` and `Cell.asyncMap` do **not** emit error pulses in
+///   the core package today, so their failures never reach this listener.
+///   Do not cast `pulse.payload` blindly — check `pulse.type` first:
 ///
 /// ```dart
 /// onPulse: (context, pulse) {
@@ -50,21 +83,9 @@ import 'package:flutter/widgets.dart';
 /// },
 /// ```
 ///
-/// Listeners over `Cell.asyncMap` sources with `concurrency > 0` inherit the
-/// framework's Gate G1.5 caveat: concurrent effect attribution is tracked
-/// separately and is not yet verified end-to-end. See the `cell` core package
-/// for status.
-///
-/// ## When not to use
-///
-/// - The pulse is state that should be displayed. Use [CellBuilder].
-/// - The pulse is a batch/broadcast. Use `Cell.observe` directly with a
-///   custom effect; [CellListener] is for widget-tree-scoped reactions.
-///
-/// ## Async `onPulse`
-///
-/// `onPulse` is typed `void Function(...)`. An `async` closure is allowed
-/// and the returned `Future` is ignored. Because Flutter's `BuildContext`
+/// ### Async [onPulse]
+/// [onPulse] is typed `void Function(...)`. An `async` closure is accepted
+/// and the returned `Future` is ignored. Because Flutter's [BuildContext]
 /// becomes invalid after the widget unmounts, **check `context.mounted`
 /// after any `await`**:
 ///
@@ -76,18 +97,75 @@ import 'package:flutter/widgets.dart';
 /// },
 /// ```
 ///
-/// ## Error containment
-///
+/// ### Error containment
 /// If [onPulse] throws, the error is reported via [FlutterError.reportError]
-/// and the listener continues to receive subsequent pulses. One bad handler
-/// does not kill the listener.
+/// and the listener continues to receive subsequent pulses. A single bad
+/// handler does not tear down the listener or drop the queue.
+///
+/// ### When **not** to use
+/// - **Display**: the pulse is state to be rendered. Use `CellBuilder` (or
+///   `CellValueBuilder` for non-`ValueCell` sources).
+/// - **Broadcast/batch**: the pulse is a batch signal that many independent
+///   consumers should see, not a widget-scoped reaction. Use `Cell.observe`
+///   directly with a custom effect.
+///
+/// ### Technical Details
+/// - **One egress per element**: the widget owns exactly one observation
+///   link; multiple pulses share it.
+/// - **Ordered deferral**: pending pulses are held in a [Queue] and drained
+///   FIFO on the post-frame callback — order is preserved across the defer.
+/// - **Lifecycle guards**: `_dispatch` checks `_disposed` and `mounted`
+///   before queueing; `_flush` re-checks both before draining. `dispose`
+///   drops any unconsumed pulses.
+///
+/// ### Concurrent `asyncMap` caveat
+/// Listeners over `Cell.asyncMap` sources with `concurrency > 0` (or
+/// overlapping `latestOnly` futures) inherit the framework's
+/// caveat: concurrent effect attribution is tracked separately and is not
+/// yet verified end-to-end. The listener's own delivery is correct; the
+/// caveat concerns the source's replay fidelity. See the `cell` core package
+/// for status.
+///
+/// ### Example
+/// ```dart
+/// final login = Cell.state<String?>(initial: null);
+///
+/// CellListener<String?>(
+///   cell: login.cell,
+///   onPulse: (context, pulse) {
+///     if (pulse.payload != null) {
+///       ScaffoldMessenger.of(context)
+///           .showSnackBar(SnackBar(content: Text('Hi ${pulse.payload}')));
+///     }
+///   },
+///   child: const LoginForm(),
+/// );
+/// ```
+///
+/// ### See Also:
+/// - `CellBuilder` — for displaying the current value.
+/// - `CellValueBuilder` — for displaying values from non-`ValueCell` sources.
+/// - `CellAsyncBuilder` — for `AsyncSnapshot`-style rendering of async cells.
+/// - `Cell.observe` — the underlying primitive, for graph-level side effects
+///   outside the widget tree.
+/// - `test/error_pulse_sources_test.dart` — the authoritative statement of
+///   which sources emit error pulses.
 class CellListener<V> extends StatefulWidget {
   /// Creates a listener over [cell] that invokes [onPulse] for every pulse.
   ///
-  /// The [child] is passed through unchanged. It is **not** rebuilt when
-  /// [cell] emits — that is the entire point of [CellListener] versus
-  /// [CellBuilder]. If the child needs to react visually, compose with a
-  /// [CellBuilder] inside it.
+  /// [child] is passed through unchanged and is **not** rebuilt when [cell]
+  /// emits. If the child needs to react visually, compose a `CellBuilder`
+  /// inside it rather than expecting [CellListener] to rebuild.
+  ///
+  /// ### Parameters:
+  /// * [cell]: **The Observed Cell.** Any [Cell]. Held by reference.
+  /// * [onPulse]: **The Side-Effect Handler.** Invoked once per pulse, on
+  ///   this widget's [BuildContext].
+  /// * [child]: **The Stable Subtree.** Displayed unchanged across pulses.
+  ///
+  /// ### Throws:
+  /// [ArgumentError] at first build if [cell] is invalidated. See
+  /// `_CellListenerState._bind`.
   const CellListener({
     required this.cell,
     required this.onPulse,
@@ -97,20 +175,27 @@ class CellListener<V> extends StatefulWidget {
 
   /// The cell to observe.
   ///
-  /// Takes any [Cell], not [ValueCell] — pulsing from a `Cell.derive`,
-  /// `Cell.ingress`, or `Cell.asyncMap` is the common case. (`Cell` carries
-  /// no value type parameter; the value type lives on the [Pulse] delivered
-  /// to [onPulse].)
+  /// Takes any [Cell], not a `ValueCell` — pulsing from a `Cell.derive`,
+  /// `Cell.ingress`, `Cell.asyncMap`, or a `cell_tissue` collection is the
+  /// common case. `Cell` carries no value type parameter; the value type
+  /// lives on the [Pulse] delivered to [onPulse].
   final Cell cell;
 
   /// Invoked for every pulse, on the widget's [BuildContext].
   ///
-  /// The `BuildContext` is the [CellListener]'s own context — it sits
-  /// *above* the [child] in the tree. Use it for `Navigator.of`,
-  /// `Theme.of`, `ScaffoldMessenger.of`, `MediaQuery.of`.
+  /// The [BuildContext] is [CellListener]'s own context — it sits **above**
+  /// the [child] in the tree. Use it for `Navigator.of`, `Theme.of`,
+  /// `ScaffoldMessenger.of`, `MediaQuery.of`.
+  ///
+  /// An `async` closure is allowed; the returned [Future] is ignored. Guard
+  /// `context.mounted` after any `await` (see the class-level *Async
+  /// onPulse* note).
   final void Function(BuildContext context, Pulse<V> pulse) onPulse;
 
   /// The widget to display. Stable across pulses.
+  ///
+  /// Rebuilds of this subtree are the caller's responsibility — typically a
+  /// `CellBuilder` (or `CellValueBuilder`) nested inside [child].
   final Widget child;
 
   @override

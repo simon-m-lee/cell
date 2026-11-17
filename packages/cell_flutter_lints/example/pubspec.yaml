@@ -1,0 +1,17 @@
+name: cell_flutter_lints_example
+description: expect_lint fixtures for the cell_flutter_lints rules.
+publish_to: none
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_hooks: ^0.20.5
+  cell_flutter:
+    path: ../../cell_flutter
+
+dev_dependencies:
+  cell_flutter_lints:
+    path: ..
+  custom_lint: ^0.8.0

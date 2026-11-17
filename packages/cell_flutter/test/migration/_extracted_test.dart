@@ -15,186 +15,189 @@ class Todo {
   Todo(this.title);
   final String title;
 }
+
 void main() {
   test('MigratingFrom-Bloc.md line 50', () {
-final counter = Cell.state<int>(initial: 0);
-void increment() => counter.update((counter.cell.value ?? 0) + 1);
+    final counter = Cell.state<int>(initial: 0);
+    void increment() => counter.update((counter.cell.value ?? 0) + 1);
   });
 
   test('MigratingFrom-Bloc.md line 57', () {
-final counter = Cell.state<int>(initial: 0);
-void increment() => counter.update((counter.cell.value ?? 0) + 1);
+    final counter = Cell.state<int>(initial: 0);
+    void increment() => counter.update((counter.cell.value ?? 0) + 1);
 
-CellBuilder<int>(
-  cell: counter.cell.unmodifiable,
-  builder: (_, count) => Text('${count ?? 0}'),
-);
+    CellBuilder<int>(
+      cell: counter.cell.unmodifiable,
+      builder: (_, count) => Text('${count ?? 0}'),
+    );
   });
 
   test('MigratingFrom-Bloc.md line 88', () {
-final todos = Cell.state<List<Todo>>(
-  initial: const [],
-  testRule: TestCell((object, {host, arguments, user}) {
-    // A custom rule gates every validation kind — links and actions
-    // must pass through, only state pulses are checked.
-    if (object is! Pulse) return true;
-    final payload = object.payload;
-    return payload is List<Todo> &&
-        payload.every((t) => t.title.trim().isNotEmpty);
-  }),
-);
-final todoEvents = Cell.ingress<Todo>(
-  refine: (host, input) {
-    final title = input.payload?.title.trim() ?? '';
-    if (title.isEmpty) return null; // silently drop empty titles
-    return Pulse<Todo>(Todo(title), type: 'todo.add');
-  },
-);
+    final todos = Cell.state<List<Todo>>(
+      initial: const [],
+      testRule: TestCell((object, {host, arguments, user}) {
+        // A custom rule gates every validation kind — links and actions
+        // must pass through, only state pulses are checked.
+        if (object is! Pulse) return true;
+        final payload = object.payload;
+        return payload is List<Todo> &&
+            payload.every((t) => t.title.trim().isNotEmpty);
+      }),
+    );
+    final todoEvents = Cell.ingress<Todo>(
+      refine: (host, input) {
+        final title = input.payload?.title.trim() ?? '';
+        if (title.isEmpty) return null; // silently drop empty titles
+        return Pulse<Todo>(Todo(title), type: 'todo.add');
+      },
+    );
 
 // Wire the ingress into the state cell (one-time, app init):
-Cell.observe<Pulse<Todo>>(
-  source: todoEvents.cell,
-  effect: (p) {
-    if (p.payload == null) return;
-    todos.update([...?todos.cell.value, p.payload!]);
-  },
-);
+    Cell.observe<Pulse<Todo>>(
+      source: todoEvents.cell,
+      effect: (p) {
+        if (p.payload == null) return;
+        todos.update([...?todos.cell.value, p.payload!]);
+      },
+    );
   });
 
   test('MigratingFrom-Bloc.md line 159', () {
-final todos = Cell.state<List<Todo>>(initial: const []);
+    final todos = Cell.state<List<Todo>>(initial: const []);
 
-CellScope(
-  cells: {#todos: todos.cell},
-  child: const MaterialApp(home: SizedBox.shrink()),
-);
+    CellScope(
+      cells: {#todos: todos.cell},
+      child: const MaterialApp(home: SizedBox.shrink()),
+    );
   });
 
-test('increment updates the cell', () {
-  final counter = Cell.state<int>(initial: 0);
-  final recorder = counter.cell.recordPulses();
-  addTearDown(recorder.stop);
+  test('increment updates the cell', () {
+    final counter = Cell.state<int>(initial: 0);
+    final recorder = counter.cell.recordPulses();
+    addTearDown(recorder.stop);
 
-  counter.update((counter.cell.value ?? 0) + 1);
+    counter.update((counter.cell.value ?? 0) + 1);
 
-  expect(recorder.payloads, [1]);
-});
+    expect(recorder.payloads, [1]);
+  });
 
   test('MigratingFrom-Bloc.md line 207', () {
-final stored = Cell.state<List<Todo>>(initial: const []);
+    final stored = Cell.state<List<Todo>>(initial: const []);
 // saveToDisk(...) is your persistence layer.
-Cell.observe<Pulse<List<Todo>>>(
-  source: stored.cell,
-  effect: (_) {
-    // saveToDisk(stored.cell.value ?? const []);
-  },
-);
+    Cell.observe<Pulse<List<Todo>>>(
+      source: stored.cell,
+      effect: (_) {
+        // saveToDisk(stored.cell.value ?? const []);
+      },
+    );
   });
 
   test('MigratingFrom-Riverpod.md line 62', () {
-final counter = Cell.state<int>(initial: 0);
+    final counter = Cell.state<int>(initial: 0);
 
 // Riverpod: ref.watch(counterProvider) inside a ConsumerWidget.
 // Mitosis: the builder is the widget body.
-CellBuilder<int>(
-  cell: counter.cell.unmodifiable,
-  builder: (_, count) => Text('${count ?? 0}'),
-);
+    CellBuilder<int>(
+      cell: counter.cell.unmodifiable,
+      builder: (_, count) => Text('${count ?? 0}'),
+    );
   });
 
   test('MigratingFrom-Riverpod.md line 91', () {
-final base = Cell.state<int>(initial: 1);
-final doubled = Cell.derive<Pulse<int>, Pulse<int>>(
-  source: base.cell,
-  project: (p) => Pulse<int>((p.payload ?? 0) * 2),
-);
+    final base = Cell.state<int>(initial: 1);
+    final doubled = Cell.derive<Pulse<int>, Pulse<int>>(
+      source: base.cell,
+      project: (p) => Pulse<int>((p.payload ?? 0) * 2),
+    );
   });
 
   test('MigratingFrom-Riverpod.md line 105', () {
-final base = Cell.state<int>(initial: 1);
-final doubled = Cell.derive<Pulse<int>, Pulse<int>>(
-  source: base.cell,
-  project: (p) => Pulse<int>((p.payload ?? 0) * 2),
-);
+    final base = Cell.state<int>(initial: 1);
+    final doubled = Cell.derive<Pulse<int>, Pulse<int>>(
+      source: base.cell,
+      project: (p) => Pulse<int>((p.payload ?? 0) * 2),
+    );
 
 // Riverpod: ref.watch(sumProvider) inside ConsumerWidget
 // Mitosis: CellValueBuilder over the derived cell
-CellValueBuilder<int>(
-  cell: doubled, // Cell, not ValueCell
-  initial: 2,
-  builder: (_, total) => Text('$total'),
-);
+    CellValueBuilder<int>(
+      cell: doubled, // Cell, not ValueCell
+      initial: 2,
+      builder: (_, total) => Text('$total'),
+    );
   });
 
   test('MigratingFrom-Riverpod.md line 123', () {
-final a = Cell.state<int>(initial: 1);
-final b = Cell.state<int>(initial: 2);
-final sum = Cell.synthesis<Pulse<int>>(
-  [a.cell, b.cell],
-  aggregator: (cells, _) => Pulse<int>(
-    cells.fold<int>(
-        0, (acc, c) => acc + (((c as ValueCell<int>).value) ?? 0)),
-  ),
-);
+    final a = Cell.state<int>(initial: 1);
+    final b = Cell.state<int>(initial: 2);
+    final sum = Cell.synthesis<Pulse<int>>(
+      [a.cell, b.cell],
+      aggregator: (cells, _) => Pulse<int>(
+        cells.fold<int>(
+            0, (acc, c) => acc + (((c as ValueCell<int>).value) ?? 0)),
+      ),
+    );
   });
 
   test('MigratingFrom-Riverpod.md line 147', () {
 // In your app these come from your API layer, e.g. api.fetchUser().
-final user = Cell.fromFuture<String>(Future.value('ada'), journal: RecordingJournal());
-final ticks = Cell.fromStream<int>(Stream.value(1), journal: RecordingJournal());
+    final user = Cell.fromFuture<String>(Future.value('ada'),
+        journal: RecordingJournal());
+    final ticks =
+        Cell.fromStream<int>(Stream.value(1), journal: RecordingJournal());
   });
 
-  test('MigratingFrom-Riverpod.md line 155', () {
-final user = Cell.fromFuture<String>(Future.value('ada'), journal: RecordingJournal());
+  test('MigratingFrom-Riverpod.md line 161', () {
+    final user = Cell.fromFuture<String>(Future.value('ada'),
+        journal: RecordingJournal());
 
-CellAsyncBuilder<String>(
-  cell: user,
-  builder: (_, snapshot) => snapshot.hasError
-      ? Text('error: ${snapshot.error}')
-      : snapshot.hasData
-          ? Text('user: ${snapshot.data}')
-          : const Text('loading...'),
-);
+    CellAsyncBuilder<String>(
+      cell: user,
+      builder: (_, snapshot) => snapshot.hasError
+          ? Text('error: ${snapshot.error}')
+          : snapshot.hasData
+              ? Text('user: ${snapshot.data}')
+              : const Text('loading...'),
+    );
   });
 
-  test('MigratingFrom-Riverpod.md line 195', () {
-final auth = Cell.state<String?>(initial: null);
+  test('MigratingFrom-Riverpod.md line 202', () {
+    final auth = Cell.state<String?>(initial: null);
 
-CellListener<String?>(
-  cell: auth.cell,
-  onPulse: (context, pulse) {
-    if (pulse.type == 'error') {
-      // Your error surface, e.g. showErrorDialog(context, pulse.payload).
-      return;
-    }
-    // ...side effect
-  },
-  child: const SizedBox.shrink(),
-);
+    CellListener<String?>(
+      cell: auth.cell,
+      onPulse: (context, pulse) {
+        if (pulse.type == 'error') {
+          // Your error surface, e.g. showErrorDialog(context, pulse.payload).
+          return;
+        }
+        // ...side effect
+      },
+      child: const SizedBox.shrink(),
+    );
   });
 
-  test('MigratingFrom-Riverpod.md line 226', () {
-final auth = Cell.state<String?>(initial: null);
+  test('MigratingFrom-Riverpod.md line 233', () {
+    final auth = Cell.state<String?>(initial: null);
 
-CellScope(
-  cells: {#auth: auth.cell},
-  child: const MaterialApp(home: SizedBox.shrink()),
-);
+    CellScope(
+      cells: {#auth: auth.cell},
+      child: const MaterialApp(home: SizedBox.shrink()),
+    );
 
 // Deep in the tree, from a BuildContext:
 // final authCell = CellScope.valueOf<String?>(context, #auth);
   });
 
-testWidgets('counter renders', (tester) async {
-  final counter = Cell.state<int>(initial: 42);
-  await tester.pumpWithCells(
-    cells: {#counter: counter.cell},
-    child: CellBuilder<int>(
-      cell: counter.cell,
-      builder: (_, v) => Text('$v'),
-    ),
-  );
-  expect(find.text('42'), findsOneWidget);
-});
-
+  testWidgets('counter renders', (tester) async {
+    final counter = Cell.state<int>(initial: 42);
+    await tester.pumpWithCells(
+      cells: {#counter: counter.cell},
+      child: CellBuilder<int>(
+        cell: counter.cell,
+        builder: (_, v) => Text('$v'),
+      ),
+    );
+    expect(find.text('42'), findsOneWidget);
+  });
 }

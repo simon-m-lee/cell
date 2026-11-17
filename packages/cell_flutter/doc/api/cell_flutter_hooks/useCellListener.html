@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the useCellListener function from the cell_flutter_hooks library, for the Dart programming language.">
+  <title>useCellListener function - cell_flutter_hooks library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flutter</a></li>
+    <li><a href="../cell_flutter_hooks/">hooks.dart</a></li>
+    <li class="self-crumb">useCellListener&lt;<wbr><span class="type-parameter">V</span>&gt; function</li>
+  </ol>
+  <div class="self-name">useCellListener</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_flutter_hooks&#47;cell_flutter_hooks-library-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-function">useCellListener&lt;<wbr><span class="type-parameter">V</span>&gt;</span> function 
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+<span class="returntype">void</span>
+<span class="name ">useCellListener</span>&lt;<wbr><span class="type-parameter">V</span>&gt;(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="useCellListener-param-cell"><span>required</span> <span class="type-annotation"><a href="../cell_flutter/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, </span></li>
+<li><span class="parameter" id="useCellListener-param-onPulse"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">onPulse</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span>, </span></li>
+<li><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flutter/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">pulse</span></span></li>
+</ol>), </span></li>
+</ol>})
+
+        
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Invokes <code>onPulse</code> for every pulse emitted by <code>cell</code>, <strong>without</strong>
+rebuilding the widget.</p>
+<p><a href="../cell_flutter_hooks/useCellListener.html">useCellListener</a> is the hooks layer's <strong>Side-Effect Terminal</strong> — the
+<code>HookWidget</code> equivalent of <code>CellListener</code>. It is the hook to use when
+a cell pulse should trigger navigation, a snackbar, haptics, analytics,
+or any one-shot imperative, and the widget should <strong>not</strong> rebuild on
+the pulse.</p>
+<h3 id="why-it-is-used">Why it is used</h3>
+<ul>
+<li><strong>Rebuild-free reactions</strong>: a <code>HookWidget</code> that only reacts to pulses
+(no display) would otherwise have to call <code>useCellValue</code> for no
+visible reason. This hook fires the effect and touches no widget
+state.</li>
+<li><strong>Build-phase safety</strong>: pulses arriving during <code>persistentCallbacks</code>
+or <code>midFrameMicrotasks</code> are deferred to a single post-frame callback,
+so <code>Navigator.push</code>, <code>ScaffoldMessenger.showSnackBar</code>, and <code>setState</code>
+are safe to call from <code>onPulse</code>.</li>
+<li><strong>Ordered delivery</strong>: multiple pulses queued in the same frame are
+delivered in emission order, in one post-frame callback.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>
+<p><code>useContext</code> captures the enclosing <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a> — the hook's
+closure delivers <code>onPulse</code> with this context so handlers can reach
+<code>Navigator.of</code>, <code>Theme.of</code>, <code>ScaffoldMessenger.of</code>.</p>
+<p><strong>Reparenting note</strong>: the captured context is bound to the position
+where the hook was first built. If the enclosing <code>HookWidget</code> is
+<em>moved</em> in the tree (reparented under a different <code>Navigator</code> /
+<code>Theme</code>), the effect is keyed on <code>[cell]</code> and does <strong>not</strong> re-run,
+so the handler keeps resolving from the old position. Key the widget
+(or rebuild it under the new parent) when the context's ancestry
+must follow the move.</p>
+</li>
+<li>
+<p><code>useRef</code> holds the latest <code>onPulse</code>, so a new closure per build does
+<strong>not</strong> re-subscribe; the effect reads <code>onPulseRef.value</code> at invoke
+time and always calls the current handler.</p>
+</li>
+<li>
+<p><code>useMemoized</code> creates a per-cell pending <a href="https://api.flutter.dev/flutter/dart-collection/Queue-class.html">Queue</a> used for deferral.</p>
+</li>
+<li>
+<p><code>useEffect</code> (keyed on <code>[cell]</code>) opens one <code>Cell.observe</code> link and
+installs a cleanup that stops it, clears the queue, and resets the
+scheduled flag. A cell swap rebinds through this effect.</p>
+</li>
+</ol>
+<h3 id="design-note-why-the-pending-queue-is-cleared-on-cell-swap">Design Note: why the pending queue is cleared on cell swap</h3>
+<p>Pulses queued against the previous cell are <strong>not</strong> relevant to the new
+one — firing them after a swap would deliver pulses from the wrong
+source to the new cell's handler. The <code>useEffect</code> cleanup clears the
+queue before the new egress is bound, so a swap behaves as if the
+listener had been freshly attached to the new source.</p>
+<h3 id="pulse-semantics">Pulse semantics</h3>
+<ul>
+<li><strong>Data pulses</strong> are delivered to <code>onPulse</code> on the enclosing
+<a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a>.</li>
+<li><strong>Error pulses</strong> (<code>pulse.type == 'error'</code>) arrive as <code>Pulse&lt;V&gt;</code> at
+the type level, but their <code>payload</code> is the underlying error object,
+not a <code>V</code>. <strong>Do not cast the payload blindly</strong> on that path:</li>
+</ul>
+<pre class="language-dart"><code class="language-dart">onPulse: (context, pulse) {
+  if (pulse.type == 'error') {
+    showErrorDialog(context, pulse.payload);
+    return;
+  }
+  handleValue(pulse.payload);
+},
+</code></pre>
+<h3 id="error-containment">Error containment</h3>
+<p>If <code>onPulse</code> throws, the error is reported via
+<a href="https://api.flutter.dev/flutter/foundation/FlutterError/reportError.html">FlutterError.reportError</a> and the listener continues to receive
+subsequent pulses. One bad handler does not tear down the hook or drop
+the queue.</p>
+<h3 id="technical-details">Technical Details</h3>
+<ul>
+<li><strong>Deliver-once, in order</strong>: each queued pulse is delivered exactly
+once; the post-frame callback drains the queue with
+<code>removeFirst()</code> before invoking, which is required because a handler
+that unmounts the hook (e.g. <code>Navigator.pop</code>) clears the queue
+synchronously.</li>
+<li><strong><code>onPulseRef</code> indirection</strong>: <code>onPulse</code> is captured in a ref, not a
+memoized value, so identity changes in the closure do not force a
+rebind. This mirrors <code>CellListener</code>'s <code>didUpdateWidget</code> behavior.</li>
+<li><strong>Lifecycle guards</strong>: the effect's <code>disposed</code> flag and
+<code>context.mounted</code> are checked before queueing and before delivery, so
+a pulse that lands after unmount is dropped, not fired.</li>
+<li><strong>Sync outside build phases</strong>: pulses outside a build phase fire
+synchronously — no frame of latency is added for the common case.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>cell</code>: <strong>The Observed Cell.</strong> Any <a href="../cell_flutter/Cell-class.html">Cell</a> — including derived cells,
+async cells, and tissue collections. Changing the cell identity
+rebinds the effect and clears any pending queue.</li>
+<li><code>onPulse</code>: <strong>The Side-Effect Handler.</strong> Called once per pulse with
+the enclosing <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a> and the <a href="../cell_flutter/Pulse-class.html">Pulse</a>. An <code>async</code> closure is
+allowed; the returned <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a> is ignored. Guard <code>context.mounted</code>
+after any <code>await</code> — the context is invalidated on unmount.</li>
+</ul>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><code>CellListener</code> — the widget equivalent, whose docs cover the same
+deferral and error-containment contracts.</li>
+<li><a href="../cell_flutter_hooks/useCell.html">useCell</a> / <a href="../cell_flutter_hooks/useCellValue.html">useCellValue</a> — the display hooks.</li>
+<li><code>Cell.observe</code> — the underlying primitive, for graph-level side
+effects outside the widget tree.</li>
+<li><code>test/error_pulse_sources_test.dart</code> — the authoritative statement of
+which sources emit error pulses.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">void useCellListener&lt;V&gt;({
+  required Cell cell,
+  required void Function(BuildContext context, Pulse&lt;V&gt; pulse) onPulse,
+}) {
+  final context = useContext();
+  final onPulseRef = useRef(onPulse);
+  onPulseRef.value = onPulse;
+  final pending = useMemoized(Queue&lt;Pulse&lt;V&gt;&gt;.new, [cell]);
+  final flushScheduled = useRef(false);
+
+  useEffect(() {
+    var disposed = false;
+    final egress = Cell.observe&lt;Pulse&lt;V&gt;&gt;(
+      source: cell,
+      effect: (pulse) {
+        if (disposed || !context.mounted) return;
+        void invoke(Pulse&lt;V&gt; next) {
+          try {
+            onPulseRef.value(context, next);
+          } catch (e, st) {
+            FlutterError.reportError(FlutterErrorDetails(
+              exception: e,
+              stack: st,
+              library: &#39;cell_flutter&#39;,
+              context: ErrorDescription(
+                &#39;while invoking useCellListener.onPulse&#39;,
+              ),
+            ));
+          }
+        }
+
+        if (!isCellBuildPhase) {
+          invoke(pulse);
+          return;
+        }
+        pending.add(pulse);
+        if (flushScheduled.value) return;
+        flushScheduled.value = true;
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          flushScheduled.value = false;
+          while (pending.isNotEmpty &amp;&amp; !disposed &amp;&amp; context.mounted) {
+            &#47;&#47; Remove before invoke. An onPulse that unmounts the hook
+            &#47;&#47; clears [pending]; removing afterwards throws.
+            invoke(pending.removeFirst());
+          }
+          pending.clear();
+        });
+      },
+      initiallyStarted: true,
+    );
+    return () {
+      disposed = true;
+      egress.stop();
+      pending.clear();
+      flushScheduled.value = false;
+    };
+  }, [cell]);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flutter</a></li>
+    <li><a href="../cell_flutter_hooks/">cell_flutter_hooks</a></li>
+    <li class="self-crumb">useCellListener&lt;<wbr><span class="type-parameter">V</span>&gt; function</li>
+</ol>
+
+    <h5>cell_flutter_hooks library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flutter
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

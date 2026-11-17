@@ -79,17 +79,19 @@ void main() {
       final cells = [for (var i = 0; i < 100; i++) Cell.state<int>(initial: 0)];
       var builds = 0;
       await tester.pumpWidget(MaterialApp(
-        home: Column(
-          children: [
-            for (final cell in cells)
-              CellBuilder<int>(
-                cell: cell.cell,
-                builder: (_, v) {
-                  builds++;
-                  return Text('$v');
-                },
-              ),
-          ],
+        home: SingleChildScrollView(
+          child: Column(
+            children: [
+              for (final cell in cells)
+                CellBuilder<int>(
+                  cell: cell.cell,
+                  builder: (_, v) {
+                    builds++;
+                    return Text('$v');
+                  },
+                ),
+            ],
+          ),
         ),
       ));
       results.add(await runScenario(

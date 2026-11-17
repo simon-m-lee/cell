@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the apply method from the OpenReceptorMixin mixin, for the Dart programming language.">
+  <title>apply method - OpenReceptorMixin mixin - cell_flutter library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_flutter</a></li>
+    <li><a href="../../cell_flutter/">cell_flutter.dart</a></li>
+    <li><a href="../../cell_flutter/OpenReceptorMixin-mixin.html">OpenReceptorMixin</a></li>
+    <li class="self-crumb">apply&lt;<wbr><span class="type-parameter">R</span>&gt; abstract method</li>
+  </ol>
+  <div class="self-name">apply</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flutter&#47;OpenReceptorMixin-mixin-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">apply&lt;<wbr><span class="type-parameter">R</span>&gt;</span> abstract method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_flutter/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span>
+<span class="name ">apply</span>&lt;<wbr><span class="type-parameter">R</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="apply-param-command"><span class="type-annotation"><a href="../../cell_flutter/ApplyCommand.html">ApplyCommand</a></span> <span class="parameter-name">command</span>, {</span></li>
+<li><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../../cell_flutter/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span></li>
+</ol>})
+
+      <div class="features"><span class="feature">inherited</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Submits an <a href="../../cell_flutter/ApplyCommand.html">ApplyCommand</a> to trigger a state change or an action within this cell.</p>
+<p><a href="../../cell_flutter/Cell/apply.html">apply</a> is the primary architectural gateway for every mutation in the framework.
+Instead of calling functions directly, you submit a "Nervous Signal" (a command)
+that the cell must vet, execute, and record in its history.</p>
+<p>In the framework's biological metaphor, this represents <strong>Signal Transmission</strong>.
+It sends a nervous impulse through the cell's governance layer to request a
+mutation in its underlying DNA (state).</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>State Mutations</strong>: Use this whenever you need to update a cell's value
+in a way that is traceable and safe.</li>
+<li><strong>Governed Actions</strong>: Use this for logic that requires "Integrity Gates"
+(safety rules) to prevent invalid data transitions.</li>
+<li><strong>Grouped Changes</strong>: Use this when multiple actions must happen together
+as a single "all-or-nothing" transaction.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Permission Check</strong>: The cell verifies if its current state allows
+mutations by checking the <a href="../../cell_flutter/Cell/modifiable.html">modifiable</a> manifest.</li>
+<li><strong>Integrity Gate</strong>: The cell's safety rules (<a href="../../cell_flutter/TestCell/action.html">TestCell.action</a>) inspect
+the command and its data to ensure they are valid.</li>
+<li><strong>Execution</strong>: If authorized, the function is run. If a transaction scope
+(<code>tx</code>) is provided, the change is "staged" in the ledger and waits for
+the transaction to finish.</li>
+<li><strong>Outcome</strong>: The framework returns an <a href="../../cell_flutter/ApplyOutcome-class.html">ApplyOutcome</a>, which acts as
+the official <strong>Forensic Receipt</strong> for the action.</li>
+</ol>
+<h3 id="parameters">Parameters</h3>
+<ul>
+<li><strong>command</strong>: The <a href="../../cell_flutter/ApplyCommand.html">ApplyCommand</a> record. This contains the function you
+want to run, the data (arguments) it needs, and the optional "undo" logic.</li>
+<li><strong>tx</strong>: An optional <a href="../../cell_flutter/ApplyTransactionScope-class.html">ApplyTransactionScope</a>. Provide this if you want the
+command to be part of a larger transaction that succeeds or fails as a group.</li>
+</ul>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Causal Binding</strong>: Every receipt contains a unique ID and timestamp. This
+creates a permanent forensic trail, allowing you to trace any state
+change back to the exact impulse that triggered it.</li>
+<li><strong>Atomic Rollbacks</strong>: If a command includes "compensation" logic, the
+framework can use it to perform a <strong>Genetic Undo</strong>, restoring the
+previous state if a complex transaction fails later.</li>
+<li><strong>Authority Hierarchy</strong>: Arguments passed directly to <a href="../../cell_flutter/Cell/apply.html">apply</a> act as a
+<code>local override</code>, taking precedence over inherited defaults.</li>
+</ul>
+<h3 id="technical-details">Technical Details</h3>
+<ul>
+<li><strong>Execution Context</strong>: Returns a <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a>. If the mutation is simple,
+it returns the result immediately. If the mutation is asynchronous,
+it returns a <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a>.</li>
+<li><strong>Memory Efficiency</strong>: The command and receipt use "Flyweight" records
+to minimize memory overhead, even when tracking thousands of signals.</li>
+</ul>
+<h3 id="example-submitting-a-governed-mutation">Example: Submitting a Governed Mutation</h3>
+<pre class="language-dart"><code class="language-dart">// 1. Define the mutation logic (the "impulse")
+final updateProfile = (String name, {bool active = true}) {
+  return User(name: name, active: active);
+};
+
+// 2. Assemble the signal using the fluent builder (DSL)
+// This creates the "Nervous Signal" with a built-in "Genetic Undo"
+final outcome = await userCell.command(updateProfile)
+  .args(['Simon'])
+  .named({#active: true})
+  .undo(updateProfile, args: ['Previous Name'], named: {#active: false})
+  .run();
+
+// 3. Handle the Forensic Receipt using modern Dart pattern matching
+switch (outcome) {
+  case ApplyAccepted(result: final user, receipt: final r):
+    print('Mutation successful: ${user.name} (ID: ${r.id})');
+
+  case ApplyRejected(reason: final error):
+    print('Integrity Gate blocked mutation: $error');
+
+  case ApplyStaged(receipt: final r):
+    print('Signal queued in forensic ledger: ${r.id}');
+}
+</code></pre>
+<h3 id="see-also">See also:</h3>
+<ul>
+<li><strong>HowTo</strong>: See <code>HowTo-Cell.apply.md</code> for a comprehensive guide on
+getting started with the Cell architecture and reactive patterns.</li>
+<li><a href="../../cell_flutter/ApplyCommand.html">ApplyCommand</a> — The structural blueprint of a signal impulse.</li>
+<li><a href="../../cell_flutter/ApplyOutcome-class.html">ApplyOutcome</a> — The sealed hierarchy of transition results.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">FutureOr&lt;ApplyOutcome&lt;R&gt;&gt; apply&lt;R&gt;(
+  ApplyCommand command, {
+  ApplyTransactionScope? tx,
+});</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_flutter</a></li>
+    <li><a href="../../cell_flutter/">cell_flutter</a></li>
+    <li><a href="../../cell_flutter/OpenReceptorMixin-mixin.html">OpenReceptorMixin</a></li>
+    <li class="self-crumb">apply&lt;<wbr><span class="type-parameter">R</span>&gt; abstract method</li>
+</ol>
+
+    <h5>OpenReceptorMixin mixin</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flutter
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

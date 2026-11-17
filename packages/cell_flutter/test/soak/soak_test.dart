@@ -4,11 +4,11 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 //
-// Soak test for the 1.0 gate (Gate G7): 10k iterations of pulse +
+// Soak test for the 1.0 gate: 10k iterations of pulse +
 // rebuild, including the replay-verified debounce-burst and throttle
 // scenarios plus `fromFuture` / `fromStream` completion paths.
 //
-// Measurement methodology (documented deviation from the plan):
+// Measurement methodology:
 // `ProcessInfo.currentRss` measures the OS working set, not the Dart
 // heap — even a pure `Text` rebuild loop grows it by ~9% over 10k
 // frames on the reference machine. The test therefore runs a control
@@ -121,10 +121,12 @@ void main() {
     // Soak phase: the replay-verified scenarios.
     // -----------------------------------------------------------------
     final state = Cell.state<int>(initial: 0);
-    final debounced =
-        Cell.debounce(state.cell, const Duration(milliseconds: 10), journal: _SoakJournal());
-    final throttled =
-        Cell.throttle(state.cell, const Duration(milliseconds: 10), journal: _SoakJournal());
+    final debounced = Cell.debounce(
+        state.cell, const Duration(milliseconds: 10),
+        journal: _SoakJournal());
+    final throttled = Cell.throttle(
+        state.cell, const Duration(milliseconds: 10),
+        journal: _SoakJournal());
     final debounceRecorder = debounced.recordPulses();
     final throttleRecorder = throttled.recordPulses();
     addTearDown(debounceRecorder.stop);
@@ -168,9 +170,11 @@ void main() {
       if (i % 500 == 0) {
         // Completion paths for the async sources.
         final completer = Completer<int>();
-        final futureCell = Cell.fromFuture<int>(completer.future, journal: _SoakJournal());
+        final futureCell =
+            Cell.fromFuture<int>(completer.future, journal: _SoakJournal());
         final controller = StreamController<int>();
-        final streamCell = Cell.fromStream<int>(controller.stream, journal: _SoakJournal());
+        final streamCell =
+            Cell.fromStream<int>(controller.stream, journal: _SoakJournal());
         final futureEgress = Cell.observe<Pulse<Object?>>(
           source: futureCell,
           effect: (_) {},

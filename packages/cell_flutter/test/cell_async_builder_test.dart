@@ -13,10 +13,17 @@ import 'package:flutter_test/flutter_test.dart';
 Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
 
 class _Host extends StatefulWidget {
-  const _Host({required this.cell, required this.initialSnapshot});
+  const _Host({
+    required this.cell,
+    required this.initialSnapshot,
+    this.emitOnBuild,
+  });
 
   final Cell cell;
   final AsyncSnapshot<int>? initialSnapshot;
+
+  /// Invoked from `build` — lets a test emit a pulse mid-frame.
+  final void Function()? emitOnBuild;
 
   @override
   State<_Host> createState() => _HostState();
@@ -28,6 +35,7 @@ class _HostState extends State<_Host> {
   @override
   Widget build(BuildContext context) {
     builds++;
+    widget.emitOnBuild?.call();
     return CellAsyncBuilder<int>(
       cell: widget.cell,
       initialSnapshot: widget.initialSnapshot,
@@ -216,7 +224,8 @@ void main() {
       // happens before the first frame builds — the documented ordering
       // caveat (see `initialSnapshot`).
       final completer = Completer<int>();
-      final future = Cell.fromFuture<int>(completer.future, journal: RecordingJournal());
+      final future =
+          Cell.fromFuture<int>(completer.future, journal: RecordingJournal());
 
       await tester.pumpWidget(_wrap(
         CellAsyncBuilder<int>(
@@ -238,7 +247,8 @@ void main() {
 
     testWidgets('renders fromFuture failure as error', (tester) async {
       final completer = Completer<Object>();
-      final future = Cell.fromFuture<Object>(completer.future, journal: RecordingJournal());
+      final future = Cell.fromFuture<Object>(completer.future,
+          journal: RecordingJournal());
 
       await tester.pumpWidget(_wrap(
         CellAsyncBuilder<Object>(
@@ -313,5 +323,68 @@ void main() {
 
       expect(tester.takeException(), isNull);
     });
+
+    testWidgets('defers a pulse emitted during build', (tester) async {
+      final src = Cell.ingress<int>();
+
+      await tester
+          .pumpWidget(_wrap(_Host(cell: src.cell, initialSnapshot: null)));
+      expect(find.text('state:${ConnectionState.none}'), findsOneWidget);
+
+      // Rebuild the same element; the host emits mid-build. The pulse is
+      // queued and applied in the post-frame flush, never via a setState
+      // during the build itself.
+      await tester.pumpWidget(_wrap(_Host(
+        cell: src.cell,
+        initialSnapshot: null,
+        emitOnBuild: () => src.emit(99),
+      )));
+      await tester.pump();
+
+      expect(find.text('data:99'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('drops a pending deferred pulse when disposed before the flush',
+        (tester) async {
+      final src = Cell.ingress<int>();
+
+      await tester.pumpWidget(_wrap(_EmitHost(
+        child: CellAsyncBuilder<int>(
+          cell: src.cell,
+          builder: (_, snapshot) => Text('${snapshot.data ?? 'none'}'),
+        ),
+      )));
+
+      // The host emits mid-build and unmounts the builder in the same
+      // frame. The post-frame flush runs after dispose and must drop the
+      // pending pulse silently.
+      await tester.pumpWidget(_wrap(_EmitHost(
+        emitOnBuild: () => src.emit(99),
+        child: const SizedBox.shrink(),
+      )));
+
+      expect(tester.takeException(), isNull);
+    });
   });
+}
+
+class _EmitHost extends StatefulWidget {
+  const _EmitHost({required this.child, this.emitOnBuild});
+
+  final Widget child;
+
+  /// Invoked from `build` — lets a test emit a pulse mid-frame.
+  final void Function()? emitOnBuild;
+
+  @override
+  State<_EmitHost> createState() => _EmitHostState();
+}
+
+class _EmitHostState extends State<_EmitHost> {
+  @override
+  Widget build(BuildContext context) {
+    widget.emitOnBuild?.call();
+    return widget.child;
+  }
 }

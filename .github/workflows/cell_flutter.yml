@@ -1,0 +1,112 @@
+name: cell_flutter
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/cell_flutter.yml'
+      - 'packages/cell_flutter/**'
+      - 'packages/cell_flutter_router/**'
+      - 'packages/cell_flutter_persistence/**'
+      - 'packages/cell_flutter_lints/**'
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/cell_flutter.yml'
+      - 'packages/cell_flutter/**'
+      - 'packages/cell_flutter_router/**'
+      - 'packages/cell_flutter_persistence/**'
+      - 'packages/cell_flutter_lints/**'
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.9'
+          channel: stable
+          cache: true
+
+      - name: cell_flutter analyze + doc
+        working-directory: packages/cell_flutter
+        run: |
+          dart format --output=none --set-exit-if-changed lib test tool
+          flutter analyze
+          dart doc --dry-run 2>&1 | tee /tmp/doc.log
+          ! grep -E 'warning|error' /tmp/doc.log
+
+      - name: cell_flutter_router analyze + doc
+        working-directory: packages/cell_flutter_router
+        run: |
+          dart format --output=none --set-exit-if-changed lib test
+          flutter analyze
+          dart doc --dry-run 2>&1 | tee /tmp/doc.log
+          ! grep -E 'warning|error' /tmp/doc.log
+
+      - name: cell_flutter_persistence analyze + doc
+        working-directory: packages/cell_flutter_persistence
+        run: |
+          dart format --output=none --set-exit-if-changed lib test
+          flutter analyze
+          dart doc --dry-run 2>&1 | tee /tmp/doc.log
+          ! grep -E 'warning|error' /tmp/doc.log
+
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.9'
+          channel: stable
+          cache: true
+
+      - name: cell_flutter tests + coverage gate
+        working-directory: packages/cell_flutter
+        run: |
+          flutter pub get
+          flutter test --coverage
+          # Gate: >=95% line coverage of lib/.
+          awk -F: '
+            /^end_of_record/{if(inlib){hits+=lh; total+=lf}; inlib=0; lh=0; lf=0}
+            /^SF:/{inlib=($2 ~ /^lib/)}
+            /^LF:/{lf=$2} /^LH:/{lh=$2}
+            END{
+              pct = (total ? 100*hits/total : 0);
+              printf "lib/ line coverage: %d/%d = %.1f%%\n", hits, total, pct;
+              if (pct < 95) exit 1;
+            }' coverage/lcov.info
+
+      - name: cell_flutter_router tests
+        working-directory: packages/cell_flutter_router
+        run: |
+          flutter pub get
+          flutter test
+
+      - name: cell_flutter_persistence tests
+        working-directory: packages/cell_flutter_persistence
+        run: |
+          flutter pub get
+          flutter test
+
+      - name: lints package tests
+        working-directory: packages/cell_flutter_lints
+        run: |
+          dart pub get
+          dart test
+
+      - name: production app tests
+        working-directory: packages/cell_flutter/example/production_app
+        run: |
+          flutter pub get
+          flutter test
+
+      - name: golden regeneration check
+        working-directory: packages/cell_flutter
+        run: |
+          flutter test --update-goldens test/golden
+          git diff --exit-code -- test/golden/goldens ||
+            (echo 'Golden files are out of date; run --update-goldens locally.' && exit 1)

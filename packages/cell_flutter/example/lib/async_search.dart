@@ -25,10 +25,11 @@ class _SearchAppState extends State<SearchApp> {
     _query = Cell.ingress<String>();
     _results = Cell.asyncMap<String, List<String>>(
       _query.cell,
-      (q) async {
+      (q, {required EffectJournal journal}) async {
         await Future<void>.delayed(const Duration(milliseconds: 300));
         return [for (var i = 0; i < 3; i++) '$q result $i'];
       },
+      journal: RecordingJournal(),
       latestOnly: true,
     );
   }

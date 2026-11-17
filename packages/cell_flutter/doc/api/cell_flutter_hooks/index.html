@@ -1,0 +1,3241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="cell_flutter_hooks library API docs, for the Dart programming language.">
+  <title>cell_flutter_hooks library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flutter</a></li>
+    <li class="self-crumb">hooks.dart</li>
+  </ol>
+  <div class="self-name">cell_flutter_hooks</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar=""
+    data-below-sidebar="cell_flutter_hooks&#47;cell_flutter_hooks-library-sidebar.html">
+  
+    <div>
+      
+
+      <h1>
+        <span class="kind-library">hooks</span>
+        library 
+ 
+
+      </h1>
+    </div>
+
+    
+<section class="desc markdown">
+  <p>Optional <code>flutter_hooks</code> integration for <code>cell_flutter</code>.</p>
+<p><strong>Status:</strong> Experimental, paired with <code>cell_flutter</code> 0.6.0 (hardening —
+see the <code>cell_flutter</code> library docs and <code>README.md</code> <em>Status</em> for what
+is and is not claimed).</p>
+<p>This library is the <strong>Hooks Layer</strong> of the binding: a set of <code>use*</code>
+functions that express the same reactive contracts as the widget
+counterparts (<code>CellBuilder</code>, <code>CellSelector</code>, <code>CellAsyncBuilder</code>,
+<code>CellListener</code>) but compose with <code>flutter_hooks</code> primitives. It is
+<strong>opt-in</strong> — application code that does not use <code>HookWidget</code> should
+import <code>package:cell_flutter/cell_flutter.dart</code> instead.</p>
+<p>Import this library from any widget that extends <code>HookWidget</code> (or uses
+<code>HookBuilder</code>):</p>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flutter/hooks.dart';
+</code></pre>
+<h3 id="rules-inherited-from-flutter_hooks">Rules inherited from <code>flutter_hooks</code></h3>
+<p>Every hook in this library must be called:</p>
+<ol>
+<li><strong>Unconditionally</strong> — not inside an <code>if</code>, loop, or short-circuit.</li>
+<li><strong>At the top</strong> of <code>HookWidget.build</code> (before any early return that
+precedes another hook).</li>
+<li><strong>In the same order</strong> on every build.</li>
+</ol>
+<p>Violations trigger <code>flutter_hooks</code>' own assertion. The contract is not
+relaxed here — the hooks are thin wrappers around <code>flutter_hooks</code>
+primitives and inherit its lifecycle model verbatim.</p>
+<h3 id="requirements">Requirements</h3>
+<p><code>flutter_hooks</code> must be in your <code>pubspec.yaml</code>. It is a regular
+dependency of <code>cell_flutter</code>, so it resolves automatically; pinning its
+version explicitly is recommended for stability, since this library is
+coupled to <code>flutter_hooks</code>' hook API.</p>
+<h3 id="inherited-caveats-please-read">Inherited caveats (please read)</h3>
+<p><code>useCellAsync</code> inherits the per-source <strong>error-pulse behavior</strong> and the
+concurrent-<code>asyncMap</code> caveat documented in <code>CellAsyncBuilder</code>.
+In short: only <code>Cell.fromFuture</code> emits error pulses today; <code>fromStream</code>
+and <code>asyncMap</code> do not. A <code>useCellAsync</code> over an <code>asyncMap</code> source with
+<code>concurrency &gt; 0</code> inherits the concurrent-effect-attribution
+caveat. The hooks' own observation is correct; the caveats concern the
+source's replay fidelity and the per-source error surface.</p>
+<h3 id="what-this-library-exports">What this library exports</h3>
+<ul>
+<li><a href="../cell_flutter_hooks/useCell.html">useCell</a> — the selector hook (equivalent of <code>CellSelector</code>).</li>
+<li><a href="../cell_flutter_hooks/useCellValue.html">useCellValue</a> — the full-value shortcut for <a href="../cell_flutter_hooks/useCell.html">useCell</a>.</li>
+<li><a href="../cell_flutter_hooks/useCellNotifier.html">useCellNotifier</a> — the <a href="../cell_flutter/CellNotifier-class.html">CellNotifier</a> hook for composing with
+<code>flutter_hooks</code> primitives or <code>ValueListenableBuilder</code>.</li>
+<li><code>useCellListener</code> — the side-effect hook (equivalent of
+<code>CellListener</code>).</li>
+<li><code>useCellAsync</code> — the async-snapshot hook (equivalent of
+<code>CellAsyncBuilder</code>).</li>
+</ul>
+<p>It also re-exports <code>cell_flutter</code> and <code>flutter_hooks</code>, so a single
+import suffices in a <code>HookWidget</code>.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><code>cell_flutter</code> — the widget-layer binding this library builds on.</li>
+<li><code>flutter_hooks</code> — the hook primitives and rules this library obeys.</li>
+<li><code>CellBuilder</code>, <code>CellSelector</code>, <code>CellAsyncBuilder</code>, <code>CellListener</code> —
+the widget equivalents each hook mirrors.</li>
+</ul>
+</section>
+
+
+    <section class="summary offset-anchor" id="classes">
+      <h2>Classes</h2>
+      <dl>
+          <dt id="ApplyAccepted">
+  <span class="name "><a href="../cell_flutter/ApplyAccepted-class.html">ApplyAccepted</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The command was authorized, safety-checked, and successfully executed.
+</dd>
+
+          <dt id="ApplyCommandRunner">
+  <span class="name "><a href="../cell_flutter/ApplyCommandRunner-class.html">ApplyCommandRunner</a></span> 
+
+</dt>
+<dd>
+  A helper class used to set up and execute an action on a cell.
+</dd>
+
+          <dt id="ApplyLedger">
+  <span class="name "><a href="../cell_flutter/ApplyLedger-class.html">ApplyLedger</a></span> 
+
+</dt>
+<dd>
+  The framework's internal <strong>Record Keeper</strong> and receipt generator.
+</dd>
+
+          <dt id="ApplyOutcome">
+  <span class="name "><a href="../cell_flutter/ApplyOutcome-class.html">ApplyOutcome</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The official, auditable result of submitting an <a href="../cell_flutter/ApplyCommand.html">ApplyCommand</a>.
+</dd>
+
+          <dt id="ApplyRejected">
+  <span class="name "><a href="../cell_flutter/ApplyRejected-class.html">ApplyRejected</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The command was denied by the framework's safety rules (the Integrity Gate).
+</dd>
+
+          <dt id="ApplyStaged">
+  <span class="name "><a href="../cell_flutter/ApplyStaged-class.html">ApplyStaged</a></span> 
+
+</dt>
+<dd>
+  The command was accepted and placed into a transaction to be run later.
+</dd>
+
+          <dt id="ApplyTransactionScope">
+  <span class="name "><a href="../cell_flutter/ApplyTransactionScope-class.html">ApplyTransactionScope</a></span> 
+
+</dt>
+<dd>
+  Handle for a <strong>staged command transaction</strong> — the mechanism behind
+<a href="../cell_flutter/Cell/txApply.html">Cell.txApply</a>.
+</dd>
+
+          <dt id="ApplyVeto">
+  <span class="name "><a href="../cell_flutter/ApplyVeto-class.html">ApplyVeto</a></span> 
+
+</dt>
+<dd>
+  A special signal used by a function to cancel its own operation.
+</dd>
+
+          <dt id="Async">
+  <span class="name "><a href="../cell_flutter/Async-class.html">Async</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A foundational marker interface and architectural contract representing
+an <strong>Asynchronous Proxy</strong> or <strong>Controller</strong> for a core component <code>C</code>.
+</dd>
+
+          <dt id="AsyncPriorityQueue">
+  <span class="name "><a href="../cell_flutter/AsyncPriorityQueue-class.html">AsyncPriorityQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="AsyncQueueList">
+  <span class="name "><a href="../cell_flutter/AsyncQueueList-class.html">AsyncQueueList</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="AsyncSynapses">
+  <span class="name "><a href="../cell_flutter/AsyncSynapses-class.html">AsyncSynapses</a><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell_flutter/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">L extends <a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An <strong>Asynchronous Projection</strong> of a <a href="../cell_flutter/Synapses-class.html">Synapses</a> instance for non‑blocking
+signal distribution.
+</dd>
+
+          <dt id="Box">
+  <span class="name "><a href="../cell_flutter/Box-class.html">Box</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized, lightweight container used to provide a mutable state
+anchor within the framework's immutable <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> architecture.
+</dd>
+
+          <dt id="Cell">
+  <span class="name "><a href="../cell_flutter/Cell-class.html">Cell</a></span> 
+
+</dt>
+<dd>
+  A reactive node: holds state (or relays signals), validates every
+incoming change against a policy, and broadcasts accepted changes to
+whatever else is listening.
+</dd>
+
+          <dt id="CellAsyncBuilder">
+  <span class="name "><a href="../cell_flutter/CellAsyncBuilder-class.html">CellAsyncBuilder</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A widget that renders the asynchronous state of any <a href="../cell_flutter/Cell-class.html">Cell</a> as an
+<a href="https://api.flutter.dev/flutter/widgets/AsyncSnapshot-class.html">AsyncSnapshot&lt;V&gt;</a>.
+</dd>
+
+          <dt id="CellBase">
+  <span class="name "><a href="../cell_flutter/CellBase-class.html">CellBase</a></span> 
+
+</dt>
+<dd>
+  The foundational abstract implementation of the <a href="../cell_flutter/Cell-class.html">Cell</a> interface.
+</dd>
+
+          <dt id="CellBuilder">
+  <span class="name "><a href="../cell_flutter/CellBuilder-class.html">CellBuilder</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A widget that rebuilds its <a href="../cell_flutter/CellBuilder/builder.html">builder</a> whenever <a href="../cell_flutter/CellBuilder/cell.html">cell</a>'s value changes.
+</dd>
+
+          <dt id="CellEditingController">
+  <span class="name "><a href="../cell_flutter/CellEditingController-class.html">CellEditingController</a></span> 
+
+</dt>
+<dd>
+  A <a href="https://api.flutter.dev/flutter/widgets/TextEditingController-class.html">TextEditingController</a> bound <strong>two-way</strong> to a <a href="../cell_flutter/ValueCell-class.html">ValueCell&lt;String&gt;</a>.
+</dd>
+
+          <dt id="CellErrorBoundary">
+  <span class="name "><a href="../cell_flutter/CellErrorBoundary-class.html">CellErrorBoundary</a></span> 
+
+</dt>
+<dd>
+  Renders a fallback instead of Flutter's error screen when a cell-driven
+error is thrown while building the subtree below it.
+</dd>
+
+          <dt id="CellErrorBoundaryState">
+  <span class="name "><a href="../cell_flutter/CellErrorBoundaryState-class.html">CellErrorBoundaryState</a></span> 
+
+</dt>
+<dd>
+  The state behind <a href="../cell_flutter/CellErrorBoundary-class.html">CellErrorBoundary</a>.
+</dd>
+
+          <dt id="CellFlutterDevTools">
+  <span class="name "><a href="../cell_flutter/CellFlutterDevTools-class.html">CellFlutterDevTools</a></span> 
+
+</dt>
+<dd>
+  The in-app Cell Inspector.
+</dd>
+
+          <dt id="CellFormField">
+  <span class="name "><a href="../cell_flutter/CellFormField-class.html">CellFormField</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A <a href="https://api.flutter.dev/flutter/widgets/FormField-class.html">FormField</a> whose value is bound two-way to a <a href="../cell_flutter/ValueCell-class.html">ValueCell&lt;T&gt;</a>.
+</dd>
+
+          <dt id="CellGraph">
+  <span class="name "><a href="../cell_flutter/CellGraph-class.html">CellGraph</a></span> 
+
+</dt>
+<dd>
+  A registered cell graph: the unit of identity and replay in the
+framework.
+</dd>
+
+          <dt id="CellGraphBuilder">
+  <span class="name "><a href="../cell_flutter/CellGraphBuilder-class.html">CellGraphBuilder</a></span> 
+
+</dt>
+<dd>
+  The entry point for constructing a <a href="../cell_flutter/CellGraph-class.html">CellGraph</a>.
+</dd>
+
+          <dt id="CellGraphRegistry">
+  <span class="name "><a href="../cell_flutter/CellGraphRegistry-class.html">CellGraphRegistry</a></span> 
+
+</dt>
+<dd>
+  Public read-only access to the cell id registry.
+</dd>
+
+          <dt id="CellGraphSnapshot">
+  <span class="name "><a href="../cell_flutter/CellGraphSnapshot-class.html">CellGraphSnapshot</a></span> 
+
+</dt>
+<dd>
+  A serialisable snapshot of an entire cell graph.
+</dd>
+
+          <dt id="CellInspectorOverlay">
+  <span class="name "><a href="../cell_flutter/CellInspectorOverlay-class.html">CellInspectorOverlay</a></span> 
+
+</dt>
+<dd>
+  A floating in-app Cell Inspector panel.
+</dd>
+
+          <dt id="CellListener">
+  <span class="name "><a href="../cell_flutter/CellListener-class.html">CellListener</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A widget that invokes <a href="../cell_flutter/CellListener/onPulse.html">onPulse</a> for every pulse emitted by <a href="../cell_flutter/CellListener/cell.html">cell</a>,
+<strong>without</strong> rebuilding its subtree.
+</dd>
+
+          <dt id="CellListView">
+  <span class="name "><a href="../cell_flutter/CellListView-class.html">CellListView</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A virtualized list whose item collection is bound to a <a href="../cell_flutter/Cell-class.html">Cell</a>.
+</dd>
+
+          <dt id="CellNotifier">
+  <span class="name "><a href="../cell_flutter/CellNotifier-class.html">CellNotifier</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Adapts a <a href="../cell_flutter/ValueCell-class.html">ValueCell</a> to Flutter's <a href="https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html">ValueNotifier</a> contract as a
+<strong>read-only</strong> bridge.
+</dd>
+
+          <dt id="CellPulseRecord">
+  <span class="name "><a href="../cell_flutter/CellPulseRecord-class.html">CellPulseRecord</a></span> 
+
+</dt>
+<dd>
+  One recorded pulse, display-formatted.
+</dd>
+
+          <dt id="CellRegistry">
+  <span class="name "><a href="../cell_flutter/CellRegistry-class.html">CellRegistry</a></span> 
+
+</dt>
+<dd>
+  The live registry behind <a href="../cell_flutter/CellFlutterDevTools-class.html">CellFlutterDevTools</a>.
+</dd>
+
+          <dt id="CellRegistryEntry">
+  <span class="name "><a href="../cell_flutter/CellRegistryEntry-class.html">CellRegistryEntry</a></span> 
+
+</dt>
+<dd>
+  One registered cell and its journal.
+</dd>
+
+          <dt id="CellRestorationScope">
+  <span class="name "><a href="../cell_flutter/CellRestorationScope-class.html">CellRestorationScope</a></span> 
+
+</dt>
+<dd>
+  Provides a <a href="https://api.flutter.dev/flutter/services/RestorationBucket-class.html">RestorationBucket</a> to descendant <a href="../cell_flutter/RestorableCell-class.html">RestorableCell</a>s and
+registers them automatically with Flutter's restoration protocol.
+</dd>
+
+          <dt id="CellRestorationScopeState">
+  <span class="name "><a href="../cell_flutter/CellRestorationScopeState-class.html">CellRestorationScopeState</a></span> 
+
+</dt>
+<dd>
+  The stateful, mixin-bearing half of <a href="../cell_flutter/CellRestorationScope-class.html">CellRestorationScope</a>.
+</dd>
+
+          <dt id="CellScope">
+  <span class="name "><a href="../cell_flutter/CellScope-class.html">CellScope</a></span> 
+
+</dt>
+<dd>
+  An <a href="https://api.flutter.dev/flutter/widgets/InheritedWidget-class.html">InheritedWidget</a> that provides a small set of app-level cells to the
+subtree below it, addressed by <a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a>.
+</dd>
+
+          <dt id="CellSelector">
+  <span class="name "><a href="../cell_flutter/CellSelector-class.html">CellSelector</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">S</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A widget that rebuilds its <a href="../cell_flutter/CellSelector/builder.html">builder</a> only when a <strong>selected slice</strong> of
+<a href="../cell_flutter/CellSelector/cell.html">cell</a>'s value changes.
+</dd>
+
+          <dt id="CellSnapshot">
+  <span class="name "><a href="../cell_flutter/CellSnapshot-class.html">CellSnapshot</a></span> 
+
+</dt>
+<dd>
+  A serialisable projection of one cell's identity and current value.
+</dd>
+
+          <dt id="CellTextField">
+  <span class="name "><a href="../cell_flutter/CellTextField-class.html">CellTextField</a></span> 
+
+</dt>
+<dd>
+  A <a href="https://api.flutter.dev/flutter/material/TextFormField-class.html">TextFormField</a> whose value is bound two-way to a <a href="../cell_flutter/ValueCell-class.html">ValueCell&lt;String&gt;</a>.
+</dd>
+
+          <dt id="CellValueBuilder">
+  <span class="name "><a href="../cell_flutter/CellValueBuilder-class.html">CellValueBuilder</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A widget that rebuilds its <a href="../cell_flutter/CellValueBuilder/builder.html">builder</a> whenever any <a href="../cell_flutter/Cell-class.html">Cell</a> emits a new value.
+</dd>
+
+          <dt id="ClockEffect">
+  <span class="name "><a href="../cell_flutter/ClockEffect-class.html">ClockEffect</a></span> 
+
+</dt>
+<dd>
+  A read of the system clock. Records the epoch millis.
+</dd>
+
+          <dt id="CollectivePulse">
+  <span class="name "><a href="../cell_flutter/CollectivePulse-class.html">CollectivePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A <strong>Collective Pulse</strong> — a flat bundle of independent pulses travelling
+together as a single atomic wave.
+</dd>
+
+          <dt id="CollectivePulseBase">
+  <span class="name "><a href="../cell_flutter/CollectivePulseBase-class.html">CollectivePulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The abstract base class for <a href="../cell_flutter/CollectivePulse-class.html">CollectivePulse</a> implementations.
+</dd>
+
+          <dt id="CompensationFailure">
+  <span class="name "><a href="../cell_flutter/CompensationFailure-class.html">CompensationFailure</a></span> 
+
+</dt>
+<dd>
+  Describes a single failed compensation attempt.
+</dd>
+
+          <dt id="Context">
+  <span class="name "><a href="../cell_flutter/Context-class.html">Context</a></span> 
+
+</dt>
+<dd>
+  Metadata describing a <a href="../cell_flutter/Cell-class.html">Cell</a>'s tier, domain, and operational
+boundaries — used by <a href="../cell_flutter/TestCell-class.html">TestCell</a> rules to make context-aware decisions.
+</dd>
+
+          <dt id="ContextBase">
+  <span class="name "><a href="../cell_flutter/ContextBase-class.html">ContextBase</a></span> 
+
+</dt>
+<dd>
+  The foundational implementation of the <strong>Operational Environment</strong>, providing
+the core logic for <strong>Prototype-based Inheritance</strong> and <strong>Ontological Resolution</strong>.
+</dd>
+
+          <dt id="ContextTranslator">
+  <span class="name "><a href="../cell_flutter/ContextTranslator-class.html">ContextTranslator</a></span> 
+
+</dt>
+<dd>
+  Bridges a <a href="../cell_flutter/DeputyContext-class.html">DeputyContext</a> across mandate schema versions.
+</dd>
+
+          <dt id="ContextTranslatorRegistry">
+  <span class="name "><a href="../cell_flutter/ContextTranslatorRegistry-class.html">ContextTranslatorRegistry</a></span> 
+
+</dt>
+<dd>
+  A simple registry of translators keyed by <code>(from, to)</code>.
+</dd>
+
+          <dt id="CycleChecker">
+  <span class="name "><a href="../cell_flutter/CycleChecker-class.html">CycleChecker</a></span> 
+
+</dt>
+<dd>
+  A specialized <strong>Traversal Guard</strong> and <strong>Topology Validator</strong>, responsible for
+preventing infinite recursion and ensuring the reactive graph remains a
+<strong>Directed Acyclic Graph (DAG)</strong> during signal propagation.
+</dd>
+
+          <dt id="DefaultValue">
+  <span class="name "><a href="../cell_flutter/DefaultValue-class.html">DefaultValue</a></span> 
+
+</dt>
+<dd>
+  <a href="../cell_flutter/DefaultValue-class.html">DefaultValue</a> is a metadata annotation primarily used by the code generation
+framework (such as <code>build_model</code>) to define a fallback or initial value for
+fields in a model class.
+</dd>
+
+          <dt id="DeputyContext">
+  <span class="name "><a href="../cell_flutter/DeputyContext-class.html">DeputyContext</a></span> 
+
+</dt>
+<dd>
+  Represents the <strong>Formal Mandate</strong> and declaration of intention for a <a href="../cell_flutter/Deputy-mixin.html">Deputy</a>.
+</dd>
+
+          <dt id="DivergenceReport">
+  <span class="name "><a href="../cell_flutter/DivergenceReport-class.html">DivergenceReport</a></span> 
+
+</dt>
+<dd>
+  A single point at which a replay diverged from its recording.
+</dd>
+
+          <dt id="EffectJournal">
+  <span class="name "><a href="../cell_flutter/EffectJournal-class.html">EffectJournal</a></span> 
+
+</dt>
+<dd>
+  The boundary between a receptor and the outside world.
+</dd>
+
+          <dt id="EffectRecord">
+  <span class="name "><a href="../cell_flutter/EffectRecord-class.html">EffectRecord</a></span> 
+
+</dt>
+<dd>
+  A single recorded non-deterministic observation.
+</dd>
+
+          <dt id="EmailPattern">
+  <span class="name "><a href="../cell_flutter/EmailPattern-class.html">EmailPattern</a></span> 
+
+</dt>
+<dd>
+  <a href="../cell_flutter/EmailPattern-class.html">EmailPattern</a> is a specialized <a href="../cell_flutter/EntryPattern-class.html">EntryPattern</a> metadata annotation designed
+to validate whether a string conforms to a standard email address format.
+</dd>
+
+          <dt id="EntryPattern">
+  <span class="name "><a href="../cell_flutter/EntryPattern-class.html">EntryPattern</a></span> 
+
+</dt>
+<dd>
+  <a href="../cell_flutter/EntryPattern-class.html">EntryPattern</a> is a specialized <a href="../cell_flutter/TestRule-class.html">TestRule</a> metadata annotation that validates
+whether a string input matches a specific Regular Expression (<a href="https://api.flutter.dev/flutter/dart-core/RegExp-class.html">RegExp</a>).
+</dd>
+
+          <dt id="EphemeralPolicy">
+  <span class="name "><a href="../cell_flutter/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Lifecycle Governance</strong> for transient reactive nodes.
+</dd>
+
+          <dt id="EvolvedPulse">
+  <span class="name "><a href="../cell_flutter/EvolvedPulse-class.html">EvolvedPulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An immutable signal derived from a previous pulse through a transformation
+step — a causal link in the signal's journey.
+</dd>
+
+          <dt id="EvolvedPulseBase">
+  <span class="name "><a href="../cell_flutter/EvolvedPulseBase-class.html">EvolvedPulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The abstract base class for <a href="../cell_flutter/EvolvedPulse-class.html">EvolvedPulse</a> implementations.
+</dd>
+
+          <dt id="FilterRule">
+  <span class="name "><a href="../cell_flutter/FilterRule-class.html">FilterRule</a><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell_flutter/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A filter that can transform, redact, or suppress a <a href="../cell_flutter/Pulse-class.html">Pulse</a> before it is
+broadcast to downstream observers.
+</dd>
+
+          <dt id="FinalBox">
+  <span class="name "><a href="../cell_flutter/FinalBox-class.html">FinalBox</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized, write-once container providing a thread-safe, immutable
+anchor for state that is initialized after construction.
+</dd>
+
+          <dt id="ForkHandle">
+  <span class="name "><a href="../cell_flutter/ForkHandle-class.html">ForkHandle</a></span> 
+
+</dt>
+<dd>
+  A forked history.
+</dd>
+
+          <dt id="ForkLedgerStore">
+  <span class="name "><a href="../cell_flutter/ForkLedgerStore-class.html">ForkLedgerStore</a></span> 
+
+</dt>
+<dd>
+  A <a href="../cell_flutter/LedgerStore-class.html">LedgerStore</a> wrapper that injects a synthetic <a href="../cell_flutter/ForkRecord-class.html">ForkRecord</a> entry
+at seq 0.
+</dd>
+
+          <dt id="ForkRecord">
+  <span class="name "><a href="../cell_flutter/ForkRecord-class.html">ForkRecord</a></span> 
+
+</dt>
+<dd>
+  The genesis record of a fork ledger.
+</dd>
+
+          <dt id="FunctionObject">
+  <span class="name "><a href="../cell_flutter/FunctionObject-class.html">FunctionObject</a></span> 
+
+</dt>
+<dd>
+  Simple wrapper for functions or records containing function information.
+Used to pass function metadata through the system.
+</dd>
+
+          <dt id="FunctionTypeObject">
+  <span class="name "><a href="../cell_flutter/FunctionTypeObject-class.html">FunctionTypeObject</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Lazy-evaluated version of TypeObject that executes a function to get the value.
+Useful for deferred initialization or expensive object creation.
+</dd>
+
+          <dt id="Governance">
+  <span class="name "><a href="../cell_flutter/Governance-class.html">Governance</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational <strong>Authority Protocol</strong> for defining structural and
+behavioral guardrails within the framework's <a href="../cell_flutter/Mandate.html">Mandate</a> ontology.
+</dd>
+
+          <dt id="GovernanceEntry">
+  <span class="name "><a href="../cell_flutter/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter">G extends <a href="../cell_flutter/Governance-class.html">Governance</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A strongly-typed key-value pair that represents a single dimension of
+governance within the framework's <strong>Scene-Driven Ontology</strong>.
+</dd>
+
+          <dt id="HashChain">
+  <span class="name "><a href="../cell_flutter/HashChain-class.html">HashChain</a></span> 
+
+</dt>
+<dd>
+  The rolling hash chain that binds ledger entries.
+</dd>
+
+          <dt id="Hook">
+  <span class="name "><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/Hook-class.html">Hook</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  <a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/Hook-class.html">Hook</a> is similar to a <a href="https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html">StatelessWidget</a>, but is not associated
+to an <a href="https://api.flutter.dev/flutter/widgets/Element-class.html">Element</a>.
+</dd>
+
+          <dt id="HookBuilder">
+  <span class="name "><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/HookBuilder-class.html">HookBuilder</a></span> 
+
+</dt>
+<dd>
+  A <a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/HookWidget-class.html">HookWidget</a> that delegates its <code>build</code> to a callback.
+</dd>
+
+          <dt id="HookState">
+  <span class="name "><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/HookState-class.html">HookState</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>, <span class="type-parameter">T extends <a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/Hook-class.html">Hook</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The logic and internal state for a <a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/HookWidget-class.html">HookWidget</a>
+</dd>
+
+          <dt id="HookWidget">
+  <span class="name "><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/HookWidget-class.html">HookWidget</a></span> 
+
+</dt>
+<dd>
+  A <a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a> that can use a <a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/Hook-class.html">Hook</a>.
+</dd>
+
+          <dt id="Identity">
+  <span class="name "><a href="../cell_flutter/Identity-class.html">Identity</a></span> 
+
+</dt>
+<dd>
+  A utility for materializing unique identities within the somatic graph.
+</dd>
+
+          <dt id="Inheritable">
+  <span class="name "><a href="../cell_flutter/Inheritable-class.html">Inheritable</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="InMemoryLedgerStore">
+  <span class="name "><a href="../cell_flutter/InMemoryLedgerStore-class.html">InMemoryLedgerStore</a></span> 
+
+</dt>
+<dd>
+  An in-memory <a href="../cell_flutter/LedgerStore-class.html">LedgerStore</a>, suitable for tests and for ephemeral
+graphs whose ledger does not need to survive the process.
+</dd>
+
+          <dt id="Instruction">
+  <span class="name "><a href="../cell_flutter/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flutter/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell_flutter/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell_flutter/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A discrete logic unit that defines how a <a href="../cell_flutter/Receptor-class.html">Receptor</a> reacts to a <a href="../cell_flutter/Pulse-class.html">Pulse</a>.
+</dd>
+
+          <dt id="InstructionBase">
+  <span class="name "><a href="../cell_flutter/InstructionBase-class.html">InstructionBase</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flutter/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell_flutter/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell_flutter/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational implementation and architectural base for all <a href="../cell_flutter/Instruction-class.html">Instruction</a>
+variants.
+</dd>
+
+          <dt id="InstructionChain">
+  <span class="name "><a href="../cell_flutter/InstructionChain-class.html">InstructionChain</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flutter/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell_flutter/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell_flutter/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A composite <a href="../cell_flutter/Instruction-class.html">Instruction</a> that orchestrates a sequence of processing units.
+</dd>
+
+          <dt id="IoEffect">
+  <span class="name "><a href="../cell_flutter/IoEffect-class.html">IoEffect</a></span> 
+
+</dt>
+<dd>
+  A single I/O call (network, disk, database). Records the label, the
+request digest, and the response digest; the <strong>raw response</strong> is held
+only if the caller supplied <code>rawOutput</code>. For replay, <code>rawOutput</code> is
+required — the digest alone cannot reconstruct the response.
+</dd>
+
+          <dt id="JournalScope">
+  <span class="name "><a href="../cell_flutter/JournalScope-class.html">JournalScope</a></span> 
+
+</dt>
+<dd>
+  The task-local stack of active journals.
+</dd>
+
+          <dt id="Ledger">
+  <span class="name "><a href="../cell_flutter/Ledger-class.html">Ledger</a></span> 
+
+</dt>
+<dd>
+  The durable, hash-chained record of every state transition.
+</dd>
+
+          <dt id="LedgerEntry">
+  <span class="name "><a href="../cell_flutter/LedgerEntry-class.html">LedgerEntry</a></span> 
+
+</dt>
+<dd>
+  A single, immutable row in the ledger.
+</dd>
+
+          <dt id="LedgerScope">
+  <span class="name "><a href="../cell_flutter/LedgerScope-class.html">LedgerScope</a></span> 
+
+</dt>
+<dd>
+  The graph-scoped ambient that coordinates state capture and ledger
+append.
+</dd>
+
+          <dt id="LedgerScopeImpl">
+  <span class="name "><a href="../cell_flutter/LedgerScopeImpl-class.html">LedgerScopeImpl</a></span> 
+
+</dt>
+<dd>
+  The per-graph implementation of the scope.
+</dd>
+
+          <dt id="LedgerStore">
+  <span class="name "><a href="../cell_flutter/LedgerStore-class.html">LedgerStore</a></span> 
+
+</dt>
+<dd>
+  The persistence backend for a <a href="../cell_flutter/Ledger-class.html">Ledger</a>.
+</dd>
+
+          <dt id="Lock">
+  <span class="name "><a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a></span> 
+
+</dt>
+<dd>
+  Object providing the implicit lock.
+</dd>
+
+          <dt id="MaxLength">
+  <span class="name "><a href="../cell_flutter/MaxLength-class.html">MaxLength</a></span> 
+
+</dt>
+<dd>
+  <a href="../cell_flutter/MaxLength-class.html">MaxLength</a> is a specialized <a href="../cell_flutter/TestRule-class.html">TestRule</a> metadata annotation used primarily by
+the code generation framework (such as <code>build_model</code>) to enforce structural
+and data-integrity constraints on model fields.
+</dd>
+
+          <dt id="Modifiable">
+  <span class="name "><a href="../cell_flutter/Modifiable-class.html">Modifiable</a></span> 
+
+</dt>
+<dd>
+  A specialized architectural marker and base interface for objects that support
+controlled mutation through the framework's dynamic command pattern.
+</dd>
+
+          <dt id="ModifiableAsync">
+  <span class="name "><a href="../cell_flutter/ModifiableAsync-class.html">ModifiableAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Provides asynchronous execution of operations on a <a href="../cell_flutter/Cell-class.html">Cell</a>.
+</dd>
+
+          <dt id="MultiLock">
+  <span class="name "><a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/MultiLock-class.html">MultiLock</a></span> 
+
+</dt>
+<dd>
+  A multi lock that locks multiple locks at the same time.
+</dd>
+
+          <dt id="Nucleolus">
+  <span class="name "><a href="../cell_flutter/Nucleolus-class.html">Nucleolus</a></span> 
+
+</dt>
+<dd>
+  A specialized, terminal implementation of the <a href="../cell_flutter/Nucleus-class.html">Nucleus</a> contract representing
+the framework's "zero-state" and <strong>Ontological Root</strong>.
+</dd>
+
+          <dt id="Nucleus">
+  <span class="name "><a href="../cell_flutter/Nucleus-class.html">Nucleus</a></span> 
+
+</dt>
+<dd>
+  The immutable blueprint underlying every <a href="../cell_flutter/Cell-class.html">Cell</a> — its <a href="../cell_flutter/Nucleus/receptor.html">receptor</a>,
+<a href="../cell_flutter/Nucleus/testRule.html">testRule</a>, <a href="../cell_flutter/Nucleus/context.html">context</a>, <a href="../cell_flutter/Nucleus/synapses.html">synapses</a>, and lifecycle policy, stored
+separately from the live cell instance.
+</dd>
+
+          <dt id="NucleusBase">
+  <span class="name "><a href="../cell_flutter/NucleusBase-class.html">NucleusBase</a></span> 
+
+</dt>
+<dd>
+  The foundational base implementation of the <a href="../cell_flutter/Nucleus-class.html">Nucleus</a> contract, providing
+a memory-optimized storage engine for reactive cell properties.
+</dd>
+
+          <dt id="NullJournal">
+  <span class="name "><a href="../cell_flutter/NullJournal-class.html">NullJournal</a></span> 
+
+</dt>
+<dd>
+  The "no journal in scope" sentinel. Every effectful operation fails
+loudly.
+</dd>
+
+          <dt id="ObjectRef">
+  <span class="name "><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/ObjectRef-class.html">ObjectRef</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A class that stores a single value.
+</dd>
+
+          <dt id="OpenCell">
+  <span class="name "><a href="../cell_flutter/OpenCell-class.html">OpenCell</a></span> 
+
+</dt>
+<dd>
+  A specialized, interactive <a href="../cell_flutter/Cell-class.html">Cell</a> that serves as a <strong>Reactive Bridge</strong> for
+external stimulus injection and dynamic topology management.
+</dd>
+
+          <dt id="OpenCellAsync">
+  <span class="name "><a href="../cell_flutter/OpenCellAsync-class.html">OpenCellAsync</a></span> 
+
+</dt>
+<dd>
+  Represents the <strong>Asynchronous Governance Interface</strong> for an <a href="../cell_flutter/OpenCell-class.html">OpenCell</a>.
+</dd>
+
+          <dt id="PolicyReplay">
+  <span class="name "><a href="../cell_flutter/PolicyReplay-class.html">PolicyReplay</a></span> 
+
+</dt>
+<dd>
+  Policy-tick journaling for <a href="../cell_flutter/EphemeralPolicy-class.html">EphemeralPolicy</a>.
+</dd>
+
+          <dt id="PolicyTickEffect">
+  <span class="name "><a href="../cell_flutter/PolicyTickEffect-class.html">PolicyTickEffect</a></span> 
+
+</dt>
+<dd>
+  A single tick of an <a href="../cell_flutter/EphemeralPolicy-class.html">EphemeralPolicy</a>.
+</dd>
+
+          <dt id="PriorityQueue">
+  <span class="name "><a href="../cell_flutter/PriorityQueue-class.html">PriorityQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A collection of elements that maintains a <strong>Deterministic Priority Order</strong>,
+serving as a specialized <strong>Ranked Execution Buffer</strong> for the reactive fabric.
+</dd>
+
+          <dt id="PropagationPolicy">
+  <span class="name "><a href="../cell_flutter/PropagationPolicy-class.html">PropagationPolicy</a></span> 
+
+</dt>
+<dd>
+  A declarative blueprint defining the <strong>Temporal Dynamics</strong> and
+<strong>Operational Governance</strong> of pulse propagation.
+</dd>
+
+          <dt id="Pulse">
+  <span class="name "><a href="../cell_flutter/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A reactive signal — the fundamental unit of communication in the framework.
+</dd>
+
+          <dt id="PulseBase">
+  <span class="name "><a href="../cell_flutter/PulseBase-class.html">PulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational blueprint for all nervous signals within the reactive graph.
+</dd>
+
+          <dt id="PulseCodec">
+  <span class="name "><a href="../cell_flutter/PulseCodec-class.html">PulseCodec</a></span> 
+
+</dt>
+<dd>
+  Canonical serialiser for <a href="../cell_flutter/Pulse-class.html">Pulse</a>.
+</dd>
+
+          <dt id="PulseContext">
+  <span class="name "><a href="../cell_flutter/PulseContext-class.html">PulseContext</a></span> 
+
+</dt>
+<dd>
+  Represents the <strong>Causal Identity</strong> and ontological <strong>Provenance</strong> of a <a href="../cell_flutter/Pulse-class.html">Pulse</a>.
+</dd>
+
+          <dt id="PulseContextCodec">
+  <span class="name "><a href="../cell_flutter/PulseContextCodec-class.html">PulseContextCodec</a></span> 
+
+</dt>
+<dd>
+  Serialises and deserialises <a href="../cell_flutter/PulseContext-class.html">PulseContext</a>, preserving the full parent
+chain.
+</dd>
+
+          <dt id="PulseEphemeralPolicy">
+  <span class="name "><a href="../cell_flutter/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a></span> 
+
+</dt>
+<dd>
+  A governance policy that defines the <strong>Lifecycle Constraints</strong> and <strong>Termination Logic</strong>
+for a <a href="../cell_flutter/Pulse-class.html">Pulse</a> as it traverses the reactive graph.
+</dd>
+
+          <dt id="PulseReconstructor">
+  <span class="name "><a href="../cell_flutter/PulseReconstructor-class.html">PulseReconstructor</a></span> 
+
+</dt>
+<dd>
+  Reconstructs the input <a href="../cell_flutter/Pulse-class.html">Pulse</a> that produced a <a href="../cell_flutter/LedgerEntry-class.html">LedgerEntry</a>.
+</dd>
+
+          <dt id="PulseShell">
+  <span class="name "><a href="../cell_flutter/PulseShell-class.html">PulseShell</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>, <span class="type-parameter">R extends <a href="../cell_flutter/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized <a href="../cell_flutter/Shell-class.html">Shell</a> providing a <strong>Perceptual Projection</strong> of a <a href="../cell_flutter/Pulse-class.html">Pulse</a> to
+facilitate pre-execution validation and security gating.
+</dd>
+
+          <dt id="QueueList">
+  <span class="name "><a href="../cell_flutter/QueueList-class.html">QueueList</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="Receptor">
+  <span class="name "><a href="../cell_flutter/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The transformation pipeline that decides how a <a href="../cell_flutter/Cell-class.html">Cell</a> responds to an
+incoming <a href="../cell_flutter/Pulse-class.html">Pulse</a>.
+</dd>
+
+          <dt id="ReceptorAsync">
+  <span class="name "><a href="../cell_flutter/ReceptorAsync-class.html">ReceptorAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An asynchronous execution handle for a <a href="../cell_flutter/Receptor-class.html">Receptor</a> that facilitates
+non‑blocking pulse processing and lifecycle synchronization.
+</dd>
+
+          <dt id="ReceptorBase">
+  <span class="name "><a href="../cell_flutter/ReceptorBase-class.html">ReceptorBase</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational base implementation of <a href="../cell_flutter/Receptor-class.html">Receptor</a> that provides the
+core synchronization and pulse propagation engine.
+</dd>
+
+          <dt id="RecordingJournal">
+  <span class="name "><a href="../cell_flutter/RecordingJournal-class.html">RecordingJournal</a></span> 
+
+</dt>
+<dd>
+  The recording side of the journal.
+</dd>
+
+          <dt id="RegisteredCell">
+  <span class="name "><a href="../cell_flutter/RegisteredCell-class.html">RegisteredCell</a></span> 
+
+</dt>
+<dd>
+  A thin wrapper that pairs a <a href="../cell_flutter/Cell-class.html">Cell</a> with its graph-scoped name.
+</dd>
+
+          <dt id="ReplayEngine">
+  <span class="name "><a href="../cell_flutter/ReplayEngine-class.html">ReplayEngine</a></span> 
+
+</dt>
+<dd>
+  The replay engine.
+</dd>
+
+          <dt id="ReplayJournal">
+  <span class="name "><a href="../cell_flutter/ReplayJournal-class.html">ReplayJournal</a></span> 
+
+</dt>
+<dd>
+  The replay side of the journal.
+</dd>
+
+          <dt id="ReplayOptions">
+  <span class="name "><a href="../cell_flutter/ReplayOptions-class.html">ReplayOptions</a></span> 
+
+</dt>
+<dd>
+  Strictness flags that control the replay engine's behaviour when the
+replayed state diverges from the recorded state.
+</dd>
+
+          <dt id="ReplayResult">
+  <span class="name "><a href="../cell_flutter/ReplayResult-class.html">ReplayResult</a></span> 
+
+</dt>
+<dd>
+  The result of a <a href="../cell_flutter/ReplayEngine/replay.html">ReplayEngine.replay</a> call.
+</dd>
+
+          <dt id="RestorableCell">
+  <span class="name "><a href="../cell_flutter/RestorableCell-class.html">RestorableCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A <a href="../cell_flutter/ValueCell-class.html">ValueCell</a> whose value participates in Flutter's state restoration.
+</dd>
+
+          <dt id="RestorableCellDelegate">
+  <span class="name "><a href="../cell_flutter/RestorableCellDelegate-class.html">RestorableCellDelegate</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The internal <code>RestorableProperty</code> that bridges a <a href="../cell_flutter/RestorableCell-class.html">RestorableCell</a> to
+Flutter's restoration protocol.
+</dd>
+
+          <dt id="Shell">
+  <span class="name "><a href="../cell_flutter/Shell-class.html">Shell</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized <strong>Defensive Perimeter</strong> and <strong>Projection Layer</strong> representing
+a formal contract for <strong>Bidirectional Mutual Authorization</strong>.
+</dd>
+
+          <dt id="StateDelta">
+  <span class="name "><a href="../cell_flutter/StateDelta-class.html">StateDelta</a></span> 
+
+</dt>
+<dd>
+  A single cell's state change within a ledger entry.
+</dd>
+
+          <dt id="StatefulHookWidget">
+  <span class="name "><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/StatefulHookWidget-class.html">StatefulHookWidget</a></span> 
+
+</dt>
+<dd>
+  A <a href="https://api.flutter.dev/flutter/widgets/StatefulWidget-class.html">StatefulWidget</a> that can use a <a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/Hook-class.html">Hook</a>.
+</dd>
+
+          <dt id="Store">
+  <span class="name "><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/Store-class.html">Store</a><span class="signature">&lt;<wbr><span class="type-parameter">State</span>, <span class="type-parameter">Action</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A store of mutable state that allows mutations by dispatching actions.
+</dd>
+
+          <dt id="StreamEffect">
+  <span class="name "><a href="../cell_flutter/StreamEffect-class.html">StreamEffect</a></span> 
+
+</dt>
+<dd>
+  A stream event. Records the event's stream label, the digest of the
+value, and optionally the raw value.
+</dd>
+
+          <dt id="Synapses">
+  <span class="name "><a href="../cell_flutter/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell_flutter/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">L extends <a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The distribution fabric for a <a href="../cell_flutter/Cell-class.html">Cell</a>'s outgoing signals—defining how,
+when, and to whom a pulse is delivered.
+</dd>
+
+          <dt id="SynapsesBase">
+  <span class="name "><a href="../cell_flutter/SynapsesBase-class.html">SynapsesBase</a><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell_flutter/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">C extends <a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational base implementation for <a href="../cell_flutter/Synapses-class.html">Synapses</a>, serving as the
+<strong>Transmission Engine</strong> of the <code>cell.core</code> reactive framework.
+</dd>
+
+          <dt id="SyncBox">
+  <span class="name "><a href="../cell_flutter/SyncBox-class.html">SyncBox</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A synchronized variant of <a href="../cell_flutter/Box-class.html">Box</a> providing <strong>Thread-Safe Access</strong> and
+facilitating <strong>Atomic State Transitions</strong> across concurrent execution boundaries.
+</dd>
+
+          <dt id="SyncCycleChecker">
+  <span class="name "><a href="../cell_flutter/SyncCycleChecker-class.html">SyncCycleChecker</a></span> 
+
+</dt>
+<dd>
+  A thread-safe, <strong>Synchronized Circular Dependency Guard</strong> for asynchronous
+reactive flows.
+</dd>
+
+          <dt id="SyncQueue">
+  <span class="name "><a href="../cell_flutter/SyncQueue-class.html">SyncQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A thread-safe implementation of a <a href="../cell_flutter/PriorityQueue-class.html">PriorityQueue</a>, providing <strong>Synchronized
+Access</strong> for prioritized collection-based state.
+</dd>
+
+          <dt id="SyncSet">
+  <span class="name "><a href="../cell_flutter/SyncSet-class.html">SyncSet</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A thread-safe implementation of a <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a>, providing <strong>Synchronized Access</strong>
+for collection-based state.
+</dd>
+
+          <dt id="SynthesisCell">
+  <span class="name "><a href="../cell_flutter/SynthesisCell-class.html">SynthesisCell</a></span> 
+
+</dt>
+<dd>
+  Represents a <strong>Synthesis Cell</strong>—a specialized structural node that aggregates
+signals from multiple source cells into a single unified stream.
+</dd>
+
+          <dt id="TestActionRule">
+  <span class="name "><a href="../cell_flutter/TestActionRule-class.html">TestActionRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized behavioral guard for validating imperative logic and
+functional <a href="../cell_flutter/TestActionRule/action.html">action</a> execution within the reactive graph.
+</dd>
+
+          <dt id="TestCell">
+  <span class="name "><a href="../cell_flutter/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The central validation gate for a <a href="../cell_flutter/Cell-class.html">Cell</a> – it decides what's allowed.
+</dd>
+
+          <dt id="TestCellReplay">
+  <span class="name "><a href="../cell_flutter/TestCellReplay-class.html">TestCellReplay</a></span> 
+
+</dt>
+<dd>
+  Purity-aware invocation of a <a href="../cell_flutter/TestCell-class.html">TestCell</a>.
+</dd>
+
+          <dt id="TestLinkRule">
+  <span class="name "><a href="../cell_flutter/TestLinkRule-class.html">TestLinkRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized behavioral guard for validating <strong>Topological Synapses</strong> and
+graph formation within the reactive framework.
+</dd>
+
+          <dt id="TestPasses">
+  <span class="name "><a href="../cell_flutter/TestPasses-class.html">TestPasses</a></span> 
+
+</dt>
+<dd>
+  A sentinel implementation of <a href="../cell_flutter/TestCell-class.html">TestCell</a> that always authorises every operation.
+</dd>
+
+          <dt id="TestPulseRule">
+  <span class="name "><a href="../cell_flutter/TestPulseRule-class.html">TestPulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A rule that validates incoming <a href="../cell_flutter/Pulse-class.html">Pulse</a> signals before they reach a cell.
+</dd>
+
+          <dt id="TestRule">
+  <span class="name "><a href="../cell_flutter/TestRule-class.html">TestRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A fundamental architectural component representing an <strong>Integrity Gate</strong> or
+<strong>Validation Guard</strong>, responsible for enforcing structural and business
+invariants across the reactive graph.
+</dd>
+
+          <dt id="TimerEffect">
+  <span class="name "><a href="../cell_flutter/TimerEffect-class.html">TimerEffect</a></span> 
+
+</dt>
+<dd>
+  A timer firing. Records the scheduled duration and the actual fire
+time; the pair is what makes debounce/throttle replayable.
+</dd>
+
+          <dt id="TransactionBegun">
+  <span class="name "><a href="../cell_flutter/TransactionBegun-class.html">TransactionBegun</a></span> 
+
+</dt>
+<dd>
+  Emitted when a transaction begins.
+</dd>
+
+          <dt id="TransactionCommitted">
+  <span class="name "><a href="../cell_flutter/TransactionCommitted-class.html">TransactionCommitted</a></span> 
+
+</dt>
+<dd>
+  Emitted when a transaction commits successfully.
+</dd>
+
+          <dt id="TransactionEvent">
+  <span class="name "><a href="../cell_flutter/TransactionEvent-class.html">TransactionEvent</a></span> 
+
+</dt>
+<dd>
+  Base class for all transaction lifecycle events.
+</dd>
+
+          <dt id="TransactionOptions">
+  <span class="name "><a href="../cell_flutter/TransactionOptions-class.html">TransactionOptions</a></span> 
+
+</dt>
+<dd>
+  Configuration options for a <a href="../cell_flutter/Cell/transaction.html">Cell.transaction</a>.
+</dd>
+
+          <dt id="TransactionRolledBack">
+  <span class="name "><a href="../cell_flutter/TransactionRolledBack-class.html">TransactionRolledBack</a></span> 
+
+</dt>
+<dd>
+  Emitted when a transaction is rolled back.
+</dd>
+
+          <dt id="TransactionTimedOut">
+  <span class="name "><a href="../cell_flutter/TransactionTimedOut-class.html">TransactionTimedOut</a></span> 
+
+</dt>
+<dd>
+  Emitted when a transaction times out.
+</dd>
+
+          <dt id="TransactionUpdated">
+  <span class="name "><a href="../cell_flutter/TransactionUpdated-class.html">TransactionUpdated</a></span> 
+
+</dt>
+<dd>
+  Emitted when a cell is updated during a transaction.
+</dd>
+
+          <dt id="TxApplyBegun">
+  <span class="name "><a href="../cell_flutter/TxApplyBegun-class.html">TxApplyBegun</a></span> 
+
+</dt>
+<dd>
+  Emitted once, immediately after <a href="../cell_flutter/ApplyTransactionScope/begin.html">ApplyTransactionScope.begin</a> succeeds.
+</dd>
+
+          <dt id="TxApplyCommitted">
+  <span class="name "><a href="../cell_flutter/TxApplyCommitted-class.html">TxApplyCommitted</a></span> 
+
+</dt>
+<dd>
+  Emitted after a successful <a href="../cell_flutter/ApplyTransactionScope/commit.html">ApplyTransactionScope.commit</a>.
+</dd>
+
+          <dt id="TxApplyCompensationFailed">
+  <span class="name "><a href="../cell_flutter/TxApplyCompensationFailed-class.html">TxApplyCompensationFailed</a></span> 
+
+</dt>
+<dd>
+  Emitted each time a compensation attempt fails.
+</dd>
+
+          <dt id="TxApplyCompensationRetry">
+  <span class="name "><a href="../cell_flutter/TxApplyCompensationRetry-class.html">TxApplyCompensationRetry</a></span> 
+
+</dt>
+<dd>
+  Emitted before each retry of a compensation function.
+</dd>
+
+          <dt id="TxApplyEvent">
+  <span class="name "><a href="../cell_flutter/TxApplyEvent-class.html">TxApplyEvent</a></span> 
+
+</dt>
+<dd>
+  Base class for all lifecycle events emitted by an <a href="../cell_flutter/ApplyTransactionScope-class.html">ApplyTransactionScope</a>.
+</dd>
+
+          <dt id="TxApplyOptions">
+  <span class="name "><a href="../cell_flutter/TxApplyOptions-class.html">TxApplyOptions</a></span> 
+
+</dt>
+<dd>
+  Configuration for <a href="../cell_flutter/Cell/txApply.html">Cell.txApply</a>.
+</dd>
+
+          <dt id="TxApplyRejected">
+  <span class="name "><a href="../cell_flutter/TxApplyRejected-class.html">TxApplyRejected</a></span> 
+
+</dt>
+<dd>
+  Emitted when a staged command is refused.
+</dd>
+
+          <dt id="TxApplyRolledBack">
+  <span class="name "><a href="../cell_flutter/TxApplyRolledBack-class.html">TxApplyRolledBack</a></span> 
+
+</dt>
+<dd>
+  Emitted after a rollback (full or savepoint-scoped).
+</dd>
+
+          <dt id="TxApplyStaged">
+  <span class="name "><a href="../cell_flutter/TxApplyStaged-class.html">TxApplyStaged</a></span> 
+
+</dt>
+<dd>
+  Emitted once per successful <a href="../cell_flutter/ApplyTransactionScope/enqueueCommand.html">ApplyTransactionScope.enqueueCommand</a>.
+</dd>
+
+          <dt id="TypeObject">
+  <span class="name "><a href="../cell_flutter/TypeObject-class.html">TypeObject</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Wrapper class for holding typed objects.
+Provides type safety when working with generic containers.
+</dd>
+
+          <dt id="Unmodifiable">
+  <span class="name "><a href="../cell_flutter/Unmodifiable-class.html">Unmodifiable</a></span> 
+
+</dt>
+<dd>
+  A specialized <strong>Marker Interface</strong> and architectural anchor used to identify
+reactive nodes and data structures that have been restricted to <strong>Read-Only</strong>
+access.
+</dd>
+
+          <dt id="UnmodifiableCollectivePulse">
+  <span class="name "><a href="../cell_flutter/UnmodifiableCollectivePulse-class.html">UnmodifiableCollectivePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="UnmodifiableEvolvedPulse">
+  <span class="name "><a href="../cell_flutter/UnmodifiableEvolvedPulse-class.html">UnmodifiableEvolvedPulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="UnmodifiablePulse">
+  <span class="name "><a href="../cell_flutter/UnmodifiablePulse-class.html">UnmodifiablePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A read‑only projection of a pulse that enforces structural finality.
+</dd>
+
+          <dt id="UnmodifiablePulseBase">
+  <span class="name "><a href="../cell_flutter/UnmodifiablePulseBase-class.html">UnmodifiablePulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="UnmodifiableValueCell">
+  <span class="name "><a href="../cell_flutter/UnmodifiableValueCell-class.html">UnmodifiableValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized read‑only proxy of a <code>ValueCell</code> that enforces immutability.
+</dd>
+
+          <dt id="UuidEffect">
+  <span class="name "><a href="../cell_flutter/UuidEffect-class.html">UuidEffect</a></span> 
+
+</dt>
+<dd>
+  A UUID generation. Records the generated UUID.
+</dd>
+
+          <dt id="ValidationFailure">
+  <span class="name "><a href="../cell_flutter/ValidationFailure-class.html">ValidationFailure</a></span> 
+
+</dt>
+<dd>
+  Represents a validation failure for a specific cell.
+</dd>
+
+          <dt id="ValueCell">
+  <span class="name "><a href="../cell_flutter/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A state‑bearing reactive node – the primary way to manage persistent
+state in the Cell Framework.
+</dd>
+
+          <dt id="ValueCellAsync">
+  <span class="name "><a href="../cell_flutter/ValueCellAsync-class.html">ValueCellAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized asynchronous controller for <a href="../cell_flutter/ValueCell-class.html">ValueCell</a>, providing a
+thread‑safe and non‑blocking interface for state interaction.
+</dd>
+
+          <dt id="ValueNucleus">
+  <span class="name "><a href="../cell_flutter/ValueNucleus-class.html">ValueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized <a href="../cell_flutter/Nucleus-class.html">Nucleus</a> blueprint designed to manage and propagate a
+discrete, persistent state value of type <code>V</code>.
+</dd>
+
+          <dt id="ValueRange">
+  <span class="name "><a href="../cell_flutter/ValueRange-class.html">ValueRange</a></span> 
+
+</dt>
+<dd>
+  <a href="../cell_flutter/ValueRange-class.html">ValueRange</a> is a specialized <a href="../cell_flutter/TestRule-class.html">TestRule</a> metadata annotation designed to
+validate whether a numeric input falls within a specific inclusive boundary.
+</dd>
+
+          <dt id="Values">
+  <span class="name "><a href="../cell_flutter/Values-class.html">Values</a></span> 
+
+</dt>
+<dd>
+  <a href="../cell_flutter/Values-class.html">Values</a> is a specialized <a href="../cell_flutter/TestRule-class.html">TestRule</a> that validates whether a given input
+is present within a predefined collection of allowed values.
+</dd>
+
+          <dt id="VerdictEffect">
+  <span class="name "><a href="../cell_flutter/VerdictEffect-class.html">VerdictEffect</a></span> 
+
+</dt>
+<dd>
+  The decision reached by an <code>effectful</code> <a href="../cell_flutter/TestCell-class.html">TestCell</a>.
+</dd>
+
+          <dt id="VersionRegistry">
+  <span class="name "><a href="../cell_flutter/VersionRegistry-class.html">VersionRegistry</a></span> 
+
+</dt>
+<dd>
+  Maps <code>(cellId, version)</code> to the receptor and test rule that
+implemented that version.
+</dd>
+
+          <dt id="WebsiteUrlPattern">
+  <span class="name "><a href="../cell_flutter/WebsiteUrlPattern-class.html">WebsiteUrlPattern</a></span> 
+
+</dt>
+<dd>
+  <a href="../cell_flutter/WebsiteUrlPattern-class.html">WebsiteUrlPattern</a> is a specialized <a href="../cell_flutter/EntryPattern-class.html">EntryPattern</a> metadata annotation
+designed to validate whether a string conforms to a standard web URL format.
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="enums">
+      <h2>Enums</h2>
+      <dl>
+          <dt id="AuditLevel">
+  <span class="name "><a href="../cell_flutter/AuditLevel.html">AuditLevel</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Observability Granularity</strong> and <strong>XAI Verbosity</strong>
+required for a <a href="../cell_flutter/Deputy-mixin.html">Deputy</a>'s operations.
+</dd>
+
+          <dt id="Clearance">
+  <span class="name "><a href="../cell_flutter/Clearance.html">Clearance</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Sovereign Physical Laws</strong> and structural boundaries of
+reactive operations within the framework.
+</dd>
+
+          <dt id="CompensationErrorPolicy">
+  <span class="name "><a href="../cell_flutter/CompensationErrorPolicy.html">CompensationErrorPolicy</a></span> 
+
+</dt>
+<dd>
+  Determines how the transaction scope behaves when a compensation attempt
+fails.
+</dd>
+
+          <dt id="ForkPolicy">
+  <span class="name "><a href="../cell_flutter/ForkPolicy.html">ForkPolicy</a></span> 
+
+</dt>
+<dd>
+  How a fork handles the parent graph's state.
+</dd>
+
+          <dt id="HubRouting">
+  <span class="name "><a href="../cell_flutter/HubRouting.html">HubRouting</a></span> 
+
+</dt>
+<dd>
+  Defines how a <a href="../cell_flutter/Cell/hub.html">Cell.hub</a> decides which spoke (child cell) should receive
+an incoming signal.
+</dd>
+
+          <dt id="Isolation">
+  <span class="name "><a href="../cell_flutter/Isolation.html">Isolation</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Architectural Boundary &amp; State Visibility</strong> of a <a href="../cell_flutter/Deputy-mixin.html">Deputy</a>.
+</dd>
+
+          <dt id="IsolationLevel">
+  <span class="name "><a href="../cell_flutter/IsolationLevel.html">IsolationLevel</a></span> 
+
+</dt>
+<dd>
+  Defines the consistency and visibility guarantees for a transaction.
+</dd>
+
+          <dt id="LineageArgument">
+  <span class="name "><a href="../cell_flutter/LineageArgument.html">LineageArgument</a></span> 
+
+</dt>
+<dd>
+  Defines the specific data field to be extracted when traversing a <a href="../cell_flutter/Pulse-class.html">Pulse</a>'s
+<strong>Causal History</strong> via the <code>lineage</code> method.
+</dd>
+
+          <dt id="LockOrdering">
+  <span class="name "><a href="../cell_flutter/LockOrdering.html">LockOrdering</a></span> 
+
+</dt>
+<dd>
+  Defines the order in which locks are acquired during commit.
+</dd>
+
+          <dt id="Mandate">
+  <span class="name "><a href="../cell_flutter/Mandate.html">Mandate</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Capability Profile and Authorization Scope</strong> for a <a href="../cell_flutter/Deputy-mixin.html">Deputy</a>.
+</dd>
+
+          <dt id="Ontology">
+  <span class="name "><a href="../cell_flutter/Ontology.html">Ontology</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Structural Taxonomy, Static Identity, and Architectural Shape</strong>
+of a <a href="../cell_flutter/Cell-class.html">Cell</a>.
+</dd>
+
+          <dt id="PriorityTier">
+  <span class="name "><a href="../cell_flutter/PriorityTier.html">PriorityTier</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Semantic Urgency Tiers</strong> for signal execution.
+</dd>
+
+          <dt id="PropagationStrategy">
+  <span class="name "><a href="../cell_flutter/PropagationStrategy.html">PropagationStrategy</a></span> 
+
+</dt>
+<dd>
+  Defines the tactical execution models for <strong>Pulse Propagation</strong> within
+the Cell framework's reactive graph.
+</dd>
+
+          <dt id="Provenance">
+  <span class="name "><a href="../cell_flutter/Provenance.html">Provenance</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Causal Accountability, Audit Trail, and Operational Intent</strong>
+of a <a href="../cell_flutter/Pulse-class.html">Pulse</a>.
+</dd>
+
+          <dt id="Purity">
+  <span class="name "><a href="../cell_flutter/Purity.html">Purity</a></span> 
+
+</dt>
+<dd>
+  Classifies a <a href="../cell_flutter/Receptor-class.html">Receptor</a> or <a href="../cell_flutter/TestCell-class.html">TestCell</a> by its effect footprint.
+</dd>
+
+          <dt id="ReasoningStrategy">
+  <span class="name "><a href="../cell_flutter/ReasoningStrategy.html">ReasoningStrategy</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Logical Pedigree</strong> and algorithmic origin of a <a href="../cell_flutter/Pulse-class.html">Pulse</a>.
+</dd>
+
+          <dt id="Sensitivity">
+  <span class="name "><a href="../cell_flutter/Sensitivity.html">Sensitivity</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Information Classification</strong> and data-privacy tier of a <a href="../cell_flutter/Pulse-class.html">Pulse</a>.
+</dd>
+
+          <dt id="Sovereignty">
+  <span class="name "><a href="../cell_flutter/Sovereignty.html">Sovereignty</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Commitment Authority</strong> and <strong>Escalation Protocol</strong>
+assigned to a <a href="../cell_flutter/Deputy-mixin.html">Deputy</a>.
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="mixins">
+      <h2>Mixins</h2>
+      <dl>
+          <dt id="Deputy">
+  <span class="name "><a href="../cell_flutter/Deputy-mixin.html">Deputy</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The mixin implementing proxy behavior for <a href="../cell_flutter/Cell/deputy.html">Cell.deputy</a> — you don't
+use this directly.
+</dd>
+
+          <dt id="Effectful">
+  <span class="name "><a href="../cell_flutter/Effectful-mixin.html">Effectful</a></span> 
+
+</dt>
+<dd>
+  The declarative marker for effectful receptors and rules.
+</dd>
+
+          <dt id="EffectfulReadOnly">
+  <span class="name "><a href="../cell_flutter/EffectfulReadOnly-mixin.html">EffectfulReadOnly</a></span> 
+
+</dt>
+<dd>
+  A variant of <a href="../cell_flutter/Effectful-mixin.html">Effectful</a> for receptors that <em>read</em> the outside world
+but do not mutate it (clocks, environment variables, read-only
+database lookups). Reports <a href="../cell_flutter/Purity.html">Purity.readOnlyExternal</a>.
+</dd>
+
+          <dt id="GovernanceMixin">
+  <span class="name "><a href="../cell_flutter/GovernanceMixin-mixin.html">GovernanceMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">G extends <a href="../cell_flutter/Governance-class.html">Governance</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A convenient mixin that provides default implementations for the
+<a href="../cell_flutter/Governance-class.html">Governance</a> interface methods.
+</dd>
+
+          <dt id="HookElement">
+  <span class="name "><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/HookElement-mixin.html">HookElement</a></span> 
+
+</dt>
+<dd>
+  An <a href="https://api.flutter.dev/flutter/widgets/Element-class.html">Element</a> that uses a <a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/HookWidget-class.html">HookWidget</a> as its configuration.
+</dd>
+
+          <dt id="InstructionChainMixin">
+  <span class="name "><a href="../cell_flutter/InstructionChainMixin-mixin.html">InstructionChainMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flutter/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell_flutter/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell_flutter/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A mixin that provides the core execution engine for composite instructions.
+</dd>
+
+          <dt id="OpenReceptorMixin">
+  <span class="name "><a href="../cell_flutter/OpenReceptorMixin-mixin.html">OpenReceptorMixin</a></span> 
+
+</dt>
+<dd>
+  A mixin that implements the <strong>Manual Control Interface</strong> for the reactive network.
+</dd>
+
+          <dt id="OpenSynapsesMixin">
+  <span class="name "><a href="../cell_flutter/OpenSynapsesMixin-mixin.html">OpenSynapsesMixin</a></span> 
+
+</dt>
+<dd>
+  A mixin that implements the <strong>Reactive Topology Interface</strong> for <a href="../cell_flutter/OpenCell-class.html">OpenCell</a> architectures.
+</dd>
+
+      </dl>
+    </section>
+
+
+    <section class="summary offset-anchor" id="extensions">
+      <h2>Extensions</h2>
+      <dl>
+          <dt id="ApplyCommandDSL">
+  <span class="name "><a href="../cell_flutter/ApplyCommandDSL.html">ApplyCommandDSL</a></span>
+  on <a href="../cell_flutter/Cell-class.html">Cell</a>
+  
+
+</dt>
+<dd>
+  A "fluent" shortcut that makes it easier to create and run commands on a cell.
+</dd>
+
+          <dt id="CellAsStream">
+  <span class="name "><a href="../cell_flutter/CellAsStream.html">CellAsStream</a></span>
+  on <a href="../cell_flutter/Cell-class.html">Cell</a>
+  
+
+</dt>
+<dd>
+  Bridges a <a href="../cell_flutter/Cell-class.html">Cell</a> to a Dart <code>Stream&lt;V?&gt;</code>.
+</dd>
+
+          <dt id="CellAsValue">
+  <span class="name "><a href="../cell_flutter/CellAsValue.html">CellAsValue</a></span>
+  on <a href="../cell_flutter/Cell-class.html">Cell</a>
+  
+
+</dt>
+<dd>
+  An extension that mirrors any <a href="../cell_flutter/Cell-class.html">Cell</a> into a fresh <a href="../cell_flutter/ValueCell-class.html">ValueCell</a>.
+</dd>
+
+          <dt id="CellGraphFork">
+  <span class="name "><a href="../cell_flutter/CellGraphFork.html">CellGraphFork</a></span>
+  on <a href="../cell_flutter/CellGraph-class.html">CellGraph</a>
+  
+
+</dt>
+<dd>
+  Forking extensions for <a href="../cell_flutter/CellGraph-class.html">CellGraph</a>.
+</dd>
+
+          <dt id="CellGraphTranslators">
+  <span class="name "><a href="../cell_flutter/CellGraphTranslators.html">CellGraphTranslators</a></span>
+  on <a href="../cell_flutter/CellGraph-class.html">CellGraph</a>
+  
+
+</dt>
+<dd>
+  The graph-scoped translator registry.
+</dd>
+
+          <dt id="CellGraphVersions">
+  <span class="name "><a href="../cell_flutter/CellGraphVersions.html">CellGraphVersions</a></span>
+  on <a href="../cell_flutter/CellGraph-class.html">CellGraph</a>
+  
+
+</dt>
+<dd>
+  The graph-scoped version registry (see <a href="../cell_flutter/VersionRegistry-class.html">VersionRegistry</a>).
+</dd>
+
+          <dt id="CellGraphVisualise">
+  <span class="name "><a href="../cell_flutter/CellGraphVisualise.html">CellGraphVisualise</a></span>
+  on <a href="../cell_flutter/CellGraph-class.html">CellGraph</a>
+  
+
+</dt>
+<dd>
+  Visualisation for <a href="../cell_flutter/CellGraph-class.html">CellGraph</a> and <a href="../cell_flutter/Ledger-class.html">Ledger</a>.
+</dd>
+
+          <dt id="CellRestoration">
+  <span class="name "><a href="../cell_flutter/CellRestoration.html">CellRestoration</a></span>
+  on <a href="../cell_flutter/Cell-class.html">Cell</a>
+  
+
+</dt>
+<dd>
+  Static factory access for <a href="../cell_flutter/RestorableCell-class.html">RestorableCell</a>.
+</dd>
+
+          <dt id="ForkParentLookup">
+  <span class="name "><a href="../cell_flutter/ForkParentLookup.html">ForkParentLookup</a></span>
+  on <a href="../cell_flutter/Ledger-class.html">Ledger</a>
+  
+
+</dt>
+<dd>
+  The parent ledger's hash at a given sequence.
+</dd>
+
+          <dt id="ForkVerify">
+  <span class="name "><a href="../cell_flutter/ForkVerify.html">ForkVerify</a></span>
+  on <a href="../cell_flutter/ForkHandle-class.html">ForkHandle</a>
+  
+
+</dt>
+<dd>
+  Fork-aware verification. A fork's <a href="../cell_flutter/ForkVerify/verify.html">verify</a> requires the parent
+ledger's <code>verify()</code> to pass.
+</dd>
+
+          <dt id="LedgerVisualise">
+  <span class="name "><a href="../cell_flutter/LedgerVisualise.html">LedgerVisualise</a></span>
+  on <a href="../cell_flutter/Ledger-class.html">Ledger</a>
+  
+
+</dt>
+<dd>
+  Visualisation for a <a href="../cell_flutter/Ledger-class.html">Ledger</a>'s entries (also used by the CLI).
+</dd>
+
+          <dt id="PulseExtension">
+  <span class="name "><a href="../cell_flutter/PulseExtension.html">PulseExtension</a></span>
+  on <a href="../cell_flutter/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span>
+  
+
+</dt>
+<dd>
+  Provides a fluent, functional API for operating on individual <a href="../cell_flutter/Pulse-class.html">Pulse</a> instances.
+</dd>
+
+          <dt id="PulseIterableExtension">
+  <span class="name "><a href="../cell_flutter/PulseIterableExtension.html">PulseIterableExtension</a></span>
+  on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flutter/Pulse-class.html">Pulse</a></span>&gt;</span>
+  
+
+</dt>
+<dd>
+  Fluent extensions for collections of <a href="../cell_flutter/Pulse-class.html">Pulse</a> objects.
+</dd>
+
+          <dt id="ReplayEngineFork">
+  <span class="name "><a href="../cell_flutter/ReplayEngineFork.html">ReplayEngineFork</a></span>
+  on <a href="../cell_flutter/ReplayEngine-class.html">ReplayEngine</a>
+  
+
+</dt>
+<dd>
+  Fork-aware replay: replays a parent ledger into a fork handle,
+applying a <a href="../cell_flutter/Mutation.html">Mutation</a> to each entry.
+</dd>
+
+          <dt id="TekartikLockExtension">
+  <span class="name "><a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/TekartikLockExtension.html">TekartikLockExtension</a></span>
+  on <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>
+  
+
+</dt>
+<dd>
+  Extension on <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> to provide synchronous execution when possible
+</dd>
+
+          <dt id="ValueCellBuilder">
+  <span class="name "><a href="../cell_flutter/ValueCellBuilder.html">ValueCellBuilder</a></span>
+  on <a href="../cell_flutter/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span>
+  
+
+</dt>
+<dd>
+  Fluent constructor for a <a href="../cell_flutter/CellBuilder-class.html">CellBuilder</a> over a <a href="../cell_flutter/ValueCell-class.html">ValueCell</a>.
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="constants">
+      <h2>Constants</h2>
+      <dl class="properties">
+          <dt id="useTextEditingController" class="constant">
+    <span class="name "><a href="../cell_flutter_hooks/useTextEditingController-constant.html">useTextEditingController</a></span>
+  <span class="signature">&#8594; const _TextEditingControllerHookCreator</span>
+  
+
+</dt>
+<dd>
+  Creates a <a href="https://api.flutter.dev/flutter/widgets/TextEditingController-class.html">TextEditingController</a>, either via an initial text or an initial
+<a href="https://api.flutter.dev/flutter/flutter_test/TextEditingValue-class.html">TextEditingValue</a>.
+  
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="properties">
+      <h2>Properties</h2>
+      <dl class="properties">
+          <dt id="debugHotReloadHooksEnabled" class="property">
+  <span class="name"><a href="../cell_flutter_hooks/debugHotReloadHooksEnabled.html">debugHotReloadHooksEnabled</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Whether to behave like in release mode or allow hot-reload for hooks.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="functions">
+      <h2>Functions</h2>
+      <dl class="callables">
+          <dt id="canonicalJsonDecode" class="callable">
+  <span class="name"><a href="../cell_flutter/canonicalJsonDecode.html">canonicalJsonDecode</a></span><span class="signature">(<wbr><span class="parameter" id="canonicalJsonDecode-param-source"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">source</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Decodes a canonical JSON string into a JSON-encodable object tree.
+  
+
+</dd>
+
+          <dt id="canonicalJsonEncode" class="callable">
+  <span class="name"><a href="../cell_flutter/canonicalJsonEncode.html">canonicalJsonEncode</a></span><span class="signature">(<wbr><span class="parameter" id="canonicalJsonEncode-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">value</span>, {</span><span class="parameter" id="canonicalJsonEncode-param-omitNulls"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">omitNulls</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Encodes <code>value</code> into deterministic, canonical JSON.
+  
+
+</dd>
+
+          <dt id="cellEditingController" class="callable">
+  <span class="name"><a href="../cell_flutter/cellEditingController.html">cellEditingController</a></span><span class="signature">(<wbr><span class="parameter" id="cellEditingController-param-cell"><span class="type-annotation"><a href="../cell_flutter/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">cell</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_flutter/CellEditingController-class.html">CellEditingController</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a <a href="../cell_flutter/CellEditingController-class.html">CellEditingController</a> bound to <code>cell</code>.
+  
+
+</dd>
+
+          <dt id="fingerprint" class="callable">
+  <span class="name"><a href="../cell_flutter/fingerprint.html">fingerprint</a></span><span class="signature">(<wbr><span class="parameter" id="fingerprint-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Computes the SHA-256 fingerprint of <code>value</code>'s canonical JSON form,
+hex-encoded.
+  
+
+</dd>
+
+          <dt id="get" class="callable">
+  <span class="name"><a href="../cell_flutter/get.html">get</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="get-param-fn"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">fn</span>, {</span><span class="parameter" id="get-param-fallback"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">fallback</span>, </span><span class="parameter" id="get-param-orElse"><span class="type-annotation">T?</span> <span class="parameter-name">orElse</span></span>})
+    <span class="returntype parameter">&#8594; T</span>
+  </span>
+  
+
+</dt>
+<dd>
+  A robust functional utility for safely executing operations of type <code>T</code>
+with multi-stage recovery logic and hierarchical fallbacks.
+  
+
+</dd>
+
+          <dt id="mapMerge" class="callable">
+  <span class="name"><a href="../cell_flutter/mapMerge.html">mapMerge</a></span><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="mapMerge-param-map"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span> <span class="parameter-name">map</span>, </span><span class="parameter" id="mapMerge-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  
+  
+
+</dd>
+
+          <dt id="restorableState" class="callable">
+  <span class="name"><a href="../cell_flutter/restorableState.html">restorableState</a></span><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="restorableState-param-restorationId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">restorationId</span>, </span><span class="parameter" id="restorableState-param-initial"><span class="type-annotation">V?</span> <span class="parameter-name">initial</span>, </span><span class="parameter" id="restorableState-param-fromPrimitives"><span class="type-annotation">V?</span> <span class="parameter-name">fromPrimitives</span>(<span class="parameter" id="param-data"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">data</span></span>)?, </span><span class="parameter" id="restorableState-param-toPrimitives"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">toPrimitives</span>(<span class="parameter" id="param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flutter/RestorableCell-class.html">RestorableCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  The unqualified alias for <a href="../cell_flutter/CellRestoration/restorableState.html">CellRestoration.restorableState</a>.
+  
+
+</dd>
+
+          <dt id="snapshotForCell" class="callable">
+  <span class="name"><a href="../cell_flutter/snapshotForCell.html">snapshotForCell</a></span><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="snapshotForCell-param-cell"><span class="type-annotation"><a href="../cell_flutter/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/widgets/AsyncSnapshot-class.html">AsyncSnapshot</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns the <a href="https://api.flutter.dev/flutter/widgets/AsyncSnapshot-class.html">AsyncSnapshot</a> the widget should show for <code>cell</code>'s currently
+retained pulse, or <code>null</code> when nothing usable is retained.
+  
+
+</dd>
+
+          <dt id="snapshotForPulse" class="callable">
+  <span class="name"><a href="../cell_flutter/snapshotForPulse.html">snapshotForPulse</a></span><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="snapshotForPulse-param-pulse"><span class="type-annotation"><a href="../cell_flutter/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">pulse</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/widgets/AsyncSnapshot-class.html">AsyncSnapshot</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Projects a single <a href="../cell_flutter/Pulse-class.html">Pulse</a> into an <a href="https://api.flutter.dev/flutter/widgets/AsyncSnapshot-class.html">AsyncSnapshot</a> for a <code>CellAsyncBuilder</code>.
+  
+
+</dd>
+
+          <dt id="use" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/use.html">use</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="use-param-hook"><span class="type-annotation"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/Hook-class.html">Hook</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span> <span class="parameter-name">hook</span></span>)
+    <span class="returntype parameter">&#8594; R</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Registers a <a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/Hook-class.html">Hook</a> and returns its value.
+  
+
+</dd>
+
+          <dt id="useAnimation" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useAnimation.html">useAnimation</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="useAnimation-param-animation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/animation/Animation-class.html">Animation</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">animation</span></span>)
+    <span class="returntype parameter">&#8594; T</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Subscribes to an <a href="https://api.flutter.dev/flutter/animation/Animation-class.html">Animation</a> and returns its value.
+  
+
+</dd>
+
+          <dt id="useAnimationController" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useAnimationController.html">useAnimationController</a></span><span class="signature">(<wbr>{<span class="parameter" id="useAnimationController-param-duration"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">duration</span>, </span><span class="parameter" id="useAnimationController-param-reverseDuration"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">reverseDuration</span>, </span><span class="parameter" id="useAnimationController-param-debugLabel"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">debugLabel</span>, </span><span class="parameter" id="useAnimationController-param-initialValue"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span> <span class="parameter-name">initialValue</span> = <span class="default-value">0</span>, </span><span class="parameter" id="useAnimationController-param-lowerBound"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span> <span class="parameter-name">lowerBound</span> = <span class="default-value">0</span>, </span><span class="parameter" id="useAnimationController-param-upperBound"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span> <span class="parameter-name">upperBound</span> = <span class="default-value">1</span>, </span><span class="parameter" id="useAnimationController-param-vsync"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/scheduler/TickerProvider-class.html">TickerProvider</a>?</span> <span class="parameter-name">vsync</span>, </span><span class="parameter" id="useAnimationController-param-animationBehavior"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/animation/AnimationBehavior.html">AnimationBehavior</a></span> <span class="parameter-name">animationBehavior</span> = <span class="default-value">AnimationBehavior.normal</span>, </span><span class="parameter" id="useAnimationController-param-keys"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">keys</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/animation/AnimationController-class.html">AnimationController</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates an <a href="https://api.flutter.dev/flutter/animation/AnimationController-class.html">AnimationController</a> and automatically disposes it when necessary.
+  
+
+</dd>
+
+          <dt id="useAppLifecycleState" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useAppLifecycleState.html">useAppLifecycleState</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-ui/AppLifecycleState.html">AppLifecycleState</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns the current <a href="https://api.flutter.dev/flutter/dart-ui/AppLifecycleState.html">AppLifecycleState</a> value and rebuilds the widget when it changes.
+  
+
+</dd>
+
+          <dt id="useAutomaticKeepAlive" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useAutomaticKeepAlive.html">useAutomaticKeepAlive</a></span><span class="signature">(<wbr>{<span class="parameter" id="useAutomaticKeepAlive-param-wantKeepAlive"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">wantKeepAlive</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Mark a widget using this hook as needing to stay alive even when it's in a
+lazy list that would otherwise remove it.
+  
+
+</dd>
+
+          <dt id="useCallback" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useCallback.html">useCallback</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="useCallback-param-callback"><span class="type-annotation">T</span> <span class="parameter-name">callback</span>, [</span><span class="parameter" id="useCallback-param-keys"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">keys</span> = <span class="default-value">const &lt;Object&gt;[]</span></span>])
+    <span class="returntype parameter">&#8594; T</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Cache a function across rebuilds based on a list of keys.
+  
+
+</dd>
+
+          <dt id="useCell" class="callable">
+  <span class="name"><a href="../cell_flutter_hooks/useCell.html">useCell</a></span><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="useCell-param-cell"><span>required</span> <span class="type-annotation"><a href="../cell_flutter/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="useCell-param-select"><span>required</span> <span class="type-annotation">S</span> <span class="parameter-name">select</span>(<span class="parameter" id="param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="useCell-param-equals"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">equals</span>(<span class="parameter" id="param-previous"><span class="type-annotation">S</span> <span class="parameter-name">previous</span>, </span><span class="parameter" id="param-next"><span class="type-annotation">S</span> <span class="parameter-name">next</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; S</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Reads the slice of <code>cell</code> produced by <code>select</code>, rebuilding only when
+that slice changes.
+  
+
+</dd>
+
+          <dt id="useCellAsync" class="callable">
+  <span class="name"><a href="../cell_flutter_hooks/useCellAsync.html">useCellAsync</a></span><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="useCellAsync-param-cell"><span class="type-annotation"><a href="../cell_flutter/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, {</span><span class="parameter" id="useCellAsync-param-initialSnapshot"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/AsyncSnapshot-class.html">AsyncSnapshot</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span>?</span> <span class="parameter-name">initialSnapshot</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/widgets/AsyncSnapshot-class.html">AsyncSnapshot</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns the async state of <code>cell</code> as an <a href="https://api.flutter.dev/flutter/widgets/AsyncSnapshot-class.html">AsyncSnapshot</a>, updating on
+every pulse.
+  
+
+</dd>
+
+          <dt id="useCellListener" class="callable">
+  <span class="name"><a href="../cell_flutter_hooks/useCellListener.html">useCellListener</a></span><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="useCellListener-param-cell"><span>required</span> <span class="type-annotation"><a href="../cell_flutter/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="useCellListener-param-onPulse"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">onPulse</span>(<span class="parameter" id="param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span>, </span><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flutter/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">pulse</span></span>)</span>})
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Invokes <code>onPulse</code> for every pulse emitted by <code>cell</code>, <strong>without</strong>
+rebuilding the widget.
+  
+
+</dd>
+
+          <dt id="useCellNotifier" class="callable">
+  <span class="name"><a href="../cell_flutter_hooks/useCellNotifier.html">useCellNotifier</a></span><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="useCellNotifier-param-cell"><span class="type-annotation"><a href="../cell_flutter/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">cell</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_flutter/CellNotifier-class.html">CellNotifier</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns a <a href="../cell_flutter/CellNotifier-class.html">CellNotifier</a> bound to <code>cell</code>, disposed on unmount.
+  
+
+</dd>
+
+          <dt id="useCellValue" class="callable">
+  <span class="name"><a href="../cell_flutter_hooks/useCellValue.html">useCellValue</a></span><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="useCellValue-param-cell"><span class="type-annotation"><a href="../cell_flutter/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">cell</span></span>)
+    <span class="returntype parameter">&#8594; V?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  A convenience wrapper for "rebuild on every value change".
+  
+
+</dd>
+
+          <dt id="useContext" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useContext.html">useContext</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Obtains the <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a> of the building <a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/HookWidget-class.html">HookWidget</a>.
+  
+
+</dd>
+
+          <dt id="useDebounced" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useDebounced.html">useDebounced</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="useDebounced-param-toDebounce"><span class="type-annotation">T</span> <span class="parameter-name">toDebounce</span>, </span><span class="parameter" id="useDebounced-param-timeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">timeout</span></span>)
+    <span class="returntype parameter">&#8594; T?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns a debounced version of the provided value <code>toDebounce</code>, triggering
+widget updates accordingly after a specified <code>timeout</code> duration.
+  
+
+</dd>
+
+          <dt id="useEffect" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useEffect.html">useEffect</a></span><span class="signature">(<wbr><span class="parameter" id="useEffect-param-effect"><span class="type-annotation"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/Dispose.html">Dispose</a>?</span> <span class="parameter-name">effect</span>(), [</span><span class="parameter" id="useEffect-param-keys"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">keys</span></span>])
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Useful for side-effects and optionally canceling them.
+  
+
+</dd>
+
+          <dt id="useExpansionTileController" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useExpansionTileController.html">useExpansionTileController</a></span><span class="signature">(<wbr>{<span class="parameter" id="useExpansionTileController-param-keys"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">keys</span></span>})
+    <span class="returntype parameter">&#8594; <a class="deprecated" href="https://api.flutter.dev/flutter/material/ExpansionTileController.html">ExpansionTileController</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a <a class="deprecated" href="https://api.flutter.dev/flutter/material/ExpansionTileController.html">ExpansionTileController</a> that will be disposed automatically.
+  
+
+</dd>
+
+          <dt id="useFocusNode" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useFocusNode.html">useFocusNode</a></span><span class="signature">(<wbr>{<span class="parameter" id="useFocusNode-param-debugLabel"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">debugLabel</span>, </span><span class="parameter" id="useFocusNode-param-onKey"><span class="type-annotation"><a class="deprecated" href="https://api.flutter.dev/flutter/widgets/FocusOnKeyCallback.html">FocusOnKeyCallback</a>?</span> <span class="parameter-name">onKey</span>, </span><span class="parameter" id="useFocusNode-param-onKeyEvent"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/FocusOnKeyEventCallback.html">FocusOnKeyEventCallback</a>?</span> <span class="parameter-name">onKeyEvent</span>, </span><span class="parameter" id="useFocusNode-param-skipTraversal"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">skipTraversal</span> = <span class="default-value">false</span>, </span><span class="parameter" id="useFocusNode-param-canRequestFocus"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">canRequestFocus</span> = <span class="default-value">true</span>, </span><span class="parameter" id="useFocusNode-param-descendantsAreFocusable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">descendantsAreFocusable</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/widgets/FocusNode-class.html">FocusNode</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates an automatically disposed <a href="https://api.flutter.dev/flutter/widgets/FocusNode-class.html">FocusNode</a>.
+  
+
+</dd>
+
+          <dt id="useFocusScopeNode" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useFocusScopeNode.html">useFocusScopeNode</a></span><span class="signature">(<wbr>{<span class="parameter" id="useFocusScopeNode-param-debugLabel"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">debugLabel</span>, </span><span class="parameter" id="useFocusScopeNode-param-onKey"><span class="type-annotation"><a class="deprecated" href="https://api.flutter.dev/flutter/widgets/FocusOnKeyCallback.html">FocusOnKeyCallback</a>?</span> <span class="parameter-name">onKey</span>, </span><span class="parameter" id="useFocusScopeNode-param-onKeyEvent"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/FocusOnKeyEventCallback.html">FocusOnKeyEventCallback</a>?</span> <span class="parameter-name">onKeyEvent</span>, </span><span class="parameter" id="useFocusScopeNode-param-skipTraversal"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">skipTraversal</span> = <span class="default-value">false</span>, </span><span class="parameter" id="useFocusScopeNode-param-canRequestFocus"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">canRequestFocus</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/widgets/FocusScopeNode-class.html">FocusScopeNode</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates an automatically disposed <a href="https://api.flutter.dev/flutter/widgets/FocusScopeNode-class.html">FocusScopeNode</a>.
+  
+
+</dd>
+
+          <dt id="useFuture" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useFuture.html">useFuture</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="useFuture-param-future"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>?</span> <span class="parameter-name">future</span>, {</span><span class="parameter" id="useFuture-param-initialData"><span class="type-annotation">T?</span> <span class="parameter-name">initialData</span>, </span><span class="parameter" id="useFuture-param-preserveState"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">preserveState</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/widgets/AsyncSnapshot-class.html">AsyncSnapshot</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Subscribes to a <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a> and returns its current state as an <a href="https://api.flutter.dev/flutter/widgets/AsyncSnapshot-class.html">AsyncSnapshot</a>.
+  
+
+</dd>
+
+          <dt id="useIsMounted" class="callable">
+  <span class="name deprecated"><a class="deprecated" href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useIsMounted.html">useIsMounted</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a class="deprecated" href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/IsMounted.html">IsMounted</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns an <a class="deprecated" href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/IsMounted.html">IsMounted</a> object that you can use
+to check if the <a href="https://api.flutter.dev/flutter/widgets/State-class.html">State</a> is mounted.
+  
+
+</dd>
+
+          <dt id="useListenable" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useListenable.html">useListenable</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://api.flutter.dev/flutter/foundation/Listenable-class.html">Listenable</a>?</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="useListenable-param-listenable"><span class="type-annotation">T</span> <span class="parameter-name">listenable</span></span>)
+    <span class="returntype parameter">&#8594; T</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Subscribes to a <a href="https://api.flutter.dev/flutter/foundation/Listenable-class.html">Listenable</a> and marks the widget as needing build
+whenever the listener is called.
+  
+
+</dd>
+
+          <dt id="useListenableSelector" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useListenableSelector.html">useListenableSelector</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="useListenableSelector-param-listenable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/foundation/Listenable-class.html">Listenable</a>?</span> <span class="parameter-name">listenable</span>, </span><span class="parameter" id="useListenableSelector-param-selector"><span class="type-annotation">R</span> <span class="parameter-name">selector</span>()</span>)
+    <span class="returntype parameter">&#8594; R</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Rebuild only when there is a change in the selector result.
+  
+
+</dd>
+
+          <dt id="useMaterialStatesController" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useMaterialStatesController.html">useMaterialStatesController</a></span><span class="signature">(<wbr>{<span class="parameter" id="useMaterialStatesController-param-values"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a class="deprecated" href="https://api.flutter.dev/flutter/material/MaterialState.html">MaterialState</a></span>&gt;</span>?</span> <span class="parameter-name">values</span>, </span><span class="parameter" id="useMaterialStatesController-param-keys"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">keys</span></span>})
+    <span class="returntype parameter">&#8594; <a class="deprecated" href="https://api.flutter.dev/flutter/material/MaterialStatesController.html">MaterialStatesController</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a <a class="deprecated" href="https://api.flutter.dev/flutter/material/MaterialStatesController.html">MaterialStatesController</a> that will be disposed automatically.
+  
+
+</dd>
+
+          <dt id="useMemoized" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useMemoized.html">useMemoized</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="useMemoized-param-valueBuilder"><span class="type-annotation">T</span> <span class="parameter-name">valueBuilder</span>(), [</span><span class="parameter" id="useMemoized-param-keys"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">keys</span> = <span class="default-value">const &lt;Object&gt;[]</span></span>])
+    <span class="returntype parameter">&#8594; T</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Caches the instance of a complex object.
+  
+
+</dd>
+
+          <dt id="useOnAppLifecycleStateChange" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useOnAppLifecycleStateChange.html">useOnAppLifecycleStateChange</a></span><span class="signature">(<wbr><span class="parameter" id="useOnAppLifecycleStateChange-param-onStateChanged"><span class="type-annotation"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/LifecycleCallback.html">LifecycleCallback</a>?</span> <span class="parameter-name">onStateChanged</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Listens to the <a href="https://api.flutter.dev/flutter/dart-ui/AppLifecycleState.html">AppLifecycleState</a>.
+  
+
+</dd>
+
+          <dt id="useOnPlatformBrightnessChange" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useOnPlatformBrightnessChange.html">useOnPlatformBrightnessChange</a></span><span class="signature">(<wbr><span class="parameter" id="useOnPlatformBrightnessChange-param-onBrightnessChange"><span class="type-annotation"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/BrightnessCallback.html">BrightnessCallback</a></span> <span class="parameter-name">onBrightnessChange</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Listens to the platform <a href="https://api.flutter.dev/flutter/dart-ui/Brightness.html">Brightness</a>.
+  
+
+</dd>
+
+          <dt id="useOnStreamChange" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useOnStreamChange.html">useOnStreamChange</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="useOnStreamChange-param-stream"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>?</span> <span class="parameter-name">stream</span>, {</span><span class="parameter" id="useOnStreamChange-param-onData"><span class="type-annotation">void</span> <span class="parameter-name">onData</span>(<span class="parameter" id="param-event"><span class="type-annotation">T</span> <span class="parameter-name">event</span></span>)?, </span><span class="parameter" id="useOnStreamChange-param-onError"><span class="type-annotation">void</span> <span class="parameter-name">onError</span>(<span class="parameter" id="param-error"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">error</span>, </span><span class="parameter" id="param-stackTrace"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/StackTrace-class.html">StackTrace</a></span> <span class="parameter-name">stackTrace</span></span>)?, </span><span class="parameter" id="useOnStreamChange-param-onDone"><span class="type-annotation">void</span> <span class="parameter-name">onDone</span>()?, </span><span class="parameter" id="useOnStreamChange-param-cancelOnError"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">cancelOnError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/StreamSubscription-class.html">StreamSubscription</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Subscribes to a <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a> and calls the <a href="https://api.flutter.dev/flutter/dart-core/Stream/listen.html">Stream.listen</a> to register the <code>onData</code>,
+<code>onError</code>, and <code>onDone</code>.
+  
+
+</dd>
+
+          <dt id="usePageController" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/usePageController.html">usePageController</a></span><span class="signature">(<wbr>{<span class="parameter" id="usePageController-param-initialPage"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">initialPage</span> = <span class="default-value">0</span>, </span><span class="parameter" id="usePageController-param-keepPage"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">keepPage</span> = <span class="default-value">true</span>, </span><span class="parameter" id="usePageController-param-viewportFraction"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span> <span class="parameter-name">viewportFraction</span> = <span class="default-value">1.0</span>, </span><span class="parameter" id="usePageController-param-keys"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">keys</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/widgets/PageController-class.html">PageController</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a <a href="https://api.flutter.dev/flutter/widgets/PageController-class.html">PageController</a> that will be disposed automatically.
+  
+
+</dd>
+
+          <dt id="usePlatformBrightness" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/usePlatformBrightness.html">usePlatformBrightness</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-ui/Brightness.html">Brightness</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns the current platform <a href="https://api.flutter.dev/flutter/dart-ui/Brightness.html">Brightness</a> value and rebuilds the widget when it changes.
+  
+
+</dd>
+
+          <dt id="usePrevious" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/usePrevious.html">usePrevious</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="usePrevious-param-val"><span class="type-annotation">T</span> <span class="parameter-name">val</span></span>)
+    <span class="returntype parameter">&#8594; T?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns the previous value passed to <a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/usePrevious.html">usePrevious</a> (from the previous widget <code>build</code>).
+  
+
+</dd>
+
+          <dt id="useReassemble" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useReassemble.html">useReassemble</a></span><span class="signature">(<wbr><span class="parameter" id="useReassemble-param-callback"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/VoidCallback.html">VoidCallback</a></span> <span class="parameter-name">callback</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Runs the callback on every hot reload,
+similar to <code>reassemble</code> in the stateful widgets.
+  
+
+</dd>
+
+          <dt id="useReducer" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useReducer.html">useReducer</a></span><span class="signature">&lt;<wbr><span class="type-parameter">State</span>, <span class="type-parameter">Action</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="useReducer-param-reducer"><span class="type-annotation"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/Reducer.html">Reducer</a><span class="signature">&lt;<wbr><span class="type-parameter">State</span>, <span class="type-parameter">Action</span>&gt;</span></span> <span class="parameter-name">reducer</span>, {</span><span class="parameter" id="useReducer-param-initialState"><span>required</span> <span class="type-annotation">State</span> <span class="parameter-name">initialState</span>, </span><span class="parameter" id="useReducer-param-initialAction"><span>required</span> <span class="type-annotation">Action</span> <span class="parameter-name">initialAction</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/Store-class.html">Store</a><span class="signature">&lt;<wbr><span class="type-parameter">State</span>, <span class="type-parameter">Action</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  An alternative to <a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useState.html">useState</a> for more complex states.
+  
+
+</dd>
+
+          <dt id="useRef" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useRef.html">useRef</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="useRef-param-initialValue"><span class="type-annotation">T</span> <span class="parameter-name">initialValue</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/ObjectRef-class.html">ObjectRef</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates an object that contains a single mutable property.
+  
+
+</dd>
+
+          <dt id="useScrollController" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useScrollController.html">useScrollController</a></span><span class="signature">(<wbr>{<span class="parameter" id="useScrollController-param-initialScrollOffset"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span> <span class="parameter-name">initialScrollOffset</span> = <span class="default-value">0.0</span>, </span><span class="parameter" id="useScrollController-param-keepScrollOffset"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">keepScrollOffset</span> = <span class="default-value">true</span>, </span><span class="parameter" id="useScrollController-param-debugLabel"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">debugLabel</span>, </span><span class="parameter" id="useScrollController-param-keys"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">keys</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/widgets/ScrollController-class.html">ScrollController</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates <a href="https://api.flutter.dev/flutter/widgets/ScrollController-class.html">ScrollController</a> that will be disposed automatically.
+  
+
+</dd>
+
+          <dt id="useSearchController" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useSearchController.html">useSearchController</a></span><span class="signature">(<wbr>{<span class="parameter" id="useSearchController-param-keys"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">keys</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/material/SearchController-class.html">SearchController</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a <a href="https://api.flutter.dev/flutter/material/SearchController-class.html">SearchController</a> that will be disposed automatically.
+  
+
+</dd>
+
+          <dt id="useSingleTickerProvider" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useSingleTickerProvider.html">useSingleTickerProvider</a></span><span class="signature">(<wbr>{<span class="parameter" id="useSingleTickerProvider-param-keys"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">keys</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/scheduler/TickerProvider-class.html">TickerProvider</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a single usage <a href="https://api.flutter.dev/flutter/scheduler/TickerProvider-class.html">TickerProvider</a>.
+  
+
+</dd>
+
+          <dt id="useState" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useState.html">useState</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="useState-param-initialData"><span class="type-annotation">T</span> <span class="parameter-name">initialData</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html">ValueNotifier</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a variable and subscribes to it.
+  
+
+</dd>
+
+          <dt id="useStream" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useStream.html">useStream</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="useStream-param-stream"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>?</span> <span class="parameter-name">stream</span>, {</span><span class="parameter" id="useStream-param-initialData"><span class="type-annotation">T?</span> <span class="parameter-name">initialData</span>, </span><span class="parameter" id="useStream-param-preserveState"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">preserveState</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/widgets/AsyncSnapshot-class.html">AsyncSnapshot</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Subscribes to a <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a> and returns its current state as an <a href="https://api.flutter.dev/flutter/widgets/AsyncSnapshot-class.html">AsyncSnapshot</a>.
+  
+
+</dd>
+
+          <dt id="useStreamController" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useStreamController.html">useStreamController</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="useStreamController-param-sync"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">sync</span> = <span class="default-value">false</span>, </span><span class="parameter" id="useStreamController-param-onListen"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/VoidCallback.html">VoidCallback</a>?</span> <span class="parameter-name">onListen</span>, </span><span class="parameter" id="useStreamController-param-onCancel"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/VoidCallback.html">VoidCallback</a>?</span> <span class="parameter-name">onCancel</span>, </span><span class="parameter" id="useStreamController-param-keys"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">keys</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/StreamController-class.html">StreamController</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a <a href="https://api.flutter.dev/flutter/dart-async/StreamController-class.html">StreamController</a> which is automatically disposed when necessary.
+  
+
+</dd>
+
+          <dt id="useTabController" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useTabController.html">useTabController</a></span><span class="signature">(<wbr>{<span class="parameter" id="useTabController-param-initialLength"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">initialLength</span>, </span><span class="parameter" id="useTabController-param-vsync"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/scheduler/TickerProvider-class.html">TickerProvider</a>?</span> <span class="parameter-name">vsync</span>, </span><span class="parameter" id="useTabController-param-initialIndex"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">initialIndex</span> = <span class="default-value">0</span>, </span><span class="parameter" id="useTabController-param-keys"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">keys</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/material/TabController-class.html">TabController</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a <a href="https://api.flutter.dev/flutter/material/TabController-class.html">TabController</a> that will be disposed automatically.
+  
+
+</dd>
+
+          <dt id="useTransformationController" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useTransformationController.html">useTransformationController</a></span><span class="signature">(<wbr>{<span class="parameter" id="useTransformationController-param-initialValue"><span class="type-annotation"><a href="https://pub.dev/documentation/vector_math/2.2.0/vector_math_64/Matrix4-class.html">Matrix4</a>?</span> <span class="parameter-name">initialValue</span>, </span><span class="parameter" id="useTransformationController-param-keys"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">keys</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/widgets/TransformationController-class.html">TransformationController</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates and disposes a <a href="https://api.flutter.dev/flutter/widgets/TransformationController-class.html">TransformationController</a>.
+  
+
+</dd>
+
+          <dt id="useValueChanged" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useValueChanged.html">useValueChanged</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="useValueChanged-param-value"><span class="type-annotation">T</span> <span class="parameter-name">value</span>, </span><span class="parameter" id="useValueChanged-param-valueChange"><span class="type-annotation">R?</span> <span class="parameter-name">valueChange</span>(<span class="parameter" id="param-oldValue"><span class="type-annotation">T</span> <span class="parameter-name">oldValue</span>, </span><span class="parameter" id="param-oldResult"><span class="type-annotation">R?</span> <span class="parameter-name">oldResult</span></span>)</span>)
+    <span class="returntype parameter">&#8594; R?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Watches a value and triggers a callback whenever the value changed.
+  
+
+</dd>
+
+          <dt id="useValueListenable" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useValueListenable.html">useValueListenable</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="useValueListenable-param-valueListenable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/foundation/ValueListenable-class.html">ValueListenable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">valueListenable</span></span>)
+    <span class="returntype parameter">&#8594; T</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Subscribes to a <a href="https://api.flutter.dev/flutter/foundation/ValueListenable-class.html">ValueListenable</a> and returns its value.
+  
+
+</dd>
+
+          <dt id="useValueNotifier" class="callable">
+  <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useValueNotifier.html">useValueNotifier</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="useValueNotifier-param-initialData"><span class="type-annotation">T</span> <span class="parameter-name">initialData</span>, [</span><span class="parameter" id="useValueNotifier-param-keys"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">keys</span></span>])
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html">ValueNotifier</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a <a href="https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html">ValueNotifier</a> that is automatically disposed.
+  
+
+</dd>
+
+          <dt id="withCellLocks" class="callable">
+  <span class="name"><a href="../cell_flutter/withCellLocks.html">withCellLocks</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="withCellLocks-param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span>, </span><span class="parameter" id="withCellLocks-param-body"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">body</span>(), {</span><span class="parameter" id="withCellLocks-param-order"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">order</span>(<span class="parameter" id="param-a"><span class="type-annotation"><a href="../cell_flutter/Cell-class.html">Cell</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="param-b"><span class="type-annotation"><a href="../cell_flutter/Cell-class.html">Cell</a></span> <span class="parameter-name">b</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Acquires the locks of <code>cells</code> in a deterministic total order.
+  
+
+</dd>
+
+          <dt id="withLocks" class="callable">
+  <span class="name"><a href="../cell_flutter/withLocks.html">withLocks</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="withLocks-param-locks"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>?</span>&gt;</span></span> <span class="parameter-name">locks</span>, </span><span class="parameter" id="withLocks-param-body"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">body</span>()</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a cell that emits the values of a Dart <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a>.
+  
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="typedefs">
+      <h2>Typedefs</h2>
+      <dl>
+          
+  <dt id="ApplyArguments" class="">
+  <span class="name"><a href="../cell_flutter/ApplyArguments.html">ApplyArguments</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="field-name">namedArguments</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="field-name">positionalArguments</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A structured container for function arguments that allows for auditing and reversals.
+  
+
+</dd>
+
+
+          
+  <dt id="ApplyCommand" class="">
+  <span class="name"><a href="../cell_flutter/ApplyCommand.html">ApplyCommand</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_flutter/ApplyArguments.html">ApplyArguments</a></span> <span class="field-name">arguments</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flutter/ApplyCompensation.html">ApplyCompensation</a>?</span> <span class="field-name">compensation</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="field-name">function</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A complete request to perform an action or change state within a cell.
+  
+
+</dd>
+
+
+          
+  <dt id="ApplyCompensation" class="">
+  <span class="name"><a href="../cell_flutter/ApplyCompensation.html">ApplyCompensation</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_flutter/ApplyArguments.html">ApplyArguments</a></span> <span class="field-name">arguments</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flutter/Cell-class.html">Cell</a>?</span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="field-name">function</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A set of instructions used to undo or "roll back" a change if it fails.
+  
+
+</dd>
+
+
+          
+  <dt id="ApplyReceipt" class="">
+  <span class="name"><a href="../cell_flutter/ApplyReceipt.html">ApplyReceipt</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_flutter/ApplyArguments.html">ApplyArguments</a></span> <span class="field-name">arguments</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flutter/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="field-name">contextVersion</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="field-name">function</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="field-name">id</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="field-name">ledgerSeq</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="field-name">pulseDigest</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="field-name">receptorVersion</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="field-name">ruleVersion</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a></span> <span class="field-name">timestamp</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="field-name">txSequence</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="field-name">vetted</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  The permanent, official record of a specific action taken by a cell.
+  
+
+</dd>
+
+
+          
+  <dt id="Arguments" class="">
+  <span class="name"><a href="../cell_flutter/Arguments.html">Arguments</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="field-name">namedArguments</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="field-name">positionalArguments</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  Represents a tuple of positional and named arguments for function calls.
+Used when validating or processing function applications in cells.
+  
+
+</dd>
+
+
+          
+  <dt id="BrightnessCallback" class="callable">
+    <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/BrightnessCallback.html">BrightnessCallback</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-previous"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/Brightness.html">Brightness</a></span> <span class="parameter-name">previous</span>, </span><span class="parameter" id="param-current"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/Brightness.html">Brightness</a></span> <span class="parameter-name">current</span></span>)</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    A callback triggered when the platform brightness changes.
+    
+
+  </dd>
+
+          
+  <dt id="Dispose" class="callable">
+    <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/Dispose.html">Dispose</a></span><span class="signature">
+      <span class="returntype parameter">= void Function<span class="signature">()</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    A function called when the state of a widget is destroyed.
+    
+
+  </dd>
+
+          
+  <dt id="EgressHandle" class="">
+  <span class="name"><a href="../cell_flutter/EgressHandle.html">EgressHandle</a></span>&lt;<wbr><span class="type-parameter">S extends <a href="../cell_flutter/Pulse-class.html">Pulse</a></span>&gt;
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_flutter/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">()</span></span> <span class="field-name">start</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">()</span></span> <span class="field-name">stop</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A management handle for an <strong>Output Terminal</strong>, providing a controlled
+interface to manage an external side-effect listener.
+  
+
+</dd>
+
+
+          
+  <dt id="FunctionType" class="callable">
+    <span class="name"><a href="../cell_flutter/FunctionType.html">FunctionType</a></span>&lt;<wbr><span class="type-parameter">R</span>&gt;<span class="signature">
+      <span class="returntype parameter">= R Function<span class="signature">()</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Generic function type that takes no parameters and returns RNA.
+Used in FunctionTypeObject for lazy evaluation.
+    
+
+  </dd>
+
+          
+  <dt id="HubHandle" class="">
+  <span class="name"><a href="../cell_flutter/HubHandle.html">HubHandle</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_flutter/Pulse-class.html">Pulse</a>? Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flutter/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)</span></span> <span class="field-name">emit</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flutter/Pulse-class.html">Pulse</a>?</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flutter/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)</span></span> <span class="field-name">emitAsync</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flutter/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flutter/Cell-class.html">Cell</a></span> <span class="field-name">root</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="field-name">spokes</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A management handle for a <strong>Signal Distribution Hub</strong>, providing a unified
+interface to control a multi-destination routing cluster.
+  
+
+</dd>
+
+
+          
+  <dt id="IngressHandle" class="">
+  <span class="name"><a href="../cell_flutter/IngressHandle.html">IngressHandle</a></span>&lt;<wbr><span class="type-parameter">I</span>&gt;
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_flutter/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emit</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emitAsync</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flutter/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">I</span>&gt;</span></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A management handle for an <strong>Input Gateway</strong>, providing a controlled
+interface for injecting external imperative stimuli into the reactive graph.
+  
+
+</dd>
+
+
+          
+  <dt id="InheritableHandle" class="">
+  <span class="name"><a href="../cell_flutter/InheritableHandle.html">InheritableHandle</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_flutter/Cell-class.html">Cell</a>?</span> <span class="field-name">bind</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flutter/Context-class.html">Context</a></span> <span class="field-name">context</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flutter/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="field-name">ephemeralPolicy</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flutter/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="field-name">receptor</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flutter/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="field-name">testRule</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A structured grouping of the <strong>Governance &amp; Logic</strong> properties that define
+a node's operational identity and can be cascaded through the inheritance chain.
+  
+
+</dd>
+
+
+          
+  <dt id="IsMounted" class="callable">
+    <span class="name deprecated"><a class="deprecated" href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/IsMounted.html">IsMounted</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">()</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Used by <a class="deprecated" href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useIsMounted.html">useIsMounted</a> to allow widgets to determine if the <a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a> is still
+in the widget tree or not.
+    
+
+  </dd>
+
+          
+  <dt id="LifecycleCallback" class="callable">
+    <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/LifecycleCallback.html">LifecycleCallback</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-previous"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/AppLifecycleState.html">AppLifecycleState</a>?</span> <span class="parameter-name">previous</span>, </span><span class="parameter" id="param-current"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/AppLifecycleState.html">AppLifecycleState</a></span> <span class="parameter-name">current</span></span>)</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    A callback triggered when the app life cycle changes.
+    
+
+  </dd>
+
+          
+  <dt id="MirroredCell" class="">
+  <span class="name"><a href="../cell_flutter/MirroredCell.html">MirroredCell</a></span>&lt;<wbr><span class="type-parameter">V</span>&gt;
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_flutter/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">()</span></span> <span class="field-name">dispose</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  The paired result of <a href="../cell_flutter/CellAsValue/asValueCell.html">CellAsValue.asValueCell</a>: a mirror cell and the
+callback that releases it.
+  
+
+</dd>
+
+
+          
+  <dt id="Mutation" class="callable">
+    <span class="name"><a href="../cell_flutter/Mutation.html">Mutation</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="../cell_flutter/Pulse-class.html">Pulse</a>? Function<span class="signature">(<span class="parameter" id="param-entry"><span class="type-annotation"><a href="../cell_flutter/LedgerEntry-class.html">LedgerEntry</a></span> <span class="parameter-name">entry</span>, </span><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flutter/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    A what-if mutation hook.
+    
+
+  </dd>
+
+          
+  <dt id="NucleusSimplest" class="">
+  <span class="name"><a href="../cell_flutter/NucleusSimplest.html">NucleusSimplest</a></span>
+    = <a href="../cell_flutter/Nucleolus-class.html">Nucleolus</a>
+  </span>
+  
+
+</dt>
+<dd>
+  A semantic type alias representing the framework's <strong>Zero-Overhead Root</strong>
+and the terminal ancestor of all reactive blueprints.
+  
+
+</dd>
+
+
+          
+  <dt id="OpenCellBase" class="">
+  <span class="name"><a href="../cell_flutter/OpenCellBase.html">OpenCellBase</a></span>
+    = _OpenCell
+  </span>
+  
+
+</dt>
+<dd>
+  Base class for all <a href="../cell_flutter/OpenCell-class.html">OpenCell</a> types.
+  
+
+</dd>
+
+
+          
+  <dt id="Reducer" class="callable">
+    <span class="name"><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/Reducer.html">Reducer</a></span>&lt;<wbr><span class="type-parameter">State</span>, <span class="type-parameter">Action</span>&gt;<span class="signature">
+      <span class="returntype parameter">= State Function<span class="signature">(<span class="parameter" id="param-state"><span class="type-annotation">State</span> <span class="parameter-name">state</span>, </span><span class="parameter" id="param-action"><span class="type-annotation">Action</span> <span class="parameter-name">action</span></span>)</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Composes an <code>Action</code> and a <code>State</code> to create a new <code>State</code>.
+    
+
+  </dd>
+
+          
+  <dt id="SpokeRegistration" class="">
+  <span class="name"><a href="../cell_flutter/SpokeRegistration.html">SpokeRegistration</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_flutter/DeputyContext-class.html">DeputyContext</a>?</span> <span class="field-name">context</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flutter/Pulse-class.html">Pulse</a>? Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell_flutter/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flutter/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span>?</span> <span class="field-name">handler</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="field-name">key</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">type</span></span>)</span>?</span> <span class="field-name">match</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="field-name">priority</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flutter/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="field-name">receptor</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A configuration record for an individual <strong>Spoke (Destination)</strong>
+within a <a href="../cell_flutter/Cell/hub.html">Cell.hub</a>.
+  
+
+</dd>
+
+
+          
+  <dt id="StateHandle" class="">
+  <span class="name"><a href="../cell_flutter/StateHandle.html">StateHandle</a></span>&lt;<wbr><span class="type-parameter">V</span>&gt;
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_flutter/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flutter/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>)</span></span> <span class="field-name">update</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>)</span></span> <span class="field-name">updateAsync</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A management record that bundles a <a href="../cell_flutter/ValueCell-class.html">ValueCell</a> with its imperative update
+functions — the standard way to create and interact with a state atom.
+  
+
+</dd>
+
+
+          
+  <dt id="SynthesisHandle" class="">
+  <span class="name"><a href="../cell_flutter/SynthesisHandle.html">SynthesisHandle</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell_flutter/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)</span></span> <span class="field-name">add</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">(<span class="parameter" id="param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span></span>)</span></span> <span class="field-name">addAll</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flutter/SynthesisCell-class.html">SynthesisCell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">()</span></span> <span class="field-name">clear</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">()</span></span> <span class="field-name">isEmpty</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell_flutter/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)</span></span> <span class="field-name">remove</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">(<span class="parameter" id="param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span></span>)</span></span> <span class="field-name">removeAll</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">()</span></span> <span class="field-name">start</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">()</span></span> <span class="field-name">stop</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span> Function<span class="signature">()</span></span> <span class="field-name">toList</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  An Administrative Record providing a control interface for dynamic
+<a href="../cell_flutter/SynthesisCell-class.html">SynthesisCell</a> topographies.
+  
+
+</dd>
+
+
+          
+  <dt id="TransactionScope" class="">
+  <span class="name"><a href="../cell_flutter/TransactionScope.html">TransactionScope</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span></span>)</span></span> <span class="field-name">begin</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">()</span></span> <span class="field-name">commit</span>, </span><span class="field"><span class="type-annotation">dynamic Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell_flutter/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)</span></span> <span class="field-name">pending</span>, </span><span class="field"><span class="type-annotation">dynamic Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell_flutter/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)</span></span> <span class="field-name">read</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">({<span class="parameter" id="param-savepoint"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">savepoint</span></span>})</span></span> <span class="field-name">rollback</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a> Function<span class="signature">()</span></span> <span class="field-name">savepoint</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell_flutter/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-value"><span class="type-annotation">dynamic</span> <span class="parameter-name">value</span></span>)</span></span> <span class="field-name">update</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A handle for coordinating atomic, multi‑cell transactions.
+  
+
+</dd>
+
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="exceptions">
+      <h2>Exceptions / Errors</h2>
+      <dl>
+          <dt id="ForkIntegrityException">
+  <span class="name "><a href="../cell_flutter/ForkIntegrityException-class.html">ForkIntegrityException</a></span> 
+
+</dt>
+<dd>
+  Thrown by <a href="../cell_flutter/ForkVerify/verify.html">ForkVerify.verify</a> when a fork's parent ledger, fork
+ledger, or genesis binding is invalid.
+</dd>
+
+          <dt id="LedgerIntegrityException">
+  <span class="name "><a href="../cell_flutter/LedgerIntegrityException-class.html">LedgerIntegrityException</a></span> 
+
+</dt>
+<dd>
+  Thrown by <a href="../cell_flutter/Ledger/verify.html">Ledger.verify</a> when an entry's hash, sequence, or
+predecessor chain does not match.
+</dd>
+
+          <dt id="ReplayDivergenceException">
+  <span class="name "><a href="../cell_flutter/ReplayDivergenceException-class.html">ReplayDivergenceException</a></span> 
+
+</dt>
+<dd>
+  Thrown when a replay diverges from the recording.
+</dd>
+
+          <dt id="TransactionConflictException">
+  <span class="name "><a href="../cell_flutter/TransactionConflictException-class.html">TransactionConflictException</a></span> 
+
+</dt>
+<dd>
+  Thrown when an isolation conflict is detected during commit.
+</dd>
+
+          <dt id="TransactionTimeoutException">
+  <span class="name "><a href="../cell_flutter/TransactionTimeoutException-class.html">TransactionTimeoutException</a></span> 
+
+</dt>
+<dd>
+  Thrown when a transaction exceeds its <a href="../cell_flutter/TransactionTimeoutException/timeout.html">timeout</a> duration.
+</dd>
+
+          <dt id="TransactionValidationException">
+  <span class="name "><a href="../cell_flutter/TransactionValidationException-class.html">TransactionValidationException</a></span> 
+
+</dt>
+<dd>
+  Thrown when validation of buffered writes fails during commit.
+</dd>
+
+          <dt id="TxApplyCompensationException">
+  <span class="name "><a href="../cell_flutter/TxApplyCompensationException-class.html">TxApplyCompensationException</a></span> 
+
+</dt>
+<dd>
+  Raised when one or more compensations fail under
+<a href="../cell_flutter/CompensationErrorPolicy.html">CompensationErrorPolicy.collectThenThrow</a> or
+<a href="../cell_flutter/CompensationErrorPolicy.html">CompensationErrorPolicy.failFast</a>.
+</dd>
+
+          <dt id="TxApplyException">
+  <span class="name "><a href="../cell_flutter/TxApplyException-class.html">TxApplyException</a></span> 
+
+</dt>
+<dd>
+  Raised for <strong>control-flow</strong> problems in a <a href="../cell_flutter/ApplyTransactionScope-class.html">ApplyTransactionScope</a>: wrong
+phase (e.g. <code>commit</code> before <code>begin</code>), non-modifiable function, non-
+participant cell, or a rejected command at commit time.
+</dd>
+
+      </dl>
+    </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flutter</a></li>
+    <li class="self-crumb">hooks.dart</li>
+</ol>
+
+    <h5><span class="package-name">cell_flutter</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_flutter/">cell_flutter</a></li>
+      <li><a href="../cell_flutter_hooks/">hooks</a></li>
+      <li><a href="../cell_flutter_testing/">testing</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <h5>cell_flutter_hooks library</h5>
+  </div><!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flutter
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

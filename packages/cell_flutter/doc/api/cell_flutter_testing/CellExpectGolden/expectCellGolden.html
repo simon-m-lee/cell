@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the expectCellGolden method from the CellExpectGolden extension, for the Dart programming language.">
+  <title>expectCellGolden method - CellExpectGolden extension - cell_flutter_testing library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_flutter</a></li>
+    <li><a href="../../cell_flutter_testing/">testing.dart</a></li>
+    <li><a href="../../cell_flutter_testing/CellExpectGolden.html">CellExpectGolden</a></li>
+    <li class="self-crumb">expectCellGolden&lt;<wbr><span class="type-parameter">V</span>&gt; method</li>
+  </ol>
+  <div class="self-name">expectCellGolden</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flutter_testing&#47;CellExpectGolden-extension-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">expectCellGolden&lt;<wbr><span class="type-parameter">V</span>&gt;</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+<span class="name ">expectCellGolden</span>&lt;<wbr><span class="type-parameter">V</span>&gt;(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="expectCellGolden-param-cell"><span>required</span> <span class="type-annotation"><a href="../../cell_flutter/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">cell</span>, </span></li>
+<li><span class="parameter" id="expectCellGolden-param-builder"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span> <span class="parameter-name">builder</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span>, </span></li>
+<li><span class="parameter" id="param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span></li>
+</ol>), </span></li>
+<li><span class="parameter" id="expectCellGolden-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span>, </span></li>
+<li><span class="parameter" id="expectCellGolden-param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter"><a href="../../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span> = <span class="default-value">const {}</span>, </span></li>
+<li><span class="parameter" id="expectCellGolden-param-goldenPath"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">goldenPath</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Captures a golden of a <code>CellBuilder</code> over <code>cell</code> at the cell's
+current value.</p>
+<p>Pumps the widget inside <code>MaterialApp(home: Scaffold(...))</code> — with a
+<a href="../../cell_flutter/CellScope-class.html">CellScope</a> above it when <code>cells</code> is non-empty — then awaits
+<code>matchesGoldenFile</code> against the resolved path.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>cell</code>: <strong>The Captured Cell.</strong> Must be a <a href="../../cell_flutter/ValueCell-class.html">ValueCell</a> because
+<code>CellBuilder</code> requires a synchronous current value. Use
+<code>asValueCell</code> or <code>CellValueBuilder</code> for plain-<code>Cell</code> sources.</li>
+<li><code>builder</code>: <strong>The Render Callback.</strong> Same contract as
+<code>CellBuilder.builder</code> — receives <code>V?</code> and is called on every pulse.
+The golden is captured from whatever the builder renders at the
+time of the call.</li>
+<li><code>name</code>: <strong>The Golden Name.</strong> Used to build the default path
+<code>'goldens/$name.png'</code>; ignored when <code>goldenPath</code> is supplied.
+Choose names that are stable across platforms and unambiguous
+within a test file.</li>
+<li><code>cells</code>: <strong>Optional Scope Registration.</strong> When non-empty, the
+widget is pumped inside a <a href="../../cell_flutter/CellScope-class.html">CellScope</a> holding these cells, via
+<a href="../../cell_flutter_testing/CellPumpWithCells/pumpWithCells.html">CellPumpWithCells.pumpWithCells</a>. When empty (the default), a bare
+<code>pumpWidget</code> is used — no <a href="../../cell_flutter/CellScope-class.html">CellScope</a> is installed, matching
+<a href="../../cell_flutter_testing/CellPumpCell/pumpCell.html">CellPumpCell.pumpCell</a>'s behavior.</li>
+<li><code>goldenPath</code>: <strong>Optional Path Override.</strong> Replaces the default
+<code>'goldens/$name.png'</code>. Use this for per-platform golden directories
+(<code>goldens/ios/…</code>) or for goldens that live outside the default
+path.</li>
+</ul>
+<p>Exactly one of <code>name</code> / <code>goldenPath</code> must be supplied (asserted in
+debug builds; a <code>null</code> <code>name</code> with a <code>null</code> <code>goldenPath</code> is a caller
+bug).</p>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a> that resolves once the golden comparison has completed.
+On mismatch, the <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a> completes with the standard
+<code>matchesGoldenFile</code> failure.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flutter_testing/CellExpectGolden.html">CellExpectGolden</a> — the extension-level docs, including the
+text-rendering limitation and golden-generation workflow.</li>
+<li><a href="../../cell_flutter_testing/CellPumpWithCells/pumpWithCells.html">CellPumpWithCells.pumpWithCells</a> — the scoped pump path.</li>
+<li><code>matchesGoldenFile</code> — the underlying comparison primitive.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; expectCellGolden&lt;V&gt;({
+  required ValueCell&lt;V&gt; cell,
+  required Widget Function(BuildContext context, V? value) builder,
+  String? name,
+  Map&lt;Symbol, Cell&gt; cells = const {},
+  String? goldenPath,
+}) async {
+  assert(
+    goldenPath != null || name != null,
+    &#39;expectCellGolden: provide either a name or a goldenPath.&#39;,
+  );
+  final path = goldenPath ?? &#39;goldens&#47;${name!}.png&#39;;
+  final widget = CellBuilder&lt;V&gt;(cell: cell, builder: builder);
+  if (cells.isNotEmpty) {
+    await pumpWithCells(
+      cells: cells,
+      wrapper: (child) =&gt; MaterialApp(home: Scaffold(body: child)),
+      child: widget,
+    );
+  } else {
+    await pumpWidget(
+      MaterialApp(home: Scaffold(body: widget)),
+    );
+  }
+  await expectLater(
+    find.byType(MaterialApp),
+    matchesGoldenFile(path),
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_flutter</a></li>
+    <li><a href="../../cell_flutter_testing/">cell_flutter_testing</a></li>
+    <li><a href="../../cell_flutter_testing/CellExpectGolden.html">CellExpectGolden</a></li>
+    <li class="self-crumb">expectCellGolden&lt;<wbr><span class="type-parameter">V</span>&gt; method</li>
+</ol>
+
+    <h5>CellExpectGolden extension on <a href="https://api.flutter.dev/flutter/flutter_test/WidgetTester-class.html">WidgetTester</a></h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flutter
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

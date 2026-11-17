@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the useCellAsync function from the cell_flutter_hooks library, for the Dart programming language.">
+  <title>useCellAsync function - cell_flutter_hooks library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flutter</a></li>
+    <li><a href="../cell_flutter_hooks/">hooks.dart</a></li>
+    <li class="self-crumb">useCellAsync&lt;<wbr><span class="type-parameter">V</span>&gt; function</li>
+  </ol>
+  <div class="self-name">useCellAsync</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_flutter_hooks&#47;cell_flutter_hooks-library-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-function">useCellAsync&lt;<wbr><span class="type-parameter">V</span>&gt;</span> function 
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+<span class="returntype"><a href="https://api.flutter.dev/flutter/widgets/AsyncSnapshot-class.html">AsyncSnapshot</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+<span class="name ">useCellAsync</span>&lt;<wbr><span class="type-parameter">V</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="useCellAsync-param-cell"><span class="type-annotation"><a href="../cell_flutter/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, {</span></li>
+<li><span class="parameter" id="useCellAsync-param-initialSnapshot"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/AsyncSnapshot-class.html">AsyncSnapshot</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span>?</span> <span class="parameter-name">initialSnapshot</span>, </span></li>
+</ol>})
+
+        
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Returns the async state of <code>cell</code> as an <a href="https://api.flutter.dev/flutter/widgets/AsyncSnapshot-class.html">AsyncSnapshot</a>, updating on
+every pulse.</p>
+<p><a href="../cell_flutter_hooks/useCellAsync.html">useCellAsync</a> is the hooks layer's <strong>Async State Reader</strong> — the
+<code>HookWidget</code> equivalent of <code>CellAsyncBuilder</code>. It gives the caller the
+same <a href="https://api.flutter.dev/flutter/widgets/AsyncSnapshot-class.html">AsyncSnapshot</a> shape <code>StreamBuilder</code> / <code>FutureBuilder</code> provide,
+driven by a cell, so switch-style rendering on
+<code>hasData</code> / <code>hasError</code> transfers directly.</p>
+<h3 id="why-it-is-used">Why it is used</h3>
+<ul>
+<li><strong>Async source display in a <code>HookWidget</code></strong>: the widget-layer
+equivalent (<code>CellAsyncBuilder</code>) is a <code>StatefulWidget</code>, which a
+<code>HookWidget</code> cannot slot into cleanly for its own render. This hook
+gives the same snapshot without leaving the hook layer.</li>
+<li><strong><code>AsyncSnapshot</code> ergonomics</strong>: the caller can branch on
+<code>snapshot.hasError</code> / <code>snapshot.hasData</code> / <code>connectionState</code> exactly
+as they would with <code>StreamBuilder</code>.</li>
+<li><strong>Error visibility</strong>: unlike <code>useCellValue</code> and <code>useCellNotifier</code>,
+this hook <strong>does</strong> surface error pulses as <code>hasError == true</code>.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><code>useState</code> holds the current <a href="https://api.flutter.dev/flutter/widgets/AsyncSnapshot-class.html">AsyncSnapshot</a>. The initial state is
+<code>initialSnapshot</code> if provided; otherwise it is seeded via
+<a href="../cell_flutter/snapshotForCell.html">snapshotForCell</a> — the same retained-pulse path <code>CellAsyncBuilder</code>
+uses (every state-like operator plus <a href="../cell_flutter/ValueCell-class.html">ValueCell</a>) — falling back to
+<code>AsyncSnapshot&lt;V&gt;.nothing()</code> only when the cell has never emitted.</li>
+<li><code>useEffect</code> (keyed on <code>[cell]</code>) opens one <code>Cell.observe</code> link and
+converts each pulse to a snapshot:
+<ul>
+<li><code>type == 'error'</code> → <code>withError(active, payload ?? StateError(…))</code></li>
+<li><code>null is V</code> and <code>payload == null</code> → <code>withData(active, null)</code></li>
+<li><code>payload is V</code> → <code>withData(active, payload)</code></li>
+<li>otherwise → <code>withError(active, StateError('type mismatch'))</code></li>
+</ul>
+</li>
+<li>The cleanup returned by <code>useEffect</code> stops the egress. A cell swap
+rebinds.</li>
+<li>The current <code>snapshot.value</code> is returned.</li>
+</ol>
+<h3 id="snapshot-transitions">Snapshot transitions</h3>
+<table>
+<thead>
+<tr>
+<th>Before first pulse</th>
+<th>After a data pulse</th>
+<th>After an error pulse</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ConnectionState.none</code> (<code>AsyncSnapshot.nothing()</code>)</td>
+<td><code>active</code>, <code>hasData == true</code></td>
+<td><code>active</code>, <code>hasError == true</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>ConnectionState.done</code> is never reached.</strong> No core operator emits a
+completion pulse. <code>Cell.fromFuture</code> emits once and stays silent;
+<code>Cell.fromStream</code> emits until the stream ends and stays silent;
+<code>Cell.asyncMap</code> emits per input and never completes. See
+<code>CellAsyncBuilder</code>'s dartdoc for the full lifecycle.</p>
+<h3 id="error-pulse-sources-inherited-from-cellasyncbuilder">Error-pulse sources (inherited from <code>CellAsyncBuilder</code>)</h3>
+<p>Only <code>Cell.fromFuture</code> emits <code>Pulse&lt;Object&gt;(type: 'error')</code> on the
+failure path. <code>Cell.fromStream</code> and <code>Cell.asyncMap</code> do <strong>not</strong>. A
+<code>useCellAsync</code> over an <code>asyncMap</code> source will therefore keep the last
+successful snapshot when the mapper throws — errors do not surface
+through this hook for those sources. Users who need error visibility
+from those sources must bridge them through a custom cell that re-emits
+the failure as an <code>'error'</code> pulse. The per-source behavior is asserted
+in <code>test/error_pulse_sources_test.dart</code>.</p>
+<h3 id="concurrent-asyncmap-caveat">Concurrent <code>asyncMap</code> caveat</h3>
+<p>Over <code>Cell.asyncMap</code> with <code>concurrency &gt; 0</code> (or overlapping
+<code>latestOnly</code> futures), this hook inherits the framework's
+caveat: concurrent effect attribution is tracked separately and is not
+yet verified end-to-end. The hook's own observation is correct; the
+caveat is about the source's replay fidelity. See the <code>cell</code> core
+package for status.</p>
+<h3 id="design-note-cell-swap-behavior-differs-from-cellasyncbuilder">Design Note: cell-swap behavior differs from <code>CellAsyncBuilder</code></h3>
+<p>When <code>cell</code> identity changes, the snapshot <strong>persists</strong> across the swap
+until the new cell emits. That differs from <code>CellAsyncBuilder</code>, whose
+<code>didUpdateWidget</code> resets <code>_snapshot</code> to
+<code>initialSnapshot ?? nothing()</code> on cell swap. The difference is
+deliberate: this hook's subscription effect only opens the egress — it
+does not recompute the snapshot, the way <code>useCell</code>'s recompute effect
+does (<code>useCell</code> re-runs its keyed effect synchronously during the build
+that registers the new cell, so its selection never goes stale).</p>
+<p>To reset the hook's state on cell swap, <strong>key the enclosing
+<code>HookWidget</code></strong> on the cell:</p>
+<pre class="language-dart"><code class="language-dart">HookBuilder(
+  key: ValueKey(cell),
+  builder: (ctx) =&gt; ResultsView(cell: cell),
+);
+</code></pre>
+<p>Keying is the <code>flutter_hooks</code> idiom for "reset the entire hook state on
+identity change" — it disposes and rebuilds the hook state, which is
+exactly the reset semantics <code>CellAsyncBuilder</code> gets for free from its
+widget lifecycle.</p>
+<h3 id="technical-details">Technical Details</h3>
+<ul>
+<li><strong>One egress per element</strong>: the hook owns one observation link per
+cell; the <code>useEffect</code> cleanup stops it.</li>
+<li><strong>Type erasure at observation</strong>: the link is typed
+<code>Pulse&lt;Object?&gt;</code> so error and type-mismatch pulses can be decoded;
+the type narrowing happens inside the effect.</li>
+<li><strong>Immediate updates</strong>: pulses commit synchronously in the effect's
+callback. A pulse arriving during a build phase would trigger
+Flutter's "setState during build" error — the same contract as
+<code>CellAsyncBuilder</code>'s stateful counterpart. Emit cells from outside
+the build phase to avoid it.</li>
+<li><strong>State holder is a <code>useState</code></strong>: the hook re-renders when the
+snapshot changes. Do not call the hook inside a conditional; use a
+child <code>HookWidget</code> if a conditional read is needed.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">class SearchResults extends HookWidget {
+  final Cell results;
+  const SearchResults({required this.results, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final snapshot = useCellAsync&lt;List&lt;Product&gt;&gt;(results);
+    if (snapshot.hasError) return ErrorView(snapshot.error!);
+    if (!snapshot.hasData) return const Spinner();
+    return ResultsList(snapshot.data!);
+  }
+}
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>cell</code>: <strong>The Observed Cell.</strong> Any <a href="../cell_flutter/Cell-class.html">Cell</a>. Changing its identity
+rebinds the effect; the snapshot persists across the swap (see
+<em>Cell-swap behavior</em>).</li>
+<li><code>initialSnapshot</code>: <strong>Optional Initial Snapshot.</strong> When supplied,
+used as the <code>useState</code> seed instead of the default seed path. The
+default path calls <a href="../cell_flutter/snapshotForCell.html">snapshotForCell</a> — so a <a href="../cell_flutter/ValueCell-class.html">ValueCell</a> source seeds
+with its current value, and every state-like operator (<code>fromFuture</code>,
+<code>fromStream</code>, <code>asyncMap</code>, <code>derive</code>) seeds with its retained pulse,
+exactly like <code>CellAsyncBuilder</code> — and falls back to
+<code>AsyncSnapshot&lt;V&gt;.nothing()</code> only when the cell has never emitted.
+Pass <code>initialSnapshot</code> for cache hydration or to override the seed
+with a snapshot the caller holds.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The current <a href="https://api.flutter.dev/flutter/widgets/AsyncSnapshot-class.html">AsyncSnapshot</a>, re-rendered on each pulse.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><code>CellAsyncBuilder</code> — the widget equivalent, whose docs cover error
+sources and the <code>ConnectionState.done</code> note.</li>
+<li><a href="../cell_flutter_hooks/useCell.html">useCell</a> / <a href="../cell_flutter_hooks/useCellValue.html">useCellValue</a> — for synchronous value rendering.</li>
+<li><a href="../cell_flutter_hooks/useCellListener.html">useCellListener</a> — for side effects rather than display.</li>
+<li><a href="https://api.flutter.dev/flutter/widgets/AsyncSnapshot-class.html">AsyncSnapshot</a> — the Flutter type this hook produces.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">AsyncSnapshot&lt;V&gt; useCellAsync&lt;V&gt;(
+  Cell cell, {
+  AsyncSnapshot&lt;V&gt;? initialSnapshot,
+}) {
+  final snapshot = useState&lt;AsyncSnapshot&lt;V&gt;&gt;(
+    initialSnapshot ?? snapshotForCell&lt;V&gt;(cell) ?? AsyncSnapshot&lt;V&gt;.nothing(),
+  );
+
+  useEffect(() {
+    final egress = Cell.observe&lt;Pulse&lt;Object?&gt;&gt;(
+      source: cell,
+      effect: (pulse) {
+        if (pulse.type == &#39;error&#39;) {
+          snapshot.value = AsyncSnapshot&lt;V&gt;.withError(
+            ConnectionState.active,
+            pulse.payload ?? StateError(&#39;Error pulse with null payload&#39;),
+            StackTrace.current,
+          );
+        } else if (pulse.payload == null &amp;&amp; null is V) {
+          snapshot.value = AsyncSnapshot&lt;V&gt;.withData(
+            ConnectionState.active,
+            null as V,
+          );
+        } else if (pulse.payload is V) {
+          snapshot.value = AsyncSnapshot&lt;V&gt;.withData(
+            ConnectionState.active,
+            pulse.payload as V,
+          );
+        } else {
+          snapshot.value = AsyncSnapshot&lt;V&gt;.withError(
+            ConnectionState.active,
+            StateError(
+              &#39;useCellAsync&lt;$V&gt;: pulse payload is &#39;
+              &#39;${pulse.payload.runtimeType}, not $V.&#39;,
+            ),
+            StackTrace.current,
+          );
+        }
+      },
+      initiallyStarted: true,
+    );
+    return egress.stop;
+  }, [cell]);
+
+  return snapshot.value;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flutter</a></li>
+    <li><a href="../cell_flutter_hooks/">cell_flutter_hooks</a></li>
+    <li class="self-crumb">useCellAsync&lt;<wbr><span class="type-parameter">V</span>&gt; function</li>
+</ol>
+
+    <h5>cell_flutter_hooks library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flutter
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

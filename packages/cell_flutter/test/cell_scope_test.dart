@@ -313,6 +313,36 @@ void main() {
       ));
       expect(buildCount, 2);
     });
+
+    testWidgets('does not rebuild when a cell is swapped for an equal deputy',
+        (tester) async {
+      final a = Cell.state<int>(initial: 1);
+      // A non-default deputy is a distinct instance, but `Cell` equality is
+      // nucleus-based, so it is equal to its principal.
+      final deputy = await a.cell.deputy(synapses: Synapses.disabled);
+      expect(deputy == a.cell, isTrue);
+      var buildCount = 0;
+
+      final probe = _probe(
+          id: #counter,
+          onBuild: (ctx) {
+            CellScope.of<int>(ctx, #counter); // register dependency
+            buildCount++;
+          });
+
+      await tester.pumpWidget(CellScope(
+        cells: {#counter: a.cell},
+        child: probe,
+      ));
+      expect(buildCount, 1);
+
+      await tester.pumpWidget(CellScope(
+        cells: {#counter: deputy},
+        child: probe,
+      ));
+      expect(buildCount, 1,
+          reason: 'an equal deputy is not a change; dependents stay put');
+    });
   });
 
   group('CellScope nested', () {

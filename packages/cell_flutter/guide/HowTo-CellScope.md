@@ -54,7 +54,7 @@ per key, not map equality. Hold the map in a `final` field for the
 ## Testing
 
 For widget tests, wrap the widget under test in a `CellScope` with the
-cells your test needs. `pumpWithCells` (Phase 5) will make this
+cells your test needs. `pumpWithCells` will make this
 boilerplate-free; this guide links to `HowTo-Testing.md` when it lands.
 
 ## Migration from `Provider` / `InheritedWidget`
@@ -65,7 +65,7 @@ boilerplate-free; this guide links to `HowTo-Testing.md` when it lands.
 - Riverpod's `override` mechanism has **no equivalent here by design**:
   create a fresh cell in `setUp` and register it in the test's scope.
 
-## What's coming in Phase 3
+## What's coming next
 
 `CellAsyncBuilder` takes any `Cell` — including one found via
 `CellScope.of` — and `CellSelector` works over `valueOf` results. Scoped

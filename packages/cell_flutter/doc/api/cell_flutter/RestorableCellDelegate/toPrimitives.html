@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the toPrimitives method from the RestorableCellDelegate class, for the Dart programming language.">
+  <title>toPrimitives method - RestorableCellDelegate class - cell_flutter library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_flutter</a></li>
+    <li><a href="../../cell_flutter/">cell_flutter.dart</a></li>
+    <li><a href="../../cell_flutter/RestorableCellDelegate-class.html">RestorableCellDelegate<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
+    <li class="self-crumb">toPrimitives method</li>
+  </ol>
+  <div class="self-name">toPrimitives</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flutter&#47;RestorableCellDelegate-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">toPrimitives</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>
+<span class="name ">toPrimitives</span>(<wbr>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Called by the <a href="https://api.flutter.dev/flutter/widgets/RestorationMixin-mixin.html">RestorationMixin</a> to retrieve the information that this
+property wants to store in the restoration data.</p>
+<p>The returned object must be serializable with the <a href="https://api.flutter.dev/flutter/services/StandardMessageCodec-class.html">StandardMessageCodec</a>
+and if it includes any collections, those should not be modified after
+they have been returned by this method.</p>
+<p>The information returned by this method may be handed back to the property
+in a call to <a href="../../cell_flutter/RestorableCellDelegate/fromPrimitives.html">fromPrimitives</a> at a later point in time (possibly after the
+application restarted) to restore the value that the property is currently
+wrapping.</p>
+<p>When the value returned by this method changes, the property must call
+<a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/notifyListeners.html">notifyListeners</a>. The <a href="https://api.flutter.dev/flutter/widgets/RestorationMixin-mixin.html">RestorationMixin</a> will invoke this method whenever
+the property's listeners are notified.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+Object? toPrimitives() =&gt; _cell.encode(_lastValue);</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_flutter</a></li>
+    <li><a href="../../cell_flutter/">cell_flutter</a></li>
+    <li><a href="../../cell_flutter/RestorableCellDelegate-class.html">RestorableCellDelegate<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
+    <li class="self-crumb">toPrimitives method</li>
+</ol>
+
+    <h5>RestorableCellDelegate class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flutter
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

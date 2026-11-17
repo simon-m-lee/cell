@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-// Fuzz for the replay-verified scenarios (Gate G6): debounce bursts,
+// Fuzz for the replay-verified scenarios: debounce bursts,
 // throttle rate, `fromFuture` and `fromStream` snapshot sequences.
 // These are the operators whose replay round-trip commit `05b4895d`
 // fixed; a regression here must block the 1.0 gate.
@@ -21,8 +21,9 @@ void main() {
   testWidgets('debounce fuzz: at most one emission per settled burst',
       (tester) async {
     final source = Cell.state<int>(initial: 0);
-    final debounced =
-        Cell.debounce(source.cell, const Duration(milliseconds: 50), journal: RecordingJournal());
+    final debounced = Cell.debounce(
+        source.cell, const Duration(milliseconds: 50),
+        journal: RecordingJournal());
 
     await tester.pumpWidget(const SizedBox.shrink());
     await runFuzz(
@@ -48,8 +49,9 @@ void main() {
   testWidgets('throttle fuzz: emission rate respects the window',
       (tester) async {
     final source = Cell.state<int>(initial: 0);
-    final throttled =
-        Cell.throttle(source.cell, const Duration(milliseconds: 50), journal: RecordingJournal());
+    final throttled = Cell.throttle(
+        source.cell, const Duration(milliseconds: 50),
+        journal: RecordingJournal());
 
     await tester.pumpWidget(const SizedBox.shrink());
     await runFuzz(
@@ -83,9 +85,11 @@ void main() {
       iterate: (tester, random, iteration) async {
         final value = random.nextInt(1000);
         final completer = Completer<int>();
-        final futureCell = Cell.fromFuture<int>(completer.future, journal: RecordingJournal());
+        final futureCell =
+            Cell.fromFuture<int>(completer.future, journal: RecordingJournal());
         final streamController = StreamController<int>();
-        final streamCell = Cell.fromStream<int>(streamController.stream, journal: RecordingJournal());
+        final streamCell = Cell.fromStream<int>(streamController.stream,
+            journal: RecordingJournal());
 
         var futureText = 'none';
         var streamText = 'none';

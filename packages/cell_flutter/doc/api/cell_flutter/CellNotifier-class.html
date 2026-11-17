@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the CellNotifier class from the cell_flutter library, for the Dart programming language.">
+  <title>CellNotifier class - cell_flutter library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flutter</a></li>
+    <li><a href="../cell_flutter/">cell_flutter.dart</a></li>
+    <li class="self-crumb">CellNotifier<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span> class</li>
+  </ol>
+  <div class="self-name">CellNotifier</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flutter&#47;cell_flutter-library-sidebar.html"
+    data-below-sidebar="cell_flutter&#47;CellNotifier-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">CellNotifier&lt;<wbr><span class="type-parameter">V</span>&gt;</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Adapts a <a href="../cell_flutter/ValueCell-class.html">ValueCell</a> to Flutter's <a href="https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html">ValueNotifier</a> contract as a
+<strong>read-only</strong> bridge.</p>
+<p><a href="../cell_flutter/CellNotifier-class.html">CellNotifier</a> is the binding's <strong>Listenable Adapter</strong>. It exposes a
+<a href="../cell_flutter/ValueCell-class.html">ValueCell</a>'s value through the standard <code>ValueNotifier&lt;V?&gt;</code> interface so
+that Flutter primitives built around <a href="https://api.flutter.dev/flutter/foundation/Listenable-class.html">Listenable</a> — <code>ValueListenableBuilder</code>,
+<code>AnimatedBuilder</code>, <code>ListenableBuilder</code> — can consume a cell without knowing
+about the reactive graph. Reads are synchronous (the cell's storage is
+read on <code>.value</code>); writes flow <strong>only</strong> from the cell's own observers, not
+from outside.</p>
+<h3 id="why-it-is-used">Why it is used</h3>
+<ul>
+<li><strong>Flutter-native binding</strong>: <code>CellBuilder</code> and <code>CellSelector</code> both build
+on <code>CellNotifier</code>. Any Flutter widget that takes a <a href="https://api.flutter.dev/flutter/foundation/ValueListenable-class.html">ValueListenable</a>
+can take a <code>CellNotifier</code> directly.</li>
+<li><strong>Single observer per listener</strong>: the adapter owns exactly one
+<code>EgressHandle</code> on the cell; several Flutter consumers of the same
+notifier share that one observation rather than each opening their own.</li>
+<li><strong>Synchronous read</strong>: <code>notifier.value</code> returns the current value
+immediately — useful for <code>select</code> projections, <code>initState</code> seeding,
+and testing.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Subscribe</strong>: the constructor seeds the notifier with the cell's
+current value and opens one <code>Cell.observe</code> link on the cell.</li>
+<li><strong>Forward</strong>: each pulse assigns <code>pulse.payload</code> to the underlying
+<a href="https://api.flutter.dev/flutter/foundation/ValueNotifier/value.html">ValueNotifier.value</a>. Assigning on a <code>ValueNotifier</code> notifies its
+listeners, which Flutter widgets like <code>ValueListenableBuilder</code>
+receive as a rebuild request.</li>
+<li><strong>Filter</strong>: error pulses (<code>pulse.type == 'error'</code>) are ignored — they
+are not values, and the <code>ValueNotifier&lt;V?&gt;</code> contract has nowhere to
+put them. Display widgets that need to render errors subscribe to the
+cell directly (e.g. via <code>CellListener</code> or <code>CellAsyncBuilder</code>).</li>
+<li><strong>Dispose</strong>: the egress is stopped and the underlying notifier is
+disposed.</li>
+</ol>
+<h3 id="design-note-cellnotifier-is-read-only-by-contract">Design Note: <code>CellNotifier</code> is read-only by contract</h3>
+<p><a href="../cell_flutter/CellNotifier-class.html">CellNotifier</a> extends <a href="https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html">ValueNotifier</a> but <strong>overrides the value setter
+to throw</strong> <a href="https://api.flutter.dev/flutter/dart-core/UnsupportedError-class.html">UnsupportedError</a>. This is deliberate and load-bearing:
+a writable <code>ValueNotifier</code> whose value diverges from its cell's value is
+a silent bug — Flutter would rebuild on writes that the cell never
+observed, and the two sources of truth would drift. Mutating the cell
+instead (<code>cell.value = ...</code>) routes the change through the cell's
+integrity gates and broadcasts it through the reactive graph, so every
+dependent of the cell sees it — not just the widgets listening to this
+one notifier.</p>
+<h3 id="pulse-semantics">Pulse semantics</h3>
+<ul>
+<li><strong>Data pulses</strong> assign to <code>super.value</code> synchronously. See the
+<em>Synchronous delivery</em> note below for why this is intentional.</li>
+<li><strong>Error pulses</strong> are silently dropped. This is a display adapter, not
+an error surface.</li>
+<li><strong>Type-mismatch pulses</strong> are not expected: the subscription is typed
+<code>Cell.observe&lt;Pulse&lt;V&gt;&gt;</code> and <code>Pulse&lt;V&gt;.payload</code> is statically <code>V?</code>, so
+the payload type is consistent with the notifier's value type.</li>
+</ul>
+<h3 id="synchronous-delivery-read-this">Synchronous delivery (read this)</h3>
+<p><code>super.value = pulse.payload</code> is assigned synchronously in <code>_onPulse</code>.
+If a pulse arrives while a sibling <code>CellBuilder</code>'s subtree is mid-build,
+this assignment marks the notifier's dependents dirty <strong>during the
+build</strong> — which is exactly what we want: Flutter then raises its
+<em>"setState() or markNeedsBuild() called during build"</em> framework error
+instead of silently dropping the rebuild. The error is attributed to
+the <code>CellBuilder</code> element, <strong>not</strong> to the widget that emitted the
+pulse; the bug is the emission from inside <code>build</code>. Swallowing it would
+hide the bug. Widgets that want the opposite — deferral to the end of
+the frame — use <code>CellValueBuilder</code>, <code>CellAsyncBuilder</code>, or
+<code>CellListener</code>, which manage a pending queue. The burden of correctness
+falls on every cell that has a <code>CellBuilder</code> in the tree: never mutate
+a cell from inside <code>build</code>.</p>
+<h3 id="technical-details">Technical Details</h3>
+<ul>
+<li><strong>One egress per notifier</strong>: the adapter opens exactly one
+<code>Cell.observe</code> link; disposing the notifier stops it.</li>
+<li><strong>Nullable <code>V?</code></strong>: the notifier exposes <code>V?</code> (not <code>V</code>), matching a
+not-yet-emitted cell. <code>null is V</code>-aware downstream widgets handle the
+nullable value.</li>
+<li><strong>Constructor-time validation</strong>: subscribing to an invalidated cell
+throws <a href="https://api.flutter.dev/flutter/dart-core/ArgumentError-class.html">ArgumentError</a> rather than producing a notifier that will never
+fire.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final counter = Cell.state&lt;int&gt;(initial: 0);
+final notifier = CellNotifier(counter.cell);
+
+print(notifier.value); // 0
+counter.update(5);
+print(notifier.value); // 5
+
+notifier.value = 42;   // throws UnsupportedError
+notifier.cell.value = 42; // correct: mutate the cell
+
+notifier.dispose();
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html">ValueNotifier</a> — the Flutter primitive this extends.</li>
+<li><code>CellBuilder</code> — the widget that wraps <code>CellNotifier</code> in a
+<code>ValueListenableBuilder</code>.</li>
+<li><code>CellSelector</code> — the widget that adds slice-based rebuild granularity
+on top of <code>CellNotifier</code>.</li>
+<li><code>Cell.observe</code> — the underlying observation primitive.</li>
+</ul>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier-class.html">ChangeNotifier</a></li>
+        <li><a href="https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html">ValueNotifier</a><span class="signature">&lt;<wbr><span class="type-parameter">V?</span>&gt;</span></li>
+      <li>CellNotifier</li>
+    </ul>
+  </dd>
+
+        
+        
+
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="CellNotifier.new" class="callable">
+          <span class="name"><a href="../cell_flutter/CellNotifier/CellNotifier.html">CellNotifier</a></span><span class="signature">(<span class="parameter" id="-param-cell"><span class="type-annotation"><a href="../cell_flutter/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">cell</span></span>)</span>
+        </dt>
+        <dd>
+          Subscribes to <code>cell</code> and seeds the notifier with its current value.
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="cell" class="property">
+  <span class="name"><a href="../cell_flutter/CellNotifier/cell.html">cell</a></span>
+  <span class="signature">&#8594; <a href="../cell_flutter/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  The cell being observed.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hasListeners" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/hasListeners.html">hasListeners</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Whether any listeners are currently registered.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="value" class="property">
+  <span class="name"><a href="../cell_flutter/CellNotifier/value.html">value</a></span>
+  <span class="signature">&#8596; V?</span>
+  
+
+</dt>
+<dd>
+  The current value stored in this notifier.
+  <div class="features"><span class="feature">getter/setter pair</span><span class="feature">inherited-getter</span><span class="feature">override-setter</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="addListener" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/addListener.html">addListener</a></span><span class="signature">(<wbr><span class="parameter" id="addListener-param-listener"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/VoidCallback.html">VoidCallback</a></span> <span class="parameter-name">listener</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Register a closure to be called when the object changes.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="dispose" class="callable">
+  <span class="name"><a href="../cell_flutter/CellNotifier/dispose.html">dispose</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Stops observing <a href="../cell_flutter/CellNotifier/cell.html">cell</a> and disposes the underlying <a href="https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html">ValueNotifier</a>.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="notifyListeners" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/notifyListeners.html">notifyListeners</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Call all the registered listeners.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="removeListener" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/removeListener.html">removeListener</a></span><span class="signature">(<wbr><span class="parameter" id="removeListener-param-listener"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/VoidCallback.html">VoidCallback</a></span> <span class="parameter-name">listener</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Remove a previously registered closure from the list of closures that are
+notified when the object changes.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/foundation/ValueNotifier/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flutter</a></li>
+    <li><a href="../cell_flutter/">cell_flutter</a></li>
+    <li class="self-crumb">CellNotifier<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span> class</li>
+</ol>
+
+    <h5>cell_flutter library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flutter
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

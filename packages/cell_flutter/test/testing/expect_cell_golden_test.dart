@@ -46,5 +46,28 @@ void main() {
       },
       skip: !Platform.isWindows,
     );
+
+    testWidgets(
+      'two-golden workflow: mutate the cell directly between captures',
+      (tester) async {
+        // Locks in the documented example: every expectCellGolden call
+        // pumps a fresh tree, so the value is driven by a direct cell
+        // mutation — pumping the old tree in between accomplishes nothing.
+        final counter = Cell.state<int>(initial: 0);
+        await tester.expectCellGolden(
+          cell: counter.cell,
+          builder: (_, v) => Text('$v', style: const TextStyle(fontSize: 48)),
+          name: 'two_golden_zero',
+        );
+
+        counter.update(5);
+        await tester.expectCellGolden(
+          cell: counter.cell,
+          builder: (_, v) => Text('$v', style: const TextStyle(fontSize: 48)),
+          name: 'two_golden_five',
+        );
+      },
+      skip: !Platform.isWindows,
+    );
   });
 }

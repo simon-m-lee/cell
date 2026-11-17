@@ -1,0 +1,35 @@
+name: production_app
+description: Dogfooding app for cell_flutter (login, list, detail, settings, router, persistence).
+publish_to: none
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cell_flutter:
+    path: ../../
+  cell_flutter_router:
+    path: ../../../cell_flutter_router
+  cell_flutter_persistence:
+    path: ../../../cell_flutter_persistence
+  go_router: ">=14.0.0 <18.0.0"
+  shared_preferences: ^2.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  shared_preferences_platform_interface: ^2.4.0
+
+dependency_overrides:
+  cell:
+    path: ../../../cell
+  cell_flutter:
+    path: ../../
+  cell_flutter_router:
+    path: ../../../cell_flutter_router
+  cell_flutter_persistence:
+    path: ../../../cell_flutter_persistence
+
+flutter:
+  uses-material-design: true

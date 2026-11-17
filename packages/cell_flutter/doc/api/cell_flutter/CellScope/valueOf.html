@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the valueOf method from the CellScope class, for the Dart programming language.">
+  <title>valueOf method - CellScope class - cell_flutter library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_flutter</a></li>
+    <li><a href="../../cell_flutter/">cell_flutter.dart</a></li>
+    <li><a href="../../cell_flutter/CellScope-class.html">CellScope</a></li>
+    <li class="self-crumb">valueOf&lt;<wbr><span class="type-parameter">V</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">valueOf</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flutter&#47;CellScope-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">valueOf&lt;<wbr><span class="type-parameter">V</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../cell_flutter/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+<span class="name ">valueOf</span>&lt;<wbr><span class="type-parameter">V</span>&gt;(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="valueOf-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span>, </span></li>
+<li><span class="parameter" id="valueOf-param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span> <span class="parameter-name">id</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Returns the cell registered at <code>id</code>, narrowed to <a href="../../cell_flutter/ValueCell-class.html">ValueCell&lt;V&gt;</a>.</p>
+<p>This is the common lookup for <code>CellBuilder</code>: <code>Cell.state</code> returns a
+<a href="../../cell_flutter/ValueCell-class.html">ValueCell</a> internally, and most app-level registrations are
+<a href="../../cell_flutter/ValueCell-class.html">ValueCell</a>s. Registrations that are not <code>ValueCell&lt;V&gt;</code> throw —
+use <a href="../../cell_flutter/CellScope/of.html">of</a> for plain <code>Cell</code> sources (<code>Cell.derive</code>, <code>Cell.asyncMap</code>,
+<code>Cell.ingress</code>, <code>cell_tissue</code> collections).</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>context</code>: <strong>The Lookup Context.</strong></li>
+<li><code>id</code>: <strong>The Registration Key.</strong></li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The registered cell, statically typed as <a href="../../cell_flutter/ValueCell-class.html">ValueCell&lt;V&gt;</a>.</p>
+<h3 id="throws">Throws:</h3>
+<ul>
+<li>All the conditions under which <a href="../../cell_flutter/CellScope/of.html">of</a> throws.</li>
+<li><a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a> when the registration is a <code>ValueCell</code> whose value type
+does not satisfy <code>V</code>, <strong>or</strong> when the registration is not a
+<code>ValueCell</code> at all.</li>
+</ul>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flutter/CellScope/of.html">of</a> — the un-narrowed lookup for any <a href="../../cell_flutter/Cell-class.html">Cell</a>.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static ValueCell&lt;V&gt; valueOf&lt;V&gt;(BuildContext context, Symbol id) {
+  final cell = of&lt;V&gt;(context, id);
+  if (cell is! ValueCell&lt;V&gt;) {
+    throw StateError(
+      &#39;CellScope.valueOf&lt;$V&gt;($id): registered cell is &#39;
+      &#39;${cell.runtimeType}, which is not a ValueCell&lt;$V&gt;. &#39;
+      &#39;Use CellScope.of for non-ValueCell sources.&#39;,
+    );
+  }
+  return cell;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_flutter</a></li>
+    <li><a href="../../cell_flutter/">cell_flutter</a></li>
+    <li><a href="../../cell_flutter/CellScope-class.html">CellScope</a></li>
+    <li class="self-crumb">valueOf&lt;<wbr><span class="type-parameter">V</span>&gt; static method</li>
+</ol>
+
+    <h5>CellScope class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flutter
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

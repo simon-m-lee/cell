@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the asValueCell method from the CellAsValue extension, for the Dart programming language.">
+  <title>asValueCell method - CellAsValue extension - cell_flutter library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_flutter</a></li>
+    <li><a href="../../cell_flutter/">cell_flutter.dart</a></li>
+    <li><a href="../../cell_flutter/CellAsValue.html">CellAsValue</a></li>
+    <li class="self-crumb">asValueCell&lt;<wbr><span class="type-parameter">V</span>&gt; method</li>
+  </ol>
+  <div class="self-name">asValueCell</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flutter&#47;CellAsValue-extension-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">asValueCell&lt;<wbr><span class="type-parameter">V</span>&gt;</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../cell_flutter/MirroredCell.html">MirroredCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+<span class="name ">asValueCell</span>&lt;<wbr><span class="type-parameter">V</span>&gt;(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="asValueCell-param-initial"><span class="type-annotation">V?</span> <span class="parameter-name">initial</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Mirrors this cell into a fresh <a href="../../cell_flutter/ValueCell-class.html">ValueCell</a> and returns the paired
+handle.</p>
+<p>The returned <a href="../../cell_flutter/MirroredCell.html">MirroredCell</a> contains both the mirror (a <a href="../../cell_flutter/ValueCell-class.html">ValueCell</a>
+seeded from this cell's currently visible value, or from <code>initial</code>) and
+a <code>dispose</code> callback that <strong>must</strong> be called when the mirror is no
+longer needed — otherwise the backing egress leaks.</p>
+<h3 id="when-to-use">When to use</h3>
+<p><strong>Prefer <code>CellValueBuilder</code> inside widgets</strong> — it manages the mirror's
+lifecycle automatically. Use <a href="../../cell_flutter/CellAsValue/asValueCell.html">asValueCell</a> when the mirror must outlive
+a widget (for example, shared across a service layer), or when you
+need a synchronous, <code>ValueCell</code>-typed value that <code>CellBuilder</code> /
+<code>CellSelector</code> can consume.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>A fresh <a href="../../cell_flutter/ValueCell-class.html">ValueCell</a> is created and seeded via the same priority
+rules documented under <em>Seed semantics</em> on the extension: the
+retained pulse if it is a data pulse assignable to <code>V</code>, otherwise
+<code>initial</code>.</li>
+<li>A <code>Cell.observe</code> link is opened on this cell; each data pulse
+assigns <code>pulse.payload</code> to the mirror.</li>
+<li>The mirror and the egress-stop callback are packaged as a
+<a href="../../cell_flutter/MirroredCell.html">MirroredCell</a> record.</li>
+</ol>
+<h3 id="disposal-contract">Disposal contract</h3>
+<p>Calling the returned <code>dispose</code> callback is <strong>mandatory</strong>. Failure to
+call it leaves the egress attached to this cell, receiving (and holding)
+every pulse for the mirror's remaining lifetime. <code>dispose</code> is safe to
+call more than once.</p>
+<h3 id="error-pulses">Error pulses</h3>
+<p>Error pulses are <strong>silently skipped</strong>; the mirror's value stays at its
+last data value. To observe errors, use <code>CellValueBuilder(emitErrors: true)</code>,
+<code>CellListener</code>, or <code>asStream(emitErrors: true)</code> on the source.</p>
+<h3 id="technical-details">Technical Details</h3>
+<ul>
+<li><strong>One egress per mirror</strong>: each call to <code>asValueCell</code> opens a new
+observation link. Two mirrors from the same source are two egresses.</li>
+<li><strong>Type erasure at observation</strong>: the link is typed
+<code>Pulse&lt;Object?&gt;</code> so error and type-mismatch pulses can be received;
+the payload is narrowed with <code>is V</code> / <code>null is V</code> inside the effect.</li>
+<li><strong>Payload type-mismatch</strong>: reported via <code>Zone.current.handleUncaughtError</code>
+with a <code>StateError</code> (see the extension docs for why this differs from
+the other bindings).</li>
+</ul>
+<h3 id="concurrent-asyncmap-caveat">Concurrent <code>asyncMap</code> caveat</h3>
+<p>If the source is <code>Cell.asyncMap</code> with <code>concurrency &gt; 0</code>, the mirror
+inherits the framework's caveat. The mirror's observation is
+correct; the caveat is about the source's replay fidelity.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>initial</code>: <strong>The Seed Fallback.</strong> Used when no retained data pulse is
+assignable to <code>V</code> on the source (the source has never emitted, the
+retained pulse is an error, or its payload is not a <code>V</code>). Defaults to
+<code>null</code>.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flutter/MirroredCell.html">MirroredCell</a> record: <code>cell</code> is the fresh <a href="../../cell_flutter/ValueCell-class.html">ValueCell</a>; <code>dispose</code> is
+the egress-stop callback.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final source = Cell.derive&lt;Pulse&lt;int&gt;, Pulse&lt;int&gt;&gt;(
+  source: counter.cell,
+  project: (p) =&gt; Pulse((p.payload ?? 0) * 2),
+);
+final mirrored = source.asValueCell&lt;int&gt;(initial: 0);
+try {
+  // ... use mirrored.cell with CellBuilder ...
+} finally {
+  mirrored.dispose(); // required — releases the egress
+}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flutter/MirroredCell.html">MirroredCell</a> — the return type.</li>
+<li><code>CellValueBuilder</code> — the widget-layer alternative (no manual
+disposal).</li>
+<li><code>CellBuilder</code> / <code>CellSelector</code> — the widgets that need a
+<a href="../../cell_flutter/ValueCell-class.html">ValueCell</a>.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">MirroredCell&lt;V&gt; asValueCell&lt;V&gt;({V? initial}) {
+  final mirror = ValueCell&lt;V&gt;(initial: seedFromRetained(this, initial));
+  final egress = Cell.observe&lt;Pulse&lt;Object?&gt;&gt;(
+    source: this,
+    effect: (pulse) {
+      if (pulse.type == &#39;error&#39;) return;
+      final payload = pulse.payload;
+      if (payload == null &amp;&amp; null is V) {
+        mirror.value = null;
+      } else if (payload is V) {
+        mirror.value = payload;
+      } else {
+        Zone.current.handleUncaughtError(
+          StateError(
+            &#39;asValueCell&lt;$V&gt;: pulse payload is ${payload.runtimeType}, &#39;
+            &#39;not $V.&#39;,
+          ),
+          StackTrace.current,
+        );
+      }
+    },
+    initiallyStarted: true,
+  );
+  return (cell: mirror, dispose: egress.stop);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_flutter</a></li>
+    <li><a href="../../cell_flutter/">cell_flutter</a></li>
+    <li><a href="../../cell_flutter/CellAsValue.html">CellAsValue</a></li>
+    <li class="self-crumb">asValueCell&lt;<wbr><span class="type-parameter">V</span>&gt; method</li>
+</ol>
+
+    <h5>CellAsValue extension on <a href="../../cell_flutter/Cell-class.html">Cell</a></h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flutter
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

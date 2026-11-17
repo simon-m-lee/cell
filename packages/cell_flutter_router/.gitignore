@@ -1,0 +1,9 @@
+# https://dart.dev/guides/libraries/private-files
+.dart_tool/
+
+# Library packages do not commit lockfiles.
+pubspec.lock
+
+# Generated test coverage and build output
+coverage/
+build/

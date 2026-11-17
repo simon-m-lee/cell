@@ -74,8 +74,7 @@ do arrive.
 
 ## Concurrent `asyncMap` caveat (inheritance)
 
-Derivations over `Cell.asyncMap` with `concurrency > 0` inherit Gate
-G1.5: concurrent effect attribution is tracked separately by the `cell`
+Derivations over `Cell.asyncMap` with `concurrency > 0` inherit the caveat
 core package. The observation is correct; the caveat is about the
 source's replay fidelity.
 

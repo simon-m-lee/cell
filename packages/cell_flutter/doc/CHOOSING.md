@@ -10,7 +10,7 @@ Bloc will ship it faster**. Mitosis is the right choice if you need a
 recorded, replayable, least-privilege shared graph — a smaller, more
 specific need. The replay engine is verified for the pure-state, debounce,
 throttle, future, and stream probes (commit `05b4895d`); concurrent
-`asyncMap` effect attribution is tracked separately (Gate G1.5). Only
+`asyncMap` effect attribution is tracked separately. Only
 `Cell.fromFuture` emits error pulses today; `fromStream` and `asyncMap`
 do not.
 
@@ -61,7 +61,7 @@ graph TD
   solved and boring in the best way.
 - **When you need stream operators.** RxDart is more complete.
 - **When you need concurrent `asyncMap` replay fidelity today.**
-  Gate G1.5 is tracked separately; the rest of the replay contract is
+  The concurrent-`asyncMap` caveat is tracked separately; the rest of the replay contract is
   verified (pure state, debounce, throttle, `fromFuture`, `fromStream`).
 - **When you need error surfaces from `fromStream` / `asyncMap`.** Those
   sources do not emit error pulses today; only `Cell.fromFuture` does.
@@ -118,7 +118,7 @@ feature only" adopters.
 - **Replay scope.** Verified for pure state, debounce, throttle,
   `fromFuture`, and `fromStream` (commit `05b4895d`, full suite 1371
   tests, determinism gate 240/240). Concurrent `asyncMap` effect
-  attribution is tracked separately (Gate G1.5).
+  attribution is tracked separately.
 - **Error pulses.** Only `Cell.fromFuture` emits `type: 'error'` pulses.
   A `CellAsyncBuilder` over an `asyncMap` or `fromStream` source shows the
   last successful value on failure. Bridge failures through a

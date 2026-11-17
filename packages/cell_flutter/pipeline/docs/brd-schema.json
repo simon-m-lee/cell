@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/simon-m-lee/cell/raw/master/packages/cell_flutter/pipeline/docs/brd-schema.json",
+  "title": "HowTo-Mitose-Flutter BRD",
+  "description": "Canonical JSON form of a Business Requirements Document for the mitose_flutter pipeline. The Markdown surface is documented in brd-schema.md; this schema is the machine-readable source of truth at flutter-pipeline/v1.",
+  "type": "object",
+  "required": [
+    "schema",
+    "title",
+    "version",
+    "requirements",
+    "screens",
+    "state"
+  ],
+  "properties": {
+    "schema": {
+      "description": "The schema version pin. The pipeline rejects any other value.",
+      "const": "flutter-pipeline/v1"
+    },
+    "title": {
+      "description": "The application name; becomes the MaterialApp title.",
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "description": "The BRD's own revision number.",
+      "type": "integer",
+      "const": 1
+    },
+    "requirements": {
+      "description": "One row per requirement of the ## Requirements table.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/requirement" }
+    },
+    "screens": {
+      "description": "One row per screen of the ## Screens table.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/screen" }
+    },
+    "forms": {
+      "description": "One row per form of the optional ## Forms table.",
+      "type": "array",
+      "default": [],
+      "items": { "$ref": "#/$defs/form" }
+    },
+    "state": {
+      "description": "One row per cell of the ## State table.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/state" }
+    },
+    "context": {
+      "description": "The optional ## Context free-form section; read for the walkthrough, never acted on.",
+      "type": ["string", "null"],
+      "default": null
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "requirement": {
+      "type": "object",
+      "required": ["id", "sentence", "screen", "outcome", "type"],
+      "properties": {
+        "id": {
+          "description": "Unique requirement id, e.g. REQ-001.",
+          "type": "string",
+          "pattern": "^REQ-[0-9]{3,}$"
+        },
+        "sentence": {
+          "description": "A single imperative sentence in third person, e.g. 'User sees the email field'.",
+          "type": "string",
+          "minLength": 1
+        },
+        "screen": {
+          "description": "The name of a screen in ## Screens.",
+          "type": "string",
+          "minLength": 1
+        },
+        "trigger": {
+          "description": "The user action that satisfies the requirement. Required for Type interaction and recovery.",
+          "type": ["string", "null"],
+          "default": null
+        },
+        "outcome": {
+          "description": "What the user sees or what happens.",
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "description": "The requirement kind; drives placement and LEDGER kinds.",
+          "enum": ["display", "interaction", "recovery", "atomic"]
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "interaction" } } },
+          "then": {
+            "properties": { "trigger": { "type": "string", "minLength": 1 } }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "recovery" } } },
+          "then": {
+            "properties": { "trigger": { "type": "string", "minLength": 1 } }
+          }
+        }
+      ]
+    },
+    "screen": {
+      "type": "object",
+      "required": ["name", "route", "widgets"],
+      "properties": {
+        "name": {
+          "description": "Screen name, e.g. Login. Referenced by requirements' Screen column.",
+          "type": "string",
+          "minLength": 1
+        },
+        "route": {
+          "description": "Route path, e.g. /login.",
+          "type": "string",
+          "pattern": "^/"
+        },
+        "widgets": {
+          "description": "The comma-separated Widgets column, split into widget names.",
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "form": {
+      "type": "object",
+      "required": ["name", "fields"],
+      "properties": {
+        "name": {
+          "description": "Form name, e.g. LoginForm.",
+          "type": "string",
+          "minLength": 1
+        },
+        "fields": {
+          "description": "The comma-separated Fields column, split into field names.",
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "validator": {
+          "description": "Plain-English validation rule, e.g. 'email contains @, password length >= 8'.",
+          "type": ["string", "null"],
+          "default": null
+        }
+      },
+      "additionalProperties": false
+    },
+    "state": {
+      "type": "object",
+      "required": ["name", "type", "restorable", "appLevel"],
+      "properties": {
+        "name": {
+          "description": "Cell name, e.g. email.",
+          "type": "string",
+          "pattern": "^[a-z][A-Za-z0-9]*$"
+        },
+        "type": {
+          "description": "The Dart type of the cell's value.",
+          "type": "string",
+          "minLength": 1
+        },
+        "initial": {
+          "description": "Initial value expression, e.g. '' or AuthState.signedOut.",
+          "type": ["string", "null"],
+          "default": null
+        },
+        "restorable": {
+          "description": "Whether the cell uses restorableState.",
+          "type": "boolean"
+        },
+        "appLevel": {
+          "description": "Whether the cell is registered in CellScope.",
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

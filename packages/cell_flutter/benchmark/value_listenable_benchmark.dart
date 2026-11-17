@@ -77,17 +77,19 @@ void main() {
       final notifiers = [for (var i = 0; i < 100; i++) ValueNotifier<int>(0)];
       var builds = 0;
       await tester.pumpWidget(MaterialApp(
-        home: Column(
-          children: [
-            for (final notifier in notifiers)
-              ValueListenableBuilder<int>(
-                valueListenable: notifier,
-                builder: (_, v, child) {
-                  builds++;
-                  return Text('$v');
-                },
-              ),
-          ],
+        home: SingleChildScrollView(
+          child: Column(
+            children: [
+              for (final notifier in notifiers)
+                ValueListenableBuilder<int>(
+                  valueListenable: notifier,
+                  builder: (_, v, child) {
+                    builds++;
+                    return Text('$v');
+                  },
+                ),
+            ],
+          ),
         ),
       ));
       results.add(await runScenario(

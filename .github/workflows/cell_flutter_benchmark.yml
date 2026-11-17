@@ -1,0 +1,40 @@
+name: cell_flutter_benchmark
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/cell_flutter_benchmark.yml'
+      - 'packages/cell_flutter/lib/**'
+      - 'packages/cell_flutter/benchmark/**'
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/cell_flutter_benchmark.yml'
+      - 'packages/cell_flutter/lib/**'
+      - 'packages/cell_flutter/benchmark/**'
+  schedule:
+    - cron: '0 4 * * *' # nightly
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    # Deferred gate (1.0.1): the baseline was recorded on a shared dev
+    # machine whose scheduling noise occasionally trips the p50 gate.
+    # The nightly job remains strict; this PR job reports until the
+    # baseline is re-recorded on a dedicated runner and promoted to
+    # blocking.
+    continue-on-error: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.9'
+          channel: stable
+          cache: true
+      - name: Resolve deps
+        working-directory: packages/cell_flutter
+        run: flutter pub get
+      - name: Run + compare (15% gate + 300us noise floor)
+        working-directory: packages/cell_flutter
+        run: dart run tool/benchmark.dart

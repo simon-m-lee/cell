@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the useCellValue function from the cell_flutter_hooks library, for the Dart programming language.">
+  <title>useCellValue function - cell_flutter_hooks library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flutter</a></li>
+    <li><a href="../cell_flutter_hooks/">hooks.dart</a></li>
+    <li class="self-crumb">useCellValue&lt;<wbr><span class="type-parameter">V</span>&gt; function</li>
+  </ol>
+  <div class="self-name">useCellValue</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_flutter_hooks&#47;cell_flutter_hooks-library-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-function">useCellValue&lt;<wbr><span class="type-parameter">V</span>&gt;</span> function 
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+<span class="returntype">V?</span>
+<span class="name ">useCellValue</span>&lt;<wbr><span class="type-parameter">V</span>&gt;(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="useCellValue-param-cell"><span class="type-annotation"><a href="../cell_flutter/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">cell</span></span></li>
+</ol>)
+
+        
+
+    </section>
+    
+<section class="desc markdown">
+  <p>A convenience wrapper for "rebuild on every value change".</p>
+<p><a href="../cell_flutter_hooks/useCellValue.html">useCellValue</a> is <a href="../cell_flutter_hooks/useCell.html">useCell</a> with <code>select: (v) =&gt; v</code> — the full-value
+shortcut. It is the hooks layer's <strong>Plain Value Reader</strong>, the
+<code>HookWidget</code> equivalent of <code>CellBuilder</code>.</p>
+<h3 id="why-it-is-used">Why it is used</h3>
+<p>Most <code>HookWidget</code>s that read a cell want the whole value, not a
+projected slice. Rather than forcing the caller to pass
+<code>select: (v) =&gt; v</code> and infer <code>S</code> from the cell's <code>V</code>, this helper
+<strong>shortens the call site</strong> and infers the type directly.</p>
+<h3 id="when-not-to-use-it">When <strong>not</strong> to use it</h3>
+<p>Use only when every change matters. If the widget only reads one field
+of a larger object — the common case once a <code>Cell&lt;User&gt;</code> grows beyond
+<code>name</code> — reach for <a href="../cell_flutter_hooks/useCell.html">useCell</a> with an explicit selector. Rebuilding the
+widget on every unrelated field change is the exact cost
+<code>CellSelector</code>'s slice reduction exists to avoid.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>It delegates to <code>useCell&lt;V, V?&gt;</code> with <code>select: (v) =&gt; v</code>. The
+selection is typed <code>V?</code> (matching <code>CellNotifier</code>'s value type) and
+rebuilds on every distinct value.</p>
+<h3 id="technical-details">Technical Details</h3>
+<ul>
+<li><strong>Return type is <code>V?</code></strong>: the same nullable-value contract as
+<code>CellBuilder.builder</code> — a not-yet-emitted cell returns <code>null</code>.</li>
+<li><strong>Delegates to <a href="../cell_flutter_hooks/useCell.html">useCell</a></strong>: no separate implementation; the equality
+and recompute semantics of <a href="../cell_flutter_hooks/useCell.html">useCell</a> apply unchanged. Default
+<code>equals</code> is <code>==</code>.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">class CounterView extends HookWidget {
+  final ValueCell&lt;int&gt; counter;
+  const CounterView({required this.counter, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final value = useCellValue(counter);
+    return Text('${value ?? 0}');
+  }
+}
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>cell</code>: <strong>The Source Cell.</strong> A <a href="../cell_flutter/ValueCell-class.html">ValueCell</a> whose full value is read.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The current value <code>V?</code>, re-rendered on every change.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell_flutter_hooks/useCell.html">useCell</a> — the selector hook this delegates to.</li>
+<li><code>CellBuilder</code> — the widget equivalent.</li>
+<li><a href="../cell_flutter_hooks/useCellNotifier.html">useCellNotifier</a> — for a <a href="https://api.flutter.dev/flutter/foundation/Listenable-class.html">Listenable</a> rather than a value.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">V? useCellValue&lt;V&gt;(ValueCell&lt;V&gt; cell) =&gt;
+    useCell&lt;V, V?&gt;(cell: cell, select: (v) =&gt; v);</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flutter</a></li>
+    <li><a href="../cell_flutter_hooks/">cell_flutter_hooks</a></li>
+    <li class="self-crumb">useCellValue&lt;<wbr><span class="type-parameter">V</span>&gt; function</li>
+</ol>
+
+    <h5>cell_flutter_hooks library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flutter
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

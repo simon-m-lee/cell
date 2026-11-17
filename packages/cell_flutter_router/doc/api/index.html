@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="cell_flutter_router API docs, for the Dart programming language.">
+  <title>cell_flutter_router - Dart API docs</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="static-assets/github.css?v1">
+  <link rel="stylesheet" href="static-assets/styles.css?v1">
+  <link rel="icon" href="static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="https://github.com/simon-m-lee/cell">cell_flutter_router package</a></li>
+  </ol>
+  <div class="self-name">cell_flutter_router</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div id="dartdoc-main-content" class="main-content">
+      
+<section class="desc markdown">
+  <h1 id="cell_flutter_router">cell_flutter_router</h1>
+<p>A <code>go_router</code> bridge for <a href="https://pub.dev/packages/cell_flutter"><code>cell_flutter</code></a>:
+route state exposed as a reactive cell.</p>
+<h2 id="what-it-provides">What it provides</h2>
+<ul>
+<li><code>CellRouterState</code> — the mirrored route state (<code>location</code>, <code>queryParams</code>,
+<code>extra</code>) with JSON-safe <code>toJson</code> / <code>fromJson</code>.</li>
+<li><code>CellRouterStateMirror</code> — a widget that listens to a <code>GoRouter</code>'s
+delegate and writes the current route into a state cell on every
+navigation (go, push, replace, pop, deep links). It does not replace
+<code>go_router</code>'s delegate — your router configuration keeps working.</li>
+<li><code>CellRouterScope</code> — an <code>InheritedWidget</code> that publishes the router and
+its state cell to the widget tree.</li>
+<li><code>CellRouterController</code> / <code>useCellRouter</code> — reactive navigation
+(<code>go</code>, <code>push</code>, <code>replace</code>, <code>pop</code>) plus the current route state.</li>
+<li><code>routerState(restorationId: …)</code> — a <code>RestorableCell</code> for the route
+state; pair it with a <code>CellRestorationScope</code> for process-kill
+restoration.</li>
+</ul>
+<h2 id="install">Install</h2>
+<pre class="language-yaml"><code class="language-yaml">dependencies:
+  cell: ^2.0.0
+  cell_flutter: ^1.0.0
+  cell_flutter_router: ^0.1.0
+</code></pre>
+<h2 id="quick-start">Quick start</h2>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flutter/cell_flutter.dart';
+import 'package:cell_flutter_router/cell_flutter_router.dart';
+import 'package:go_router/go_router.dart';
+
+final router = GoRouter(routes: [
+  GoRoute(path: '/', builder: (context, state) =&gt; const HomeScreen()),
+  GoRoute(path: '/user/:id', builder: (context, state) =&gt; const UserScreen()),
+]);
+
+final routerStateCell = routerState(restorationId: 'router');
+
+class App extends StatelessWidget {
+  const App({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return CellRouterStateMirror(
+      router: router,
+      stateCell: routerStateCell,
+      child: MaterialApp.router(routerConfig: router),
+    );
+  }
+}
+
+class LocationBar extends StatelessWidget {
+  const LocationBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return CellSelector&lt;CellRouterState, String&gt;(
+      cell: routerStateCell,
+      selector: (state) =&gt; state.location,
+      builder: (context, location) =&gt; Text(location),
+    );
+  }
+}
+</code></pre>
+<p>For hooks-based apps, wrap the subtree in a <code>CellRouterScope</code> (with the
+same router and state cell) and call <code>useCellRouter()</code> to read the state
+and navigate.</p>
+<p>See <code>test/</code> for the full contract coverage and the package
+<a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_router/CHANGELOG.md">CHANGELOG.md</a>
+for release history.</p>
+</section>
+
+
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <dt id="cell_flutter_router">
+  <span class="name"><a href="cell_flutter_router/">cell_flutter_router</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="hooks">
+  <span class="name"><a href="hooks/">hooks</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+        </dl>
+      </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="https://github.com/simon-m-lee/cell">cell_flutter_router package</a></li>
+</ol>
+
+    <h5 class="hidden-xs"><span class="package-name">cell_flutter_router</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="cell_flutter_router/">cell_flutter_router</a></li>
+      <li><a href="hooks/">hooks</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+</main>
+<footer>
+  <span class="no-break">
+    cell_flutter_router
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="static-assets/highlight.pack.js?v1"></script>
+<script src="static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the useCellNotifier function from the cell_flutter_hooks library, for the Dart programming language.">
+  <title>useCellNotifier function - cell_flutter_hooks library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flutter</a></li>
+    <li><a href="../cell_flutter_hooks/">hooks.dart</a></li>
+    <li class="self-crumb">useCellNotifier&lt;<wbr><span class="type-parameter">V</span>&gt; function</li>
+  </ol>
+  <div class="self-name">useCellNotifier</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_flutter_hooks&#47;cell_flutter_hooks-library-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-function">useCellNotifier&lt;<wbr><span class="type-parameter">V</span>&gt;</span> function 
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+<span class="returntype"><a href="../cell_flutter/CellNotifier-class.html">CellNotifier</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+<span class="name ">useCellNotifier</span>&lt;<wbr><span class="type-parameter">V</span>&gt;(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="useCellNotifier-param-cell"><span class="type-annotation"><a href="../cell_flutter/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">cell</span></span></li>
+</ol>)
+
+        
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Returns a <a href="../cell_flutter/CellNotifier-class.html">CellNotifier</a> bound to <code>cell</code>, disposed on unmount.</p>
+<p><a href="../cell_flutter_hooks/useCellNotifier.html">useCellNotifier</a> is the hooks layer's <strong>Listenable Bridge</strong>. It is the
+<code>flutter_hooks</code> counterpart of <code>CellNotifier</code> itself — the value-notifier
+adapter, not the widgets built on top of it. Use it when you want the
+cell's value as a <a href="https://api.flutter.dev/flutter/foundation/ValueListenable-class.html">ValueListenable</a> you can hand to another
+<code>flutter_hooks</code> primitive or a Flutter widget, rather than as a rendered
+subtree.</p>
+<h3 id="why-it-is-used">Why it is used</h3>
+<ul>
+<li><strong>Compose with <code>flutter_hooks</code> primitives</strong>: <code>useValueListenable</code>,
+<code>useListenable</code>, <code>useValueChanged</code> all take a <a href="https://api.flutter.dev/flutter/foundation/Listenable-class.html">Listenable</a> or
+<a href="https://api.flutter.dev/flutter/foundation/ValueListenable-class.html">ValueListenable</a>. Wrapping a cell in <code>useCellNotifier</code> lets you feed
+the cell's value into them directly.</li>
+<li><strong>Hand the notifier to Flutter widgets</strong>: <code>ValueListenableBuilder</code>,
+<code>AnimatedBuilder</code>, <code>ListenableBuilder</code> take a <code>Listenable</code>. This hook
+is the correct way to obtain one from a cell inside a <code>HookWidget</code>.</li>
+<li><strong>Explicit lifecycle</strong>: the notifier is created once per cell (via
+<code>useMemoized</code>) and disposed on unmount (via <code>useEffect</code>), so its
+egress is released with the widget, not leaked.</li>
+</ul>
+<h3 id="when-not-to-use-it">When <strong>not</strong> to use it</h3>
+<ul>
+<li>For <strong>rebuild-on-value-change</strong>, use <a href="../cell_flutter_hooks/useCellValue.html">useCellValue</a> — it does the same
+work with less ceremony and no notifier to carry around.</li>
+<li>For <strong>rebuild-on-slice-change</strong>, use <a href="../cell_flutter_hooks/useCell.html">useCell</a> — it adds
+<a href="../cell_flutter/CellSelector-class.html">CellSelector</a>-style granularity.</li>
+<li>For <strong>async snapshots</strong>, use <code>useCellAsync</code>.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><code>useMemoized</code> constructs one <a href="../cell_flutter/CellNotifier-class.html">CellNotifier</a> for the given <code>cell</code> and
+keeps it stable across builds. A change of <code>cell</code> identity produces a
+new notifier on the next build.</li>
+<li><code>useEffect</code> registers <code>notifier.dispose</code> as the cleanup callback,
+which runs when the hook unmounts or when the notifier is replaced by
+a <code>useMemoized</code> identity change.</li>
+</ol>
+<h3 id="technical-details">Technical Details</h3>
+<ul>
+<li><strong>Memoization key is <code>[cell]</code></strong>: the notifier is re-created only when
+the cell <em>identity</em> changes. Passing a freshly created cell on every
+build would defeat the memoization and rebuild the notifier each
+frame; the same caution applies here as to <code>CellBuilder</code>'s
+cell-in-build anti-pattern.</li>
+<li><strong>The notifier is read-only</strong>: <code>CellNotifier</code> overrides <code>value</code>'s
+setter to throw <a href="https://api.flutter.dev/flutter/dart-core/UnsupportedError-class.html">UnsupportedError</a>. Mutate the cell directly
+(<code>cell.value = ...</code>) when a write is needed.</li>
+<li><strong>Error pulses are not surfaced</strong>: the notifier drops
+<code>pulse.type == 'error'</code> on the floor. Use <code>useCellAsync</code> if the
+widget needs to render errors.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">class FancyView extends HookWidget {
+  final ValueCell&lt;int&gt; counter;
+  const FancyView({required this.counter, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final notifier = useCellNotifier(counter);
+    useValueListenable(notifier);
+    return ValueListenableBuilder&lt;int?&gt;(
+      valueListenable: notifier,
+      builder: (_, v, __) =&gt; Text('$v'),
+    );
+  }
+}
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>cell</code>: <strong>The Source Cell.</strong> A <a href="../cell_flutter/ValueCell-class.html">ValueCell</a> whose value the notifier
+mirrors. Held by reference for the notifier's lifetime; the notifier
+does not invalidate it on dispose.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../cell_flutter/CellNotifier-class.html">CellNotifier</a> that is stable across builds of the enclosing
+<code>HookWidget</code> and disposed automatically on unmount.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell_flutter_hooks/useCell.html">useCell</a> — the selector hook.</li>
+<li><a href="../cell_flutter_hooks/useCellValue.html">useCellValue</a> — the full-value shortcut.</li>
+<li><code>CellNotifier</code> — the underlying adapter; its docs cover the read-only
+contract in detail.</li>
+<li><a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useValueListenable.html">useValueListenable</a> / <a href="https://pub.dev/documentation/flutter_hooks/0.20.5/flutter_hooks/useListenable.html">useListenable</a> — the <code>flutter_hooks</code>
+primitives this hook is typically composed with.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">CellNotifier&lt;V&gt; useCellNotifier&lt;V&gt;(ValueCell&lt;V&gt; cell) {
+  final notifier = useMemoized(() =&gt; CellNotifier&lt;V&gt;(cell), [cell]);
+  useEffect(() =&gt; notifier.dispose, [notifier]);
+  return notifier;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flutter</a></li>
+    <li><a href="../cell_flutter_hooks/">cell_flutter_hooks</a></li>
+    <li class="self-crumb">useCellNotifier&lt;<wbr><span class="type-parameter">V</span>&gt; function</li>
+</ol>
+
+    <h5>cell_flutter_hooks library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flutter
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

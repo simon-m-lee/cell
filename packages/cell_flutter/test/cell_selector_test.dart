@@ -258,5 +258,55 @@ void main() {
 
       expect(tester.takeException(), isStateError);
     });
+
+    testWidgets('defers slice recompute for a pulse emitted during build',
+        (tester) async {
+      final counter = Cell.state<int>(initial: 1);
+
+      await tester.pumpWidget(_wrap(_EmitHost(
+        child: CellSelector<int, int>(
+          cell: counter.cell,
+          select: (v) => v ?? 0,
+          builder: (_, s) => Text('$s'),
+        ),
+      )));
+      expect(find.text('1'), findsOneWidget);
+
+      // Rebuild the same element; the host emits mid-build. The selector's
+      // own setState is routed through runAfterBuild, so no framework
+      // error fires and the slice lands on the next frame.
+      await tester.pumpWidget(_wrap(_EmitHost(
+        emitOnBuild: () => counter.update(9),
+        child: CellSelector<int, int>(
+          cell: counter.cell,
+          select: (v) => v ?? 0,
+          builder: (_, s) => Text('$s'),
+        ),
+      )));
+      await tester.pump();
+
+      expect(find.text('9'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
   });
+}
+
+class _EmitHost extends StatefulWidget {
+  const _EmitHost({required this.child, this.emitOnBuild});
+
+  final Widget child;
+
+  /// Invoked from `build` — lets a test emit a pulse mid-frame.
+  final void Function()? emitOnBuild;
+
+  @override
+  State<_EmitHost> createState() => _EmitHostState();
+}
+
+class _EmitHostState extends State<_EmitHost> {
+  @override
+  Widget build(BuildContext context) {
+    widget.emitOnBuild?.call();
+    return widget.child;
+  }
 }

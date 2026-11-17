@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the CellScope class from the cell_flutter library, for the Dart programming language.">
+  <title>CellScope class - cell_flutter library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flutter</a></li>
+    <li><a href="../cell_flutter/">cell_flutter.dart</a></li>
+    <li class="self-crumb">CellScope class</li>
+  </ol>
+  <div class="self-name">CellScope</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flutter&#47;cell_flutter-library-sidebar.html"
+    data-below-sidebar="cell_flutter&#47;CellScope-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">CellScope</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>An <a href="https://api.flutter.dev/flutter/widgets/InheritedWidget-class.html">InheritedWidget</a> that provides a small set of app-level cells to the
+subtree below it, addressed by <a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a>.</p>
+<p><a href="../cell_flutter/CellScope-class.html">CellScope</a> is the binding's <strong>App-Level Cell Registry</strong>. It exists for
+the handful of cells that are genuinely global — <code>auth</code>, <code>theme</code>,
+<code>featureFlags</code>, <code>currentUser</code> — and should not become a general-purpose
+service locator. Mitosis's philosophy is that cells flow through the tree
+explicitly; passing a cell as a constructor argument is the default, and
+<a href="../cell_flutter/CellScope-class.html">CellScope</a> is the escape hatch for the few identifiers that every layer
+of the app needs to reach by name.</p>
+<h3 id="why-it-is-used">Why it is used</h3>
+<ul>
+<li><strong>Well-known globals</strong>: register the small set of cells whose identity
+is stable for the lifetime of the app, so distant widgets can find them
+without threading them through every intermediate widget.</li>
+<li><strong>Symbol-keyed lookup</strong>: keys are <code>Symbol</code>s (<code>#auth</code>, <code>#theme</code>), not
+type parameters. A single app commonly has several <code>Cell</code> values of the
+same <code>V</code> (multiple <code>Cell&lt;User&gt;</code>, several <code>Cell&lt;int&gt;</code>), and type-keyed
+lookup cannot tell them apart.</li>
+<li><strong>Subtree scoping</strong>: nested <a href="../cell_flutter/CellScope-class.html">CellScope</a>s allow a feature to expose its
+own cells without polluting the app-wide registry, while still obeying
+the nearest-scope rule described under <em>Nested scopes</em>.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Registration</strong>: a <a href="../cell_flutter/CellScope-class.html">CellScope</a> takes a <code>Map&lt;Symbol, Cell&gt;</code> and places
+it in the widget tree above its <a href="https://api.flutter.dev/flutter/widgets/ProxyWidget/child.html">child</a>.</li>
+<li><strong>Lookup</strong>: <a href="../cell_flutter/CellScope/of.html">of</a>, <a href="../cell_flutter/CellScope/maybeOf.html">maybeOf</a>, and <a href="../cell_flutter/CellScope/valueOf.html">valueOf</a> perform a
+<code>dependOnInheritedWidgetOfExactType&lt;CellScope&gt;()</code> call, which both
+retrieves the nearest enclosing scope <strong>and</strong> registers the caller as
+a dependent — so the caller is rebuilt only when <a href="../cell_flutter/CellScope/updateShouldNotify.html">updateShouldNotify</a>
+returns <code>true</code>.</li>
+<li><strong>Type widening and narrowing</strong>: <a href="../cell_flutter/CellScope/of.html">of</a> / <a href="../cell_flutter/CellScope/maybeOf.html">maybeOf</a> accept a value-type
+parameter <code>V</code> and narrow the returned cell to <code>ValueCell&lt;V&gt;</code> when the
+registration is a <code>ValueCell</code>. Plain <code>Cell</code> registrations are returned
+unchanged — the value type only exists on the pulse they emit.</li>
+</ol>
+<h3 id="design-note-symbol-keys-not-type-keys">Design Note: <code>Symbol</code> keys, not type keys</h3>
+<p>Type-keyed lookup (<code>Provider&lt;T&gt;</code>, <code>InheritedWidget</code> subclasses per type)
+fails in a Mitosis app for the same reason it would fail in a rich domain
+model: type is not identity. <code>#auth</code> and <code>#profile</code> may both be
+<code>Cell&lt;User&gt;</code>; <code>#theme</code> and <code>#draftTheme</code> may both be <code>Cell&lt;ThemeData&gt;</code>.
+<code>Symbol</code> keys make the intent explicit at both the registration and the
+lookup site and enable the debug shadow warning below.</p>
+<h3 id="lookup-semantics">Lookup semantics</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Unknown id</th>
+<th>Type mismatch</th>
+<th>Requires <code>ValueCell</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../cell_flutter/CellScope/of.html">of</a></td>
+<td>throws</td>
+<td>throws</td>
+<td>no</td>
+</tr>
+<tr>
+<td><a href="../cell_flutter/CellScope/maybeOf.html">maybeOf</a></td>
+<td>returns <code>null</code></td>
+<td>throws</td>
+<td>no</td>
+</tr>
+<tr>
+<td><a href="../cell_flutter/CellScope/valueOf.html">valueOf</a></td>
+<td>throws</td>
+<td>throws</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+<p>A type mismatch on a <code>ValueCell</code> registration always throws — it is a
+caller bug, not an absence. Unknown ids return <code>null</code> through <a href="../cell_flutter/CellScope/maybeOf.html">maybeOf</a>
+only; <a href="../cell_flutter/CellScope/of.html">of</a> and <a href="../cell_flutter/CellScope/valueOf.html">valueOf</a> treat them as bugs.</p>
+<h3 id="nested-scopes">Nested scopes</h3>
+<p>If a <a href="../cell_flutter/CellScope-class.html">CellScope</a> is nested inside another,
+<code>dependOnInheritedWidgetOfExactType&lt;CellScope&gt;()</code> returns the <strong>nearest</strong>
+one. Inner registrations therefore shadow outer ones for the same
+<a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a>. This matches <a href="https://api.flutter.dev/flutter/widgets/InheritedWidget-class.html">InheritedWidget</a>'s contract. In debug builds
+<code>_lookup</code> inspects ancestors and emits a <code>debugPrint</code> warning — once per
+symbol per session — when a lookup finds a registration that would be
+shadowed by a nearer scope. The warning is usually a sign that a feature
+scope has accidentally duplicated an app-wide id.</p>
+<h3 id="rebuild-behavior">Rebuild behavior</h3>
+<p><a href="../cell_flutter/CellScope/updateShouldNotify.html">updateShouldNotify</a> returns <code>true</code> only when the <strong>effective map</strong>
+changes: a cell at a key is replaced with a cell that is not <code>==</code> to
+the previous one, or the key set changes length. <code>Cell</code> overrides <code>==</code>
+as nucleus-based logical identity, so swapping a cell for an equal
+handle (such as a deputy of the same cell) does <strong>not</strong> notify
+dependents. A parent re-build that constructs an equal-but-distinct map
+— a common accident when the map literal is inlined in <code>build</code> — also
+does <strong>not</strong> trigger descendant rebuilds.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// App root:
+final auth  = Cell.state&lt;AuthState?&gt;(initial: null);
+final theme = Cell.state&lt;ThemeData&gt;(initial: ThemeData.light());
+
+CellScope(
+  cells: {
+    #auth:  auth.cell,
+    #theme: theme.cell,
+  },
+  child: const MyApp(),
+);
+
+// Deep in the tree:
+final authCell = CellScope.valueOf&lt;AuthState?&gt;(context, #auth);
+CellBuilder&lt;AuthState?&gt;(
+  cell: authCell.unmodifiable,
+  builder: (_, state) =&gt; ...,
+);
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><a href="../cell_flutter/CellScope/cells.html">cells</a>: <strong>The Registry.</strong> A <code>Map&lt;Symbol, Cell&gt;</code> of app-level cells.
+Keys are the well-known <code>Symbol</code>s; values are the <code>Cell</code>s they resolve
+to. Held by reference — the map is not copied.</li>
+<li><a href="https://api.flutter.dev/flutter/widgets/ProxyWidget/child.html">child</a>: <strong>The Scoped Subtree.</strong> The widget whose descendants may
+perform lookups against this registry.</li>
+</ul>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="https://api.flutter.dev/flutter/widgets/InheritedWidget-class.html">InheritedWidget</a> — the Flutter primitive this builds on.</li>
+<li><code>CellBuilder</code> / <code>CellValueBuilder</code> — the widgets that typically consume
+<code>valueOf</code> / <code>of</code> results.</li>
+<li><code>CellScope.valueOf</code> — the common lookup for <code>ValueCell</code>-backed
+registrations.</li>
+</ul>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="https://api.flutter.dev/flutter/foundation/DiagnosticableTree-class.html">DiagnosticableTree</a></li>
+        <li><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></li>
+        <li><a href="https://api.flutter.dev/flutter/widgets/ProxyWidget-class.html">ProxyWidget</a></li>
+        <li><a href="https://api.flutter.dev/flutter/widgets/InheritedWidget-class.html">InheritedWidget</a></li>
+      <li>CellScope</li>
+    </ul>
+  </dd>
+
+        
+        
+
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="CellScope.new" class="callable">
+          <span class="name"><a href="../cell_flutter/CellScope/CellScope.html">CellScope</a></span><span class="signature">({<span class="parameter" id="-param-cells"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter"><a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span>, </span><span class="parameter" id="-param-child"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span> <span class="parameter-name">child</span>, </span><span class="parameter" id="-param-key"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/foundation/Key-class.html">Key</a>?</span> <span class="parameter-name">key</span></span>})</span>
+        </dt>
+        <dd>
+          Registers <code>cells</code> under <a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a> keys for the subtree below <code>child</code>.
+            <div class="constructor-modifier features">const</div>
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="cells" class="property">
+  <span class="name"><a href="../cell_flutter/CellScope/cells.html">cells</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter"><a href="../cell_flutter/Cell-class.html">Cell</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  The registered cells: keys are <code>Symbol</code>s, values are <code>Cell</code>s.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="child" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/widgets/ProxyWidget/child.html">child</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The widget below this widget in the tree.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/widgets/Widget/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="key" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/widgets/Widget/key.html">key</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/foundation/Key-class.html">Key</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Controls how one widget replaces another widget in the tree.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="createElement" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/widgets/InheritedWidget/createElement.html">createElement</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/widgets/InheritedElement-class.html">InheritedElement</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Inflates this configuration to a concrete instance.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="debugDescribeChildren" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticableTree/debugDescribeChildren.html">debugDescribeChildren</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticsNode-class.html">DiagnosticsNode</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns a list of <a href="https://api.flutter.dev/flutter/foundation/DiagnosticsNode-class.html">DiagnosticsNode</a> objects describing this node's
+children.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="debugFillProperties" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/widgets/Widget/debugFillProperties.html">debugFillProperties</a></span><span class="signature">(<wbr><span class="parameter" id="debugFillProperties-param-properties"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticPropertiesBuilder-class.html">DiagnosticPropertiesBuilder</a></span> <span class="parameter-name">properties</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Add additional properties associated with the node.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toDiagnosticsNode" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticableTree/toDiagnosticsNode.html">toDiagnosticsNode</a></span><span class="signature">(<wbr>{<span class="parameter" id="toDiagnosticsNode-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span>, </span><span class="parameter" id="toDiagnosticsNode-param-style"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticsTreeStyle.html">DiagnosticsTreeStyle</a>?</span> <span class="parameter-name">style</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/foundation/DiagnosticsNode-class.html">DiagnosticsNode</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns a debug representation of the object that is used by debugging
+tools and by <a href="https://api.flutter.dev/flutter/foundation/DiagnosticsNode/toStringDeep.html">DiagnosticsNode.toStringDeep</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/foundation/Diagnosticable/toString.html">toString</a></span><span class="signature">(<wbr>{<span class="parameter" id="toString-param-minLevel"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticLevel.html">DiagnosticLevel</a></span> <span class="parameter-name">minLevel</span> = <span class="default-value">DiagnosticLevel.info</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toStringDeep" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticableTree/toStringDeep.html">toStringDeep</a></span><span class="signature">(<wbr>{<span class="parameter" id="toStringDeep-param-prefixLineOne"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">prefixLineOne</span> = <span class="default-value">&#39;&#39;</span>, </span><span class="parameter" id="toStringDeep-param-prefixOtherLines"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">prefixOtherLines</span>, </span><span class="parameter" id="toStringDeep-param-minLevel"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticLevel.html">DiagnosticLevel</a></span> <span class="parameter-name">minLevel</span> = <span class="default-value">DiagnosticLevel.debug</span>, </span><span class="parameter" id="toStringDeep-param-wrapWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">wrapWidth</span> = <span class="default-value">65</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns a string representation of this node and its descendants.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toStringShallow" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticableTree/toStringShallow.html">toStringShallow</a></span><span class="signature">(<wbr>{<span class="parameter" id="toStringShallow-param-joiner"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">joiner</span> = <span class="default-value">&#39;, &#39;</span>, </span><span class="parameter" id="toStringShallow-param-minLevel"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticLevel.html">DiagnosticLevel</a></span> <span class="parameter-name">minLevel</span> = <span class="default-value">DiagnosticLevel.debug</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns a one-line detailed description of the object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toStringShort" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/widgets/Widget/toStringShort.html">toStringShort</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A short, textual description of this widget.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="updateShouldNotify" class="callable">
+  <span class="name"><a href="../cell_flutter/CellScope/updateShouldNotify.html">updateShouldNotify</a></span><span class="signature">(<wbr><span class="parameter" id="updateShouldNotify-param-oldWidget"><span>covariant</span> <span class="type-annotation"><a href="../cell_flutter/CellScope-class.html">CellScope</a></span> <span class="parameter-name">oldWidget</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns <code>true</code> only when the <strong>effective map</strong> of cells has changed.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/widgets/Widget/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section class="summary offset-anchor" id="static-properties">
+    <h2>Static Properties</h2>
+    <dl class="properties">
+        <dt id="shadowWarned" class="property">
+  <span class="name"><a href="../cell_flutter/CellScope/shadowWarned.html">shadowWarned</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Symbols for which the nested-shadow warning has already been emitted.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section class="summary offset-anchor" id="static-methods">
+    <h2>Static Methods</h2>
+    <dl class="callables">
+        <dt id="maybeOf" class="callable">
+  <span class="name"><a href="../cell_flutter/CellScope/maybeOf.html">maybeOf</a></span><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="maybeOf-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span>, </span><span class="parameter" id="maybeOf-param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_flutter/Cell-class.html">Cell</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Like <a href="../cell_flutter/CellScope/of.html">of</a>, but returns <code>null</code> when <code>id</code> is not registered (or no
+<a href="../cell_flutter/CellScope-class.html">CellScope</a> encloses <code>context</code>).
+  
+
+</dd>
+
+        <dt id="of" class="callable">
+  <span class="name"><a href="../cell_flutter/CellScope/of.html">of</a></span><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="of-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span>, </span><span class="parameter" id="of-param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_flutter/Cell-class.html">Cell</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns the cell registered at <code>id</code> in the nearest enclosing <a href="../cell_flutter/CellScope-class.html">CellScope</a>.
+  
+
+</dd>
+
+        <dt id="valueOf" class="callable">
+  <span class="name"><a href="../cell_flutter/CellScope/valueOf.html">valueOf</a></span><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="valueOf-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span>, </span><span class="parameter" id="valueOf-param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_flutter/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns the cell registered at <code>id</code>, narrowed to <a href="../cell_flutter/ValueCell-class.html">ValueCell&lt;V&gt;</a>.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flutter</a></li>
+    <li><a href="../cell_flutter/">cell_flutter</a></li>
+    <li class="self-crumb">CellScope class</li>
+</ol>
+
+    <h5>cell_flutter library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flutter
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

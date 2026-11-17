@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the useCell function from the cell_flutter_hooks library, for the Dart programming language.">
+  <title>useCell function - cell_flutter_hooks library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flutter</a></li>
+    <li><a href="../cell_flutter_hooks/">hooks.dart</a></li>
+    <li class="self-crumb">useCell&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">S</span>&gt; function</li>
+  </ol>
+  <div class="self-name">useCell</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_flutter_hooks&#47;cell_flutter_hooks-library-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-function">useCell&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">S</span>&gt;</span> function 
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+<span class="returntype">S</span>
+<span class="name ">useCell</span>&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">S</span>&gt;(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="useCell-param-cell"><span>required</span> <span class="type-annotation"><a href="../cell_flutter/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">cell</span>, </span></li>
+<li><span class="parameter" id="useCell-param-select"><span>required</span> <span class="type-annotation">S</span> <span class="parameter-name">select</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span></li>
+</ol>), </span></li>
+<li><span class="parameter" id="useCell-param-equals"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">equals</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-previous"><span class="type-annotation">S</span> <span class="parameter-name">previous</span>, </span></li>
+<li><span class="parameter" id="param-next"><span class="type-annotation">S</span> <span class="parameter-name">next</span></span></li>
+</ol>)?, </span></li>
+</ol>})
+
+        
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Reads the slice of <code>cell</code> produced by <code>select</code>, rebuilding only when
+that slice changes.</p>
+<p><a href="../cell_flutter_hooks/useCell.html">useCell</a> is the hooks layer's <strong>Selector Hook</strong> — the <code>HookWidget</code>
+equivalent of <code>CellSelector</code>. Its rebuild granularity is the selected
+slice, not the full value, so a widget that only reads one field of a
+large state object does not rebuild on unrelated field changes.</p>
+<h3 id="why-it-is-used">Why it is used</h3>
+<ul>
+<li><strong>Granular rebuilds in a <code>HookWidget</code></strong>: <code>useCellValue</code> rebuilds on
+every value change; <a href="../cell_flutter_hooks/useCell.html">useCell</a> rebuilds only when <code>select(value)</code>
+differs under <code>equals</code>. That is <code>CellSelector</code>'s whole purpose,
+expressed in the hook layer.</li>
+<li><strong>Composition with <code>flutter_hooks</code></strong>: unlike <code>CellSelector</code>, <a href="../cell_flutter_hooks/useCell.html">useCell</a>
+lives inside the <code>HookWidget</code> body, so it can be combined with
+<code>useMemoized</code>, <code>useAnimation</code>, <code>useTextEditingController</code>, and other
+hook primitives without wrapping the widget in an additional
+<code>StatefulWidget</code>.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><code>useMemoized</code> constructs one <a href="../cell_flutter/CellNotifier-class.html">CellNotifier</a> per <code>cell</code> identity and
+keeps it stable across builds.</li>
+<li><code>useState</code> seeds the selected slice from <code>select(notifier.value)</code>
+(the notifier's current value at first build).</li>
+<li>A first <code>useEffect</code> registers a <code>refresh</code> listener on the notifier.
+<code>refresh</code> recomputes <code>select(notifier.value)</code> and updates the
+selection only when <code>equals</code> reports a difference. The listener reads
+<code>select</code> and <code>equals</code> through refs, so a new closure per build does
+not re-subscribe.</li>
+<li>A second <code>useEffect</code> recomputes the selection when <code>select</code>, <code>equals</code>,
+or the notifier identity changes — mirroring <code>CellSelector</code>'s
+<code>didUpdateWidget</code> behavior. Without it, a changed selector with no
+new pulse would render a stale slice. Because <code>flutter_hooks</code> runs a
+keyed effect's body synchronously during the build that first
+registers the new keys, the recompute happens <strong>before <a href="../cell_flutter_hooks/useCell.html">useCell</a>
+returns</strong> — the very first build with a new <code>cell</code> already returns
+the new cell's slice (see <em>Design Note: no flash on cell swap</em>).</li>
+<li>A third <code>useEffect</code> returns <code>notifier.dispose</code> as its cleanup, so
+the notifier is released on unmount or cell-identity change.</li>
+<li>The current selection is returned.</li>
+</ol>
+<h3 id="rules">Rules</h3>
+<p>Called unconditionally at the top of a <code>HookWidget.build</code>, with the
+same argument identity across builds (or <code>flutter_hooks</code> will warn
+about out-of-order hooks). Same rules as every hook in this library.</p>
+<h3 id="valuecell-requirement-read-this"><code>ValueCell</code> requirement (read this)</h3>
+<p><code>cell</code> must be a <a href="../cell_flutter/ValueCell-class.html">ValueCell</a> — the hook needs a synchronous current
+value for <code>select</code> to run against. For derived cells (<code>Cell.derive</code>,
+<code>Cell.synthesis</code>, <code>Cell.switchMap</code>, tissue collections), bridge first:</p>
+<pre class="language-dart"><code class="language-dart">// Wrong: derived Cell is not a ValueCell
+useCell&lt;int, int&gt;(cell: derived, select: (v) =&gt; v ?? 0);
+
+// Right: wrap in CellValueBuilder, or mirror via asValueCell
+CellValueBuilder&lt;int&gt;(cell: derived, builder: ...);
+</code></pre>
+<h3 id="design-note-why-not-usevaluelistenable">Design Note: why not <code>useValueListenable</code></h3>
+<p><code>useValueListenable(notifier)</code> rebuilds the entire widget on every value
+change — which defeats the selector's purpose. This hook uses
+<code>useState</code> + <code>useEffect</code> to rebuild only when <code>select(value)</code> changes,
+matching <code>CellSelector</code>'s behavior. A <code>CellNotifier</code> is still used
+internally (to bridge <code>ValueCell</code> to a <code>Listenable</code>), but its
+notification is filtered through the selector and the equality check
+before reaching <code>setState</code>.</p>
+<h3 id="equality-read-this">Equality (read this)</h3>
+<p><code>equals</code> defaults to <code>==</code>. For <code>List</code>, <code>Set</code>, and <code>Map</code> selections,
+pass <code>listEquals</code> / <code>setEquals</code> / <code>mapEquals</code> from
+<code>package:flutter/foundation.dart</code>. Without a custom predicate, a fresh
+collection with identical content produces <code>[1, 2] != [1, 2]</code>
+(different instances), and the widget rebuilds on every emission. This
+is the same contract <code>CellSelector</code> enforces, and like <code>CellSelector</code>
+the hook <strong>asserts in debug builds</strong> when the initial (or recomputed)
+selection is a collection and <code>equals</code> is <code>null</code>.</p>
+<h3 id="design-note-no-flash-on-cell-swap">Design Note: no flash on cell swap</h3>
+<p><code>useState</code> seeds the selection once per element; its initializer does
+<strong>not</strong> re-run when <code>cell</code> identity changes. The recompute effect is
+keyed on <code>[select, eq, notifier]</code>, and <code>flutter_hooks</code> re-runs a keyed
+effect's body synchronously <strong>during the build</strong> that first registers
+the changed keys — so on a cell swap the selection is corrected before
+<a href="../cell_flutter_hooks/useCell.html">useCell</a> returns. The first build with the new cell already returns
+the new cell's slice; no stale frame is produced, unlike the historical
+"one-frame flash" the hook docs once warned about. (Verified by
+<code>use_cell_test.dart</code>, "returns the new cell's slice on the first build
+after a swap".)</p>
+<p><code>CellSelector</code> (the widget equivalent) achieves the same in
+<code>didUpdateWidget</code>. Keying the enclosing <code>HookWidget</code> on the cell
+(<code>key: ValueKey(cell)</code>) remains the <code>flutter_hooks</code> idiom when the
+<strong>entire</strong> hook state — not just this selection — must reset on a swap.</p>
+<h3 id="technical-details">Technical Details</h3>
+<ul>
+<li><strong>Three <code>useEffect</code>s, keyed as follows</strong>:
+<ul>
+<li><code>[notifier]</code> — subscribe once per notifier.</li>
+<li><code>[select, eq, notifier]</code> — recompute on selector identity change.</li>
+<li><code>[notifier]</code> — dispose the notifier on replacement or unmount.</li>
+</ul>
+</li>
+<li><strong><code>select</code>/<code>eq</code> via refs</strong>: read through <code>useRef</code>, so a new closure
+per build does not force a re-subscribe. This is the hook equivalent
+of <code>CellListener</code>'s "don't rebind on <code>onPulse</code> identity change"
+behavior.</li>
+<li><strong>Recompute on <code>select</code> identity change</strong>: the middle effect runs on
+every build where <code>select</code> or <code>eq</code> identity differs from the
+previous build, which is what a caller expects when they swap the
+selector without swapping the cell.</li>
+<li><strong>Selection seeding is one-shot</strong>: <code>useState</code>'s initializer runs
+once per <code>HookWidget</code> element. After that, the recompute effect is
+the only writer — and because it re-runs synchronously during the
+build that registers changed keys, a cell swap still returns the new
+cell's slice on that very build (see <em>Design Note: no flash on cell
+swap</em>).</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">class UserNameView extends HookWidget {
+  final ValueCell&lt;User&gt; user;
+  const UserNameView({required this.user, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final name = useCell&lt;User, String&gt;(
+      cell: user,
+      select: (u) =&gt; u?.name ?? '',
+    );
+    return Text(name);
+  }
+}
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>cell</code>: <strong>The Source Cell.</strong> A <a href="../cell_flutter/ValueCell-class.html">ValueCell</a> whose value is projected
+by <code>select</code>. Changing its identity rebinds the notifier and the
+effects.</li>
+<li><code>select</code>: <strong>The Slice Projection.</strong> A pure function <code>V? → S</code>. Runs on
+first build and on every notifier tick. Keep it cheap — it runs on
+every pulse even when the slice does not change.</li>
+<li><code>equals</code>: <strong>Slice Equality.</strong> Defaults to <code>==</code>. Collections need an
+explicit <code>listEquals</code> / <code>setEquals</code> / <code>mapEquals</code>.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The current selected slice <code>S</code>, re-rendered only when it changes under
+<code>equals</code>.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell_flutter_hooks/useCellValue.html">useCellValue</a> — the full-value shortcut (<code>select: (v) =&gt; v</code>).</li>
+<li><code>CellSelector</code> — the widget equivalent, with the debug-mode
+collection-equality assertion.</li>
+<li><a href="../cell_flutter_hooks/useCellNotifier.html">useCellNotifier</a> — the raw notifier hook, for composing with
+<code>flutter_hooks</code> primitives directly.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">S useCell&lt;V, S&gt;({
+  required ValueCell&lt;V&gt; cell,
+  required S Function(V? value) select,
+  bool Function(S previous, S next)? equals,
+}) {
+  final notifier = useMemoized(() =&gt; CellNotifier&lt;V&gt;(cell), [cell]);
+  final eq = equals ?? _defaultEquals;
+
+  &#47;&#47; Latest select&#47;eq, so the subscription closure sees current values
+  &#47;&#47; without re-subscribing on every build. `customEqualsRef` tracks the
+  &#47;&#47; caller&#39;s raw `equals` (nullable) for the debug collection assertion;
+  &#47;&#47; the resolved `eq` is always non-null.
+  final selectRef = useRef(select);
+  final eqRef = useRef(eq);
+  final customEqualsRef = useRef(equals);
+  selectRef.value = select;
+  eqRef.value = eq;
+  customEqualsRef.value = equals;
+
+  &#47;&#47; Selected value; initial state from the notifier&#39;s current value.
+  final selected = useState&lt;S&gt;(select(notifier.value));
+  assert(
+    equals != null || !isCollectionLike(selected.value),
+    &#39;useCell: select returned a collection &#39;
+    &#39;(${selected.value.runtimeType}) but equals is null. Collections use &#39;
+    &#39;identity equality by default, so the hook will rebuild on every &#39;
+    &#39;emission even when the content is equal. Provide equals: &#39;
+    &#39;listEquals, setEquals, or mapEquals from package:flutter&#47;foundation.dart.&#39;,
+  );
+
+  &#47;&#47; Subscribe once per notifier. Refresh reads current select&#47;eq from refs.
+  useEffect(() {
+    void refresh() {
+      final next = selectRef.value(notifier.value);
+      if (!eqRef.value(selected.value, next)) {
+        selected.value = next;
+      }
+    }
+
+    notifier.addListener(refresh);
+    return () =&gt; notifier.removeListener(refresh);
+  }, [notifier]);
+
+  &#47;&#47; Recompute when select or equals changes (mirrors CellSelector&#39;s
+  &#47;&#47; didUpdateWidget behavior). Without this, a changed selector with no
+  &#47;&#47; new pulse would render a stale slice. On a cell swap this also
+  &#47;&#47; corrects the one-frame stale selection described in the class-level
+  &#47;&#47; docs.
+  useEffect(() {
+    final next = select(notifier.value);
+    assert(
+      customEqualsRef.value != null || !isCollectionLike(next),
+      &#39;useCell: select returned a collection &#39;
+      &#39;(${next.runtimeType}) but equals is null. Collections use &#39;
+      &#39;identity equality by default, so the hook will rebuild on every &#39;
+      &#39;emission even when the content is equal. Provide equals: &#39;
+      &#39;listEquals, setEquals, or mapEquals from package:flutter&#47;foundation.dart.&#39;,
+    );
+    if (!eq(selected.value, next)) {
+      selected.value = next;
+    }
+    return null;
+  }, [select, eq, notifier]);
+
+  &#47;&#47; Dispose the notifier when the cell changes or widget unmounts.
+  useEffect(() =&gt; notifier.dispose, [notifier]);
+
+  return selected.value;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flutter</a></li>
+    <li><a href="../cell_flutter_hooks/">cell_flutter_hooks</a></li>
+    <li class="self-crumb">useCell&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">S</span>&gt; function</li>
+</ol>
+
+    <h5>cell_flutter_hooks library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flutter
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

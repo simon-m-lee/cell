@@ -1,0 +1,68 @@
+{
+  "cell_flutter 1 builder": {
+    "p50": 826,
+    "p99": 3609,
+    "rebuilds": "1000",
+    "updates": "1000"
+  },
+  "cell_flutter 10 builders": {
+    "p50": 1994,
+    "p99": 4182,
+    "rebuilds": "10000",
+    "updates": "1000"
+  },
+  "cell_flutter 100 builders": {
+    "p50": 15425,
+    "p99": 22165,
+    "rebuilds": "10000",
+    "updates": "100"
+  },
+  "cell_flutter selector (irrelevant updates)": {
+    "p50": 109,
+    "p99": 268,
+    "rebuilds": "1",
+    "updates": "1000"
+  },
+  "ValueListenableBuilder 1 builder": {
+    "p50": 647,
+    "p99": 1981,
+    "rebuilds": "1000",
+    "updates": "1000"
+  },
+  "ValueListenableBuilder 10 builders": {
+    "p50": 769,
+    "p99": 2820,
+    "rebuilds": "10000",
+    "updates": "1000"
+  },
+  "ValueListenableBuilder 100 builders": {
+    "p50": 5674,
+    "p99": 11122,
+    "rebuilds": "10000",
+    "updates": "100"
+  },
+  "Riverpod 1 ConsumerWidget": {
+    "p50": 746,
+    "p99": 2035,
+    "rebuilds": "1000",
+    "updates": "1000"
+  },
+  "Riverpod 10 ConsumerWidgets": {
+    "p50": 916,
+    "p99": 2787,
+    "rebuilds": "10000",
+    "updates": "1000"
+  },
+  "Bloc 1 BlocBuilder": {
+    "p50": 454,
+    "p99": 1563,
+    "rebuilds": "501",
+    "updates": "1000"
+  },
+  "Bloc 10 BlocBuilders": {
+    "p50": 686,
+    "p99": 2595,
+    "rebuilds": "5010",
+    "updates": "1000"
+  }
+}

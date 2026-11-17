@@ -124,7 +124,7 @@ Cell.observe<Pulse<Todo>>(
 with optional `type` tags. Validation moves into `testRule` (states) and
 `refine` (events).
 
-**Live-API caveat (cell 1.1.0):** a state cell with a custom `testRule`
+**Live-API caveat (cell 2.0.0):** a state cell with a custom `testRule`
 commits updates but does **not** fan the pulse out to downstream
 `Cell.derive` links (`update`, `updateAsync`, and `ingest` all behave
 this way). If you derive cells from a state cell, put the validation in
