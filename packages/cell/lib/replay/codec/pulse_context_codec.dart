@@ -9,19 +9,32 @@ part of '../../cell.dart';
 /// Serialises and deserialises [PulseContext], preserving the full parent
 /// chain.
 ///
+/// ### How it works
 /// [PulseContext] is inherited: `childContext.reason` walks up to
 /// `parentContext.reason` if the child didn't override it. The wire format
-/// must therefore preserve the chain, not just the resolved values. This
-/// codec walks to the root and stores an **array of deltas** (root first,
-/// leaf last). Reconstructing is a fold of `fromEntries(parent: previous)`.
+/// must therefore preserve the chain, not just the resolved values.
+/// [toJson] walks to the root and stores an **array of deltas** (root
+/// first, leaf last). [fromJson] reconstructs the chain as a fold of
+/// `fromEntries(parent: previous)`.
 ///
 /// Every level of the chain is emitted — including levels whose local
 /// record is empty (e.g. `PulseContext.system`) — so that
 /// `encode(decode(encode(x))) == encode(x)` holds byte-for-byte.
+///
+/// See also:
+/// * [PulseCodec] — the pulse serialiser that delegates to this codec.
+/// {@category Replay}
 class PulseContextCodec {
   const PulseContextCodec._();
 
-  /// Encodes `context` (and its full lineage) to a canonical JSON map.
+  /// Encodes [context] (and its full lineage) to a canonical JSON map.
+  ///
+  /// ### Parameters:
+  /// - [context]: The pulse context to encode.
+  ///
+  /// ### Returns:
+  /// The canonical JSON map, whose `lineage` key holds the delta array in
+  /// root-first, leaf-last order — matching the [fromJson] fold order.
   static Map<String, Object?> toJson(PulseContext context) {
     final deltas = <Map<String, Object?>>[];
     PulseContext? cursor = context;
@@ -37,10 +50,17 @@ class PulseContextCodec {
 
   /// Reconstructs a [PulseContext] from [toJson]'s output.
   ///
+  /// ### How it works
   /// The `others` maps of each generation are preserved verbatim. Any
   /// property that was resolved by inheritance is *not* re-materialised
   /// here; it is re-resolved by the fold, matching the runtime's own
   /// resolution rules.
+  ///
+  /// ### Parameters:
+  /// - [json]: The canonical map produced by [toJson].
+  ///
+  /// ### Returns:
+  /// The reconstructed context chain.
   static PulseContext fromJson(Map<String, Object?> json) {
     final rawLineage = json['lineage'];
     if (rawLineage is! List) {

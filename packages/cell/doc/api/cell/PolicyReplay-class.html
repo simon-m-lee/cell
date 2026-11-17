@@ -57,9 +57,10 @@
     
 <section class="desc markdown">
   <p>Policy-tick journaling for <a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a>.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>The journal records timers and the engine deferred policy-tick reseeding.
-The governance layer closes the loop: every tick of an <code>EphemeralPolicy</code> during
-pulse processing is journaled as a <code>PolicyTickEffect</code>. On replay,
+The governance layer closes the loop: every tick of an <a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a>
+during pulse processing is journaled as a <a href="../cell/PolicyTickEffect-class.html">PolicyTickEffect</a>. On replay,
 the tick is consumed from the journal and re-applied to the
 <code>CycleChecker</code> — the cycle-checker reseed fix.</p>
 <h3 id="honest-boundary-review-fix-the-checker-is-reseeded-not-the">Honest boundary (review fix): the checker is reseeded, not the</h3>
@@ -74,6 +75,11 @@ still commits, and later pulses that the recording dropped are not
 dropped on replay. Full policy-state fidelity (TTL and event-limit
 bookkeeping through the journal) is deferred work; what the current
 engine guarantees is tick ORDER parity through the checker reseed.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/EffectJournal/policyTick.html">EffectJournal.policyTick</a> — the journal primitive this wraps.</li>
+<li><a href="../cell/PolicyTickEffect-class.html">PolicyTickEffect</a> — the record written per tick.</li>
+</ul>
 </section>
 
 
@@ -212,7 +218,7 @@ engine guarantees is tick ORDER parity through the checker reseed.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

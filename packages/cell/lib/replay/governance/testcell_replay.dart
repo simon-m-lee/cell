@@ -8,36 +8,49 @@ part of '../../cell.dart';
 
 /// Purity-aware invocation of a [TestCell].
 ///
-/// the replay engine called `cell.validate(...)` unconditionally. the governance layer checks
-/// the rule's purity and routes accordingly:
+/// ### How it works
+/// The governance layer checks the rule's purity and routes accordingly:
 ///
 /// * **[Purity.pure]** — call the rule. Its decision is a function of
 ///   its input; replay re-computes it exactly.
 /// * **[Purity.readOnlyExternal]** — call the rule inside a journal
 ///   scope. Its decision is re-computed, but its *observations* are
-///   served from the journal (the journal).
+///   served from the journal.
 /// * **[Purity.effectful]** — do **not** call the rule on replay;
-///   consume its recorded `VerdictEffect`. On the recording side the
+///   consume its recorded [VerdictEffect]. On the recording side the
 ///   rule runs once inside `journal.verdict` and its decision is
 ///   journaled. If the replay journal has no verdict for the current
 ///   input, the journal throws [ReplayDivergenceException] — the rule
 ///   changed since the recording.
 ///
-/// ### Where the *version* dispatch lives
+/// ### Non-obvious: where the *version* dispatch lives
 ///
 /// This class dispatches on **purity only**. The
 /// receptor/rule **version** boundary is enforced one level up, by
 /// `ReplayEngine._checkVersions` before any dispatch happens: the
-/// recorded versions must be satisfied by the graph's `VersionRegistry`
+/// recorded versions must be satisfied by the graph's [VersionRegistry]
 /// or by the live implementations matching exactly — otherwise the
 /// engine reports a divergence without calling the rule at all.
+///
+/// See also:
+/// * [EffectJournal.verdict] — the journal primitive this wraps.
+/// * [VersionRegistry] — the version boundary one level up.
+/// {@category Replay}
 abstract final class TestCellReplay {
   /// Invokes [rule] on [object] with the current journal, honouring its
   /// purity. Returns the rule's decision.
   ///
-  /// [ruleLabel] is a stable string identifying the rule in the
-  /// journal's `VerdictEffect`. It is conventionally
-  /// `${rule.runtimeType}@${rule.version}`.
+  /// ### Parameters:
+  /// - [rule]: The test rule to invoke.
+  /// - [object]: The object being tested.
+  /// - [host]: The cell hosting the rule.
+  /// - [journal]: The ambient journal.
+  /// - [ruleLabel]: A stable string identifying the rule in the
+  ///   journal's [VerdictEffect]. It is conventionally
+  ///   `${rule.runtimeType}@${rule.version}`.
+  ///
+  /// ### Returns:
+  /// The rule's decision.
   static FutureOr<bool> invoke({
     required TestCell rule,
     required Object? object,
@@ -53,7 +66,7 @@ abstract final class TestCellReplay {
 
       case Purity.readOnlyExternal: {
         // The rule runs; its external reads go through the journal.
-        // The journal is already in scope (the journal), so the rule's
+        // The journal is already in scope, so the rule's
         // `journal.io(...)` calls will be served from it. Records
         // written while the rule runs are swept cooperatively into the
         // active LedgerScope (the the journal asyncMap pattern).

@@ -57,10 +57,18 @@
     
 <section class="desc markdown">
   <p>Public read-only access to the cell id registry.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Tests and the CLI-only hook; it is deliberately not part of the normal
+API surface — users should not need it outside tests.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>The registry itself is <code>_CellGraphRegistry</code> (private to the library);
-this class exposes the minimum public surface needed by tests and the
-CLI-only hook. It is deliberately not part of the normal API surface —
-users should not need it outside tests.</p>
+this class exposes the minimum public surface needed: <a href="../cell/CellGraphRegistry/isRegistered.html">isRegistered</a>
+checks whether an id is claimed, <a href="../cell/CellGraphRegistry/snapshot.html">snapshot</a> returns an immutable view,
+and <a href="../cell/CellGraphRegistry/forceReset.html">forceReset</a> clears everything (test-only).</p>
+<p>See also:</p>
+<ul>
+<li><code>CellGraphBuilder</code> — the normal path that populates the registry.</li>
+</ul>
 </section>
 
 
@@ -230,7 +238,7 @@ Returns an immutable map.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

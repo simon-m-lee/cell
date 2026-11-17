@@ -55,6 +55,7 @@
     
 <section class="desc markdown">
   <p>A forked history.</p>
+<h3 id="when-to-use">When to use</h3>
 <p>Created by <a href="../cell/CellGraphFork/fork.html">CellGraphFork.fork</a> (or directly, for tests). It carries:</p>
 <ul>
 <li><a href="../cell/ForkHandle/graph.html">graph</a> — the <em>fresh</em> graph the fork replays into. Its state has
@@ -67,19 +68,24 @@ baseline replay inside <code>fork</code>).</li>
 <h3 id="non-obvious-the-forks-ledger-is-written-during-the-fork-not">Non-obvious: the fork's ledger is <em>written during the fork</em>, not</h3>
 <p>copied</p>
 <p>A forked ledger's entries are produced by the fork's own replay
-(<code>ReplayEngineFork.replayFork</code> appends each replayed pulse). The
+(<a href="../cell/ReplayEngineFork/replayFork.html">ReplayEngineFork.replayFork</a> appends each replayed pulse). The
 parent ledger's entries are <em>not</em> copied — the fork's chain starts at
 the <code>ForkRecord</code> and goes forward from the fork point. This is what
 makes the fork compact: a fork at seq 100 of a 1M-entry ledger has
 (roughly) 1M-100 entries if it replays to the end, or however many
 the caller wants.</p>
 <h3 id="non-obvious-the-forks-hash-chain-is-independent">Non-obvious: the fork's hash chain is independent</h3>
-<p><code>ForkRecord.genesisHash</code> is the fork's chain genesis. Every
+<p><a href="../cell/ForkRecord/genesisHash.html">ForkRecord.genesisHash</a> is the fork's chain genesis. Every
 subsequent entry's <code>prevHash</code> is the previous <em>fork</em> entry's <code>hash</code>,
 not the parent's. This means an auditor verifying a fork must verify
 both chains: the fork from its <code>ForkRecord</code>, and the parent from
 its own genesis. The two chains only meet at the <code>ForkRecord</code>'s
 <code>parentHeadHash</code> field.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/CellGraphFork/fork.html">CellGraphFork.fork</a> — the factory that produces a handle.</li>
+<li><a href="../cell/ForkVerify/verify.html">ForkVerify.verify</a> — verifies both chains and their binding.</li>
+</ul>
 </section>
 
 
@@ -284,7 +290,7 @@ binding intact.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

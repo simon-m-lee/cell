@@ -61,6 +61,20 @@
 </ol>})
     </section>
     
+<section class="desc markdown">
+  <p>Creates a <a href="../../cell/ReplayOptions-class.html">ReplayOptions</a> set.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>failOnDivergence</code>: If <code>true</code> (default), throw on the first
+divergence.</li>
+<li><code>verifyReceipts</code>: If <code>true</code> (default), verify each entry's
+back-filled receipt fields.</li>
+<li><code>settleAfterDispatch</code>: If <code>true</code> (default), settle the event-loop
+microtask queue after each dispatch.</li>
+<li><code>maxEntries</code>: Maximum number of entries to replay (<code>null</code> =
+unlimited).</li>
+</ul>
+</section>
 
 
     
@@ -99,7 +113,7 @@
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

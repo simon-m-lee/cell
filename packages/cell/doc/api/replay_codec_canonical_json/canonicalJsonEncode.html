@@ -64,30 +64,37 @@
     </section>
     
 <section class="desc markdown">
-  <p>A deterministic JSON encoder.</p>
-<p>The Dart SDK's <code>jsonEncode</code> preserves insertion order for maps and does
-not normalize numeric representations. That makes it unsuitable for
-hashing or for "canonical bytes" comparisons, both of which the replay
-ledger depends on.</p>
-<p><a href="../replay_codec_canonical_json/canonicalJsonEncode.html">canonicalJsonEncode</a> guarantees:</p>
+  <p>Encodes <code>value</code> into deterministic, canonical JSON.</p>
+<p>The Dart SDK's <code>jsonEncode</code> preserves map insertion order and does not
+normalize numeric representations, which makes it unsuitable for
+hashing or canonical-byte comparisons — both of which the replay ledger
+depends on.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The encoder guarantees:</p>
 <ul>
 <li><strong>Map keys are sorted lexicographically.</strong> Two maps with the same
 entries but different insertion orders produce identical output.</li>
-<li><strong>No trailing whitespace.</strong> Output is <code>{"a":1,"b":2}</code>, never
+<li><strong>No whitespace.</strong> Output is <code>{"a":1,"b":2}</code>, never
 <code>{ "a": 1, "b": 2 }</code>.</li>
-<li><strong>Integers vs. doubles.</strong> <code>1</code> (int) and <code>1.0</code> (double) both encode as
-<code>1</code> only when the int representation is exact; otherwise <code>1.0</code> stays
-as <code>1.0</code>. This mirrors the JSON spec's ambiguity and matches what
+<li><strong>Stable numbers.</strong> <code>1</code> (int) and <code>1.0</code> (double) both encode as <code>1</code>
+only when the int representation is exact; otherwise <code>1.0</code> stays
+<code>1.0</code>. This mirrors the JSON spec's ambiguity and matches what
 <code>jsonDecode</code> produces on re-read.</li>
-<li><strong>Null omission is opt-in.</strong> By default, <code>null</code> values are preserved
+<li><strong>Opt-in null omission.</strong> By default, <code>null</code> values are preserved
 (<code>{"a":null}</code>) because the codec layer needs to distinguish "absent"
 from "null" for optional pulse fields. Pass <code>omitNulls: true</code> when
 the domain has no such distinction.</li>
 </ul>
-<p>All other values must be JSON-encodable primitives, <code>List</code>, or <code>Map</code>.
-<code>DateTime</code> values are rejected by default; encode them as epoch
-milliseconds or ISO-8601 explicitly in the caller, so the wire format
-is unambiguous.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>value</code>: Any JSON-encodable primitive, <code>List</code>, or <code>Map</code>. <code>DateTime</code>
+values are rejected by default; encode them as epoch milliseconds or
+ISO-8601 explicitly in the caller so the wire format is unambiguous.</li>
+<li><code>omitNulls</code>: If <code>true</code>, map entries whose value is <code>null</code> are omitted
+from the output.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The canonical JSON string.</p>
 </section>
 
 
@@ -128,7 +135,7 @@ is unambiguous.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

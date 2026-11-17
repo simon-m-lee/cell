@@ -131,12 +131,22 @@ for this cell.</li>
       final synapses = bind._nucleus.synapses;
       final linkResult = synapses.link(bind, downstreamCell: this);
       if (linkResult is Future&lt;bool&gt;) {
-        &#47;&#47; `bind` construction assumes synchronous TestCell.link rules. An
-        &#47;&#47; explicitly async gate is still driven to completion; a rejection
-        &#47;&#47; is contained here (there is no pulse to fail during
-        &#47;&#47; construction) so it does not become an unhandled zone error.
-        unawaited(
-            linkResult.then((_) {}, onError: (Object e, StackTrace st) {}));
+        &#47;&#47; An async gate still has to finish. A rejection or a `false`
+        &#47;&#47; result used to be discarded, which returned a cell that was
+        &#47;&#47; never linked. Surface it on the current zone.
+        unawaited(linkResult.then((accepted) {
+          if (accepted == false &amp;&amp; !identical(synapses, Synapses.disabled)) {
+            Zone.current.handleUncaughtError(
+              StateError(
+                &#39;Cell construction failed: the upstream link was rejected &#39;
+                &#39;by the link gate.&#39;,
+              ),
+              StackTrace.current,
+            );
+          }
+        }, onError: (Object e, StackTrace st) {
+          Zone.current.handleUncaughtError(e, st);
+        }));
       } else if (linkResult == false &amp;&amp;
           !identical(synapses, Synapses.disabled)) {
         &#47;&#47; A disabled egress registry legitimately refuses every link
@@ -150,7 +160,20 @@ for this cell.</li>
     }
   } on StateError {
     rethrow;
-  } catch (_) {}
+  } on NoSuchMethodError {
+    &#47;&#47; Cross-package subclasses (cell_tissue) shadow `_nucleus` with a
+    &#47;&#47; getter whose super chain bottoms out in an abstract member until
+    &#47;&#47; their own constructor body runs. Reading it during this super
+    &#47;&#47; constructor legitimately fails and is not a caller error — same
+    &#47;&#47; contract as the LateError case below.
+  } catch (e, st) {
+    &#47;&#47; Cross-package subclasses (cell_tissue) shadow `_nucleus` with a
+    &#47;&#47; getter that is unusable until their own constructor body runs.
+    &#47;&#47; `LateError` is not a public type on every SDK, so match by name.
+    if (e.runtimeType.toString() != &#39;LateError&#39;) {
+      Zone.current.handleUncaughtError(e, st);
+    }
+  }
 }</code></pre>
 </section>
 
@@ -179,7 +202,7 @@ for this cell.</li>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

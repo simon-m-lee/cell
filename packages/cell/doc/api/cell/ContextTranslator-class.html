@@ -56,7 +56,8 @@
     
 <section class="desc markdown">
   <p>Bridges a <a href="../cell/DeputyContext-class.html">DeputyContext</a> across mandate schema versions.</p>
-<p>A <code>ContextTranslator</code> is the user's hook for "the mandate schema
+<h3 id="when-to-use">When to use</h3>
+<p>A <a href="../cell/ContextTranslator-class.html">ContextTranslator</a> is the user's hook for "the mandate schema
 changed between version A and version B — here's how to translate a
 version-A context into a version-B context". The framework cannot
 know what fields were added, renamed, or deprecated; it only knows
@@ -68,9 +69,14 @@ If a ledger recorded a version-2 context and the current graph is
 version-1 (a downgrade), the translator for <code>v2 → v1</code> is required —
 but a downgrade is almost always a <em>semantic loss</em> (a field added
 in v2 has no home in v1), and the framework cannot safely assume
-which direction preserves meaning. The <code>ContextTranslator</code> API
+which direction preserves meaning. The <a href="../cell/ContextTranslator-class.html">ContextTranslator</a> API
 therefore requires the caller to declare both the source and target
 versions explicitly.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/ContextTranslatorRegistry-class.html">ContextTranslatorRegistry</a> — keyed <code>(from, to)</code> storage.</li>
+<li><a href="../cell/CellGraphTranslators.html">CellGraphTranslators</a> — the per-graph registry accessor.</li>
+</ul>
 </section>
 
 
@@ -240,7 +246,7 @@ context whose <code>version</code> equals <a href="../cell/ContextTranslator/toV
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

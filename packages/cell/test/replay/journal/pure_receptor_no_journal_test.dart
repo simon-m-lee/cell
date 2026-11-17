@@ -8,7 +8,7 @@ import 'package:cell/cell.dart';
 import 'package:test/test.dart';
 
 /// A test-local receptor that opts into the effectful contract via the
-/// mixin — the one-liner that pins exit criterion 9.
+/// [Effectful] mixin — the one-liner that reports [Purity.effectful].
 class _EffectfulReceptor extends ReceptorBase<Cell> with Effectful {
   _EffectfulReceptor() : super();
 

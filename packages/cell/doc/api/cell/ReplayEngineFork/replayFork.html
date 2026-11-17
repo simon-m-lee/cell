@@ -65,12 +65,21 @@
     </section>
     
 <section class="desc markdown">
-  <p>Replays <code>fork.parent</code>'s entries from <code>fork.record.divergedAt + 1</code>
+  <p>Replays the <a href="../../cell/ForkHandle/parent.html">ForkHandle.parent</a> ledger's entries from
+<code>fork.record.divergedAt + 1</code>
 into <code>fork.graph</code>, applying <code>mutation</code> to each entry.</p>
-<p><code>mutation</code> receives the reconstructed input pulse. Returning
-<code>null</code> drops the entry (the fork's ledger will not contain it).
-Returning a pulse — same or different — replays that pulse into
-the fork's graph.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>fork</code>: The fork handle to replay into.</li>
+<li><code>mutation</code>: Receives the reconstructed input pulse for each
+entry. Returning <code>null</code> drops the entry (the fork's ledger will
+not contain it). Returning a pulse — same or different — replays
+that pulse into the fork's graph.</li>
+<li><code>options</code>: Strictness flags; defaults to <a href="../../cell/ReplayOptions/strict-constant.html">ReplayOptions.strict</a>.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The replay result.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>The fork's ledger is written via <code>fork.ledger.appendInternal</code>.
 This is the <em>only</em> path that writes a fork ledger; a fork does
 not accept external <code>append</code> calls.</p>
@@ -251,7 +260,7 @@ a mutation drops an entry, nothing is appended.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

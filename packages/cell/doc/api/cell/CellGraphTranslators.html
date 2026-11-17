@@ -55,6 +55,10 @@
     
 <section class="desc markdown">
   <p>The graph-scoped translator registry.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The <a href="https://api.flutter.dev/flutter/dart-core/Expando-class.html">Expando</a> keeps the registry per-<a href="../cell/CellGraph-class.html">CellGraph</a> instance, matching
+<a href="../cell/VersionRegistry-class.html">VersionRegistry</a>'s scoping: translators registered on one graph do
+not affect another.</p>
 </section>
 
     <section>
@@ -87,7 +91,7 @@
         <span>Available on <a href="../cell/CellGraph-class.html">CellGraph</a>,
         provided by the <a href="../cell/CellGraphTranslators.html">CellGraphTranslators</a> extension</span>
       </p>
-  
+  The graph's translator registry, created lazily on first access.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -124,7 +128,7 @@
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

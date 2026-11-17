@@ -10,8 +10,10 @@ import 'package:crypto/crypto.dart' show sha256;
 
 import 'canonical_json.dart';
 
-/// Computes the SHA-256 fingerprint of a canonical JSON value, hex-encoded.
+/// Computes the SHA-256 fingerprint of [value]'s canonical JSON form,
+/// hex-encoded.
 ///
+/// ### When to use
 /// Fingerprints are the unit of identity in the replay ledger:
 ///
 /// * [CellSnapshot.configFingerprint] — identifies a cell's receptor + rule
@@ -21,9 +23,17 @@ import 'canonical_json.dart';
 ///   with the same digest are byte-identical, which the ledger uses to
 ///   reconstruct without storing the whole chain per entry.
 ///
-/// Returns the hex string, not the `Digest` object, because every consumer
-/// eventually serialises it — returning hex here removes a second encoding
-/// step everywhere.
+/// ### How it works
+/// The value is serialised with [canonicalJsonEncode] and hashed with
+/// SHA-256.
+///
+/// ### Parameters:
+/// - [value]: Any JSON-encodable value.
+///
+/// ### Returns:
+/// The hex digest string, not the `Digest` object — every consumer
+/// eventually serialises it, so returning hex here removes a second
+/// encoding step everywhere.
 String fingerprint(Object? value) {
   final canonical = canonicalJsonEncode(value);
   final digest = sha256.convert(utf8.encode(canonical));

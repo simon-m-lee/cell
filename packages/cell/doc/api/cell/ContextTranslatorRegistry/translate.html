@@ -67,7 +67,14 @@
   <p>Translates <code>source</code> from its own version to <code>target</code>. If they are
 equal, returns <code>source</code> unchanged (no translation needed). If no
 translator is registered, throws <a href="https://api.flutter.dev/flutter/dart-core/UnimplementedError-class.html">UnimplementedError</a> — a loud
-failure, as the design's exit criterion requires.</p>
+failure rather than a silent cross-version guess.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: The context to translate.</li>
+<li><code>target</code>: The version to translate to.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The translated context.</p>
 </section>
 
 
@@ -125,7 +132,7 @@ failure, as the design's exit criterion requires.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

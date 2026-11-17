@@ -8,24 +8,23 @@ part of '../../cell.dart';
 
 /// The replay engine.
 ///
+/// ### When to use
 /// Given a [Ledger] and a [CellGraph] (the "target", typically freshly
-/// built from the same `CellGraphBuilder` that produced the original),
+/// built from the same [CellGraphBuilder] that produced the original),
 /// the engine replays entries one by one, dispatching each reconstructed
 /// pulse into the target graph and asserting that the resulting state
 /// matches the ledger entry's recorded deltas.
 ///
 /// ### Non-obvious: the target graph is provided, not reconstructed
 ///
-/// The engine does **not** reconstruct a graph from a `CellGraphSnapshot`
-/// — that is a later revision (a payload-codec-driven concern; the current
-/// The snapshot does not store enough to rebuild a graph's cells
-/// from scratch without the payload-codec registry). The
+/// The engine does **not** reconstruct a graph from a
+/// [CellGraphSnapshot]: the snapshot does not store enough to rebuild a
+/// graph's cells from scratch without a payload-codec registry. The
 /// caller provides the target graph, typically freshly built from the
-/// same `CellGraphBuilder` that produced the original. The design's
-/// exit criterion "replay 500 pulses against an identical graph"
-/// describes exactly this: the target is *the same graph shape*, not a
-/// reconstructed one. A later revision will relax this, and the `ReplayEngine`
-/// API does not need to change.
+/// same [CellGraphBuilder] that produced the original — the target is
+/// *the same graph shape*, not a reconstructed one. Replaying many pulses
+/// against an identical graph is the intended acceptance test. A later
+/// revision may relax this without changing the [ReplayEngine] API.
 ///
 /// ### What is verified per entry
 ///
@@ -36,16 +35,23 @@ part of '../../cell.dart';
 ///    in order, through the per-entry [ReplayJournal] (the target's
 ///    effectful operators consult the ambient journal — see
 ///    `JournalScope.effectiveJournal`).
-/// 5. Every recorded `StateDelta` is reproduced: after dispatch, each
+/// 5. Every recorded [StateDelta] is reproduced: after dispatch, each
 ///    delta cell's current value must equal `delta.after`.
 ///
 /// What is deliberately **not** verified: the recorded `pulseDigest`
 /// against a reconstructed pulse. The digest hashes the pulse's full
 /// JSON including its wall-clock timestamp; a hash is one-way and a
 /// reconstruction can never match it byte-for-byte. The delta
-/// comparison is the authoritative state check. (The engine design's
-/// step 9 check would fail on every entry; this engine documents that
-/// honestly instead.)
+/// comparison is the authoritative state check. (A per-entry
+/// pulse-digest check would fail on every entry; this engine documents
+/// that honestly instead.)
+///
+/// See also:
+/// * [Ledger] — the history that is replayed.
+/// * [CellGraph] — the target the history is replayed into.
+/// * [ReplayResult] — the outcome.
+/// * [PulseReconstructor] — the reconstruction machinery.
+/// {@category Replay}
 class ReplayEngine {
   const ReplayEngine._();
 
@@ -56,11 +62,17 @@ class ReplayEngine {
   /// the receptor's effectful calls are served from the recording, not
   /// re-executed against the real world.
   ///
-  /// On success, returns a [ReplayResult] whose `newSnapshot` is the
-  /// target graph's state at the end of replay. On failure (strict
-  /// mode), throws [ReplayDivergenceException]. In lenient mode,
-  /// returns a result with `success == false` and non-empty
-  /// `divergences`.
+  /// ### Parameters:
+  /// - [ledger]: The recorded history to replay.
+  /// - [target]: The graph to replay into.
+  /// - [fromSeq]: The first ledger sequence to replay.
+  /// - [options]: Strictness flags; defaults to [ReplayOptions.strict].
+  ///
+  /// ### Returns:
+  /// On success, a [ReplayResult] whose `newSnapshot` is the target
+  /// graph's state at the end of replay. On failure (strict mode),
+  /// throws [ReplayDivergenceException]. In lenient mode, returns a
+  /// result with `success == false` and non-empty `divergences`.
   ///
   /// ### Non-obvious: the purity gate is the journal, not a pre-check
   ///

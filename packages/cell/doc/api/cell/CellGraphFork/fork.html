@@ -68,32 +68,41 @@
     </section>
     
 <section class="desc markdown">
-  <p>Forks <code>this</code> graph at <code>atSeq</code> of <code>parent</code>.</p>
-<p><code>buildFreshGraph</code> is a factory that builds a <em>fresh</em> <code>CellGraph</code>
+  <p>Forks this graph at <code>atSeq</code> of <code>parent</code>.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>parent</code>: The parent ledger to fork from.</li>
+<li><code>atSeq</code>: The parent sequence at which to fork.</li>
+<li><code>buildFreshGraph</code>: A factory that builds a <em>fresh</em> <code>CellGraph</code>
 with the same shape as <code>this</code>. Typically it closes over the same
 <code>CellGraphBuilder</code> invocation the original graph was built from.
 The fork's <code>CellGraph</code> will be the result of calling this factory —
 the fork does not clone <code>this</code>'s cells, because cell cloning is
 a snapshot-reconstruction concern and cloning is <em>not</em> required for the
 isolated fork policy (the fresh graph's cells are the fork's
-working state).</p>
-<p><code>buildStore</code> is the fork's ledger store factory. It receives the
+working state).</li>
+<li><code>buildStore</code>: The fork's ledger store factory. It receives the
 fork's chain genesis (<code>ForkRecord.genesisHash</code>) and must construct
 a store with that genesis — ledger stores enforce their genesis
 hash, and the fork genesis is only known once the fork record
-exists. (The doc's caller-supplied store cannot satisfy the
-genesis check; a factory is the honest shape.)</p>
+exists. (A caller-supplied store cannot satisfy the
+genesis check; a factory is the honest shape.)</li>
+<li><code>policy</code>: Which fork policy to use; only <a href="../../cell/ForkPolicy.html">ForkPolicy.isolated</a> is
+implemented.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell/ForkHandle-class.html">ForkHandle</a> whose <code>graph</code> is the fresh graph, whose <code>ledger</code> is a
+fork ledger seeded by the <code>ForkRecord</code>, and whose <code>record</code> is the
+<code>ForkRecord</code>.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>The fresh graph is brought to the parent's state at <code>atSeq</code> by
 replaying parent entries <code>0..atSeq</code> into it (the <strong>baseline
 replay</strong>) — the fork ledger does not contain those entries; they
 belong to the parent.</p>
-<p>Returns a <a href="../../cell/ForkHandle-class.html">ForkHandle</a> whose <code>graph</code> is the fresh graph, whose
-<code>ledger</code> is a fork ledger seeded by the <code>ForkRecord</code>, and whose
-<code>record</code> is the <code>ForkRecord</code>.</p>
 <h3 id="non-obvious-atseq-is-the-parents-sequence-not-the">Non-obvious: <code>atSeq</code> is the <em>parent</em>'s sequence, not the</h3>
 <p>fork's</p>
-<p>If <code>atSeq == 100</code>, the fork's <code>ForkRecord.divergedAt</code> is 100 and
-the fork replays from parent seq 101. <code>atSeq == 0</code> forks at the
+<p>If <code>atSeq</code> <code>== 100</code>, the fork's <code>ForkRecord.divergedAt</code> is 100 and
+the fork replays from parent seq 101. <code>atSeq</code> <code>== 0</code> forks at the
 parent's first entry — the fork's baseline is that entry's state.</p>
 </section>
 
@@ -127,9 +136,9 @@ parent's first entry — the fork's baseline is that entry's state.</p>
   await parent.verify();
 
   &#47;&#47; 2. The fork binds to the parent&#39;s hash AT atSeq — the same value
-  &#47;&#47;    fork.verify() compares against. (The doc stored the parent&#39;s
-  &#47;&#47;    HEAD hash here, which its own verify() would then reject for
-  &#47;&#47;    any atSeq below the head.)
+  &#47;&#47;    fork.verify() compares against. (Storing the parent&#39;s
+  &#47;&#47;    HEAD hash here would make fork.verify() reject any
+  &#47;&#47;    fork taken below the head.)
   final parentHead = await parent.hashAtSeq(atSeq);
 
   &#47;&#47; 3. Build the fresh graph. Review fix: the process-wide cell id
@@ -153,9 +162,8 @@ parent's first entry — the fork's baseline is that entry's state.</p>
 
   &#47;&#47; 4. Baseline replay: bring the fresh graph to the parent&#39;s state
   &#47;&#47;    at atSeq. This is what makes the fork&#39;s starting state equal
-  &#47;&#47;    the parent&#39;s recorded state at the fork point; the doc&#39;s
-  &#47;&#47;    expected alternative states (e.g. 16000 in the what-if test)
-  &#47;&#47;    assume it.
+  &#47;&#47;    the parent&#39;s recorded state at the fork point; the what-if
+  &#47;&#47;    tests&#39; expected alternative states assume it.
   if (await parent.lastSeq &gt;= 0) {
     await ReplayEngine.replay(
       ledger: parent,
@@ -229,7 +237,7 @@ parent's first entry — the fork's baseline is that entry's state.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

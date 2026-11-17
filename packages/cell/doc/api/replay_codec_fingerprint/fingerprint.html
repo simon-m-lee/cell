@@ -63,7 +63,9 @@
     </section>
     
 <section class="desc markdown">
-  <p>Computes the SHA-256 fingerprint of a canonical JSON value, hex-encoded.</p>
+  <p>Computes the SHA-256 fingerprint of <code>value</code>'s canonical JSON form,
+hex-encoded.</p>
+<h3 id="when-to-use">When to use</h3>
 <p>Fingerprints are the unit of identity in the replay ledger:</p>
 <ul>
 <li><a href="../cell/CellSnapshot/configFingerprint.html">CellSnapshot.configFingerprint</a> — identifies a cell's receptor + rule
@@ -76,9 +78,17 @@ recording and replay is a hard divergence.</li>
 with the same digest are byte-identical, which the ledger uses to
 reconstruct without storing the whole chain per entry.</li>
 </ul>
-<p>Returns the hex string, not the <code>Digest</code> object, because every consumer
-eventually serialises it — returning hex here removes a second encoding
-step everywhere.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The value is serialised with <a href="../replay_codec_canonical_json/canonicalJsonEncode.html">canonicalJsonEncode</a> and hashed with
+SHA-256.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>value</code>: Any JSON-encodable value.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The hex digest string, not the <code>Digest</code> object — every consumer
+eventually serialises it, so returning hex here removes a second
+encoding step everywhere.</p>
 </section>
 
 
@@ -116,7 +126,7 @@ step everywhere.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

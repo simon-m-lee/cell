@@ -113,7 +113,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 </tr>
 <tr>
 <td>The full public factory list is in <code>HowTo-Mitose-Cell.md</code> §2.</td>
-<td>** <code>abstract interface class Cell</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>abstract interface class Cell</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)</td>
 <td>** <code>example/cell_example.dart</code></td>
 <td></td>
@@ -123,7 +123,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>Cell.asyncMap</code></td>
 <td>** a background <code>Future</code> per pulse with concurrency control (<code>concurrency</code>, <code>latestOnly</code>, <code>exhaust</code>).</td>
 <td>** source selection (mapper returns a <code>Cell</code>) — that is <code>Cell.switchMap</code>; and never inside the policy decision itself.</td>
-<td>** <code>Cell.asyncMap&lt;S, T&gt;(Cell source, Future&lt;T&gt; Function(S value) mapper, {int concurrency = 0, bool latestOnly = false, bool exhaust = false})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell.asyncMap&lt;S, T&gt;(Cell source, Future&lt;T&gt; Function(S value, {required EffectJournal journal}) mapper, {required EffectJournal journal, int concurrency = 0, bool latestOnly = false, bool exhaust = false})</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)</td>
 <td>** <code>example/async_map_demo.dart</code></td>
 </tr>
@@ -131,7 +131,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>Cell.debounce</code></td>
 <td>** wait for silence on a feed (belt chatter, search input, 15 s snapshots) — feed shaping <strong>before</strong> <code>publishTick</code>.</td>
 <td>** as the policy gate; Time operators shape feeds, they never <em>decide</em>. A "wait for silence" decision is still a <code>cell_flow</code> instruction concern.</td>
-<td>** <code>Cell.debounce(Cell source, Duration duration, {bool leading = false, EphemeralPolicy? ephemeralPolicy})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell.debounce(Cell source, Duration duration, {required EffectJournal journal, bool leading = false, EphemeralPolicy? ephemeralPolicy})</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.6 "Time" (#flow-time)</td>
 <td>** <code>example/stability_search_demo.dart</code></td>
 </tr>
@@ -139,7 +139,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>Cell.deputy</code></td>
 <td>** capability attenuation — read-only or narrowed-write views of a Cell for untrusted callers (UI, auditors).</td>
 <td>** to widen permissions (a deputy can only narrow); use <code>.unmodifiable</code> for the fixed read-only case.</td>
-<td>** <code>FutureOr&lt;Cell&gt; deputy({DeputyContext context = DeputyContext.system, TestCell testRule = TestCell.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>FutureOr&lt;Cell&gt; deputy({DeputyContext context = DeputyContext.system, TestCell testRule = TestCell.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled})</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>guide/HowTo-DeputyContext.md</code> (deputies)</td>
 <td>** <code>example/cell_example.dart</code></td>
 </tr>
@@ -147,7 +147,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>Cell.derive</code></td>
 <td>** A BRD says "show X derived from Y" — pure projection, no policy branches.</td>
 <td>** policy clauses (that is a <code>cell_flow</code> instruction); retained storage (that is <code>Cell.state</code>).</td>
-<td>** <code>Cell.derive&lt;I extends Pulse, O extends Pulse&gt;({required Cell source, required O? Function(I) project})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell.derive&lt;I extends Pulse, O extends Pulse&gt;({required Cell source, required O? Function(I) project})</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)</td>
 <td>** <code>example/derive_demo.dart</code></td>
 </tr>
@@ -155,7 +155,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>Cell.distinct</code></td>
 <td>** skip <em>consecutive</em> equal payloads (heartbeats, no-change ticks) before downstream work.</td>
 <td>** a latch that an ACK must reset — <code>Cell.distinct</code> has no <code>reset()</code>, so use a custom <code>cell_flow</code> instruction; global dedupe is <code>cell_flow</code>'s <code>Distinct</code>.</td>
-<td>** <code>Cell.distinct(Cell source, {bool Function(dynamic previous, dynamic next)? equals})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell.distinct(Cell source, {bool Function(dynamic previous, dynamic next)? equals})</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)</td>
 <td>** <code>example/distinct_demo.dart</code></td>
 </tr>
@@ -163,7 +163,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>Cell.fromFuture</code></td>
 <td>** bridge a single <code>Future</code> result into the graph (one config load, one AODB lookup); emits at most once.</td>
 <td>** continuous sources — that is <code>Cell.fromStream</code>; imperative callbacks — that is <code>Cell.ingress</code>.</td>
-<td>** <code>Cell.fromFuture&lt;T&gt;(Future&lt;T&gt; future)</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell.fromFuture&lt;T&gt;(Future&lt;T&gt; future, {required EffectJournal journal})</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.1 "Create" (#flow-create)</td>
 <td>** <code>test/receptor_instruction_future_test.dart</code></td>
 </tr>
@@ -171,7 +171,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>Cell.fromNucleus</code></td>
 <td>** infrastructure only — hydrate a cell from a persisted / cloned <a href="../cell/Nucleus-class.html">Nucleus</a> blueprint.</td>
 <td>** application state — use <code>Cell.state</code> / <code>Cell.ingress</code> / <code>Cell.derive</code> first.</td>
-<td>** <code>Cell.fromNucleus(Nucleus nucleus)</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell.fromNucleus(Nucleus nucleus)</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>guide/HowTo-Nucleus.md</code> (nucleus blueprints)</td>
 <td>** <code>example/open_cell_demo.dart</code></td>
 </tr>
@@ -179,7 +179,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>Cell.fromStream</code></td>
 <td>** bridge an existing Dart <code>Stream</code> (PLC belt, WebSocket, <code>Stream.periodic</code>) into the graph.</td>
 <td>** a single value — that is <code>Cell.fromFuture</code>; imperative callbacks — that is <code>Cell.ingress</code>.</td>
-<td>** <code>Cell.fromStream&lt;T&gt;(Stream&lt;T&gt; stream, {bool cancelOnError = false, EphemeralPolicy? ephemeralPolicy})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell.fromStream&lt;T&gt;(Stream&lt;T&gt; stream, {required EffectJournal journal, bool cancelOnError = false, EphemeralPolicy? ephemeralPolicy})</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.1 "Create" (#flow-create)</td>
 <td>** <code>test/operator_from_stream_test.dart</code></td>
 </tr>
@@ -187,7 +187,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>Cell.governed</code></td>
 <td>** infrastructure nodes needing a TTL (<a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a>), explicit <a href="../cell/Context-class.html">Context</a>, or a private lock.</td>
 <td>** ordinary application state — <code>Cell.state</code> / <code>Cell.ingress</code> cover it.</td>
-<td>** <code>Cell.governed({ephemeralPolicy, context, bind, receptor, testRule, synapses, forceLock})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell.governed({ephemeralPolicy, context, bind, receptor, testRule, synapses, forceLock})</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>guide/HowTo-EphemeralPolicy.md</code> (governance)</td>
 <td>** <code>example/open_cell_demo.dart</code></td>
 </tr>
@@ -195,7 +195,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>Cell.hub</code></td>
 <td>** One bus with many pulse types routed by <code>Pulse.type</code> (pattern / prefix / multicast).</td>
 <td>** v1 product lanes — two <code>Cell.ingress</code> lanes are simpler; do not replace a policy instruction.</td>
-<td>** <code>Cell.hub({spokes, governedSpokes, registrations, routing, multicast, fallback, distribution, relay, source})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell.hub({spokes, governedSpokes, registrations, routing, multicast, fallback, distribution, relay, source})</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)</td>
 <td>** <code>example/hub_demo.dart</code></td>
 </tr>
@@ -225,7 +225,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 </tr>
 <tr>
 <td>See <code>HowTo-Mitose-Flow.md</code> §4 "When the BRD requires a custom FlowInstruction".</td>
-<td>** <code>Cell.ingress&lt;I&gt;({refine, ephemeralPolicy, source, context, receptor, testRule, synapses, forceLock})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell.ingress&lt;I&gt;({refine, ephemeralPolicy, source, context, receptor, testRule, synapses, forceLock})</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>HowTo-Mitose-Cell.md</code> §3.1 "Cell.ingress — how the desk enters the graph" (#cell-ingress)</td>
 <td>** <code>example/ingress_demo.dart</code></td>
 <td></td>
@@ -257,7 +257,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 </tr>
 <tr>
 <td>See <code>HowTo-Mitose-Cell.md</code> §3.2 "Cell.observe — the only Flow → Tissue glue".</td>
-<td>** <code>Cell.observe&lt;P extends Pulse&gt;({required Cell source, required void Function(P) effect, bool initiallyStarted = true})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell.observe&lt;P extends Pulse&gt;({required Cell source, required void Function(P) effect, bool initiallyStarted = true})</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>HowTo-Mitose-Cell.md</code> §3.2 "Cell.observe — the only Flow → Tissue glue" (#cell-observe)</td>
 <td>** <code>example/observe_demo.dart</code></td>
 <td></td>
@@ -267,7 +267,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>Cell.open</code></td>
 <td>** Late-bind a device / module after boot, or manually manage link/unlink topology.</td>
 <td>** standard external facts — use <code>Cell.ingress</code>; rare in v1 Demos.</td>
-<td>** <code>Cell.open({ephemeralPolicy, context, source, receptor, testRule, synapses, forceLock})</code> → <code>OpenCell</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell.open({ephemeralPolicy, context, source, receptor, testRule, synapses, forceLock})</code> → <code>OpenCell</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)</td>
 <td>** <code>example/open_cell_demo.dart</code></td>
 </tr>
@@ -275,7 +275,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>Cell.sanitized</code></td>
 <td>** A BRD says "no name on the extract" — redact PII before a log / UI cell, or omit the field at the source.</td>
 <td>** as a substitute for never writing PII into Tissue rows; sanitize the <em>view</em>, keep the book clean.</td>
-<td>** <code>Cell.sanitized&lt;P extends Pulse&gt;(Cell source, {required P Function(P) redact, Sensitivity minSensitivity = Sensitivity.confidential})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell.sanitized&lt;P extends Pulse&gt;(Cell source, {required P Function(P) redact, Sensitivity minSensitivity = Sensitivity.confidential})</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)</td>
 <td>** <code>example/sanitized_demo.dart</code></td>
 </tr>
@@ -297,7 +297,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 </tr>
 <tr>
 <td>See <code>HowTo-Mitose-Tissue.md</code> §2.1 "TissueList — the audit book".</td>
-<td>** <code>Cell.state&lt;V&gt;({initial, evolve, testRule})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell.state&lt;V&gt;({initial, evolve, testRule})</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)</td>
 <td>** <code>example/state_demo.dart</code></td>
 <td></td>
@@ -307,7 +307,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>Cell.switchMap</code></td>
 <td>** dynamic source selection — the mapper returns a <code>Cell</code> and the graph rebinds to it ("latest reservation / flight only").</td>
 <td>** background enrichment where the mapper returns a <code>Future</code> — that is <code>Cell.asyncMap</code>.</td>
-<td>** <code>Cell.switchMap&lt;S, T&gt;(Cell source, Cell Function(S value) mapper, {ephemeralPolicy, context, testRule, synapses, forceLock})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell.switchMap&lt;S, T&gt;(Cell source, Cell Function(S value) mapper, {ephemeralPolicy, context, testRule, synapses, forceLock})</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)</td>
 <td>** <code>example/instruction_pipeline_walkthrough.dart</code></td>
 </tr>
@@ -315,7 +315,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>Cell.synthesis</code></td>
 <td>** "one screen / one status from many feeds" — aggregate current values whenever any source pulses.</td>
 <td>** a policy decision on the merged tick; and never use it <em>and</em> a custom instruction on the same tick without saying which decides.</td>
-<td>** <code>Cell.synthesis&lt;P extends Pulse&gt;(Iterable&lt;Cell&gt; sources, {required P? Function(Iterable&lt;Cell&gt; cells, Pulse emit) aggregator})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell.synthesis&lt;P extends Pulse&gt;(Iterable&lt;Cell&gt; sources, {required P? Function(Iterable&lt;Cell&gt; cells, Pulse emit) aggregator})</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)</td>
 <td>** <code>example/synthesis_demo.dart</code></td>
 </tr>
@@ -323,7 +323,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>Cell.throttle</code></td>
 <td>** limit a feed to at most one pulse per duration (leading immediate, trailing optional) — feed shaping <strong>before</strong> <code>publishTick</code>.</td>
 <td>** as the policy gate; the decision belongs to the <code>cell_flow</code> instruction, and Time operators shape feeds, not decisions.</td>
-<td>** <code>Cell.throttle(Cell source, Duration duration, {bool leading = true, bool trailing = false})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell.throttle(Cell source, Duration duration, {required EffectJournal journal, bool leading = true, bool trailing = false})</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.6 "Time" (#flow-time)</td>
 <td>** <code>example/throttle_demo.dart</code></td>
 </tr>
@@ -345,7 +345,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 </tr>
 <tr>
 <td>See <code>HowTo-Mitose-Cell.md</code> §3.3 "Cell.transaction — not the Mitose commit".</td>
-<td>** <code>Cell.transaction([TransactionOptions options = const TransactionOptions()])</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell.transaction([TransactionOptions options = const TransactionOptions()])</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>HowTo-Mitose-Cell.md</code> §3.3 "Cell.transaction — not the Mitose commit" (#cell-transaction)</td>
 <td>** <code>example/transaction_demo.dart</code></td>
 <td></td>
@@ -355,7 +355,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>Cell.txApply</code></td>
 <td>** The BRD says two retained facts move together or not at all, or an external act can fail after a local write — participants are <strong>Tissue books</strong>, with <code>apply</code> + <code>compensate</code>.</td>
 <td>** one book with no undo (an ordinary Tissue write from <code>Cell.observe</code>); never wrap <code>riskOf</code> (policy is pure).</td>
-<td>** <code>Cell.txApply([TxApplyOptions options = const TxApplyOptions()])</code> → <code>ApplyTransactionScope</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell.txApply([TxApplyOptions options = const TxApplyOptions()])</code> → <code>ApplyTransactionScope</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>HowTo-Mitose-Cell.md</code> §3.4 "Cell.txApply — the only atomic commit, on Tissue" (#cell-txapply)</td>
 <td>** <code>example/atomic_multi_update.dart</code></td>
 </tr>
@@ -363,7 +363,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>Cell.unmodifiable</code></td>
 <td>** hand a UI / auditor a read-only view of a Cell; least-privilege egress.</td>
 <td>** as a copy — it is a live proxy sharing the principal's state.</td>
-<td>** <code>Cell get unmodifiable</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell get unmodifiable</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>guide/HowTo-DeputyContext.md</code> (deputies)</td>
 <td>** <code>example/cell_example.dart</code></td>
 </tr>
@@ -371,7 +371,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>Cell.valve</code></td>
 <td>** a pure predicate gate that passes or suppresses pulses before expensive downstream work.</td>
 <td>** named business policy (clause-ordered, latch, product filter) — that is a <code>cell_flow</code> instruction, not a Cell predicate.</td>
-<td>** <code>Cell.valve&lt;P extends Pulse&gt;(Cell source, bool Function(P pulse) gate, {Synapses synapses = Synapses.enabled})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Cell.valve&lt;P extends Pulse&gt;(Cell source, bool Function(P pulse) gate, {Synapses synapses = Synapses.enabled})</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>guide/HowTo-16_Essential_Operators.md</code> (valve)</td>
 <td>** <code>example/valve_demo.dart</code></td>
 </tr>
@@ -379,7 +379,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>Pulse</code></td>
 <td>** read <code>pulse.payload</code>, <code>pulse.source</code>, <code>pulse.type</code> in observers; create one for manual injection (<code>Pulse(value, type: '...')</code>).</td>
 <td>** as a storage unit — state lives in <code>Cell.state</code> / Tissue books; pulses are immutable signals.</td>
-<td>** <code>Pulse&lt;P&gt;(P? payload, {dynamic type, Cell? source, int? priority, String? step})</code> — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>Pulse&lt;P&gt;(P? payload, {dynamic type, Cell? source, int? priority, String? step})</code> — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>guide/HowTo-Pulse.md</code> (pulse anatomy)</td>
 <td>** <code>example/ingress_demo.dart</code></td>
 </tr>
@@ -401,7 +401,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 </tr>
 <tr>
 <td>This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-test.dart</code>.</td>
-<td>** <code>TestCell&lt;C extends Cell&gt;(...)</code> — chain with <code>+</code>; <code>TestCell.allowAll</code> / <code>TestCell.readOnly</code> constants — pinned at <code>cell: 1.1.0</code></td>
+<td>** <code>TestCell&lt;C extends Cell&gt;(...)</code> — chain with <code>+</code>; <code>TestCell.allowAll</code> / <code>TestCell.readOnly</code> constants — pinned at <code>cell: 2.0.0</code></td>
 <td>** <code>guide/HowTo-TestCell.md</code> (integrity gates)</td>
 <td>** <code>example/ingress_demo.dart</code></td>
 <td></td>
@@ -448,6 +448,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
         <li><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
         <li><a href="../topics/Transactions-topic.html">Transactions</a></li>
         <li><a href="../topics/Apply + Transactions-topic.html">Apply&nbsp;+&nbsp;Transactions</a></li>
+        <li><a href="../topics/Causal Replay-topic.html">Causal&nbsp;Replay</a></li>
         <li><a href="../topics/Pulse-topic.html">Pulse</a></li>
         <li><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
         <li><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
@@ -463,14 +464,15 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
       <li class="section-title">Libraries</li>
       <li><a href="../cell_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
       <li><a href="../cell_api_chooser/">doc\api_chooser</a></li>
-      <li><a href="../replay/">replay</a></li>
       <li><a href="../replay_cli_cli/">replay\cli\cli</a></li>
       <li><a href="../replay_codec_canonical_json/">replay\codec\canonical_json</a></li>
       <li><a href="../replay_codec_fingerprint/">replay\codec\fingerprint</a></li>
       <li><a href="../replay_ledger_file_store/">replay\ledger\file_store</a></li>
-      <li><a href="../replay_replay/">replay\replay</a></li>
       <li class="section-subtitle">Features</li>
         <li class="section-subitem"><a href="../cell/">cell</a></li>
+      <li class="section-subtitle">Replay</li>
+        <li class="section-subitem"><a href="../replay/">replay</a></li>
+        <li class="section-subitem"><a href="../replay_replay/">replay\replay</a></li>
 </ol>
 
   </div>
@@ -481,7 +483,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

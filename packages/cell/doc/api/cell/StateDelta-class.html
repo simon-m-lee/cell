@@ -55,16 +55,55 @@
     
 <section class="desc markdown">
   <p>A single cell's state change within a ledger entry.</p>
+<p><a href="../cell/StateDelta-class.html">StateDelta</a> is the <strong>Atomic Record of Change</strong>: the smallest unit of
+forensic history the ledger stores. It captures one cell's value
+before and after a commit, together with the wall-clock time of the
+commit, so an auditor can trace every state transition.</p>
 <p>Captured by <code>ValueCell.postProcessRule</code> immediately before and after
 the commit, so <code>before</code> and <code>after</code> reflect the exact values the
 receptor produced — not the values the caller <em>intended</em>. That
 distinction matters: a receptor can transform its input, and the
 ledger must record the transformed value, or replay will diverge.</p>
-<h3 id="non-obvious-before--after-is-legal">Non-obvious: <code>before == after</code> is legal</h3>
-<p>A receptor can commit the same value (e.g., an idempotent <code>set</code>). The
-delta is still recorded, because the <em>fact</em> that the pulse visited
-the cell is part of the causal chain; the absence of a value change
-is not the absence of an event.</p>
+<h3 id="why-it-is-used">Why it is used</h3>
+<ul>
+<li><strong>Replay Fidelity</strong>: Replay must reproduce the exact value the
+receptor committed, not the caller's intent, or the reconstructed
+graph diverges from the original.</li>
+<li><strong>Causal Traceability</strong>: The delta ties a value change to a cell id
+and a timestamp, so the ledger's causal chain is queryable.</li>
+<li><strong>Tamper Evidence</strong>: Each delta's digest is folded into the entry
+hash, so altering a stored value breaks the chain.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><code>ValueCell.postProcessRule</code> observes <code>(before, after)</code> around the
+commit.</li>
+<li>It constructs a <a href="../cell/StateDelta-class.html">StateDelta</a> and hands it to the active
+<code>LedgerScope.captureDelta</code>.</li>
+<li>The scope bundles the deltas with the pulse's receipt and effects
+into a <code>LedgerEntry</code>, whose hash chain binds them permanently.</li>
+</ol>
+<h3 id="technical-details">Technical Details</h3>
+<ul>
+<li><strong>Non-obvious: <code>before == after</code> is legal.</strong> A receptor can commit
+the same value (e.g., an idempotent <code>set</code>). The delta is still
+recorded, because the <em>fact</em> that the pulse visited the cell is part
+of the causal chain; the absence of a value change is not the
+absence of an event.</li>
+<li><strong>Forensic only timestamp.</strong> Replay does not compare <code>at</code> — a
+wall-clock time cannot be reproduced — it is recorded for auditors,
+not for replay equality.</li>
+<li><strong>Null vs missing key.</strong> <code>toJson</code> drops null <code>before</code>/<code>after</code> keys,
+so a digest cannot distinguish "the value was null" from "the key
+was dropped". This is deliberate: an explicit null marker would
+change every stored delta digest and invalidate existing ledgers;
+the hash chain is what makes tampering loud.</li>
+</ul>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/LedgerEntry-class.html">LedgerEntry</a> — the row that carries this delta.</li>
+<li><a href="../cell/LedgerScope-class.html">LedgerScope</a> — the ambient that captures deltas during a commit.</li>
+</ul>
 </section>
 
 
@@ -77,14 +116,14 @@ is not the absence of an event.</p>
           <span class="name"><a href="../cell/StateDelta/StateDelta.html">StateDelta</a></span><span class="signature">({<span class="parameter" id="-param-cellId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">cellId</span>, </span><span class="parameter" id="-param-before"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">before</span>, </span><span class="parameter" id="-param-after"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">after</span>, </span><span class="parameter" id="-param-at"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a></span> <span class="parameter-name">at</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates a <a href="../cell/StateDelta-class.html">StateDelta</a>.
             <div class="constructor-modifier features">const</div>
         </dd>
         <dt id="StateDelta.fromJson" class="callable">
           <span class="name"><a href="../cell/StateDelta/StateDelta.fromJson.html">StateDelta.fromJson</a></span><span class="signature">(<span class="parameter" id="fromJson-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">json</span></span>)</span>
         </dt>
         <dd>
-          Non-obvious: a <code>null</code> value and a missing key parse identically
+          Reconstructs a <a href="../cell/StateDelta-class.html">StateDelta</a> from <a href="../cell/StateDelta/toJson.html">toJson</a>'s output.
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
@@ -229,7 +268,7 @@ the <code>Ledger.verify</code> mismatch report.
 
 </dt>
 <dd>
-  
+  Serialises this delta to its canonical JSON map.
   
 
 </dd>
@@ -297,7 +336,7 @@ the <code>Ledger.verify</code> mismatch report.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

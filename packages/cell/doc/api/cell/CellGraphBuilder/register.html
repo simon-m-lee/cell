@@ -74,7 +74,13 @@
 <p>Throws <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a> if the builder has already been built, or if the
 name is claimed by a nucleus the builder does not know about (a
 leaked id from another graph).</p>
-<p>Returns the <code>RegisteredCell</code> wrapper, so callers can chain.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>name</code>: The graph-scoped name to register the cell under.</li>
+<li><code>cell</code>: The cell to register.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The <code>RegisteredCell</code> wrapper, so callers can chain.</p>
 </section>
 
 
@@ -158,7 +164,7 @@ leaked id from another graph).</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

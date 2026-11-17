@@ -56,9 +56,13 @@
 <section class="desc markdown">
   <p>The "no journal in scope" sentinel. Every effectful operation fails
 loudly.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>Deliberately not a no-op. A "null" journal that silently dropped
 effects would make every effectful cell non-replayable <em>without</em> any
-warning, which is precisely the failure mode the design forbids.</p>
+warning, which is precisely the silent non-replayable failure mode
+this journal exists to prevent. Every
+operation throws a <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a> explaining that the effectful receptor
+can only run inside a replayable path.</p>
 </section>
 
 
@@ -173,11 +177,8 @@ calls this after each pulse.
 
 </dt>
 <dd>
-  Record (or replay) an arbitrary I/O call. <code>rawOutput</code> is the value
-the caller's <code>run</code> closure returned; the journal records it (or
-serves the recorded value). If <code>serializeOutput</code> is not supplied, the
-raw result of <code>run</code> is stored directly and must be JSON-encodable —
-non-encodable results throw loudly at the fingerprint boundary.
+  Record (or replay) an arbitrary I/O call. The value the caller's
+<code>run</code> closure returns is recorded (or the recorded value is served).
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -369,7 +370,7 @@ that replay reproduces the same interleaving.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

@@ -12,9 +12,10 @@ part of '../../../cell.dart';
 
 /// Maps each upstream payload through an async function and emits results.
 ///
-/// the journal (D6 breaking change): the mapper takes a **required named
+/// ### Journal requirement
+/// asyncMap is effectful, so the mapper takes a **required named
 /// `journal` parameter** and the factory takes a `journal:` argument —
-/// asyncMap is effectful, and its I/O must go through the journal. The
+/// its I/O must go through the journal. The
 /// mapper runs inside `JournalScope.run(journal, …)`, so both the
 /// parameter and `EffectJournal.current` are the same journal.
 ///

@@ -14,7 +14,7 @@ import 'package:test/test.dart';
 
 /// End-to-end tests for the `cell-replay` CLI, run in-process against
 /// temporary ledger files. One test spawns the real `bin/cell_replay.dart`
-/// entry point to prove the executable wiring (exit criterion 7).
+/// entry point to prove the executable wiring.
 void main() {
   late Directory dir;
   late String ledgerPath;

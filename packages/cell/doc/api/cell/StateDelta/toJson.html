@@ -61,17 +61,20 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Serialises this delta to its canonical JSON map.</p>
+</section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Map&lt;String, Object?&gt; toJson() =&gt; {
-      &#39;cellId&#39;: cellId,
-      if (before != null) &#39;before&#39;: before,
-      if (after != null) &#39;after&#39;: after,
-      &#39;at&#39;: at.toUtc().toIso8601String(),
-    };</code></pre>
+  &#39;cellId&#39;: cellId,
+  if (before != null) &#39;before&#39;: before,
+  if (after != null) &#39;after&#39;: after,
+  &#39;at&#39;: at.toUtc().toIso8601String(),
+};</code></pre>
 </section>
 
 
@@ -99,7 +102,7 @@
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

@@ -8,7 +8,8 @@ part of '../../cell.dart';
 
 /// Bridges a [DeputyContext] across mandate schema versions.
 ///
-/// A `ContextTranslator` is the user's hook for "the mandate schema
+/// ### When to use
+/// A [ContextTranslator] is the user's hook for "the mandate schema
 /// changed between version A and version B — here's how to translate a
 /// version-A context into a version-B context". The framework cannot
 /// know what fields were added, renamed, or deprecated; it only knows
@@ -22,9 +23,14 @@ part of '../../cell.dart';
 /// version-1 (a downgrade), the translator for `v2 → v1` is required —
 /// but a downgrade is almost always a *semantic loss* (a field added
 /// in v2 has no home in v1), and the framework cannot safely assume
-/// which direction preserves meaning. The `ContextTranslator` API
+/// which direction preserves meaning. The [ContextTranslator] API
 /// therefore requires the caller to declare both the source and target
 /// versions explicitly.
+///
+/// See also:
+/// * [ContextTranslatorRegistry] — keyed `(from, to)` storage.
+/// * [CellGraphTranslators] — the per-graph registry accessor.
+/// {@category Replay}
 abstract class ContextTranslator {
   /// The version this translator bridges from.
   String get fromVersion;
@@ -35,22 +41,39 @@ abstract class ContextTranslator {
   /// Translates [source] from [fromVersion] to [toVersion]. Returns a
   /// context whose `version` equals [toVersion].
   ///
+  /// ### How it works
   /// The translator is responsible for preserving the *meaning* of the
   /// source context — a `Clearance.administrative` source must not
   /// silently become `Clearance.observational` (that would weaken the
   /// mandate's authority); a new field added in the target version
   /// must be given a sensible default documented in the translator's
   /// `toString`.
+  ///
+  /// ### Parameters:
+  /// - [source]: The context to translate.
+  ///
+  /// ### Returns:
+  /// The translated context (or a [Future] of it).
   FutureOr<DeputyContext> translate(DeputyContext source);
 }
 
 /// A simple registry of translators keyed by `(from, to)`.
 ///
-/// The registry is per-graph, matching `VersionRegistry`'s scoping.
+/// ### How it works
+/// The registry is per-graph, matching [VersionRegistry]'s scoping.
 /// Translators registered on one graph do not affect another.
+///
+/// See also:
+/// * [ContextTranslator] — what this registry stores.
+/// * [CellGraphTranslators] — the per-graph accessor.
 class ContextTranslatorRegistry {
   final Map<String, Map<String, ContextTranslator>> _byPair = {};
 
+  /// Registers a [translator] under its `(from, to)` pair.
+  ///
+  /// ### Parameters:
+  /// - [translator]: The translator to register; registering a no-op
+  ///   (`from == to`) throws [ArgumentError].
   void register(ContextTranslator translator) {
     final from = translator.fromVersion;
     final to = translator.toVersion;
@@ -70,7 +93,14 @@ class ContextTranslatorRegistry {
   /// Translates [source] from its own version to [target]. If they are
   /// equal, returns [source] unchanged (no translation needed). If no
   /// translator is registered, throws [UnimplementedError] — a loud
-  /// failure, as the design's exit criterion requires.
+  /// failure rather than a silent cross-version guess.
+  ///
+  /// ### Parameters:
+  /// - [source]: The context to translate.
+  /// - [target]: The version to translate to.
+  ///
+  /// ### Returns:
+  /// The translated context.
   Future<DeputyContext> translate(
     DeputyContext source, {
     required String target,
@@ -98,9 +128,15 @@ class ContextTranslatorRegistry {
 }
 
 /// The graph-scoped translator registry.
+///
+/// ### How it works
+/// The [Expando] keeps the registry per-[CellGraph] instance, matching
+/// [VersionRegistry]'s scoping: translators registered on one graph do
+/// not affect another.
 extension CellGraphTranslators on CellGraph {
   static final Expando<ContextTranslatorRegistry> _registries = Expando();
 
+  /// The graph's translator registry, created lazily on first access.
   ContextTranslatorRegistry get translators {
     return _registries[this] ??= ContextTranslatorRegistry();
   }

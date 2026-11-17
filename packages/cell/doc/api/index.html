@@ -58,7 +58,7 @@ carries a machine-readable <code>### AI Agent Guide</code> block, and the surfac
 let an agent reliably pick the right factory and generate code that compiles
 against the live API.</p>
 <ol>
-<li><strong>Version pin:</strong> <code>cell 1.1.0</code>, <code>cell_flow 1.0.0</code>, <code>cell_tissue 1.0.0</code>.</li>
+<li><strong>Version pin:</strong> <code>cell 2.0.0</code>, <code>cell_flow 1.0.0</code>, <code>cell_tissue 1.0.0</code>.</li>
 <li><strong>Preflight:</strong> <code>dart run tool/ai_preflight.dart</code> — prints the resolved versions and any stale pins.</li>
 <li><strong>API chooser:</strong> <code>lib/doc/api_chooser.dart</code> (generated from the <code>### AI Agent Guide</code> doc blocks).</li>
 <li><strong>Layer guides:</strong>
@@ -121,7 +121,7 @@ operators. Plain Dart state, plus a governance contract.</p>
 </blockquote>
 <p><a href="https://dart.dev"><img src="https://img.shields.io/badge/Dart-3.5%2B-blue.svg" alt="Dart"></a>
 <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/LICENSE"><img src="https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg" alt="License"></a>
-<a href="#status"><img src="https://img.shields.io/badge/cell-1.1.0-blue.svg" alt="Version"></a>
+<a href="#status"><img src="https://img.shields.io/badge/cell-2.0.0-blue.svg" alt="Version"></a>
 <a href="#status"><img src="https://img.shields.io/badge/Status-Stable-green.svg" alt="Status"></a></p>
 <p>This is the foundation package of the Cell Framework (Mitosis). Sibling packages add collections, relations, stream combinators, persistence, and codegen.</p>
 <blockquote>
@@ -152,6 +152,11 @@ restricted proxies (<code>.deputy()</code>); a deputy <em>is</em> the principal
 principal already allows.</li>
 <li><strong>Auditable</strong> — <code>ApplyReceipt</code> forensics, causal trace, and provenance
 metadata ride every pulse; <code>Cell.sanitized</code> redacts before egress.</li>
+<li><strong>Causal replay</strong> — record a graph's complete history into a
+tamper-evident, hash-chained <code>Ledger</code> and re-execute it exactly in a
+fresh graph (<code>ReplayEngine</code>), or branch history with what-if forks
+(<code>CellGraph.fork</code> + <code>ReplayEngine.replayFork</code>). Opt-in behind
+<code>package:cell/replay.dart</code>.</li>
 <li><strong>Synchronized</strong> — transactional writes serialize through the ledger, and
 governed cells carry synchronization locks for high-integrity paths.</li>
 <li><strong>Timing control</strong> — <code>debounce</code>, <code>throttle</code>, and <code>distinct</code> are
@@ -199,6 +204,11 @@ governance contract</strong>:</p>
 <td>Audit trail</td>
 <td>None</td>
 <td><code>ApplyReceipt</code>, causal trace, provenance</td>
+</tr>
+<tr>
+<td><strong>Causal replay</strong></td>
+<td>None — history is lost when listeners return</td>
+<td>Built-in <code>Ledger</code> + <code>ReplayEngine</code>: record, verify, replay, fork</td>
 </tr>
 <tr>
 <td>Timing operators</td>
@@ -263,6 +273,7 @@ available when you need them.</p>
 <li><a href="#install">Install</a></li>
 <li><a href="#quick-example">Quick example</a></li>
 <li><a href="#core-operators">Core operators</a></li>
+<li><a href="#causal-replay">Causal replay</a></li>
 <li><a href="#how-much-you-need-to-know">How much you need to know</a></li>
 <li><a href="#documentation">Documentation</a></li>
 <li><a href="#ecosystem">Ecosystem</a></li>
@@ -344,7 +355,7 @@ switch (outcome) {
 <h2 id="install">Install</h2>
 <p>The package is on pub.dev. From this monorepo:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
-  cell: ^1.1.0   # stable
+  cell: ^2.0.0   # causal replay
 </code></pre>
 <p>From git:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
@@ -477,6 +488,61 @@ void main() {
 <p>Also implemented, outside that numbered set: <strong><code>Cell.valve</code></strong> (predicate gate) and <strong><code>Cell.apply</code> / <code>cell.command(...)</code></strong> (audited mutations with receipts and Saga compensation). Fan-in of several sources is <code>Cell.synthesis</code> (or combinators in cell_flow).</p>
 <p>Learning order: get data in → hold state → react → shape streams → go async → combine → isolate writes. Operators 1–4 are enough for a first app.</p>
 <hr>
+<h2 id="causal-replay">Causal replay</h2>
+<p><strong>Opt-in forensic history, shipped in the same package.</strong> Import
+<code>package:cell/replay.dart</code> to record a graph's complete causal history and
+re-execute it — exactly, or as a deliberate what-if branch.</p>
+<p>The module stacks in five layers, all source-verified and unit-tested:</p>
+<ul>
+<li><strong>Identity + purity</strong> — <code>CellGraph</code> / <code>CellGraphBuilder</code> give every
+cell a stable registered name; <code>Purity</code> declares whether a receptor or
+test rule touches the outside world.</li>
+<li><strong>Journal</strong> — <code>EffectJournal</code> records every non-deterministic
+observation (clock, UUID, I/O, timer, verdict, policy tick);
+<code>RecordingJournal</code> captures, <code>ReplayJournal</code> serves, <code>NullJournal</code>
+fails loudly.</li>
+<li><strong>Ledger</strong> — <code>Ledger</code> + <code>LedgerStore</code> append <code>StateDelta</code>s and
+<code>EffectRecord</code>s into a SHA-256 hash chain; <code>verify()</code> makes tampering
+loud; <code>FileLedgerStore</code> persists JSONL.</li>
+<li><strong>Engine</strong> — <code>ReplayEngine.replay</code> re-injects every recorded pulse into
+a fresh graph and asserts the recorded deltas re-occur; a
+<code>DivergenceReport</code> names the exact <code>seq</code>, effect ordinal, and reason.</li>
+<li><strong>Forks + governance + tooling</strong> — <code>graph.fork(...)</code> branches history
+at any sequence with a <code>Mutation</code>; <code>VersionRegistry</code> /
+<code>ContextTranslator</code> replay across receptor, rule, and mandate versions;
+the <code>cell-replay</code> CLI covers <code>verify</code>, <code>diff</code>, <code>fork</code>, <code>visualise</code>,
+<code>inspect</code>.</li>
+</ul>
+<pre class="language-dart"><code class="language-dart">import 'package:cell/cell.dart';
+import 'package:cell/replay.dart';
+
+final counter = Cell.state&lt;int&gt;(initial: 0);
+final graph = (CellGraph.builder()
+      ..registerState('counter', counter))
+    .build();
+
+// Record: bind a ledger and mutate inside graph.run.
+final ledger = await graph.bindLedger(
+  store: InMemoryLedgerStore(genesisHash: Ledger.genesisHashOf(graph.id)),
+);
+await graph.run(() =&gt; counter.update(3));
+await ledger.verify();
+
+// Replay: same names, fresh graph, no ledger.
+CellGraphRegistry.forceReset(); // test/demo context only
+final freshCounter = Cell.state&lt;int&gt;(initial: 0);
+final fresh = (CellGraph.builder()
+      ..registerState('counter', freshCounter))
+    .build();
+final result = await ReplayEngine.replay(ledger: ledger, target: fresh);
+assert(result.success &amp;&amp; freshCounter.cell.value == 3);
+</code></pre>
+<p>The full walkthrough — the 15-minute path, the machinery, the seven-item
+pre-flight checklist, recipes, and failure modes — lives in
+<a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Causal-Replay.md"><code>guide/HowTo-Causal-Replay.md</code></a>.
+Runnable forensic demos (record-and-replay, what-if, audit ledgers) live
+in <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell/example/replay"><code>example/replay/</code></a>.</p>
+<hr>
 <h2 id="how-much-you-need-to-know">How much you need to know</h2>
 <p>Layers are optional, not a reading list.</p>
 <ol>
@@ -542,6 +608,10 @@ void main() {
 <td>Staged <code>apply</code> + compensation</td>
 </tr>
 <tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Causal-Replay.md">HowTo-Causal-Replay.md</a></td>
+<td>Record, verify, replay, fork, governance replay, CLI</td>
+</tr>
+<tr>
 <td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Advanced.md">HowTo-Advanced.md</a></td>
 <td>Index of optional governance machinery</td>
 </tr>
@@ -567,7 +637,7 @@ void main() {
 <tr>
 <td><strong>cell</strong> (this)</td>
 <td>Now</td>
-<td>Nodes, pulses, operators, governance, transactions</td>
+<td>Nodes, pulses, operators, governance, transactions, causal replay</td>
 </tr>
 <tr>
 <td><strong>cell_flow</strong></td>
@@ -584,10 +654,10 @@ void main() {
 <p>Flutter has no dedicated widgets here. Bind with <code>Cell.observe</code> (or an adapter) and drive <code>setState</code> or your existing state library.</p>
 <hr>
 <h2 id="status">Status</h2>
-<p><strong>Stable on pub.dev</strong> (<code>1.1.0</code>). Public APIs for cells, pulses, operators, transactions, and the integrity-gated <code>apply</code>/<code>txApply</code> command model are exercised by a passing unit-test suite.</p>
+<p><strong>Stable on pub.dev</strong> (<code>2.0.0</code>). Public APIs for cells, pulses, operators, transactions, the integrity-gated <code>apply</code>/<code>txApply</code> command model, and the Causal Replay module are exercised by a passing unit-test suite.</p>
 <p>Release verification:</p>
 <ul>
-<li><code>cell</code> <strong>1174/1174</strong>, <code>cell_flow</code> <strong>1091/1091</strong>, <code>cell_tissue</code> <strong>362/362</strong> unit tests pass.</li>
+<li><code>cell</code> <strong>1174/1174</strong>, <code>cell_flow</code> <strong>1091/1091</strong>, <code>cell_tissue</code> <strong>362/362</strong> unit tests pass; the Causal Replay suite adds <strong>197/197</strong> (<code>test/replay/</code>).</li>
 <li><code>dart analyze lib</code> reports <strong>no issues</strong>; the test files carry a few pre-existing informational lints.</li>
 <li><code>dart doc .</code> completes with <strong>zero warnings</strong>; <code>doc/api</code> is generated.</li>
 <li>The benchmark suite's 60 tracked results pass the 15% regression gate (<code>benchmark/compare.dart</code>).</li>
@@ -626,13 +696,6 @@ of <code>package:cell</code>.
 <dd>API Chooser — <code>cell</code>
 </dd>
 
-          <dt id="replay">
-  <span class="name"><a href="replay/">replay</a></span> 
-
-</dt>
-<dd>Causal Replay for the Cell framework — public barrel.
-</dd>
-
           <dt id="cli">
   <span class="name"><a href="replay_cli_cli/">replay\cli\cli</a></span> 
 
@@ -661,13 +724,6 @@ of <code>package:cell</code>.
 <dd>
 </dd>
 
-          <dt id="replay">
-  <span class="name"><a href="replay_replay/">replay\replay</a></span> 
-
-</dt>
-<dd>Causal Replay for the Cell framework.
-</dd>
-
           <h3>Features</h3>
           <p>Cell Framework — Feature Catalog</p>
             <dt id="cell">
@@ -676,6 +732,21 @@ of <code>package:cell</code>.
 
 </dt>
 <dd>Cell — reactive state for Dart.
+</dd>
+
+          <h3>Replay</h3>
+            <dt id="replay">
+  <span class="name"><a href="replay/">replay</a></span> 
+
+</dt>
+<dd>Causal Replay for the Cell framework — public barrel.
+</dd>
+
+            <dt id="replay">
+  <span class="name"><a href="replay_replay/">replay\replay</a></span> 
+
+</dt>
+<dd>Causal Replay for the Cell framework.
 </dd>
 
         </dl>
@@ -700,6 +771,7 @@ of <code>package:cell</code>.
         <li><a href="topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
         <li><a href="topics/Transactions-topic.html">Transactions</a></li>
         <li><a href="topics/Apply + Transactions-topic.html">Apply&nbsp;+&nbsp;Transactions</a></li>
+        <li><a href="topics/Causal Replay-topic.html">Causal&nbsp;Replay</a></li>
         <li><a href="topics/Pulse-topic.html">Pulse</a></li>
         <li><a href="topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
         <li><a href="topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
@@ -715,14 +787,15 @@ of <code>package:cell</code>.
       <li class="section-title">Libraries</li>
       <li><a href="cell_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
       <li><a href="cell_api_chooser/">doc\api_chooser</a></li>
-      <li><a href="replay/">replay</a></li>
       <li><a href="replay_cli_cli/">replay\cli\cli</a></li>
       <li><a href="replay_codec_canonical_json/">replay\codec\canonical_json</a></li>
       <li><a href="replay_codec_fingerprint/">replay\codec\fingerprint</a></li>
       <li><a href="replay_ledger_file_store/">replay\ledger\file_store</a></li>
-      <li><a href="replay_replay/">replay\replay</a></li>
       <li class="section-subtitle">Features</li>
         <li class="section-subitem"><a href="cell/">cell</a></li>
+      <li class="section-subtitle">Replay</li>
+        <li class="section-subitem"><a href="replay/">replay</a></li>
+        <li class="section-subitem"><a href="replay_replay/">replay\replay</a></li>
 </ol>
 
   </div>
@@ -732,7 +805,7 @@ of <code>package:cell</code>.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

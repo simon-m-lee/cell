@@ -74,17 +74,24 @@
   <p>Record (or replay) a timer firing. <code>duration</code> is the scheduled
 window; the journal records both the schedule and the fire time so
 that replay reproduces the same interleaving.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>The <code>onFire</code> callback is invoked by the journal at the appropriate
 moment. On the recording side, the actual <code>Timer</code> is scheduled and
 the callback is called when it fires. On the replay side, the
 callback is called in journal order, not against a real timer. This
 is what makes <code>debounce</code>/<code>throttle</code> replayable.</p>
-<p><code>fireAtEnd</code> hints the ENGINE replay semantics: <code>true</code> for timers
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>duration</code>: The scheduled window.</li>
+<li><code>input</code>: The timer's input; its fingerprint is recorded.</li>
+<li><code>onFire</code>: The callback to invoke when the timer fires.</li>
+<li><code>fireAtEnd</code>: Hints the ENGINE replay semantics: <code>true</code> for timers
 whose fire is an OUTPUT (a debounce trailing edge — it must run
 after the entry loop so the downstream write lands where the
 recording's did), <code>false</code> for timers whose fire is INTERNAL state
 (a throttle gate release — it must run promptly so the next entry
-sees the released gate). Recording ignores the hint.</p>
+sees the released gate). Recording ignores the hint.</li>
+</ul>
 </section>
 
 
@@ -145,7 +152,7 @@ Future&lt;void&gt; timer({
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

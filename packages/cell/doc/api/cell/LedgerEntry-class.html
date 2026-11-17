@@ -55,9 +55,10 @@
     
 <section class="desc markdown">
   <p>A single, immutable row in the ledger.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>The row is the atomic unit of persistence: <code>append</code> writes it
 atomically, <code>verify</code> checks its hash against the previous row, and
-<code>entriesSince</code> reads them sequentially. Its <code>toJson</code> form is what
+<code>entriesSince</code> reads them sequentially. Its <a href="../cell/LedgerEntry/toJson.html">toJson</a> form is what
 <code>FileLedgerStore</code> writes (one JSON object per line) and what a future
 network store would transmit.</p>
 <h3 id="non-obvious-pulsedigest-is-a-digest-of-the-whole-pulse-chain">Non-obvious: <code>pulseDigest</code> is a digest of the <em>whole</em> pulse chain</h3>
@@ -67,6 +68,11 @@ ledger records both, distinguished by their digests. This is what
 lets the replay engine reconstruct the pulse without re-storing the
 chain, and it is why <code>PulseCodec.toJson</code> captures the parent's digest
 rather than the parent itself.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/Ledger-class.html">Ledger</a> — the hash-chained record these rows belong to.</li>
+<li><a href="../cell/StateDelta-class.html">StateDelta</a> — the deltas this entry carries.</li>
+</ul>
 </section>
 
 
@@ -79,7 +85,7 @@ rather than the parent itself.</p>
           <span class="name"><a href="../cell/LedgerEntry/LedgerEntry.html">LedgerEntry</a></span><span class="signature">({<span class="parameter" id="-param-seq"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">seq</span>, </span><span class="parameter" id="-param-prevHash"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">prevHash</span>, </span><span class="parameter" id="-param-hash"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">hash</span>, </span><span class="parameter" id="-param-pulseDigest"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">pulseDigest</span>, </span><span class="parameter" id="-param-receipt"><span>required</span> <span class="type-annotation"><a href="../cell/ApplyReceipt.html">ApplyReceipt</a></span> <span class="parameter-name">receipt</span>, </span><span class="parameter" id="-param-effects"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/EffectRecord-class.html">EffectRecord</a></span>&gt;</span></span> <span class="parameter-name">effects</span>, </span><span class="parameter" id="-param-deltas"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/StateDelta-class.html">StateDelta</a></span>&gt;</span></span> <span class="parameter-name">deltas</span>, </span><span class="parameter" id="-param-at"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a></span> <span class="parameter-name">at</span>, </span><span class="parameter" id="-param-pulseJson"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">pulseJson</span>, </span><span class="parameter" id="-param-receiptJson"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">receiptJson</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates a <a href="../cell/LedgerEntry-class.html">LedgerEntry</a>.
             <div class="constructor-modifier features">const</div>
         </dd>
         <dt id="LedgerEntry.fromJson" class="callable">
@@ -221,11 +227,11 @@ receipt.
 <dd>
   The materialised pulse JSON (<code>PulseCodec.toJson</code> of the
 materialised input pulse), when the entry was produced by a
-post-hardening append. This is the pulse <em>body</em> — the reviewer's
-closing criterion: <code>fingerprint(pulseJson)</code> equals <a href="../cell/LedgerEntry/pulseDigest.html">pulseDigest</a>,
+post-hardening append. This is the pulse <em>body</em>:
+<code>fingerprint(pulseJson)</code> equals <a href="../cell/LedgerEntry/pulseDigest.html">pulseDigest</a>,
 and replay reconstructs the exact pulse (payload, type, context,
 priority, parent chain, trace) from it instead of the
-args-first/delta-after heuristic. Pre-8.3 entries have no body and
+args-first/delta-after heuristic. Older entries that carry no body
 fall back to the heuristic.
   <div class="features"><span class="feature">final</span></div>
 
@@ -271,7 +277,7 @@ the recorded id cannot.
   SHA-256 of the receipt. The digest is computed over the SAME
 canonical JSON form the entry stores — including the back-filled
 <code>ledgerSeq</code>, <code>pulseDigest</code> and governance version fields (review
-fix: the doc previously claimed those were excluded;
+fix: earlier documentation claimed those were excluded;
 <code>_receiptJson</code> has always included them).
   <div class="features"><span class="feature">no setter</span></div>
 
@@ -331,7 +337,7 @@ fix: the doc previously claimed those were excluded;
 
 </dt>
 <dd>
-  
+  Serialises this entry to its canonical JSON map.
   
 
 </dd>
@@ -399,7 +405,7 @@ fix: the doc previously claimed those were excluded;
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

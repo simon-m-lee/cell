@@ -1,11 +1,4 @@
-## Unreleased
-
-> **Causal Replay** — the in-depth replay release.
-> This is the breaking release the governance design anticipates: the package
-> version will bump to **2.0.0** with this entry (a release decision). The
-> `pubspec.yaml` still reads `1.1.0` until the release is cut.
-
-### Causal Replay
+## Cell (2.0.0) - Causal Replay
 
 Causal Replay makes a Cell graph's history first-class evidence: every
 mutation is recorded as a hash-chained ledger entry (pulse + receipt +
@@ -20,7 +13,7 @@ sequence, the expected and actual values, and a reason.
 
 - **Replay surface**: The new barrel exports the full replay API — `CellGraph`/`CellGraphBuilder`/`RegisteredCell`/`CellGraphRegistry`, `EffectJournal` and all effect records (`ClockEffect`, `UuidEffect`, `IoEffect`, `StreamEffect`, `TimerEffect`, `VerdictEffect`, `PolicyTickEffect`), `RecordingJournal`/`ReplayJournal`/`NullJournal`, `JournalScope`, `Effectful`/`EffectfulReadOnly`, `StateDelta`, `Ledger`/`LedgerEntry`/`LedgerStore`/`InMemoryLedgerStore`/`LedgerIntegrityException`, `LedgerScope`, `ReplayEngine`/`ReplayOptions`/`ReplayResult`/`DivergenceReport`/`ReplayDivergenceException`/`PulseReconstructor`, the fork surface (`ForkRecord`, `ForkPolicy`, `Mutation`, `ForkHandle`, `ForkLedgerStore`, `CellGraphFork`, `ReplayEngineFork`, `ForkVerify`, `ForkParentLookup`, `ForkIntegrityException`), the governance surface (`VersionRegistry`, `ContextTranslator`/`ContextTranslatorRegistry`, `CellGraphVersions`/`CellGraphTranslators`, `TestCellReplay`, `PolicyReplay`), and the visualisation extensions (`CellGraphVisualise`, `LedgerVisualise`). `FileLedgerStore` remains a standalone `dart:io` library at `package:cell/replay/ledger/file_store.dart`.
 - **Canonical serialisation**: `canonicalJsonEncode`/`canonicalJsonDecode` and `fingerprint` (SHA-256 over canonical JSON) underpin every digest; `PulseCodec` materialises pulses before fingerprinting so digests are byte-stable across processes.
-- **`CellGraphSnapshot`**: Graph-shape snapshots round-trip through canonical JSON; `currentSchemaVersion` is now **2** (the governance layer). `fromJson` accepts versions `<= current`, so pre--7 snapshots still parse.
+- **`CellGraphSnapshot`**: Graph-shape snapshots round-trip through canonical JSON; `currentSchemaVersion` is now **2** (the governance layer). `fromJson` accepts versions `<= current`, so older snapshots still parse.
 
 ### Identity, purity, and the effect journal
 
@@ -32,7 +25,7 @@ sequence, the expected and actual values, and a reason.
 ### Ledger, recording, and replay
 
 - **Hash chain**: `Ledger.genesisHashOf(graph.id)` genesis; each entry hashes pulse digest + receipt digest + effects digest + delta digest + timestamp; `Ledger.verify()` recomputes every hash in one pass. Stores enforce their genesis hash (`Ledger.open` accepts an explicit override for reopening).
-- **Receipts**: `ApplyReceipt` now carries 12 fields — the the governance layer `receptorVersion`/`ruleVersion`/`contextVersion` are back-filled by `Ledger.appendInternal` from the live nucleus and serialised into every entry; pre--7 ledgers default to `'0.0.0'` on read.
+- **Receipts**: `ApplyReceipt` now carries 12 fields — the governance layer `receptorVersion`/`ruleVersion`/`contextVersion` are back-filled by `Ledger.appendInternal` from the live nucleus and serialised into every entry; older ledgers default to `'0.0.0'` on read.
 - **Recording coordination**: `graph.run` pushes the `LedgerScope`; `ValueCell.postProcessRule` captures `StateDelta` before commit (non-encodable payloads never reach the state box); the immediate append path sweeps ambient-journal records since a per-scope watermark (each entry gets exactly its own effects); deferred windows plus cooperative `captureEffect` attribute async operator effects to the entry that caused them.
 - **Replay engine**: `ReplayEngine.replay(ledger:, target:, fromSeq:, options:)` refuses a ledgered target, runs the version check, reconstructs the input pulse (arguments-first, else delta `after`), dispatches under a per-entry `ReplayJournal`, settles the microtask queue, asserts journal exhaustion, and verifies every delta's `after` against the target's current value. `ReplayOptions.strict` throws on the first divergence; `ReplayOptions.diff` collects the full list.
 
@@ -46,11 +39,11 @@ sequence, the expected and actual values, and a reason.
 - **Versions everywhere**: `Receptor.version` and `TestCell.version` (default `'0.0.0'`), and `DeputyContext.version` (default `'1.0.0'`, system `'0.0.0'`; `Mandate.version` is a static pillar). Each ledger entry records the versions that produced it; the engine fails loudly at a version boundary unless the graph's per-graph `VersionRegistry` has the recorded version.
 - **Purity dispatch**: `TestCellReplay.invoke` routes rules by purity — pure rules re-run; `effectful` rules serve their recorded `VerdictEffect` and are never re-called on replay; `readOnlyExternal` rules re-run with observations served from the journal.
 - **Policy ticks**: every tick of a hosted `EphemeralPolicy` is journaled as a `PolicyTickEffect` (policy, cell, and payload digests validated in order on replay); the policy callback is not re-invoked during replay.
-- **Context translators**: `ContextTranslator`/`ContextTranslatorRegistry` bridge mandate schema versions directionally; `translate` throws `UnimplementedError` when no translator exists (wiring translators into engine dispatch is the deferred a later governance revision item).
+- **Context translators**: `ContextTranslator`/`ContextTranslatorRegistry` bridge mandate schema versions directionally; `translate` throws `UnimplementedError` when no translator exists (wiring translators into engine dispatch is a later governance revision item).
 
 ### Tooling, docs, and demos
 
-- **`cell-replay` CLI**: new `bin/cell_replay.dart` + `pubspec` executable (`cell_replay: cell-replay`) with `verify`, `diff`, `fork`, `visualise` (mermaid/DOT, `deltas`/`cells` modes), and `inspect`; exit codes 0/1/2/3. Scope: `verify` checks the chain only (`--graph` is planned CLI work), and the CLI derives the genesis from the first entry's `prevHash` (the `--genesis` flag is planned CLI work).
+- **`cell-replay` CLI**: new `bin/cell_replay.dart` + `pubspec` executable (`cell_replay: cell_replay`) with `verify`, `diff`, `fork`, `visualise` (mermaid/DOT, `deltas`/`cells` modes), and `inspect`; exit codes 0/1/2/3. Scope: `verify` checks the chain only (`--graph` is planned CLI work), and the CLI derives the genesis from the first entry's `prevHash` (the `--genesis` flag is planned CLI work).
 - **Guides**: new `guide/HowTo-Causal-Replay.md` — the in-depth guide (mental model, machinery deep-dives, twelve recipes, the seven-item pre-flight checklist, failure modes, invariants). The earlier `guide/HowTo-Replay.md` checklist was folded into it and the file retired.
 - **Demos**: `example/replay/record_and_replay.dart`, `example/replay/whatif_branch.dart`, and `example/replay/audit_ledger.dart` run to completion with assertions passing.
 - **Ledger-store conformance suite**: `test/replay/ledger_store_conformance.dart` — the acceptance criterion for any downstream `LedgerStore`; runs against `InMemoryLedgerStore` and `FileLedgerStore` (durable reopen included).
@@ -65,7 +58,7 @@ sequence, the expected and actual values, and a reason.
 
 ### Tests
 
-- **Replay suite**: `test/replay/` covers the eight phases — codecs and fingerprints, identity and registration, journal semantics (incl. debounce/fromStream ordering), ledger chain and tamper detection, engine replays (incl. a 500-pulse determinism test), forks (isolation, what-if replacements, verification), governance (version boundaries, effectful/readOnlyExternal dispatch, policy-tick order), and the CLI end-to-end. Full package suite: **1335 passing**.
+- **Replay suite**: `test/replay/` covers the module surface — codecs and fingerprints, identity and registration, journal semantics (incl. debounce/fromStream ordering), ledger chain and tamper detection, engine replays (incl. a 500-pulse determinism test), forks (isolation, what-if replacements, verification), governance (version boundaries, effectful/readOnlyExternal dispatch, policy-tick order), and the CLI end-to-end. Full package suite: **1371 passing** (1174 core + 197 Causal Replay).
 
 ## Cell (1.1.0) - Stable
 

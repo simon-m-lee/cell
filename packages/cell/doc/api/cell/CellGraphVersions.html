@@ -55,6 +55,9 @@
     
 <section class="desc markdown">
   <p>The graph-scoped version registry (see <a href="../cell/VersionRegistry-class.html">VersionRegistry</a>).</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The <a href="https://api.flutter.dev/flutter/dart-core/Expando-class.html">Expando</a> keeps the registry per-<a href="../cell/CellGraph-class.html">CellGraph</a> instance and clears
+it when the graph is GC'd, so the registry never outlives its graph.</p>
 </section>
 
     <section>
@@ -151,7 +154,7 @@ under their current version.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

@@ -68,6 +68,13 @@
 and drains the scope's queued appends before returning so a
 synchronous <code>body</code> that performed <code>ValueCell.update</code>s has its
 entries committed by the time this resolves.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>scope</code>: The scope implementation to push.</li>
+<li><code>body</code>: The work to run under the scope.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The body's result, after the scope's queued appends have drained.</p>
 </section>
 
 
@@ -130,7 +137,7 @@ entries committed by the time this resolves.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

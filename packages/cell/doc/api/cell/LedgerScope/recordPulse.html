@@ -71,8 +71,17 @@
 no receipt exists (the direct <code>ValueCell</code> emit path), a synthetic
 receipt is produced from <code>emitCell</code> and <code>emitFunction</code>. The caller
 remains synchronous: the append is queued on the scope's
-serialisation chain and drained when the enclosing
-<code>LedgerScope.run</code> completes.</p>
+serialisation chain and drained when the enclosing <a href="../../cell/LedgerScope/run.html">run</a> completes.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>pulse</code>: The pulse whose effects and deltas are recorded.</li>
+<li><code>receipt</code>: The <code>ApplyReceipt</code>, when the pulse came from
+<code>Cell.apply</code>.</li>
+<li><code>emitCell</code>: The emitting cell, for the synthetic-receipt path.</li>
+<li><code>emitFunction</code>: The emitting function, for the synthetic-receipt
+path.</li>
+<li><code>emittedValue</code>: The emitted value, for the synthetic-receipt path.</li>
+</ul>
 </section>
 
 
@@ -146,7 +155,7 @@ serialisation chain and drained when the enclosing
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

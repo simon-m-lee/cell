@@ -56,8 +56,12 @@
 <section class="desc markdown">
   <p>A registered cell graph: the unit of identity and replay in the
 framework.</p>
-<p>A <a href="../cell/CellGraph-class.html">CellGraph</a> is the <em>container</em> that the <code>Ledger</code> and the
-<code>ReplayEngine</code> operate on. Its invariants are:</p>
+<h3 id="when-to-use">When to use</h3>
+<p>As the container the <a href="../cell/Ledger-class.html">Ledger</a> and the <a href="../cell/ReplayEngine-class.html">ReplayEngine</a> operate on. Every
+graph that is recorded or replayed must first be assembled by
+<a href="../cell/CellGraphBuilder-class.html">CellGraphBuilder</a>.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>A graph's invariants are:</p>
 <ul>
 <li><strong>Every cell in the graph has a stable <code>id</code>.</strong> Registered cells'
 nuclei are recorded in <code>_CellGraphRegistry</code>; their <code>id</code> getter
@@ -65,13 +69,13 @@ returns the graph-assigned name.</li>
 <li><strong>Every cell is reachable from at least one registered root</strong> via
 the <code>bind</code>/<code>Synapses</code> graph, <em>in strict mode</em>. Reachability is
 computed at <code>build()</code> time and re-validated lazily.</li>
-<li><strong>No two cells share a name.</strong> Enforced by <code>CellGraphBuilder</code>.</li>
+<li><strong>No two cells share a name.</strong> Enforced by <a href="../cell/CellGraphBuilder-class.html">CellGraphBuilder</a>.</li>
 <li><strong>Every cell's purity is known.</strong> The journal refuses to record a
 cell whose receptor and rule are both <a href="../cell/Purity.html">Purity.pure</a> without
 admitting that journaling is a no-op; the engine refuses to replay
 an <code>effectful</code> cell that was not journalled.</li>
 </ul>
-<h3 id="strict-vs-unrestricted">Strict vs. unrestricted</h3>
+<h3 id="non-obvious-strict-vs-unrestricted">Non-obvious: strict vs. unrestricted</h3>
 <p>In strict mode (the default), the graph enforces reachability and
 refuses to bind a cell that is not registered — see
 <code>_validateBindTarget</code>. <code>CellGraph.unrestricted()</code> disables these
@@ -84,6 +88,12 @@ but it does not <code>dispose</code> them, and a <code>cell</code> obtained from
 graph continues to function after the graph is dropped. That is
 deliberate — the graph is metadata, not a lifecycle manager. The
 lifecycle manager is <a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a> (the journal hooks into it).</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/CellGraphBuilder-class.html">CellGraphBuilder</a> — how a graph is assembled.</li>
+<li><a href="../cell/Ledger-class.html">Ledger</a> — the history a graph is bound to.</li>
+<li><a href="../cell/ReplayEngine-class.html">ReplayEngine</a> — the engine that replays into a graph.</li>
+</ul>
 </section>
 
 
@@ -238,7 +248,7 @@ enforce that a journalled pulse's <code>source</code> is a registered cell.
         <span>Available on <a href="../cell/CellGraph-class.html">CellGraph</a>,
         provided by the <a href="../cell/CellGraphTranslators.html">CellGraphTranslators</a> extension</span>
       </p>
-  
+  The graph's translator registry, created lazily on first access.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -278,7 +288,7 @@ graph is GC'd.
 
 </dt>
 <dd>
-  Binds <code>this</code> graph to a new ledger backed by <code>store</code>. Runs
+  Binds this graph to a new ledger backed by <code>store</code>. Runs
 <code>Ledger.openVerified</code> so a corrupt store fails at bind time, not on
 first append.
   
@@ -325,7 +335,7 @@ are not equal by this method unless they share the same name).
         <span>Available on <a href="../cell/CellGraph-class.html">CellGraph</a>,
         provided by the <a href="../cell/CellGraphFork.html">CellGraphFork</a> extension</span>
       </p>
-  Forks <code>this</code> graph at <code>atSeq</code> of <code>parent</code>.
+  Forks this graph at <code>atSeq</code> of <code>parent</code>.
   
 
 </dd>
@@ -428,7 +438,7 @@ and the scope's queued appends are drained before this resolves.
 <dd>
   Severs the graph's binding to its ledger. The ledger remains open
 (the caller must close it); subsequent <code>Cell.apply</code> calls on the
-graph are no longer recorded. Returns the previously bound ledger.
+graph are no longer recorded.
   
 
 </dd>
@@ -532,7 +542,7 @@ graph are no longer recorded. Returns the previously bound ledger.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

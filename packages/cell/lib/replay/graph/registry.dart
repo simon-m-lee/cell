@@ -9,6 +9,7 @@ part of '../../cell.dart';
 /// The process-wide name → nucleus registry that backs [NucleusBase.id]
 /// for registered cells.
 ///
+/// ### How it works
 /// Deliberately **process-wide, not graph-scoped**. Two cells in the same
 /// process cannot share an `id` even if they belong to different graphs —
 /// that is the whole point of a stable identity. The registry refuses

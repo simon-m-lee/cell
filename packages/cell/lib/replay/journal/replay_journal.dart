@@ -8,18 +8,19 @@ part of '../../cell.dart';
 
 /// The replay side of the journal.
 ///
+/// ### How it works
 /// Each operation consumes the next recorded effect of the matching kind
 /// and asserts that its input digest matches. On mismatch (wrong kind,
 /// wrong input, or journal empty), the replay **fails loudly** with a
-/// [ReplayDivergenceException]. This is the mechanism the design describes
-/// as "reordered effects diverge loudly".
+/// [ReplayDivergenceException] — the "reordered effects diverge loudly"
+/// mechanism.
 ///
 /// ### Non-obvious: validation happens *before* consumption
 ///
 /// A record is only consumed (cursor advanced) after its kind, label,
 /// and input have been validated. A mismatched attempt leaves the
-/// record unconsumed, which is what lets `assertExhausted` (and 
-/// 5's engine) report the divergence after a detached mapper
+/// record unconsumed, which is what lets [assertExhausted] (and the
+/// engine) report the divergence after a detached mapper
 /// continuation has swallowed the thrown exception. Any failed attempt
 /// also latches [diverged] so that a replay which *touched* a mismatch
 /// can never report success, even when all records happen to be
@@ -34,6 +35,11 @@ part of '../../cell.dart';
 /// closure's side effects (as opposed to its return value) is not
 /// replayed** — which is correct: replay reproduces the *observations*,
 /// not the *actions*.
+///
+/// See also:
+/// * [RecordingJournal] — the side that produced the log.
+/// * [ReplayDivergenceException] — what a mismatch throws.
+/// {@category Replay}
 class ReplayJournal implements EffectJournal {
   final List<EffectRecord> _records;
   int _cursor = 0;
@@ -51,13 +57,15 @@ class ReplayJournal implements EffectJournal {
   /// Creates a replay journal from a recorded log. The list must be in
   /// ordinal order (which `RecordingJournal.toJson` guarantees).
   ///
-  /// [deferredFires] changes the timer semantics for ENGINE replay: fire
-  /// callbacks are collected instead of run inside the consuming entry,
-  /// and the engine runs them after the entry loop. (Review fix: the
-  /// eager fire landed a debounce trailing edge one entry before the
-  /// recording's, breaking the recorded baseline of the next entry.
-  /// Direct journal users — the tests — pass nothing and keep the eager
-  /// behaviour.)
+  /// ### Parameters:
+  /// - [records]: The recorded effects, in ordinal order.
+  /// - [deferredFires]: Changes the timer semantics for ENGINE replay:
+  ///   fire callbacks are collected instead of run inside the consuming
+  ///   entry, and the engine runs them after the entry loop. (Review fix:
+  ///   the eager fire landed a debounce trailing edge one entry before the
+  ///   recording's, breaking the recorded baseline of the next entry.
+  ///   Direct journal users — the tests — pass nothing and keep the eager
+  ///   behaviour.)
   ReplayJournal(
     List<EffectRecord> records, {
     List<FutureOr<void> Function()>? deferredFires,
@@ -210,7 +218,7 @@ class ReplayJournal implements EffectJournal {
     // release, the default) stay eager: the next entry needs the
     // released gate.
     if (_deferredFires != null && fireAtEnd) {
-      _deferredFires!.add(onFire);
+      _deferredFires.add(onFire);
       return;
     }
     await Future<void>.delayed(Duration.zero);
@@ -341,13 +349,17 @@ class ReplayJournal implements EffectJournal {
 
 /// Thrown when a replay diverges from the recording.
 ///
+/// ### When to use
 /// Catching this exception is the *only* correct response to a
 /// divergence — the replay has produced a state that does not match the
 /// ledger, and continuing would silently corrupt the caller's
-/// understanding of the recording. `DivergenceReport` wraps
+/// understanding of the recording. [DivergenceReport] wraps
 /// this with the ledger's `seq` and the before/after state, for the CLI.
 class ReplayDivergenceException implements Exception {
+  /// The divergence's human-readable explanation.
   final String message;
+
+  /// The journal ordinal at which the divergence occurred, if known.
   final int? ordinal;
 
   /// The ledger seq at which the divergence occurred.
@@ -356,6 +368,13 @@ class ReplayDivergenceException implements Exception {
   /// The full report, when available.
   final DivergenceReport? report;
 
+  /// Creates a [ReplayDivergenceException].
+  ///
+  /// ### Parameters:
+  /// - [message]: The divergence's human-readable explanation.
+  /// - [ordinal]: The journal ordinal at which the divergence occurred.
+  /// - [seq]: The ledger seq at which the divergence occurred.
+  /// - [report]: The full [DivergenceReport], when available.
   ReplayDivergenceException(
     this.message, {
     this.ordinal,

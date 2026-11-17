@@ -56,19 +56,26 @@
     
 <section class="desc markdown">
   <p>A single recorded non-deterministic observation.</p>
-<p>Every field is a JSON primitive (except <a href="../cell/EffectRecord/at.html">at</a> which is a <code>DateTime</code>
+<h3 id="how-it-works">How it works</h3>
+<p>Every field is a JSON primitive (except <a href="../cell/EffectRecord/at.html">at</a>, which is a <code>DateTime</code>
 serialised to ISO-8601 in <a href="../cell/EffectRecord/toJson.html">toJson</a>). The record is designed to be
-stored verbatim in the ledger, so its canonical form is
-pinned by this codec and never extended without a schema version bump.</p>
+stored verbatim in the ledger, so its canonical form is pinned by this
+codec and never extended without a schema version bump.</p>
 <h3 id="non-obvious-inputoutput-digests-not-raw-values">Non-obvious: input/output digests, not raw values</h3>
 <p>Recording the <em>value</em> of every clock read or I/O response would blow
 up the ledger (a <code>Future&lt;Response&gt;</code> with a 10 KB body per call, times
 thousands of calls). The journal records the <strong>fingerprint</strong> of the
 input and the output instead, and stores the raw value in a side
 buffer only when the value is required to reconstruct (see
-<code>EffectRecord.rawOutput</code>). This keeps the ledger compact and lets
+<a href="../cell/IoEffect/rawOutput.html">IoEffect.rawOutput</a>). This keeps the ledger compact and lets
 <code>verify()</code> detect tampering via hash mismatch, without storing
 secrets in the clear.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/IoEffect-class.html">IoEffect</a> — the only variant that carries a raw output.</li>
+<li><a href="../cell/EffectJournal-class.html">EffectJournal</a> — the boundary that produces and consumes these
+records.</li>
+</ul>
 </section>
 
 
@@ -236,7 +243,7 @@ for a clock read; the response body for an I/O call).
 
 </dt>
 <dd>
-  
+  Serialises this record to its canonical JSON map.
   
 
 </dd>
@@ -290,7 +297,7 @@ for a clock read; the response body for an I/O call).
 
 </dt>
 <dd>
-  Reconstruct from <a href="../cell/EffectRecord/toJson.html">toJson</a>'s output.
+  Reconstructs an <a href="../cell/EffectRecord-class.html">EffectRecord</a> from <a href="../cell/EffectRecord/toJson.html">toJson</a>'s output.
   
 
 </dd>
@@ -322,7 +329,7 @@ for a clock read; the response body for an I/O call).
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

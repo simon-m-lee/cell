@@ -55,22 +55,30 @@
     
 <section class="desc markdown">
   <p>The durable, hash-chained record of every state transition.</p>
-<p>A <code>Ledger</code> is bound to a <a href="../cell/CellGraph-class.html">CellGraph</a> and a <a href="../cell/LedgerStore-class.html">LedgerStore</a>. It is the
+<h3 id="when-to-use">When to use</h3>
+<p>A <a href="../cell/Ledger-class.html">Ledger</a> is bound to a <a href="../cell/CellGraph-class.html">CellGraph</a> and a <a href="../cell/LedgerStore-class.html">LedgerStore</a>. It is the
 authoritative history of the graph; the graph's current state is a
 <em>derived</em> value that can be reconstructed by replaying the ledger
 from a snapshot.</p>
-<h3 id="non-obvious-ledgerappendinternal-is-not-called-by-users">Non-obvious: <code>Ledger.appendInternal</code> is not called by users</h3>
-<p>The design says "append from inside a receptor is rejected". The
-enforcement is: <code>appendInternal</code> is <code>@internal</code> and only invoked from
+<h3 id="non-obvious-appendinternal-is-not-called-by-users">Non-obvious: <a href="../cell/Ledger/appendInternal.html">appendInternal</a> is not called by users</h3>
+<p>"Append from inside a receptor is rejected" is a core invariant. The
+enforcement is: <a href="../cell/Ledger/appendInternal.html">appendInternal</a> is <code>@internal</code> and only invoked from
 <code>_LedgerScopeImpl.recordAndAppend</code>, which is pushed by <code>Cell.apply</code>
 and the <code>ValueCell</code> emit path (with the delta captured by
-<code>postProcessRule</code>). A user who calls <code>appendInternal</code> directly will
+<code>postProcessRule</code>). A user who calls <a href="../cell/Ledger/appendInternal.html">appendInternal</a> directly will
 hit the <code>@internal</code> warning in a strict analyzer config; more
 importantly, they will not have the delta and will produce an entry
 whose <code>deltaDigest</code> is <code>fingerprint([])</code>, which the engine's
-<code>ReplayEngine</code> rejects as a divergence at replay time. That is the
+<a href="../cell/ReplayEngine-class.html">ReplayEngine</a> rejects as a divergence at replay time. That is the
 correct outcome: the ledger is not a general-purpose journal, it is a
-<em>coordinated</em> record, and the coordination lives in <code>LedgerScope</code>.</p>
+<em>coordinated</em> record, and the coordination lives in <a href="../cell/LedgerScope-class.html">LedgerScope</a>.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/LedgerStore-class.html">LedgerStore</a> — the persistence backend.</li>
+<li><a href="../cell/LedgerEntry-class.html">LedgerEntry</a> — the rows this ledger holds.</li>
+<li><a href="../cell/HashChain-class.html">HashChain</a> — the hash chain that binds the rows.</li>
+<li><a href="../cell/ReplayEngine-class.html">ReplayEngine</a> — replays this ledger into a graph.</li>
+</ul>
 </section>
 
 
@@ -409,7 +417,7 @@ store fails at open time, not at first append.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

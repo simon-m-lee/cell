@@ -129,7 +129,7 @@ of conditional signal suppression.
 <p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
 <strong>When to use:</strong> a pure predicate gate that passes or suppresses pulses before expensive downstream work.
 <strong>When NOT to use:</strong> named business policy (clause-ordered, latch, product filter) — that is a <code>cell_flow</code> instruction, not a Cell predicate.
-<strong>Live signature:</strong> <code>Cell.valve&lt;P extends Pulse&gt;(Cell source, bool Function(P pulse) gate, {Synapses synapses = Synapses.enabled})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Live signature:</strong> <code>Cell.valve&lt;P extends Pulse&gt;(Cell source, bool Function(P pulse) gate, {Synapses synapses = Synapses.enabled})</code> — pinned at <code>cell: 2.0.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell.distinct</code> (history-based; valve is stateless per pulse).
 <strong>Guide:</strong> <code>guide/HowTo-16_Essential_Operators.md</code> (valve)
 <strong>Example:</strong> <code>example/valve_demo.dart</code>
@@ -181,7 +181,7 @@ o.stop();
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

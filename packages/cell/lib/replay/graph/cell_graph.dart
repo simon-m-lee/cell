@@ -9,8 +9,13 @@ part of '../../cell.dart';
 /// A registered cell graph: the unit of identity and replay in the
 /// framework.
 ///
-/// A [CellGraph] is the *container* that the `Ledger` and the
-/// `ReplayEngine` operate on. Its invariants are:
+/// ### When to use
+/// As the container the [Ledger] and the [ReplayEngine] operate on. Every
+/// graph that is recorded or replayed must first be assembled by
+/// [CellGraphBuilder].
+///
+/// ### How it works
+/// A graph's invariants are:
 ///
 /// * **Every cell in the graph has a stable `id`.** Registered cells'
 ///   nuclei are recorded in `_CellGraphRegistry`; their `id` getter
@@ -18,13 +23,13 @@ part of '../../cell.dart';
 /// * **Every cell is reachable from at least one registered root** via
 ///   the `bind`/`Synapses` graph, *in strict mode*. Reachability is
 ///   computed at `build()` time and re-validated lazily.
-/// * **No two cells share a name.** Enforced by `CellGraphBuilder`.
+/// * **No two cells share a name.** Enforced by [CellGraphBuilder].
 /// * **Every cell's purity is known.** The journal refuses to record a
 ///   cell whose receptor and rule are both [Purity.pure] without
 ///   admitting that journaling is a no-op; the engine refuses to replay
 ///   an `effectful` cell that was not journalled.
 ///
-/// ### Strict vs. unrestricted
+/// ### Non-obvious: strict vs. unrestricted
 ///
 /// In strict mode (the default), the graph enforces reachability and
 /// refuses to bind a cell that is not registered — see
@@ -40,6 +45,12 @@ part of '../../cell.dart';
 /// graph continues to function after the graph is dropped. That is
 /// deliberate — the graph is metadata, not a lifecycle manager. The
 /// lifecycle manager is [EphemeralPolicy] (the journal hooks into it).
+///
+/// See also:
+/// * [CellGraphBuilder] — how a graph is assembled.
+/// * [Ledger] — the history a graph is bound to.
+/// * [ReplayEngine] — the engine that replays into a graph.
+/// {@category Replay}
 class CellGraph {
   final String graphId;
   final bool strict;
@@ -123,15 +134,22 @@ class CellGraph {
   /// to sever the binding before binding a different one.
   Ledger? get ledger => _ledger;
 
-  /// Binds [this] graph to a new ledger backed by [store]. Runs
+  /// Binds this graph to a new ledger backed by [store]. Runs
   /// `Ledger.openVerified` so a corrupt store fails at bind time, not on
   /// first append.
   ///
+  /// ### How it works
   /// Every subsequent `Cell.apply` / `ValueCell.update` on a cell in this
   /// graph — inside [run] — is recorded in the ledger. Binding is
   /// **idempotent**: if the graph is already bound, throws [StateError] —
   /// a graph cannot have two ledgers, and silently swapping would leave
   /// the old ledger permanently incomplete.
+  ///
+  /// ### Parameters:
+  /// - [store]: The persistence backend for the new ledger.
+  ///
+  /// ### Returns:
+  /// The opened and verified ledger.
   Future<Ledger> bindLedger({required LedgerStore store}) async {
     if (_ledger != null) {
       throw StateError(
@@ -146,7 +164,10 @@ class CellGraph {
 
   /// Severs the graph's binding to its ledger. The ledger remains open
   /// (the caller must close it); subsequent `Cell.apply` calls on the
-  /// graph are no longer recorded. Returns the previously bound ledger.
+  /// graph are no longer recorded.
+  ///
+  /// ### Returns:
+  /// The previously bound ledger, or `null` if the graph was not bound.
   Future<Ledger?> unbindLedger() async {
     final l = _ledger;
     _ledger = null;
@@ -156,6 +177,12 @@ class CellGraph {
   /// Runs [body] with this graph's ledger scope active. All
   /// `Cell.apply`/`ValueCell.update` calls inside [body] are recorded,
   /// and the scope's queued appends are drained before this resolves.
+  ///
+  /// ### Parameters:
+  /// - [body]: The work to run under the ledger scope.
+  ///
+  /// ### Returns:
+  /// The body's result, after the scope's queued appends have drained.
   Future<T> run<T>(FutureOr<T> Function() body) {
     final l = _ledger;
     if (l == null) {
@@ -233,15 +260,21 @@ class CellGraph {
 
   /// Produces a [CellGraphSnapshot] of the current cell states.
   ///
-  /// **Limitation:** the snapshot serialises only the JSON-
-  /// encodable value of each cell. `ValueCell` values that are not
-  /// JSON-encodable require the user to register a payload codec (the journal
-  /// adds this). A snapshot of a `ValueCell<int>` or
-  /// `ValueCell<String>` works; anything else throws.
+  /// ### Non-obvious: JSON-encodable values only
   ///
-  /// [lastLedgerSeq] and [parentLedgerHash] are ledger concerns; the graph
-  /// takes them as arguments so the snapshot's *shape* is final and the ledger
-  /// only needs to populate them.
+  /// The snapshot serialises only the JSON-encodable value of each cell.
+  /// `ValueCell` values that are not JSON-encodable require the user to
+  /// register a payload codec (the journal adds this). A snapshot of a
+  /// `ValueCell<int>` or `ValueCell<String>` works; anything else throws.
+  ///
+  /// ### Parameters:
+  /// - [lastLedgerSeq]: The ledger position the snapshot is taken at.
+  /// - [parentLedgerHash]: The ledger's hash up to that position.
+  ///
+  /// ### Returns:
+  /// The snapshot. [lastLedgerSeq] and [parentLedgerHash] are ledger
+  /// concerns; the graph takes them as arguments so the snapshot's *shape*
+  /// is final and the ledger only needs to populate them.
   CellGraphSnapshot snapshot({
     int lastLedgerSeq = -1,
     String? parentLedgerHash,

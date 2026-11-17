@@ -67,7 +67,12 @@
   <p>Runs <code>body</code> with <code>journal</code> pushed on the stack. The journal is
 popped when <code>body</code> completes, whether normally or with an error.</p>
 <p>The caller is responsible for calling <code>assertExhausted</code> afterwards
-(or letting <code>ReplayEngine</code> do it).</p>
+(or letting <a href="../../cell/ReplayEngine-class.html">ReplayEngine</a> do it).</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>journal</code>: The journal to push.</li>
+<li><code>body</code>: The work to run with the journal in scope.</li>
+</ul>
 <h3 id="non-obvious-nested-scopes-share-the-stack">Non-obvious: nested scopes share the stack</h3>
 <p>The outermost scope forks the current zone and owns the stack;
 nested scopes deliberately skip the fork and push/pop the SAME
@@ -79,8 +84,8 @@ scope pops: it observes the outer journal, not <code>NullJournal</code>.
 Only when the <strong>outermost</strong> scope pops does the ambient become
 the loud <code>NullJournal</code> sentinel — the fail-loud-after-pop
 contract applies at the outermost boundary.</li>
-<li><code>ReplayEngine</code> relies on this: operators push their own scopes
-with the same effective journal, so the per-entry <code>ReplayJournal</code>
+<li><a href="../../cell/ReplayEngine-class.html">ReplayEngine</a> relies on this: operators push their own scopes
+with the same effective journal, so the per-entry <a href="../../cell/ReplayJournal-class.html">ReplayJournal</a>
 stays ambient throughout, including detached continuations.</li>
 </ul>
 </section>
@@ -138,7 +143,7 @@ stays ambient throughout, including detached continuations.</li>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

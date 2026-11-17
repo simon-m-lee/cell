@@ -55,6 +55,7 @@
     
 <section class="desc markdown">
   <p>The recording side of the journal.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>Every effect is executed for real; the journal records the observation
 and the run continues. The recorded log is what <a href="../cell/ReplayJournal-class.html">ReplayJournal</a>
 consumes later.</p>
@@ -64,6 +65,11 @@ propagates and the ledger records the <em>failure</em>, not an
 effect. This is deliberate: a failed I/O call is not a re-runnable
 observation; the caller must decide whether to retry (in which case
 the retry is the new effect).</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/ReplayJournal-class.html">ReplayJournal</a> — consumes this journal's log.</li>
+<li><a href="../cell/EffectJournal-class.html">EffectJournal</a> — the shared contract.</li>
+</ul>
 </section>
 
 
@@ -96,7 +102,7 @@ the retry is the new effect).</p>
           <span class="name"><a href="../cell/RecordingJournal/RecordingJournal.html">RecordingJournal</a></span><span class="signature">({<span class="parameter" id="-param-clockSource"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a></span> <span class="parameter-name">clockSource</span>()?, </span><span class="parameter" id="-param-uuidSource"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">uuidSource</span>()?, </span><span class="parameter" id="-param-timerScheduler"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span> <span class="parameter-name">timerScheduler</span>(<span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span>, </span><span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span> <span class="parameter-name"></span>()</span>)?</span>})</span>
         </dt>
         <dd>
-          
+          Creates a recording journal.
         </dd>
     </dl>
   </section>
@@ -140,7 +146,7 @@ number consumed from the log. <a href="../cell/ReplayEngine-class.html">ReplayEn
 </dt>
 <dd>
   The most recently recorded effect, or <code>null</code> if none yet. Used by
-The engine's cooperative ledger capture: an effectful operator hands
+the engine's cooperative ledger capture: an effectful operator hands
 its just-recorded effect to the active <a href="../cell/LedgerScope-class.html">LedgerScope</a> so the entry
 for the pulse that caused it carries the effect.
   <div class="features"><span class="feature">no setter</span></div>
@@ -218,11 +224,8 @@ calls this after each pulse.
 
 </dt>
 <dd>
-  Record (or replay) an arbitrary I/O call. <code>rawOutput</code> is the value
-the caller's <code>run</code> closure returned; the journal records it (or
-serves the recorded value). If <code>serializeOutput</code> is not supplied, the
-raw result of <code>run</code> is stored directly and must be JSON-encodable —
-non-encodable results throw loudly at the fingerprint boundary.
+  Record (or replay) an arbitrary I/O call. The value the caller's
+<code>run</code> closure returns is recorded (or the recorded value is served).
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -410,7 +413,7 @@ that replay reproduces the same interleaving.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

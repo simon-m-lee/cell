@@ -246,11 +246,8 @@ has completed.
 
 </dt>
 <dd>
-  Record (or replay) an arbitrary I/O call. <code>rawOutput</code> is the value
-the caller's <code>run</code> closure returned; the journal records it (or
-serves the recorded value). If <code>serializeOutput</code> is not supplied, the
-raw result of <code>run</code> is stored directly and must be JSON-encodable —
-non-encodable results throw loudly at the fingerprint boundary.
+  Record (or replay) an arbitrary I/O call. The value the caller's
+<code>run</code> closure returns is recorded (or the recorded value is served).
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -484,7 +481,7 @@ that replay reproduces the same interleaving.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

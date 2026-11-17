@@ -8,6 +8,7 @@ part of '../../cell.dart';
 
 /// Visualisation for [CellGraph] and [Ledger].
 ///
+/// ### When to use
 /// The visualisation tooling ships two modes for each:
 ///
 /// * **`cells`** — the graph's topology. Nodes are cells; edges are
@@ -20,8 +21,19 @@ part of '../../cell.dart';
 /// The two views answer different questions and both are useful. A
 /// forensic audit typically starts with `deltas` (what happened) and
 /// cross‑references against `cells` (who could have made it happen).
+///
+/// See also:
+/// * [CellGraphVisualise] — renders a graph's topology.
+/// * [LedgerVisualise] — renders a ledger's causal chain.
+/// {@category Replay}
 extension CellGraphVisualise on CellGraph {
   /// Renders this graph as a mermaid or DOT document.
+  ///
+  /// ### Parameters:
+  /// - [format]: `'mermaid'` (default) or `'dot'`.
+  ///
+  /// ### Returns:
+  /// The rendered document.
   String visualise({String format = 'mermaid'}) {
     final entries = roots;
     switch (format) {
@@ -63,7 +75,12 @@ extension CellGraphVisualise on CellGraph {
 extension LedgerVisualise on Ledger {
   /// Renders the ledger as a mermaid or DOT document.
   ///
-  /// [mode] controls node type: `'deltas'` (default) or `'cells'`.
+  /// ### Parameters:
+  /// - [format]: `'mermaid'` (default) or `'dot'`.
+  /// - [mode]: Controls node type: `'deltas'` (default) or `'cells'`.
+  ///
+  /// ### Returns:
+  /// The rendered document.
   Future<String> visualise({
     String format = 'mermaid',
     String mode = 'deltas',
@@ -97,7 +114,7 @@ extension LedgerVisualise on Ledger {
   ) {
     switch (mode) {
       case 'deltas':
-        // The doc's `e${seq - 1}_0 --> id` edge assumes every entry has
+        // The naive `e${seq - 1}_0 --> id` edge assumes every entry has
         // a delta; ledgers can contain delta-less entries (the fork's
         // synthetic seq 0, hand-crafted appends). Track the previous
         // delta node instead so edges never dangle.

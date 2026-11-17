@@ -66,15 +66,22 @@
     
 <section class="desc markdown">
   <p>Records (or replays) a policy tick.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>Called from the receptor pipeline at the point where the cell's
-hosted <code>EphemeralPolicy</code> would be ticked. On the recording side
+hosted <a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a> would be ticked. On the recording side
 the policy callback still runs (after the record is written); on
 the replay side <code>ReplayJournal.policyTick</code> only consumes the
 record — the caller does not re-invoke the policy callback.</p>
-<p>The journal input is the pulse's <em>payload</em> — the pulse object
-itself is not stable across record/replay, its payload is. The
-policy callback still receives the pulse (preserving the
-pre--7 contract) on the recording side only.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>policy</code>: The policy being ticked.</li>
+<li><code>cell</code>: The cell hosting the policy.</li>
+<li><code>pulse</code>: The pulse whose processing triggered the tick.</li>
+</ul>
+<h3 id="non-obvious-the-journal-input-is-the-pulses-payload">Non-obvious: the journal input is the pulse's <em>payload</em></h3>
+<p>The pulse object itself is not stable across record/replay, its
+payload is. The policy callback still receives the pulse on the
+recording side only.</p>
 </section>
 
 
@@ -131,7 +138,7 @@ pre--7 contract) on the recording side only.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

@@ -63,6 +63,21 @@
 </ol>})
     </section>
     
+<section class="desc markdown">
+  <p>Creates a <a href="../../cell/ForkRecord-class.html">ForkRecord</a>.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>forkId</code>: UUID identifying this fork.</li>
+<li><code>originalLedgerId</code>: UUID of the parent ledger's graph.</li>
+<li><code>divergedAt</code>: Sequence number in the parent ledger at which the
+fork was taken.</li>
+<li><code>originalSnapshotHash</code>: The parent graph's snapshot hash at
+<code>divergedAt</code>.</li>
+<li><code>parentHeadHash</code>: The hash of the parent ledger's entry at
+<code>divergedAt</code>.</li>
+<li><code>at</code>: Wall-clock time the fork was created.</li>
+</ul>
+</section>
 
 
     
@@ -103,7 +118,7 @@
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

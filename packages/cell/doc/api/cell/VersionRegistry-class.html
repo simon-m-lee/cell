@@ -56,18 +56,24 @@
 <section class="desc markdown">
   <p>Maps <code>(cellId, version)</code> to the receptor and test rule that
 implemented that version.</p>
-<p>the engine's <code>ReplayEngine</code> dispatched to whatever receptor was live.
-the governance layer's engine consults the <code>VersionRegistry</code> first: if the
-registry has an entry for <code>(cellId, version)</code>, that is used;
-otherwise, the live receptor is used <strong>only if its version matches</strong>
-the ledger's; otherwise, replay fails loudly.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>The replay engine's <a href="../cell/ReplayEngine-class.html">ReplayEngine</a> consults the <a href="../cell/VersionRegistry-class.html">VersionRegistry</a>
+first: if the registry has an entry for <code>(cellId, version)</code>, that is
+used; otherwise, the live receptor is used <strong>only if its version
+matches</strong> the ledger's; otherwise, replay fails loudly.</p>
 <h3 id="non-obvious-the-registry-is-graph-scoped-not-process-wide">Non-obvious: the registry is graph-scoped, not process-wide</h3>
 <p>Two graphs in the same process may have the same cell name with
 different version histories (a test graph and a production graph).
 A process-wide registry would allow the test graph's version to
 shadow the production graph's, which is exactly the kind of ambient
-coupling the governance layer exists to prevent. The registry is created lazily
-by <code>CellGraphVersions.versions</code> and lives for the graph's lifetime.</p>
+coupling the governance layer exists to prevent. The registry is
+created lazily by <a href="../cell/CellGraphVersions/versions.html">CellGraphVersions.versions</a> and lives for the
+graph's lifetime.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/CellGraphVersions.html">CellGraphVersions</a> — the per-graph extension that owns a registry.</li>
+<li><a href="../cell/ReplayEngine-class.html">ReplayEngine</a> — consults the registry at each version boundary.</li>
+</ul>
 </section>
 
 
@@ -242,7 +248,7 @@ matches) or fail loudly.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

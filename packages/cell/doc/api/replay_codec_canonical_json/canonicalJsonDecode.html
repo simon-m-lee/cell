@@ -64,9 +64,13 @@
     
 <section class="desc markdown">
   <p>Decodes a canonical JSON string into a JSON-encodable object tree.</p>
-<p>This is a thin wrapper over <a href="https://api.flutter.dev/flutter/dart-convert/jsonDecode.html">jsonDecode</a> that exists so callers have a
-matched pair of (encode, decode) helpers and don't accidentally mix
-<code>jsonEncode</code> with <code>canonicalJsonEncode</code>.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>As the matched pair of <a href="../replay_codec_canonical_json/canonicalJsonEncode.html">canonicalJsonEncode</a>. Using this instead of
+<code>jsonDecode</code> directly keeps the (encode, decode) helpers uniform and
+prevents accidentally mixing <code>jsonEncode</code> with <a href="../replay_codec_canonical_json/canonicalJsonEncode.html">canonicalJsonEncode</a>.</p>
+<h3 id="returns">Returns:</h3>
+<p>The decoded object tree (<code>Map</code>, <code>List</code>, <code>String</code>, <code>num</code>, <code>bool</code>, or
+<code>null</code>).</p>
 </section>
 
 
@@ -100,7 +104,7 @@ matched pair of (encode, decode) helpers and don't accidentally mix
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

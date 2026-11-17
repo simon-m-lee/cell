@@ -69,8 +69,15 @@
 genesis hash is <code>fingerprint({'graphId': graph.id})</code>; the store's
 own <code>genesisHash</code> must match, or this throws — a store created for
 graph <code>G</code> can never silently serve graph <code>H</code>.</p>
-<p><code>genesisHash</code> overrides the chain genesis — fork ledgers
-chain from their <code>ForkRecord.genesisHash</code>, not from the graph id.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>graph</code>: The graph this ledger records.</li>
+<li><code>store</code>: The persistence backend.</li>
+<li><code>genesisHash</code>: Overrides the chain genesis — fork ledgers
+chain from their <code>ForkRecord.genesisHash</code>, not from the graph id.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The opened ledger.</p>
 </section>
 
 
@@ -120,7 +127,7 @@ chain from their <code>ForkRecord.genesisHash</code>, not from the graph id.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

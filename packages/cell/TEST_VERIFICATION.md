@@ -1,7 +1,7 @@
 # cell package - Test Verification Report
 
-**Generated:** 2026-11-11
-**Package:** cell (v1.1.0)
+**Generated:** 2026-11-17
+**Package:** cell (v2.0.0)
 **Test Files Analyzed:** 29
 **Total Tests:** 1174 (0 skipped)
 
@@ -27,10 +27,10 @@
   - [nucleus_test.dart](#file-11-nucleus_test.dart-40-tests)
   - [operator_async_map_test.dart](#file-12-operator_async_map_test.dart-2-tests)
   - [operator_from_stream_test.dart](#file-13-operator_from_stream_test.dart-3-tests)
-  - [operators_foundation_test.dart](#file-14-operators_foundation_test.dart-65-tests)
-  - [operators_flow_control_test.dart](#file-15-operators_flow_control_test.dart-45-tests)
-  - [operators_async_routing_test.dart](#file-16-operators_async_routing_test.dart-63-tests)
-  - [operators_advanced_transactions_test.dart](#file-17-operators_advanced_transactions_test.dart-39-tests)
+  - [operators_advanced_transactions_test.dart](#file-14-operators_advanced_transactions_test.dart-39-tests)
+  - [operators_async_routing_test.dart](#file-15-operators_async_routing_test.dart-63-tests)
+  - [operators_flow_control_test.dart](#file-16-operators_flow_control_test.dart-45-tests)
+  - [operators_foundation_test.dart](#file-17-operators_foundation_test.dart-65-tests)
   - [propagation_policy_test.dart](#file-18-propagation_policy_test.dart-37-tests)
   - [pulse_test.dart](#file-19-pulse_test.dart-159-tests)
   - [receptor_instruction_future_test.dart](#file-20-receptor_instruction_future_test.dart-2-tests)
@@ -83,7 +83,7 @@ No `lib/` file is below 70% in this lcov.
 
 | # | File | Lines | Tests | Size | Focus |
 |---|------|------:|------:|------:|-------|
-| 1 | ai_guide_examples_test.dart | 43 | 3 | 1.7 KB | ai guide examples test |
+| 1 | ai_guide_examples_test.dart | 43 | 3 | 1.6 KB | ai guide examples test |
 | 2 | ai_preflight_test.dart | 22 | 1 | 0.8 KB | ai preflight test |
 | 3 | api_chooser_up_to_date_test.dart | 27 | 1 | 1.0 KB | api chooser up to date test |
 | 4 | apply_command_test.dart | 283 | 12 | 8.5 KB | apply command test; groups: Apply command model |
@@ -94,12 +94,12 @@ No `lib/` file is below 70% in this lcov.
 | 9 | deputy_test.dart | 352 | 26 | 11.6 KB | deputy test; groups: Cell.deputy, identity, testRule layering, apply forwarding, unmodifiable, causal integrity… |
 | 10 | instruction_test.dart | 361 | 23 | 12.4 KB | instruction test; groups: Instruction, Construction, Composition, Instruction.future, Custom Instruction, Receptor integration |
 | 11 | nucleus_test.dart | 366 | 40 | 12.6 KB | nucleus test; groups: Nucleus, empty / Nucleolus, Construction & defaults, Nucleus.create, Activation, evolve… |
-| 12 | operator_async_map_test.dart | 98 | 2 | 2.6 KB | operator async map test; groups: Cell.asyncMap latestOnly with concurrency=1 |
-| 13 | operator_from_stream_test.dart | 115 | 3 | 3.3 KB | operator from stream test; groups: Cell.fromStream + EphemeralPolicy |
-| 14 | operators_foundation_test.dart | 1,066 | 65 | 37.3 KB | operators foundation test; groups: Cell.state, Basic State, State with evolve, Ingest, Edge Cases, Cell.ingress… |
-| 15 | operators_flow_control_test.dart | 819 | 45 | 24.0 KB | operators flow control test; groups: Flow Control Operators, Cell.debounce, Cell.throttle, Cell.distinct, Cell.synthesis, Combined Operators… |
-| 16 | operators_async_routing_test.dart | 1,117 | 63 | 33.3 KB | operators async routing test; groups: Async & Routing Operators, Cell.asyncMap, Cell.hub, Cell.switchMap, Cell.fromFuture, Cell.fromStream… |
-| 17 | operators_advanced_transactions_test.dart | 800 | 39 | 25.1 KB | operators advanced transactions test; groups: Advanced & Transactions, Cell.sanitized, Cell.open, Combined Operators, Edge Cases & Error Handling, toString |
+| 12 | operator_async_map_test.dart | 100 | 2 | 2.7 KB | operator async map test; groups: Cell.asyncMap latestOnly with concurrency=1 |
+| 13 | operator_from_stream_test.dart | 120 | 3 | 3.4 KB | operator from stream test; groups: Cell.fromStream + EphemeralPolicy |
+| 14 | operators_advanced_transactions_test.dart | 800 | 39 | 24.4 KB | operators advanced transactions test; groups: Advanced & Transactions, Cell.sanitized, Cell.open, Combined Operators, Edge Cases & Error Handling, toString |
+| 15 | operators_async_routing_test.dart | 1,133 | 63 | 35.1 KB | operators async routing test; groups: Async & Routing Operators, Cell.asyncMap, Cell.hub, Cell.switchMap, Cell.fromFuture, Cell.fromStream… |
+| 16 | operators_flow_control_test.dart | 838 | 45 | 24.8 KB | operators flow control test; groups: Flow Control Operators, Cell.debounce, Cell.throttle, Cell.distinct, Cell.synthesis, Combined Operators… |
+| 17 | operators_foundation_test.dart | 1,066 | 65 | 37.3 KB | operators foundation test; groups: Cell.state, Basic State, State with evolve, Ingest, Edge Cases, Cell.ingress… |
 | 18 | propagation_policy_test.dart | 680 | 37 | 24.9 KB | propagation policy test; groups: PropagationPolicy, Construction & Defaults, Strategy: immediate, Strategy: debounced, Strategy: throttled, Strategy: batched… |
 | 19 | pulse_test.dart | 1,908 | 159 | 71.2 KB | pulse test; groups: Pulse, Construction, withStep vs evolve distinction, Evolution, Composition, Shell… |
 | 20 | receptor_instruction_future_test.dart | 84 | 2 | 2.5 KB | receptor instruction future test; groups: Receptor.pipeline with Instruction.future + postProcess |
@@ -112,7 +112,7 @@ No `lib/` file is below 70% in this lcov.
 | 27 | test_rule_meta_test.dart | 366 | 49 | 12.2 KB | rule meta test; groups: DefaultValue, MaxLength, direct field limit, hostLength, composite field + container, host-only… |
 | 28 | transaction_test.dart | 1,227 | 55 | 36.6 KB | transaction test; groups: Cell.transaction, Basic Transaction, Isolation Levels, Lock Ordering, Validation, Custom Apply… |
 | 29 | tx_apply_test.dart | 1,140 | 49 | 34.6 KB | tx apply test; groups: Cell.txApply, Basic Operations, Compensation, Error Handling, Stop On First Failure, Savepoint… |
-| **Total** | | **18,269** | **1174** | **611.5 KB** | |
+| **Total** | | **18,311** | **1174** | **613.6 KB** | |
 
 ---
 
@@ -728,7 +728,204 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - no ephemeralPolicy → no invalidation and events stay at 0
 - the caller policy hooks run exactly once per event
 
-### File 14: operators_foundation_test.dart (65 tests)
+### File 14: operators_advanced_transactions_test.dart (39 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 39 |
+| Advanced & Transactions | |
+| Cell.sanitized | |
+| Cell.open | |
+| Combined Operators | |
+| Edge Cases & Error Handling | |
+| toString | |
+
+**Tests**
+
+- sanitized redacts sensitive data
+- sanitized passes through non-sensitive data
+- sanitized with different sensitivity threshold
+- sanitized with ingress and observe
+- sanitized with state and observe
+- sanitized with complex object type
+- sanitized with multiple sensitivity levels
+- open creates a manually controllable cell
+- open with emit sends pulses
+- open with ingest and serialized completion
+- open with link and unlink observers
+- open with observe receives pulses
+- open with test rule filters pulses
+- open with state receives updates
+- open with forceLock serializes emissions
+- open with ephemeral policy auto-invalidates
+- open with governed context
+- async emit and ingest deliver the pulse
+- async emit with forceLock still delivers
+- modifiable includes emit, ingest, link, and apply
+- emit awaits an async testRule
+- link awaits an async testRule
+- ingress + sanitized + observe
+- state + sanitized + observe
+- open + state + observe
+- ingress + open + observe
+- state + transaction + state
+- txApply with state and compensation
+- sanitized with missing sensitivity redacts (fail closed)
+- open with disabled synapses
+- transaction with empty participants throws
+- txApply with empty participants throws
+- transaction with non-existent savepoint throws
+- sanitized with null redact result
+- sanitized cell toString
+- open cell toString
+- TransactionValidationException toString
+- TransactionConflictException toString
+- TxApplyException toString
+
+### File 15: operators_async_routing_test.dart (63 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 63 |
+| Async & Routing Operators | |
+| Cell.asyncMap | |
+| Cell.hub | |
+| Cell.switchMap | |
+| Cell.fromFuture | |
+| Cell.fromStream | |
+| Combined Operators | |
+| Edge Cases & Error Handling | |
+| toString | |
+
+**Tests**
+
+- asyncMap transforms values from a state cell
+- asyncMap transforms values from an ingress cell
+- asyncMap with concurrency 1 processes sequentially
+- asyncMap with latestOnly drops older results
+- asyncMap with exhaust ignores while busy
+- asyncMap with observe receives results
+- asyncMap handles errors gracefully (no emission)
+- hub routes pulses to spokes based on type
+- hub with prefix routing uses longest prefix match
+- hub with pattern routing uses glob matching
+- hub with multicast delivers to all matching spokes
+- hub multicast with custom match delivers to every interested spoke
+- hub with fallback routes unmatched pulses
+- hub with priority ordering processes higher priority first
+- hub emits async with lock protection
+- hub ingest with serialized completion
+- hub with governed spokes uses DeputyContext
+- hub spoke handler can drive a state cell
+- a mapper may link new cells into the source mid-broadcast
+- switchMap switches to new cell on source change
+- switchMap with observe receives switched values
+- switchMap with multiple source changes
+- switchMap with null payload does not switch
+- switchMap contains a throwing async link gate
+- invalidation unlinks the inner cell from the output
+- fromFuture emits future result
+- fromFuture with observe receives value
+- fromFuture with state cell receives value
+- fromFuture with derived cell transforms value
+- fromFuture with delayed Future
+- fromFuture emits an error pulse when the Future fails
+- fromFuture with complex type
+- fromFuture with null value
+- fromStream emits stream values
+- fromStream with observe receives values
+- fromStream with state cell accumulates values
+- fromStream with delayed stream
+- fromStream with periodic stream
+- fromStream with cancelOnError handles errors
+- fromStream with distinct filters duplicates
+- fromStream with derived transforms values
+- fromStream with complex types
+- fromStream with null values
+- fromStream with empty stream emits nothing
+- fromStream cancels the subscription when the cell is invalidated
+- ingress + asyncMap + observe
+- fromFuture + derive + state
+- fromStream + distinct + observe
+- ingress + asyncMap + state
+- fromFuture + asyncMap + observe
+- fromStream + asyncMap + observe
+- hub + state for routing
+- asyncMap with empty source emits nothing
+- hub with no spokes uses fallback
+- fromFuture with already completed future
+- fromStream with error after values (no cancelOnError)
+- hub with multicast and priority
+- switchMap with source emitting multiple values
+- asyncMap cell toString
+- hub toString
+- switchMap cell toString
+- fromFuture cell toString
+- fromStream cell toString
+
+### File 16: operators_flow_control_test.dart (45 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 45 |
+| Flow Control Operators | |
+| Cell.debounce | |
+| Cell.throttle | |
+| Cell.distinct | |
+| Cell.synthesis | |
+| Combined Operators | |
+| Edge Cases & Error Handling | |
+| toString | |
+
+**Tests**
+
+- creates a debounce cell with default leading false
+- a throwing downstream in the trailing timer is contained
+- debounce delays delivery until silence
+- debounce resets timer on each pulse
+- debounce with leading true emits first immediately
+- debounce with zero duration delivers immediately
+- debounce cancels a pending timer when the output is invalidated
+- debounce with leading true and zero duration emits immediately
+- debounce with leading true and burst of three
+- creates a throttle cell with defaults
+- a throwing downstream in the trailing timer is contained
+- throttle with leading true emits first immediately
+- throttle suppresses pulses during window
+- throttle with trailing true emits last during window
+- throttle with leading false only emits trailing
+- throttle with zero duration delivers the leading pulse
+- throttle with leading false and trailing false emits nothing
+- creates a distinct cell with default equality
+- distinct filters consecutive duplicates
+- distinct allows non-consecutive duplicates
+- distinct with custom equals function
+- distinct with custom equals on objects
+- distinct handles null values
+- creates a synthesis cell with sources
+- synthesis aggregates values from sources
+- synthesis receives the triggering pulse
+- synthesis with null suppression
+- synthesis with complex object types
+- synthesis with multiple source types
+- synthesis with empty sources does not throw
+- synthesis with single source
+- debounce then distinct
+- throttle then distinct
+- synthesis then observe (debounce of synthesis is source-gated)
+- synthesis consecutive equal sums still fire (no distinct)
+- synthesis for form validation
+- debounce with negative duration throws
+- throttle with negative duration throws
+- distinct with null values and custom equals
+- synthesis with sources that are not ValueCell
+- synthesis with aggregator throwing exception
+- debounce cell toString
+- throttle cell toString
+- distinct cell toString
+- synthesis cell toString
+
+### File 17: operators_foundation_test.dart (65 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -818,203 +1015,6 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - state + derive + observe
 - ingress + derive + observe
 - state + derive + state
-
-### File 15: operators_flow_control_test.dart (45 tests)
-
-| Category (group) | Tests in file |
-|------------------|--------------:|
-| *(all groups)* | 45 |
-| Flow Control Operators | |
-| Cell.debounce | |
-| Cell.throttle | |
-| Cell.distinct | |
-| Cell.synthesis | |
-| Combined Operators | |
-| Edge Cases & Error Handling | |
-| toString | |
-
-**Tests**
-
-- creates a debounce cell with default leading false
-- a throwing downstream in the trailing timer is contained
-- debounce delays delivery until silence
-- debounce resets timer on each pulse
-- debounce with leading true emits first immediately
-- debounce with zero duration delivers immediately
-- debounce cancels a pending timer when the output is invalidated
-- debounce with leading true and zero duration emits immediately
-- debounce with leading true and burst of three
-- creates a throttle cell with defaults
-- a throwing downstream in the trailing timer is contained
-- throttle with leading true emits first immediately
-- throttle suppresses pulses during window
-- throttle with trailing true emits last during window
-- throttle with leading false only emits trailing
-- throttle with zero duration delivers the leading pulse
-- throttle with leading false and trailing false emits nothing
-- creates a distinct cell with default equality
-- distinct filters consecutive duplicates
-- distinct allows non-consecutive duplicates
-- distinct with custom equals function
-- distinct with custom equals on objects
-- distinct handles null values
-- creates a synthesis cell with sources
-- synthesis aggregates values from sources
-- synthesis receives the triggering pulse
-- synthesis with null suppression
-- synthesis with complex object types
-- synthesis with multiple source types
-- synthesis with empty sources does not throw
-- synthesis with single source
-- debounce then distinct
-- throttle then distinct
-- synthesis then observe (debounce of synthesis is source-gated)
-- synthesis consecutive equal sums still fire (no distinct)
-- synthesis for form validation
-- debounce with negative duration throws
-- throttle with negative duration throws
-- distinct with null values and custom equals
-- synthesis with sources that are not ValueCell
-- synthesis with aggregator throwing exception
-- debounce cell toString
-- throttle cell toString
-- distinct cell toString
-- synthesis cell toString
-
-### File 16: operators_async_routing_test.dart (63 tests)
-
-| Category (group) | Tests in file |
-|------------------|--------------:|
-| *(all groups)* | 63 |
-| Async & Routing Operators | |
-| Cell.asyncMap | |
-| Cell.hub | |
-| Cell.switchMap | |
-| Cell.fromFuture | |
-| Cell.fromStream | |
-| Combined Operators | |
-| Edge Cases & Error Handling | |
-| toString | |
-
-**Tests**
-
-- asyncMap transforms values from a state cell
-- asyncMap transforms values from an ingress cell
-- asyncMap with concurrency 1 processes sequentially
-- asyncMap with latestOnly drops older results
-- asyncMap with exhaust ignores while busy
-- asyncMap with observe receives results
-- asyncMap handles errors gracefully (no emission)
-- hub routes pulses to spokes based on type
-- hub with prefix routing uses longest prefix match
-- hub with pattern routing uses glob matching
-- hub with multicast delivers to all matching spokes
-- hub multicast with custom match delivers to every interested spoke
-- hub with fallback routes unmatched pulses
-- hub with priority ordering processes higher priority first
-- hub emits async with lock protection
-- hub ingest with serialized completion
-- hub with governed spokes uses DeputyContext
-- hub spoke handler can drive a state cell
-- a mapper may link new cells into the source mid-broadcast
-- switchMap switches to new cell on source change
-- switchMap with observe receives switched values
-- switchMap with multiple source changes
-- switchMap with null payload does not switch
-- switchMap contains a throwing async link gate
-- invalidation unlinks the inner cell from the output
-- fromFuture emits future result
-- fromFuture with observe receives value
-- fromFuture with state cell receives value
-- fromFuture with derived cell transforms value
-- fromFuture with delayed Future
-- fromFuture emits an error pulse when the Future fails
-- fromFuture with complex type
-- fromFuture with null value
-- fromStream emits stream values
-- fromStream with observe receives values
-- fromStream with state cell accumulates values
-- fromStream with delayed stream
-- fromStream with periodic stream
-- fromStream with cancelOnError handles errors
-- fromStream with distinct filters duplicates
-- fromStream with derived transforms values
-- fromStream with complex types
-- fromStream with null values
-- fromStream with empty stream emits nothing
-- fromStream cancels the subscription when the cell is invalidated
-- ingress + asyncMap + observe
-- fromFuture + derive + state
-- fromStream + distinct + observe
-- ingress + asyncMap + state
-- fromFuture + asyncMap + observe
-- fromStream + asyncMap + observe
-- hub + state for routing
-- asyncMap with empty source emits nothing
-- hub with no spokes uses fallback
-- fromFuture with already completed future
-- fromStream with error after values (no cancelOnError)
-- hub with multicast and priority
-- switchMap with source emitting multiple values
-- asyncMap cell toString
-- hub toString
-- switchMap cell toString
-- fromFuture cell toString
-- fromStream cell toString
-
-### File 17: operators_advanced_transactions_test.dart (39 tests)
-
-| Category (group) | Tests in file |
-|------------------|--------------:|
-| *(all groups)* | 39 |
-| Advanced & Transactions | |
-| Cell.sanitized | |
-| Cell.open | |
-| Combined Operators | |
-| Edge Cases & Error Handling | |
-| toString | |
-
-**Tests**
-
-- sanitized redacts sensitive data
-- sanitized passes through non-sensitive data
-- sanitized with different sensitivity threshold
-- sanitized with ingress and observe
-- sanitized with state and observe
-- sanitized with complex object type
-- sanitized with multiple sensitivity levels
-- open creates a manually controllable cell
-- open with emit sends pulses
-- open with ingest and serialized completion
-- open with link and unlink observers
-- open with observe receives pulses
-- open with test rule filters pulses
-- open with state receives updates
-- open with forceLock serializes emissions
-- open with ephemeral policy auto-invalidates
-- open with governed context
-- async emit and ingest deliver the pulse
-- async emit with forceLock still delivers
-- modifiable includes emit, ingest, link, and apply
-- emit awaits an async testRule
-- link awaits an async testRule
-- ingress + sanitized + observe
-- state + sanitized + observe
-- open + state + observe
-- ingress + open + observe
-- state + transaction + state
-- txApply with state and compensation
-- sanitized with missing sensitivity redacts (fail closed)
-- open with disabled synapses
-- transaction with empty participants throws
-- txApply with empty participants throws
-- transaction with non-existent savepoint throws
-- sanitized with null redact result
-- sanitized cell toString
-- open cell toString
-- TransactionValidationException toString
-- TransactionConflictException toString
-- TxApplyException toString
 
 ### File 18: propagation_policy_test.dart (37 tests)
 
@@ -1836,10 +1836,10 @@ dart test \
   test/nucleus_test.dart \
   test/operator_async_map_test.dart \
   test/operator_from_stream_test.dart \
-  test/operators_foundation_test.dart \
-  test/operators_flow_control_test.dart \
-  test/operators_async_routing_test.dart \
   test/operators_advanced_transactions_test.dart \
+  test/operators_async_routing_test.dart \
+  test/operators_flow_control_test.dart \
+  test/operators_foundation_test.dart \
   test/propagation_policy_test.dart \
   test/pulse_test.dart \
   test/receptor_instruction_future_test.dart \
@@ -1865,25 +1865,25 @@ Status: **green**.
 <details><summary>tail of test log</summary>
 
 ```
-0:06 +1165: test/operators_async_routing_test.dart: Async & Routing Operators Edge Cases & Error Handling fromFuture with already completed future                                    
-00:06 +1166: test/operators_async_routing_test.dart: Async & Routing Operators Edge Cases & Error Handling fromFuture with already completed future                                    
-00:06 +1166: test/operators_async_routing_test.dart: Async & Routing Operators Edge Cases & Error Handling fromStream with error after values (no cancelOnError)                       
-00:06 +1167: test/operators_async_routing_test.dart: Async & Routing Operators Edge Cases & Error Handling fromStream with error after values (no cancelOnError)                       
-00:06 +1167: test/operators_async_routing_test.dart: Async & Routing Operators Edge Cases & Error Handling hub with multicast and priority                                             
-00:06 +1168: test/operators_async_routing_test.dart: Async & Routing Operators Edge Cases & Error Handling hub with multicast and priority                                             
-00:06 +1168: test/operators_async_routing_test.dart: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
-00:06 +1169: test/operators_async_routing_test.dart: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
-00:06 +1169: test/operators_async_routing_test.dart: Async & Routing Operators toString asyncMap cell toString                                                                         
-00:06 +1170: test/operators_async_routing_test.dart: Async & Routing Operators toString asyncMap cell toString                                                                         
-00:06 +1170: test/operators_async_routing_test.dart: Async & Routing Operators toString hub toString                                                                                   
-00:06 +1171: test/operators_async_routing_test.dart: Async & Routing Operators toString hub toString                                                                                   
-00:06 +1171: test/operators_async_routing_test.dart: Async & Routing Operators toString switchMap cell toString                                                                        
-00:06 +1172: test/operators_async_routing_test.dart: Async & Routing Operators toString switchMap cell toString                                                                        
-00:06 +1172: test/operators_async_routing_test.dart: Async & Routing Operators toString fromFuture cell toString                                                                       
-00:06 +1173: test/operators_async_routing_test.dart: Async & Routing Operators toString fromFuture cell toString                                                                       
-00:06 +1173: test/operators_async_routing_test.dart: Async & Routing Operators toString fromStream cell toString                                                                       
-00:06 +1174: test/operators_async_routing_test.dart: Async & Routing Operators toString fromStream cell toString                                                                       
-00:07 +1174: test/operators_async_routing_test.dart: Async & Routing Operators toString fromStream cell toString                                                                       
+0:06 +1165: test/tx_apply_test.dart: Cell.txApply Exception toString TxApplyCompensationException toString                                                                                            
+00:06 +1166: test/tx_apply_test.dart: Cell.txApply Exception toString TxApplyCompensationException toString                                                                                            
+00:06 +1166: test/tx_apply_test.dart: Cell.txApply Exception toString enqueue rejects a compensate cell that is not a participant                                                                      
+00:06 +1167: test/tx_apply_test.dart: Cell.txApply Exception toString enqueue rejects a compensate cell that is not a participant                                                                      
+00:06 +1167: test/tx_apply_test.dart: Cell.txApply Exception toString enqueue accepts a compensate function outside the manifest                                                                       
+00:06 +1168: test/tx_apply_test.dart: Cell.txApply Exception toString enqueue accepts a compensate function outside the manifest                                                                       
+00:06 +1168: test/tx_apply_test.dart: Cell.txApply Exception toString commit ignores manifest removal; the gate decides                                                                                
+00:06 +1169: test/tx_apply_test.dart: Cell.txApply Exception toString commit ignores manifest removal; the gate decides                                                                                
+00:06 +1169: test/tx_apply_test.dart: Cell.txApply Exception toString commit ignores compensate manifest removal; the gate decides                                                                     
+00:06 +1170: test/tx_apply_test.dart: Cell.txApply Exception toString commit ignores compensate manifest removal; the gate decides                                                                     
+00:06 +1170: test/tx_apply_test.dart: Cell.txApply Exception toString default compensation backoff retries a transient undo                                                                            
+00:06 +1171: test/tx_apply_test.dart: Cell.txApply Exception toString default compensation backoff retries a transient undo                                                                            
+00:06 +1171: test/tx_apply_test.dart: Cell.txApply Exception toString compensation ApplyRejected is not retryable by default                                                                           
+00:06 +1172: test/tx_apply_test.dart: Cell.txApply Exception toString compensation ApplyRejected is not retryable by default                                                                           
+00:06 +1172: test/tx_apply_test.dart: Cell.txApply Exception toString ApplyRejected during commit rethrows failFast compensation                                                                       
+00:06 +1173: test/tx_apply_test.dart: Cell.txApply Exception toString ApplyRejected during commit rethrows failFast compensation                                                                       
+00:06 +1173: test/tx_apply_test.dart: Cell.txApply Exception toString CompensationFailure toString                                                                                                     
+00:06 +1174: test/tx_apply_test.dart: Cell.txApply Exception toString CompensationFailure toString                                                                                                     
+00:07 +1174: test/tx_apply_test.dart: Cell.txApply Exception toString CompensationFailure toString                                                                                                     
 00:07 +1174: All tests passed!
 ```
 
@@ -1945,7 +1945,7 @@ Status: **green**.
 
 ```
 test/
-├── ai_guide_examples_test.dart  (3 tests, 1.7 KB, 43 lines)
+├── ai_guide_examples_test.dart  (3 tests, 1.6 KB, 43 lines)
 ├── ai_preflight_test.dart  (1 tests, 0.8 KB, 22 lines)
 ├── api_chooser_up_to_date_test.dart  (1 tests, 1.0 KB, 27 lines)
 ├── apply_command_test.dart  (12 tests, 8.5 KB, 283 lines)
@@ -1956,12 +1956,12 @@ test/
 ├── deputy_test.dart  (26 tests, 11.6 KB, 352 lines)
 ├── instruction_test.dart  (23 tests, 12.4 KB, 361 lines)
 ├── nucleus_test.dart  (40 tests, 12.6 KB, 366 lines)
-├── operator_async_map_test.dart  (2 tests, 2.6 KB, 98 lines)
-├── operator_from_stream_test.dart  (3 tests, 3.3 KB, 115 lines)
+├── operator_async_map_test.dart  (2 tests, 2.7 KB, 100 lines)
+├── operator_from_stream_test.dart  (3 tests, 3.4 KB, 120 lines)
+├── operators_advanced_transactions_test.dart  (39 tests, 24.4 KB, 800 lines)
+├── operators_async_routing_test.dart  (63 tests, 35.1 KB, 1,133 lines)
+├── operators_flow_control_test.dart  (45 tests, 24.8 KB, 838 lines)
 ├── operators_foundation_test.dart  (65 tests, 37.3 KB, 1,066 lines)
-├── operators_flow_control_test.dart  (45 tests, 24.0 KB, 819 lines)
-├── operators_async_routing_test.dart  (63 tests, 33.3 KB, 1,117 lines)
-├── operators_advanced_transactions_test.dart  (39 tests, 25.1 KB, 800 lines)
 ├── propagation_policy_test.dart  (37 tests, 24.9 KB, 680 lines)
 ├── pulse_test.dart  (159 tests, 71.2 KB, 1,908 lines)
 ├── receptor_instruction_future_test.dart  (2 tests, 2.5 KB, 84 lines)
@@ -1976,6 +1976,6 @@ test/
 ├── tx_apply_test.dart  (49 tests, 34.6 KB, 1,140 lines)
 ```
 
-**Total lines of test code:** 18,269
+**Total lines of test code:** 18,311
 
-*Generated 2026-11-11 by generate_test_verification.py*
+*Generated 2026-11-17 by generate_test_verification.py*

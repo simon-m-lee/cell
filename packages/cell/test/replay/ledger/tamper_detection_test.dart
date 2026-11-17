@@ -3,7 +3,8 @@ import 'package:test/test.dart';
 
 /// A store wrapper that returns tampered entries from [entriesSince].
 ///
-/// This is the attack the exit criterion models: `InMemoryLedgerStore`'s
+/// This is the tampering attack the integrity check targets:
+/// `InMemoryLedgerStore`'s
 /// entries are private, so tampering must go through a store — exactly
 /// what `Ledger.verify` reads from.
 class _TamperedStore implements LedgerStore {

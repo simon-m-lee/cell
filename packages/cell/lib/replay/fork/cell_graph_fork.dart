@@ -8,44 +8,57 @@ part of '../../cell.dart';
 
 /// Forking extensions for [CellGraph].
 ///
+/// ### When to use
 /// Provided as an extension so `cell_graph.dart` does not gain a `fork`
-/// method — the fork diff surface keeps `cell_graph.dart`
-/// unchanged and puts all fork code in `fork/`. The trade-off is that
+/// method — the fork diff surface keeps `cell_graph.dart` unchanged and
+/// puts all fork code in `fork/`. The trade-off is that
 /// `graph.fork(...)` is only available when `replay.dart` is imported,
 /// which is correct: fork is a replay concern, not a graph concern.
+///
+/// See also:
+/// * [ForkHandle] — what [fork] returns.
+/// * [ForkPolicy] — the policy parameter.
+/// * [ReplayEngineFork] — replays into the fork this creates.
+/// {@category Replay}
 extension CellGraphFork on CellGraph {
-  /// Forks [this] graph at [atSeq] of [parent].
+  /// Forks this graph at [atSeq] of [parent].
   ///
-  /// [buildFreshGraph] is a factory that builds a *fresh* `CellGraph`
-  /// with the same shape as `this`. Typically it closes over the same
-  /// `CellGraphBuilder` invocation the original graph was built from.
-  /// The fork's `CellGraph` will be the result of calling this factory —
-  /// the fork does not clone `this`'s cells, because cell cloning is
-  /// a snapshot-reconstruction concern and cloning is *not* required for the
-  /// isolated fork policy (the fresh graph's cells are the fork's
-  /// working state).
+  /// ### Parameters:
+  /// - [parent]: The parent ledger to fork from.
+  /// - [atSeq]: The parent sequence at which to fork.
+  /// - [buildFreshGraph]: A factory that builds a *fresh* `CellGraph`
+  ///   with the same shape as `this`. Typically it closes over the same
+  ///   `CellGraphBuilder` invocation the original graph was built from.
+  ///   The fork's `CellGraph` will be the result of calling this factory —
+  ///   the fork does not clone `this`'s cells, because cell cloning is
+  ///   a snapshot-reconstruction concern and cloning is *not* required for the
+  ///   isolated fork policy (the fresh graph's cells are the fork's
+  ///   working state).
+  /// - [buildStore]: The fork's ledger store factory. It receives the
+  ///   fork's chain genesis (`ForkRecord.genesisHash`) and must construct
+  ///   a store with that genesis — ledger stores enforce their genesis
+  ///   hash, and the fork genesis is only known once the fork record
+  ///   exists. (A caller-supplied store cannot satisfy the
+  ///   genesis check; a factory is the honest shape.)
+  /// - [policy]: Which fork policy to use; only [ForkPolicy.isolated] is
+  ///   implemented.
   ///
-  /// [buildStore] is the fork's ledger store factory. It receives the
-  /// fork's chain genesis (`ForkRecord.genesisHash`) and must construct
-  /// a store with that genesis — ledger stores enforce their genesis
-  /// hash, and the fork genesis is only known once the fork record
-  /// exists. (The doc's caller-supplied store cannot satisfy the
-  /// genesis check; a factory is the honest shape.)
+  /// ### Returns:
+  /// A [ForkHandle] whose `graph` is the fresh graph, whose `ledger` is a
+  /// fork ledger seeded by the `ForkRecord`, and whose `record` is the
+  /// `ForkRecord`.
   ///
-  /// The fresh graph is brought to the parent's state at `atSeq` by
+  /// ### How it works
+  /// The fresh graph is brought to the parent's state at [atSeq] by
   /// replaying parent entries `0..atSeq` into it (the **baseline
   /// replay**) — the fork ledger does not contain those entries; they
   /// belong to the parent.
   ///
-  /// Returns a [ForkHandle] whose `graph` is the fresh graph, whose
-  /// `ledger` is a fork ledger seeded by the `ForkRecord`, and whose
-  /// `record` is the `ForkRecord`.
-  ///
-  /// ### Non-obvious: `atSeq` is the *parent*'s sequence, not the
+  /// ### Non-obvious: [atSeq] is the *parent*'s sequence, not the
   /// fork's
   ///
-  /// If `atSeq == 100`, the fork's `ForkRecord.divergedAt` is 100 and
-  /// the fork replays from parent seq 101. `atSeq == 0` forks at the
+  /// If [atSeq] `== 100`, the fork's `ForkRecord.divergedAt` is 100 and
+  /// the fork replays from parent seq 101. [atSeq] `== 0` forks at the
   /// parent's first entry — the fork's baseline is that entry's state.
   Future<ForkHandle> fork({
     required Ledger parent,
@@ -73,9 +86,9 @@ extension CellGraphFork on CellGraph {
     await parent.verify();
 
     // 2. The fork binds to the parent's hash AT atSeq — the same value
-    //    fork.verify() compares against. (The doc stored the parent's
-    //    HEAD hash here, which its own verify() would then reject for
-    //    any atSeq below the head.)
+    //    fork.verify() compares against. (Storing the parent's
+    //    HEAD hash here would make fork.verify() reject any
+    //    fork taken below the head.)
     final parentHead = await parent.hashAtSeq(atSeq);
 
     // 3. Build the fresh graph. Review fix: the process-wide cell id
@@ -99,9 +112,8 @@ extension CellGraphFork on CellGraph {
 
     // 4. Baseline replay: bring the fresh graph to the parent's state
     //    at atSeq. This is what makes the fork's starting state equal
-    //    the parent's recorded state at the fork point; the doc's
-    //    expected alternative states (e.g. 16000 in the what-if test)
-    //    assume it.
+    //    the parent's recorded state at the fork point; the what-if
+    //    tests' expected alternative states assume it.
     if (await parent.lastSeq >= 0) {
       await ReplayEngine.replay(
         ledger: parent,

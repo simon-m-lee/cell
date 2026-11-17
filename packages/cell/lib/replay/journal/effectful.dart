@@ -8,6 +8,7 @@ part of '../../cell.dart';
 
 /// The declarative marker for effectful receptors and rules.
 ///
+/// ### How it works
 /// Mixing in [Effectful] does **not** automatically route effects through
 /// a journal — the receptor body must call `journal.clock()`,
 /// `journal.io(...)`, etc. explicitly. What the mixin provides is:
@@ -32,6 +33,10 @@ part of '../../cell.dart';
 /// `Purity get purity => Purity.effectful`, which the retrofit sites
 /// already declare on their own classes — the mixin exists so *user*
 /// receptors can opt in without writing the override by hand.
+///
+/// See also:
+/// * [EffectfulReadOnly] — the read-only variant.
+/// * [Purity] — the classification this marker reports.
 mixin Effectful {
   /// Effectful receptors are not exactly replayable; they require a
   /// journal. Overrides the default `pure`.
@@ -42,6 +47,7 @@ mixin Effectful {
 /// but do not mutate it (clocks, environment variables, read-only
 /// database lookups). Reports [Purity.readOnlyExternal].
 ///
+/// ### How it works
 /// This distinguishes the two journaling costs:
 /// recording a *read* is one effect per observation; recording a *write*
 /// is also one effect, but a write cannot be replayed at all (only its

@@ -55,20 +55,26 @@
     
 <section class="desc markdown">
   <p>The result of a <a href="../cell/ReplayEngine/replay.html">ReplayEngine.replay</a> call.</p>
-<p>A successful replay has <code>success == true</code> and <code>divergences == []</code>.
+<h3 id="how-it-works">How it works</h3>
+<p>A successful replay has <a href="../cell/ReplayResult/success.html">success</a> <code>== true</code> and <a href="../cell/ReplayResult/divergences.html">divergences</a> <code>== []</code>.
 A lenient replay (with <code>failOnDivergence: false</code>) can have
-<code>success == false</code> <em>and</em> a non-empty <code>divergences</code> list, while
-<code>entriesReplayed == entries.length</code> — the replay ran to completion
+<a href="../cell/ReplayResult/success.html">success</a> <code>== false</code> <em>and</em> a non-empty <a href="../cell/ReplayResult/divergences.html">divergences</a> list, while
+<a href="../cell/ReplayResult/entriesReplayed.html">entriesReplayed</a> <code>== entries.length</code> — the replay ran to completion
 but every entry did not match. A strict replay throws
 <a href="../cell/ReplayDivergenceException-class.html">ReplayDivergenceException</a> on the first divergence; the
-<code>ReplayResult</code> is only returned for successful replays.</p>
-<h3 id="non-obvious-newsnapshot-is-the-state-at-the-end-of-replay">Non-obvious: <code>newSnapshot</code> is the state at the <em>end</em> of replay</h3>
+<a href="../cell/ReplayResult-class.html">ReplayResult</a> is only returned for successful replays.</p>
+<h3 id="non-obvious-newsnapshot-is-the-state-at-the-end-of-replay">Non-obvious: <a href="../cell/ReplayResult/newSnapshot.html">newSnapshot</a> is the state at the <em>end</em> of replay</h3>
 <p>Not at the divergence point. A caller that wants a snapshot at a
-specific sequence should use <code>ReplayEngine.replay</code> with
+specific sequence should use <a href="../cell/ReplayEngine/replay.html">ReplayEngine.replay</a> with
 <code>options.maxEntries: seq + 1</code>. This is deliberate: reconstructing a
 snapshot at every step is expensive; the caller knows which step
 they care about, and the <code>maxEntries</code> option gives them a cheap way
 to get there.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/ReplayEngine/replay.html">ReplayEngine.replay</a> — produces this result.</li>
+<li><a href="../cell/DivergenceReport-class.html">DivergenceReport</a> — the per-divergence entries of <a href="../cell/ReplayResult/divergences.html">divergences</a>.</li>
+</ul>
 </section>
 
 
@@ -81,7 +87,7 @@ to get there.</p>
           <span class="name"><a href="../cell/ReplayResult/ReplayResult.html">ReplayResult</a></span><span class="signature">({<span class="parameter" id="-param-success"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">success</span>, </span><span class="parameter" id="-param-entriesReplayed"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">entriesReplayed</span>, </span><span class="parameter" id="-param-divergedAt"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">divergedAt</span>, </span><span class="parameter" id="-param-divergences"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/DivergenceReport-class.html">DivergenceReport</a></span>&gt;</span></span> <span class="parameter-name">divergences</span>, </span><span class="parameter" id="-param-newSnapshot"><span>required</span> <span class="type-annotation"><a href="../cell/CellGraphSnapshot-class.html">CellGraphSnapshot</a></span> <span class="parameter-name">newSnapshot</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates a <a href="../cell/ReplayResult-class.html">ReplayResult</a>.
             <div class="constructor-modifier features">const</div>
         </dd>
     </dl>
@@ -266,7 +272,7 @@ length if <code>options.maxEntries</code> was set.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

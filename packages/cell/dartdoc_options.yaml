@@ -47,6 +47,9 @@ dartdoc:
     "Pipelines & Internal":
       markdown: guide/HowTo-Receptor.md
       displayName: Pipelines & Receptors
+    "Causal Replay":
+      markdown: guide/HowTo-Causal-Replay.md
+      displayName: Causal Replay
 
     # ── Advanced (governance, isolation, internals) ────────────────
     "Advanced":
@@ -81,6 +84,7 @@ dartdoc:
     - "Core 16 Operators"
     - "Transactions"
     - "Apply + Transactions"
+    - "Causal Replay"
     - "Demo: aircraft"
     - "Pulse"
     - "Signals & Synapses"

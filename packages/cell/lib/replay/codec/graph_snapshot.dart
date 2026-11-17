@@ -8,10 +8,24 @@ part of '../../cell.dart';
 
 /// A serialisable snapshot of an entire cell graph.
 ///
-/// Sits alongside `Ledger` as one of the two persistence units.
-/// A snapshot is the *state* at a point in time; a ledger is the *history*
-/// that produced it. Both are needed for replay: replay replays the ledger
-/// from a snapshot's `lastLedgerSeq`.
+/// ### When to use
+/// As one of the two persistence units of the replay module: a snapshot is
+/// the *state* at a point in time, a [Ledger] is the *history* that
+/// produced it. Both are needed for replay — [ReplayEngine] replays the
+/// ledger from a snapshot's [lastLedgerSeq].
+///
+/// ### How it works
+/// The snapshot carries the graph's [graphId], a [schemaVersion] that
+/// gates forward compatibility, the ledger position the snapshot was taken
+/// at, the optional [parentLedgerHash] of the ledger up to that position,
+/// and one [CellSnapshot] per cell (sorted by id). [toJson]/[fromJson]
+/// round-trip the record; [currentSchemaVersion] is the version this codec
+/// writes.
+///
+/// See also:
+/// * [CellSnapshot] — the per-cell atom of this snapshot.
+/// * [Ledger] — the history this snapshot anchors.
+/// {@category Replay}
 class CellGraphSnapshot {
   /// A UUID identifying the graph. Assigned by `CellGraphBuilder`.
   final String graphId;
@@ -32,6 +46,16 @@ class CellGraphSnapshot {
   /// Per-cell snapshots, sorted by id.
   final List<CellSnapshot> cells;
 
+  /// Creates a [CellGraphSnapshot].
+  ///
+  /// ### Parameters:
+  /// - [graphId]: A UUID identifying the graph.
+  /// - [schemaVersion]: The codec schema version the snapshot was written
+  ///   with.
+  /// - [lastLedgerSeq]: The ledger sequence number at which the snapshot
+  ///   was taken (`-1` before any ledger exists).
+  /// - [parentLedgerHash]: The ledger's hash up to [lastLedgerSeq], if any.
+  /// - [cells]: Per-cell snapshots, sorted by id.
   const CellGraphSnapshot({
     required this.graphId,
     required this.schemaVersion,
@@ -46,6 +70,7 @@ class CellGraphSnapshot {
   /// cannot parse.
   static const int currentSchemaVersion = 2; // effect+receipt schema
 
+  /// Serialises this snapshot to a canonical JSON map.
   Map<String, Object?> toJson() => {
         'graphId': graphId,
         'schemaVersion': schemaVersion,
@@ -54,6 +79,13 @@ class CellGraphSnapshot {
         'cells': cells.map((c) => c.toJson()).toList(growable: false),
       };
 
+  /// Reconstructs a [CellGraphSnapshot] from [toJson]'s output.
+  ///
+  /// Throws [FormatException] when the [schemaVersion] is unsupported or
+  /// the cell list is malformed.
+  ///
+  /// ### Parameters:
+  /// - [json]: The map produced by [toJson].
   factory CellGraphSnapshot.fromJson(Map<String, Object?> json) {
     final version = json['schemaVersion'] as int?;
     if (version == null || version > currentSchemaVersion) {

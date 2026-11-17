@@ -56,12 +56,23 @@
 <section class="desc markdown">
   <p>Strictness flags that control the replay engine's behaviour when the
 replayed state diverges from the recorded state.</p>
+<h3 id="when-to-use">When to use</h3>
 <p>The default is <strong>strict</strong> for everything. This is deliberate: a
 divergence means the receptor, test rule, or graph topology has
 changed since the recording was taken, and continuing past it would
 silently produce a state that no ledger entry explains. A caller who
 wants lenient replay (e.g. for a "best-effort" what-if) opts in
 explicitly, which is the correct ergonomic for a forensic tool.</p>
+<h3 id="how-it-works">How it works</h3>
+<p><a href="../cell/ReplayOptions/failOnDivergence.html">failOnDivergence</a> decides throw-vs-continue, <a href="../cell/ReplayOptions/verifyReceipts.html">verifyReceipts</a> gates
+the back-filled receipt checks, <a href="../cell/ReplayOptions/settleAfterDispatch.html">settleAfterDispatch</a> drains one
+event-loop turn per dispatch, and <a href="../cell/ReplayOptions/maxEntries.html">maxEntries</a> bounds the replay
+length.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/ReplayEngine/replay.html">ReplayEngine.replay</a> — consumes these options.</li>
+<li><a href="../cell/ReplayResult-class.html">ReplayResult</a> — the outcome a lenient replay returns.</li>
+</ul>
 </section>
 
 
@@ -74,7 +85,7 @@ explicitly, which is the correct ergonomic for a forensic tool.</p>
           <span class="name"><a href="../cell/ReplayOptions/ReplayOptions.html">ReplayOptions</a></span><span class="signature">({<span class="parameter" id="-param-failOnDivergence"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">failOnDivergence</span> = <span class="default-value">true</span>, </span><span class="parameter" id="-param-verifyReceipts"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">verifyReceipts</span> = <span class="default-value">true</span>, </span><span class="parameter" id="-param-settleAfterDispatch"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">settleAfterDispatch</span> = <span class="default-value">true</span>, </span><span class="parameter" id="-param-maxEntries"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">maxEntries</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates a <a href="../cell/ReplayOptions-class.html">ReplayOptions</a> set.
             <div class="constructor-modifier features">const</div>
         </dd>
     </dl>
@@ -286,7 +297,7 @@ fields <code>null</code>, which this check rejects as a divergence.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

@@ -12,8 +12,8 @@
 // `cell.dart` core (the published package declares `platforms: web`).
 // This is the same rule that keeps `file_store.dart` standalone — see
 // AGENTS.md. The `bin/cell_replay.dart` entry point imports this file
-// directly; the tooling design's "part of cell.dart + barrel export"
-// sketch would have made the whole core library un-web-compilable.
+// directly; making it a `part of cell.dart` and exporting it from the
+// barrel would have made the whole core library un-web-compilable.
 library;
 
 import 'dart:convert';
@@ -24,6 +24,7 @@ import 'package:uuid/uuid.dart';
 
 /// The `cell-replay` command-line interface.
 ///
+/// ### When to use
 /// Subcommands:
 ///
 /// * `verify <ledger>` — verifies a ledger's hash chain and (if a graph
@@ -36,10 +37,19 @@ import 'package:uuid/uuid.dart';
 ///   causal chain.
 /// * `inspect <ledger>` — prints a human‑readable summary of the ledger
 ///   (entry count, time range, cells touched, divergence state).
+///
+/// ### How it works
+/// [run] parses the first argument as a subcommand, dispatches to the
+/// matching private handler, and maps failures to the documented exit
+/// codes.
 abstract final class Cli {
   /// Runs the CLI with [args]. Returns the process exit code.
   ///
-  /// Exit codes:
+  /// ### Parameters:
+  /// - [args]: The command-line arguments.
+  ///
+  /// ### Returns:
+  /// The process exit code:
   /// * `0` — success (verify OK, diff found no differences, fork
   ///   succeeded, etc.)
   /// * `1` — verification failure (hash chain mismatch, divergence,
@@ -105,11 +115,11 @@ abstract final class Cli {
     // limitation; `verify --graph <snapshot.json>` is the full check.
     //
     // A future CLI revision will add `--graph-snapshot` to reconstruct the target
-    // graph from a snapshot, which is snapshot reconstruction's job.
+    // graph from a snapshot.
     //
     // Non-obvious: this check runs BEFORE `_openStore` — rejecting the
     // flag after opening the store would leak the file's
-    // RandomAccessFile on Windows (the doc's original ordering).
+    // RandomAccessFile on Windows (an earlier revision had that ordering).
     if (opts['graph'] != null) {
       throw _UsageException(
         '--graph is not supported yet; verify only checks the '
@@ -282,14 +292,13 @@ abstract final class Cli {
     final format = opts['format'] ?? 'human';
 
     // For now, `fork` requires the caller to have the graph
-    // factory available. The CLI cannot reconstruct the graph (
-    // 5.1's job). We therefore support only the "fork into a fresh
+    // factory available, because the CLI cannot reconstruct a graph from
+    // a snapshot. It therefore supports only the "fork into a fresh
     // ledger without replaying" mode, which produces a valid fork
-    // record and no entries after it. Full fork-with-replay is 
-    // 8.1.
+    // record and no entries after it; full fork-with-replay is not
+    // implemented yet.
     //
-    // The exit criterion "fork CLI works end-to-end" is met by the
-    // `fork --at N --out path` invocation producing a valid fork
+    // `fork --at N --out path` produces a valid fork
     // ledger whose `seq 0` is the ForkRecord and whose `verify()`
     // passes. `--replaceSeq` is documented as planned CLI work.
     if (opts['replaceSeq'] != null) {

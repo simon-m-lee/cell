@@ -47,7 +47,7 @@
 <section class="desc markdown">
   <h1 id="cell-framework--feature-catalog">Cell Framework — Feature Catalog</h1>
 <p><strong>Package:</strong> <code>cell</code><br>
-<strong>Version:</strong> <code>1.1.0</code> (Stable)<br>
+<strong>Version:</strong> <code>2.0.0</code> (Stable)<br>
 <strong>SDK:</strong> Dart <code>&gt;=3.5.0 &lt;4.0.0</code><br>
 <strong>License:</strong> MIT or Apache-2.0<br>
 <strong>Author:</strong> Lee Man Hoi Simon (see <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/AUTHORS"><code>AUTHORS</code></a>)<br>
@@ -71,17 +71,18 @@
 <li><a href="#12-synapses-and-propagation">Synapses and Propagation</a></li>
 <li><a href="#13-validation">Validation</a></li>
 <li><a href="#14-transactions">Transactions</a></li>
-<li><a href="#15-governance-and-security">Governance and Security</a></li>
-<li><a href="#16-lifecycle-policies">Lifecycle Policies</a></li>
-<li><a href="#17-concurrency-and-locks">Concurrency and Locks</a></li>
-<li><a href="#18-async-and-stream-integration">Async and Stream Integration</a></li>
-<li><a href="#19-nucleus-and-hydration">Nucleus and Hydration</a></li>
-<li><a href="#20-internal-utilities">Internal Utilities</a></li>
-<li><a href="#21-ecosystem-packages">Ecosystem Packages</a></li>
-<li><a href="#22-documentation-and-examples">Documentation and Examples</a></li>
-<li><a href="#23-use-case-decision-matrix">Use-Case Decision Matrix</a></li>
-<li><a href="#24-known-gaps">Known Gaps</a></li>
-<li><a href="#25-quick-reference">Quick Reference</a></li>
+<li><a href="#15-causal-replay">Causal Replay</a></li>
+<li><a href="#16-governance-and-security">Governance and Security</a></li>
+<li><a href="#17-lifecycle-policies">Lifecycle Policies</a></li>
+<li><a href="#18-concurrency-and-locks">Concurrency and Locks</a></li>
+<li><a href="#19-async-and-stream-integration">Async and Stream Integration</a></li>
+<li><a href="#20-nucleus-and-hydration">Nucleus and Hydration</a></li>
+<li><a href="#21-internal-utilities">Internal Utilities</a></li>
+<li><a href="#22-ecosystem-packages">Ecosystem Packages</a></li>
+<li><a href="#23-documentation-and-examples">Documentation and Examples</a></li>
+<li><a href="#24-use-case-decision-matrix">Use-Case Decision Matrix</a></li>
+<li><a href="#25-known-gaps">Known Gaps</a></li>
+<li><a href="#26-quick-reference">Quick Reference</a></li>
 </ol>
 <hr>
 <h2 id="1-what-cell-is">1. What Cell Is</h2>
@@ -97,7 +98,7 @@
 <p>Nothing is authorized, redacted, TTL-limited, or audited unless you pass a rule. Defaults are pass-through and allow-all.</p>
 <hr>
 <h2 id="2-status-and-boundaries">2. Status and Boundaries</h2>
-<p><strong>Stable.</strong> Package version <code>1.1.0</code>. The core reactive engine is feature-complete. Causal integrity logic is now strictly enforced: <code>withStep</code> operations lengthen lineage without branching (preserving <code>isComposite: false</code>), while <code>evolve</code> operations create explicit parent-child branches via <code>EvolvedPulse</code>.</p>
+<p><strong>Stable.</strong> Package version <code>2.0.0</code>. The core reactive engine is feature-complete. Causal integrity logic is now strictly enforced: <code>withStep</code> operations lengthen lineage without branching (preserving <code>isComposite: false</code>), while <code>evolve</code> operations create explicit parent-child branches via <code>EvolvedPulse</code>.</p>
 <table>
 <thead>
 <tr>
@@ -119,6 +120,10 @@
 <td><strong>Forensic Grade.</strong> Traces are immutable and forward-looking. <code>root.trace</code> remains oblivious to descendant steps.</td>
 </tr>
 <tr>
+<td>Causal Replay</td>
+<td><strong>Implemented.</strong> Stable cell identity, the effect journal, the hash-chained ledger, the replay engine, what-if forks, governance replay, and the <code>cell-replay</code> CLI ship with their own test suite (<code>test/replay/</code>).</td>
+</tr>
+<tr>
 <td>Activation Safety</td>
 <td><strong>Strict.</strong> <code>Receptor</code> calls assert <code>isActivated</code> status to prevent signal processing on uninitialized or disposed cells.</td>
 </tr>
@@ -128,7 +133,7 @@
 </tr>
 <tr>
 <td>Unit tests</td>
-<td><strong>1115</strong> tests in <strong>20</strong> files. Verified causal trace preservation across <code>flatten()</code> and <code>batch()</code> operations.</td>
+<td><strong>1371</strong> tests across <strong>68</strong> files — <strong>1174</strong> core tests in <strong>29</strong> files plus <strong>197</strong> Causal Replay tests in <strong>39</strong> files under <code>test/replay/</code>. Verified causal trace preservation across <code>flatten()</code> and <code>batch()</code> operations.</td>
 </tr>
 <tr>
 <td>Line coverage</td>
@@ -1379,7 +1384,178 @@ await tx.commit();
 <p><strong>Exceptions:</strong> <code>TxApplyException</code>, <code>TxApplyCompensationException</code>. <code>ApplyRejected</code> is the sentinel returned when a staged apply is denied.</p>
 <p>Use <strong>transaction</strong> when coordinating cell <em>state</em>. Use <strong>txApply</strong> when coordinating <em>side-effecting functions</em> that need an undo path.</p>
 <hr>
-<h2 id="15-governance-and-security">15. Governance and Security</h2>
+<h2 id="15-causal-replay">15. Causal Replay</h2>
+<p>Causal Replay records a graph's complete causal history and re-executes it — exactly, or as a deliberate what-if branch. It is opt-in: import <code>package:cell/replay.dart</code>; nothing changes for code that does not use it. The full walkthrough is <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Causal-Replay.md"><code>guide/HowTo-Causal-Replay.md</code></a>.</p>
+<h3 id="the-one-sentence-contract">The one-sentence contract</h3>
+<p>If every effect that is not a function of the pulse goes through an <code>EffectJournal</code>, every cell is registered, and receptor implementations are versioned, then replaying a ledger into a fresh copy of the graph reproduces the recorded state — and any violation is reported <strong>loudly</strong>, with the exact <code>seq</code> and reason.</p>
+<h3 id="identity-and-purity">Identity and purity</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CellGraph</code> / <code>CellGraphBuilder</code></td>
+<td>Graph-scoped registry of <code>(name, cell)</code> pairs; <code>register</code> / <code>registerState</code> assign stable ids; strict mode rejects unregistered binds.</td>
+</tr>
+<tr>
+<td><code>CellGraphRegistry</code></td>
+<td>Process-wide id registry with a test-only <code>forceReset</code>.</td>
+</tr>
+<tr>
+<td><code>Purity</code></td>
+<td><code>pure</code> / <code>readOnlyExternal</code> / <code>effectful</code> — the declared effect footprint of a receptor or test rule.</td>
+</tr>
+<tr>
+<td><code>Effectful</code> / <code>EffectfulReadOnly</code></td>
+<td>Mixins that report <code>Purity.effectful</code> / <code>Purity.readOnlyExternal</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="journal">Journal</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>EffectJournal</code></td>
+<td>Abstract boundary for every non-deterministic observation: <code>clock</code>, <code>uuid</code>, <code>io</code>, <code>timer</code>, <code>verdict</code>, <code>policyTick</code>.</td>
+</tr>
+<tr>
+<td><code>RecordingJournal</code></td>
+<td>Executes the real operation, records an <code>EffectRecord</code> with input/output fingerprints.</td>
+</tr>
+<tr>
+<td><code>ReplayJournal</code></td>
+<td>Serves the recorded value; validates kind, label, and input <strong>before</strong> consuming; latches and throws <code>ReplayDivergenceException</code> on mismatch.</td>
+</tr>
+<tr>
+<td><code>NullJournal</code></td>
+<td>The loud "no journal in scope" sentinel — never a silent no-op.</td>
+</tr>
+<tr>
+<td><code>JournalScope</code></td>
+<td>Task-local stack of ambient journals (the only Zone use in the replay module).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ledger">Ledger</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Ledger</code></td>
+<td>Append-only, hash-chained record bound to a <code>CellGraph</code>; <code>verify()</code> recomputes every hash.</td>
+</tr>
+<tr>
+<td><code>LedgerEntry</code></td>
+<td>One row: seq, prevHash, pulse digest (+ stored pulse body), receipt, effects, deltas, timestamp.</td>
+</tr>
+<tr>
+<td><code>StateDelta</code></td>
+<td>One cell's <code>(before, after)</code> around a commit.</td>
+</tr>
+<tr>
+<td><code>LedgerStore</code> / <code>InMemoryLedgerStore</code> / <code>FileLedgerStore</code></td>
+<td>Storage contract; JSONL file store for durability.</td>
+</tr>
+<tr>
+<td><code>LedgerScope</code></td>
+<td>Coordinates delta capture and append during a <code>graph.run</code> body.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="engine-forks-governance-replay">Engine, forks, governance replay</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ReplayEngine.replay</code></td>
+<td>Re-injects every recorded pulse into a fresh graph; verifies receipts, versions, journal exhaustion, and <code>delta.after</code> equality.</td>
+</tr>
+<tr>
+<td><code>ReplayResult</code> / <code>DivergenceReport</code></td>
+<td>Outcome and per-<code>seq</code> expected/actual diagnostics.</td>
+</tr>
+<tr>
+<td><code>PulseReconstructor</code></td>
+<td>Rebuilds the input pulse from the stored pulse body or the args/delta heuristic.</td>
+</tr>
+<tr>
+<td><code>CellGraph.fork</code> / <code>ReplayEngine.replayFork</code></td>
+<td>What-if branching: fork at <code>atSeq</code> with a <code>Mutation</code> (drop / replace / keep).</td>
+</tr>
+<tr>
+<td><code>ForkRecord</code> / <code>ForkLedgerStore</code> / <code>ForkVerify</code></td>
+<td>Fork genesis, synthetic seq-0 entry, and two-chain verification.</td>
+</tr>
+<tr>
+<td><code>VersionRegistry</code> / <code>ContextTranslator</code></td>
+<td>Replay across receptor/rule/mandate versions; a boundary without a registry entry or translator fails loudly.</td>
+</tr>
+<tr>
+<td><code>TestCellReplay</code> / <code>PolicyReplay</code></td>
+<td>Purity-aware rule invocation and policy-tick journaling.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="minimal-record-and-replay">Minimal record-and-replay</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:cell/cell.dart';
+import 'package:cell/replay.dart';
+
+final counter = Cell.state&lt;int&gt;(initial: 0);
+final graph = (CellGraph.builder()
+      ..registerState('counter', counter))
+    .build();
+
+final ledger = await graph.bindLedger(
+  store: InMemoryLedgerStore(genesisHash: Ledger.genesisHashOf(graph.id)),
+);
+await graph.run(() =&gt; counter.update(3));
+await ledger.verify();
+
+CellGraphRegistry.forceReset(); // test/demo context only
+final freshCounter = Cell.state&lt;int&gt;(initial: 0);
+final fresh = (CellGraph.builder()
+      ..registerState('counter', freshCounter))
+    .build();
+final result = await ReplayEngine.replay(ledger: ledger, target: fresh);
+assert(result.success &amp;&amp; freshCounter.cell.value == 3);
+</code></pre>
+<h3 id="cli-and-visualisation">CLI and visualisation</h3>
+<ul>
+<li><code>cell-replay verify --ledger &lt;path&gt;</code> — hash-chain verification.</li>
+<li><code>cell-replay diff --ledgerA &lt;a&gt; --ledgerB &lt;b&gt;</code> — entry-wise diff.</li>
+<li><code>cell-replay fork --ledger &lt;path&gt; --at &lt;seq&gt; --out &lt;path&gt;</code> — fork record writer.</li>
+<li><code>cell-replay visualise --ledger &lt;path&gt;</code> — mermaid or DOT causal chain.</li>
+<li><code>cell-replay inspect --ledger &lt;path&gt;</code> — human-readable summary.</li>
+<li><code>CellGraphVisualise</code> / <code>LedgerVisualise</code> — in-process mermaid/DOT rendering.</li>
+</ul>
+<h3 id="honest-boundaries">Honest boundaries</h3>
+<ul>
+<li><code>ReplayEngine</code> replays into a <strong>caller-provided</strong> fresh graph; it does not rebuild a graph from a <code>CellGraphSnapshot</code> alone.</li>
+<li>The purity gate is the journal: undeclared effects fail loudly; a recorded-but-never-journalled effectful cell has nothing to replay.</li>
+<li>Fork-with-replay in the CLI and <code>ForkPolicy</code> variants beyond <code>isolated</code> are future work.</li>
+</ul>
+<hr>
+<h2 id="16-governance-and-security">16. Governance and Security</h2>
 <p>All of this is <strong>opt-in</strong>. Defaults: <code>Context.system</code>, <code>DeputyContext.system</code>, <code>PulseContext.system</code>, <code>TestCell.allowAll</code>.</p>
 <h3 id="three-parallel-vocabularies">Three parallel vocabularies</h3>
 <table>
@@ -1497,7 +1673,7 @@ await tx.commit();
 <p>Typical fields: actor, reason, purpose, sensitivity, strategy, trace identifiers. <code>Identity.next()</code> issues UUID v4 ids.</p>
 <p>These attach metadata that <strong>your</strong> <code>TestCell</code> rules can read. The framework does not automatically enforce “purpose limitation” or write an audit log.</p>
 <hr>
-<h2 id="16-lifecycle-policies">16. Lifecycle Policies</h2>
+<h2 id="17-lifecycle-policies">17. Lifecycle Policies</h2>
 <h3 id="ephemeralpolicy-cell-ttl">EphemeralPolicy (cell TTL)</h3>
 <p>Attached to a cell / nucleus.</p>
 <table>
@@ -1555,7 +1731,7 @@ await tx.commit();
 </tbody>
 </table>
 <hr>
-<h2 id="17-concurrency-and-locks">17. Concurrency and Locks</h2>
+<h2 id="18-concurrency-and-locks">18. Concurrency and Locks</h2>
 <ul>
 <li>Each cell <strong>may</strong> hold a <code>Lock</code> from <code>package:synchronized</code> (re-exported).</li>
 <li>The four-step update cycle runs inside that lock when present.</li>
@@ -1574,7 +1750,7 @@ Future&lt;T&gt; withCellLocks&lt;T&gt;(
 <p>Async counterparts exist throughout so async callers are not a weaker path: <code>ReceptorAsync</code>, <code>AsyncSynapses</code>, <code>ValueCellAsync</code>, <code>OpenCellAsync</code>, <code>ModifiableAsync</code>.</p>
 <p>The library is isolate-compatible in the Dart sense (no shared-memory mutation across isolates). It does not magically share cells across isolates.</p>
 <hr>
-<h2 id="18-async-and-stream-integration">18. Async and Stream Integration</h2>
+<h2 id="19-async-and-stream-integration">19. Async and Stream Integration</h2>
 <table>
 <thead>
 <tr>
@@ -1615,7 +1791,7 @@ Future&lt;T&gt; withCellLocks&lt;T&gt;(
 </table>
 <p>Hybrid return types are <code>FutureOr&lt;T&gt;</code> where an operation may be sync or async depending on locks and rules.</p>
 <hr>
-<h2 id="19-nucleus-and-hydration">19. Nucleus and Hydration</h2>
+<h2 id="20-nucleus-and-hydration">20. Nucleus and Hydration</h2>
 <p><code>Nucleus</code> is the immutable blueprint a cell wraps.</p>
 <table>
 <thead>
@@ -1646,7 +1822,7 @@ Future&lt;T&gt; withCellLocks&lt;T&gt;(
 <p><code>Inheritable</code> / <code>InheritableHandle</code> support property resolution up the principal chain. <code>Nucleolus</code> is the empty root (<code>isInvalidated</code> is always <code>false</code>). <code>Nucleus.isInvalidated</code> follows a hosted <code>EphemeralPolicy</code>; clones copy that policy.</p>
 <p>Activate with <code>Cell.fromNucleus</code>. Prefer <code>Cell.deputy</code> over manual <code>Nucleus.evolve</code> in application code.</p>
 <hr>
-<h2 id="20-internal-utilities">20. Internal Utilities</h2>
+<h2 id="21-internal-utilities">21. Internal Utilities</h2>
 <p>Exported from <code>package:cell/cell.dart</code> (via <code>commons.dart</code> and related):</p>
 <table>
 <thead>
@@ -1696,7 +1872,7 @@ Future&lt;T&gt; withCellLocks&lt;T&gt;(
 </table>
 <p>These are public because operators and higher packages need them. Application code should not reach for them unless building infrastructure.</p>
 <hr>
-<h2 id="21-ecosystem-packages">21. Ecosystem Packages</h2>
+<h2 id="22-ecosystem-packages">22. Ecosystem Packages</h2>
 <p>Cell is the foundation. Sibling packages in this repo:</p>
 <table>
 <thead>
@@ -1710,7 +1886,7 @@ Future&lt;T&gt; withCellLocks&lt;T&gt;(
 <tr>
 <td><strong>cell</strong> (this)</td>
 <td>Cell</td>
-<td>Nodes, pulses, Core operators, governance, transactions</td>
+<td>Nodes, pulses, Core operators, governance, transactions, causal replay</td>
 </tr>
 <tr>
 <td><strong>cell_flow</strong></td>
@@ -1727,7 +1903,7 @@ Future&lt;T&gt; withCellLocks&lt;T&gt;(
 <p>If you need Rx-style combinators (<code>merge</code>, <code>zip</code>, <code>window</code>, <code>scan</code>), look in <strong>cell_flow</strong>, not in this package.</p>
 <p>Flutter: no dedicated widgets. Bind with <code>Cell.observe</code> (or any adapter) and call <code>setState</code> / notify your existing state library.</p>
 <hr>
-<h2 id="22-documentation-and-examples">22. Documentation and Examples</h2>
+<h2 id="23-documentation-and-examples">23. Documentation and Examples</h2>
 <h3 id="guides-guide">Guides (<code>guide/</code>)</h3>
 <table>
 <thead>
@@ -1800,6 +1976,10 @@ Future&lt;T&gt; withCellLocks&lt;T&gt;(
 <tr>
 <td><code>HowTo-TransactionOnApply.md</code></td>
 <td>Staged apply + compensation</td>
+</tr>
+<tr>
+<td><code>HowTo-Causal-Replay.md</code></td>
+<td>Record, verify, replay, fork, governance replay, CLI</td>
 </tr>
 <tr>
 <td><code>HowTo-Advanced.md</code></td>
@@ -1887,17 +2067,41 @@ Categories include Getting Started, Core, Core 16 Operators, Transactions, Gover
 <td><code>instruction_pipeline_walkthrough.dart</code></td>
 <td>Instruction chains</td>
 </tr>
+<tr>
+<td><code>replay/record_and_replay.dart</code></td>
+<td>Causal replay: record → verify → replay</td>
+</tr>
+<tr>
+<td><code>replay/whatif_branch.dart</code></td>
+<td>Fork and mutate a what-if branch</td>
+</tr>
+<tr>
+<td><code>replay/audit_ledger.dart</code></td>
+<td>Ledger audit walkthrough</td>
+</tr>
+<tr>
+<td><code>replay/treasury_transfer_demo.dart</code></td>
+<td>Forensics walkthrough: treasury transfers</td>
+</tr>
+<tr>
+<td><code>replay/clinical_monitoring_forensics_demo.dart</code></td>
+<td>Forensics walkthrough: clinical monitoring</td>
+</tr>
+<tr>
+<td><code>replay/agent_incident_forensics_demo.dart</code></td>
+<td>Forensics walkthrough: agent incidents</td>
+</tr>
 </tbody>
 </table>
 <p>Some dartdoc comments still point at examples that are not in this package (<code>from_future_demo</code>, <code>from_stream_demo</code>, <code>switch_map_demo</code>, <code>stream_bridge_demo</code>). Related demos live under <code>packages/cell_flow/example/</code>.</p>
 <h3 id="tests-test">Tests (<code>test/</code>)</h3>
-<p>Files are named <code>test_*.dart</code>, not <code>*_test.dart</code>. Therefore:</p>
+<p>Top-level core files are named <code>test_*.dart</code>, not <code>*_test.dart</code>; the Causal Replay suites live under <code>test/replay/</code> with <code>*_test.dart</code> naming. Therefore:</p>
 <ul>
 <li><code>dart test</code> with no path finds <strong>no tests</strong></li>
 <li><code>dart test test</code> is a name filter, not a directory</li>
 <li>Pass explicit files (see <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/TEST_VERIFICATION.md"><code>TEST_VERIFICATION.md</code></a>)</li>
 </ul>
-<p><strong>1115</strong> tests in <strong>20</strong> files. Last full run: <strong>1115 passed / 0 failed / 0 skipped</strong>. Measured <code>lib/</code> line coverage: <strong>95.9%</strong> (3397 / 3541). Suites cover Cell (including <code>valve</code> and <code>OpenCell.perform</code>), Pulse (<code>PulseExtension.map</code> / <code>cast</code> via <code>PulseExtension(pulse)</code>), Nucleus (<code>isInvalidated</code> follows a hosted <code>EphemeralPolicy</code>), Receptor (<code>pipeline</code> reaction / <code>isGoverned</code> / <code>PulseShell</code>), Instruction, Synapses (<code>FilterRule</code> parent/<code>fromRecord</code>, <code>PropagationStrategy.sample</code>), TestCell / TestRule, Context / DeputyContext / PulseContext, commons, <code>transaction</code>, <code>txApply</code>, and the operator suites.</p>
+<p><strong>1371</strong> tests across <strong>68</strong> files: <strong>1174</strong> core tests in <strong>29</strong> files plus <strong>197</strong> Causal Replay tests in <strong>39</strong> files under <code>test/replay/</code>. Last full run: <strong>1174 passed / 0 failed / 0 skipped</strong> core and <strong>197 passed / 0 failed / 0 skipped</strong> replay. Measured <code>lib/</code> line coverage: <strong>95.9%</strong> (3397 / 3541). Core suites cover Cell (including <code>valve</code> and <code>OpenCell.perform</code>), Pulse (<code>PulseExtension.map</code> / <code>cast</code> via <code>PulseExtension(pulse)</code>), Nucleus (<code>isInvalidated</code> follows a hosted <code>EphemeralPolicy</code>), Receptor (<code>pipeline</code> reaction / <code>isGoverned</code> / <code>PulseShell</code>), Instruction, Synapses (<code>FilterRule</code> parent/<code>fromRecord</code>, <code>PropagationStrategy.sample</code>), TestCell / TestRule, Context / DeputyContext / PulseContext, commons, <code>transaction</code>, <code>txApply</code>, and the operator suites. The replay suites cover the codecs (canonical JSON, pulse/snapshot round-trips), graph identity and purity, the effect journal (recording, reordering, <code>NullJournal</code>, timer ordering), the ledger (append/verify, tamper detection, delta capture, file store), the replay engine (identical-graph replay, the 500-pulse determinism run, every divergence kind, cycle-checker reseed), forks (fork-at-seq, isolation, verification, what-if replacement), governance replay (effectful and read-only test rules, version dispatch and boundaries, policy tick order), the <code>LedgerStore</code> conformance suite, the CLI, and the review-hardening regressions.</p>
 <pre class="language-bash"><code class="language-bash">dart analyze lib
 # PowerShell — all suites:
 dart test @(Get-ChildItem test/test_*.dart | ForEach-Object { "test/$($_.Name)" })
@@ -1905,7 +2109,7 @@ dart format .
 dart doc .
 </code></pre>
 <hr>
-<h2 id="23-use-case-decision-matrix">23. Use-Case Decision Matrix</h2>
+<h2 id="24-use-case-decision-matrix">24. Use-Case Decision Matrix</h2>
 <h3 id="use-this-package-when-you-need">Use this package when you need</h3>
 <table>
 <thead>
@@ -1991,6 +2195,30 @@ dart doc .
 <td>Deadlock-free multi-lock</td>
 <td><code>withCellLocks</code></td>
 </tr>
+<tr>
+<td>Forensic history / audit of every transition</td>
+<td><code>CellGraph</code> + <code>Ledger</code> + <code>Ledger.verify</code></td>
+</tr>
+<tr>
+<td>Tamper-evident persistence</td>
+<td><code>Ledger</code> hash chain + <code>FileLedgerStore</code></td>
+</tr>
+<tr>
+<td>Deterministic re-execution of a recorded graph</td>
+<td><code>ReplayEngine.replay</code></td>
+</tr>
+<tr>
+<td>What-if branches over history</td>
+<td><code>CellGraph.fork</code> + <code>ReplayEngine.replayFork</code></td>
+</tr>
+<tr>
+<td>Replay across receptor / mandate versions</td>
+<td><code>VersionRegistry</code> / <code>ContextTranslator</code></td>
+</tr>
+<tr>
+<td>Ledger tooling from the terminal</td>
+<td><code>cell-replay</code> CLI (<code>verify</code>, <code>diff</code>, <code>fork</code>, <code>visualise</code>, <code>inspect</code>)</td>
+</tr>
 </tbody>
 </table>
 <h3 id="prefer-something-else-when-you-only-need">Prefer something else when you only need</h3>
@@ -2035,7 +2263,7 @@ dart doc .
 <li><strong>Complex / regulated-adjacent:</strong> Cell’s provenance, TestCell, and transactions are the point — still bring your own legal and operational controls.</li>
 </ul>
 <hr>
-<h2 id="24-known-gaps">24. Known Gaps</h2>
+<h2 id="25-known-gaps">25. Known Gaps</h2>
 <p>Honest list, so this catalog does not over-promise:</p>
 <ol>
 <li><strong>API lists</strong> — operator lists and guide names have moved across releases; treat the Core 16 numbering as a learning order, not a stability guarantee.</li>
@@ -2043,9 +2271,10 @@ dart doc .
 <li><strong>Valve</strong> — implemented (<code>Cell.valve</code>, <code>example/valve_demo.dart</code>, tests). Generated <code>doc/api/</code> HTML may still lag until <code>dart doc</code> is regenerated.</li>
 <li><strong>Transaction / compensation internals</strong> have not been independently reviewed end-to-end. Treat as unreviewed for money/inventory until you have your own review.</li>
 <li><strong>Remaining lower <code>lib/</code> line coverage</strong> — <code>context.dart</code> 90.3%, <code>internal/pulse.dart</code> 90.4%, <code>receptor.dart</code> 90.5% (InstructionChainMixin). Leftover lines are mostly combinatorial flyweight arms (see <code>TEST_VERIFICATION.md</code>).</li>
+<li><strong>Causal Replay scope</strong> — snapshot-only graph reconstruction and CLI fork-with-replay are future work; forks require a graph factory, and <code>ForkPolicy</code> variants beyond <code>isolated</code> are not implemented (see <code>guide/HowTo-Causal-Replay.md</code> Part VII).</li>
 </ol>
 <hr>
-<h2 id="25-quick-reference">25. Quick Reference</h2>
+<h2 id="26-quick-reference">26. Quick Reference</h2>
 <h3 id="operators-at-a-glance">Operators at a glance</h3>
 <table>
 <thead>
@@ -2170,6 +2399,58 @@ dart doc .
 <td>Low-level</td>
 <td><code>Cell</code></td>
 <td>Custom / infra</td>
+</tr>
+</tbody>
+</table>
+<h3 id="replay-module-at-a-glance">Replay module at a glance</h3>
+<table>
+<thead>
+<tr>
+<th>Piece</th>
+<th>Kind</th>
+<th>One-line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CellGraph.builder()</code> / <code>CellGraph</code></td>
+<td>Identity</td>
+<td>Stable registered names for every cell</td>
+</tr>
+<tr>
+<td><code>Purity</code> / <code>Effectful</code></td>
+<td>Contract</td>
+<td>Declared effect footprint</td>
+</tr>
+<tr>
+<td><code>RecordingJournal</code> / <code>ReplayJournal</code></td>
+<td>Journal</td>
+<td>Record and re-serve non-determinism</td>
+</tr>
+<tr>
+<td><code>Ledger</code> / <code>LedgerStore</code></td>
+<td>History</td>
+<td>Hash-chained, tamper-evident record</td>
+</tr>
+<tr>
+<td><code>ReplayEngine.replay</code></td>
+<td>Replay</td>
+<td>Re-inject causes, assert effects</td>
+</tr>
+<tr>
+<td><code>CellGraph.fork</code> / <code>ReplayEngine.replayFork</code></td>
+<td>What-if</td>
+<td>Branch history with a mutation</td>
+</tr>
+<tr>
+<td><code>VersionRegistry</code> / <code>ContextTranslator</code></td>
+<td>Governance</td>
+<td>Replay across versions</td>
+</tr>
+<tr>
+<td><code>cell-replay</code> CLI</td>
+<td>Tooling</td>
+<td>verify / diff / fork / visualise / inspect</td>
 </tr>
 </tbody>
 </table>
@@ -2363,6 +2644,7 @@ dart doc .
         <li><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
         <li><a href="../topics/Transactions-topic.html">Transactions</a></li>
         <li><a href="../topics/Apply + Transactions-topic.html">Apply&nbsp;+&nbsp;Transactions</a></li>
+        <li><a href="../topics/Causal Replay-topic.html">Causal&nbsp;Replay</a></li>
         <li><a href="../topics/Pulse-topic.html">Pulse</a></li>
         <li><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
         <li><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
@@ -2378,14 +2660,15 @@ dart doc .
       <li class="section-title">Libraries</li>
       <li><a href="../cell_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
       <li><a href="../cell_api_chooser/">doc\api_chooser</a></li>
-      <li><a href="../replay/">replay</a></li>
       <li><a href="../replay_cli_cli/">replay\cli\cli</a></li>
       <li><a href="../replay_codec_canonical_json/">replay\codec\canonical_json</a></li>
       <li><a href="../replay_codec_fingerprint/">replay\codec\fingerprint</a></li>
       <li><a href="../replay_ledger_file_store/">replay\ledger\file_store</a></li>
-      <li><a href="../replay_replay/">replay\replay</a></li>
       <li class="section-subtitle">Features</li>
         <li class="section-subitem"><a href="../cell/">cell</a></li>
+      <li class="section-subtitle">Replay</li>
+        <li class="section-subitem"><a href="../replay/">replay</a></li>
+        <li class="section-subitem"><a href="../replay_replay/">replay\replay</a></li>
 </ol>
 
 </div>
@@ -2412,7 +2695,7 @@ dart doc .
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

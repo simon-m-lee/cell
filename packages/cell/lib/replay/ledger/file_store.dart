@@ -16,11 +16,13 @@ import 'package:cell/cell.dart'
 
 /// A [LedgerStore] backed by a single JSONL file.
 ///
-/// **One ledger per file.** Appending is `writeFrom` in append mode with
-/// a trailing newline. A single writer appends entries sequentially and
-/// flushes after each one; a crash between flushes is detected by
-/// `verify` on reopen. There is no entry-size limit — entries carry the
-/// materialised pulse body and can legitimately grow with the payload.
+/// ### When to use
+/// For durable, one-ledger-per-file persistence. Appending is `writeFrom`
+/// in append mode with a trailing newline. A single writer appends entries
+/// sequentially and flushes after each one; a crash between flushes is
+/// detected by `verify` on reopen. There is no entry-size limit — entries
+/// carry the materialised pulse body and can legitimately grow with the
+/// payload.
 ///
 /// ### Non-obvious: no fsync per append
 ///
@@ -42,6 +44,12 @@ import 'package:cell/cell.dart'
 /// file are not atomically visible to concurrent readers regardless of
 /// size — the `PIPE_BUF`-sized entry cap below is retained as a
 /// conservative line-size bound, not an atomicity guarantee.
+///
+/// See also:
+/// * [LedgerStore] — the storage contract this implements.
+/// * [InMemoryLedgerStore] — the ephemeral, test-oriented variant.
+/// {@category Replay}
+/// {@category Ledger}
 class FileLedgerStore implements LedgerStore {
   @override
   final String genesisHash;
@@ -61,8 +69,18 @@ class FileLedgerStore implements LedgerStore {
 
   /// Opens (or creates) the ledger at [path].
   ///
+  /// ### How it works
   /// Reads the existing file to populate the head caches, then opens for
   /// append.
+  ///
+  /// ### Parameters:
+  /// - [path]: The JSONL file to open (created if missing).
+  /// - [genesisHash]: The chain genesis the store is created with.
+  /// - [fsyncEachAppend]: Accepted for API compatibility; see the class
+  ///   honesty notes.
+  ///
+  /// ### Returns:
+  /// The opened store.
   static Future<FileLedgerStore> open(
     String path, {
     required String genesisHash,

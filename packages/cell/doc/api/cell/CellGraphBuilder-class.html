@@ -61,16 +61,28 @@
   ..register('user', synthesisCell)
   ..build();
 </code></pre>
-<p>The builder is <strong>stateful but single-use</strong>: after <code>build()</code> is called,
-further <code>register</code> calls throw. This prevents the common bug where a
-caller constructs a graph, then continues registering cells that will
-never appear in the graph, silently de-synchronising the in-memory
-graph from its snapshot.</p>
-<h3 id="strictness-modes">Strictness modes</h3>
+<h3 id="when-to-use">When to use</h3>
+<p>As the only supported way to assemble a registered graph. The builder
+is <strong>stateful but single-use</strong>: after <code>build()</code> is called, further
+<code>register</code> calls throw. This prevents the common bug where a caller
+constructs a graph, then continues registering cells that will never
+appear in the graph, silently de-synchronising the in-memory graph from
+its snapshot.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>Each <a href="../cell/CellGraphBuilder/register.html">register</a> call claims a graph-scoped name and records the
+(name, cell) pair; <a href="../cell/CellGraphBuilder/build.html">build</a> freezes the builder, creates the
+<a href="../cell/CellGraph-class.html">CellGraph</a>, and validates reachability immediately.</p>
+<h3 id="non-obvious-strictness-modes">Non-obvious: strictness modes</h3>
 <p>By default, the builder is <strong>strict</strong>: after the graph is built, every
 cell that receives a pulse from any registered root must itself be
-registered, either directly or via the bind chain. <code>CellGraph.unrestricted()</code>
-disables this for tests, and is documented as unsafe for production.</p>
+registered, either directly or via the bind chain.
+<code>CellGraph.unrestricted()</code> disables this for tests, and is documented
+as unsafe for production.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/CellGraph-class.html">CellGraph</a> — what the builder produces.</li>
+<li><a href="../cell/RegisteredCell-class.html">RegisteredCell</a> — the wrapper each <a href="../cell/CellGraphBuilder/register.html">register</a> call returns.</li>
+</ul>
 </section>
 
 
@@ -83,10 +95,7 @@ disables this for tests, and is documented as unsafe for production.</p>
           <span class="name"><a href="../cell/CellGraphBuilder/CellGraphBuilder.html">CellGraphBuilder</a></span><span class="signature">({<span class="parameter" id="-param-graphId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">graphId</span>, </span><span class="parameter" id="-param-strict"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">strict</span> = <span class="default-value">true</span></span>})</span>
         </dt>
         <dd>
-          Creates a builder. Pass <code>graphId: null</code> to auto-generate one from a
-UUID; pass a specific value to reproduce a graph across processes
-(a snapshot taken from one graph can be restored into another with
-the same <code>graphId</code>).
+          Creates a builder.
         </dd>
     </dl>
   </section>
@@ -246,7 +255,7 @@ wrapper.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

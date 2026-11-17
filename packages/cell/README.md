@@ -21,7 +21,7 @@ carries a machine-readable `### AI Agent Guide` block, and the surfaces below
 let an agent reliably pick the right factory and generate code that compiles
 against the live API.
 
-1. **Version pin:** `cell 1.1.0`, `cell_flow 1.0.0`, `cell_tissue 1.0.0`.
+1. **Version pin:** `cell 2.0.0`, `cell_flow 1.0.0`, `cell_tissue 1.0.0`.
 2. **Preflight:** `dart run tool/ai_preflight.dart` — prints the resolved versions and any stale pins.
 3. **API chooser:** `lib/doc/api_chooser.dart` (generated from the `### AI Agent Guide` doc blocks).
 4. **Layer guides:**
@@ -51,7 +51,7 @@ against the live API.
 
 [![Dart](https://img.shields.io/badge/Dart-3.5%2B-blue.svg)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg)](https://github.com/simon-m-lee/cell/blob/master/packages/cell/LICENSE)
-[![Version](https://img.shields.io/badge/cell-1.1.0-blue.svg)](#status)
+[![Version](https://img.shields.io/badge/cell-2.0.0-blue.svg)](#status)
 [![Status](https://img.shields.io/badge/Status-Stable-green.svg)](#status)
 
 This is the foundation package of the Cell Framework (Mitosis). Sibling packages add collections, relations, stream combinators, persistence, and codegen.
@@ -85,6 +85,11 @@ cells together into a reactive graph — and that graph is governed:
   principal already allows.
 - **Auditable** — `ApplyReceipt` forensics, causal trace, and provenance
   metadata ride every pulse; `Cell.sanitized` redacts before egress.
+- **Causal replay** — record a graph's complete history into a
+  tamper-evident, hash-chained `Ledger` and re-execute it exactly in a
+  fresh graph (`ReplayEngine`), or branch history with what-if forks
+  (`CellGraph.fork` + `ReplayEngine.replayFork`). Opt-in behind
+  `package:cell/replay.dart`.
 - **Synchronized** — transactional writes serialize through the ledger, and
   governed cells carry synchronization locks for high-integrity paths.
 - **Timing control** — `debounce`, `throttle`, and `distinct` are
@@ -107,6 +112,7 @@ governance contract**:
 | Validation | Manual `if` checks at call sites | `TestCell` gate on every write |
 | Restricted views | None, or copying the data | Zero-copy `unmodifiable` / `deputy` proxies |
 | Audit trail | None | `ApplyReceipt`, causal trace, provenance |
+| **Causal replay** | None — history is lost when listeners return | Built-in `Ledger` + `ReplayEngine`: record, verify, replay, fork |
 | Timing operators | Hand-rolled `Timer`s | `debounce` / `throttle` / `distinct` |
 | Async combinators | Hand-rolled `Future`/`Stream` plumbing | `asyncMap` (concurrency/latest/exhaust), `switchMap`, `fromFuture`/`fromStream` |
 | Multi-source aggregation | Manual bookkeeping | `Cell.synthesis` fan-in |
@@ -159,6 +165,7 @@ available when you need them.
 - [Install](#install)
 - [Quick example](#quick-example)
 - [Core operators](#core-operators)
+- [Causal replay](#causal-replay)
 - [How much you need to know](#how-much-you-need-to-know)
 - [Documentation](#documentation)
 - [Ecosystem](#ecosystem)
@@ -229,7 +236,7 @@ The package is on pub.dev. From this monorepo:
 
 ```yaml
 dependencies:
-  cell: ^1.1.0   # stable
+  cell: ^2.0.0   # causal replay
 ```
 
 From git:
@@ -309,6 +316,67 @@ Learning order: get data in → hold state → react → shape streams → go as
 
 ---
 
+## Causal replay
+
+**Opt-in forensic history, shipped in the same package.** Import
+`package:cell/replay.dart` to record a graph's complete causal history and
+re-execute it — exactly, or as a deliberate what-if branch.
+
+The module stacks in five layers, all source-verified and unit-tested:
+
+- **Identity + purity** — `CellGraph` / `CellGraphBuilder` give every
+  cell a stable registered name; `Purity` declares whether a receptor or
+  test rule touches the outside world.
+- **Journal** — `EffectJournal` records every non-deterministic
+  observation (clock, UUID, I/O, timer, verdict, policy tick);
+  `RecordingJournal` captures, `ReplayJournal` serves, `NullJournal`
+  fails loudly.
+- **Ledger** — `Ledger` + `LedgerStore` append `StateDelta`s and
+  `EffectRecord`s into a SHA-256 hash chain; `verify()` makes tampering
+  loud; `FileLedgerStore` persists JSONL.
+- **Engine** — `ReplayEngine.replay` re-injects every recorded pulse into
+  a fresh graph and asserts the recorded deltas re-occur; a
+  `DivergenceReport` names the exact `seq`, effect ordinal, and reason.
+- **Forks + governance + tooling** — `graph.fork(...)` branches history
+  at any sequence with a `Mutation`; `VersionRegistry` /
+  `ContextTranslator` replay across receptor, rule, and mandate versions;
+  the `cell-replay` CLI covers `verify`, `diff`, `fork`, `visualise`,
+  `inspect`.
+
+```dart
+import 'package:cell/cell.dart';
+import 'package:cell/replay.dart';
+
+final counter = Cell.state<int>(initial: 0);
+final graph = (CellGraph.builder()
+      ..registerState('counter', counter))
+    .build();
+
+// Record: bind a ledger and mutate inside graph.run.
+final ledger = await graph.bindLedger(
+  store: InMemoryLedgerStore(genesisHash: Ledger.genesisHashOf(graph.id)),
+);
+await graph.run(() => counter.update(3));
+await ledger.verify();
+
+// Replay: same names, fresh graph, no ledger.
+CellGraphRegistry.forceReset(); // test/demo context only
+final freshCounter = Cell.state<int>(initial: 0);
+final fresh = (CellGraph.builder()
+      ..registerState('counter', freshCounter))
+    .build();
+final result = await ReplayEngine.replay(ledger: ledger, target: fresh);
+assert(result.success && freshCounter.cell.value == 3);
+```
+
+The full walkthrough — the 15-minute path, the machinery, the seven-item
+pre-flight checklist, recipes, and failure modes — lives in
+[`guide/HowTo-Causal-Replay.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Causal-Replay.md).
+Runnable forensic demos (record-and-replay, what-if, audit ledgers) live
+in [`example/replay/`](https://github.com/simon-m-lee/cell/tree/master/packages/cell/example/replay).
+
+---
+
 ## How much you need to know
 
 Layers are optional, not a reading list.
@@ -339,6 +407,7 @@ See [ARCHITECTURE.md](https://github.com/simon-m-lee/cell/blob/master/packages/c
 | [HowTo-Instruction.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Instruction.md) | Instruction stages |
 | [HowTo-Transaction.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Transaction.md) | Buffered multi-cell writes |
 | [HowTo-TransactionOnApply.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-TransactionOnApply.md) | Staged `apply` + compensation |
+| [HowTo-Causal-Replay.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Causal-Replay.md) | Record, verify, replay, fork, governance replay, CLI |
 | [HowTo-Advanced.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Advanced.md) | Index of optional governance machinery |
 | [benchmark/README.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/benchmark/README.md) | Benchmark suite, pass criteria, and the feature-accounted comparison story |
 
@@ -352,7 +421,7 @@ If a guide and the source disagree, **the source is current**.
 
 | Package | Delivery | Adds                                                                                          |
 |---------|----------|-----------------------------------------------------------------------------------------------|
-| **cell** (this) | Now      | Nodes, pulses, operators, governance, transactions                                            |
+| **cell** (this) | Now      | Nodes, pulses, operators, governance, transactions, causal replay        |
 | **cell_flow** | Now      | 100+ instruction factories on `Flow`, plus fluent chaining (`mapTo`, `asyncExpand`, `zip`, …) |
 | **cell_tissue** | Now      | Reactive collections (list / map / set / queue)                                               |
 
@@ -362,11 +431,11 @@ Flutter has no dedicated widgets here. Bind with `Cell.observe` (or an adapter) 
 
 ## Status
 
-**Stable on pub.dev** (`1.1.0`). Public APIs for cells, pulses, operators, transactions, and the integrity-gated `apply`/`txApply` command model are exercised by a passing unit-test suite.
+**Stable on pub.dev** (`2.0.0`). Public APIs for cells, pulses, operators, transactions, the integrity-gated `apply`/`txApply` command model, and the Causal Replay module are exercised by a passing unit-test suite.
 
 Release verification:
 
-- `cell` **1174/1174**, `cell_flow` **1091/1091**, `cell_tissue` **362/362** unit tests pass.
+- `cell` **1174/1174**, `cell_flow` **1091/1091**, `cell_tissue` **362/362** unit tests pass; the Causal Replay suite adds **197/197** (`test/replay/`).
 - `dart analyze lib` reports **no issues**; the test files carry a few pre-existing informational lints.
 - `dart doc .` completes with **zero warnings**; `doc/api` is generated.
 - The benchmark suite's 60 tracked results pass the 15% regression gate (`benchmark/compare.dart`).

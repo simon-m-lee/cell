@@ -73,9 +73,19 @@ perform effects in detached continuations). The entry is appended
 one event-loop turn later — after the microtask queue settles, and
 with it the operator's cooperative <a href="../../cell/LedgerScope/captureEffect.html">captureEffect</a> calls — so the
 entry carries the effects and deltas the pulse actually produced.</p>
+<h3 id="non-obvious-burst-attribution">Non-obvious: burst attribution</h3>
 <p>Bursts of emits that do not wait for their asynchronous work to
 settle share one settlement turn; their effect attribution is a
-A later revision's concern (pulse-tagged effect windows).</p>
+later revision's concern (pulse-tagged effect windows).</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>pulse</code>: The pulse whose settlement is recorded.</li>
+<li><code>receipt</code>: The <code>ApplyReceipt</code>, when one exists.</li>
+<li><code>emitCell</code>: The emitting cell, for the synthetic-receipt path.</li>
+<li><code>emitFunction</code>: The emitting function, for the synthetic-receipt
+path.</li>
+<li><code>emittedValue</code>: The emitted value, for the synthetic-receipt path.</li>
+</ul>
 </section>
 
 
@@ -134,7 +144,7 @@ A later revision's concern (pulse-tagged effect windows).</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

@@ -8,6 +8,7 @@ part of '../../cell.dart';
 
 /// The recording side of the journal.
 ///
+/// ### How it works
 /// Every effect is executed for real; the journal records the observation
 /// and the run continues. The recorded log is what [ReplayJournal]
 /// consumes later.
@@ -19,6 +20,11 @@ part of '../../cell.dart';
 /// effect. This is deliberate: a failed I/O call is not a re-runnable
 /// observation; the caller must decide whether to retry (in which case
 /// the retry is the new effect).
+///
+/// See also:
+/// * [ReplayJournal] — consumes this journal's log.
+/// * [EffectJournal] — the shared contract.
+/// {@category Replay}
 class RecordingJournal implements EffectJournal {
   final List<EffectRecord> _records = [];
   int _nextOrdinal = 0;
@@ -36,6 +42,12 @@ class RecordingJournal implements EffectJournal {
   final Future<void> Function(Duration, FutureOr<void> Function())
       _timerScheduler;
 
+  /// Creates a recording journal.
+  ///
+  /// ### Parameters:
+  /// - [clockSource]: The clock source; defaults to `DateTime.now`.
+  /// - [uuidSource]: The UUID source; defaults to `Uuid().v4`.
+  /// - [timerScheduler]: The timer scheduler; defaults to a real `Timer`.
   RecordingJournal({
     DateTime Function()? clockSource,
     String Function()? uuidSource,
@@ -189,7 +201,7 @@ class RecordingJournal implements EffectJournal {
       _records.map((r) => r.toJson()).toList(growable: false);
 
   /// The most recently recorded effect, or `null` if none yet. Used by
-  /// The engine's cooperative ledger capture: an effectful operator hands
+  /// the engine's cooperative ledger capture: an effectful operator hands
   /// its just-recorded effect to the active [LedgerScope] so the entry
   /// for the pulse that caused it carries the effect.
   EffectRecord? get lastRecord => _records.isEmpty ? null : _records.last;
@@ -200,6 +212,13 @@ class RecordingJournal implements EffectJournal {
   List<EffectRecord> get records => List.unmodifiable(_records);
 
   /// The effects recorded at index [from] and later.
+  ///
+  /// ### Parameters:
+  /// - [from]: The inclusive start index.
+  ///
+  /// ### Returns:
+  /// An iterable of the records at or after [from]; empty when [from] is
+  /// past the end.
   Iterable<EffectRecord> recordsSince(int from) {
     if (from >= _records.length) return const Iterable.empty();
     return _records.sublist(from);

@@ -72,14 +72,8 @@
     </section>
     
 <section class="desc markdown">
-  <p>A stable identifier for this cell handle.</p>
-<p>Delegates to the nucleus, which resolves the id. For ordinary use this
-is the root principal's identity hash; for registered cells (the graph registry)
-it is the graph-assigned name.</p>
-<p>This is <em>additive</em>. <code>hashCode</code> is unchanged; <code>id</code> is a parallel
-identity intended to be persisted. The <code>@override</code> is load-bearing:
-without it, a subclass could declare a different <code>id</code> with no compile
-error, silently shadowing the interface's contract.</p>
+  <p>Wire identity. Delegates to the nucleus so deputies and their principal
+share one id unless a graph registration overrides it.</p>
 </section>
 
     
@@ -116,7 +110,7 @@ String get id =&gt; _nucleus.id;</code></pre>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

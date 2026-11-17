@@ -56,8 +56,14 @@
 <section class="desc markdown">
   <p>An in-memory <a href="../cell/LedgerStore-class.html">LedgerStore</a>, suitable for tests and for ephemeral
 graphs whose ledger does not need to survive the process.</p>
+<h3 id="how-it-works">How it works</h3>
 <p><code>append</code> is synchronous in spirit (no I/O) but the API is <code>Future</code>
 because the abstract store is async. The Future resolves immediately.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/LedgerStore-class.html">LedgerStore</a> — the storage contract this implements.</li>
+<li><code>FileLedgerStore</code> — the durable, JSONL-backed variant.</li>
+</ul>
 </section>
 
 
@@ -90,7 +96,7 @@ because the abstract store is async. The Future resolves immediately.</p>
           <span class="name"><a href="../cell/InMemoryLedgerStore/InMemoryLedgerStore.html">InMemoryLedgerStore</a></span><span class="signature">({<span class="parameter" id="-param-genesisHash"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">genesisHash</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates an in-memory store.
         </dd>
     </dl>
   </section>
@@ -286,7 +292,7 @@ can never silently serve graph <code>H</code>.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

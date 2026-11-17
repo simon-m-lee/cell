@@ -8,9 +8,10 @@ part of '../../cell.dart';
 
 /// Policy-tick journaling for [EphemeralPolicy].
 ///
+/// ### How it works
 /// The journal records timers and the engine deferred policy-tick reseeding.
-/// The governance layer closes the loop: every tick of an `EphemeralPolicy` during
-/// pulse processing is journaled as a `PolicyTickEffect`. On replay,
+/// The governance layer closes the loop: every tick of an [EphemeralPolicy]
+/// during pulse processing is journaled as a [PolicyTickEffect]. On replay,
 /// the tick is consumed from the journal and re-applied to the
 /// `CycleChecker` — the cycle-checker reseed fix.
 ///
@@ -27,19 +28,31 @@ part of '../../cell.dart';
 /// dropped on replay. Full policy-state fidelity (TTL and event-limit
 /// bookkeeping through the journal) is deferred work; what the current
 /// engine guarantees is tick ORDER parity through the checker reseed.
+///
+/// See also:
+/// * [EffectJournal.policyTick] — the journal primitive this wraps.
+/// * [PolicyTickEffect] — the record written per tick.
+/// {@category Replay}
 abstract final class PolicyReplay {
   /// Records (or replays) a policy tick.
   ///
+  /// ### How it works
   /// Called from the receptor pipeline at the point where the cell's
-  /// hosted `EphemeralPolicy` would be ticked. On the recording side
+  /// hosted [EphemeralPolicy] would be ticked. On the recording side
   /// the policy callback still runs (after the record is written); on
   /// the replay side `ReplayJournal.policyTick` only consumes the
   /// record — the caller does not re-invoke the policy callback.
   ///
-  /// The journal input is the pulse's *payload* — the pulse object
-  /// itself is not stable across record/replay, its payload is. The
-  /// policy callback still receives the pulse (preserving the
-  /// pre--7 contract) on the recording side only.
+  /// ### Parameters:
+  /// - [policy]: The policy being ticked.
+  /// - [cell]: The cell hosting the policy.
+  /// - [pulse]: The pulse whose processing triggered the tick.
+  ///
+  /// ### Non-obvious: the journal input is the pulse's *payload*
+  ///
+  /// The pulse object itself is not stable across record/replay, its
+  /// payload is. The policy callback still receives the pulse on the
+  /// recording side only.
   static void tick({
     required EphemeralPolicy policy,
     required Cell cell,

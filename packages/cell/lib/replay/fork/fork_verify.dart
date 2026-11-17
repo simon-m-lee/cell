@@ -6,9 +6,10 @@
 
 part of '../../cell.dart';
 
-/// Fork-aware verification. A fork's `verify()` requires the parent
+/// Fork-aware verification. A fork's [verify] requires the parent
 /// ledger's `verify()` to pass.
 ///
+/// ### How it works
 /// The verification steps are:
 ///
 /// 1. **Parent ledger verification**: the parent must be intact. A fork
@@ -19,10 +20,16 @@ part of '../../cell.dart';
 ///    must match the parent's hash at `divergedAt`. This is what makes
 ///    the fork a *fork* — a fork record whose `parentHeadHash` does
 ///    not match the parent's actual hash is either stale or forged.
+///
+/// See also:
+/// * [ForkHandle] — the handle this extension verifies.
+/// * [ForkIntegrityException] — what a failed verification throws.
+/// {@category Replay}
 extension ForkVerify on ForkHandle {
   /// Verifies the fork: parent intact, fork chain intact, genesis
   /// binding intact.
   ///
+  /// ### How it works
   /// Throws [ForkIntegrityException] on any failure.
   Future<void> verify() async {
     // 1. Verify the parent.
@@ -112,6 +119,12 @@ extension ForkVerify on ForkHandle {
 /// The parent ledger's hash at a given sequence.
 extension ForkParentLookup on Ledger {
   /// The hash of the entry at [seq] (the parent's sequence numbering).
+  ///
+  /// ### Parameters:
+  /// - [seq]: The parent sequence to look up.
+  ///
+  /// ### Returns:
+  /// The entry's hash.
   Future<String> hashAtSeq(int seq) async {
     if (seq < 0) {
       throw ArgumentError.value(seq, 'seq', 'must be >= 0');
@@ -135,9 +148,17 @@ extension ForkParentLookup on Ledger {
 /// Thrown by [ForkVerify.verify] when a fork's parent ledger, fork
 /// ledger, or genesis binding is invalid.
 class ForkIntegrityException implements Exception {
+  /// The fork whose verification failed.
   final String forkId;
+
+  /// The failure reason.
   final String reason;
 
+  /// Creates a [ForkIntegrityException].
+  ///
+  /// ### Parameters:
+  /// - [forkId]: The fork whose verification failed.
+  /// - [reason]: The failure reason.
   ForkIntegrityException({required this.forkId, required this.reason});
 
   @override

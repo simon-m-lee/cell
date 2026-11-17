@@ -56,14 +56,20 @@
 <section class="desc markdown">
   <p>Serialises and deserialises <a href="../cell/PulseContext-class.html">PulseContext</a>, preserving the full parent
 chain.</p>
+<h3 id="how-it-works">How it works</h3>
 <p><a href="../cell/PulseContext-class.html">PulseContext</a> is inherited: <code>childContext.reason</code> walks up to
 <code>parentContext.reason</code> if the child didn't override it. The wire format
-must therefore preserve the chain, not just the resolved values. This
-codec walks to the root and stores an <strong>array of deltas</strong> (root first,
-leaf last). Reconstructing is a fold of <code>fromEntries(parent: previous)</code>.</p>
+must therefore preserve the chain, not just the resolved values.
+<a href="../cell/PulseContextCodec/toJson.html">toJson</a> walks to the root and stores an <strong>array of deltas</strong> (root
+first, leaf last). <a href="../cell/PulseContextCodec/fromJson.html">fromJson</a> reconstructs the chain as a fold of
+<code>fromEntries(parent: previous)</code>.</p>
 <p>Every level of the chain is emitted — including levels whose local
 record is empty (e.g. <code>PulseContext.system</code>) — so that
 <code>encode(decode(encode(x))) == encode(x)</code> holds byte-for-byte.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/PulseCodec-class.html">PulseCodec</a> — the pulse serialiser that delegates to this codec.</li>
+</ul>
 </section>
 
 
@@ -215,7 +221,7 @@ record is empty (e.g. <code>PulseContext.system</code>) — so that
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

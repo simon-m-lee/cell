@@ -60,6 +60,7 @@
     
 <section class="desc markdown">
   <p>Classifies a <a href="../cell/Receptor-class.html">Receptor</a> or <a href="../cell/TestCell-class.html">TestCell</a> by its effect footprint.</p>
+<h3 id="when-to-use">When to use</h3>
 <p>The <a href="../cell/CellGraph-class.html">CellGraph</a> uses this to decide whether a cell participates in a
 replayable graph:</p>
 <ul>
@@ -67,7 +68,7 @@ replayable graph:</p>
 their inputs alone.</li>
 <li><a href="../cell/Purity.html">readOnlyExternal</a> cells observe the outside world (a clock, a
 read-only database, an environment variable) but do not mutate it.
-They <em>can</em> be replayed, but only through an <code>EffectJournal</code>
+They <em>can</em> be replayed, but only through an <a href="../cell/EffectJournal-class.html">EffectJournal</a>
 that records every read so the same observations replay identically.</li>
 <li><a href="../cell/Purity.html">effectful</a> cells both read and write the outside world (network,
 disk, notifications). They must be journalled; without a journal they
@@ -82,8 +83,12 @@ the clock is not pure at all. The framework cannot <em>prevent</em> user code
 from doing this, but it can force the user to <strong>declare</strong> it, and the
 <code>CellGraph</code> can then refuse to treat a declared-effectful cell as if it
 were replayable.</p>
-<p>See the purity boundary and the journal for the enforcement
-mechanism (the <code>Effectful</code> mixin).</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/Effectful-mixin.html">Effectful</a>, <a href="../cell/EffectfulReadOnly-mixin.html">EffectfulReadOnly</a> — the mixins receptors and rules use
+to declare their purity.</li>
+<li><a href="../cell/EffectJournal-class.html">EffectJournal</a> — the enforcement mechanism for non-pure cells.</li>
+</ul>
 </section>
 
 
@@ -223,7 +228,7 @@ is reproducible.</p>
 
 </dt>
 <dd>
-  Whether this purity requires an <code>EffectJournal</code> to replay.
+  Whether this purity requires an <a href="../cell/EffectJournal-class.html">EffectJournal</a> to replay.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -342,7 +347,7 @@ is reproducible.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

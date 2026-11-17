@@ -56,14 +56,15 @@
 <section class="desc markdown">
   <p>The graph-scoped ambient that coordinates state capture and ledger
 append.</p>
+<h3 id="when-to-use">When to use</h3>
 <p><code>LedgerScope</code> is <strong>not</strong> per-pulse (that is <code>JournalScope</code>'s role);
-it lives for the lifetime of a <code>CellGraph</code>'s binding to a <code>Ledger</code>.
+it lives for the lifetime of a <a href="../cell/CellGraph-class.html">CellGraph</a>'s binding to a <a href="../cell/Ledger-class.html">Ledger</a>.
 It provides two functions:</p>
 <ul>
-<li><code>captureDelta</code> — called by <code>ValueCell.postProcessRule</code> when a cell
+<li><a href="../cell/LedgerScope/captureDelta.html">captureDelta</a> — called by <code>ValueCell.postProcessRule</code> when a cell
 commits a new value. Appends the delta to the <em>current pulse's</em>
 pending list. No-op if no <code>Ledger</code> is bound.</li>
-<li><code>recordAndAppend</code> — called by <code>Cell.apply</code> and the <code>ValueCell</code>
+<li><a href="../cell/LedgerScope/recordPulse.html">recordPulse</a> — called by <code>Cell.apply</code> and the <code>ValueCell</code>
 emit path after the receptor has produced its output. Takes the
 pulse, the receipt, and the effects from the active <code>JournalScope</code>,
 combines them with the deltas captured during the pulse's
@@ -79,11 +80,16 @@ The two halves must meet somewhere; <code>LedgerScope</code> is that meeting
 point.</p>
 <h3 id="non-obvious-no-scope-means-no-ledger">Non-obvious: no scope means no ledger</h3>
 <p>If no <code>LedgerScope</code> is active (a cell used outside a <code>CellGraph</code>),
-<code>captureDelta</code> and <code>recordAndAppend</code> are silent no-ops. This is what
+<a href="../cell/LedgerScope/captureDelta.html">captureDelta</a> and <a href="../cell/LedgerScope/recordPulse.html">recordPulse</a> are silent no-ops. This is what
 keeps existing code working: the framework's default is <em>not</em> to
 record, and recording is an opt-in provided by <code>CellGraph</code> +
-<code>Ledger</code>. A user who wants auditable state binds a ledger; a user who
+<a href="../cell/Ledger-class.html">Ledger</a>. A user who wants auditable state binds a ledger; a user who
 does not, does not pay.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/CellGraph/run.html">CellGraph.run</a> — pushes a scope around a body of work.</li>
+<li><a href="../cell/JournalScope-class.html">JournalScope</a> — the per-pulse stack this scope coordinates with.</li>
+</ul>
 </section>
 
 
@@ -251,8 +257,7 @@ close carries it in the entry's <code>effects</code> list.
 no receipt exists (the direct <code>ValueCell</code> emit path), a synthetic
 receipt is produced from <code>emitCell</code> and <code>emitFunction</code>. The caller
 remains synchronous: the append is queued on the scope's
-serialisation chain and drained when the enclosing
-<code>LedgerScope.run</code> completes.
+serialisation chain and drained when the enclosing <a href="../cell/LedgerScope/run.html">run</a> completes.
   
 
 </dd>
@@ -332,7 +337,7 @@ is synchronous.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

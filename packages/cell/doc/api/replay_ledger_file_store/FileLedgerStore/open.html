@@ -66,8 +66,18 @@
     
 <section class="desc markdown">
   <p>Opens (or creates) the ledger at <code>path</code>.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>Reads the existing file to populate the head caches, then opens for
 append.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>path</code>: The JSONL file to open (created if missing).</li>
+<li><code>genesisHash</code>: The chain genesis the store is created with.</li>
+<li><code>fsyncEachAppend</code>: Accepted for API compatibility; see the class
+honesty notes.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The opened store.</p>
 </section>
 
 
@@ -134,7 +144,7 @@ append.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

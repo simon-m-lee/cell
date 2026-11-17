@@ -64,6 +64,13 @@
     
 <section class="desc markdown">
   <p>Encodes <code>context</code> (and its full lineage) to a canonical JSON map.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>context</code>: The pulse context to encode.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The canonical JSON map, whose <code>lineage</code> key holds the delta array in
+root-first, leaf-last order — matching the <a href="../../cell/PulseContextCodec/fromJson.html">fromJson</a> fold order.</p>
 </section>
 
 
@@ -109,7 +116,7 @@
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

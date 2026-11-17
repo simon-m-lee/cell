@@ -68,6 +68,13 @@
 <code>null</code> if the version is not registered — the caller must then
 either fall back to the live implementation (if its version
 matches) or fail loudly.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>cellId</code>: The cell whose historical implementation is resolved.</li>
+<li><code>version</code>: The version to resolve.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The registered <code>(receptor, testRule)</code> pair, or <code>null</code>.</p>
 </section>
 
 
@@ -109,7 +116,7 @@ matches) or fail loudly.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

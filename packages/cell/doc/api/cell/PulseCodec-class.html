@@ -55,18 +55,26 @@
     
 <section class="desc markdown">
   <p>Canonical serialiser for <a href="../cell/Pulse-class.html">Pulse</a>.</p>
-<p>Encodes the payload, type, priority, timestamp, source (by cell id),
-trace, <code>PulseContext</code> lineage, and a <strong>parent digest</strong>. The parent is
-not recursively serialised — only the digest of its own canonical form —
-because deep chains would balloon the wire format, and because identical
-parent pulses should collapse to identical hashes (that is what makes
-replay reconstructable from the ledger).</p>
-<h3 id="the-materialise-boundary">The materialise boundary</h3>
+<h3 id="how-it-works">How it works</h3>
+<p><a href="../cell/PulseCodec/toJson.html">toJson</a> encodes the payload, type, priority, timestamp, source (by
+cell id), trace, <a href="../cell/PulseContext-class.html">PulseContext</a> lineage, and a <strong>parent digest</strong>. The
+parent is not recursively serialised — only the digest of its own
+canonical form — because deep chains would balloon the wire format, and
+because identical parent pulses should collapse to identical hashes
+(that is what makes replay reconstructable from the ledger). <a href="../cell/PulseCodec/fromJson.html">fromJson</a>
+is the inverse: it verifies the parent digest and rebuilds the chain
+bottom-up, root first.</p>
+<h3 id="non-obvious-the-materialise-boundary">Non-obvious: the materialise boundary</h3>
 <p>The hot path produces <code>_FastPulse</code>/<code>_StepPulse</code> flyweights. Those carry
 their state in plain fields instead of the canonical record, so <a href="../cell/PulseCodec/toJson.html">toJson</a>
 rejects them by default and <a href="../cell/PulseCodec/materialise.html">materialise</a> is the <em>explicit</em> boundary
 that replaces them with equivalent plain <code>_Pulse</code> nodes. Always encode
 <code>PulseCodec.toJson(PulseCodec.materialise(pulse))</code>.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/PulseContextCodec-class.html">PulseContextCodec</a> — the context codec this serialiser delegates to.</li>
+<li><a href="../replay_codec_fingerprint/fingerprint.html">fingerprint</a> — the hashing primitive the parent digests use.</li>
+</ul>
 </section>
 
 
@@ -233,7 +241,7 @@ plain <code>_Pulse</code> nodes that the codec accepts.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

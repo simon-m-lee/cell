@@ -68,9 +68,17 @@
 <section class="desc markdown">
   <p>Registers <code>receptor</code> and <code>testRule</code> as the implementation for
 <code>cellId</code> at <code>version</code>. Both must have the same version string.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>Registering the same <code>(cellId, version)</code> twice is a no-op if the
 implementations are identical (by identity); otherwise it throws
 <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a> — a version must map to exactly one implementation.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>cellId</code>: The cell whose historical implementation is registered.</li>
+<li><code>version</code>: The version string both implementations report.</li>
+<li><code>receptor</code>: The historical receptor.</li>
+<li><code>testRule</code>: The historical test rule.</li>
+</ul>
 </section>
 
 
@@ -133,7 +141,7 @@ implementations are identical (by identity); otherwise it throws
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

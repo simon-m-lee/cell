@@ -12,7 +12,8 @@ part of '../../../cell.dart';
 
 /// Emits only after [source] has been quiet for [duration].
 ///
-/// the journal (D6 breaking change): the wait is the non-determinism, so
+/// ### Journal requirement
+/// The wait is the non-determinism, so
 /// `journal:` is required — the timer runs through the journal's `timer`
 /// primitive. On replay, the fire callback is invoked in journal order
 /// instead of after a real wait.

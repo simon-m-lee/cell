@@ -71,11 +71,18 @@
 ledger at all). The engine pushes a <strong>ReplayJournal</strong> per entry so
 the receptor's effectful calls are served from the recording, not
 re-executed against the real world.</p>
-<p>On success, returns a <a href="../../cell/ReplayResult-class.html">ReplayResult</a> whose <code>newSnapshot</code> is the
-target graph's state at the end of replay. On failure (strict
-mode), throws <a href="../../cell/ReplayDivergenceException-class.html">ReplayDivergenceException</a>. In lenient mode,
-returns a result with <code>success == false</code> and non-empty
-<code>divergences</code>.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>ledger</code>: The recorded history to replay.</li>
+<li><code>target</code>: The graph to replay into.</li>
+<li><code>fromSeq</code>: The first ledger sequence to replay.</li>
+<li><code>options</code>: Strictness flags; defaults to <a href="../../cell/ReplayOptions/strict-constant.html">ReplayOptions.strict</a>.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>On success, a <a href="../../cell/ReplayResult-class.html">ReplayResult</a> whose <code>newSnapshot</code> is the target
+graph's state at the end of replay. On failure (strict mode),
+throws <a href="../../cell/ReplayDivergenceException-class.html">ReplayDivergenceException</a>. In lenient mode, returns a
+result with <code>success == false</code> and non-empty <code>divergences</code>.</p>
 <h3 id="non-obvious-the-purity-gate-is-the-journal-not-a-pre-check">Non-obvious: the purity gate is the journal, not a pre-check</h3>
 <p>The engine does not consult <code>CellGraph.purityOf</code> up front. An
 <code>effectful</code> cell whose entry records no effects replays "fine" —
@@ -211,7 +218,7 @@ pre-validation is a later hardening.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

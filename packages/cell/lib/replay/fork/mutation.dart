@@ -8,6 +8,7 @@ part of '../../cell.dart';
 
 /// A what-if mutation hook.
 ///
+/// ### How it works
 /// The engine calls `mutation(entry, pulse)` for each entry it is about
 /// to replay. The return value controls what happens to that entry in
 /// the fork:
@@ -26,7 +27,7 @@ part of '../../cell.dart';
 /// recorded payload
 ///
 /// The engine reconstructs the input pulse from the entry (the replay
-/// `PulseReconstructor`), then calls the hook. This means the hook has
+/// [PulseReconstructor]), then calls the hook. This means the hook has
 /// access to the pulse's `source`, `timestamp`, and `priority` — not
 /// just the payload. A mutation that wants to inject a different
 /// priority can do so; a mutation that wants to change the source
@@ -47,4 +48,7 @@ part of '../../cell.dart';
 /// forking revision. The fork ledger re-appends each replayed pulse
 /// even when the mutation returns `pulse` unchanged so the fork's
 /// history stays self-verifiable without the parent.
+///
+/// See also:
+/// * [ReplayEngineFork.replayFork] — consumes this hook.
 typedef Mutation = Pulse? Function(LedgerEntry entry, Pulse pulse);

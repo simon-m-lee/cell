@@ -9,14 +9,15 @@ part of '../../cell.dart';
 /// The graph-scoped ambient that coordinates state capture and ledger
 /// append.
 ///
+/// ### When to use
 /// `LedgerScope` is **not** per-pulse (that is `JournalScope`'s role);
-/// it lives for the lifetime of a `CellGraph`'s binding to a `Ledger`.
+/// it lives for the lifetime of a [CellGraph]'s binding to a [Ledger].
 /// It provides two functions:
 ///
-/// * `captureDelta` — called by `ValueCell.postProcessRule` when a cell
+/// * [captureDelta] — called by `ValueCell.postProcessRule` when a cell
 ///   commits a new value. Appends the delta to the *current pulse's*
 ///   pending list. No-op if no `Ledger` is bound.
-/// * `recordAndAppend` — called by `Cell.apply` and the `ValueCell`
+/// * [recordPulse] — called by `Cell.apply` and the `ValueCell`
 ///   emit path after the receptor has produced its output. Takes the
 ///   pulse, the receipt, and the effects from the active `JournalScope`,
 ///   combines them with the deltas captured during the pulse's
@@ -35,11 +36,17 @@ part of '../../cell.dart';
 /// ### Non-obvious: no scope means no ledger
 ///
 /// If no `LedgerScope` is active (a cell used outside a `CellGraph`),
-/// `captureDelta` and `recordAndAppend` are silent no-ops. This is what
+/// [captureDelta] and [recordPulse] are silent no-ops. This is what
 /// keeps existing code working: the framework's default is *not* to
 /// record, and recording is an opt-in provided by `CellGraph` +
-/// `Ledger`. A user who wants auditable state binds a ledger; a user who
+/// [Ledger]. A user who wants auditable state binds a ledger; a user who
 /// does not, does not pay.
+///
+/// See also:
+/// * [CellGraph.run] — pushes a scope around a body of work.
+/// * [JournalScope] — the per-pulse stack this scope coordinates with.
+/// {@category Replay}
+/// {@category Ledger}
 class LedgerScope {
   static final Object _key = Object();
 
@@ -52,6 +59,13 @@ class LedgerScope {
   /// and drains the scope's queued appends before returning so a
   /// synchronous `body` that performed `ValueCell.update`s has its
   /// entries committed by the time this resolves.
+  ///
+  /// ### Parameters:
+  /// - [scope]: The scope implementation to push.
+  /// - [body]: The work to run under the scope.
+  ///
+  /// ### Returns:
+  /// The body's result, after the scope's queued appends have drained.
   static Future<T> run<T>(
     LedgerScopeImpl scope,
     FutureOr<T> Function() body,
@@ -102,8 +116,16 @@ class LedgerScope {
   /// no receipt exists (the direct `ValueCell` emit path), a synthetic
   /// receipt is produced from [emitCell] and [emitFunction]. The caller
   /// remains synchronous: the append is queued on the scope's
-  /// serialisation chain and drained when the enclosing
-  /// `LedgerScope.run` completes.
+  /// serialisation chain and drained when the enclosing [run] completes.
+  ///
+  /// ### Parameters:
+  /// - [pulse]: The pulse whose effects and deltas are recorded.
+  /// - [receipt]: The `ApplyReceipt`, when the pulse came from
+  ///   `Cell.apply`.
+  /// - [emitCell]: The emitting cell, for the synthetic-receipt path.
+  /// - [emitFunction]: The emitting function, for the synthetic-receipt
+  ///   path.
+  /// - [emittedValue]: The emitted value, for the synthetic-receipt path.
   static void recordPulse({
     required Pulse pulse,
     ApplyReceipt? receipt,
@@ -152,9 +174,19 @@ class LedgerScope {
   /// with it the operator's cooperative [captureEffect] calls — so the
   /// entry carries the effects and deltas the pulse actually produced.
   ///
+  /// ### Non-obvious: burst attribution
+  ///
   /// Bursts of emits that do not wait for their asynchronous work to
   /// settle share one settlement turn; their effect attribution is a
-  /// A later revision's concern (pulse-tagged effect windows).
+  /// later revision's concern (pulse-tagged effect windows).
+  ///
+  /// ### Parameters:
+  /// - [pulse]: The pulse whose settlement is recorded.
+  /// - [receipt]: The `ApplyReceipt`, when one exists.
+  /// - [emitCell]: The emitting cell, for the synthetic-receipt path.
+  /// - [emitFunction]: The emitting function, for the synthetic-receipt
+  ///   path.
+  /// - [emittedValue]: The emitted value, for the synthetic-receipt path.
   static void recordPulseDeferred({
     required Pulse pulse,
     ApplyReceipt? receipt,

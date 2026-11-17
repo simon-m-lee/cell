@@ -65,6 +65,33 @@
 <code>package:cell/cell.dart</code> directly:</p>
 <pre class="language-dart"><code class="language-dart">import 'package:cell/replay.dart';
 </code></pre>
+<h3 id="when-to-use">When to use</h3>
+<p>The core <code>cell</code> library is large and web-safe. The replay module is
+opt-in: an application that does not need forensic history, hash
+chains, or fork branching pays nothing for them. This barrel is the
+focused, stable surface a replay consumer imports, so the public
+replay API can evolve without broadening the core import.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>This library is a pure re-export barrel. It contains no logic: it
+forwards the replay types (codecs, graph registry, journal, ledger,
+replay engine, fork branching, governance replay, and visualisation
+tooling) from their defining parts and from the core <code>cell</code> library.
+<code>FileLedgerStore</code> is exported from a standalone <code>dart:io</code> library so
+that the web-safe core never imports <code>dart:io</code>.</p>
+<h3 id="non-obvious-complementary-to-core-cross-process-identity">Non-obvious: complementary to core, cross-process identity</h3>
+<ul>
+<li><strong>Complementary to core</strong>: nothing in <code>package:cell/cell.dart</code> is
+duplicated here; the two libraries share the same types.</li>
+<li><strong>Cross-process identity</strong>: a ledger recorded in one process can
+only be replayed in another if every cell was registered with a
+<a href="../cell/CellGraph-class.html">CellGraph</a> — registration is what makes identity stable.</li>
+</ul>
+<p>See also:</p>
+<ul>
+<li><code>package:cell/cell.dart</code> — the core library this barrel complements.</li>
+<li><code>lib/replay/cli/cli.dart</code> — the standalone CLI (<code>dart:io</code>, cannot be
+exported from a web-safe barrel).</li>
+</ul>
 </section>
 
 
@@ -181,7 +208,7 @@ framework.
 
 </dt>
 <dd>
-  A <code>LedgerStore</code> wrapper that injects a synthetic <code>ForkRecord</code> entry
+  A <a href="../cell/LedgerStore-class.html">LedgerStore</a> wrapper that injects a synthetic <a href="../cell/ForkRecord-class.html">ForkRecord</a> entry
 at seq 0.
 </dd>
 
@@ -522,7 +549,7 @@ database lookups). Reports <a href="../cell/Purity.html">Purity.readOnlyExternal
 
 </dt>
 <dd>
-  Fork-aware verification. A fork's <code>verify()</code> requires the parent
+  Fork-aware verification. A fork's <a href="../cell/ForkVerify/verify.html">verify</a> requires the parent
 ledger's <code>verify()</code> to pass.
 </dd>
 
@@ -576,7 +603,7 @@ applying a <a href="../cell/Mutation.html">Mutation</a> to each entry.
 
 </dt>
 <dd>
-  A deterministic JSON encoder.
+  Encodes <code>value</code> into deterministic, canonical JSON.
   
 
 </dd>
@@ -589,7 +616,8 @@ applying a <a href="../cell/Mutation.html">Mutation</a> to each entry.
 
 </dt>
 <dd>
-  Computes the SHA-256 fingerprint of a canonical JSON value, hex-encoded.
+  Computes the SHA-256 fingerprint of <code>value</code>'s canonical JSON form,
+hex-encoded.
   
 
 </dd>
@@ -669,6 +697,7 @@ predecessor chain does not match.
         <li><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
         <li><a href="../topics/Transactions-topic.html">Transactions</a></li>
         <li><a href="../topics/Apply + Transactions-topic.html">Apply&nbsp;+&nbsp;Transactions</a></li>
+        <li><a href="../topics/Causal Replay-topic.html">Causal&nbsp;Replay</a></li>
         <li><a href="../topics/Pulse-topic.html">Pulse</a></li>
         <li><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
         <li><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
@@ -684,14 +713,15 @@ predecessor chain does not match.
       <li class="section-title">Libraries</li>
       <li><a href="../cell_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
       <li><a href="../cell_api_chooser/">doc\api_chooser</a></li>
-      <li><a href="../replay/">replay</a></li>
       <li><a href="../replay_cli_cli/">replay\cli\cli</a></li>
       <li><a href="../replay_codec_canonical_json/">replay\codec\canonical_json</a></li>
       <li><a href="../replay_codec_fingerprint/">replay\codec\fingerprint</a></li>
       <li><a href="../replay_ledger_file_store/">replay\ledger\file_store</a></li>
-      <li><a href="../replay_replay/">replay\replay</a></li>
       <li class="section-subtitle">Features</li>
         <li class="section-subitem"><a href="../cell/">cell</a></li>
+      <li class="section-subtitle">Replay</li>
+        <li class="section-subitem"><a href="../replay/">replay</a></li>
+        <li class="section-subitem"><a href="../replay_replay/">replay\replay</a></li>
 </ol>
 
   </div>
@@ -702,7 +732,7 @@ predecessor chain does not match.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

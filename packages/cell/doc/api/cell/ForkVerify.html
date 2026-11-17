@@ -54,8 +54,9 @@
 
     
 <section class="desc markdown">
-  <p>Fork-aware verification. A fork's <code>verify()</code> requires the parent
+  <p>Fork-aware verification. A fork's <a href="../cell/ForkVerify/verify.html">verify</a> requires the parent
 ledger's <code>verify()</code> to pass.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>The verification steps are:</p>
 <ol>
 <li><strong>Parent ledger verification</strong>: the parent must be intact. A fork
@@ -67,6 +68,11 @@ must match the parent's hash at <code>divergedAt</code>. This is what makes
 the fork a <em>fork</em> — a fork record whose <code>parentHeadHash</code> does
 not match the parent's actual hash is either stale or forged.</li>
 </ol>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/ForkHandle-class.html">ForkHandle</a> — the handle this extension verifies.</li>
+<li><a href="../cell/ForkIntegrityException-class.html">ForkIntegrityException</a> — what a failed verification throws.</li>
+</ul>
 </section>
 
     <section>
@@ -138,7 +144,7 @@ binding intact.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

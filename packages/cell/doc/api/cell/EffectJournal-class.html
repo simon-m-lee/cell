@@ -56,6 +56,7 @@
     
 <section class="desc markdown">
   <p>The boundary between a receptor and the outside world.</p>
+<h3 id="when-to-use">When to use</h3>
 <p>Every observation that is not a function of the receptor's inputs is
 routed through an <a href="../cell/EffectJournal-class.html">EffectJournal</a>. On the recording side, the journal
 captures each observation; on the replay side, it serves the recorded
@@ -65,11 +66,18 @@ identical in both cases — this is what makes replay exact.</p>
 <p>An outer transaction might record an effect, while an inner evaluation
 (e.g. a what-if branch) needs to be replayed from a different journal
 without disturbing the outer recording. <code>JournalScope</code> keeps a stack;
-<code>EffectJournal.current</code> returns the top of the stack. The stack is
-task-local (see <code>JournalScope</code>) — a <code>Future</code> spawned outside the
+<a href="../cell/EffectJournal/current.html">EffectJournal.current</a> returns the top of the stack. The stack is
+task-local (see <a href="../cell/JournalScope-class.html">JournalScope</a>) — a <code>Future</code> spawned outside the
 scope does <em>not</em> inherit the journal, which is deliberate: a spawned
 task whose effects are not journalled is a bug we want to surface, not
 hide.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/RecordingJournal-class.html">RecordingJournal</a> — the recording side.</li>
+<li><a href="../cell/ReplayJournal-class.html">ReplayJournal</a> — the replay side.</li>
+<li><a href="../cell/NullJournal-class.html">NullJournal</a> — the loud sentinel for "no journal in scope".</li>
+<li><a href="../cell/EffectRecord-class.html">EffectRecord</a> — what a recording writes and a replay consumes.</li>
+</ul>
 </section>
 
 
@@ -196,11 +204,8 @@ calls this after each pulse.
 
 </dt>
 <dd>
-  Record (or replay) an arbitrary I/O call. <code>rawOutput</code> is the value
-the caller's <code>run</code> closure returned; the journal records it (or
-serves the recorded value). If <code>serializeOutput</code> is not supplied, the
-raw result of <code>run</code> is stored directly and must be JSON-encodable —
-non-encodable results throw loudly at the fingerprint boundary.
+  Record (or replay) an arbitrary I/O call. The value the caller's
+<code>run</code> closure returns is recorded (or the recorded value is served).
   
 
 </dd>
@@ -393,7 +398,7 @@ pushed.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

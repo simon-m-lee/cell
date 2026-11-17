@@ -9,7 +9,8 @@ part of '../../cell.dart';
 /// Fork-aware replay: replays a parent ledger into a fork handle,
 /// applying a [Mutation] to each entry.
 ///
-/// The fork engine's core addition to `ReplayEngine`. It shares the
+/// ### When to use
+/// As the fork engine's core addition to [ReplayEngine]. It shares the
 /// engine's reconstruction machinery but:
 ///
 /// * **Applies the mutation** before dispatch: `mutation(entry, pulse)`
@@ -20,15 +21,28 @@ part of '../../cell.dart';
 /// * **Does not verify against the parent's deltas** — the fork is
 ///   *expected* to diverge; its own ledger records what it actually
 ///   did.
+///
+/// See also:
+/// * [CellGraphFork.fork] — creates the fork handle this replays into.
+/// * [Mutation] — the hook this extension applies per entry.
+/// {@category Replay}
 extension ReplayEngineFork on ReplayEngine {
-  /// Replays [fork.parent]'s entries from `fork.record.divergedAt + 1`
+  /// Replays the [ForkHandle.parent] ledger's entries from
+  /// `fork.record.divergedAt + 1`
   /// into `fork.graph`, applying [mutation] to each entry.
   ///
-  /// [mutation] receives the reconstructed input pulse. Returning
-  /// `null` drops the entry (the fork's ledger will not contain it).
-  /// Returning a pulse — same or different — replays that pulse into
-  /// the fork's graph.
+  /// ### Parameters:
+  /// - [fork]: The fork handle to replay into.
+  /// - [mutation]: Receives the reconstructed input pulse for each
+  ///   entry. Returning `null` drops the entry (the fork's ledger will
+  ///   not contain it). Returning a pulse — same or different — replays
+  ///   that pulse into the fork's graph.
+  /// - [options]: Strictness flags; defaults to [ReplayOptions.strict].
   ///
+  /// ### Returns:
+  /// The replay result.
+  ///
+  /// ### How it works
   /// The fork's ledger is written via `fork.ledger.appendInternal`.
   /// This is the *only* path that writes a fork ledger; a fork does
   /// not accept external `append` calls.
@@ -199,9 +213,10 @@ extension ReplayEngineFork on ReplayEngine {
         ReplayEngine._checkVersions(entry: entry, target: fork.graph);
     if (versionCheck.report != null) return versionCheck.report;
 
-    // The fork's actual before-values — read BEFORE dispatch. (The doc
-    // assumed the parent entry's before; that equality holds only until
-    // the first mutation, after which the fork's history is its own.)
+    // The fork's actual before-values — read BEFORE dispatch. (Assuming
+    // the parent entry's `before` is wrong: that equality holds only
+    // until the first mutation, after which the fork's history is its
+    // own.)
     final beforeEncoded = <String, Object?>{};
     for (final root in fork.graph.roots) {
       final c = root.cell;

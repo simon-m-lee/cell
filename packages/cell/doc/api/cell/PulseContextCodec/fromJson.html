@@ -64,10 +64,17 @@
     
 <section class="desc markdown">
   <p>Reconstructs a <a href="../../cell/PulseContext-class.html">PulseContext</a> from <a href="../../cell/PulseContextCodec/toJson.html">toJson</a>'s output.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>The <code>others</code> maps of each generation are preserved verbatim. Any
 property that was resolved by inheritance is <em>not</em> re-materialised
 here; it is re-resolved by the fold, matching the runtime's own
 resolution rules.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>json</code>: The canonical map produced by <a href="../../cell/PulseContextCodec/toJson.html">toJson</a>.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The reconstructed context chain.</p>
 </section>
 
 
@@ -132,7 +139,7 @@ resolution rules.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

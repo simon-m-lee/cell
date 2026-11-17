@@ -123,7 +123,7 @@ input pulse to an output pulse. Return <code>null</code> to suppress the signal.
 <p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
 <strong>When to use:</strong> A BRD says "show X derived from Y" — pure projection, no policy branches.
 <strong>When NOT to use:</strong> policy clauses (that is a <code>cell_flow</code> instruction); retained storage (that is <code>Cell.state</code>).
-<strong>Live signature:</strong> <code>Cell.derive&lt;I extends Pulse, O extends Pulse&gt;({required Cell source, required O? Function(I) project})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Live signature:</strong> <code>Cell.derive&lt;I extends Pulse, O extends Pulse&gt;({required Cell source, required O? Function(I) project})</code> — pinned at <code>cell: 2.0.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell.synthesis</code> (fan-in from many sources, not 1-to-1).
 <strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)
 <strong>Example:</strong> <code>example/derive_demo.dart</code>
@@ -148,16 +148,15 @@ o.stop();
   required Cell source,
   required O? Function(I input) project,
 }) {
-  &#47;&#47; Implementation links the receptor to the projection logic
   return Cell(
     bind: source,
     receptor: Receptor((cell, pulse, {user}) {
-      try {
-        return project(pulse as I);
-      } catch (e) {
-        &#47;&#47; Internal integrity check for type mismatch
-        return null;
+      if (pulse is! I) return null;
+      final projected = project(pulse);
+      if (projected != null) {
+        _retainLatest(cell, projected);
       }
+      return projected;
     }),
   );
 }</code></pre>
@@ -188,7 +187,7 @@ o.stop();
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

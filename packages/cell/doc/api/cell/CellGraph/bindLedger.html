@@ -63,14 +63,21 @@
     </section>
     
 <section class="desc markdown">
-  <p>Binds <code>this</code> graph to a new ledger backed by <code>store</code>. Runs
+  <p>Binds this graph to a new ledger backed by <code>store</code>. Runs
 <code>Ledger.openVerified</code> so a corrupt store fails at bind time, not on
 first append.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>Every subsequent <code>Cell.apply</code> / <code>ValueCell.update</code> on a cell in this
 graph — inside <a href="../../cell/CellGraph/run.html">run</a> — is recorded in the ledger. Binding is
 <strong>idempotent</strong>: if the graph is already bound, throws <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a> —
 a graph cannot have two ledgers, and silently swapping would leave
 the old ledger permanently incomplete.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>store</code>: The persistence backend for the new ledger.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The opened and verified ledger.</p>
 </section>
 
 
@@ -115,7 +122,7 @@ the old ledger permanently incomplete.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

@@ -60,10 +60,16 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a builder. Pass <code>graphId: null</code> to auto-generate one from a
-UUID; pass a specific value to reproduce a graph across processes
-(a snapshot taken from one graph can be restored into another with
-the same <code>graphId</code>).</p>
+  <p>Creates a builder.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>graphId</code>: Pass <code>null</code> to auto-generate one from a UUID; pass a
+specific value to reproduce a graph across processes (a snapshot
+taken from one graph can be restored into another with the same
+<code>graphId</code>).</li>
+<li><code>strict</code>: If <code>true</code> (default), reachability and bind-target checks
+are enforced.</li>
+</ul>
 </section>
 
 
@@ -100,7 +106,7 @@ the same <code>graphId</code>).</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

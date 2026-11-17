@@ -54,22 +54,28 @@
 
     
 <section class="desc markdown">
-  <p>A <code>LedgerStore</code> wrapper that injects a synthetic <code>ForkRecord</code> entry
+  <p>A <a href="../cell/LedgerStore-class.html">LedgerStore</a> wrapper that injects a synthetic <a href="../cell/ForkRecord-class.html">ForkRecord</a> entry
 at seq 0.</p>
-<p>This lets <code>Ledger</code> and <code>Ledger.verify</code> operate on a fork without
+<h3 id="when-to-use">When to use</h3>
+<p>This lets <a href="../cell/Ledger-class.html">Ledger</a> and <code>Ledger.verify</code> operate on a fork without
 changing their implementation — the fork is just a ledger whose
-genesis happens to be a <code>ForkRecord</code>.</p>
+genesis happens to be a <a href="../cell/ForkRecord-class.html">ForkRecord</a>.</p>
 <h3 id="non-obvious-the-synthetic-entry-is-a-real-chain-entry">Non-obvious: the synthetic entry is a <em>real</em> chain entry</h3>
 <p>Its <code>hash</code> is computed by the same <code>HashChain.nextHash</code> every other
 entry uses (<code>prevHash</code> = the fork record's genesis hash, seq 0, empty
 pulse/effects/deltas, stable synthetic receipt). The fork's real
-entries then chain from that hash. The doc's alternative — making the
-synthetic hash equal <code>ForkRecord.genesisHash</code> — cannot verify: the
-recomputed hash would differ from the stored one.</p>
+entries then chain from that hash. Making the
+synthetic hash equal <a href="../cell/ForkRecord/genesisHash.html">ForkRecord.genesisHash</a> instead would not
+verify: the recomputed hash would differ from the stored one.</p>
 <p>The synthetic entry is also <strong>injected into the inner store</strong> on the
 first append: the inner store's genesis check must pass
 against the fork record's genesis hash, and it can only pass for the
 synthetic entry itself.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/ForkRecord-class.html">ForkRecord</a> — the record materialised as seq 0.</li>
+<li><a href="../cell/ForkHandle-class.html">ForkHandle</a> — the handle that owns one of these stores.</li>
+</ul>
 </section>
 
 
@@ -336,7 +342,7 @@ appending a real entry.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

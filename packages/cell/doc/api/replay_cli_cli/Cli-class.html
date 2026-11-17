@@ -57,6 +57,7 @@
     
 <section class="desc markdown">
   <p>The <code>cell-replay</code> command-line interface.</p>
+<h3 id="when-to-use">When to use</h3>
 <p>Subcommands:</p>
 <ul>
 <li><code>verify &lt;ledger&gt;</code> — verifies a ledger's hash chain and (if a graph
@@ -70,6 +71,10 @@ causal chain.</li>
 <li><code>inspect &lt;ledger&gt;</code> — prints a human‑readable summary of the ledger
 (entry count, time range, cells touched, divergence state).</li>
 </ul>
+<h3 id="how-it-works">How it works</h3>
+<p><a href="../replay_cli_cli/Cli/run.html">run</a> parses the first argument as a subcommand, dispatches to the
+matching private handler, and maps failures to the documented exit
+codes.</p>
 </section>
 
 
@@ -208,7 +213,7 @@ causal chain.</li>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

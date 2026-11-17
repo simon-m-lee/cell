@@ -8,9 +8,10 @@ part of '../../cell.dart';
 
 /// A single, immutable row in the ledger.
 ///
+/// ### How it works
 /// The row is the atomic unit of persistence: `append` writes it
 /// atomically, `verify` checks its hash against the previous row, and
-/// `entriesSince` reads them sequentially. Its `toJson` form is what
+/// `entriesSince` reads them sequentially. Its [toJson] form is what
 /// `FileLedgerStore` writes (one JSON object per line) and what a future
 /// network store would transmit.
 ///
@@ -22,6 +23,12 @@ part of '../../cell.dart';
 /// lets the replay engine reconstruct the pulse without re-storing the
 /// chain, and it is why `PulseCodec.toJson` captures the parent's digest
 /// rather than the parent itself.
+///
+/// See also:
+/// * [Ledger] — the hash-chained record these rows belong to.
+/// * [StateDelta] — the deltas this entry carries.
+/// {@category Replay}
+/// {@category Ledger}
 class LedgerEntry {
   /// Monotonic sequence number. Genesis is 0.
   final int seq;
@@ -59,11 +66,11 @@ class LedgerEntry {
 
   /// The materialised pulse JSON (`PulseCodec.toJson` of the
   /// materialised input pulse), when the entry was produced by a
-  /// post-hardening append. This is the pulse *body* — the reviewer's
-  /// closing criterion: `fingerprint(pulseJson)` equals [pulseDigest],
+  /// post-hardening append. This is the pulse *body*:
+  /// `fingerprint(pulseJson)` equals [pulseDigest],
   /// and replay reconstructs the exact pulse (payload, type, context,
   /// priority, parent chain, trace) from it instead of the
-  /// args-first/delta-after heuristic. Pre-8.3 entries have no body and
+  /// args-first/delta-after heuristic. Older entries that carry no body
   /// fall back to the heuristic.
   final Map<String, Object?>? pulseJson;
 
@@ -74,6 +81,21 @@ class LedgerEntry {
   /// live registry's state.
   final Map<String, Object?>? _storedReceiptJson;
 
+  /// Creates a [LedgerEntry].
+  ///
+  /// ### Parameters:
+  /// - [seq]: Monotonic sequence number. Genesis is 0.
+  /// - [prevHash]: The hash of the previous entry.
+  /// - [hash]: This entry's hash.
+  /// - [pulseDigest]: SHA-256 of the pulse that produced this entry.
+  /// - [receipt]: The `ApplyReceipt` for the mutation.
+  /// - [effects]: The effects recorded during this pulse's processing.
+  /// - [deltas]: The state deltas produced by this pulse.
+  /// - [at]: Wall-clock time the entry was committed.
+  /// - [pulseJson]: The materialised pulse JSON, when the entry was
+  ///   produced by a post-hardening append.
+  /// - [receiptJson]: The original receipt JSON, carried by reloaded
+  ///   entries so the digest stays byte-identical to the stored form.
   const LedgerEntry({
     required this.seq,
     required this.prevHash,
@@ -120,7 +142,7 @@ class LedgerEntry {
   /// SHA-256 of the receipt. The digest is computed over the SAME
   /// canonical JSON form the entry stores — including the back-filled
   /// `ledgerSeq`, `pulseDigest` and governance version fields (review
-  /// fix: the doc previously claimed those were excluded;
+  /// fix: earlier documentation claimed those were excluded;
   /// `_receiptJson` has always included them).
   ///
   /// Reloaded entries carry their original stored receipt JSON (a live
@@ -201,6 +223,7 @@ class LedgerEntry {
     return inner;
   }
 
+  /// Serialises this entry to its canonical JSON map.
   Map<String, Object?> toJson() => {
         'seq': seq,
         'prevHash': prevHash,
@@ -215,14 +238,18 @@ class LedgerEntry {
 
   /// Reconstructs an entry from [toJson].
   ///
+  /// ### How it works
   /// `receipt.cell` is resolved from the cell id via
   /// `_ReplayCellRegistry`. If the cell is not registered (e.g. the
   /// ledger is being opened before the graph was rebuilt), the receipt
   /// is reconstructed with a **placeholder** cell whose `id` matches the
   /// recorded one but whose nucleus is an empty stub. The
-  /// `ReplayEngine` refuses to process an entry whose receipt points at
+  /// [ReplayEngine] refuses to process an entry whose receipt points at
   /// a placeholder, which is the correct behaviour: replaying into a
   /// graph that does not contain the cell is a divergence.
+  ///
+  /// ### Parameters:
+  /// - [json]: The canonical map produced by [toJson].
   factory LedgerEntry.fromJson(Map<String, Object?> json) {
     final rawReceipt = json['receipt'] as Map?;
     if (rawReceipt == null) {

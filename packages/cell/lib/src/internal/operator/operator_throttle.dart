@@ -12,7 +12,8 @@ part of '../../../cell.dart';
 
 /// Rate-limits [source] to at most one leading emission per [duration].
 ///
-/// the journal (D6 breaking change): the wait is the non-determinism, so
+/// ### Journal requirement
+/// The wait is the non-determinism, so
 /// `journal:` is required — the window timer runs through the journal's
 /// `timer` primitive. On replay, the fire callback is invoked in journal
 /// order instead of after a real wait.

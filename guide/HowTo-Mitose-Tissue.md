@@ -1,10 +1,10 @@
 # HowTo-Mitose-Tissue.md
 
 **Verified against (version pin):**
-- `package:cell` — `1.1.0`
+- `package:cell` — `2.0.0`
 - `package:cell_flow` — `1.0.0`
 - `package:cell_tissue` — `1.0.0`
-- Checked on: 2026-11-10
+- Checked on: 2026-11-17
 - Next review: on any MAJOR/MINOR bump of the above.
 
 

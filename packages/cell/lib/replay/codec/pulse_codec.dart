@@ -8,28 +8,45 @@ part of '../../cell.dart';
 
 /// Canonical serialiser for [Pulse].
 ///
-/// Encodes the payload, type, priority, timestamp, source (by cell id),
-/// trace, `PulseContext` lineage, and a **parent digest**. The parent is
-/// not recursively serialised — only the digest of its own canonical form —
-/// because deep chains would balloon the wire format, and because identical
-/// parent pulses should collapse to identical hashes (that is what makes
-/// replay reconstructable from the ledger).
+/// ### How it works
+/// [toJson] encodes the payload, type, priority, timestamp, source (by
+/// cell id), trace, [PulseContext] lineage, and a **parent digest**. The
+/// parent is not recursively serialised — only the digest of its own
+/// canonical form — because deep chains would balloon the wire format, and
+/// because identical parent pulses should collapse to identical hashes
+/// (that is what makes replay reconstructable from the ledger). [fromJson]
+/// is the inverse: it verifies the parent digest and rebuilds the chain
+/// bottom-up, root first.
 ///
-/// ### The materialise boundary
+/// ### Non-obvious: the materialise boundary
 ///
 /// The hot path produces `_FastPulse`/`_StepPulse` flyweights. Those carry
 /// their state in plain fields instead of the canonical record, so [toJson]
 /// rejects them by default and [materialise] is the *explicit* boundary
 /// that replaces them with equivalent plain `_Pulse` nodes. Always encode
 /// `PulseCodec.toJson(PulseCodec.materialise(pulse))`.
+///
+/// See also:
+/// * [PulseContextCodec] — the context codec this serialiser delegates to.
+/// * [fingerprint] — the hashing primitive the parent digests use.
+/// {@category Replay}
 class PulseCodec {
   const PulseCodec._();
 
   /// Encodes [pulse] into a canonical JSON map.
   ///
-  /// Throws [ArgumentError] if `pulse` is a `_FastPulse` or `_StepPulse`.
-  /// Callers that receive pulses from a hot path must call
-  /// [materialise] first.
+  /// Throws [ArgumentError] if [pulse] is a `_FastPulse` or `_StepPulse` —
+  /// callers that receive pulses from a hot path must call [materialise]
+  /// first.
+  ///
+  /// ### Parameters:
+  /// - [pulse]: The pulse to encode, already materialised.
+  ///
+  /// ### Returns:
+  /// The canonical JSON map. Unset optional fields are stripped so the
+  /// canonical bytes stay compact; the one exception is a locally-null
+  /// payload that overrides a non-null parent payload, which is kept as an
+  /// explicit `null` marker.
   static Map<String, Object?> toJson(Pulse pulse) {
     if (pulse is _FastPulse) {
       throw ArgumentError.value(
@@ -83,16 +100,20 @@ class PulseCodec {
 
   /// Reconstructs a `Pulse<dynamic>` from [toJson]'s output.
   ///
-  /// Returns a plain `_Pulse` (the shape the codec accepts on the way
-  /// out). Callers that need a typed pulse for a typed receptor cast the
-  /// payload before constructing the receiving cell; the codec has no
-  /// way to know the receiving type statically.
+  /// ### Parameters:
+  /// - [json]: The canonical map produced by [toJson].
+  /// - [parent]: The already-reconstructed parent pulse, required when the
+  ///   wire record carries a `parentDigest`. The digest is verified against
+  ///   the supplied parent, and the parent's trace must be a prefix of the
+  ///   wire `trace` (the remainder becomes the leaf's local step).
+  ///   Reconstruct chains bottom-up — root first — so every level
+  ///   round-trips byte-for-byte.
   ///
-  /// [parent] must be supplied by the caller if `parentDigest` is present:
-  /// the digest is verified against the supplied parent, and the parent's
-  /// trace must be a prefix of the wire `trace` (the remainder becomes the
-  /// leaf's local step). Reconstruct chains bottom-up — root first — so
-  /// every level round-trips byte-for-byte.
+  /// ### Returns:
+  /// A plain `_Pulse` (the shape the codec accepts on the way out).
+  /// Callers that need a typed pulse for a typed receptor cast the payload
+  /// before constructing the receiving cell; the codec has no way to know
+  /// the receiving type statically.
   static Pulse<dynamic> fromJson(
     Map<String, Object?> json, {
     Pulse<dynamic>? parent,
@@ -185,10 +206,14 @@ class PulseCodec {
   /// and any un-materialised nodes in its parent chain — with equivalent
   /// plain `_Pulse` nodes that the codec accepts.
   ///
+  /// ### How it works
   /// This is a cold path (called once per pulse before persistence). The
   /// result preserves resolved payload, type, priority, timestamp, source,
   /// context, policy, and the full trace; the flyweight structure itself is
   /// deliberately flattened into the canonical chain shape.
+  ///
+  /// ### Returns:
+  /// The materialised pulse.
   static Pulse<dynamic> materialise(Pulse<dynamic> pulse) {
     if (pulse is _FastPulse) {
       final trace = pulse.trace;
@@ -369,6 +394,7 @@ class PulseCodec {
 /// A decoded plain pulse whose wire record declares a locally-null payload
 /// while its parent carries a non-null payload.
 ///
+/// ### How it works
 /// `_Pulse` cannot express this state: its record drops null payloads, so
 /// the payload getter would fall through to the parent. The runtime's own
 /// semantics do have this state (`EvolvedPulseBase.payload` reads the

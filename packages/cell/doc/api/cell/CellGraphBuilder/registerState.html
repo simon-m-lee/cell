@@ -67,9 +67,16 @@
   <p>Registers a <a href="../../cell/StateHandle.html">StateHandle</a> (the record returned by <a href="../../cell/Cell/state.html">Cell.state</a>)
 under <code>name</code>, returning a handle whose <code>cell</code> is the registered
 wrapper.</p>
-<p>This is the ergonomic path: user code obtains a handle from
-<code>Cell.state(...)</code> and registers it without manually unwrapping.
-The returned handle's <code>cell</code> is the same instance (not a deputy), so
+<h3 id="when-to-use">When to use</h3>
+<p>As the ergonomic path: user code obtains a handle from
+<code>Cell.state(...)</code> and registers it without manually unwrapping.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>name</code>: The graph-scoped name to register the cell under.</li>
+<li><code>handle</code>: The state handle whose cell is registered.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A new handle whose <code>cell</code> is the same instance (not a deputy), so
 <code>handle.cell.id == name</code> after registration.</p>
 </section>
 
@@ -113,7 +120,7 @@ The returned handle's <code>cell</code> is the same instance (not a deputy), so
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

@@ -67,6 +67,24 @@
 </ol>})
     </section>
     
+<section class="desc markdown">
+  <p>Creates a <a href="../../cell/LedgerEntry-class.html">LedgerEntry</a>.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>seq</code>: Monotonic sequence number. Genesis is 0.</li>
+<li><code>prevHash</code>: The hash of the previous entry.</li>
+<li><code>hash</code>: This entry's hash.</li>
+<li><code>pulseDigest</code>: SHA-256 of the pulse that produced this entry.</li>
+<li><code>receipt</code>: The <code>ApplyReceipt</code> for the mutation.</li>
+<li><code>effects</code>: The effects recorded during this pulse's processing.</li>
+<li><code>deltas</code>: The state deltas produced by this pulse.</li>
+<li><code>at</code>: Wall-clock time the entry was committed.</li>
+<li><code>pulseJson</code>: The materialised pulse JSON, when the entry was
+produced by a post-hardening append.</li>
+<li><code>receiptJson</code>: The original receipt JSON, carried by reloaded
+entries so the digest stays byte-identical to the stored form.</li>
+</ul>
+</section>
 
 
     
@@ -111,7 +129,7 @@
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

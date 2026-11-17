@@ -71,9 +71,17 @@
     
 <section class="desc markdown">
   <p>Record (or replay) a single <a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a> tick.</p>
-<p>On the recording side, a <code>PolicyTickEffect</code> is written. On the
+<h3 id="how-it-works">How it works</h3>
+<p>On the recording side, a <a href="../../cell/PolicyTickEffect-class.html">PolicyTickEffect</a> is written. On the
 replay side, the recorded tick is consumed and validated; the
-caller then re-applies it to the <code>CycleChecker</code> (the C4 fix).</p>
+caller then re-applies it to the <code>CycleChecker</code> (the cycle-checker
+reseed).</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>policyLabel</code>: A stable label for the policy.</li>
+<li><code>cellId</code>: The cell on which the policy ticked.</li>
+<li><code>input</code>: The tick's input; its fingerprint is recorded.</li>
+</ul>
 </section>
 
 
@@ -121,7 +129,7 @@ void policyTick({
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

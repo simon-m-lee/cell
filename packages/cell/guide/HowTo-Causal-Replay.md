@@ -1308,9 +1308,6 @@ guide and the three demos.
 - **CLI completion.** `--genesis` (replacing the first-entry
   trust), `verify --graph`, `fork --replaceSeq`/`--replacePayloadJson`,
   `visualise --mode pulses`.
-- **Release bookkeeping.** The `cell` package version remains `1.1.0`;
-  the governance design anticipates a breaking `2.0.0` bump plus a CHANGELOG
-  entry when the replay surface is released (a release decision, deferred).
 - **Migration (future).** Replay across graph *shape* changes is a
   migration problem: translating receptors, renaming cells, and
   re-binding identities. The version machinery (the governance layer) is the

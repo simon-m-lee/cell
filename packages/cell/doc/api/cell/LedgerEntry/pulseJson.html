@@ -64,11 +64,11 @@
 <section class="desc markdown">
   <p>The materialised pulse JSON (<code>PulseCodec.toJson</code> of the
 materialised input pulse), when the entry was produced by a
-post-hardening append. This is the pulse <em>body</em> — the reviewer's
-closing criterion: <code>fingerprint(pulseJson)</code> equals <a href="../../cell/LedgerEntry/pulseDigest.html">pulseDigest</a>,
+post-hardening append. This is the pulse <em>body</em>:
+<code>fingerprint(pulseJson)</code> equals <a href="../../cell/LedgerEntry/pulseDigest.html">pulseDigest</a>,
 and replay reconstructs the exact pulse (payload, type, context,
 priority, parent chain, trace) from it instead of the
-args-first/delta-after heuristic. Pre-8.3 entries have no body and
+args-first/delta-after heuristic. Older entries that carry no body
 fall back to the heuristic.</p>
 </section>
 
@@ -104,7 +104,7 @@ fall back to the heuristic.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

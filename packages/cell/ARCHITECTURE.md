@@ -7,7 +7,7 @@ Task-oriented usage lives in `/guide`. Status and the operator table live
 in [`README.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell/README.md).
 
 This describes **intent plus the mechanisms that exist in source**. Where
-implementation lags the story, §8 says so. Do not treat a field on
+implementation lags the story, §9 says so. Do not treat a field on
 `PulseContext` as a finished compliance program.
 
 ---
@@ -229,13 +229,70 @@ Several isolates do not share one Cell graph.
 
 ---
 
-## 7. Package shape
+## 7. Causal replay
+
+Opt-in module behind `package:cell/replay.dart`. A graph that is
+registered, journalled, and ledgered can be **replayed**: the recorded
+causes (pulses) are re-injected into a freshly built graph, and the
+recorded effects (state deltas) must re-occur. A **fork** is the same
+loop with a mutation applied per entry — the "what-if" mode.
+
+### The layers
+
+| Layer | Pieces | Job |
+| --- | --- | --- |
+| Serialisation | `canonicalJsonEncode` / `canonicalJsonDecode`, `fingerprint`, `PulseCodec`, `PulseContextCodec`, `CellSnapshot` / `CellGraphSnapshot` | Canonical bytes for everything the ledger hashes |
+| Identity + purity | `CellGraph`, `CellGraphBuilder`, `CellGraphRegistry`, `Purity`, `Effectful` / `EffectfulReadOnly` | Stable registered names across processes; declared effect footprints |
+| Journal | `EffectJournal`, `RecordingJournal`, `ReplayJournal`, `NullJournal`, `EffectRecord`, `JournalScope` | Record and re-serve every non-deterministic observation |
+| Ledger | `Ledger`, `LedgerEntry`, `StateDelta`, `HashChain`, `LedgerStore`, `FileLedgerStore`, `LedgerScope` | Append-only hash chain of causes and effects |
+| Engine + forks | `ReplayEngine`, `ReplayResult`, `DivergenceReport`, `PulseReconstructor`, `ForkHandle`, `CellGraphFork`, `ReplayEngineFork`, `ForkVerify` | Replay exactly, or branch a what-if history |
+| Governance replay | `VersionRegistry`, `ContextTranslator`, `TestCellReplay`, `PolicyReplay` | Replay across receptor / rule / mandate versions |
+| Tooling | `CellGraphVisualise`, `LedgerVisualise`, `lib/replay/cli/cli.dart` | Mermaid/DOT views and the `cell-replay` CLI |
+
+### Invariants
+
+1. **Stable identity.** Every cell in a recorded graph is registered; the
+   ledger addresses cells by the recorded name, never by a live object.
+2. **Purity declared.** A receptor or rule that reads or writes the
+   outside world declares it; undeclared effects fail loudly instead of
+   replaying silently wrong.
+3. **Exact consumption.** Replay consumes the recorded effects in order
+   and exhausts them; a reorder, an extra effect, or a missing effect
+   diverges.
+4. **Hash chain.** Every entry chains from its predecessor and from a
+   graph-bound genesis; `verify()` recomputes each hash, so any tamper is
+   loud.
+5. **Deltas are authoritative.** The recorded `pulseDigest` hashes
+   wall-clock data and can never be reproduced; replay compares the
+   re-committed `StateDelta.after` values instead.
+6. **Fork chains are independent.** A fork's `seq 0` is a `ForkRecord`
+   whose genesis differs from the parent's; the two chains verify
+   separately and meet only at `parentHeadHash`.
+
+### Honest boundaries
+
+- `ReplayEngine` replays into a **caller-provided** fresh graph; it does
+  not rebuild a graph from a `CellGraphSnapshot` alone.
+- The purity gate is the journal: an effectful component that recorded
+  nothing has nothing to replay, and the journal's exhaustion checks are
+  what surface that.
+- Forks require a graph factory; the CLI's `fork` writes the fork record
+  without replaying (`--replaceSeq` is documented future work).
+
+Full machinery, recipes, and the seven-item pre-flight checklist:
+`guide/HowTo-Causal-Replay.md`.
+
+---
+
+## 8. Package shape
 
 ```
 lib/cell.dart                     barrel + library dartdoc
 lib/src/*.dart                    public interfaces (parts)
 lib/src/internal/                 implementations (parts)
 lib/src/internal/operator/        factories
+lib/replay/                       replay module: codec, graph, journal,
+                                  ledger, engine, fork, governance, cli
 example/                          17 runnable main() walks
 guide/                            HowTo-*.md
 ARCHITECTURE.md                   this file
@@ -253,11 +310,10 @@ checklist item, not a secret extra product.
 
 ---
 
-## 8. Status and known gaps
+## 9. Status and known gaps
 
-Stable (package version `1.1.0`). Verify guarantees against current
-source; the published pub.dev package remains `1.0.0-rc.9` until the
-stable release is published.
+Stable (package version `2.0.0`). Verify guarantees against current
+source.
 
 Known gaps:
 
@@ -272,13 +328,17 @@ Known gaps:
 - Performance claims (flyweight, zero-copy) are structural; there is no
   published cost model for collective pulses or the serializable gate
   under load.
+- Causal replay ships with its own suite (`test/replay/`). Graph snapshot
+  reconstruction (rebuilding a graph from a `CellGraphSnapshot` alone)
+  and fork-with-replay in the CLI are documented future work; forks
+  require a graph factory.
 
 If a guarantee in this document does not match the code, the code wins.
 An issue report is useful.
 
 ---
 
-## 9. Design rules
+## 10. Design rules
 
 1. **Opt-in depth.** Defaults do not check, redact, or trace beyond what
    the operator needs.

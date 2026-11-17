@@ -57,17 +57,23 @@
     
 <section class="desc markdown">
   <p>The task-local stack of active journals.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>The stack, not a single slot, because nested operations are real:
 a transaction inside a recording may run a what-if branch, which
 pushes a <code>ReplayJournal</code> on top. The inner branch sees its replay
 journal; when it pops, the outer recording resumes.</p>
-<p>The stack lives in a <code>Zone</code> — this is the only place in the design
+<p>The stack lives in a <code>Zone</code> — the only place in the replay module
 where a Zone is used, and it is used because Dart has no task-local
 storage primitive. Unlike a general "put the journal in the zone"
 pattern, the stack is drained on scope exit, so a spawned task that
-outlives the scope sees an empty stack and <code>EffectJournal.current</code>
+outlives the scope sees an empty stack and <a href="../cell/EffectJournal/current.html">EffectJournal.current</a>
 returns <code>NullJournal</code>. That is the correct behaviour: a leaked task
 has no journal, so its effects fail loudly.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/EffectJournal/current.html">EffectJournal.current</a> — reads the top of this stack.</li>
+<li><a href="../cell/JournalScope/run.html">run</a>, <a href="../cell/JournalScope/runSync.html">runSync</a> — push a journal for the duration of a body.</li>
+</ul>
 </section>
 
 
@@ -194,7 +200,7 @@ effects</strong> — the sentinel fails loudly, by design.
 </dt>
 <dd>
   The journal an effectful operator should actually use: the ambient
-journal when an outer scope has pushed one (the <code>ReplayEngine</code>
+journal when an outer scope has pushed one (the <a href="../cell/ReplayEngine-class.html">ReplayEngine</a>
 pushes a per-entry <a href="../cell/ReplayJournal-class.html">ReplayJournal</a> around the dispatch), otherwise
 the journal the operator captured at construction.
   
@@ -256,7 +262,7 @@ synchronous. Pop is still guaranteed on throw.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

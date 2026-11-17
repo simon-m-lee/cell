@@ -70,7 +70,7 @@
   <p>SHA-256 of the receipt. The digest is computed over the SAME
 canonical JSON form the entry stores — including the back-filled
 <code>ledgerSeq</code>, <code>pulseDigest</code> and governance version fields (review
-fix: the doc previously claimed those were excluded;
+fix: earlier documentation claimed those were excluded;
 <code>_receiptJson</code> has always included them).</p>
 <p>Reloaded entries carry their original stored receipt JSON (a live
 <code>Function</code> cannot be serialised), so the digest is computed over
@@ -111,7 +111,7 @@ that exact form — byte-identical to the append-time digest.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

@@ -64,12 +64,19 @@
     
 <section class="desc markdown">
   <p>The journal an effectful operator should actually use: the ambient
-journal when an outer scope has pushed one (the <code>ReplayEngine</code>
+journal when an outer scope has pushed one (the <a href="../../cell/ReplayEngine-class.html">ReplayEngine</a>
 pushes a per-entry <a href="../../cell/ReplayJournal-class.html">ReplayJournal</a> around the dispatch), otherwise
 the journal the operator captured at construction.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>The ambient can only be observed <em>before</em> the operator pushes its
 own scope; the operator then pushes <code>effectiveJournal</code> so the
 mapper sees the same journal through both channels.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>captured</code>: The journal the operator captured at construction.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The ambient journal when one is in scope, otherwise <code>captured</code>.</p>
 </section>
 
 
@@ -107,7 +114,7 @@ mapper sees the same journal through both channels.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

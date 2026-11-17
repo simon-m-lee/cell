@@ -8,10 +8,11 @@ part of '../../cell.dart';
 
 /// A single recorded non-deterministic observation.
 ///
-/// Every field is a JSON primitive (except [at] which is a `DateTime`
+/// ### How it works
+/// Every field is a JSON primitive (except [at], which is a `DateTime`
 /// serialised to ISO-8601 in [toJson]). The record is designed to be
-/// stored verbatim in the ledger, so its canonical form is
-/// pinned by this codec and never extended without a schema version bump.
+/// stored verbatim in the ledger, so its canonical form is pinned by this
+/// codec and never extended without a schema version bump.
 ///
 /// ### Non-obvious: input/output digests, not raw values
 ///
@@ -20,9 +21,15 @@ part of '../../cell.dart';
 /// thousands of calls). The journal records the **fingerprint** of the
 /// input and the output instead, and stores the raw value in a side
 /// buffer only when the value is required to reconstruct (see
-/// [EffectRecord.rawOutput]). This keeps the ledger compact and lets
+/// [IoEffect.rawOutput]). This keeps the ledger compact and lets
 /// `verify()` detect tampering via hash mismatch, without storing
 /// secrets in the clear.
+///
+/// See also:
+/// * [IoEffect] — the only variant that carries a raw output.
+/// * [EffectJournal] — the boundary that produces and consumes these
+///   records.
+/// {@category Replay}
 sealed class EffectRecord {
   /// Monotonic ordinal within the journal, assigned by [EffectJournal].
   /// Used to assert exact consumption during replay.
@@ -41,6 +48,13 @@ sealed class EffectRecord {
   /// reconstruct ordering; not part of the *semantics* of the effect.
   final DateTime at;
 
+  /// Creates an [EffectRecord].
+  ///
+  /// ### Parameters:
+  /// - [ordinal]: Monotonic ordinal within the journal.
+  /// - [inputDigest]: SHA-256 fingerprint of the effect's input.
+  /// - [outputDigest]: SHA-256 fingerprint of the effect's output.
+  /// - [at]: Wall-clock time of the observation.
   const EffectRecord({
     required this.ordinal,
     required this.inputDigest,
@@ -51,6 +65,7 @@ sealed class EffectRecord {
   /// The type tag stored in the ledger. Stable across schema versions.
   String get kind;
 
+  /// Serialises this record to its canonical JSON map.
   Map<String, Object?> toJson() => {
         'kind': kind,
         'ordinal': ordinal,
@@ -63,7 +78,10 @@ sealed class EffectRecord {
   /// The variant-specific payload. Called by [toJson].
   Map<String, Object?> payloadJson();
 
-  /// Reconstruct from [toJson]'s output.
+  /// Reconstructs an [EffectRecord] from [toJson]'s output.
+  ///
+  /// ### Parameters:
+  /// - [json]: The canonical map produced by [toJson].
   static EffectRecord fromJson(Map<String, Object?> json) {
     final kind = json['kind'] as String?;
     if (kind == null) {

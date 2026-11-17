@@ -65,15 +65,21 @@
     
 <section class="desc markdown">
   <p>Reconstructs a <code>Pulse&lt;dynamic&gt;</code> from <a href="../../cell/PulseCodec/toJson.html">toJson</a>'s output.</p>
-<p>Returns a plain <code>_Pulse</code> (the shape the codec accepts on the way
-out). Callers that need a typed pulse for a typed receptor cast the
-payload before constructing the receiving cell; the codec has no
-way to know the receiving type statically.</p>
-<p><code>parent</code> must be supplied by the caller if <code>parentDigest</code> is present:
-the digest is verified against the supplied parent, and the parent's
-trace must be a prefix of the wire <code>trace</code> (the remainder becomes the
-leaf's local step). Reconstruct chains bottom-up — root first — so
-every level round-trips byte-for-byte.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>json</code>: The canonical map produced by <a href="../../cell/PulseCodec/toJson.html">toJson</a>.</li>
+<li><code>parent</code>: The already-reconstructed parent pulse, required when the
+wire record carries a <code>parentDigest</code>. The digest is verified against
+the supplied parent, and the parent's trace must be a prefix of the
+wire <code>trace</code> (the remainder becomes the leaf's local step).
+Reconstruct chains bottom-up — root first — so every level
+round-trips byte-for-byte.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A plain <code>_Pulse</code> (the shape the codec accepts on the way out).
+Callers that need a typed pulse for a typed receptor cast the payload
+before constructing the receiving cell; the codec has no way to know
+the receiving type statically.</p>
 </section>
 
 
@@ -194,7 +200,7 @@ every level round-trips byte-for-byte.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

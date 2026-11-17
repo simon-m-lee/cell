@@ -72,7 +72,7 @@ part of '../cell.dart';
 /// **When to use:** `testRule: TestCell(...)` on **ingress / state / toHandle** only, when a BRD quality rule names that field.
 /// **When NOT to use:**
 ///   {@macro ai-do-not-testcell-on-tissue}
-/// **Live signature:** `TestCell<C extends Cell>(...)` — chain with `+`; `TestCell.allowAll` / `TestCell.readOnly` constants — pinned at `cell: 1.1.0`
+/// **Live signature:** `TestCell<C extends Cell>(...)` — chain with `+`; `TestCell.allowAll` / `TestCell.readOnly` constants — pinned at `cell: 2.0.0`
 /// **Do NOT confuse with:** `TestTissue` (`cell_tissue`, for Tissue books). They are not subtypes.
 /// **Guide:** `guide/HowTo-TestCell.md` (integrity gates)
 /// **Example:** `example/ingress_demo.dart`

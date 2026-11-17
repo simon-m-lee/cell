@@ -55,16 +55,17 @@
     
 <section class="desc markdown">
   <p>The replay side of the journal.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>Each operation consumes the next recorded effect of the matching kind
 and asserts that its input digest matches. On mismatch (wrong kind,
 wrong input, or journal empty), the replay <strong>fails loudly</strong> with a
-<a href="../cell/ReplayDivergenceException-class.html">ReplayDivergenceException</a>. This is the mechanism the design describes
-as "reordered effects diverge loudly".</p>
+<a href="../cell/ReplayDivergenceException-class.html">ReplayDivergenceException</a> — the "reordered effects diverge loudly"
+mechanism.</p>
 <h3 id="non-obvious-validation-happens-before-consumption">Non-obvious: validation happens <em>before</em> consumption</h3>
 <p>A record is only consumed (cursor advanced) after its kind, label,
 and input have been validated. A mismatched attempt leaves the
-record unconsumed, which is what lets <code>assertExhausted</code> (and
-5's engine) report the divergence after a detached mapper
+record unconsumed, which is what lets <a href="../cell/ReplayJournal/assertExhausted.html">assertExhausted</a> (and the
+engine) report the divergence after a detached mapper
 continuation has swallowed the thrown exception. Any failed attempt
 also latches <a href="../cell/ReplayJournal/diverged.html">diverged</a> so that a replay which <em>touched</em> a mismatch
 can never report success, even when all records happen to be
@@ -77,6 +78,11 @@ returned. This means that <strong>any code path that depends on the <code>run</c
 closure's side effects (as opposed to its return value) is not
 replayed</strong> — which is correct: replay reproduces the <em>observations</em>,
 not the <em>actions</em>.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/RecordingJournal-class.html">RecordingJournal</a> — the side that produced the log.</li>
+<li><a href="../cell/ReplayDivergenceException-class.html">ReplayDivergenceException</a> — what a mismatch throws.</li>
+</ul>
 </section>
 
 
@@ -242,11 +248,8 @@ calls this after each pulse.
 
 </dt>
 <dd>
-  Record (or replay) an arbitrary I/O call. <code>rawOutput</code> is the value
-the caller's <code>run</code> closure returned; the journal records it (or
-serves the recorded value). If <code>serializeOutput</code> is not supplied, the
-raw result of <code>run</code> is stored directly and must be JSON-encodable —
-non-encodable results throw loudly at the fingerprint boundary.
+  Record (or replay) an arbitrary I/O call. The value the caller's
+<code>run</code> closure returns is recorded (or the recorded value is served).
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -421,7 +424,7 @@ that replay reproduces the same interleaving.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

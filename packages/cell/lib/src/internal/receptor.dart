@@ -454,14 +454,14 @@ class _Receptor<C extends Cell> extends ReceptorBase<C> {
   /// - [postProcess]: Commitment/validation stage.
   /// - [reaction]: Simplified reaction function.
   /// - [user]: Optional user metadata.
-  _Receptor(
-      {super.instruction,
-      super.preProcess,
-      super.postProcess,
-      super.reaction,
-      super.init,
-      super.user})
-      : super();
+  _Receptor({
+    super.instruction,
+    super.preProcess,
+    super.postProcess,
+    super.reaction,
+    super.init,
+    super.user
+  }) : super();
 
   /// Creates a receptor from a pre-configured record.
   ///

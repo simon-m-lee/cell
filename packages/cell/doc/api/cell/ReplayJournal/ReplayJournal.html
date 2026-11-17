@@ -62,13 +62,17 @@
 <section class="desc markdown">
   <p>Creates a replay journal from a recorded log. The list must be in
 ordinal order (which <code>RecordingJournal.toJson</code> guarantees).</p>
-<p><code>deferredFires</code> changes the timer semantics for ENGINE replay: fire
-callbacks are collected instead of run inside the consuming entry,
-and the engine runs them after the entry loop. (Review fix: the
-eager fire landed a debounce trailing edge one entry before the
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>records</code>: The recorded effects, in ordinal order.</li>
+<li><code>deferredFires</code>: Changes the timer semantics for ENGINE replay:
+fire callbacks are collected instead of run inside the consuming
+entry, and the engine runs them after the entry loop. (Review fix:
+the eager fire landed a debounce trailing edge one entry before the
 recording's, breaking the recorded baseline of the next entry.
 Direct journal users — the tests — pass nothing and keep the eager
-behaviour.)</p>
+behaviour.)</li>
+</ul>
 </section>
 
 
@@ -107,7 +111,7 @@ behaviour.)</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

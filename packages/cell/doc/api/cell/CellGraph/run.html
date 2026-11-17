@@ -66,6 +66,12 @@
   <p>Runs <code>body</code> with this graph's ledger scope active. All
 <code>Cell.apply</code>/<code>ValueCell.update</code> calls inside <code>body</code> are recorded,
 and the scope's queued appends are drained before this resolves.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>body</code>: The work to run under the ledger scope.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The body's result, after the scope's queued appends have drained.</p>
 </section>
 
 
@@ -109,7 +115,7 @@ and the scope's queued appends are drained before this resolves.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

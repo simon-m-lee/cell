@@ -59,7 +59,8 @@
     </section>
     
 <section class="desc markdown">
-  <h3 id="non-obvious-a-null-value-and-a-missing-key-parse-identically">Non-obvious: a <code>null</code> value and a missing key parse identically</h3>
+  <p>Reconstructs a <a href="../../cell/StateDelta-class.html">StateDelta</a> from <a href="../../cell/StateDelta/toJson.html">toJson</a>'s output.</p>
+<h3 id="non-obvious-a-null-value-and-a-missing-key-parse-identically">Non-obvious: a <code>null</code> value and a missing key parse identically</h3>
 <p><code>toJson</code> drops null <code>before</code>/<code>after</code> keys, so a digest cannot
 distinguish "the value was null" from "the key was dropped"
 (round-tripping preserves the null either way). Recorded deltas
@@ -68,6 +69,10 @@ null encodes as a dropped key — and the hash chain is what makes
 tampering with the stored JSON loud; an explicit null marker was
 deliberately not introduced because it would change every stored
 delta digest and invalidate existing ledgers.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>json</code>: The map produced by <a href="../../cell/StateDelta/toJson.html">toJson</a>.</li>
+</ul>
 </section>
 
 
@@ -75,11 +80,11 @@ delta digest and invalidate existing ledgers.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">factory StateDelta.fromJson(Map&lt;String, Object?&gt; json) =&gt; StateDelta(
-      cellId: json[&#39;cellId&#39;] as String,
-      before: json[&#39;before&#39;],
-      after: json[&#39;after&#39;],
-      at: DateTime.parse(json[&#39;at&#39;] as String),
-    );</code></pre>
+  cellId: json[&#39;cellId&#39;] as String,
+  before: json[&#39;before&#39;],
+  after: json[&#39;after&#39;],
+  at: DateTime.parse(json[&#39;at&#39;] as String),
+);</code></pre>
 </section>
 
 
@@ -107,7 +112,7 @@ delta digest and invalidate existing ledgers.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

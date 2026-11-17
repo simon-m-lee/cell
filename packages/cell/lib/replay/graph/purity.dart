@@ -8,6 +8,7 @@ part of '../../cell.dart';
 
 /// Classifies a [Receptor] or [TestCell] by its effect footprint.
 ///
+/// ### When to use
 /// The [CellGraph] uses this to decide whether a cell participates in a
 /// replayable graph:
 ///
@@ -15,7 +16,7 @@ part of '../../cell.dart';
 ///   their inputs alone.
 /// * [readOnlyExternal] cells observe the outside world (a clock, a
 ///   read-only database, an environment variable) but do not mutate it.
-///   They *can* be replayed, but only through an `EffectJournal`
+///   They *can* be replayed, but only through an [EffectJournal]
 ///   that records every read so the same observations replay identically.
 /// * [effectful] cells both read and write the outside world (network,
 ///   disk, notifications). They must be journalled; without a journal they
@@ -32,8 +33,11 @@ part of '../../cell.dart';
 /// `CellGraph` can then refuse to treat a declared-effectful cell as if it
 /// were replayable.
 ///
-/// See the purity boundary and the journal for the enforcement
-/// mechanism (the `Effectful` mixin).
+/// See also:
+/// * [Effectful], [EffectfulReadOnly] — the mixins receptors and rules use
+///   to declare their purity.
+/// * [EffectJournal] — the enforcement mechanism for non-pure cells.
+/// {@category Replay}
 enum Purity {
   /// No observable effect on the outside world; replay is exact.
   pure,
@@ -51,6 +55,6 @@ enum Purity {
   /// Whether this purity is compatible with exact (journal-free) replay.
   bool get isExactlyReplayable => this == Purity.pure;
 
-  /// Whether this purity requires an `EffectJournal` to replay.
+  /// Whether this purity requires an [EffectJournal] to replay.
   bool get requiresJournal => this != Purity.pure;
 }

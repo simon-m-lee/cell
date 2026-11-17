@@ -8,10 +8,19 @@ part of '../../cell.dart';
 
 /// Public read-only access to the cell id registry.
 ///
+/// ### When to use
+/// Tests and the CLI-only hook; it is deliberately not part of the normal
+/// API surface — users should not need it outside tests.
+///
+/// ### How it works
 /// The registry itself is `_CellGraphRegistry` (private to the library);
-/// this class exposes the minimum public surface needed by tests and the
-/// CLI-only hook. It is deliberately not part of the normal API surface —
-/// users should not need it outside tests.
+/// this class exposes the minimum public surface needed: [isRegistered]
+/// checks whether an id is claimed, [snapshot] returns an immutable view,
+/// and [forceReset] clears everything (test-only).
+///
+/// See also:
+/// * `CellGraphBuilder` — the normal path that populates the registry.
+/// {@category Replay}
 abstract final class CellGraphRegistry {
   /// Whether [id] is currently claimed by any registered cell in this
   /// process.

@@ -129,7 +129,7 @@ node.</p>
 <p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
 <strong>When to use:</strong> hand a UI / auditor a read-only view of a Cell; least-privilege egress.
 <strong>When NOT to use:</strong> as a copy — it is a live proxy sharing the principal's state.
-<strong>Live signature:</strong> <code>Cell get unmodifiable</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Live signature:</strong> <code>Cell get unmodifiable</code> — pinned at <code>cell: 2.0.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell.deputy</code> (parameterized attenuation; <code>unmodifiable</code> is the fixed read-only case).
 <strong>Guide:</strong> <code>guide/HowTo-DeputyContext.md</code> (deputies)
 <strong>Example:</strong> <code>example/cell_example.dart</code>
@@ -175,7 +175,7 @@ Cell get unmodifiable =&gt; _readOnlyView;</code></pre>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

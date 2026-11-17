@@ -67,6 +67,14 @@
 <section class="desc markdown">
   <p>Same as <a href="../../cell/Ledger/open.html">open</a>, but runs <a href="../../cell/Ledger/verify.html">verify</a> before returning. A corrupt
 store fails at open time, not at first append.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>graph</code>: The graph this ledger records.</li>
+<li><code>store</code>: The persistence backend.</li>
+<li><code>genesisHash</code>: Overrides the chain genesis (fork ledgers).</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The opened, verified ledger.</p>
 </section>
 
 
@@ -110,7 +118,7 @@ store fails at open time, not at first append.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

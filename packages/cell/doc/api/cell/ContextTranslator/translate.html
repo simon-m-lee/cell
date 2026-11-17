@@ -65,12 +65,19 @@
 <section class="desc markdown">
   <p>Translates <code>source</code> from <a href="../../cell/ContextTranslator/fromVersion.html">fromVersion</a> to <a href="../../cell/ContextTranslator/toVersion.html">toVersion</a>. Returns a
 context whose <code>version</code> equals <a href="../../cell/ContextTranslator/toVersion.html">toVersion</a>.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>The translator is responsible for preserving the <em>meaning</em> of the
 source context — a <code>Clearance.administrative</code> source must not
 silently become <code>Clearance.observational</code> (that would weaken the
 mandate's authority); a new field added in the target version
 must be given a sensible default documented in the translator's
 <code>toString</code>.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: The context to translate.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The translated context (or a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> of it).</p>
 </section>
 
 
@@ -105,7 +112,7 @@ must be given a sensible default documented in the translator's
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

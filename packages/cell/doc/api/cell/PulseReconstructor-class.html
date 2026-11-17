@@ -73,7 +73,8 @@ pulse from those values, not the byte-identical recorded one. The
 authoritative state check is the delta comparison (see
 <code>ReplayEngine._verifyDeltas</code>), which compares committed values
 against <code>delta.after</code> — not a pulse digest, which can never match.</p>
-<h3 id="the-two-paths">The two paths</h3>
+<h3 id="how-it-works">How it works</h3>
+<p>Two paths:</p>
 <ul>
 <li><strong>Arguments path</strong> — the receipt carries positional arguments. The
 first argument is the payload the caller submitted (ingress emits
@@ -86,6 +87,25 @@ own delta (matched by cell id), falling back to the last delta.</li>
 <p>A hand-crafted entry with neither produces <code>null</code>, which the engine
 reports as a divergence — an entry that cannot be interpreted is not
 a record of a mutation.</p>
+<h3 id="non-obvious-the-pulse-body-is-the-primary-path">Non-obvious: the pulse body is the primary path</h3>
+<p>Entries appended by <code>Ledger.appendInternal</code> now store the materialised
+pulse JSON (<code>entry.pulseJson</code>), and <code>Ledger.verify</code> checks it against
+<code>pulseDigest</code>. <a href="../cell/PulseReconstructor/reconstruct.html">reconstruct</a> decodes that body with
+<code>PulseCodec.fromJson</code> — payload, type, context, priority, parent
+chain, and trace all round-trip. Parent pulses resolve by digest
+through <code>parentsByDigest</code> (see below).</p>
+<p>Older entries that carry no stored body fall back to the heuristic:
+the first
+positional receipt argument as the payload (exact for the emit/ingress
+path; the <em>apply</em> path stores the command's argument, not the pulse
+the receptor saw), then the entry's own delta <code>after</code>. Context,
+priority, parent, trace, named arguments, and positional arguments
+beyond the first are dropped on that path.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/PulseCodec-class.html">PulseCodec</a> — the codec that decodes the stored pulse body.</li>
+<li><a href="../cell/LedgerEntry/pulseJson.html">LedgerEntry.pulseJson</a> — the stored body itself.</li>
+</ul>
 </section>
 
 
@@ -225,7 +245,7 @@ entry cannot be reconstructed.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

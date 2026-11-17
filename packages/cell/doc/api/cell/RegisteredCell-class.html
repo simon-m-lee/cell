@@ -55,11 +55,12 @@
     
 <section class="desc markdown">
   <p>A thin wrapper that pairs a <a href="../cell/Cell-class.html">Cell</a> with its graph-scoped name.</p>
-<p>The wrapper is what <code>CellGraphBuilder.register</code> returns. It is not a
-<code>Cell</code> itself — it is a <em>handle</em> that lets callers carry the
-registered name alongside the cell, e.g. to pass into a
-<a href="../cell/CellGraphSnapshot-class.html">CellGraphSnapshot</a> constructor without re-looking up the name from the
-registry.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>As the handle that <code>CellGraphBuilder.register</code> returns. It is not a
+<code>Cell</code> itself — it is a <em>handle</em> that lets callers carry the registered
+name alongside the cell, e.g. to pass into a <a href="../cell/CellGraphSnapshot-class.html">CellGraphSnapshot</a>
+constructor without re-looking up the name from the registry.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>The distinction matters because <a href="../cell/Cell/id.html">Cell.id</a> already resolves the name
 from the registry; the wrapper exists so that <em>some</em> call sites (like
 <code>CellGraph.register</code>) need not trust the registry. Outside the graph
@@ -73,6 +74,11 @@ expected requires calling <code>.cell</code>. This is deliberate — the compile
 is the enforcement that a registered cell and a raw cell are not
 interchangeable, which is what makes the "unregistered bind
 rejected" check possible without heuristics.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/CellGraphBuilder-class.html">CellGraphBuilder</a> — produces these wrappers.</li>
+<li><a href="../cell/CellGraphSnapshot-class.html">CellGraphSnapshot</a> — consumes the registered name.</li>
+</ul>
 </section>
 
 
@@ -85,7 +91,7 @@ rejected" check possible without heuristics.</p>
           <span class="name"><a href="../cell/RegisteredCell/RegisteredCell.html">RegisteredCell</a></span><span class="signature">(<span class="parameter" id="-param-cell"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)</span>
         </dt>
         <dd>
-          
+          Creates the (cell, name) pair.
             <div class="constructor-modifier features">const</div>
         </dd>
     </dl>
@@ -245,7 +251,7 @@ its roots.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

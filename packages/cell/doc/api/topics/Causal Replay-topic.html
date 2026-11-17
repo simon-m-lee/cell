@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Causal Replay topic docs, for the Dart programming language.">
+  <title>Causal Replay topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Causal Replay topic</li>
+  </ol>
+  <div class="self-name">Causal Replay</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Causal Replay</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="how-to-use-causal-replay">How to Use Causal Replay</h1>
+<p><strong>Causal Replay: the in-depth guide.</strong></p>
+<p>This guide explains what causal replay is, how every piece of the machinery
+works, and how to use it correctly. It is self-contained: <a href="#part-ii--the-15-minute-path">Part II</a>
+is the 15-minute path and <a href="#part-vi--the-invariants-and-where-they-are-enforced">Part VI</a>
+summarises the invariants; the seven-item pre-flight checklist is in
+<a href="#the-seven-item-pre-flight-checklist">The seven-item pre-flight checklist</a>
+below.</p>
+<p>Everything in this guide is written against the <strong>shipped</strong> API in
+<code>package:cell</code> (commit series through <code>c85a36e0</code>).
+Code samples are the same shapes used by the framework's own test suite
+(<code>test/replay/</code>) and the executable demos in <code>example/replay/</code>.</p>
+<hr>
+<h2 id="table-of-contents">Table of contents</h2>
+<ul>
+<li><a href="#part-i--the-mental-model">Part I — The mental model</a>
+<ul>
+<li><a href="#1-what-causal-replay-is">1. What causal replay is</a></li>
+<li><a href="#2-what-it-is-not">2. What it is not</a></li>
+<li><a href="#3-the-recording-loop">3. The recording loop</a></li>
+<li><a href="#4-the-replay-loop">4. The replay loop</a></li>
+<li><a href="#5-the-layers-at-a-glance">5. The layers at a glance</a></li>
+</ul>
+</li>
+<li><a href="#part-ii--the-15-minute-path">Part II — The 15-minute path</a></li>
+<li><a href="#part-iii--the-machinery-in-depth">Part III — The machinery, in depth</a>
+<ul>
+<li><a href="#6-stable-identity-registration-and-cellid">6. Stable identity: registration and <code>Cell.id</code></a></li>
+<li><a href="#7-purity-the-declaration-boundary">7. Purity: the declaration boundary</a></li>
+<li><a href="#8-the-effectjournal">8. The <code>EffectJournal</code></a></li>
+<li><a href="#9-journalscope-the-ambient-journal">9. <code>JournalScope</code>: the ambient journal</a></li>
+<li><a href="#10-the-five-journalled-operators">10. The five journalled operators</a></li>
+<li><a href="#11-the-ledger-hash-chain-entries-receipts">11. The ledger: hash chain, entries, receipts</a></li>
+<li><a href="#12-ledgerscope-recording-coordination">12. <code>LedgerScope</code>: recording coordination</a></li>
+<li><a href="#13-replayengine-replaying-a-history">13. <code>ReplayEngine</code>: replaying a history</a></li>
+<li><a href="#14-divergence-reporting">14. Divergence reporting</a></li>
+<li><a href="#15-forking-what-if-branches">15. Forking: what-if branches</a></li>
+<li><a href="#16-governance-versions-registry-translators">16. Governance: versions, registry, translators</a></li>
+<li><a href="#17-visualisation-and-the-cli">17. Visualisation and the CLI</a></li>
+<li><a href="#18-the-conformance-suite-and-the-determinism-gate">18. The conformance suite and the determinism gate</a></li>
+</ul>
+</li>
+<li><a href="#part-iv--recipes">Part IV — Recipes</a>
+<ul>
+<li><a href="#r1-record-and-replay-a-state-cell">R1. Record and replay a state cell</a></li>
+<li><a href="#r2-an-effectful-mapper">R2. An effectful mapper</a></li>
+<li><a href="#r3-debounce-replay">R3. Debounce replay</a></li>
+<li><a href="#r4-a-custom-receptor-with-purity-and-version">R4. A custom receptor with purity and version</a></li>
+<li><a href="#r5-an-effectful-test-rule">R5. An <code>effectful</code> test rule</a></li>
+<li><a href="#r6-a-readonlyexternal-test-rule">R6. A <code>readOnlyExternal</code> test rule</a></li>
+<li><a href="#r7-ephemeralpolicy-ticks-the-c4-fix">R7. <code>EphemeralPolicy</code> ticks (the C4 fix)</a></li>
+<li><a href="#r8-fork-and-mutate">R8. Fork and mutate</a></li>
+<li><a href="#r9-verify-a-fork">R9. Verify a fork</a></li>
+<li><a href="#r10-a-version-boundary-with-a-translator">R10. A version boundary with a translator</a></li>
+<li><a href="#r11-the-cli-workflow">R11. The CLI workflow</a></li>
+<li><a href="#r12-reading-a-divergence-report">R12. Reading a divergence report</a></li>
+</ul>
+</li>
+<li><a href="#part-v--failure-modes-and-their-fixes">Part V — Failure modes and their fixes</a></li>
+<li><a href="#part-vi--the-invariants-and-where-they-are-enforced">Part VI — The invariants, and where they are enforced</a></li>
+<li><a href="#part-vii--scope-deferred-work-and-migration">Part VII — Scope, deferred work, and migration</a></li>
+<li><a href="#glossary">Glossary</a></li>
+</ul>
+<hr>
+<h1 id="part-i--the-mental-model">Part I — The mental model</h1>
+<h2 id="1-what-causal-replay-is">1. What causal replay is</h2>
+<p><strong>Causal replay</strong> is the ability to take a recorded history of everything
+that ever happened to a Cell graph and <strong>re-execute it exactly</strong>, in a
+fresh process, against a freshly built copy of the graph, arriving at the
+same state — or at a <em>deliberately different</em> state, when you are running
+a what-if branch.</p>
+<p>Three ideas carry the whole design:</p>
+<ol>
+<li><strong>Causality over state.</strong> The ledger records <em>causes</em> (the pulses that
+entered the graph) and <em>effects</em> (the state deltas they produced), in
+causal order. Replay re-injects the causes and checks that the effects
+re-occur.</li>
+<li><strong>Purity is declared, not assumed.</strong> Code that depends on the outside
+world (clocks, random numbers, network, timers) must declare itself.
+The framework refuses to replay undeclared effects <em>loudly</em> — the
+alternative is a silently wrong reconstruction.</li>
+<li><strong>Identity is stable.</strong> Every cell has a registered name that means the
+same thing in the recording process and the replay process. Without
+stable identity, a ledger entry cannot address the cell it happened to.</li>
+</ol>
+<h3 id="the-one-sentence-contract">The one-sentence contract</h3>
+<blockquote>
+<p>If every effect that is not a function of the pulse goes through an
+<code>EffectJournal</code>, and every cell is registered, and the receptor
+implementations are versioned, then replaying a ledger into a fresh
+graph reproduces the recorded state exactly — and any deviation is
+reported with the ledger sequence number, the expected value, the
+actual value, and the reason.</p>
+</blockquote>
+<h2 id="2-what-it-is-not">2. What it is not</h2>
+<ul>
+<li><strong>Not bit-exact re-execution of arbitrary user code.</strong> User functions
+run again during replay, but their <em>observations</em> are served from the
+journal. A receptor that performs I/O without journalling is caught by
+the journal's exhaustion checks — it is not silently re-run.</li>
+<li><strong>Not a snapshot restore.</strong> You do not restore <code>state == X</code>; you
+reconstruct <em>how X came to be</em>. This is what makes auditing possible:
+the auditor can replay and then ask "which pulse made this delta?"</li>
+<li><strong>Not a database migration tool.</strong> Replay across a graph <em>shape</em> change
+(a rewired receptor, a renamed cell) is a <strong>migration</strong>, not a replay.
+The framework refuses; migration is the future a future migration revision.</li>
+<li><strong>Not cross-process without registration.</strong> An unregistered cell's id is
+a process-local hash and cannot be addressed from a ledger file.</li>
+</ul>
+<h2 id="3-the-recording-loop">3. The recording loop</h2>
+<pre class="language-dart"><code>                       ┌─────────────────────────────────────────┐
+ pulse ──▶ receptor ──▶ test rule ──▶ policy ticks ──▶ state delta │
+             │              │              │                 │     │
+             │              │              │                 │     │
+             └── JournalScope ──┴── LedgerScope ──┴── Ledger.appendInternal
+                    (effects)      (deltas + effects)        │
+                                                              ▼
+                                                    hash-chained entry
+                                                    (pulse, receipt, effects,
+                                                     deltas, timestamps)
+</code></pre>
+<p>During recording:</p>
+<ol>
+<li>A mutation enters the graph inside <code>graph.run(...)</code>, which pushes a
+<code>LedgerScope</code>.</li>
+<li>The receptor validates the pulse through its <code>TestCell</code> rule, ticks any
+hosted <code>EphemeralPolicy</code>, and commits the state through
+<code>ValueCell.postProcessRule</code>.</li>
+<li>Every <em>effect</em> (clock, UUID, I/O, timer, rule verdict, policy tick) is
+written to the ambient <code>RecordingJournal</code>.</li>
+<li>Every <em>delta</em> (before value, after value, cell id) is captured by the
+<code>LedgerScope</code>.</li>
+<li><code>Ledger.appendInternal</code> hashes the pulse digest, the receipt digest, the
+effects digest and the delta digest into one chain entry. Each entry's
+<code>prevHash</code> is the previous entry's hash, so tampering with any byte
+breaks every entry after it.</li>
+</ol>
+<h2 id="4-the-replay-loop">4. The replay loop</h2>
+<pre class="language-dart"><code> ledger entry (seq N) ──▶ _checkVersions ──▶ reconstruct pulse ──▶ dispatch
+                              │                                        │
+                              │                                        ▼
+                              │                              fresh graph's receptor
+                              │                                  (pure rules re-run,
+                              │                                   effectful rules are
+                              │                                   served their recorded
+                              │                                   verdicts)
+                              │                                        │
+                              └──▶ ReplayJournal (peek/commit) ◀────────┘
+                                        │
+                                        ▼
+                              assertExhausted + delta comparison
+                                        │
+                                        ▼
+                              success, or DivergenceReport(seq N)
+</code></pre>
+<p>During replay, per ledger entry:</p>
+<ol>
+<li><strong>Version check</strong> — the recorded receptor/rule versions must match the
+target graph's live versions or an entry in the graph's
+<code>VersionRegistry</code>. Otherwise: loud divergence.</li>
+<li><strong>Pulse reconstruction</strong> — the input pulse is rebuilt from the entry's
+arguments (first positional argument becomes the payload) or, failing
+that, from the delta's <code>after</code> value.</li>
+<li><strong>Dispatch</strong> — the pulse is re-injected into the target graph with a
+fresh <code>ReplayJournal</code> in scope. Pure rules re-run. <code>effectful</code> rules
+consume their recorded <code>VerdictEffect</code> and are <strong>not</strong> re-called.
+<code>readOnlyExternal</code> rules re-run with their observations served from the
+journal.</li>
+<li><strong>Exhaustion</strong> — the journal must be fully consumed; any unused record,
+any mismatched kind, label or input is a divergence.</li>
+<li><strong>Delta verification</strong> — after dispatch, every recorded delta's <code>after</code>
+value is compared with the target cell's current value.</li>
+</ol>
+<h2 id="5-the-layers-at-a-glance">5. The layers at a glance</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Deliverable</th>
+<th>Why it matters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Canonical JSON, <code>fingerprint</code>, <code>PulseCodec</code>, <code>CellGraphSnapshot</code> (schema v2)</td>
+<td>Byte-stable serialisation; everything the chain hashes is canonical</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>Cell.id</code> (principal-chain walk), <code>CellGraph</code>/builder/registry, <code>Purity</code></td>
+<td>Stable identity across processes; strict reachability</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>EffectJournal</code> (clock/uuid/io/timer), Recording/Replay/Null journals, <code>JournalScope</code>, <code>Effectful</code>/<code>EffectfulReadOnly</code>, the five journalled operators</td>
+<td>Every external observation becomes a replayable record</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>StateDelta</code>, <code>HashChain</code>, <code>LedgerEntry</code>, <code>LedgerStore</code> (InMemory/File), <code>Ledger.appendInternal</code>, <code>LedgerScope</code></td>
+<td>The tamper-evident history and recording coordination</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>ReplayEngine.replay</code>, <code>ReplayOptions</code>, <code>DivergenceReport</code>, <code>ReplayResult</code>, <code>PulseReconstructor</code>, <code>ReplayDivergenceException</code></td>
+<td>The replay loop and its diagnostics</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>ForkRecord</code>, <code>ForkPolicy.isolated</code>, <code>ForkHandle</code>, <code>ForkLedgerStore</code>, <code>CellGraphFork.fork</code>, <code>ReplayEngineFork.replayFork</code>, <code>ForkVerify</code></td>
+<td>What-if branches bound to the parent's hash at the fork point</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>VerdictEffect</code>/<code>PolicyTickEffect</code>, <code>DeputyContext.version</code>, <code>VersionRegistry</code>, <code>ContextTranslator</code>, <code>TestCellReplay</code>, <code>PolicyReplay</code>, engine <code>_checkVersions</code></td>
+<td>Governance replay: versions, purity dispatch, policy-tick ordering</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>cell-replay</code> CLI, <code>CellGraphVisualise</code>/<code>LedgerVisualise</code>, the guide and checklist below, ledger-store conformance suite, determinism gate, three demos</td>
+<td>Tooling that turns a ledger into evidence</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1 id="part-ii--the-15-minute-path">Part II — The 15-minute path</h1>
+<p>The complete, annotated minimal program. The seven-item pre-flight
+checklist follows immediately after the code.</p>
+<pre class="language-dart"><code class="language-dart">import 'dart:io';
+
+import 'package:cell/cell.dart';
+import 'package:cell/replay.dart';
+
+Future&lt;void&gt; main() async {
+  final dir = await Directory.systemTemp.createTemp('replay_quickstart');
+
+  // ── 1. Build a graph. Registration gives stable ids. ─────────────
+  final counter = Cell.state&lt;int&gt;(initial: 0);
+  final graph = (CellGraph.builder(graphId: 'quickstart')
+        ..registerState('counter', counter))
+      .build();
+
+  // ── 2. Bind a ledger. The store's genesis must match the graph. ──
+  final path = '${dir.path}/ledger.jsonl';
+  final ledger = await graph.bindLedger(
+    store: await FileLedgerStore.open(
+      path,
+      genesisHash: Ledger.genesisHashOf(graph.id),
+    ),
+  );
+
+  // ── 3. Mutate inside graph.run. ──────────────────────────────────
+  await graph.run(() async {
+    counter.update(1);
+    counter.update(2);
+    counter.update(3);
+  });
+
+  // ── 4. Verify the chain. ─────────────────────────────────────────
+  await ledger.verify();
+  print('Recorded ${await ledger.lastSeq + 1} entries.');
+  await ledger.close();
+
+  // ── 5. Replay into a fresh graph. ────────────────────────────────
+  // The live registry must be cleared before rebuilding the same
+  // names (test/demo context; see Part III §6).
+  CellGraphRegistry.forceReset();
+  final freshCounter = Cell.state&lt;int&gt;(initial: 0);
+  final freshGraph = (CellGraph.builder(graphId: 'quickstart')
+        ..registerState('counter', freshCounter))
+      .build();
+
+  final reopened = await Ledger.open(
+    graph: graph,
+    store: await FileLedgerStore.open(
+      path,
+      genesisHash: Ledger.genesisHashOf(graph.id),
+    ),
+    genesisHash: Ledger.genesisHashOf(graph.id),
+  );
+  final result = await ReplayEngine.replay(
+    ledger: reopened,
+    target: freshGraph,
+  );
+
+  print('success=${result.success} '
+      'entries=${result.entriesReplayed} '
+      'value=${freshCounter.cell.value}');
+  assert(result.success);
+  assert(freshCounter.cell.value == 3); // Cell.state replaces on update
+
+  await reopened.close();
+  await dir.delete(recursive: true);
+}
+</code></pre>
+<p>Three details that matter even in this minimal example:</p>
+<ul>
+<li><strong><code>Cell.state</code> replaces, it does not accumulate.</strong> <code>update(1); update(2); update(3)</code> leaves the value at <code>3</code>. If you need accumulation, write a
+custom rule or a custom receptor that does the arithmetic.</li>
+<li><strong>The genesis hash is derived, not invented.</strong> A store whose genesis
+does not match <code>Ledger.genesisHashOf(graph.id)</code> is rejected at
+<code>bindLedger</code>/<code>Ledger.open</code> (the fork engine enforcement). The examples in early
+drafts of the phase docs passed arbitrary strings; that no longer works.</li>
+<li><strong><code>ReplayEngine.replay</code> refuses a ledgered target.</strong> The target graph
+must be a <em>fresh</em> graph (no ledger bound); replay reconstructs state,
+it does not merge histories.</li>
+</ul>
+<h2 id="the-seven-item-pre-flight-checklist">The seven-item pre-flight checklist</h2>
+<p>If a graph satisfies all seven, it is replayable. If it does not, the
+framework reports <em>which</em> item failed — loudly, not silently.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Requirement</th>
+<th>Enforcement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Every cell is registered</td>
+<td><code>CellGraphBuilder.build</code> throws on unregistered reachability</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Ledger bound exactly once, with the derived genesis</td>
+<td><code>bindLedger</code> throws on double bind; a wrong store genesis throws at open</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Mutations inside <code>graph.run</code></td>
+<td>Non-<code>run</code> mutations are silently unrecorded; the replay test (item 7) catches them</td>
+</tr>
+<tr>
+<td>4</td>
+<td>I/O operators journalled</td>
+<td>The five operators require <code>journal:</code>; omitting it is a compile error</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Purity declared</td>
+<td>Default is <code>pure</code>; an I/O rule that declares <code>pure</code> fails the determinism check</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Versions stamped</td>
+<td>Versioned receptors fail the the governance version check at a boundary; built-ins stay unversioned by design</td>
+</tr>
+<tr>
+<td>7</td>
+<td>A replay test passes</td>
+<td><code>ReplayEngine.replay</code> against a fresh graph asserts <code>result.success</code></td>
+</tr>
+</tbody>
+</table>
+<p>Each item is enforced at a specific place in the source; see <a href="#part-vi--the-invariants-and-where-they-are-enforced">Part VI</a>
+for the invariant-to-enforcement-site mapping.</p>
+<hr>
+<h1 id="part-iii--the-machinery-in-depth">Part III — The machinery, in depth</h1>
+<h2 id="6-stable-identity-registration-and-cellid">6. Stable identity: registration and <code>Cell.id</code></h2>
+<h3 id="why-identity-is-hard">Why identity is hard</h3>
+<p>Two cells that "look the same" are only the same cell if the framework
+says so. A cell created in process A and its counterpart created in
+process B are different objects — replay is only meaningful if the ledger
+can address them by a name that is stable across both processes.</p>
+<h3 id="the-principal-chain">The principal chain</h3>
+<p><code>Cell.id</code> is resolved by walking the cell's <strong>principal chain</strong>: a deputy
+cell inherits the identity of its principal (the cell it was cloned or
+delegated from), unless it has been registered under its own name. The
+walk is not free — in debug VM futures it has been measured at ~0.5 ms
+per call through dynamic record access — so the hot ledger path resolves
+the id <em>once</em> at the caller's call site and threads the string through
+(see <code>LedgerScope.recordPulse</code>'s comment in the source).</p>
+<h3 id="registration">Registration</h3>
+<pre class="language-dart"><code class="language-dart">final counter = Cell.state&lt;int&gt;(initial: 0);
+final graph = (CellGraph.builder(graphId: 'g1')
+      ..registerState('counter', counter))
+    .build();
+</code></pre>
+<ul>
+<li><code>registerState(name, handle)</code> registers a <code>StateHandle</code>'s cell under
+<code>name</code>; <code>register(name, cell)</code> registers any cell.</li>
+<li>The builder is <strong>strict by default</strong>: every reachable cell (roots and
+everything reachable through <code>bind</code>/<code>Synapses</code>) must be registered, or
+<code>build()</code> throws. <code>CellGraph.builder(strict: false)</code> exists for tests
+and for the CLI's placeholder graphs; it is documented as unsafe for
+production.</li>
+<li><code>CellGraphRegistry.forceReset()</code> clears the live identity registry. It
+is <code>@visibleForTesting</code> — application code should build each graph in
+its own process, or keep one graph alive. Rebuilding the <em>same names</em>
+in one process without resetting makes the new cells resolve their ids
+to the <em>old</em> cells.</li>
+</ul>
+<h3 id="what-registration-buys-you">What registration buys you</h3>
+<ul>
+<li>The ledger can say "cell <code>counter</code> changed from 1 to 2" and the replay
+process can find "counter" again.</li>
+<li><code>graph['counter']</code> resolves a <code>RegisteredCell</code> (<code>.cell</code>, <code>.name</code>).</li>
+<li><code>CellGraphSnapshot</code> (the serialisation layer) can serialise the registered shape; its
+<code>currentSchemaVersion</code> is <strong>2</strong> as of the governance layer. <code>fromJson</code> accepts
+versions <code>&lt;= current</code>, so pre--7 snapshots still parse.</li>
+</ul>
+<h2 id="7-purity-the-declaration-boundary">7. Purity: the declaration boundary</h2>
+<p><code>Purity</code> has three values:</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Meaning</th>
+<th>Replay behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pure</code></td>
+<td>Output is a function of input and cell state only</td>
+<td>Re-run exactly; no journal needed</td>
+</tr>
+<tr>
+<td><code>readOnlyExternal</code></td>
+<td>Reads the outside world, never mutates it</td>
+<td>Re-run; every read served from the journal</td>
+</tr>
+<tr>
+<td><code>effectful</code></td>
+<td>Mutates the outside world</td>
+<td><strong>Not re-called</strong>; the recorded decision (<code>VerdictEffect</code>) is served</td>
+</tr>
+</tbody>
+</table>
+<p>Two mixins attach behaviour to a custom <code>ReceptorBase</code> or <code>TestCell</code>:</p>
+<ul>
+<li><code>Effectful</code> — sets <code>purity</code> to <code>effectful</code>. On the recording side the
+rule runs once; its decision is journaled. With no journal in scope,
+<code>NullJournal</code> throws on the first effect — <strong>by design</strong> (an effectful
+receptor outside a journal scope is a bug to surface, not hide).</li>
+<li><code>EffectfulReadOnly</code> — sets <code>purity</code> to <code>readOnlyExternal</code>. The rule
+re-runs during replay; its <code>journal.io(...)</code> / <code>journal.clock()</code> calls
+are consumed from the replay journal in order.</li>
+</ul>
+<p>The default for every built-in rule and receptor is <code>pure</code>, and that is
+the correct answer for most custom code. The test question is: <em>"does my
+output depend on anything other than the input and the cell's state?"</em></p>
+<h2 id="8-the-effectjournal">8. The <code>EffectJournal</code></h2>
+<p>The journal is the single interface through which every external
+observation must flow:</p>
+<pre class="language-dart"><code class="language-dart">abstract class EffectJournal {
+  static EffectJournal get current =&gt; JournalScope.current;
+  int get consumed;
+  DateTime clock();                    // the journal
+  String uuid();                       // the journal
+  Future&lt;T&gt; io&lt;T&gt;({...});              // the journal
+  Future&lt;void&gt; timer({...});           // the journal
+  Future&lt;bool&gt; verdict({...});         // the governance layer
+  void policyTick({...});              // the governance layer
+  void push(); void pop();             // journal-scope bookkeeping
+  void assertExhausted();              // replay-side completeness
+  List&lt;Map&lt;String, Object?&gt;&gt; toJson(); // canonical effect log
+}
+</code></pre>
+<p>The recorded effect kinds (all round-trip through canonical JSON via
+<code>EffectRecord.fromJson</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>Record</th>
+<th>Carries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>clock</code></td>
+<td><code>ClockEffect</code></td>
+<td><code>epochMillis</code></td>
+</tr>
+<tr>
+<td><code>uuid</code></td>
+<td><code>UuidEffect</code></td>
+<td><code>uuid</code></td>
+</tr>
+<tr>
+<td><code>io</code></td>
+<td><code>IoEffect</code></td>
+<td><code>label</code>, <code>inputDigest</code>, <code>rawOutput</code></td>
+</tr>
+<tr>
+<td><code>stream</code></td>
+<td><code>StreamEffect</code></td>
+<td>stream bookkeeping</td>
+</tr>
+<tr>
+<td><code>timer</code></td>
+<td><code>TimerEffect</code></td>
+<td><code>scheduled</code>, <code>scheduledAtMillis</code>, <code>firedAtMillis</code></td>
+</tr>
+<tr>
+<td><code>verdict</code></td>
+<td><code>VerdictEffect</code></td>
+<td><code>verdict</code> (bool), <code>ruleLabel</code>, <code>inputDigest</code></td>
+</tr>
+<tr>
+<td><code>policyTick</code></td>
+<td><code>PolicyTickEffect</code></td>
+<td><code>policyLabel</code>, <code>cellId</code>, <code>inputDigest</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="the-three-implementations">The three implementations</h3>
+<ul>
+<li><strong><code>RecordingJournal</code></strong> executes and records. Its constructor accepts
+<code>clockSource</code>, <code>uuidSource</code>, and <code>timerScheduler</code> for deterministic
+tests. Helpers: <code>consumed</code>, <code>recordsSince(n)</code>, <code>lastRecord</code>, <code>toJson</code>.</li>
+<li><strong><code>ReplayJournal</code></strong> serves and validates. It is constructed from a
+list of records (<code>ReplayJournal(entry.effects)</code>).</li>
+<li><strong><code>NullJournal.instance</code></strong> is the "no journal in scope" sentinel. It
+throws a loud <code>StateError</code> on <em>every</em> effectful operation. It is
+deliberately not a silent no-op.</li>
+</ul>
+<h3 id="peek-then-commit">Peek-then-commit</h3>
+<p>The replay journal never consumes a record until every field has
+validated. The cursor advances only in <code>_commit()</code>. A validation failure
+calls <code>_fail(...)</code>, which:</p>
+<ol>
+<li>latches <code>diverged</code> and <code>divergenceReason</code> on the journal, then</li>
+<li>throws <code>ReplayDivergenceException</code>.</li>
+</ol>
+<p>The latch is what makes swallowed exceptions visible: an operator's
+mapper error contract may swallow the throw, but <code>assertExhausted()</code> at
+the end of the entry's replay re-throws the latched divergence.</p>
+<pre class="language-text"><code class="language-text">_peek(kind)            → kind mismatch?         → _fail, throw
+_validate(fields)      → label/input mismatch?  → _fail, throw
+_commit()              → cursor++
+assertExhausted()      → diverged?  → rethrow the latched reason
+                       → remaining &gt; 0? → "journal not exhausted"
+                       → ok
+</code></pre>
+<h3 id="verdicts-and-policy-ticks">Verdicts and policy ticks</h3>
+<p><code>journal.verdict(...)</code> wraps an <code>effectful</code> test rule:</p>
+<ul>
+<li>Recording: <code>run</code> executes once; the returned <code>bool</code> is recorded with
+the rule label and the input digest.</li>
+<li>Replay: <code>run</code> is ignored; the recorded verdict is served after the
+label and the input digest are validated.</li>
+</ul>
+<p><code>journal.policyTick(...)</code> journals one tick of a cell's hosted
+<code>EphemeralPolicy</code>:</p>
+<ul>
+<li>Recording: the record is written; the policy callback still runs.</li>
+<li>Replay: the record is consumed and validated (<code>policyLabel</code>, <code>cellId</code>,
+<code>inputDigest</code> — the input is the pulse's <em>payload</em>, because a pulse
+object itself is not stable across record and replay); the policy
+callback is <strong>not</strong> re-invoked. The existing <code>CycleChecker.tickPolicy</code>
+guard still applies the tick on both sides, which is the the cycle-checker reseed
+fix: tick <em>order</em> is now part of the recorded history.</li>
+</ul>
+<h2 id="9-journalscope-the-ambient-journal">9. <code>JournalScope</code>: the ambient journal</h2>
+<p><code>JournalScope</code> keeps a Zone-local stack of journals:</p>
+<pre class="language-dart"><code class="language-dart">await JournalScope.run(recording, () =&gt; graph.run(() async { ... }));
+//   pushes on entry, pops on exit (success or error)
+
+JournalScope.current          // top of stack, or NullJournal.instance
+EffectJournal.current         // the same thing
+JournalScope.runSync(journal, body)
+</code></pre>
+<p>Design details worth knowing:</p>
+<ul>
+<li>The scope does <strong>not</strong> inherit into spawned tasks. A <code>Future</code> scheduled
+before the scope exits keeps the zone, but a task spawned in a <em>new</em>
+zone gets <code>NullJournal</code> — which fails loudly. This is deliberate: an
+un-journalled effect in a detached task is exactly the bug the design
+wants surfaced.</li>
+<li>The ambient journal participates in ledger capture (see §12): the
+immediate append path sweeps <code>recordsSince(watermark)</code>, and the
+deferred window path relies on operators cooperatively calling
+<code>LedgerScope.captureEffect</code>.</li>
+<li><code>JournalScope.effectiveJournal(captured)</code> prefers the ambient journal
+when it is not <code>NullJournal</code> — the operator-passed <code>journal:</code> argument
+is the fallback, so a replay scope always wins over a captured
+recording journal.</li>
+</ul>
+<h2 id="10-the-five-journalled-operators">10. The five journalled operators</h2>
+<p><code>Cell.asyncMap</code>, <code>Cell.fromStream</code>, <code>Cell.fromFuture</code>, <code>Cell.debounce</code>,
+and <code>Cell.throttle</code> all take a <strong>required</strong> <code>journal:</code> parameter. Omitting
+it is a compile error. The mapper contract for <code>asyncMap</code> is:</p>
+<pre class="language-dart"><code class="language-dart">final mapped = Cell.asyncMap&lt;int, int&gt;(
+  source.cell,
+  (v, {required EffectJournal journal}) =&gt; journal.io(
+    label: 'fetch($v)',
+    input: v,
+    run: () async =&gt; v * 2,        // the actual external call
+  ),
+  journal: journal,                // the operator's own RecordingJournal
+);
+</code></pre>
+<p>Rules that make these replayable:</p>
+<ul>
+<li>Every observation is routed through the mapper's <code>journal</code> parameter —
+not through a captured global.</li>
+<li>On replay the mapper <strong>runs again</strong>, but <code>journal.io(...)</code> returns the
+recorded <code>rawOutput</code> and never executes <code>run</code>. This is why replay
+never touches the network.</li>
+<li>The operator cooperatively captures each mapper-invocation effect into
+the active <code>LedgerScope</code> (<code>recordsSince(before)</code> → <code>captureEffect</code>), so
+the entry that caused the emission carries its effects.</li>
+<li><code>fromStream</code>'s host is governed with a lifecycle policy; each event
+journals one I/O record <strong>and one policy tick</strong> (the the cycle-checker reseed
+addition — existing tests updated accordingly).</li>
+<li><code>debounce</code>/<code>throttle</code> timers go through <code>journal.timer(...)</code>; on replay
+the fire callbacks run in journal order without waiting for real time.</li>
+</ul>
+<h2 id="11-the-ledger-hash-chain-entries-receipts">11. The ledger: hash chain, entries, receipts</h2>
+<h3 id="genesis">Genesis</h3>
+<p>Every chain starts from <code>Ledger.genesisHashOf(graph.id)</code> — the
+fingerprint of <code>{'graphId': graph.id}</code>. Stores enforce their genesis:
+<code>Ledger.open</code> and <code>bindLedger</code> throw if the store's genesis does not
+match the chain's. <code>Ledger.open</code> accepts an explicit <code>genesisHash</code>
+override for reopening a ledger whose graph is a placeholder (the CLI
+does exactly this).</p>
+<h3 id="what-the-chain-hashes">What the chain hashes</h3>
+<p>For each entry:</p>
+<pre class="language-text"><code class="language-text">hash = nextHash(
+  prevHash,        // previous entry's hash (genesis for seq 0)
+  seq,
+  pulseDigest,     // fingerprint(canonical(pulse materialisation))
+  receiptDigest,   // fingerprint(canonical receipt JSON)
+  effectsDigest,   // fingerprint(effects.toJson())
+  deltaDigest,     // fingerprint(deltas.toJson())
+  at,              // wall-clock time
+)
+</code></pre>
+<p><code>Ledger.verify()</code> recomputes every hash in one pass and compares
+<code>prevHash</code> chains; any mismatch throws <code>LedgerIntegrityException(seq, reason)</code>.</p>
+<h3 id="ledgerentry"><code>LedgerEntry</code></h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>seq</code>, <code>prevHash</code>, <code>hash</code></td>
+<td>chain position</td>
+</tr>
+<tr>
+<td><code>pulseDigest</code></td>
+<td>the materialised input pulse</td>
+</tr>
+<tr>
+<td><code>receipt</code></td>
+<td>who did what (12 fields, see below)</td>
+</tr>
+<tr>
+<td><code>effects</code></td>
+<td>the entry's <code>EffectRecord</code> list</td>
+</tr>
+<tr>
+<td><code>deltas</code></td>
+<td><code>StateDelta</code> list (<code>cellId</code>, <code>before</code>, <code>after</code>, <code>at</code>)</td>
+</tr>
+<tr>
+<td><code>at</code></td>
+<td>wall-clock time (forensic; never compared by replay)</td>
+</tr>
+<tr>
+<td><code>receiptCellId</code></td>
+<td>the recorded cell id (the replay engine fix: the cell <em>name</em> in the receipt, not the live object's current id)</td>
+</tr>
+<tr>
+<td><code>receiptDigest</code> / <code>effectsDigest</code> / <code>deltaDigest</code></td>
+<td>the digested sub-JSONs</td>
+</tr>
+</tbody>
+</table>
+<h3 id="the-receipt-12-fields">The receipt (12 fields)</h3>
+<pre class="language-dart"><code class="language-dart">({
+  String id,                    // apply id
+  Cell cell,                    // target cell
+  Function function,            // the command's function
+  ApplyArguments arguments,     // positional/named
+  DateTime timestamp,
+  int? txSequence,
+  bool vetted,
+  int? ledgerSeq,               // back-filled by appendInternal
+  String? pulseDigest,          // back-filled by appendInternal
+  String? receptorVersion,      // the governance layer: '0.0.0' when unversioned
+  String? ruleVersion,          // the governance layer
+  String? contextVersion,       // the governance layer
+})
+</code></pre>
+<p>The three the governance version fields are populated by
+<code>Ledger.appendInternal</code> from the live nucleus and the cell's
+<code>DeputyContext</code>; <code>LedgerEntry.fromJson</code> defaults pre--7 ledgers to
+<code>'0.0.0'</code> (unversioned).</p>
+<h3 id="stores">Stores</h3>
+<p><code>LedgerStore</code> is the minimal persistence interface: <code>genesisHash</code>,
+<code>append</code>, <code>lastSeq</code>, <code>lastHash</code>, <code>entriesSince(fromSeq)</code>, <code>close</code>.
+Shipped implementations:</p>
+<ul>
+<li><code>InMemoryLedgerStore(genesisHash: ...)</code> — tests and what-if demos.</li>
+<li><code>FileLedgerStore.open(path, genesisHash: ...)</code> — JSONL file, each line
+one canonical entry; holds a <code>RandomAccessFile</code> until <code>close()</code>.</li>
+<li><code>ForkLedgerStore(record:, inner:)</code> — wraps any store with a synthetic
+seq-0 <code>ForkRecord</code> entry (a <em>real</em> chain entry hashed with
+<code>HashChain.nextHash</code>); <code>materialize()</code> writes the synthetic entry into
+the inner store even before the first real append (the CLI's <code>fork</code>
+needs a non-empty output file).</li>
+</ul>
+<p>Downstream stores must pass <code>test/replay/ledger_store_conformance.dart</code>
+(§18).</p>
+<h2 id="12-ledgerscope-recording-coordination">12. <code>LedgerScope</code>: recording coordination</h2>
+<p><code>graph.run(body)</code> pushes a <code>LedgerScope</code> zone; every mutation inside is
+recorded, mutations outside are not (and are the caller's
+responsibility).</p>
+<p>The scope has three capture channels:</p>
+<ol>
+<li><strong>Deltas.</strong> <code>ValueCell.postProcessRule</code> encodes the before/after
+values <em>before</em> committing (a non-JSON-encodable payload never reaches
+the state box) and calls <code>LedgerScope.captureDelta</code>.</li>
+<li><strong>Immediate effects.</strong> The synchronous mutation path
+(<code>ValueCell.update</code>, <code>Cell.apply</code>) calls <code>LedgerScope.recordPulse</code>,
+which sweeps the ambient <code>RecordingJournal</code>'s records since a
+per-scope <strong>watermark</strong> into the entry. The watermark (a the governance layer
+fix) is load-bearing: without it, a burst of applies attributes every
+earlier pulse's records to each later entry.</li>
+<li><strong>Deferred windows.</strong> The ingress/emit path calls
+<code>LedgerScope.recordPulseDeferred</code>, which opens a window closed one
+event-loop turn later so detached operator continuations (asyncMap
+mappers, debounce fires) can cooperatively <code>LedgerScope.captureEffect</code>
+their records into the pending entry.</li>
+</ol>
+<p><code>LedgerScope.drain()</code> resolves when every window and the append chain
+(<code>_tail</code>) have settled; <code>LedgerScope.run</code> drains in its <code>finally</code>.</p>
+<h2 id="13-replayengine-replaying-a-history">13. <code>ReplayEngine</code>: replaying a history</h2>
+<pre class="language-dart"><code class="language-dart">final result = await ReplayEngine.replay(
+  ledger: ledger,        // the recorded ledger
+  target: freshGraph,    // a fresh, un-ledgered graph
+  fromSeq: 0,            // start position
+  options: ReplayOptions.strict,  // or .diff for diagnostics
+);
+</code></pre>
+<p>Per entry, in order:</p>
+<ol>
+<li><strong>Refuse a ledgered target</strong> — replay reconstructs state; a bound
+target would mean merging two histories.</li>
+<li><strong>Resolve the cell</strong> by <code>receiptCellId</code>; unregistered → divergence.</li>
+<li><strong>Version check</strong> (<code>_checkVersions</code>): the recorded
+<code>receptorVersion</code>/<code>ruleVersion</code> must be satisfied by the graph's
+<code>VersionRegistry</code>, or by the live implementations matching exactly.
+Unversioned ledgers (<code>null</code> versions) replay only against unversioned
+targets — refusing to guess is the design.</li>
+<li><strong>Reconstruct the pulse</strong> (<code>PulseReconstructor</code>): the first positional
+receipt argument becomes the payload (<code>Pulse&lt;dynamic&gt;(args.first, source: cell)</code>); if there are no arguments, the entry's own delta's
+<code>after</code> is used. Hand-crafted entries without either diverge.</li>
+<li><strong>Dispatch</strong> inside <code>JournalScope.run(ReplayJournal(entry.effects))</code>;
+<code>settleAfterDispatch</code> (default true) drains the microtask queue so
+asynchronous receptor continuations finish before the checks.</li>
+<li><strong><code>assertExhausted</code></strong> — the receptor must have consumed exactly the
+recorded effects, in order, with matching labels and inputs.</li>
+<li><strong>Delta verification</strong> — for every recorded delta, the target cell's
+current value must equal <code>delta.after</code> (compared as canonical JSON).</li>
+</ol>
+<p><code>ReplayResult</code> carries <code>success</code>, <code>entriesReplayed</code>, and
+<code>divergences</code> (a list of <code>DivergenceReport</code>).</p>
+<h3 id="replayoptions"><code>ReplayOptions</code></h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>failOnDivergence</code></td>
+<td><code>true</code></td>
+<td>Throw on the first divergence (<code>strict</code>); <code>false</code> collects and continues (<code>diff</code>)</td>
+</tr>
+<tr>
+<td><code>verifyReceipts</code></td>
+<td><code>true</code></td>
+<td>Verify back-filled <code>ledgerSeq</code>/<code>pulseDigest</code>; disable only for hand-built entries</td>
+</tr>
+<tr>
+<td><code>settleAfterDispatch</code></td>
+<td><code>true</code></td>
+<td>Settle the microtask queue before journal/delta checks</td>
+</tr>
+<tr>
+<td><code>maxEntries</code></td>
+<td><code>null</code></td>
+<td>Replay only a prefix</td>
+</tr>
+</tbody>
+</table>
+<p><code>ReplayOptions.strict</code> is the production default; <code>ReplayOptions.diff</code>
+is the diagnostic preset used by CLI-style tools.</p>
+<h2 id="14-divergence-reporting">14. Divergence reporting</h2>
+<p>Three layers of diagnostics:</p>
+<ol>
+<li><code>ReplayDivergenceException</code> — thrown synchronously by the journal or
+the engine (when <code>failOnDivergence</code>); carries <code>message</code>, <code>ordinal</code>,
+<code>seq</code>, and <code>report</code>.</li>
+<li><code>DivergenceReport</code> — <code>seq</code>, <code>expected</code>, <code>actual</code>, <code>lastEffect</code>
+(the effect consumed immediately before the divergence), <code>reason</code>.</li>
+<li><code>ReplayResult.divergences</code> — the full list when running in <code>diff</code>
+mode.</li>
+</ol>
+<p>A good report reads like a mini-post-mortem:</p>
+<pre class="language-dart"><code>DivergenceReport(seq: 2, expected: version 1.0.0 / 1.0.0,
+  actual: version 2.0.0 / 2.0.0,
+  reason: version boundary: the ledger recorded receptor version 1.0.0 …
+</code></pre>
+<h2 id="15-forking-what-if-branches">15. Forking: what-if branches</h2>
+<p>A fork is a <em>new</em> ledger whose chain genesis is the fingerprint of a
+<code>ForkRecord</code>, and whose history is bound to the parent's hash at the
+fork point.</p>
+<pre class="language-dart"><code class="language-dart">final fork = await graph.fork(
+  parent: ledger,
+  atSeq: 5,                      // parent sequence
+  buildFreshGraph: () {          // fresh cells, same names
+    CellGraphRegistry.forceReset();
+    final fresh = Cell.state&lt;int&gt;(initial: 0);
+    return (CellGraph.builder(graphId: 'g')
+          ..registerState('counter', fresh))
+        .build();
+  },
+  buildStore: (genesis) =&gt;       // store factory, not a store
+      InMemoryLedgerStore(genesisHash: genesis),
+  policy: ForkPolicy.isolated,   // the only the fork engine policy
+);
+</code></pre>
+<p>Key semantics:</p>
+<ul>
+<li><strong><code>ForkRecord</code></strong> = <code>forkId</code>, <code>originalLedgerId</code>, <code>divergedAt</code>,
+<code>originalSnapshotHash</code>, <code>parentHeadHash</code>, <code>at</code>. <code>genesisHash</code> is the
+fingerprint of everything except <code>at</code> — the fork chain is
+distinguishable from the parent's.</li>
+<li><strong>Baseline replay.</strong> The fork does not copy state; it replays parent
+entries <code>0..atSeq</code> into the fresh graph, so the fork's working state is
+the parent's state <em>after</em> seq <code>atSeq</code>.</li>
+<li><strong><code>divergedAt + 1</code>.</strong> <code>ReplayEngineFork.replayFork(fork:, mutation:)</code>
+replays from the parent's <code>divergedAt + 1</code> onward. <code>atSeq == 0</code> means
+the baseline is the state after the parent's first entry.</li>
+<li><strong>Mutation.</strong> <code>typedef Mutation = Pulse? Function(LedgerEntry entry, Pulse pulse);</code> — return a replacement <code>Pulse</code> to substitute, return
+<code>null</code> to <em>drop</em> the entry (the fork's ledger then has no record of
+it), return the same pulse to keep it.</li>
+<li><strong>The fork writes its own ledger.</strong> Each replayed entry is appended to
+<code>fork.ledger</code>; deltas are <em>not</em> compared against the parent's because a
+fork is expected to diverge — the fork's ledger records what the fork
+actually did.</li>
+<li><strong>Only <code>ForkPolicy.isolated</code> ships.</strong> <code>sharedTopology</code> and
+<code>dropUnreached</code> require a later revision snapshot reconstruction and throw
+<code>UnimplementedError</code>.</li>
+</ul>
+<h3 id="verifying-a-fork">Verifying a fork</h3>
+<p><code>fork.verify()</code> (the <code>ForkVerify</code> extension on <code>ForkHandle</code>) checks, in
+order: the <strong>parent</strong> chain, the <strong>fork</strong> chain, and the <strong>genesis
+binding</strong> — <code>ForkRecord.parentHeadHash</code> must equal the parent's hash at
+<code>divergedAt</code> (<code>ForkParentLookup.hashAtSeq</code>). A fork whose binding does
+not match is stale or forged: <code>ForkIntegrityException</code>.</p>
+<h2 id="16-governance-versions-registry-translators">16. Governance: versions, registry, translators</h2>
+<h3 id="where-versions-live">Where versions live</h3>
+<ul>
+<li><code>Receptor.version</code> and <code>TestCell.version</code> default to <code>'0.0.0'</code>
+(unversioned); custom implementations may override.</li>
+<li><code>DeputyContext.version</code> defaults to <code>'1.0.0'</code>; <code>DeputyContext.system</code>
+is <code>'0.0.0'</code>. <code>Mandate.version</code> is a <em>static pillar</em> — it cannot be
+evolved by a deputy, because it declares the schema of the mandate
+itself.</li>
+<li>Every entry's receipt records the three versions that produced it.</li>
+</ul>
+<h3 id="versionregistry--graph-scoped-on-purpose"><code>VersionRegistry</code> — graph-scoped, on purpose</h3>
+<pre class="language-dart"><code class="language-dart">graph.versions.register(
+  cellId: 'admin',
+  version: '1.0.0',
+  receptor: myV1Receptor,
+  testRule: myV1Rule,           // both must report version '1.0.0'
+);
+graph.registerVersion('admin'); // registers the live pair at its own version
+</code></pre>
+<p>The registry is per-graph via an <code>Expando</code> (<code>CellGraphVersions.versions</code>)
+— deliberately not process-wide: two graphs in one process may have the
+same cell name with different version histories, and a process-wide table
+would let one graph's versions shadow the other's. Registering the same
+<code>(cellId, version)</code> twice with a different implementation throws;
+identical re-registration is a no-op.</p>
+<h3 id="the-engines-decision">The engine's decision</h3>
+<p>For each entry: if the graph's registry has the recorded version, replay
+proceeds. Otherwise the live receptor and rule must match exactly.
+Otherwise — a loud <code>DivergenceReport</code> with the recorded and live
+versions. An unversioned ledger replays only against an unversioned
+target.</p>
+<h3 id="contexttranslator"><code>ContextTranslator</code></h3>
+<p>A context schema change is the caller's semantic domain; the framework
+provides the boundary:</p>
+<pre class="language-dart"><code class="language-dart">class V1ToV2 implements ContextTranslator {
+  @override
+  String get fromVersion =&gt; '1.0.0';
+  @override
+  String get toVersion =&gt; '2.0.0';
+  @override
+  FutureOr&lt;DeputyContext&gt; translate(DeputyContext source) =&gt;
+      DeputyContext(
+        baseContext: Context.system,
+        authority: 'UPDATE',
+        version: '2.0.0',
+        // …translate the v1 fields…
+      );
+}
+
+graph.translators.register(V1ToV2());      // CellGraphTranslators
+await graph.translators.translate(v1ctx, target: '2.0.0');
+</code></pre>
+<p><code>ContextTranslatorRegistry.translate</code> returns the source unchanged when
+the versions are equal, throws <code>UnimplementedError</code> when no translator
+exists (the loud failure the exit criteria require), and verifies the
+translator's output version. the governance layer registers the machinery and enforces
+the boundary; wiring translators <em>into</em> the engine dispatch loop is the
+deferred a later governance revision item.</p>
+<h3 id="purity-dispatch-testcellreplay">Purity dispatch (<code>TestCellReplay</code>)</h3>
+<p>The receptor pipeline no longer calls the rule directly. It calls
+<code>TestCellReplay.invoke(rule:, object:, host:, journal:, ruleLabel:)</code>:</p>
+<ul>
+<li><code>pure</code> → <code>rule.call(...)</code> — synchronous rules stay synchronous (the
+framework's pulse contract depends on it).</li>
+<li><code>readOnlyExternal</code> → <code>rule.call(...)</code> with the journal in scope, then
+a cooperative sweep hands records the rule wrote to the <code>LedgerScope</code>
+(the the journal <code>asyncMap</code> pattern).</li>
+<li><code>effectful</code> → <code>journal.verdict(...)</code>; the rule runs once on the
+recording side and never on the replay side.</li>
+</ul>
+<p>The rule label is conventionally <code>${rule.runtimeType}@${rule.version}</code>
+and is validated by the replay journal, so a changed rule diverges by
+label even before the version check runs.</p>
+<h2 id="17-visualisation-and-the-cli">17. Visualisation and the CLI</h2>
+<h3 id="in-library-visualisation">In-library visualisation</h3>
+<pre class="language-dart"><code class="language-dart">final graphMermaid = graph.visualise();          // CellGraphVisualise
+final ledgerMermaid =
+    await ledger.visualise(format: 'mermaid', mode: 'deltas');
+final ledgerDot = await ledger.visualise(format: 'dot', mode: 'cells');
+</code></pre>
+<p><code>mode: 'deltas'</code> is the forensic view (what changed, in order); <code>mode: 'cells'</code> is the topology view (who participated). The delta renderer
+tracks the previous delta node instead of assuming every entry has one —
+the fork's synthetic seq-0 entry, and hand-crafted entries, have none.</p>
+<h3 id="the-cell-replay-cli">The <code>cell-replay</code> CLI</h3>
+<pre class="language-text"><code class="language-text">cell-replay verify    --ledger &lt;path&gt; [--format human|json]
+cell-replay diff      --ledgerA &lt;path&gt; --ledgerB &lt;path&gt; [--format human|json] [--maxDiffs N]
+cell-replay fork      --ledger &lt;path&gt; --at &lt;seq&gt; --out &lt;path&gt; [--format human|json]
+cell-replay visualise --ledger &lt;path&gt; [--mode deltas|cells] [--format mermaid|dot]
+cell-replay inspect   --ledger &lt;path&gt; [--format human|json]
+</code></pre>
+<p>Exit codes: <code>0</code> success · <code>1</code> verification failure / diff found ·
+<code>2</code> usage error · <code>3</code> internal error. <code>dart run bin/cell_replay.dart --help</code> prints the usage text.</p>
+<p>Two CLI scope decisions worth internalising:</p>
+<ul>
+<li><strong><code>verify</code> checks the chain only.</strong> <code>--graph</code> is rejected (planned CLI work
+needs a later revision snapshot reconstruction). The chain guarantee is real:
+it proves no byte of history was altered after recording.</li>
+<li><strong>The genesis compromise.</strong> A ledger file does not carry its genesis;
+the CLI reads the first entry's <code>prevHash</code> and trusts it. A ledger
+whose <em>first</em> entry was tampered would pass genesis binding — this is
+documented in the help text and fixed by a future <code>--genesis</code> flag
+flag.</li>
+<li><strong><code>fork</code> writes the <code>ForkRecord</code> genesis</strong>, no entries after it.
+<code>--replaceSeq</code> (fork-with-replay) is planned CLI work.</li>
+</ul>
+<p><code>inspect</code> prints the human summary (<code>entries</code>, <code>deltas</code>, <code>cells</code>,
+<code>span</code>) or canonical JSON; <code>visualise</code> output pastes directly into
+GitHub/Notion markdown.</p>
+<h2 id="18-the-conformance-suite-and-the-determinism-gate">18. The conformance suite and the determinism gate</h2>
+<h3 id="ledger-store-conformance">Ledger-store conformance</h3>
+<p><code>test/replay/ledger_store_conformance.dart</code> is the acceptance criterion
+for any downstream store (Postgres, S3, …):</p>
+<pre class="language-dart"><code class="language-dart">runLedgerStoreConformance(
+  'MyStore',
+  () =&gt; MyStore(genesisHash: 'test-genesis'),
+  isDurable: true,                    // survives reopen
+  fresh: () { /* allocate a NEW resource per test */ },
+);
+</code></pre>
+<p>It exercises append/<code>lastSeq</code>, out-of-order rejection, genesis binding,
+<code>entriesSince</code> ordering, close semantics, and (durable only) reopen. The
+<code>fresh</code> hook matters: the suite opens the factory once per test — a
+durable store must reopen the <em>same</em> data within a test but a <em>fresh</em>
+resource across tests.</p>
+<h3 id="the-determinism-gate">The determinism gate</h3>
+<pre class="language-bash"><code class="language-bash">dart run tool/replay_determinism_check.dart
+</code></pre>
+<p>Runs <code>test/replay</code> twice, normalises the JSON reporter on
+<code>(test name, result, message)</code>, and fails when the two runs disagree. A
+test whose output varies across runs is either non-deterministic by
+design (mark it <code>@Skip</code> with a comment) or is doing real <code>DateTime.now()</code>
+/ <code>Random()</code> work that would make the <em>ledger itself</em> non-reproducible.</p>
+<h3 id="the-three-demos">The three demos</h3>
+<pre class="language-bash"><code class="language-bash">dart run example/replay/record_and_replay.dart   # file ledger, reopen, replay
+dart run example/replay/whatif_branch.dart       # fork + replace a pulse
+dart run example/replay/audit_ledger.dart        # the auditor's workflow
+</code></pre>
+<hr>
+<h1 id="part-iv--recipes">Part IV — Recipes</h1>
+<h2 id="r1-record-and-replay-a-state-cell">R1. Record and replay a state cell</h2>
+<p>See Part II. The essential beats: register, bind with
+<code>Ledger.genesisHashOf</code>, mutate inside <code>graph.run</code>, verify, rebuild
+fresh, <code>ReplayEngine.replay</code>.</p>
+<h2 id="r2-an-effectful-mapper">R2. An effectful mapper</h2>
+<pre class="language-dart"><code class="language-dart">final source = Cell.state&lt;int&gt;(initial: 0);
+final graph = (CellGraph.builder(graphId: 'r2')
+      ..registerState('src', source))
+    .build();
+
+final journal = RecordingJournal();      // lives as long as the operator
+final mapped = Cell.asyncMap&lt;int, int&gt;(
+  source.cell,
+  (v, {required EffectJournal journal}) =&gt; journal.io(
+    label: 'double($v)',
+    input: v,
+    run: () async =&gt; v * 2,
+  ),
+  journal: journal,
+);
+
+final ledger = await graph.bindLedger(
+  store: InMemoryLedgerStore(
+    genesisHash: Ledger.genesisHashOf(graph.id),
+  ),
+);
+// Effects are records: the recording runs inside a journal scope.
+await JournalScope.run(journal, () =&gt; graph.run(() async {
+  source.update(1);
+  source.update(2);
+}));
+</code></pre>
+<p>Replay into a fresh graph built the same way; the mapper re-runs but
+<code>run</code> never executes — <code>rawOutput</code> is served. If the replay mapper were
+changed, the entry's I/O record would diverge on <code>label</code> or <code>inputDigest</code>.</p>
+<h2 id="r3-debounce-replay">R3. Debounce replay</h2>
+<pre class="language-dart"><code class="language-dart">final source = Cell.state&lt;int&gt;(initial: 0);
+final debounced = Cell.debounce(
+  source.cell,
+  const Duration(milliseconds: 50),
+  journal: RecordingJournal(),
+);
+// …bind, run, emit bursts…
+</code></pre>
+<p>On replay, <code>ReplayJournal.timer</code> validates the scheduled duration and
+input, then fires <code>onFire</code> in journal order after one microtask — the
+same ordering trick that lets a superseded debounce be cancelled before
+its fire callback runs. No real timers are waited on.</p>
+<h2 id="r4-a-custom-receptor-with-purity-and-version">R4. A custom receptor with purity and version</h2>
+<pre class="language-dart"><code class="language-dart">class DoublingReceptor extends ReceptorBase&lt;Cell&gt; {
+  @override
+  String get version =&gt; '1.0.0';
+
+  @override
+  Receptor&lt;Cell&gt; get clone =&gt; DoublingReceptor();
+
+  // Override call/validation to transform the pulse; the base class
+  // handles the governance gates. Keep it pure: the transform is a
+  // function of the pulse.
+}
+
+final cell = Cell.governed(receptor: DoublingReceptor());
+</code></pre>
+<p>Rules: declare <code>purity</code> (default <code>pure</code> is fine here), stamp a <code>version</code>
+if the implementation may ever change, and register the graph
+(<code>graph.registerVersion('c')</code> registers the live pair). The ledger then
+records <code>receptorVersion: '1.0.0'</code> per entry; replay against a <code>2.0.0</code>
+build fails loudly until the graph's <code>VersionRegistry</code> has the recorded
+version.</p>
+<h2 id="r5-an-effectful-test-rule">R5. An <code>effectful</code> test rule</h2>
+<pre class="language-dart"><code class="language-dart">class SendNotificationRule extends TestCell&lt;Cell&gt; with Effectful {
+  @override
+  String get version =&gt; '1.0.0';
+  SendNotificationRule() : super((pulse, {host, arguments, user}) {
+    // The rule runs exactly once, on the recording side only.
+    return pulse.payload != null;
+  });
+}
+
+final src = Cell.ingress&lt;int&gt;(testRule: SendNotificationRule());
+final graph = (CellGraph.builder(graphId: 'r5')
+      ..register('src', src.cell))
+    .build();
+final ledger = await graph.bindLedger(
+  store: InMemoryLedgerStore(
+    genesisHash: Ledger.genesisHashOf(graph.id),
+  ),
+);
+final recording = RecordingJournal();
+await JournalScope.run(recording, () =&gt; graph.run(() async {
+  src.emit(1);
+}));
+final entry = await ledger.entriesSince(0).first;
+print(entry.effects.single.runtimeType);   // VerdictEffect
+</code></pre>
+<p>On replay, <code>TestCellReplay.invoke</code> routes through <code>journal.verdict</code>: the
+recorded decision is served, the rule body never runs. Changing the rule
+body without changing its version diverges on the verdict input or the
+rule label.</p>
+<h2 id="r6-a-readonlyexternal-test-rule">R6. A <code>readOnlyExternal</code> test rule</h2>
+<pre class="language-dart"><code class="language-dart">class FeatureFlagRule extends TestCell&lt;Cell&gt; with EffectfulReadOnly {
+  @override
+  String get version =&gt; '1.0.0';
+  FeatureFlagRule() : super((pulse, {host, arguments, user}) {
+    return EffectJournal.current.io&lt;bool&gt;(
+      label: 'flag(${pulse.payload})',
+      input: pulse.payload,
+      run: () async =&gt; true,   // the real read; replay serves it
+    );
+  });
+}
+</code></pre>
+<p>The rule re-runs during replay; its read is served from the journal. The
+returned value is the recorded <code>rawOutput</code>, so the replay decision
+matches the recording's — provided the <em>order</em> of reads is unchanged.</p>
+<h2 id="r7-ephemeralpolicy-ticks-the-c4-fix">R7. <code>EphemeralPolicy</code> ticks (the C4 fix)</h2>
+<pre class="language-dart"><code class="language-dart">var ticks = 0;
+final policy = EphemeralPolicy&lt;Cell&gt;(
+  eventLimit: 100,
+  onEvent: (object, {required cell, required policy, arguments, user}) {
+    ticks++;
+    return (events: policy.events + 1);
+  },
+  onInvalidate: (nucleus) =&gt; true,
+);
+final cell = Cell.governed(ephemeralPolicy: policy);
+final graph = (CellGraph.builder(graphId: 'r7')
+      ..register('c', cell))
+    .build();
+final ledger = await graph.bindLedger(
+  store: InMemoryLedgerStore(
+    genesisHash: Ledger.genesisHashOf(graph.id),
+  ),
+);
+final recording = RecordingJournal();
+await JournalScope.run(recording, () =&gt; graph.run(() async {
+  await cell.apply&lt;Pulse&lt;int&gt;&gt;((
+    function: (int payload) =&gt; Pulse&lt;int&gt;(payload),
+    arguments: (
+      positionalArguments: [1],      // arguments-first reconstruction
+      namedArguments: null,
+    ),
+    compensation: null,
+  ));
+}));
+final entry = await ledger.entriesSince(0).first;
+print(entry.effects.single.runtimeType);   // PolicyTickEffect
+</code></pre>
+<p>Replay consumes the tick and validates <code>(policyLabel, cellId, input)</code> in
+order; the policy callback is <strong>not</strong> re-invoked (so the tick count is
+zero on replay — the recorded tick <em>is</em> the history). A tick-order
+mismatch is a <code>ReplayDivergenceException</code> with the offending ordinal.
+This is what closes the cycle-checker concern: a diamond graph can no longer
+trip the <code>CycleChecker</code> spuriously during replay, because the tick order
+is journaled.</p>
+<h2 id="r8-fork-and-mutate">R8. Fork and mutate</h2>
+<pre class="language-dart"><code class="language-dart">// Parent: update(1), update(2), update(3) → value 3.
+final fork = await graph.fork(
+  parent: ledger,
+  atSeq: 1,                        // baseline = state after seq 1 (2)
+  buildFreshGraph: () {
+    CellGraphRegistry.forceReset();
+    final fresh = Cell.state&lt;int&gt;(initial: 0);
+    return (CellGraph.builder(graphId: 'r8')
+          ..registerState('counter', fresh))
+        .build();
+  },
+  buildStore: (genesis) =&gt; InMemoryLedgerStore(genesisHash: genesis),
+);
+
+final result = await ReplayEngineFork.replayFork(
+  fork: fork,
+  mutation: (entry, pulse) {
+    if (entry.seq == 2) return Pulse&lt;int&gt;(30, source: pulse.source);
+    return pulse;                  // keep the rest; null would drop
+  },
+);
+final forkValue =
+    (fork.graph['counter']!.cell as ValueCell&lt;int&gt;).value; // 30
+</code></pre>
+<p>Remember: <code>Cell.state</code> replaces on update, so the arithmetic above gives
+2 (baseline) → 30 (mutated seq 2). The fork's own ledger contains the
+fork record plus the entries the fork actually replayed.</p>
+<h2 id="r9-verify-a-fork">R9. Verify a fork</h2>
+<pre class="language-dart"><code class="language-dart">await fork.verify();               // ForkVerify: parent + fork + binding
+final boundHash = await ledger.hashAtSeq(fork.record.divergedAt);
+print(boundHash == fork.record.parentHeadHash);   // true
+</code></pre>
+<p><code>fork.verify()</code> throws <code>ForkIntegrityException</code> if the parent is
+corrupt, the fork chain is corrupt, or the recorded <code>parentHeadHash</code>
+does not match the parent's hash at <code>divergedAt</code>. This is the check that
+separates a fork from a fabrication.</p>
+<h2 id="r10-a-version-boundary-with-a-translator">R10. A version boundary with a translator</h2>
+<pre class="language-dart"><code class="language-dart">// Recording: a DeputyContext at mandate version 1.0.0.
+final v1 = DeputyContext(
+  baseContext: Context.system,
+  authority: 'UPDATE',
+  version: '1.0.0',
+);
+// …cells created under v1, ledger recorded…
+
+// Replay target: the same graph shape, but the live context is v2.
+final registry = graph.translators;         // ContextTranslatorRegistry
+registry.register(V1ToV2());                // see §16
+final v2 = await registry.translate(v1, target: '2.0.0');
+
+// Without the translator, translate() throws UnimplementedError —
+// the boundary is loud by design.
+</code></pre>
+<p>The engine's version check is about <strong>receptor/rule</strong> versions;
+<strong>context</strong> versions ride in the receipt and are the translator's
+domain. Keep both stories separate when diagnosing: a <code>version boundary</code>
+divergence names the receptor and rule versions; a missing
+<code>ContextTranslator</code> names <code>"from" -&gt; "to"</code>.</p>
+<h2 id="r11-the-cli-workflow">R11. The CLI workflow</h2>
+<pre class="language-bash"><code class="language-bash"># The auditor receives a ledger file, not the operator's state.
+dart run bin/cell_replay.dart verify --ledger ledger.jsonl
+#   OK: ledger is valid (3 entries).                        exit 0
+
+dart run bin/cell_replay.dart inspect --ledger ledger.jsonl
+#   Ledger summary
+#     entries:       3 (seq 0 … 2)
+#     deltas:        3 across 1 cell(s)
+#     cells:         counter
+#     span:          1 ms
+
+dart run bin/cell_replay.dart visualise --ledger ledger.jsonl --mode deltas
+#   graph LR
+#     e0_0["seq 0: counter"]
+#     e1_0["seq 1: counter"]
+#     e0_0 --&gt; e1_0
+
+dart run bin/cell_replay.dart fork --ledger ledger.jsonl --at 1 --out fork.jsonl
+#   Fork created: &lt;uuid&gt; at seq 1, written to fork.jsonl        exit 0
+
+dart run bin/cell_replay.dart diff --ledgerA a.jsonl --ledgerB b.jsonl
+#   DIFF: 1 divergence(s):
+#     seq 2: hash mismatch (A=… B=…)                             exit 1
+</code></pre>
+<p><code>verify</code> is chain-only; the auditor's <em>replay</em> comparison is
+done in code (recipe R1 / <code>example/replay/audit_ledger.dart</code>) until
+A future CLI revision ships <code>--graph</code>.</p>
+<h2 id="r12-reading-a-divergence-report">R12. Reading a divergence report</h2>
+<p>A <code>DivergenceReport</code> is read top-down: <code>seq</code> locates the entry, <code>reason</code>
+names the failure class, <code>expected</code>/<code>actual</code> are the compared values, and
+<code>lastEffect</code> shows the last journal record consumed before the failure.</p>
+<table>
+<thead>
+<tr>
+<th>Reason signature</th>
+<th>What actually happened</th>
+<th>Where to look</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>version boundary: …</code></td>
+<td>Recorded receptor/rule versions unsatisfied</td>
+<td><code>VersionRegistry</code>, live version overrides</td>
+</tr>
+<tr>
+<td><code>journal not exhausted: …</code></td>
+<td>Receptor consumed fewer effects than recorded</td>
+<td>Rule/receptor changed; check purity dispatch</td>
+</tr>
+<tr>
+<td><code>effect kind mismatch … expected TimerEffect, recorded IoEffect</code></td>
+<td>Effect order changed</td>
+<td>Receptor/operator refactor</td>
+</tr>
+<tr>
+<td><code>I/O label mismatch: expected "fetch(1)", recorded "fetch"</code></td>
+<td>Label construction changed</td>
+<td>Operator mapper</td>
+</tr>
+<tr>
+<td><code>verdict rule label mismatch …</code></td>
+<td>Rule class/version string changed</td>
+<td>TestCell rule</td>
+</tr>
+<tr>
+<td><code>policy tick … mismatch</code></td>
+<td>Policy tick order/policy/cell/input changed</td>
+<td>EphemeralPolicy wiring</td>
+</tr>
+<tr>
+<td><code>pulse could not be reconstructed …</code></td>
+<td>Entry has no arguments and no deltas</td>
+<td>Hand-crafted entries</td>
+</tr>
+<tr>
+<td><code>ledger delta refers to cell "x", which is not registered …</code></td>
+<td>Target graph shape differs</td>
+<td>Registration</td>
+</tr>
+<tr>
+<td><code>cell "x" delta mismatch: expected …, actual …</code></td>
+<td>State diverged after a successful dispatch</td>
+<td>Non-journalled side effect inside the rule</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1 id="part-v--failure-modes-and-their-fixes">Part V — Failure modes and their fixes</h1>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>EffectJournal: operation "…" was attempted with no journal in scope</code></td>
+<td>An effectful component ran outside a journal scope</td>
+<td>Wrap the mutation: <code>JournalScope.run(RecordingJournal(), () =&gt; graph.run(...))</code>; or the component is genuinely pure and should declare <code>Purity.pure</code></td>
+</tr>
+<tr>
+<td><code>CellGraphBuilder</code> reachability violation</td>
+<td>A bound/observed cell is not registered</td>
+<td>Register every reachable cell, or use <code>strict: false</code> in tests only</td>
+</tr>
+<tr>
+<td><code>Ledger.open: store genesis hash … does not match graph …</code></td>
+<td>Store genesis is not <code>Ledger.genesisHashOf(graph.id)</code></td>
+<td>Construct the store with the derived genesis; pass the <code>genesisHash</code> override when reopening with a placeholder graph</td>
+</tr>
+<tr>
+<td><code>CellGraph.bindLedger</code> double bind</td>
+<td>Second bind on the same graph</td>
+<td><code>unbindLedger</code> first, or one ledger per graph</td>
+</tr>
+<tr>
+<td><code>ReplayDivergenceException (seq N): journal exhausted …</code></td>
+<td>The replay receptor performed fewer effects</td>
+<td>Restore the receptor to the recorded version or register the recorded implementation</td>
+</tr>
+<tr>
+<td><code>… effect kind mismatch …</code></td>
+<td>Effects happen in a different order</td>
+<td>Same as above; check operator composition order</td>
+</tr>
+<tr>
+<td><code>… I/O input mismatch …</code></td>
+<td>The replay asked a different question than the recording</td>
+<td>Check the mapper's <code>input:</code> argument — it must be a pure function of the pulse</td>
+</tr>
+<tr>
+<td><code>version boundary without translator</code></td>
+<td>Live versions differ from the ledger's</td>
+<td><code>graph.versions.register(...)</code> or replay at the recorded version</td>
+</tr>
+<tr>
+<td><code>ReplayDivergenceException: pulse could not be reconstructed</code></td>
+<td>Entry lacks arguments and deltas</td>
+<td>Only hand-crafted entries hit this; use <code>Ledger.appendInternal</code></td>
+</tr>
+<tr>
+<td>Replay succeeds but state differs in your own inspection</td>
+<td>You mutated outside <code>graph.run</code>, or the rule has an un-journalled side effect</td>
+<td>Move mutations into the scope; route side effects through the journal</td>
+</tr>
+<tr>
+<td>Windows: temp ledger files "in use by another process"</td>
+<td>A <code>FileLedgerStore</code> was opened and never closed (e.g. a command rejected an argument <em>after</em> opening the file)</td>
+<td>Close stores in <code>finally</code>; validate flags before opening files (fixed for <code>verify --graph</code>)</td>
+</tr>
+<tr>
+<td>Fork <code>verify()</code> throws <code>ForkIntegrityException: fork genesis binding failed</code></td>
+<td>The parent changed after the fork was taken, or the record was forged</td>
+<td>Re-fork from the current parent; audit who produced the record</td>
+</tr>
+<tr>
+<td><code>UnimplementedError: ForkPolicy.sharedTopology …</code></td>
+<td>Non-isolated fork policy requested</td>
+<td>the fork engine ships isolated only; keep the fresh-graph factory</td>
+</tr>
+<tr>
+<td>Determinism check fails</td>
+<td>A test uses real clocks/randomness without journalling</td>
+<td>Give <code>RecordingJournal</code> a fixed <code>clockSource</code>/<code>uuidSource</code>/<code>timerScheduler</code>, or mark genuinely non-replayable tests <code>@Skip</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1 id="part-vi--the-invariants-and-where-they-are-enforced">Part VI — The invariants, and where they are enforced</h1>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Invariant</th>
+<th>Enforced at</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Serialisation is canonical and byte-stable</td>
+<td><code>canonicalJsonEncode</code> (the serialisation layer); <code>PulseCodec.materialise</code> before fingerprinting</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Identity is registered and stable</td>
+<td><code>CellGraphBuilder.build</code> reachability check; <code>Cell.id</code> principal walk; <code>receiptCellId</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>Every effect is declared and journaled</td>
+<td><code>Purity</code> + <code>Effectful</code>/<code>EffectfulReadOnly</code>; <code>NullJournal</code> loud sentinel; journal exhaustion</td>
+</tr>
+<tr>
+<td>4</td>
+<td>The chain is append-only and tamper-evident</td>
+<td><code>HashChain.nextHash</code> composition; <code>Ledger.verify</code>; store genesis + seq/prevHash checks</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Deltas are captured before commit</td>
+<td><code>ValueCell.postProcessRule</code> pre-commit encoding; <code>LedgerScope.captureDelta</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Replay never trusts the live implementation blindly</td>
+<td><code>_checkVersions</code> before dispatch; <code>VersionRegistry</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>Effects attribute to the entry that caused them</td>
+<td><code>recordPulse</code> watermark (immediate path); deferred windows + cooperative <code>captureEffect</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td>A divergence is loud, specific, and latched</td>
+<td><code>ReplayJournal._fail</code> latch + <code>assertExhausted</code>; <code>DivergenceReport</code> seq/expected/actual/reason</td>
+</tr>
+<tr>
+<td>9</td>
+<td>A fork is bound to its parent</td>
+<td><code>ForkRecord.parentHeadHash</code> + <code>ForkVerify</code> genesis binding</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Tooling reads ledgers without trusting the runtime</td>
+<td>CLI chain verify, diff by seq+hash, canonical JSON output</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1 id="part-vii--scope-deferred-work-and-migration">Part VII — Scope, deferred work, and migration</h1>
+<h3 id="shipped">Shipped</h3>
+<p>Codecs and fingerprints; stable identity and graphs; the full
+<code>EffectJournal</code> machinery and the five journalled operators; ledgers,
+delta capture, hash chains and file persistence; the replay engine with
+divergence diagnostics; isolated forks with mutations and fork
+verification; governance versions, the version registry, context
+translators, purity dispatch and policy-tick journaling; the <code>cell-replay</code>
+CLI, visualisation, the conformance suite, the determinism gate, the
+guide and the three demos.</p>
+<h3 id="deferred-with-the-work-that-unblocks-each">Deferred, with the work that unblocks each</h3>
+<ul>
+<li><strong>Snapshot reconstruction.</strong> <code>CellGraphSnapshot</code> exists and
+round-trips, but rebuilding a <em>live</em> <code>CellGraph</code> from a snapshot needs
+per-cell factories. Unblocks <code>verify --graph</code> and the non-isolated fork
+policies.</li>
+<li><strong>Translator dispatch and apply-path verdicts.</strong> Wiring
+<code>ContextTranslator</code> into the engine's dispatch loop, and journaling
+<code>TestActionRule</code> verdicts on the apply path.</li>
+<li><strong>CLI completion.</strong> <code>--genesis</code> (replacing the first-entry
+trust), <code>verify --graph</code>, <code>fork --replaceSeq</code>/<code>--replacePayloadJson</code>,
+<code>visualise --mode pulses</code>.</li>
+<li><strong>Migration (future).</strong> Replay across graph <em>shape</em> changes is a
+migration problem: translating receptors, renaming cells, and
+re-binding identities. The version machinery (the governance layer) is the
+foundation migration will build on.</li>
+</ul>
+<h3 id="the-boundary-line-one-more-time">The boundary line, one more time</h3>
+<blockquote>
+<p>The caller knows how to rebuild the graph; the framework knows how to
+rebuild the state.</p>
+</blockquote>
+<hr>
+<h1 id="glossary">Glossary</h1>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Causal replay</strong></td>
+<td>Re-executing a recorded pulse history against a fresh graph and checking the effects re-occur</td>
+</tr>
+<tr>
+<td><strong>Canonical JSON</strong></td>
+<td>The deterministic serialisation everything is fingerprinted from</td>
+</tr>
+<tr>
+<td><strong>Fingerprint</strong></td>
+<td>SHA-256 over canonical JSON (<code>fingerprint(...)</code>)</td>
+</tr>
+<tr>
+<td><strong>Graph</strong></td>
+<td>The registered view of a cell topology (<code>CellGraph</code>)</td>
+</tr>
+<tr>
+<td><strong>Registration</strong></td>
+<td>Assigning a stable, cross-process name to a cell</td>
+</tr>
+<tr>
+<td><strong>Purity</strong></td>
+<td><code>pure</code> · <code>readOnlyExternal</code> · <code>effectful</code> — what a component is allowed to touch</td>
+</tr>
+<tr>
+<td><strong>Effect</strong></td>
+<td>Any observation of the outside world: clock, UUID, I/O, timer, rule verdict, policy tick</td>
+</tr>
+<tr>
+<td><strong><code>EffectJournal</code></strong></td>
+<td>The interface all effects flow through; Recording (writes) / Replay (serves) / Null (throws)</td>
+</tr>
+<tr>
+<td><strong><code>JournalScope</code></strong></td>
+<td>The Zone-local stack of journals; <code>JournalScope.current</code></td>
+</tr>
+<tr>
+<td><strong>Peek-then-commit</strong></td>
+<td>Replay journals validate a record fully before advancing the cursor</td>
+</tr>
+<tr>
+<td><strong>Ledger</strong></td>
+<td>The append-only, hash-chained history (<code>Ledger</code>)</td>
+</tr>
+<tr>
+<td><strong>Genesis hash</strong></td>
+<td><code>Ledger.genesisHashOf(graph.id)</code> — the chain's starting point; stores enforce it</td>
+</tr>
+<tr>
+<td><strong>Entry</strong></td>
+<td>One <code>LedgerEntry</code>: pulse + receipt + effects + deltas, hashed together</td>
+</tr>
+<tr>
+<td><strong>Delta</strong></td>
+<td><code>StateDelta(cellId, before, after, at)</code> — one state transition</td>
+</tr>
+<tr>
+<td><strong>Receipt</strong></td>
+<td>The 12-field record of who applied what, including the the governance versions</td>
+</tr>
+<tr>
+<td><strong><code>LedgerScope</code></strong></td>
+<td>The recording coordinator: deltas, immediate-effect watermark, deferred windows</td>
+</tr>
+<tr>
+<td><strong><code>graph.run</code></strong></td>
+<td>Pushes the <code>LedgerScope</code>; mutations inside are recorded</td>
+</tr>
+<tr>
+<td><strong>Replay engine</strong></td>
+<td><code>ReplayEngine.replay</code> — per-entry version check, pulse reconstruction, dispatch, journal and delta verification</td>
+</tr>
+<tr>
+<td><strong>Divergence</strong></td>
+<td>Any recorded/actual mismatch; reported with <code>seq</code>, <code>expected</code>, <code>actual</code>, <code>reason</code></td>
+</tr>
+<tr>
+<td><strong>Fork</strong></td>
+<td>A what-if ledger seeded by a <code>ForkRecord</code>, bound to the parent's hash at <code>divergedAt</code></td>
+</tr>
+<tr>
+<td><strong>Baseline replay</strong></td>
+<td>Replaying parent entries <code>0..atSeq</code> into the fresh fork graph</td>
+</tr>
+<tr>
+<td><strong>Mutation</strong></td>
+<td><code>Pulse? Function(LedgerEntry, Pulse)</code> — replace, drop, or keep</td>
+</tr>
+<tr>
+<td><strong>ForkVerify</strong></td>
+<td>Parent chain + fork chain + genesis binding (<code>parentHeadHash</code> at <code>divergedAt</code>)</td>
+</tr>
+<tr>
+<td><strong>Version boundary</strong></td>
+<td>Recorded receptor/rule/context versions differing from the live ones</td>
+</tr>
+<tr>
+<td><strong><code>VersionRegistry</code></strong></td>
+<td>Per-graph <code>(cellId, version) → (receptor, testRule)</code> table</td>
+</tr>
+<tr>
+<td><strong><code>ContextTranslator</code></strong></td>
+<td>The caller's directional bridge across a mandate schema version</td>
+</tr>
+<tr>
+<td><strong>Verdict effect</strong></td>
+<td>The recorded decision of an <code>effectful</code> test rule</td>
+</tr>
+<tr>
+<td><strong>Policy tick</strong></td>
+<td>One recorded tick of a hosted <code>EphemeralPolicy</code> (the C4 fix)</td>
+</tr>
+<tr>
+<td><strong>Conformance suite</strong></td>
+<td><code>runLedgerStoreConformance</code> — the acceptance test for any <code>LedgerStore</code></td>
+</tr>
+<tr>
+<td><strong>Determinism gate</strong></td>
+<td><code>tool/replay_determinism_check.dart</code> — two runs must agree</td>
+</tr>
+<tr>
+<td><strong>CLI</strong></td>
+<td><code>cell-replay verify/diff/fork/visualise/inspect</code>; exit codes 0/1/2/3</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><em>Generated against the shipped API. If a code sample in this
+guide does not compile, trust <code>dart analyze</code> over the prose: the
+authoritative signatures live in <code>packages/cell/lib</code>, and the
+authoritative usage patterns live in <code>packages/cell/test/replay/</code> and
+<code>packages/cell/example/replay/</code>.</em></p>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="Cell">
+  <span class="name "><a href="../cell/Cell-class.html">Cell</a></span> 
+    <span class="category getting-started cp-1 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
+    <span class="category core-16-operators cp-2 linked" title="This is part of the Core 16 Operators topic."><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></span>
+    <span class="category transactions cp-3 linked" title="This is part of the Transactions topic."><a href="../topics/Transactions-topic.html">Transactions</a></span>
+    <span class="category apply-+-transactions cp-4 linked" title="This is part of the Apply + Transactions topic."><a href="../topics/Apply + Transactions-topic.html">Apply&nbsp;+&nbsp;Transactions</a></span>
+    <span class="category causal-replay cp-5 linked" title="This is part of the Causal Replay topic."><a href="../topics/Causal Replay-topic.html">Causal&nbsp;Replay</a></span>
+    <span class="category demo:aircraft cp-6 linked" title="This is part of the Demo:aircraft topic."><a href="../topics/Demo: aircraft-topic.html">Demo:aircraft</a></span>
+
+</dt>
+<dd>
+  A reactive node: holds state (or relays signals), validates every
+incoming change against a policy, and broadcasts accepted changes to
+whatever else is listening.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Causal Replay topic</li>
+</ol>
+
+  <h5><span class="package-name">cell</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
+        <li><a href="../topics/Transactions-topic.html">Transactions</a></li>
+        <li><a href="../topics/Apply + Transactions-topic.html">Apply&nbsp;+&nbsp;Transactions</a></li>
+        <li><a href="../topics/Causal Replay-topic.html">Causal&nbsp;Replay</a></li>
+        <li><a href="../topics/Pulse-topic.html">Pulse</a></li>
+        <li><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
+        <li><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
+        <li><a href="../topics/Instructions-topic.html">Instructions</a></li>
+        <li><a href="../topics/Advanced-topic.html">Advanced</a></li>
+        <li><a href="../topics/Demo: aircraft-topic.html">Demo:aircraft</a></li>
+        <li><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></li>
+        <li><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></li>
+        <li><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></li>
+        <li><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></li>
+        <li><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></li>
+        <li><a href="../topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_ai_anti_patterns/">doc\ai_anti_patterns</a></li>
+      <li><a href="../cell_api_chooser/">doc\api_chooser</a></li>
+      <li><a href="../replay_cli_cli/">replay\cli\cli</a></li>
+      <li><a href="../replay_codec_canonical_json/">replay\codec\canonical_json</a></li>
+      <li><a href="../replay_codec_fingerprint/">replay\codec\fingerprint</a></li>
+      <li><a href="../replay_ledger_file_store/">replay\ledger\file_store</a></li>
+      <li class="section-subtitle">Features</li>
+        <li class="section-subitem"><a href="../cell/">cell</a></li>
+      <li class="section-subtitle">Replay</li>
+        <li class="section-subitem"><a href="../replay/">replay</a></li>
+        <li class="section-subitem"><a href="../replay_replay/">replay\replay</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Causal Replay topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Causal Replay-topic.html#classes">Classes</a></li>
+      <li><a href="../cell/Cell-class.html">Cell</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      2.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

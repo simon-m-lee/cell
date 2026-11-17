@@ -55,8 +55,14 @@
     
 <section class="desc markdown">
   <p>A simple registry of translators keyed by <code>(from, to)</code>.</p>
-<p>The registry is per-graph, matching <code>VersionRegistry</code>'s scoping.
+<h3 id="how-it-works">How it works</h3>
+<p>The registry is per-graph, matching <a href="../cell/VersionRegistry-class.html">VersionRegistry</a>'s scoping.
 Translators registered on one graph do not affect another.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/ContextTranslator-class.html">ContextTranslator</a> — what this registry stores.</li>
+<li><a href="../cell/CellGraphTranslators.html">CellGraphTranslators</a> — the per-graph accessor.</li>
+</ul>
 </section>
 
 
@@ -133,7 +139,7 @@ Translators registered on one graph do not affect another.</p>
 
 </dt>
 <dd>
-  
+  Registers a <code>translator</code> under its <code>(from, to)</code> pair.
   
 
 </dd>
@@ -175,7 +181,7 @@ Translators registered on one graph do not affect another.</p>
   Translates <code>source</code> from its own version to <code>target</code>. If they are
 equal, returns <code>source</code> unchanged (no translation needed). If no
 translator is registered, throws <a href="https://api.flutter.dev/flutter/dart-core/UnimplementedError-class.html">UnimplementedError</a> — a loud
-failure, as the design's exit criterion requires.
+failure rather than a silent cross-version guess.
   
 
 </dd>
@@ -230,7 +236,7 @@ failure, as the design's exit criterion requires.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

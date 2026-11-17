@@ -11,6 +11,10 @@ Usage (from packages/cell):
 
 What is automatic
   - test file inventory (lines, size, test() / group() / async counts)
+  - recursive discovery: `test_*.dart` and `*_test.dart` anywhere under
+    `test/` — including the Causal Replay suites under `test/replay/` —
+    plus shared helpers that declare `test(` / `group(` (e.g.
+    `test/replay/ledger_store_conformance.dart`)
   - group and test names listed under each file
   - optional `dart test` pass/fail
   - optional lcov line table if coverage/lcov.info exists or --coverage is set
@@ -432,6 +436,10 @@ def render(md: dict) -> str:
       "contracts — add integration tests when the core APIs change.")
     a("5. Track coverage per public/internal pair (`lib/src/*.dart` vs "
       "`lib/src/internal/*.dart`), not just the whole `lib/` average.")
+    a("6. Keep the Causal Replay suites (`test/replay/`) green — "
+      "`replay_contract_test.dart` is the conformance harness for every "
+      "`LedgerStore` implementation, and the engine's determinism gate "
+      "lives in the replay suite.")
     a("")
     a("---")
     a("")
@@ -440,7 +448,10 @@ def render(md: dict) -> str:
     a("```")
     a(f"{pkg['test_dir']}/")
     for f in files:
-        a(f"├── {f['name']}  ({f['tests']} tests, {format_kb(f['bytes'])}, {f['lines']:,} lines)")
+        a(
+            f"├── {f['rel']}  "
+            f"({f['tests']} tests, {format_kb(f['bytes'])}, {f['lines']:,} lines)"
+        )
     a("```")
     a("")
     a(f"**Total lines of test code:** {total_lines:,}")
@@ -459,12 +470,13 @@ def main() -> int:
     ap.add_argument(
         "--pattern",
         default="test_*.dart",
-        help="Glob under test-dir (cell: test_*.dart)",
+        help="Glob under test-dir, matched recursively (cell: test_*.dart)",
     )
     ap.add_argument(
         "--also-test-star",
         action="store_true",
-        help="Also include *_test.dart (packages/cell_tissue naming)",
+        help="Deprecated: *_test.dart files are now included by default "
+        "(the Causal Replay suites use this naming). Kept for compatibility.",
     )
     ap.add_argument("--out", default="TEST_VERIFICATION.md")
     ap.add_argument("--run-tests", action="store_true")
@@ -474,12 +486,21 @@ def main() -> int:
 
     root = Path(args.package_root).resolve()
     test_dir = root / args.test_dir
-    files = sorted(test_dir.glob(args.pattern))
-    extra = list(test_dir.glob("test_*.dart")) + list(test_dir.glob("*_test.dart"))
-    for p in extra:
-        if p not in files:
-            files.append(p)
-    files = sorted(set(files), key=lambda p: p.name)
+    # Recursive discovery. The core suite lives at the top of `test/`
+    # (`test_*.dart` naming); the Causal Replay suites live under
+    # `test/replay/` (`*_test.dart` naming). Shared helpers that declare
+    # `test(`/`group(` (e.g. test/replay/ledger_store_conformance.dart)
+    # are included too, so their declarations are attributed to the file
+    # that actually contains them.
+    files = {p for p in test_dir.rglob(args.pattern) if p.is_file()}
+    files.update(p for p in test_dir.rglob("*_test.dart") if p.is_file())
+    for p in test_dir.rglob("*.dart"):
+        if p in files or not p.is_file():
+            continue
+        text = p.read_text(encoding="utf-8", errors="replace")
+        if TEST_RE.search(text) or GROUP_RE.search(text):
+            files.add(p)
+    files = sorted(files, key=lambda p: str(p.relative_to(test_dir)))
     if not files:
         print(f"No tests matching {args.pattern} in {test_dir}", file=sys.stderr)
         return 2
@@ -499,6 +520,8 @@ def main() -> int:
         name = name or root.name
 
     analyzed = [analyze_test_file(p) for p in files]
+    for entry in analyzed:
+        entry["rel"] = str(entry["path"].relative_to(test_dir)).replace("\\", "/")
 
     run = None
     if args.run_tests or args.coverage:

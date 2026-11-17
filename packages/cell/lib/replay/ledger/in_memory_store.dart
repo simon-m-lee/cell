@@ -9,14 +9,23 @@ part of '../../cell.dart';
 /// An in-memory [LedgerStore], suitable for tests and for ephemeral
 /// graphs whose ledger does not need to survive the process.
 ///
+/// ### How it works
 /// `append` is synchronous in spirit (no I/O) but the API is `Future`
 /// because the abstract store is async. The Future resolves immediately.
+///
+/// See also:
+/// * [LedgerStore] — the storage contract this implements.
+/// * `FileLedgerStore` — the durable, JSONL-backed variant.
 class InMemoryLedgerStore implements LedgerStore {
   @override
   final String genesisHash;
   final List<LedgerEntry> _entries = [];
   bool _closed = false;
 
+  /// Creates an in-memory store.
+  ///
+  /// ### Parameters:
+  /// - [genesisHash]: The chain genesis the store is created with.
   InMemoryLedgerStore({required this.genesisHash});
 
   @override

@@ -64,7 +64,9 @@
 <section class="desc markdown">
   <p>Severs the graph's binding to its ledger. The ledger remains open
 (the caller must close it); subsequent <code>Cell.apply</code> calls on the
-graph are no longer recorded. Returns the previously bound ledger.</p>
+graph are no longer recorded.</p>
+<h3 id="returns">Returns:</h3>
+<p>The previously bound ledger, or <code>null</code> if the graph was not bound.</p>
 </section>
 
 
@@ -103,7 +105,7 @@ graph are no longer recorded. Returns the previously bound ledger.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

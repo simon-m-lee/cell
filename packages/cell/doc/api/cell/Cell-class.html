@@ -56,7 +56,8 @@
     <span class="category core-16-operators cp-2 linked" title="This is part of the Core 16 Operators topic."><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></span>
     <span class="category transactions cp-3 linked" title="This is part of the Transactions topic."><a href="../topics/Transactions-topic.html">Transactions</a></span>
     <span class="category apply-+-transactions cp-4 linked" title="This is part of the Apply + Transactions topic."><a href="../topics/Apply + Transactions-topic.html">Apply&nbsp;+&nbsp;Transactions</a></span>
-    <span class="category demo:aircraft cp-5 linked" title="This is part of the Demo:aircraft topic."><a href="../topics/Demo: aircraft-topic.html">Demo:aircraft</a></span>
+    <span class="category causal-replay cp-5 linked" title="This is part of the Causal Replay topic."><a href="../topics/Causal Replay-topic.html">Causal&nbsp;Replay</a></span>
+    <span class="category demo:aircraft cp-6 linked" title="This is part of the Demo:aircraft topic."><a href="../topics/Demo: aircraft-topic.html">Demo:aircraft</a></span>
 </h1></div>
 
     
@@ -138,7 +139,7 @@ not in a Cell receptor.
 See <code>HowTo-Mitose-Flow.md</code> §4 "When the BRD requires a custom FlowInstruction".
   <code>Cell.gate</code>, <code>Cell.book</code>, <code>Cell.policy</code>, <code>Cell.pipeline</code> <strong>do not exist</strong>.
 The full public factory list is in <code>HowTo-Mitose-Cell.md</code> §2.
-<strong>Live signature:</strong> <code>abstract interface class Cell</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Live signature:</strong> <code>abstract interface class Cell</code> — pinned at <code>cell: 2.0.0</code>
 <strong>Do NOT confuse with:</strong> <code>ValueCell</code> (the concrete stateful type returned by <code>Cell.state</code>).
 <strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)
 <strong>Example:</strong> <code>example/cell_example.dart</code>
@@ -572,6 +573,20 @@ bridging imperative signals into the reactive graph.
 
 </dd>
 
+        <dt id="latestPulse" class="callable">
+  <span class="name"><a href="../cell/Cell/latestPulse.html">latestPulse</a></span><span class="signature">(<wbr><span class="parameter" id="latestPulse-param-cell"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell/Pulse-class.html">Pulse</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Last pulse retained for late subscribers, or <code>null</code> if <code>cell</code> has not
+emitted one.
+  
+
+</dd>
+
         <dt id="observe" class="callable">
   <span class="name"><a href="../cell/Cell/observe.html">observe</a></span><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell/Pulse-class.html">Pulse</a></span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="observe-param-source"><span>required</span> <span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span><span class="parameter" id="observe-param-effect"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">effect</span>(<span class="parameter" id="param-pulse"><span class="type-annotation">P</span> <span class="parameter-name">pulse</span></span>), </span><span class="parameter" id="observe-param-initiallyStarted"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">initiallyStarted</span> = <span class="default-value">true</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell/EgressHandle.html">EgressHandle</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span>
@@ -740,7 +755,7 @@ reactive circuit breaker, controlling signal propagation through the graph.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

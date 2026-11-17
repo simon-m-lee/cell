@@ -55,11 +55,13 @@
     
 <section class="desc markdown">
   <p>A <a href="../cell/LedgerStore-class.html">LedgerStore</a> backed by a single JSONL file.</p>
-<p><strong>One ledger per file.</strong> Appending is <code>writeFrom</code> in append mode with
-a trailing newline. A single writer appends entries sequentially and
-flushes after each one; a crash between flushes is detected by
-<code>verify</code> on reopen. There is no entry-size limit — entries carry the
-materialised pulse body and can legitimately grow with the payload.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>For durable, one-ledger-per-file persistence. Appending is <code>writeFrom</code>
+in append mode with a trailing newline. A single writer appends entries
+sequentially and flushes after each one; a crash between flushes is
+detected by <code>verify</code> on reopen. There is no entry-size limit — entries
+carry the materialised pulse body and can legitimately grow with the
+payload.</p>
 <h3 id="non-obvious-no-fsync-per-append">Non-obvious: no fsync per append</h3>
 <p>A truly durable ledger <code>fsync</code>s each entry. That is a synchronous
 syscall (~0.1-10 ms depending on the device), and doing it per append
@@ -77,6 +79,11 @@ flush-then-fsync-on-close behaviour. Likewise, appends to a regular
 file are not atomically visible to concurrent readers regardless of
 size — the <code>PIPE_BUF</code>-sized entry cap below is retained as a
 conservative line-size bound, not an atomicity guarantee.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/LedgerStore-class.html">LedgerStore</a> — the storage contract this implements.</li>
+<li><a href="../cell/InMemoryLedgerStore-class.html">InMemoryLedgerStore</a> — the ephemeral, test-oriented variant.</li>
+</ul>
 </section>
 
 
@@ -336,7 +343,7 @@ can never silently serve graph <code>H</code>.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

@@ -8,26 +8,33 @@ part of '../../cell.dart';
 
 /// The genesis record of a fork ledger.
 ///
-/// A fork ledger's `seq 0` is always a `ForkRecord`. It carries enough
+/// ### How it works
+/// A fork ledger's `seq 0` is always a [ForkRecord]. It carries enough
 /// information for an auditor to answer three questions:
 ///
-/// * **Where did the fork start?** `divergedAt` is the parent ledger's
+/// * **Where did the fork start?** [divergedAt] is the parent ledger's
 ///   sequence number at which the fork was taken.
-/// * **What was the state at the fork point?** `originalSnapshotHash` is
-///   the parent graph's snapshot hash at `divergedAt`. It binds the
+/// * **What was the state at the fork point?** [originalSnapshotHash] is
+///   the parent graph's snapshot hash at [divergedAt]. It binds the
 ///   fork to a specific parent state, so two forks at the same `atSeq`
 ///   with different snapshot hashes are distinguishable.
-/// * **Which fork is this?** `forkId` is a UUID; two forks of the same
+/// * **Which fork is this?** [forkId] is a UUID; two forks of the same
 ///   parent at the same `atSeq` get different ids.
 ///
-/// ### Non-obvious: the fork record is *not* a `LedgerEntry`
+/// ### Non-obvious: the fork record is *not* a [LedgerEntry]
 ///
 /// It has a different shape and different verification rules (the
 /// genesis `prevHash` is not the graph's genesis hash, it is the fork
 /// record's own genesis hash; the `hash` is computed from the synthetic
-/// entry's fields by the fork ledger store). `ForkLedgerStore` presents
+/// entry's fields by the fork ledger store). [ForkLedgerStore] presents
 /// the fork record as a synthetic seq-0 entry so `Ledger.verify` runs
 /// unmodified, and the fork's real entries chain from it.
+///
+/// See also:
+/// * [ForkHandle] — carries the record alongside the fork's graph and
+///   ledger.
+/// * [ForkLedgerStore] — materialises this record as seq 0.
+/// {@category Replay}
 class ForkRecord {
   /// UUID identifying this fork.
   final String forkId;
@@ -50,6 +57,18 @@ class ForkRecord {
   /// Wall-clock time the fork was created.
   final DateTime at;
 
+  /// Creates a [ForkRecord].
+  ///
+  /// ### Parameters:
+  /// - [forkId]: UUID identifying this fork.
+  /// - [originalLedgerId]: UUID of the parent ledger's graph.
+  /// - [divergedAt]: Sequence number in the parent ledger at which the
+  ///   fork was taken.
+  /// - [originalSnapshotHash]: The parent graph's snapshot hash at
+  ///   [divergedAt].
+  /// - [parentHeadHash]: The hash of the parent ledger's entry at
+  ///   [divergedAt].
+  /// - [at]: Wall-clock time the fork was created.
   const ForkRecord({
     required this.forkId,
     required this.originalLedgerId,
@@ -71,6 +90,7 @@ class ForkRecord {
         'parentHeadHash': parentHeadHash,
       });
 
+  /// Serialises this record to its canonical JSON map.
   Map<String, Object?> toJson() => {
         'forkId': forkId,
         'originalLedgerId': originalLedgerId,
@@ -80,6 +100,10 @@ class ForkRecord {
         'at': at.toUtc().toIso8601String(),
       };
 
+  /// Reconstructs a [ForkRecord] from [toJson]'s output.
+  ///
+  /// ### Parameters:
+  /// - [json]: The map produced by [toJson].
   factory ForkRecord.fromJson(Map<String, Object?> json) => ForkRecord(
         forkId: json['forkId'] as String,
         originalLedgerId: json['originalLedgerId'] as String,

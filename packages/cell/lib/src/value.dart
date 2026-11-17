@@ -369,8 +369,8 @@ class ValueCell<V> extends CellBase {
 
   /// Encodes a ValueCell value for the ledger. Handles primitives, lists,
   /// maps, and `DateTime`. Values that are not JSON-encodable (custom
-  /// user types) throw a `StateError` — this is the loud failure the design
-  /// requires for non-serialisable state in a ledgered graph.
+  /// user types) throw a `StateError` — non-serialisable state in a
+  /// ledgered graph must fail loudly.
   static Object? _encodeForLedger(Object? v) {
     if (v == null || v is num || v is bool || v is String) return v;
     if (v is List) return v.map(_encodeForLedger).toList();
@@ -381,8 +381,8 @@ class ValueCell<V> extends CellBase {
     if (v is Cell) return {'__cell__': v.id};
     throw StateError(
       'ValueCell: value of type ${v.runtimeType} is not JSON-encodable '
-      'and cannot be recorded in a Ledger. Provide a custom codec '
-      '(journal work) or store the value as a primitive in a '
+      'and cannot be recorded in a Ledger. Provide a custom codec, or '
+      'store the value as a primitive in a '
       'ValueCell<String>/int/etc.',
     );
   }
@@ -628,8 +628,8 @@ class ValueCell<V> extends CellBase {
   bool _emit(V? v) {
     if (!identical(v, value) && v != value) {
       // A ledgered graph records this write; the value must be
-      // JSON-encodable. Throwing here (before any commit) is the loud
-      // failure the design requires — inside the receptor pipeline the
+      // JSON-encodable. Throwing here (before any commit) is the
+      // required loud failure — inside the receptor pipeline the
       // same error would be swallowed by the framework's error contract.
       if (LedgerScope.current != null) {
         _encodeForLedger(v);

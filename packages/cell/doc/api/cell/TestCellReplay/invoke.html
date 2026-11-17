@@ -69,9 +69,18 @@
 <section class="desc markdown">
   <p>Invokes <code>rule</code> on <code>object</code> with the current journal, honouring its
 purity. Returns the rule's decision.</p>
-<p><code>ruleLabel</code> is a stable string identifying the rule in the
-journal's <code>VerdictEffect</code>. It is conventionally
-<code>${rule.runtimeType}@${rule.version}</code>.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>rule</code>: The test rule to invoke.</li>
+<li><code>object</code>: The object being tested.</li>
+<li><code>host</code>: The cell hosting the rule.</li>
+<li><code>journal</code>: The ambient journal.</li>
+<li><code>ruleLabel</code>: A stable string identifying the rule in the
+journal's <a href="../../cell/VerdictEffect-class.html">VerdictEffect</a>. It is conventionally
+<code>${rule.runtimeType}@${rule.version}</code>.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The rule's decision.</p>
 </section>
 
 
@@ -93,7 +102,7 @@ journal's <code>VerdictEffect</code>. It is conventionally
 
     case Purity.readOnlyExternal: {
       &#47;&#47; The rule runs; its external reads go through the journal.
-      &#47;&#47; The journal is already in scope (the journal), so the rule&#39;s
+      &#47;&#47; The journal is already in scope, so the rule&#39;s
       &#47;&#47; `journal.io(...)` calls will be served from it. Records
       &#47;&#47; written while the rule runs are swept cooperatively into the
       &#47;&#47; active LedgerScope (the the journal asyncMap pattern).
@@ -154,7 +163,7 @@ journal's <code>VerdictEffect</code>. It is conventionally
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

@@ -55,10 +55,21 @@
     
 <section class="desc markdown">
   <p>A serialisable projection of one cell's identity and current value.</p>
-<p>This is the atom of <a href="../cell/CellGraphSnapshot-class.html">CellGraphSnapshot</a>. Its <code>configFingerprint</code> is the
-SHA-256 of the cell's receptor name + version, its test rule, and its
-context — the three things that determine whether a replay of the same
-pulse sequence will produce the same result.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>As the atom of <a href="../cell/CellGraphSnapshot-class.html">CellGraphSnapshot</a>: one <a href="../cell/CellSnapshot-class.html">CellSnapshot</a> per registered
+cell. Its <a href="../cell/CellSnapshot/configFingerprint.html">configFingerprint</a> is the SHA-256 of the cell's receptor
+name + version, its test rule, and its context — the three things that
+determine whether a replay of the same pulse sequence will produce the
+same result.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The snapshot stores the graph-scoped <a href="../cell/CellSnapshot/id.html">id</a>, the <a href="../cell/CellSnapshot/configFingerprint.html">configFingerprint</a>, the
+receptor's version string, the current <a href="../cell/CellSnapshot/value.html">value</a> (JSON-encoded), and any
+<a href="../cell/CellSnapshot/extras.html">extras</a> carried from the nucleus. <a href="../cell/CellSnapshot/toJson.html">toJson</a>/<a href="../cell/CellSnapshot/CellSnapshot.fromJson.html">fromJson</a> round-trip the
+record unchanged.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/CellGraphSnapshot-class.html">CellGraphSnapshot</a> — the container that holds one snapshot per cell.</li>
+</ul>
 </section>
 
 
@@ -71,14 +82,14 @@ pulse sequence will produce the same result.</p>
           <span class="name"><a href="../cell/CellSnapshot/CellSnapshot.html">CellSnapshot</a></span><span class="signature">({<span class="parameter" id="-param-id"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">id</span>, </span><span class="parameter" id="-param-configFingerprint"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">configFingerprint</span>, </span><span class="parameter" id="-param-receptorVersion"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">receptorVersion</span>, </span><span class="parameter" id="-param-value"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">value</span>, </span><span class="parameter" id="-param-extras"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">extras</span> = <span class="default-value">const {}</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates a <a href="../cell/CellSnapshot-class.html">CellSnapshot</a>.
             <div class="constructor-modifier features">const</div>
         </dd>
         <dt id="CellSnapshot.fromJson" class="callable">
           <span class="name"><a href="../cell/CellSnapshot/CellSnapshot.fromJson.html">CellSnapshot.fromJson</a></span><span class="signature">(<span class="parameter" id="fromJson-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">json</span></span>)</span>
         </dt>
         <dd>
-          
+          Reconstructs a <a href="../cell/CellSnapshot-class.html">CellSnapshot</a> from <a href="../cell/CellSnapshot/toJson.html">toJson</a>'s output.
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
@@ -148,7 +159,7 @@ falls back to <code>nucleus:&lt;hex&gt;</code> when no graph has registered the 
 
 </dt>
 <dd>
-  The receptor's stable version string (see <code>Receptor.version</code>, D4).
+  The receptor's stable version string (see <code>Receptor.version</code>).
 Empty for the framework's built-in receptors until graph registration stamps
 them.
   <div class="features"><span class="feature">final</span></div>
@@ -210,7 +221,7 @@ payload type produces; a snapshot does not know the type.
 
 </dt>
 <dd>
-  
+  Serialises this snapshot to a canonical JSON map.
   
 
 </dd>
@@ -278,7 +289,7 @@ payload type produces; a snapshot does not know the type.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

@@ -8,24 +8,33 @@ part of '../../cell.dart';
 
 /// The durable, hash-chained record of every state transition.
 ///
-/// A `Ledger` is bound to a [CellGraph] and a [LedgerStore]. It is the
+/// ### When to use
+/// A [Ledger] is bound to a [CellGraph] and a [LedgerStore]. It is the
 /// authoritative history of the graph; the graph's current state is a
 /// *derived* value that can be reconstructed by replaying the ledger
 /// from a snapshot.
 ///
-/// ### Non-obvious: `Ledger.appendInternal` is not called by users
+/// ### Non-obvious: [appendInternal] is not called by users
 ///
-/// The design says "append from inside a receptor is rejected". The
-/// enforcement is: `appendInternal` is `@internal` and only invoked from
+/// "Append from inside a receptor is rejected" is a core invariant. The
+/// enforcement is: [appendInternal] is `@internal` and only invoked from
 /// `_LedgerScopeImpl.recordAndAppend`, which is pushed by `Cell.apply`
 /// and the `ValueCell` emit path (with the delta captured by
-/// `postProcessRule`). A user who calls `appendInternal` directly will
+/// `postProcessRule`). A user who calls [appendInternal] directly will
 /// hit the `@internal` warning in a strict analyzer config; more
 /// importantly, they will not have the delta and will produce an entry
 /// whose `deltaDigest` is `fingerprint([])`, which the engine's
-/// `ReplayEngine` rejects as a divergence at replay time. That is the
+/// [ReplayEngine] rejects as a divergence at replay time. That is the
 /// correct outcome: the ledger is not a general-purpose journal, it is a
-/// *coordinated* record, and the coordination lives in `LedgerScope`.
+/// *coordinated* record, and the coordination lives in [LedgerScope].
+///
+/// See also:
+/// * [LedgerStore] — the persistence backend.
+/// * [LedgerEntry] — the rows this ledger holds.
+/// * [HashChain] — the hash chain that binds the rows.
+/// * [ReplayEngine] — replays this ledger into a graph.
+/// {@category Replay}
+/// {@category Ledger}
 class Ledger {
   final CellGraph graph;
   final LedgerStore store;
@@ -40,6 +49,9 @@ class Ledger {
 
   /// The chain genesis for a graph id. Stores must be constructed with
   /// this value so [open] can assert the binding is coherent.
+  ///
+  /// ### Returns:
+  /// `fingerprint({'graphId': graphId})`.
   static String genesisHashOf(String graphId) =>
       fingerprint({'graphId': graphId});
 
@@ -48,8 +60,14 @@ class Ledger {
   /// own `genesisHash` must match, or this throws — a store created for
   /// graph `G` can never silently serve graph `H`.
   ///
-  /// [genesisHash] overrides the chain genesis — fork ledgers
-  /// chain from their `ForkRecord.genesisHash`, not from the graph id.
+  /// ### Parameters:
+  /// - [graph]: The graph this ledger records.
+  /// - [store]: The persistence backend.
+  /// - [genesisHash]: Overrides the chain genesis — fork ledgers
+  ///   chain from their `ForkRecord.genesisHash`, not from the graph id.
+  ///
+  /// ### Returns:
+  /// The opened ledger.
   static Future<Ledger> open({
     required CellGraph graph,
     required LedgerStore store,
@@ -69,6 +87,14 @@ class Ledger {
 
   /// Same as [open], but runs [verify] before returning. A corrupt
   /// store fails at open time, not at first append.
+  ///
+  /// ### Parameters:
+  /// - [graph]: The graph this ledger records.
+  /// - [store]: The persistence backend.
+  /// - [genesisHash]: Overrides the chain genesis (fork ledgers).
+  ///
+  /// ### Returns:
+  /// The opened, verified ledger.
   static Future<Ledger> openVerified({
     required CellGraph graph,
     required LedgerStore store,
@@ -96,6 +122,7 @@ class Ledger {
   /// Verify the entire ledger: every entry's hash matches its
   /// predecessor's hash chain and its own recomputed hash.
   ///
+  /// ### How it works
   /// Returns normally on success; throws [LedgerIntegrityException] with
   /// the offending `seq` and the reason on failure.
   Future<void> verify() async {

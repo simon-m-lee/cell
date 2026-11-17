@@ -16,7 +16,7 @@ import 'ledger_store_conformance.dart';
 /// pass the conformance suite, so a downstream store that passes it is
 /// behaviourally interchangeable.
 ///
-/// the tooling layer's exit criterion: this suite passes for
+/// The conformance bar: this suite passes for
 /// `InMemoryLedgerStore` and `FileLedgerStore`.
 void main() {
   runLedgerStoreConformance(

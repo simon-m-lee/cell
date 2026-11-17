@@ -62,6 +62,19 @@
 </ol>})
     </section>
     
+<section class="desc markdown">
+  <p>Creates a <a href="../../cell/CellGraphSnapshot-class.html">CellGraphSnapshot</a>.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>graphId</code>: A UUID identifying the graph.</li>
+<li><code>schemaVersion</code>: The codec schema version the snapshot was written
+with.</li>
+<li><code>lastLedgerSeq</code>: The ledger sequence number at which the snapshot
+was taken (<code>-1</code> before any ledger exists).</li>
+<li><code>parentLedgerHash</code>: The ledger's hash up to <code>lastLedgerSeq</code>, if any.</li>
+<li><code>cells</code>: Per-cell snapshots, sorted by id.</li>
+</ul>
+</section>
 
 
     
@@ -101,7 +114,7 @@
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

@@ -8,9 +8,14 @@ part of '../../cell.dart';
 
 /// How a fork handles the parent graph's state.
 ///
+/// ### When to use
 /// The fork engine supports only [isolated]. The other two are documented as
 /// later extensions, listed here so the public API is stable and
 /// callers can write future-proof code.
+///
+/// See also:
+/// * [CellGraphFork.fork] — receives this policy.
+/// {@category Replay}
 enum ForkPolicy {
   /// **Default.** The fork gets a *fresh* graph and a *fresh* ledger
   /// store. The parent graph and parent ledger are untouched. The
@@ -24,8 +29,8 @@ enum ForkPolicy {
 
   /// **Later revision.** The fork reuses the parent's `CellGraph` shape (same
   /// `Nucleus` instances) but with a fresh state. Requires the ability
-  /// to clone a `Nucleus` without cloning its `Box`, which snapshot
-  /// snapshot reconstruction provides.
+  /// to clone a `Nucleus` without cloning its `Box`, which graph snapshot
+  /// reconstruction does not provide yet.
   ///
   /// Using this today throws `UnimplementedError`.
   sharedTopology,

@@ -9,7 +9,7 @@
 import 'package:cell/cell.dart';
 import 'dart:io' as io;
 
-// <lib/src/cell.dart:89>
+// <lib/src/cell.dart:90>
 Future<void> aiExampleCell() async {
   final inGate = Cell.ingress<int>();
   final seen = <int>[];
@@ -19,7 +19,7 @@ Future<void> aiExampleCell() async {
   print(seen); // [1]
 }
 
-// <lib/src/cell.dart:1883>
+// <lib/src/cell.dart:1884>
 Future<void> aiExampleCell_asyncMap() async {
   final src = Cell.ingress<int>();
   final am = Cell.asyncMap<int, String>(
@@ -33,7 +33,7 @@ Future<void> aiExampleCell_asyncMap() async {
   o.stop();
 }
 
-// <lib/src/cell.dart:1570>
+// <lib/src/cell.dart:1571>
 Future<void> aiExampleCell_debounce() async {
   final src = Cell.ingress<String>();
   final db = Cell.debounce(
@@ -48,14 +48,14 @@ Future<void> aiExampleCell_debounce() async {
   o.stop();
 }
 
-// <lib/src/cell.dart:2280>
+// <lib/src/cell.dart:2281>
 Future<void> aiExampleCell_deputy() async {
   final c = Cell.state<int>(initial: 1);
   final d = await c.cell.deputy(testRule: TestCell.readOnly);
   print(d);
 }
 
-// <lib/src/cell.dart:757>
+// <lib/src/cell.dart:758>
 Future<void> aiExampleCell_derive() async {
   final src = Cell.ingress<int>();
   final dbl = Cell.derive<Pulse<int>, Pulse<int>>(
@@ -67,7 +67,7 @@ Future<void> aiExampleCell_derive() async {
   o.stop();
 }
 
-// <lib/src/cell.dart:1753>
+// <lib/src/cell.dart:1754>
 Future<void> aiExampleCell_distinct() async {
   final src = Cell.ingress<int>();
   final d = Cell.distinct(src.cell);
@@ -80,7 +80,7 @@ Future<void> aiExampleCell_distinct() async {
   print(seen); // [1, 2]
 }
 
-// <lib/src/cell.dart:2071>
+// <lib/src/cell.dart:2072>
 Future<void> aiExampleCell_fromFuture() async {
   final f = Cell.fromFuture<int>(Future.value(7), journal: RecordingJournal());
   final o = Cell.observe(source: f, effect: (Pulse p) => print(p.payload));
@@ -88,7 +88,7 @@ Future<void> aiExampleCell_fromFuture() async {
   o.stop();
 }
 
-// <lib/src/cell.dart:348>
+// <lib/src/cell.dart:349>
 Future<void> aiExampleCell_fromNucleus() async {
   final blueprint = Nucleus(
     receptor: Receptor((cell, pulse, {user}) {
@@ -101,7 +101,7 @@ Future<void> aiExampleCell_fromNucleus() async {
   print(authCell);
 }
 
-// <lib/src/cell.dart:1986>
+// <lib/src/cell.dart:1987>
 Future<void> aiExampleCell_fromStream() async {
   final s = Cell.fromStream<int>(
     Stream.fromIterable([1, 2, 3]),
@@ -112,13 +112,13 @@ Future<void> aiExampleCell_fromStream() async {
   o.stop();
 }
 
-// <lib/src/cell.dart:246>
+// <lib/src/cell.dart:247>
 Future<void> aiExampleCell_governed() async {
   final g = Cell.governed(context: Context.system);
   print(g.isGoverned); // true
 }
 
-// <lib/src/cell.dart:889>
+// <lib/src/cell.dart:890>
 Future<void> aiExampleCell_hub() async {
   final hub = Cell.hub(spokes: {
     'echo': (cell, pulse, {user}) => Pulse('echo:${pulse.payload}'),
@@ -126,7 +126,7 @@ Future<void> aiExampleCell_hub() async {
   print(hub.root);
 }
 
-// <lib/src/cell.dart:470>
+// <lib/src/cell.dart:471>
 Future<void> aiExampleCell_ingress() async {
   final gate = Cell.ingress<int>(
     testRule: TestCell((v, {arguments, host, user}) => v is int && v >= 0),
@@ -136,7 +136,7 @@ Future<void> aiExampleCell_ingress() async {
   print('ok');
 }
 
-// <lib/src/cell.dart:662>
+// <lib/src/cell.dart:663>
 Future<void> aiExampleCell_observe() async {
   final events = Cell.ingress<String>();
   final o = Cell.observe(
@@ -147,13 +147,13 @@ Future<void> aiExampleCell_observe() async {
   o.stop();
 }
 
-// <lib/src/cell.dart:1302>
+// <lib/src/cell.dart:1303>
 Future<void> aiExampleCell_open() async {
   final o = Cell.open();
   o.emit(Pulse('hello'));
 }
 
-// <lib/src/cell.dart:991>
+// <lib/src/cell.dart:992>
 Future<void> aiExampleCell_sanitized() async {
   final src = Cell.ingress<int>();
   final clean = Cell.sanitized<Pulse<int>>(
@@ -165,14 +165,14 @@ Future<void> aiExampleCell_sanitized() async {
   o.stop();
 }
 
-// <lib/src/cell.dart:574>
+// <lib/src/cell.dart:575>
 Future<void> aiExampleCell_state() async {
   final counter = Cell.state<int>(initial: 0);
   counter.update(5);
   print(counter.cell.value); // 5
 }
 
-// <lib/src/cell.dart:2169>
+// <lib/src/cell.dart:2170>
 Future<void> aiExampleCell_switchMap() async {
   final src = Cell.ingress<String>();
   final sm = Cell.switchMap<String, int>(
@@ -185,7 +185,7 @@ Future<void> aiExampleCell_switchMap() async {
   o.stop();
 }
 
-// <lib/src/cell.dart:1405>
+// <lib/src/cell.dart:1406>
 Future<void> aiExampleCell_synthesis() async {
   final a = Cell.state<int>(initial: 2);
   final b = Cell.state<int>(initial: 3);
@@ -199,7 +199,7 @@ Future<void> aiExampleCell_synthesis() async {
   o.stop();
 }
 
-// <lib/src/cell.dart:1657>
+// <lib/src/cell.dart:1658>
 Future<void> aiExampleCell_throttle() async {
   final src = Cell.ingress<int>();
   final th = Cell.throttle(
@@ -214,7 +214,7 @@ Future<void> aiExampleCell_throttle() async {
   o.stop();
 }
 
-// <lib/src/cell.dart:1149>
+// <lib/src/cell.dart:1150>
 Future<void> aiExampleCell_transaction() async {
   final a = Cell.state<int>(initial: 1);
   final b = Cell.state<int>(initial: 10);
@@ -226,7 +226,7 @@ Future<void> aiExampleCell_transaction() async {
   print('${a.cell.value},${b.cell.value}'); // 2,20
 }
 
-// <lib/src/cell.dart:1208>
+// <lib/src/cell.dart:1209>
 Future<void> aiExampleCell_txApply() async {
   final counter = Cell.state<int>(initial: 0);
   final tx = Cell.txApply();
@@ -236,14 +236,14 @@ Future<void> aiExampleCell_txApply() async {
   print(counter.cell.value);
 }
 
-// <lib/src/cell.dart:2734>
+// <lib/src/cell.dart:2735>
 Future<void> aiExampleCell_unmodifiable() async {
   final c = Cell.state<int>(initial: 1);
   final ro = c.cell.unmodifiable;
   print(ro);
 }
 
-// <lib/src/cell.dart:1494>
+// <lib/src/cell.dart:1495>
 Future<void> aiExampleCell_valve() async {
   final src = Cell.ingress<int>();
   final gated = Cell.valve<Pulse<int>>(src.cell, (p) => (p.payload ?? 0) > 0);

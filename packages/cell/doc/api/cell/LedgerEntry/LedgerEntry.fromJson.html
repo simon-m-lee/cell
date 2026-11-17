@@ -60,14 +60,19 @@
     
 <section class="desc markdown">
   <p>Reconstructs an entry from <a href="../../cell/LedgerEntry/toJson.html">toJson</a>.</p>
+<h3 id="how-it-works">How it works</h3>
 <p><code>receipt.cell</code> is resolved from the cell id via
 <code>_ReplayCellRegistry</code>. If the cell is not registered (e.g. the
 ledger is being opened before the graph was rebuilt), the receipt
 is reconstructed with a <strong>placeholder</strong> cell whose <code>id</code> matches the
 recorded one but whose nucleus is an empty stub. The
-<code>ReplayEngine</code> refuses to process an entry whose receipt points at
+<a href="../../cell/ReplayEngine-class.html">ReplayEngine</a> refuses to process an entry whose receipt points at
 a placeholder, which is the correct behaviour: replaying into a
 graph that does not contain the cell is a divergence.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>json</code>: The canonical map produced by <a href="../../cell/LedgerEntry/toJson.html">toJson</a>.</li>
+</ul>
 </section>
 
 
@@ -163,7 +168,7 @@ graph that does not contain the cell is a divergence.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

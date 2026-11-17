@@ -57,28 +57,33 @@
     
 <section class="desc markdown">
   <p>Purity-aware invocation of a <a href="../cell/TestCell-class.html">TestCell</a>.</p>
-<p>the replay engine called <code>cell.validate(...)</code> unconditionally. the governance layer checks
-the rule's purity and routes accordingly:</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The governance layer checks the rule's purity and routes accordingly:</p>
 <ul>
 <li><strong><a href="../cell/Purity.html">Purity.pure</a></strong> — call the rule. Its decision is a function of
 its input; replay re-computes it exactly.</li>
 <li><strong><a href="../cell/Purity.html">Purity.readOnlyExternal</a></strong> — call the rule inside a journal
 scope. Its decision is re-computed, but its <em>observations</em> are
-served from the journal (the journal).</li>
+served from the journal.</li>
 <li><strong><a href="../cell/Purity.html">Purity.effectful</a></strong> — do <strong>not</strong> call the rule on replay;
-consume its recorded <code>VerdictEffect</code>. On the recording side the
+consume its recorded <a href="../cell/VerdictEffect-class.html">VerdictEffect</a>. On the recording side the
 rule runs once inside <code>journal.verdict</code> and its decision is
 journaled. If the replay journal has no verdict for the current
 input, the journal throws <a href="../cell/ReplayDivergenceException-class.html">ReplayDivergenceException</a> — the rule
 changed since the recording.</li>
 </ul>
-<h3 id="where-the-version-dispatch-lives">Where the <em>version</em> dispatch lives</h3>
+<h3 id="non-obvious-where-the-version-dispatch-lives">Non-obvious: where the <em>version</em> dispatch lives</h3>
 <p>This class dispatches on <strong>purity only</strong>. The
 receptor/rule <strong>version</strong> boundary is enforced one level up, by
 <code>ReplayEngine._checkVersions</code> before any dispatch happens: the
-recorded versions must be satisfied by the graph's <code>VersionRegistry</code>
+recorded versions must be satisfied by the graph's <a href="../cell/VersionRegistry-class.html">VersionRegistry</a>
 or by the live implementations matching exactly — otherwise the
 engine reports a divergence without calling the rule at all.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/EffectJournal/verdict.html">EffectJournal.verdict</a> — the journal primitive this wraps.</li>
+<li><a href="../cell/VersionRegistry-class.html">VersionRegistry</a> — the version boundary one level up.</li>
+</ul>
 </section>
 
 
@@ -218,7 +223,7 @@ purity. Returns the rule's decision.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

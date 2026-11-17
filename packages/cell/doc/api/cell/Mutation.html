@@ -60,6 +60,7 @@
     
 <section class="desc markdown">
   <p>A what-if mutation hook.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>The engine calls <code>mutation(entry, pulse)</code> for each entry it is about
 to replay. The return value controls what happens to that entry in
 the fork:</p>
@@ -77,7 +78,7 @@ unchanged. The common case; a mutation that only cares about
 <h3 id="non-obvious-the-hook-sees-the-reconstructed-pulse-not-the">Non-obvious: the hook sees the <em>reconstructed</em> pulse, not the</h3>
 <p>recorded payload</p>
 <p>The engine reconstructs the input pulse from the entry (the replay
-<code>PulseReconstructor</code>), then calls the hook. This means the hook has
+<a href="../cell/PulseReconstructor-class.html">PulseReconstructor</a>), then calls the hook. This means the hook has
 access to the pulse's <code>source</code>, <code>timestamp</code>, and <code>priority</code> — not
 just the payload. A mutation that wants to inject a different
 priority can do so; a mutation that wants to change the source
@@ -96,6 +97,10 @@ new history — what-if over effects (live re-recording) is a later
 forking revision. The fork ledger re-appends each replayed pulse
 even when the mutation returns <code>pulse</code> unchanged so the fork's
 history stays self-verifiable without the parent.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/ReplayEngineFork/replayFork.html">ReplayEngineFork.replayFork</a> — consumes this hook.</li>
+</ul>
 </section>
 
     
@@ -127,7 +132,7 @@ history stays self-verifiable without the parent.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

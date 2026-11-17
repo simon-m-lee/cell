@@ -278,7 +278,7 @@ abstract interface class CollectivePulse<P>
 /// **Layer:** Cell — this is the graph's message, not an operator (Flow), not a book (Tissue).
 /// **When to use:** read `pulse.payload`, `pulse.source`, `pulse.type` in observers; create one for manual injection (`Pulse(value, type: '...')`).
 /// **When NOT to use:** as a storage unit — state lives in `Cell.state` / Tissue books; pulses are immutable signals.
-/// **Live signature:** `Pulse<P>(P? payload, {dynamic type, Cell? source, int? priority, String? step})` — pinned at `cell: 1.1.0`
+/// **Live signature:** `Pulse<P>(P? payload, {dynamic type, Cell? source, int? priority, String? step})` — pinned at `cell: 2.0.0`
 /// **Do NOT confuse with:** `TissuePulse` (the collection-event variant in `cell_tissue`).
 /// **Guide:** `guide/HowTo-Pulse.md` (pulse anatomy)
 /// **Example:** `example/ingress_demo.dart`

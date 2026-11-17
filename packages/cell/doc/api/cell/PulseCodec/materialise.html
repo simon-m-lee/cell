@@ -66,10 +66,13 @@
   <p>Replaces an un-materialised pulse (i.e. <code>_FastPulse</code>/<code>_StepPulse</code>) —
 and any un-materialised nodes in its parent chain — with equivalent
 plain <code>_Pulse</code> nodes that the codec accepts.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>This is a cold path (called once per pulse before persistence). The
 result preserves resolved payload, type, priority, timestamp, source,
 context, policy, and the full trace; the flyweight structure itself is
 deliberately flattened into the canonical chain shape.</p>
+<h3 id="returns">Returns:</h3>
+<p>The materialised pulse.</p>
 </section>
 
 
@@ -138,7 +141,7 @@ deliberately flattened into the canonical chain shape.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

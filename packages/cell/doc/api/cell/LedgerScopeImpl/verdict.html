@@ -71,10 +71,17 @@
     
 <section class="desc markdown">
   <p>Record (or replay) an <code>effectful</code> <a href="../../cell/TestCell-class.html">TestCell</a> verdict.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>On the recording side, <code>run</code> is executed and its boolean decision
-is recorded as a <code>VerdictEffect</code>. On the replay side, the recorded
+is recorded as a <a href="../../cell/VerdictEffect-class.html">VerdictEffect</a>. On the replay side, the recorded
 decision is served and <code>run</code> is <strong>not</strong> executed — the rule is not
 re-called (purity dispatch).</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>ruleLabel</code>: A stable label identifying the rule.</li>
+<li><code>input</code>: The object being tested; its fingerprint is recorded.</li>
+<li><code>run</code>: The closure that computes the verdict.</li>
+</ul>
 </section>
 
 
@@ -123,7 +130,7 @@ Future&lt;bool&gt; verdict({
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

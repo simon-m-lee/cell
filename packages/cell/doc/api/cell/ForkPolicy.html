@@ -60,9 +60,14 @@
     
 <section class="desc markdown">
   <p>How a fork handles the parent graph's state.</p>
+<h3 id="when-to-use">When to use</h3>
 <p>The fork engine supports only <a href="../cell/ForkPolicy.html">isolated</a>. The other two are documented as
 later extensions, listed here so the public API is stable and
 callers can write future-proof code.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/CellGraphFork/fork.html">CellGraphFork.fork</a> — receives this policy.</li>
+</ul>
 </section>
 
 
@@ -121,8 +126,8 @@ it is the same as the original build).</p>
 <dd>
   <p><strong>Later revision.</strong> The fork reuses the parent's <code>CellGraph</code> shape (same
 <code>Nucleus</code> instances) but with a fresh state. Requires the ability
-to clone a <code>Nucleus</code> without cloning its <code>Box</code>, which snapshot
-snapshot reconstruction provides.</p>
+to clone a <code>Nucleus</code> without cloning its <code>Box</code>, which graph snapshot
+reconstruction does not provide yet.</p>
 <p>Using this today throws <code>UnimplementedError</code>.</p>
   
 
@@ -306,7 +311,7 @@ implement this because the CLI predates it.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

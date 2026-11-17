@@ -9,12 +9,24 @@ part of '../../cell.dart';
 /// Strictness flags that control the replay engine's behaviour when the
 /// replayed state diverges from the recorded state.
 ///
+/// ### When to use
 /// The default is **strict** for everything. This is deliberate: a
 /// divergence means the receptor, test rule, or graph topology has
 /// changed since the recording was taken, and continuing past it would
 /// silently produce a state that no ledger entry explains. A caller who
 /// wants lenient replay (e.g. for a "best-effort" what-if) opts in
 /// explicitly, which is the correct ergonomic for a forensic tool.
+///
+/// ### How it works
+/// [failOnDivergence] decides throw-vs-continue, [verifyReceipts] gates
+/// the back-filled receipt checks, [settleAfterDispatch] drains one
+/// event-loop turn per dispatch, and [maxEntries] bounds the replay
+/// length.
+///
+/// See also:
+/// * [ReplayEngine.replay] — consumes these options.
+/// * [ReplayResult] — the outcome a lenient replay returns.
+/// {@category Replay}
 class ReplayOptions {
   /// If `true` (default), throw [ReplayDivergenceException] on the first
   /// divergence. If `false`, record the divergence in [ReplayResult]
@@ -58,6 +70,17 @@ class ReplayOptions {
   /// want to explore a prefix of a ledger.
   final int? maxEntries;
 
+  /// Creates a [ReplayOptions] set.
+  ///
+  /// ### Parameters:
+  /// - [failOnDivergence]: If `true` (default), throw on the first
+  ///   divergence.
+  /// - [verifyReceipts]: If `true` (default), verify each entry's
+  ///   back-filled receipt fields.
+  /// - [settleAfterDispatch]: If `true` (default), settle the event-loop
+  ///   microtask queue after each dispatch.
+  /// - [maxEntries]: Maximum number of entries to replay (`null` =
+  ///   unlimited).
   const ReplayOptions({
     this.failOnDivergence = true,
     this.verifyReceipts = true,

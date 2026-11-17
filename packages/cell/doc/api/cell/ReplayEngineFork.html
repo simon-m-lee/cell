@@ -56,7 +56,8 @@
 <section class="desc markdown">
   <p>Fork-aware replay: replays a parent ledger into a fork handle,
 applying a <a href="../cell/Mutation.html">Mutation</a> to each entry.</p>
-<p>The fork engine's core addition to <code>ReplayEngine</code>. It shares the
+<h3 id="when-to-use">When to use</h3>
+<p>As the fork engine's core addition to <a href="../cell/ReplayEngine-class.html">ReplayEngine</a>. It shares the
 engine's reconstruction machinery but:</p>
 <ul>
 <li><strong>Applies the mutation</strong> before dispatch: <code>mutation(entry, pulse)</code>
@@ -67,6 +68,11 @@ the fork has its own history.</li>
 <li><strong>Does not verify against the parent's deltas</strong> — the fork is
 <em>expected</em> to diverge; its own ledger records what it actually
 did.</li>
+</ul>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/CellGraphFork/fork.html">CellGraphFork.fork</a> — creates the fork handle this replays into.</li>
+<li><a href="../cell/Mutation.html">Mutation</a> — the hook this extension applies per entry.</li>
 </ul>
 </section>
 
@@ -104,7 +110,8 @@ did.</li>
         <span>Available on <a href="../cell/ReplayEngine-class.html">ReplayEngine</a>,
         provided by the <a href="../cell/ReplayEngineFork.html">ReplayEngineFork</a> extension</span>
       </p>
-  Replays <code>fork.parent</code>'s entries from <code>fork.record.divergedAt + 1</code>
+  Replays the <a href="../cell/ForkHandle/parent.html">ForkHandle.parent</a> ledger's entries from
+<code>fork.record.divergedAt + 1</code>
 into <code>fork.graph</code>, applying <code>mutation</code> to each entry.
   
 
@@ -137,7 +144,7 @@ into <code>fork.graph</code>, applying <code>mutation</code> to each entry.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

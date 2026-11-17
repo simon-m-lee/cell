@@ -57,6 +57,7 @@
   <p>A variant of <a href="../cell/Effectful-mixin.html">Effectful</a> for receptors that <em>read</em> the outside world
 but do not mutate it (clocks, environment variables, read-only
 database lookups). Reports <a href="../cell/Purity.html">Purity.readOnlyExternal</a>.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>This distinguishes the two journaling costs:
 recording a <em>read</em> is one effect per observation; recording a <em>write</em>
 is also one effect, but a write cannot be replayed at all (only its
@@ -193,7 +194,7 @@ effects log is), so <code>readOnlyExternal</code> is <em>more</em> replayable th
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

@@ -8,10 +8,11 @@ part of '../../cell.dart';
 
 /// The rolling hash chain that binds ledger entries.
 ///
+/// ### How it works
 /// Each entry's `hash` is `H(prevHash || seq || pulseDigest ||
 /// receiptDigest || effectsDigest || deltaDigest || at)`. The genesis
-/// entry's `prevHash` is the graph id's fingerprint — a `Ledger` tied to
-/// graph `G` cannot be confused with a `Ledger` tied to graph `H`, even
+/// entry's `prevHash` is the graph id's fingerprint — a [Ledger] tied to
+/// graph `G` cannot be confused with a [Ledger] tied to graph `H`, even
 /// if their entries happen to be identical, because the genesis hash
 /// differs.
 ///
@@ -32,14 +33,36 @@ part of '../../cell.dart';
 /// single sequential pass. That is the guarantee the ledger needs. Merkle
 /// proofs are a later concern; if they are added, `HashChain` becomes
 /// the leaf hash and a parallel `MerkleTree` sits alongside it.
+///
+/// See also:
+/// * [Ledger] — the consumer that owns one chain per graph.
+/// * [LedgerEntry] — the rows this chain binds.
+/// {@category Replay}
 class HashChain {
   /// The graph id that seeds the chain. Stored as the genesis `prevHash`.
   final String genesisHash;
 
+  /// Creates a [HashChain].
+  ///
+  /// ### Parameters:
+  /// - [genesisHash]: The graph id that seeds the chain.
   const HashChain(this.genesisHash);
 
   /// The hash of the entry that would come next, given the chain's
   /// current head.
+  ///
+  /// ### Parameters:
+  /// - [prevHash]: The previous entry's hash (or [genesisHash] for the
+  ///   first entry).
+  /// - [seq]: The entry's sequence number.
+  /// - [pulseDigest]: SHA-256 of the pulse that produced the entry.
+  /// - [receiptDigest]: SHA-256 of the receipt.
+  /// - [effectsDigest]: SHA-256 of the effects list.
+  /// - [deltaDigest]: SHA-256 of the deltas list.
+  /// - [at]: The entry's wall-clock commit time.
+  ///
+  /// ### Returns:
+  /// The computed hash for the entry.
   String nextHash({
     required String prevHash,
     required int seq,

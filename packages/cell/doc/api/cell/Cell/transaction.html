@@ -182,7 +182,7 @@ await tx.commit();
   <strong>DON'T</strong> wrap a Tissue write in <code>Cell.transaction</code>. Mitose commits with
 <code>Cell.txApply</code> on Tissue books. <code>Cell.transaction</code> coordinates <code>ValueCell</code>.
 See <code>HowTo-Mitose-Cell.md</code> §3.3 "Cell.transaction — not the Mitose commit".
-<strong>Live signature:</strong> <code>Cell.transaction([TransactionOptions options = const TransactionOptions()])</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Live signature:</strong> <code>Cell.transaction([TransactionOptions options = const TransactionOptions()])</code> — pinned at <code>cell: 2.0.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell.txApply</code> (the Mitose commit; participants are Tissue books).
 <strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §3.3 "Cell.transaction — not the Mitose commit" (#cell-transaction)
 <strong>Example:</strong> <code>example/transaction_demo.dart</code>
@@ -234,7 +234,7 @@ print('${a.cell.value},${b.cell.value}'); // 2,20
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

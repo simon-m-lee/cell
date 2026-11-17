@@ -64,9 +64,18 @@
     
 <section class="desc markdown">
   <p>Encodes <code>pulse</code> into a canonical JSON map.</p>
-<p>Throws <a href="https://api.flutter.dev/flutter/dart-core/ArgumentError-class.html">ArgumentError</a> if <code>pulse</code> is a <code>_FastPulse</code> or <code>_StepPulse</code>.
-Callers that receive pulses from a hot path must call
-<a href="../../cell/PulseCodec/materialise.html">materialise</a> first.</p>
+<p>Throws <a href="https://api.flutter.dev/flutter/dart-core/ArgumentError-class.html">ArgumentError</a> if <code>pulse</code> is a <code>_FastPulse</code> or <code>_StepPulse</code> —
+callers that receive pulses from a hot path must call <a href="../../cell/PulseCodec/materialise.html">materialise</a>
+first.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>pulse</code>: The pulse to encode, already materialised.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The canonical JSON map. Unset optional fields are stripped so the
+canonical bytes stay compact; the one exception is a locally-null
+payload that overrides a non-null parent payload, which is kept as an
+explicit <code>null</code> marker.</p>
 </section>
 
 
@@ -150,7 +159,7 @@ Callers that receive pulses from a hot path must call
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

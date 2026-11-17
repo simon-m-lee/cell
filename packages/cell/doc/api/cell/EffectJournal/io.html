@@ -67,14 +67,21 @@
     </section>
     
 <section class="desc markdown">
-  <p>Record (or replay) an arbitrary I/O call. <code>rawOutput</code> is the value
-the caller's <code>run</code> closure returned; the journal records it (or
-serves the recorded value). If <code>serializeOutput</code> is not supplied, the
-raw result of <code>run</code> is stored directly and must be JSON-encodable —
-non-encodable results throw loudly at the fingerprint boundary.</p>
-<p>The <code>run</code> closure is <strong>not</strong> invoked on the replay side; the recorded
-output is returned directly. This is the mechanism by which replay
-avoids touching the network.</p>
+  <p>Record (or replay) an arbitrary I/O call. The value the caller's
+<code>run</code> closure returns is recorded (or the recorded value is served).</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>label</code>: A stable semantic label for the call, e.g.
+<code>'http.GET /profile/42'</code>. Replay compares it exactly.</li>
+<li><code>input</code>: The call's input; its fingerprint is recorded.</li>
+<li><code>run</code>: The closure that performs the real I/O. <strong>Not invoked on the
+replay side</strong> — the recorded output is returned directly, which is
+the mechanism by which replay avoids touching the network.</li>
+<li><code>serializeOutput</code>: Optional hook that converts <code>run</code>'s result into
+a JSON-encodable form before it is stored. If not supplied, the raw
+result of <code>run</code> is stored directly and must be JSON-encodable —
+non-encodable results throw loudly at the fingerprint boundary.</li>
+</ul>
 </section>
 
 
@@ -114,7 +121,7 @@ avoids touching the network.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

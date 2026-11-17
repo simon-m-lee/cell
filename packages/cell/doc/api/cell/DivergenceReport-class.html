@@ -55,26 +55,32 @@
     
 <section class="desc markdown">
   <p>A single point at which a replay diverged from its recording.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>The report is designed to be <strong>actionable</strong>. It carries:</p>
 <ul>
-<li><code>seq</code> — which ledger entry diverged. A human reading the report
+<li><a href="../cell/DivergenceReport/seq.html">seq</a> — which ledger entry diverged. A human reading the report
 can <code>grep 'seq: 47' ledger.jsonl</code> and see exactly what was recorded.</li>
-<li><code>expected</code> / <code>actual</code> — the divergence's observable values. For a
+<li><a href="../cell/DivergenceReport/expected.html">expected</a> / <a href="../cell/DivergenceReport/actual.html">actual</a> — the divergence's observable values. For a
 delta mismatch, these are the <code>after</code> values; for a receipt
 mismatch, the receipt digests; for a journal mismatch, the effect
 fingerprints.</li>
-<li><code>lastEffect</code> — the last effect the replay consumed before
+<li><a href="../cell/DivergenceReport/lastEffect.html">lastEffect</a> — the last effect the replay consumed before
 diverging. This is what tells you "the receptor reached the
 network call at ordinal 5, then diverged" — the single most
 valuable diagnostic for an effectful receptor that has changed.</li>
-<li><code>reason</code> — a human-readable explanation.</li>
+<li><a href="../cell/DivergenceReport/reason.html">reason</a> — a human-readable explanation.</li>
 </ul>
 <h3 id="non-obvious-the-report-is-per-divergence-not-per-pulse">Non-obvious: the report is per-divergence, not per-pulse</h3>
 <p>A single pulse can produce multiple divergences (a delta mismatch
 <em>and</em> a receipt mismatch), which is why <code>ReplayResult.divergences</code>
 is a list of <code>DivergenceReport</code>s, not a single report. The CLI's
-<code>replay diff</code> prints them all; <code>ReplayEngine</code> in strict mode
+<code>replay diff</code> prints them all; <a href="../cell/ReplayEngine-class.html">ReplayEngine</a> in strict mode
 throws on the first.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/ReplayResult-class.html">ReplayResult</a> — the list these reports accumulate into.</li>
+<li><a href="../cell/ReplayDivergenceException-class.html">ReplayDivergenceException</a> — what strict replay throws.</li>
+</ul>
 </section>
 
 
@@ -87,7 +93,7 @@ throws on the first.</p>
           <span class="name"><a href="../cell/DivergenceReport/DivergenceReport.html">DivergenceReport</a></span><span class="signature">({<span class="parameter" id="-param-seq"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">seq</span>, </span><span class="parameter" id="-param-expected"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">expected</span>, </span><span class="parameter" id="-param-actual"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">actual</span>, </span><span class="parameter" id="-param-lastEffect"><span class="type-annotation"><a href="../cell/EffectRecord-class.html">EffectRecord</a>?</span> <span class="parameter-name">lastEffect</span>, </span><span class="parameter" id="-param-reason"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">reason</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates a <a href="../cell/DivergenceReport-class.html">DivergenceReport</a>.
             <div class="constructor-modifier features">const</div>
         </dd>
     </dl>
@@ -269,7 +275,7 @@ is <code>null</code>.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

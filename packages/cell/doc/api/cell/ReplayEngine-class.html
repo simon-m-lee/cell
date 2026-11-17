@@ -55,22 +55,21 @@
     
 <section class="desc markdown">
   <p>The replay engine.</p>
+<h3 id="when-to-use">When to use</h3>
 <p>Given a <a href="../cell/Ledger-class.html">Ledger</a> and a <a href="../cell/CellGraph-class.html">CellGraph</a> (the "target", typically freshly
-built from the same <code>CellGraphBuilder</code> that produced the original),
+built from the same <a href="../cell/CellGraphBuilder-class.html">CellGraphBuilder</a> that produced the original),
 the engine replays entries one by one, dispatching each reconstructed
 pulse into the target graph and asserting that the resulting state
 matches the ledger entry's recorded deltas.</p>
 <h3 id="non-obvious-the-target-graph-is-provided-not-reconstructed">Non-obvious: the target graph is provided, not reconstructed</h3>
-<p>The engine does <strong>not</strong> reconstruct a graph from a <code>CellGraphSnapshot</code>
-— that is a later revision (a payload-codec-driven concern; the current
-The snapshot does not store enough to rebuild a graph's cells
-from scratch without the payload-codec registry). The
+<p>The engine does <strong>not</strong> reconstruct a graph from a
+<a href="../cell/CellGraphSnapshot-class.html">CellGraphSnapshot</a>: the snapshot does not store enough to rebuild a
+graph's cells from scratch without a payload-codec registry. The
 caller provides the target graph, typically freshly built from the
-same <code>CellGraphBuilder</code> that produced the original. The design's
-exit criterion "replay 500 pulses against an identical graph"
-describes exactly this: the target is <em>the same graph shape</em>, not a
-reconstructed one. A later revision will relax this, and the <code>ReplayEngine</code>
-API does not need to change.</p>
+same <a href="../cell/CellGraphBuilder-class.html">CellGraphBuilder</a> that produced the original — the target is
+<em>the same graph shape</em>, not a reconstructed one. Replaying many pulses
+against an identical graph is the intended acceptance test. A later
+revision may relax this without changing the <a href="../cell/ReplayEngine-class.html">ReplayEngine</a> API.</p>
 <h3 id="what-is-verified-per-entry">What is verified per entry</h3>
 <ol>
 <li>The receipt's back-filled fields (<code>ledgerSeq</code>, <code>pulseDigest</code>).</li>
@@ -80,16 +79,23 @@ API does not need to change.</p>
 in order, through the per-entry <a href="../cell/ReplayJournal-class.html">ReplayJournal</a> (the target's
 effectful operators consult the ambient journal — see
 <code>JournalScope.effectiveJournal</code>).</li>
-<li>Every recorded <code>StateDelta</code> is reproduced: after dispatch, each
+<li>Every recorded <a href="../cell/StateDelta-class.html">StateDelta</a> is reproduced: after dispatch, each
 delta cell's current value must equal <code>delta.after</code>.</li>
 </ol>
 <p>What is deliberately <strong>not</strong> verified: the recorded <code>pulseDigest</code>
 against a reconstructed pulse. The digest hashes the pulse's full
 JSON including its wall-clock timestamp; a hash is one-way and a
 reconstruction can never match it byte-for-byte. The delta
-comparison is the authoritative state check. (The engine design's
-step 9 check would fail on every entry; this engine documents that
-honestly instead.)</p>
+comparison is the authoritative state check. (A per-entry
+pulse-digest check would fail on every entry; this engine documents
+that honestly instead.)</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/Ledger-class.html">Ledger</a> — the history that is replayed.</li>
+<li><a href="../cell/CellGraph-class.html">CellGraph</a> — the target the history is replayed into.</li>
+<li><a href="../cell/ReplayResult-class.html">ReplayResult</a> — the outcome.</li>
+<li><a href="../cell/PulseReconstructor-class.html">PulseReconstructor</a> — the reconstruction machinery.</li>
+</ul>
 </section>
 
 
@@ -246,7 +252,7 @@ honestly instead.)</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

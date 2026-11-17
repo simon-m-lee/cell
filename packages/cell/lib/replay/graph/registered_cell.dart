@@ -8,12 +8,13 @@ part of '../../cell.dart';
 
 /// A thin wrapper that pairs a [Cell] with its graph-scoped name.
 ///
-/// The wrapper is what `CellGraphBuilder.register` returns. It is not a
-/// `Cell` itself — it is a *handle* that lets callers carry the
-/// registered name alongside the cell, e.g. to pass into a
-/// [CellGraphSnapshot] constructor without re-looking up the name from the
-/// registry.
+/// ### When to use
+/// As the handle that `CellGraphBuilder.register` returns. It is not a
+/// `Cell` itself — it is a *handle* that lets callers carry the registered
+/// name alongside the cell, e.g. to pass into a [CellGraphSnapshot]
+/// constructor without re-looking up the name from the registry.
 ///
+/// ### How it works
 /// The distinction matters because [Cell.id] already resolves the name
 /// from the registry; the wrapper exists so that *some* call sites (like
 /// `CellGraph.register`) need not trust the registry. Outside the graph
@@ -29,6 +30,11 @@ part of '../../cell.dart';
 /// is the enforcement that a registered cell and a raw cell are not
 /// interchangeable, which is what makes the "unregistered bind
 /// rejected" check possible without heuristics.
+///
+/// See also:
+/// * [CellGraphBuilder] — produces these wrappers.
+/// * [CellGraphSnapshot] — consumes the registered name.
+/// {@category Replay}
 class RegisteredCell {
   /// The underlying cell.
   final Cell cell;
@@ -37,6 +43,11 @@ class RegisteredCell {
   /// cell's `id` getter returns.
   final String name;
 
+  /// Creates the (cell, name) pair.
+  ///
+  /// ### Parameters:
+  /// - [cell]: The underlying cell.
+  /// - [name]: The graph-assigned name.
   const RegisteredCell(this.cell, this.name);
 
   /// Convenience: `cell.id` should equal `name`. This is asserted at

@@ -67,24 +67,19 @@
 <section class="desc markdown">
   <p>Reconstructs the input pulse for <code>entry</code>, or returns <code>null</code> if the
 entry cannot be reconstructed.</p>
-<p><code>cell</code> is the resolved target cell; it is used to populate the
-pulse's <code>source</code> field on the heuristic fallback path, which
-matters for <code>TestPulseRule</code> validation.</p>
-<h3 id="the-pulse-body-is-the-primary-path">The pulse body is the primary path</h3>
-<p>Entries appended by <code>Ledger.appendInternal</code> now store the
-materialised pulse JSON (<code>entry.pulseJson</code>), and <code>Ledger.verify</code>
-checks it against <code>pulseDigest</code>. Reconstruction decodes that body
-with <code>PulseCodec.fromJson</code> — payload, type, context, priority,
-parent chain, and trace all round-trip. Parent pulses resolve by
-digest through <code>parentsByDigest</code>, which the engine populates as it
-replays earlier entries (the ledger API the codec's docs always
-anticipated).</p>
-<p>Pre-8.3 entries (no body) fall back to the heuristic below: the
-first positional receipt argument as the payload (exact for the
-emit/ingress path; the <em>apply</em> path stores the command's argument,
-not the pulse the receptor saw), then the entry's own delta
-<code>after</code>. Context, priority, parent, trace, named arguments, and
-positional arguments beyond the first are dropped on that path.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>entry</code>: The ledger entry to reconstruct the pulse from.</li>
+<li><code>cell</code>: The resolved target cell; used to populate the pulse's
+<code>source</code> field on the heuristic fallback path, which matters for
+<code>TestPulseRule</code> validation.</li>
+<li><code>parentsByDigest</code>: Reconstructed parent pulses, keyed by digest;
+the engine populates it as it replays earlier entries so stored
+parent digests resolve.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The reconstructed pulse, or <code>null</code> when the entry carries no
+recoverable pulse information.</p>
 </section>
 
 
@@ -170,7 +165,7 @@ positional arguments beyond the first are dropped on that path.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

@@ -71,6 +71,19 @@
 <section class="desc markdown">
   <p>The hash of the entry that would come next, given the chain's
 current head.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>prevHash</code>: The previous entry's hash (or <a href="../../cell/HashChain/genesisHash.html">genesisHash</a> for the
+first entry).</li>
+<li><code>seq</code>: The entry's sequence number.</li>
+<li><code>pulseDigest</code>: SHA-256 of the pulse that produced the entry.</li>
+<li><code>receiptDigest</code>: SHA-256 of the receipt.</li>
+<li><code>effectsDigest</code>: SHA-256 of the effects list.</li>
+<li><code>deltaDigest</code>: SHA-256 of the deltas list.</li>
+<li><code>at</code>: The entry's wall-clock commit time.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The computed hash for the entry.</p>
 </section>
 
 
@@ -125,7 +138,7 @@ current head.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

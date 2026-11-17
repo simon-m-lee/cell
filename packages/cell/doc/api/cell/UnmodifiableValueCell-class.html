@@ -153,7 +153,8 @@ authority, and causal lineage of this specific <a href="../cell/Cell-class.html"
 
 </dt>
 <dd class="inherited">
-  A stable identifier for this cell handle.
+  Wire identity. Delegates to the nucleus so deputies and their principal
+share one id unless a graph registration overrides it.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -336,6 +337,20 @@ unmodifiable.
 
 </dd>
 
+        <dt id="restoreValue" class="callable inherited">
+  <span class="name"><a href="../cell/ValueCell/restoreValue.html">restoreValue</a></span><span class="signature">(<wbr><span class="parameter" id="restoreValue-param-prior"><span class="type-annotation">V?</span> <span class="parameter-name">prior</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Writes <code>prior</code> into storage and notifies observers without running
+<code>evolve</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="toString" class="callable inherited">
   <span class="name"><a href="../cell/ValueCell/toString.html">toString</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
@@ -399,7 +414,7 @@ unmodifiable.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

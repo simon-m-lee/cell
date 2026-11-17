@@ -6,32 +6,38 @@
 
 import 'dart:convert';
 
-/// A deterministic JSON encoder.
+/// Encodes [value] into deterministic, canonical JSON.
 ///
-/// The Dart SDK's `jsonEncode` preserves insertion order for maps and does
-/// not normalize numeric representations. That makes it unsuitable for
-/// hashing or for "canonical bytes" comparisons, both of which the replay
-/// ledger depends on.
+/// The Dart SDK's `jsonEncode` preserves map insertion order and does not
+/// normalize numeric representations, which makes it unsuitable for
+/// hashing or canonical-byte comparisons — both of which the replay ledger
+/// depends on.
 ///
-/// [canonicalJsonEncode] guarantees:
+/// ### How it works
+/// The encoder guarantees:
 ///
 /// * **Map keys are sorted lexicographically.** Two maps with the same
 ///   entries but different insertion orders produce identical output.
-/// * **No trailing whitespace.** Output is `{"a":1,"b":2}`, never
+/// * **No whitespace.** Output is `{"a":1,"b":2}`, never
 ///   `{ "a": 1, "b": 2 }`.
-/// * **Integers vs. doubles.** `1` (int) and `1.0` (double) both encode as
-///   `1` only when the int representation is exact; otherwise `1.0` stays
-///   as `1.0`. This mirrors the JSON spec's ambiguity and matches what
+/// * **Stable numbers.** `1` (int) and `1.0` (double) both encode as `1`
+///   only when the int representation is exact; otherwise `1.0` stays
+///   `1.0`. This mirrors the JSON spec's ambiguity and matches what
 ///   `jsonDecode` produces on re-read.
-/// * **Null omission is opt-in.** By default, `null` values are preserved
+/// * **Opt-in null omission.** By default, `null` values are preserved
 ///   (`{"a":null}`) because the codec layer needs to distinguish "absent"
 ///   from "null" for optional pulse fields. Pass `omitNulls: true` when
 ///   the domain has no such distinction.
 ///
-/// All other values must be JSON-encodable primitives, `List`, or `Map`.
-/// `DateTime` values are rejected by default; encode them as epoch
-/// milliseconds or ISO-8601 explicitly in the caller, so the wire format
-/// is unambiguous.
+/// ### Parameters:
+/// - [value]: Any JSON-encodable primitive, `List`, or `Map`. `DateTime`
+///   values are rejected by default; encode them as epoch milliseconds or
+///   ISO-8601 explicitly in the caller so the wire format is unambiguous.
+/// - [omitNulls]: If `true`, map entries whose value is `null` are omitted
+///   from the output.
+///
+/// ### Returns:
+/// The canonical JSON string.
 String canonicalJsonEncode(
   Object? value, {
   bool omitNulls = false,
@@ -43,9 +49,14 @@ String canonicalJsonEncode(
 
 /// Decodes a canonical JSON string into a JSON-encodable object tree.
 ///
-/// This is a thin wrapper over [jsonDecode] that exists so callers have a
-/// matched pair of (encode, decode) helpers and don't accidentally mix
-/// `jsonEncode` with `canonicalJsonEncode`.
+/// ### When to use
+/// As the matched pair of [canonicalJsonEncode]. Using this instead of
+/// `jsonDecode` directly keeps the (encode, decode) helpers uniform and
+/// prevents accidentally mixing `jsonEncode` with [canonicalJsonEncode].
+///
+/// ### Returns:
+/// The decoded object tree (`Map`, `List`, `String`, `num`, `bool`, or
+/// `null`).
 Object? canonicalJsonDecode(String source) => jsonDecode(source);
 
 void _write(StringBuffer buf, Object? value, bool omitNulls) {

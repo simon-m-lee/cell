@@ -63,6 +63,12 @@
     
 <section class="desc markdown">
   <p>Builds the <a href="../../cell/CellGraph-class.html">CellGraph</a>. After this returns, the builder is locked.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>Reachability is validated immediately, so a caller who built a
+disconnected graph learns about it at construction time, not at
+snapshot time.</p>
+<h3 id="returns">Returns:</h3>
+<p>The built graph.</p>
 </section>
 
 
@@ -113,7 +119,7 @@
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

@@ -55,9 +55,10 @@
     
 <section class="desc markdown">
   <p>The rolling hash chain that binds ledger entries.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>Each entry's <code>hash</code> is <code>H(prevHash || seq || pulseDigest || receiptDigest || effectsDigest || deltaDigest || at)</code>. The genesis
-entry's <code>prevHash</code> is the graph id's fingerprint — a <code>Ledger</code> tied to
-graph <code>G</code> cannot be confused with a <code>Ledger</code> tied to graph <code>H</code>, even
+entry's <code>prevHash</code> is the graph id's fingerprint — a <a href="../cell/Ledger-class.html">Ledger</a> tied to
+graph <code>G</code> cannot be confused with a <a href="../cell/Ledger-class.html">Ledger</a> tied to graph <code>H</code>, even
 if their entries happen to be identical, because the genesis hash
 differs.</p>
 <h3 id="non-obvious-why-a-chain-not-a-merkle-tree">Non-obvious: why a chain, not a Merkle tree</h3>
@@ -76,6 +77,11 @@ chain from the tampered entry onward, and <code>verify()</code> catches it in a
 single sequential pass. That is the guarantee the ledger needs. Merkle
 proofs are a later concern; if they are added, <code>HashChain</code> becomes
 the leaf hash and a parallel <code>MerkleTree</code> sits alongside it.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/Ledger-class.html">Ledger</a> — the consumer that owns one chain per graph.</li>
+<li><a href="../cell/LedgerEntry-class.html">LedgerEntry</a> — the rows this chain binds.</li>
+</ul>
 </section>
 
 
@@ -88,7 +94,7 @@ the leaf hash and a parallel <code>MerkleTree</code> sits alongside it.</p>
           <span class="name"><a href="../cell/HashChain/HashChain.html">HashChain</a></span><span class="signature">(<span class="parameter" id="-param-genesisHash"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">genesisHash</span></span>)</span>
         </dt>
         <dd>
-          
+          Creates a <a href="../cell/HashChain-class.html">HashChain</a>.
             <div class="constructor-modifier features">const</div>
         </dd>
     </dl>
@@ -234,7 +240,7 @@ current head.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

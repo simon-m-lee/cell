@@ -56,6 +56,10 @@
     
 <section class="desc markdown">
   <p>The persistence backend for a <a href="../cell/Ledger-class.html">Ledger</a>.</p>
+<p><a href="../cell/LedgerStore-class.html">LedgerStore</a> is the <strong>Storage Contract</strong> between the hash-chained
+<a href="../cell/Ledger-class.html">Ledger</a> and whatever medium holds its entries — memory, a JSONL
+file, or (in future) a network service. It defines atomic append,
+sequential read, and head lookup, and nothing else.</p>
 <p>A store is responsible for:</p>
 <ul>
 <li><strong>Atomic append</strong> — appending an entry either succeeds completely or
@@ -65,10 +69,32 @@ given sequence number.</li>
 <li><strong>Last hash</strong> — returning the current head, or <code>null</code> if the store
 is empty.</li>
 </ul>
-<p>The store does <strong>not</strong> validate hashes — that is <code>Ledger.verify</code>'s
-job. This separation is deliberate: the store may be a network
-service that cannot compute hashes efficiently, but the ledger can
-always verify on top of any store.</p>
+<h3 id="why-it-is-used">Why it is used</h3>
+<p>Separating persistence from verification lets the ledger run on top of
+any medium: an in-memory list for tests, a JSONL file for durability,
+or a remote service that cannot compute hashes cheaply. The ledger's
+integrity guarantees are independent of the store's implementation.</p>
+<h3 id="how-it-works">How it works</h3>
+<p><a href="../cell/Ledger-class.html">Ledger</a> calls <a href="../cell/LedgerStore/append.html">append</a> with a fully formed, hash-linked entry; the
+store persists it atomically. <a href="../cell/Ledger/verify.html">Ledger.verify</a> later reads every entry
+through <a href="../cell/LedgerStore/entriesSince.html">entriesSince</a> and recomputes the chain. The store never
+validates hashes — that is the ledger's job.</p>
+<h3 id="technical-details">Technical Details</h3>
+<ul>
+<li><strong>Non-obvious: the store does not validate hashes.</strong> This is
+deliberate: the store may be a network service that cannot compute
+hashes efficiently, but the ledger can always verify on top of any
+store.</li>
+<li><strong>Genesis binding.</strong> Each store records the <a href="../cell/LedgerStore/genesisHash.html">genesisHash</a> it was
+created with; <a href="../cell/Ledger/open.html">Ledger.open</a> asserts it matches the chain genesis, so
+a store created for graph <code>G</code> can never silently serve graph <code>H</code>.</li>
+</ul>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/InMemoryLedgerStore-class.html">InMemoryLedgerStore</a> — an ephemeral store for tests.</li>
+<li><code>FileLedgerStore</code> — a durable JSONL-backed store (<code>dart:io</code>).</li>
+<li><a href="../cell/Ledger-class.html">Ledger</a> — the hash-chained record that consumes this store.</li>
+</ul>
 </section>
 
 
@@ -297,7 +323,7 @@ can never silently serve graph <code>H</code>.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

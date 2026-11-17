@@ -55,6 +55,7 @@
     
 <section class="desc markdown">
   <p>The declarative marker for effectful receptors and rules.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>Mixing in <a href="../cell/Effectful-mixin.html">Effectful</a> does <strong>not</strong> automatically route effects through
 a journal — the receptor body must call <code>journal.clock()</code>,
 <code>journal.io(...)</code>, etc. explicitly. What the mixin provides is:</p>
@@ -81,6 +82,11 @@ multiple inheritance. The mixin's only member is
 <code>Purity get purity =&gt; Purity.effectful</code>, which the retrofit sites
 already declare on their own classes — the mixin exists so <em>user</em>
 receptors can opt in without writing the override by hand.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/EffectfulReadOnly-mixin.html">EffectfulReadOnly</a> — the read-only variant.</li>
+<li><a href="../cell/Purity.html">Purity</a> — the classification this marker reports.</li>
+</ul>
 </section>
 
 
@@ -213,7 +219,7 @@ journal. Overrides the default <code>pure</code>.
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

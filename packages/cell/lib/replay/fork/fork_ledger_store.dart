@@ -6,26 +6,32 @@
 
 part of '../../cell.dart';
 
-/// A `LedgerStore` wrapper that injects a synthetic `ForkRecord` entry
+/// A [LedgerStore] wrapper that injects a synthetic [ForkRecord] entry
 /// at seq 0.
 ///
-/// This lets `Ledger` and `Ledger.verify` operate on a fork without
+/// ### When to use
+/// This lets [Ledger] and `Ledger.verify` operate on a fork without
 /// changing their implementation — the fork is just a ledger whose
-/// genesis happens to be a `ForkRecord`.
+/// genesis happens to be a [ForkRecord].
 ///
 /// ### Non-obvious: the synthetic entry is a *real* chain entry
 ///
 /// Its `hash` is computed by the same `HashChain.nextHash` every other
 /// entry uses (`prevHash` = the fork record's genesis hash, seq 0, empty
 /// pulse/effects/deltas, stable synthetic receipt). The fork's real
-/// entries then chain from that hash. The doc's alternative — making the
-/// synthetic hash equal `ForkRecord.genesisHash` — cannot verify: the
-/// recomputed hash would differ from the stored one.
+/// entries then chain from that hash. Making the
+/// synthetic hash equal [ForkRecord.genesisHash] instead would not
+/// verify: the recomputed hash would differ from the stored one.
 ///
 /// The synthetic entry is also **injected into the inner store** on the
 /// first append: the inner store's genesis check must pass
 /// against the fork record's genesis hash, and it can only pass for the
 /// synthetic entry itself.
+///
+/// See also:
+/// * [ForkRecord] — the record materialised as seq 0.
+/// * [ForkHandle] — the handle that owns one of these stores.
+/// {@category Replay}
 class ForkLedgerStore implements LedgerStore {
   final ForkRecord record;
   final LedgerStore inner;

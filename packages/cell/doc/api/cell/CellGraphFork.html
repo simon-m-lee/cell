@@ -55,11 +55,18 @@
     
 <section class="desc markdown">
   <p>Forking extensions for <a href="../cell/CellGraph-class.html">CellGraph</a>.</p>
+<h3 id="when-to-use">When to use</h3>
 <p>Provided as an extension so <code>cell_graph.dart</code> does not gain a <code>fork</code>
-method — the fork diff surface keeps <code>cell_graph.dart</code>
-unchanged and puts all fork code in <code>fork/</code>. The trade-off is that
+method — the fork diff surface keeps <code>cell_graph.dart</code> unchanged and
+puts all fork code in <code>fork/</code>. The trade-off is that
 <code>graph.fork(...)</code> is only available when <code>replay.dart</code> is imported,
 which is correct: fork is a replay concern, not a graph concern.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/ForkHandle-class.html">ForkHandle</a> — what <a href="../cell/CellGraphFork/fork.html">fork</a> returns.</li>
+<li><a href="../cell/ForkPolicy.html">ForkPolicy</a> — the policy parameter.</li>
+<li><a href="../cell/ReplayEngineFork.html">ReplayEngineFork</a> — replays into the fork this creates.</li>
+</ul>
 </section>
 
     <section>
@@ -95,7 +102,7 @@ which is correct: fork is a replay concern, not a graph concern.</p>
         <span>Available on <a href="../cell/CellGraph-class.html">CellGraph</a>,
         provided by the <a href="../cell/CellGraphFork.html">CellGraphFork</a> extension</span>
       </p>
-  Forks <code>this</code> graph at <code>atSeq</code> of <code>parent</code>.
+  Forks this graph at <code>atSeq</code> of <code>parent</code>.
   
 
 </dd>
@@ -130,7 +137,7 @@ which is correct: fork is a replay concern, not a graph concern.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

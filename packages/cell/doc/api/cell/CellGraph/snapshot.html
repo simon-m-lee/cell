@@ -65,14 +65,20 @@
     
 <section class="desc markdown">
   <p>Produces a <a href="../../cell/CellGraphSnapshot-class.html">CellGraphSnapshot</a> of the current cell states.</p>
-<p><strong>Limitation:</strong> the snapshot serialises only the JSON-
-encodable value of each cell. <code>ValueCell</code> values that are not
-JSON-encodable require the user to register a payload codec (the journal
-adds this). A snapshot of a <code>ValueCell&lt;int&gt;</code> or
-<code>ValueCell&lt;String&gt;</code> works; anything else throws.</p>
-<p><code>lastLedgerSeq</code> and <code>parentLedgerHash</code> are ledger concerns; the graph
-takes them as arguments so the snapshot's <em>shape</em> is final and the ledger
-only needs to populate them.</p>
+<h3 id="non-obvious-json-encodable-values-only">Non-obvious: JSON-encodable values only</h3>
+<p>The snapshot serialises only the JSON-encodable value of each cell.
+<code>ValueCell</code> values that are not JSON-encodable require the user to
+register a payload codec (the journal adds this). A snapshot of a
+<code>ValueCell&lt;int&gt;</code> or <code>ValueCell&lt;String&gt;</code> works; anything else throws.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>lastLedgerSeq</code>: The ledger position the snapshot is taken at.</li>
+<li><code>parentLedgerHash</code>: The ledger's hash up to that position.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The snapshot. <code>lastLedgerSeq</code> and <code>parentLedgerHash</code> are ledger
+concerns; the graph takes them as arguments so the snapshot's <em>shape</em>
+is final and the ledger only needs to populate them.</p>
 </section>
 
 
@@ -141,7 +147,7 @@ only needs to populate them.</p>
 <footer>
   <span class="no-break">
     cell
-      1.1.0
+      2.0.0
   </span>
   
 </footer>

@@ -8,6 +8,7 @@ part of '../../cell.dart';
 
 /// The boundary between a receptor and the outside world.
 ///
+/// ### When to use
 /// Every observation that is not a function of the receptor's inputs is
 /// routed through an [EffectJournal]. On the recording side, the journal
 /// captures each observation; on the replay side, it serves the recorded
@@ -19,11 +20,18 @@ part of '../../cell.dart';
 /// An outer transaction might record an effect, while an inner evaluation
 /// (e.g. a what-if branch) needs to be replayed from a different journal
 /// without disturbing the outer recording. `JournalScope` keeps a stack;
-/// `EffectJournal.current` returns the top of the stack. The stack is
-/// task-local (see `JournalScope`) — a `Future` spawned outside the
+/// [EffectJournal.current] returns the top of the stack. The stack is
+/// task-local (see [JournalScope]) — a `Future` spawned outside the
 /// scope does *not* inherit the journal, which is deliberate: a spawned
 /// task whose effects are not journalled is a bug we want to surface, not
 /// hide.
+///
+/// See also:
+/// * [RecordingJournal] — the recording side.
+/// * [ReplayJournal] — the replay side.
+/// * [NullJournal] — the loud sentinel for "no journal in scope".
+/// * [EffectRecord] — what a recording writes and a replay consumes.
+/// {@category Replay}
 abstract class EffectJournal {
   /// The journal currently in scope, or [NullJournal.instance] if none is
   /// pushed.
@@ -44,15 +52,20 @@ abstract class EffectJournal {
   /// Record (or replay) a UUID generation.
   String uuid();
 
-  /// Record (or replay) an arbitrary I/O call. [rawOutput] is the value
-  /// the caller's `run` closure returned; the journal records it (or
-  /// serves the recorded value). If [serializeOutput] is not supplied, the
-  /// raw result of `run` is stored directly and must be JSON-encodable —
-  /// non-encodable results throw loudly at the fingerprint boundary.
+  /// Record (or replay) an arbitrary I/O call. The value the caller's
+  /// [run] closure returns is recorded (or the recorded value is served).
   ///
-  /// The [run] closure is **not** invoked on the replay side; the recorded
-  /// output is returned directly. This is the mechanism by which replay
-  /// avoids touching the network.
+  /// ### Parameters:
+  /// - [label]: A stable semantic label for the call, e.g.
+  ///   `'http.GET /profile/42'`. Replay compares it exactly.
+  /// - [input]: The call's input; its fingerprint is recorded.
+  /// - [run]: The closure that performs the real I/O. **Not invoked on the
+  ///   replay side** — the recorded output is returned directly, which is
+  ///   the mechanism by which replay avoids touching the network.
+  /// - [serializeOutput]: Optional hook that converts [run]'s result into
+  ///   a JSON-encodable form before it is stored. If not supplied, the raw
+  ///   result of `run` is stored directly and must be JSON-encodable —
+  ///   non-encodable results throw loudly at the fingerprint boundary.
   Future<T> io<T>({
     required String label,
     required Object? input,
@@ -64,18 +77,23 @@ abstract class EffectJournal {
   /// window; the journal records both the schedule and the fire time so
   /// that replay reproduces the same interleaving.
   ///
+  /// ### How it works
   /// The [onFire] callback is invoked by the journal at the appropriate
   /// moment. On the recording side, the actual `Timer` is scheduled and
   /// the callback is called when it fires. On the replay side, the
   /// callback is called in journal order, not against a real timer. This
   /// is what makes `debounce`/`throttle` replayable.
   ///
-  /// [fireAtEnd] hints the ENGINE replay semantics: `true` for timers
-  /// whose fire is an OUTPUT (a debounce trailing edge — it must run
-  /// after the entry loop so the downstream write lands where the
-  /// recording's did), `false` for timers whose fire is INTERNAL state
-  /// (a throttle gate release — it must run promptly so the next entry
-  /// sees the released gate). Recording ignores the hint.
+  /// ### Parameters:
+  /// - [duration]: The scheduled window.
+  /// - [input]: The timer's input; its fingerprint is recorded.
+  /// - [onFire]: The callback to invoke when the timer fires.
+  /// - [fireAtEnd]: Hints the ENGINE replay semantics: `true` for timers
+  ///   whose fire is an OUTPUT (a debounce trailing edge — it must run
+  ///   after the entry loop so the downstream write lands where the
+  ///   recording's did), `false` for timers whose fire is INTERNAL state
+  ///   (a throttle gate release — it must run promptly so the next entry
+  ///   sees the released gate). Recording ignores the hint.
   Future<void> timer({
     required Duration duration,
     required Object? input,
@@ -92,10 +110,16 @@ abstract class EffectJournal {
 
   /// Record (or replay) an `effectful` [TestCell] verdict.
   ///
+  /// ### How it works
   /// On the recording side, [run] is executed and its boolean decision
-  /// is recorded as a `VerdictEffect`. On the replay side, the recorded
+  /// is recorded as a [VerdictEffect]. On the replay side, the recorded
   /// decision is served and [run] is **not** executed — the rule is not
   /// re-called (purity dispatch).
+  ///
+  /// ### Parameters:
+  /// - [ruleLabel]: A stable label identifying the rule.
+  /// - [input]: The object being tested; its fingerprint is recorded.
+  /// - [run]: The closure that computes the verdict.
   Future<bool> verdict({
     required String ruleLabel,
     required Object? input,
@@ -104,9 +128,16 @@ abstract class EffectJournal {
 
   /// Record (or replay) a single [EphemeralPolicy] tick.
   ///
-  /// On the recording side, a `PolicyTickEffect` is written. On the
+  /// ### How it works
+  /// On the recording side, a [PolicyTickEffect] is written. On the
   /// replay side, the recorded tick is consumed and validated; the
-  /// caller then re-applies it to the `CycleChecker` (the C4 fix).
+  /// caller then re-applies it to the `CycleChecker` (the cycle-checker
+  /// reseed).
+  ///
+  /// ### Parameters:
+  /// - [policyLabel]: A stable label for the policy.
+  /// - [cellId]: The cell on which the policy ticked.
+  /// - [input]: The tick's input; its fingerprint is recorded.
   void policyTick({
     required String policyLabel,
     required String cellId,
@@ -125,9 +156,13 @@ abstract class EffectJournal {
 /// The "no journal in scope" sentinel. Every effectful operation fails
 /// loudly.
 ///
+/// ### How it works
 /// Deliberately not a no-op. A "null" journal that silently dropped
 /// effects would make every effectful cell non-replayable *without* any
-/// warning, which is precisely the failure mode the design forbids.
+/// warning, which is precisely the silent non-replayable failure mode
+/// this journal exists to prevent. Every
+/// operation throws a [StateError] explaining that the effectful receptor
+/// can only run inside a replayable path.
 class NullJournal implements EffectJournal {
   /// Singleton.
   static const instance = NullJournal._();
@@ -278,8 +313,8 @@ class _JournalTimer {
     if (!_fired &&
         _recording != null &&
         _recordIndex >= 0 &&
-        _recordIndex < _recording!.records.length) {
-      final record = _recording!.records[_recordIndex];
+        _recordIndex < _recording.records.length) {
+      final record = _recording.records[_recordIndex];
       if (record is TimerEffect) record.cancelled = true;
     }
     // The journal's timer primitive does not expose a cancel; on the

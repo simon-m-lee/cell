@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 void main() {
   setUp(CellGraphRegistry.forceReset);
 
-  test('policy ticks are journalled and validated in order (C4)', () async {
+  test('policy ticks are journalled and validated in order', () async {
     var tickCount = 0;
     final policy = EphemeralPolicy<Cell>(
       eventLimit: 100,
