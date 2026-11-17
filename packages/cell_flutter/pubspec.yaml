@@ -1,6 +1,6 @@
 name: cell_flutter
-description: Flutter widget bindings for Mitosis cells.
-version: 1.0.0
+description: Flutter widget bindings for Mitosis cells — reactive builders, selectors, listeners, error boundaries, hooks, and a complete widget-testing surface.
+version: 1.0.1
 homepage: https://github.com/simon-m-lee/cell
 repository: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter
 issue_tracker: https://github.com/simon-m-lee/cell/issues
@@ -30,7 +30,9 @@ dependencies:
   # the retained-pulse accessor `Cell.latestPulse` (which `retainedPulseOf`
   # relies on for late-subscriber seeding) both shipped in that release.
   cell: ^2.0.0
-  flutter_hooks: ^0.20.5   # optional hooks sub-library (lib/hooks.dart)
+  # Wide floor keeps 0.20.x consumers working while supporting the latest
+  # 0.21.x release (pub.dev "up-to-date dependencies" scoring).
+  flutter_hooks: '>=0.20.5 <0.22.0'   # optional hooks sub-library (lib/hooks.dart)
 dev_dependencies:
   flutter_lints: ^4.0.0
   test: ^1.30.0

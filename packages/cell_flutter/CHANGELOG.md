@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.0.1
+
+pub.dev scoring pass — no public API changes.
+
+- **Pubspec description** lengthened to the 50–180 character convention
+  window required by pub.dev scoring.
+- **Example entry point** — added `example/lib/main.dart` (the canonical
+  counter app) so pub.dev's "package has an example" check passes; the
+  other demo files remain standalone runnable programs.
+- **`flutter_hooks` constraint** widened to `'>=0.20.5 <0.22.0'` so the
+  latest `0.21.x` release is supported (pub.dev "up-to-date
+  dependencies" scoring); the full suite passes against `0.21.x`.
+- **Material import annotations** — `lib/src/` files that import
+  `package:flutter/material.dart` now carry an ignore annotation for the
+  upcoming Flutter ≥3.47 `material_ui` transition, so pub.dev's
+  analysis of the package stays clean while remaining compatible with
+  the stable Flutter SDK.
+
 ## 1.0.0
 
 Stable release (production readiness). The public API of

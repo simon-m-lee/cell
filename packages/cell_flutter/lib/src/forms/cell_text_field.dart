@@ -5,6 +5,9 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 import 'package:cell/cell.dart';
+// Flutter >=3.47 deprecates the material library in favour of
+// material_ui; kept for compatibility with the stable SDK used here.
+// ignore: deprecated_member_use
 import 'package:flutter/material.dart';
 
 import 'cell_editing_controller.dart';
