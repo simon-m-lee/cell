@@ -8,7 +8,7 @@
 [![Melos](https://img.shields.io/badge/maintained%20with-melos-f700ff.svg)](https://github.com/invertase/melos)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#-contributing)
 
-**Mitosis** is a reactive application framework for Dart that treats state, events, and their **causal history** as one coherent, observable graph. It is an umbrella monorepo built from three layers — **Cell**, **Flow**, and **Tissue** — with a growing ecosystem of companion packages (Flutter bindings, cognitive policy) — that scale from a single reactive value to a fully governed application body without ever dropping the forensic trail.
+**Mitosis** is a reactive application framework for Dart that treats state, events, and their **causal history** as one coherent, observable graph. It is an umbrella monorepo built from three layers — **Cell**, **Flow**, and **Tissue** — with a growing ecosystem of companion packages (Flutter bindings and more) — that scale from a single reactive value to a fully governed application body without ever dropping the forensic trail.
 
 Mitosis is designed for systems where *why something happened* matters as much as *what happened*: financial and transaction-heavy software, security-sensitive services, audit-bound enterprise applications, real-time coordination, and increasingly, autonomous and multi-agent systems.
 
@@ -79,7 +79,7 @@ The umbrella ships additional packages alongside the three layers:
 | [**cell_flutter_persistence**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_persistence) | `0.1.0` | Durable state for `cell_flutter`: `CellPersistenceAdapter`, SharedPreferences/in-memory adapters, `PersistedCell`. |
 | [**cell_flutter_router**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_router) | `0.1.0` | `go_router` bridge: route state as a reactive cell (`CellRouterState`, `CellRouterStateMirror`, `CellRouterScope`, `useCellRouter`). |
 | [**cell_flutter_lints**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_lints) | `0.1.0` | Custom lint rules guarding the `cell_flutter` anti-patterns. |
-| `cell_mind` | `1.1.0` | Workspace member (cognitive policy: context-aware decisions, decision log with replay, prompted policy). Not yet published to pub.dev. |
+| `cell_mind` | `1.1.0` | Workspace member, repository-private work in progress — kept out of version control; not on GitHub or pub.dev. |
 | `cell_organ` | `1.0.0` | Workspace-private package (`publish_to: none`). Not part of the published set. |
 
 The `cell_flutter/pipeline/` directory is repository tooling for running the Mitose pipeline on Flutter targets; it is **not published** and not part of the release set.
@@ -286,7 +286,7 @@ cell/                          # Umbrella monorepo: "Mitosis"
 │   ├── cell_flutter_persistence/  # Durable state adapters for cell_flutter
 │   ├── cell_flutter_router/       # go_router bridge for cell_flutter
 │   ├── cell_flutter_lints/        # custom_lint rules for cell_flutter anti-patterns
-│   ├── cell_mind/             # Workspace member — cognitive policy (not on pub.dev)
+│   ├── cell_mind/             # Workspace member — repository-private (kept out of version control)
 │   └── cell_organ/            # Workspace-private (publish_to: none)
 ├── example/                   # Umbrella demos — (Cell) instruction-side editions
 │   ├── card-auth-pipeline(Cell)-*   #   stock-operator FlowInstructionChain
@@ -540,7 +540,7 @@ Mitosis pays for itself first in systems where the causal trail is a requirement
 The stable release line on pub.dev is `mitosis` `3.0.0` with `cell` `2.0.0`, `cell_flow` `1.1.0`, and `cell_tissue` `1.1.0`, plus the Flutter family (`cell_flutter` `1.0.0`; `cell_flutter_persistence`, `cell_flutter_router`, and `cell_flutter_lints` `0.1.0`). Some things to know before you bet production on it:
 
 - **The Mitose pipeline is agentic tooling, not a validated code-generation service** — see [The Mitose Pipeline](#-the-mitose-pipeline). Output quality depends on the model (best to select a model which is built for agentic coding), the uploaded guide files, and the quality of the BRD. Treat every generated BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES as a first draft, and review it against the layer HowTos and live pub.dev APIs before relying on it.
-- **New layers and packages may still appear.** The umbrella keeps growing: the `cell_flutter` family shipped in the `2.0.0` line, and workspace members (`cell_mind`, …) carry their own pre-release or unpublished status. The umbrella version moves with the package set, not with the Mitose pipeline.
+- **New layers and packages may still appear.** The umbrella keeps growing: the `cell_flutter` family shipped in the `2.0.0` line, and repository-private members (`cell_mind`, …) carry their own pre-release or unpublished status. The umbrella version moves with the package set, not with the Mitose pipeline.
 - **`Context` metadata is not a compliance certification.** `Context.describe(...)` stores classification, actor, and purpose text; it does not implement or certify GDPR, HIPAA, PCI-DSS, or any other regulation.
 - **The framework is deliberately layered.** For a couple of flags or a single form, plain Dart or a lightweight notifier may be the better tool. Mitosis earns its complexity at scale.
 

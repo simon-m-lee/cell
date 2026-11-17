@@ -19,9 +19,10 @@ local.properties
 # Project specific
 .aiexclude
 
-# Legacy packages excluded from the release set
+# Legacy / work-in-progress packages excluded from the release set
 packages/cell_g/
 packages/cell_organ/
+packages/cell_mind/
 
 # .deepcode directory containing sensitive API keys and model settings
 .deepcode/

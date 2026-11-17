@@ -63,8 +63,8 @@
   - The `cell_flutter/pipeline/` directory (Flutter Mitose-pipeline
     tooling) remains **repository tooling** and is excluded from the
     published archive.
-- **Workspace members**: `cell_mind` `1.1.0` (cognitive policy) remains
-  a workspace member and is not yet published to pub.dev; `cell_organ`
+- **Workspace members**: `cell_mind` (cognitive policy) remains
+  repository-private work in progress — kept out of version control, not on GitHub or pub.dev; `cell_organ`
   stays workspace-private (`publish_to: none`). Neither is part of the
   published umbrella set.
 - **Umbrella dependencies**: `cell: ^2.0.0` (was `^1.1.0`);
