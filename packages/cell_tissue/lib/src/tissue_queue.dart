@@ -419,7 +419,7 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
 /// **When NOT to use:**
 ///   {@macro ai-do-not-testcell-on-tissue}
 ///   {@macro ai-do-not-drain-tissuequeue}
-/// **Live signature:** `TissueQueue<E>({bind, context, testRule, receptor, synapses, ...})` / `TissueQueue.of(iterable, {...})` / `TissueQueue.unmodifiable(bind, {...})` — pinned at `cell_tissue: 1.0.0`
+/// **Live signature:** `TissueQueue<E>({bind, context, testRule, receptor, synapses, ...})` / `TissueQueue.of(iterable, {...})` / `TissueQueue.unmodifiable(bind, {...})` — pinned at `cell_tissue: 1.1.0`
 /// **Do NOT confuse with:** `TissueList` (indexable history; use the queue for FIFO work).
 /// **Guide:** `HowTo-Mitose-Tissue.md` §2.4 "TissueQueue — outbound work" (#tissue-queue)
 /// **Example:** `example/cell_tissue_example.dart`

@@ -56,8 +56,10 @@
       
 <span class="returntype"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>
 <span class="name ">asyncMap</span>&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="asyncMap-param-source"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span></li>
-<li><span class="parameter" id="asyncMap-param-mapper"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">mapper</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span></li>
-</ol>), {</span></li>
+<li><span class="parameter" id="asyncMap-param-mapper"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">mapper</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span>, {</span></li>
+<li><span class="parameter" id="param-journal"><span>required</span> <span class="type-annotation"><a href="../../cell_tissue/EffectJournal-class.html">EffectJournal</a></span> <span class="parameter-name">journal</span>, </span></li>
+</ol>}), {</span></li>
+<li><span class="parameter" id="asyncMap-param-journal"><span>required</span> <span class="type-annotation"><a href="../../cell_tissue/EffectJournal-class.html">EffectJournal</a></span> <span class="parameter-name">journal</span>, </span></li>
 <li><span class="parameter" id="asyncMap-param-concurrency"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">concurrency</span> = <span class="default-value">0</span>, </span></li>
 <li><span class="parameter" id="asyncMap-param-latestOnly"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">latestOnly</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="asyncMap-param-exhaust"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">exhaust</span> = <span class="default-value">false</span>, </span></li>
@@ -177,14 +179,18 @@ and ordered sequential background tasks..</li>
 <p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
 <strong>When to use:</strong> a background <code>Future</code> per pulse with concurrency control (<code>concurrency</code>, <code>latestOnly</code>, <code>exhaust</code>).
 <strong>When NOT to use:</strong> source selection (mapper returns a <code>Cell</code>) — that is <code>Cell.switchMap</code>; and never inside the policy decision itself.
-<strong>Live signature:</strong> <code>Cell.asyncMap&lt;S, T&gt;(Cell source, Future&lt;T&gt; Function(S value) mapper, {int concurrency = 0, bool latestOnly = false, bool exhaust = false})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Live signature:</strong> <code>Cell.asyncMap&lt;S, T&gt;(Cell source, Future&lt;T&gt; Function(S value, {required EffectJournal journal}) mapper, {required EffectJournal journal, int concurrency = 0, bool latestOnly = false, bool exhaust = false})</code> — pinned at <code>cell: 2.0.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell.switchMap</code> (dynamic source rebinding, mapper returns <code>Cell</code>).
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)
 <strong>Example:</strong> <code>example/async_map_demo.dart</code>
 <strong>Cross-layer:</strong> the orchestration equivalents are <code>Flow.asyncMap</code> / <code>Flow.asyncMapLatest</code> / <code>Flow.asyncMapConcurrent</code> in <code>cell_flow</code>.
 <strong>Minimal compilable example</strong></p>
 <pre class="language-dart"><code class="language-dart">final src = Cell.ingress&lt;int&gt;();
-final am = Cell.asyncMap&lt;int, String&gt;(src.cell, (v) async =&gt; 'v=$v');
+final am = Cell.asyncMap&lt;int, String&gt;(
+  src.cell,
+  (v, {required EffectJournal journal}) async =&gt; 'v=$v',
+  journal: RecordingJournal(),
+);
 final o = Cell.observe(source: am, effect: (Pulse p) =&gt; print(p.payload));
 src.emit(3);
 await Future&lt;void&gt;.delayed(const Duration(milliseconds: 30));
@@ -198,7 +204,8 @@ o.stop();
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static Cell asyncMap&lt;S, T&gt;(
   Cell source,
-  Future&lt;T&gt; Function(S value) mapper, {
+  Future&lt;T&gt; Function(S value, {required EffectJournal journal}) mapper, {
+  required EffectJournal journal,
   int concurrency = 0,
   bool latestOnly = false,
   bool exhaust = false,
@@ -206,6 +213,7 @@ o.stop();
     _asyncMap&lt;S, T&gt;(
       source,
       mapper,
+      journal: journal,
       concurrency: concurrency,
       latestOnly: latestOnly,
       exhaust: exhaust,
@@ -237,7 +245,7 @@ o.stop();
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

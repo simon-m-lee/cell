@@ -76,8 +76,7 @@ broadcasting pulses. Use it for testing or manual invocation.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">P? call(P pulse) {
-  P? out;
-  out = pulse;
+  P? out = pulse;
   try {
     final rule = _rule;
     if (rule != null) {
@@ -94,13 +93,14 @@ broadcasting pulses. Use it for testing or manual invocation.</p>
         }
       }
     }
-  } catch (_) {}
+  } catch (_) {
+    &#47;&#47; A throwing rule — or a strategy whose result cannot be assigned to
+    &#47;&#47; P — is swallowed: the original pulse keeps flowing to the parent.
+  }
 
-  if (out != null) {
-    final parent = _parent;
-    if (parent != null) {
-      out = parent.call(out);
-    }
+  final parent = _parent;
+  if (out != null &amp;&amp; parent != null) {
+    out = parent.call(out);
   }
   return out;
 }</code></pre>
@@ -131,7 +131,7 @@ broadcasting pulses. Use it for testing or manual invocation.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

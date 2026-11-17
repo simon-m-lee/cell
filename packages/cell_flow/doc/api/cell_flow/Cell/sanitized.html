@@ -132,7 +132,7 @@ walkthrough of automated PII redaction and audit trails.
 <p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
 <strong>When to use:</strong> A BRD says "no name on the extract" — redact PII before a log / UI cell, or omit the field at the source.
 <strong>When NOT to use:</strong> as a substitute for never writing PII into Tissue rows; sanitize the <em>view</em>, keep the book clean.
-<strong>Live signature:</strong> <code>Cell.sanitized&lt;P extends Pulse&gt;(Cell source, {required P Function(P) redact, Sensitivity minSensitivity = Sensitivity.confidential})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Live signature:</strong> <code>Cell.sanitized&lt;P extends Pulse&gt;(Cell source, {required P Function(P) redact, Sensitivity minSensitivity = Sensitivity.confidential})</code> — pinned at <code>cell: 2.0.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell.derive</code> (projection without the sensitivity gate).
 <strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)
 <strong>Example:</strong> <code>example/sanitized_demo.dart</code>
@@ -197,7 +197,7 @@ o.stop();
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

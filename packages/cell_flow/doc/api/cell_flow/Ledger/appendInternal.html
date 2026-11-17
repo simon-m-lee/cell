@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the appendInternal method from the Ledger class, for the Dart programming language.">
+  <title>appendInternal method - Ledger class - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">cell_flow.dart</a></li>
+    <li><a href="../../cell_flow/Ledger-class.html">Ledger</a></li>
+    <li class="self-crumb">appendInternal method</li>
+  </ol>
+  <div class="self-name">appendInternal</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flow&#47;Ledger-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">appendInternal</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+<span class="name ">appendInternal</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="appendInternal-param-pulse"><span>required</span> <span class="type-annotation"><a href="../../cell_flow/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, </span></li>
+<li><span class="parameter" id="appendInternal-param-receipt"><span>required</span> <span class="type-annotation"><a href="../../cell_flow/ApplyReceipt.html">ApplyReceipt</a></span> <span class="parameter-name">receipt</span>, </span></li>
+<li><span class="parameter" id="appendInternal-param-cellId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">cellId</span>, </span></li>
+<li><span class="parameter" id="appendInternal-param-effects"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_flow/EffectRecord-class.html">EffectRecord</a></span>&gt;</span></span> <span class="parameter-name">effects</span>, </span></li>
+<li><span class="parameter" id="appendInternal-param-deltas"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_flow/StateDelta-class.html">StateDelta</a></span>&gt;</span></span> <span class="parameter-name">deltas</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>The internal append used by <code>LedgerScope</code>. External callers should
+not use this — entries must carry the deltas that only
+<code>postProcessRule</code> captures.</p>
+<h3 id="non-obvious-appends-are-serialised-on-this-ledger">Non-obvious: appends are serialised on this ledger</h3>
+<p><code>seq</code> is assigned from <code>lastSeq + 1</code>; two scopes running
+concurrently (overlapping <code>graph.run</code> calls allocate one scope
+each) used to race on it. Review fix: appends queue on an internal
+chain owned by the ledger, so seq assignment and the store write
+are serialised across scopes — overlapping runs produce entries in
+completion order instead of racing. Nested (awaited) runs were
+already safe through the scope chain.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; appendInternal({
+  required Pulse pulse,
+  required ApplyReceipt receipt,
+  required String cellId,
+  required List&lt;EffectRecord&gt; effects,
+  required List&lt;StateDelta&gt; deltas,
+}) {
+  if (_closed) {
+    throw StateError(&#39;Ledger is closed&#39;);
+  }
+  final task = _appendTail.then((_) =&gt; _appendInternalNow(
+        pulse: pulse,
+        receipt: receipt,
+        cellId: cellId,
+        effects: effects,
+        deltas: deltas,
+      ));
+  _appendTail = task.catchError((_) {});
+  return task;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">cell_flow</a></li>
+    <li><a href="../../cell_flow/Ledger-class.html">Ledger</a></li>
+    <li class="self-crumb">appendInternal method</li>
+</ol>
+
+    <h5>Ledger class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

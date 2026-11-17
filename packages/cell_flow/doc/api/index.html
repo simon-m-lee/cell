@@ -57,7 +57,7 @@ carries a machine-readable <code>### AI Agent Guide</code> block, and the surfac
 let an agent reliably pick the right operator and generate code that compiles
 against the live API.</p>
 <ol>
-<li><strong>Version pin:</strong> <code>cell 1.1.0</code>, <code>cell_flow 1.0.0</code>, <code>cell_tissue 1.0.0</code>.</li>
+<li><strong>Version pin:</strong> <code>cell 2.0.0</code>, <code>cell_flow 1.1.0</code>, <code>cell_tissue 1.1.0</code>.</li>
 <li><strong>Preflight:</strong> <code>dart run tool/ai_preflight.dart</code> — prints the resolved versions and any stale pins.</li>
 <li><strong>API chooser:</strong> <code>lib/doc/api_chooser.dart</code> (generated from the <code>### AI Agent Guide</code> doc blocks).</li>
 <li><strong>Layer guides:</strong>
@@ -113,7 +113,7 @@ against the live API.</p>
 </table>
 <p>(The full matrix lives in <code>lib/doc/api_chooser.dart</code>; this is the 6-row elevator version.)</p>
 <hr>
-<p><strong>Codename: Mitosis</strong> · <code>1.0.0</code></p>
+<p><strong>Codename: Mitosis</strong> · <code>1.1.0</code></p>
 <p><a href="https://dart.dev"><img src="https://img.shields.io/badge/Dart-3.5%2B-blue.svg" alt="Dart"></a>
 <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/LICENSE"><img src="https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg" alt="License"></a>
 <a href="#versioning"><img src="https://img.shields.io/badge/Status-RC%20on%20pub.dev-yellow.svg" alt="Status"></a></p>
@@ -126,11 +126,11 @@ against the live API.</p>
 <h3 id="installation">Installation</h3>
 <p>Add both packages to your <code>pubspec.yaml</code>:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
-  cell: ^1.0.0-rc.9     # the versions currently on pub.dev
-  cell_flow: ^1.0.0-rc.9
+  cell: ^2.0.0     # the stable versions on pub.dev
+  cell_flow: ^1.0.0
 </code></pre>
 <blockquote>
-<p>ℹ️ The prepared stable releases (<code>cell</code> <code>1.1.0</code>, <code>cell_flow</code> <code>1.0.0</code>) live in this repository (see <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/CHANGELOG.md">CHANGELOG.md</a>); bump the constraints once they are published.</p>
+<p>ℹ️ The stable releases (<code>cell</code> <code>2.0.0</code>, <code>cell_flow</code> <code>1.1.0</code>) are published on pub.dev (see <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/CHANGELOG.md">CHANGELOG.md</a>).</p>
 </blockquote>
 <p>Import once in your Dart file:</p>
 <pre class="language-dart"><code class="language-dart">import 'package:cell_flow/cell_flow.dart'; // re-exports package:cell
@@ -713,7 +713,7 @@ dart run example/filter_data_quality_demo.dart
 <li><strong><code>reduce</code> / <code>scan</code> are running folds</strong>, not terminal values.</li>
 <li><strong>Fluent <code>filter().map()</code> = 2 cells.</strong> Use <code>Filter + MapValue</code> for <strong>one Receptor</strong>.</li>
 <li><strong>Use <code>+</code> for sync policies.</strong> Keep timers and HTTP on the next node.</li>
-<li><strong>Resolve <code>cell</code> and <code>cell_flow</code> together</strong> — this package's pubspec pins <code>cell ^1.1.0</code>; on pub.dev resolve the published RC line (<code>cell ^1.0.0-rc.9</code>, <code>cell_flow ^1.0.0-rc.9</code>) until the stable releases are published.</li>
+<li><strong>Resolve <code>cell</code> and <code>cell_flow</code> together</strong> — this package's pubspec pins <code>cell ^2.0.0</code>; resolve the stable line (<code>cell ^2.0.0</code>, <code>cell_flow ^1.1.0</code>) on pub.dev.</li>
 </ol>
 <hr>
 <h2 id="-versioning">📌 Versioning</h2>
@@ -728,17 +728,17 @@ dart run example/filter_data_quality_demo.dart
 <tbody>
 <tr>
 <td><code>cell</code></td>
-<td><code>1.0.0-rc.9</code></td>
-<td>Release Candidate — on pub.dev</td>
+<td><code>2.0.0</code></td>
+<td>Stable — on pub.dev</td>
 </tr>
 <tr>
 <td><code>cell_flow</code></td>
-<td><code>1.0.0-rc.9</code></td>
-<td>Release Candidate — on pub.dev</td>
+<td><code>1.1.0</code></td>
+<td>Stable — on pub.dev</td>
 </tr>
 </tbody>
 </table>
-<p>The stable releases — <code>cell</code> <code>1.1.0</code> and <code>cell_flow</code> <code>1.0.0</code> — are prepared in this repository (see <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/CHANGELOG.md">CHANGELOG.md</a>) and not yet published.</p>
+<p>The stable releases — <code>cell</code> <code>2.0.0</code> and <code>cell_flow</code> <code>1.1.0</code> — are published on pub.dev (see <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/CHANGELOG.md">CHANGELOG.md</a>).</p>
 <p><strong>Mitosis</strong> is the release codename (like an Android Studio animal); it is not part of the SemVer string.</p>
 <hr>
 <h2 id="-license">📄 License</h2>
@@ -826,7 +826,7 @@ of <code>package:cell_flow</code>.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

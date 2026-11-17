@@ -86,7 +86,7 @@ drift.</p>
 <td><code>Iterable</code></td>
 <td>** the shared surface of <code>TissueList</code> / <code>TissueSet</code> / <code>TissueMap</code> / <code>TissueQueue</code> / <code>TissueValue</code> — every book is a Cell under the hood with its own lock and collection pulses.</td>
 <td>** as a book directly — pick one of the five concrete types; a plain Dart <code>List</code> is not a book.</td>
-<td>** <code>abstract interface class Tissue&lt;E&gt; implements Cell, Iterable&lt;E&gt;</code> — pinned at <code>cell_tissue: 1.0.0</code></td>
+<td>** <code>abstract interface class Tissue&lt;E&gt; implements Cell, Iterable&lt;E&gt;</code> — pinned at <code>cell_tissue: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Tissue.md</code> §2 "Examine all five collections against the BRD" (#tissue-catalog)</td>
 <td>** <code>example/cell_tissue_example.dart</code></td>
 </tr>
@@ -94,7 +94,7 @@ drift.</p>
 <td><code>Pulse</code></td>
 <td>** optional second-order observe on a book (e.g. UI shows the audit log live); app observers in a Cell-variant Demo still sit on the <strong>gate Cell</strong>.</td>
 <td>** as the decision signal — Tissue records, Flow decides.</td>
-<td>** <code>abstract interface class TissuePulse&lt;E&gt; implements Pulse&lt;E&gt;</code> — pinned at <code>cell_tissue: 1.0.0</code></td>
+<td>** <code>abstract interface class TissuePulse&lt;E&gt; implements Pulse&lt;E&gt;</code> — pinned at <code>cell_tissue: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Tissue.md</code> §1 "What Tissue owns in a Demo" (#tissue-owns)</td>
 <td>** <code>example/cell_tissue_example.dart</code></td>
 </tr>
@@ -116,7 +116,7 @@ drift.</p>
 </tr>
 <tr>
 <td>This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-test.dart</code>.</td>
-<td>** <code>TestTissue&lt;E, C extends Tissue&lt;E&gt;&gt;(FutureOr&lt;bool&gt; Function(dynamic object, {C? host, dynamic arguments, dynamic user}) rule, {TestTissue&lt;E, C&gt;? parent, dynamic user})</code> — pinned at <code>cell_tissue: 1.0.0</code></td>
+<td>** <code>TestTissue&lt;E, C extends Tissue&lt;E&gt;&gt;(FutureOr&lt;bool&gt; Function(dynamic object, {C? host, dynamic arguments, dynamic user}) rule, {TestTissue&lt;E, C&gt;? parent, dynamic user})</code> — pinned at <code>cell_tissue: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Tissue.md</code> §3 "TestTissue — considering factors" (#tissue-testtissue)</td>
 <td>** <code>example/cell_tissue_example.dart</code></td>
 <td></td>
@@ -164,7 +164,7 @@ drift.</p>
 </tr>
 <tr>
 <td>See <code>HowTo-Mitose-Tissue.md</code> §9 "Anti-patterns".</td>
-<td>** <code>TissueList&lt;E&gt;({bind, context, receptor, testRule, synapses, growable})</code> / <code>TissueList.of(iterable, {...})</code> / <code>TissueList.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.0.0</code></td>
+<td>** <code>TissueList&lt;E&gt;({bind, context, receptor, testRule, synapses, growable})</code> / <code>TissueList.of(iterable, {...})</code> / <code>TissueList.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Tissue.md</code> §2.1 "TissueList — the audit book" (#tissue-list)</td>
 <td>** <code>example/cell_tissue_example.dart</code></td>
 <td></td>
@@ -188,7 +188,7 @@ drift.</p>
 </tr>
 <tr>
 <td>This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-test.dart</code>. A new Map per bag — the payload on <code>V</code> carries the many.</td>
-<td>** <code>TissueMap&lt;K, V&gt;({bind, context, testRule, receptor, synapses, ...})</code> / <code>TissueMap.of(entries, {...})</code> / <code>TissueMap.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.0.0</code></td>
+<td>** <code>TissueMap&lt;K, V&gt;({bind, context, testRule, receptor, synapses, ...})</code> / <code>TissueMap.of(entries, {...})</code> / <code>TissueMap.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Tissue.md</code> §2.3 "TissueMap — open work keyed by location" (#tissue-map)</td>
 <td>** <code>example/cell_tissue_example.dart</code></td>
 <td></td>
@@ -236,7 +236,7 @@ drift.</p>
 </tr>
 <tr>
 <td>See <code>HowTo-Mitose-Tissue.md</code> §2.4 "TissueQueue — outbound work".</td>
-<td>** <code>TissueQueue&lt;E&gt;({bind, context, testRule, receptor, synapses, ...})</code> / <code>TissueQueue.of(iterable, {...})</code> / <code>TissueQueue.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.0.0</code></td>
+<td>** <code>TissueQueue&lt;E&gt;({bind, context, testRule, receptor, synapses, ...})</code> / <code>TissueQueue.of(iterable, {...})</code> / <code>TissueQueue.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Tissue.md</code> §2.4 "TissueQueue — outbound work" (#tissue-queue)</td>
 <td>** <code>example/cell_tissue_example.dart</code></td>
 <td></td>
@@ -276,7 +276,7 @@ drift.</p>
 </tr>
 <tr>
 <td>See <code>HowTo-Mitose-Tissue.md</code> §9 "Anti-patterns".</td>
-<td>** <code>TissueSet&lt;E&gt;(Iterable&lt;E&gt; elements, {bind, context, testRule, receptor, synapses, ...})</code> / <code>TissueSet.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.0.0</code></td>
+<td>** <code>TissueSet&lt;E&gt;(Iterable&lt;E&gt; elements, {bind, context, testRule, receptor, synapses, ...})</code> / <code>TissueSet.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Tissue.md</code> §2.2 "TissueSet — the guard register" (#tissue-set)</td>
 <td>** <code>example/cell_tissue_example.dart</code></td>
 <td></td>
@@ -300,7 +300,7 @@ drift.</p>
 </tr>
 <tr>
 <td>This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-test.dart</code>. <code>Cell.state&lt;int&gt;</code> when the WalkThrough named a reserve book.</td>
-<td>** <code>TissueValue&lt;V&gt;(V? value, {bind, context, testRule, receptor, synapses, finalValue})</code> / <code>TissueValue.empty({...})</code> / <code>TissueValue.unmodifiable(bind)</code> — pinned at <code>cell_tissue: 1.0.0</code></td>
+<td>** <code>TissueValue&lt;V&gt;(V? value, {bind, context, testRule, receptor, synapses, finalValue})</code> / <code>TissueValue.empty({...})</code> / <code>TissueValue.unmodifiable(bind)</code> — pinned at <code>cell_tissue: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Tissue.md</code> §2.5 "TissueValue — the reserve scalar" (#tissue-value)</td>
 <td>** <code>example/cell_tissue_example.dart</code></td>
 <td></td>
@@ -310,7 +310,7 @@ drift.</p>
 <td><code>Unmodifiable</code></td>
 <td>** COMPLY / council views — <code>book.unmodifiable</code> is a <strong>live</strong> zero-copy view, not a snapshot; use <code>.deputy(testRule: …)</code> for a narrowed write set.</td>
 <td>** a daily PDF roll-up (that is a harness <strong>read</strong>, not a view); never keep two books "for compliance".</td>
-<td>** <code>abstract interface class UnmodifiableTissue&lt;E&gt; implements Tissue&lt;E&gt;, Unmodifiable</code> — pinned at <code>cell_tissue: 1.0.0</code></td>
+<td>** <code>abstract interface class UnmodifiableTissue&lt;E&gt; implements Tissue&lt;E&gt;, Unmodifiable</code> — pinned at <code>cell_tissue: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Tissue.md</code> §4 "Deputies and .unmodifiable" (#tissue-deputies)</td>
 <td>** <code>example/cell_tissue_example.dart</code></td>
 </tr>
@@ -374,7 +374,7 @@ drift.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

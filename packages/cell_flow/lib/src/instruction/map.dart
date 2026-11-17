@@ -232,7 +232,7 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// **Layer:** Flow — projection operator (Rx `map`). Not a Cell factory, not a Tissue book.
 /// **When to use:** project a rich `*Decision` onto the narrow seam enum — required on the Cell-variant chain; **never** inside the custom instruction.
 /// **When NOT to use:** emitting a level directly from the decision itself (the instruction emits the rich decision; `MapValue` narrows it).
-/// **Live signature:** `MapValue<S, T>(T Function(S value) project, {MapErrorHandler? onError, dynamic user})` — pinned at `cell_flow: 1.0.0`
+/// **Live signature:** `MapValue<S, T>(T Function(S value) project, {MapErrorHandler? onError, dynamic user})` — pinned at `cell_flow: 1.1.0`
 /// **Do NOT confuse with:** `Map` (dart:core, a data structure; this is a Flow projection operator).
 /// **Guide:** `HowTo-Mitose-Flow.md` §3.2 "Transform" (#flow-transform)
 /// **Example:** `example/cell_flow_example.dart`

@@ -108,7 +108,7 @@ print(evolved.type); // 'counter' (inherited)
 <p><strong>Layer:</strong> Cell — this is the graph's message, not an operator (Flow), not a book (Tissue).
 <strong>When to use:</strong> read <code>pulse.payload</code>, <code>pulse.source</code>, <code>pulse.type</code> in observers; create one for manual injection (<code>Pulse(value, type: '...')</code>).
 <strong>When NOT to use:</strong> as a storage unit — state lives in <code>Cell.state</code> / Tissue books; pulses are immutable signals.
-<strong>Live signature:</strong> <code>Pulse&lt;P&gt;(P? payload, {dynamic type, Cell? source, int? priority, String? step})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Live signature:</strong> <code>Pulse&lt;P&gt;(P? payload, {dynamic type, Cell? source, int? priority, String? step})</code> — pinned at <code>cell: 2.0.0</code>
 <strong>Do NOT confuse with:</strong> <code>TissuePulse</code> (the collection-event variant in <code>cell_tissue</code>).
 <strong>Guide:</strong> <code>guide/HowTo-Pulse.md</code> (pulse anatomy)
 <strong>Example:</strong> <code>example/ingress_demo.dart</code>
@@ -1111,7 +1111,7 @@ causal chain.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

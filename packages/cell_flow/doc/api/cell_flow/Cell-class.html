@@ -133,7 +133,7 @@ not in a Cell receptor.
 See <code>HowTo-Mitose-Flow.md</code> §4 "When the BRD requires a custom FlowInstruction".
   <code>Cell.gate</code>, <code>Cell.book</code>, <code>Cell.policy</code>, <code>Cell.pipeline</code> <strong>do not exist</strong>.
 The full public factory list is in <code>HowTo-Mitose-Cell.md</code> §2.
-<strong>Live signature:</strong> <code>abstract interface class Cell</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Live signature:</strong> <code>abstract interface class Cell</code> — pinned at <code>cell: 2.0.0</code>
 <strong>Do NOT confuse with:</strong> <code>ValueCell</code> (the concrete stateful type returned by <code>Cell.state</code>).
 <strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)
 <strong>Example:</strong> <code>example/cell_example.dart</code>
@@ -240,6 +240,18 @@ authority, and causal lineage of this specific <a href="../cell_flow/Cell-class.
 <dd class="inherited">
   The hash code for this object.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="id" class="property">
+  <span class="name"><a href="../cell_flow/Cell/id.html">id</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  A stable, serialisable identifier for this cell handle.
+  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
@@ -598,7 +610,7 @@ instruction designed to perform side-effects without altering pulse evolution.
     <h2>Static Methods</h2>
     <dl class="callables">
         <dt id="asyncMap" class="callable">
-  <span class="name"><a href="../cell_flow/Cell/asyncMap.html">asyncMap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="asyncMap-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span><span class="parameter" id="asyncMap-param-mapper"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">mapper</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), {</span><span class="parameter" id="asyncMap-param-concurrency"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">concurrency</span> = <span class="default-value">0</span>, </span><span class="parameter" id="asyncMap-param-latestOnly"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">latestOnly</span> = <span class="default-value">false</span>, </span><span class="parameter" id="asyncMap-param-exhaust"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">exhaust</span> = <span class="default-value">false</span></span>})
+  <span class="name"><a href="../cell_flow/Cell/asyncMap.html">asyncMap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="asyncMap-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span><span class="parameter" id="asyncMap-param-mapper"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">mapper</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span>, {</span><span class="parameter" id="param-journal"><span>required</span> <span class="type-annotation"><a href="../cell_flow/EffectJournal-class.html">EffectJournal</a></span> <span class="parameter-name">journal</span></span>}), {</span><span class="parameter" id="asyncMap-param-journal"><span>required</span> <span class="type-annotation"><a href="../cell_flow/EffectJournal-class.html">EffectJournal</a></span> <span class="parameter-name">journal</span>, </span><span class="parameter" id="asyncMap-param-concurrency"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">concurrency</span> = <span class="default-value">0</span>, </span><span class="parameter" id="asyncMap-param-latestOnly"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">latestOnly</span> = <span class="default-value">false</span>, </span><span class="parameter" id="asyncMap-param-exhaust"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">exhaust</span> = <span class="default-value">false</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell_flow/Cell-class.html">Cell</a></span>
   </span>
   
@@ -612,7 +624,7 @@ runs background tasks for every emission from an upstream source.
 </dd>
 
         <dt id="debounce" class="callable">
-  <span class="name"><a href="../cell_flow/Cell/debounce.html">debounce</a></span><span class="signature">(<wbr><span class="parameter" id="debounce-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span><span class="parameter" id="debounce-param-duration"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, {</span><span class="parameter" id="debounce-param-leading"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">leading</span> = <span class="default-value">false</span>, </span><span class="parameter" id="debounce-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_flow/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span></span>})
+  <span class="name"><a href="../cell_flow/Cell/debounce.html">debounce</a></span><span class="signature">(<wbr><span class="parameter" id="debounce-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span><span class="parameter" id="debounce-param-duration"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, {</span><span class="parameter" id="debounce-param-journal"><span>required</span> <span class="type-annotation"><a href="../cell_flow/EffectJournal-class.html">EffectJournal</a></span> <span class="parameter-name">journal</span>, </span><span class="parameter" id="debounce-param-leading"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">leading</span> = <span class="default-value">false</span>, </span><span class="parameter" id="debounce-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_flow/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell_flow/Cell-class.html">Cell</a></span>
   </span>
   
@@ -653,7 +665,7 @@ of an existing source cell.
 </dd>
 
         <dt id="fromFuture" class="callable">
-  <span class="name"><a href="../cell_flow/Cell/fromFuture.html">fromFuture</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="fromFuture-param-future"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">future</span></span>)
+  <span class="name"><a href="../cell_flow/Cell/fromFuture.html">fromFuture</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="fromFuture-param-future"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">future</span>, {</span><span class="parameter" id="fromFuture-param-journal"><span>required</span> <span class="type-annotation"><a href="../cell_flow/EffectJournal-class.html">EffectJournal</a></span> <span class="parameter-name">journal</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell_flow/Cell-class.html">Cell</a></span>
   </span>
   
@@ -666,7 +678,7 @@ of an existing source cell.
 </dd>
 
         <dt id="fromStream" class="callable">
-  <span class="name"><a href="../cell_flow/Cell/fromStream.html">fromStream</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="fromStream-param-stream"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">stream</span>, {</span><span class="parameter" id="fromStream-param-cancelOnError"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">cancelOnError</span> = <span class="default-value">false</span>, </span><span class="parameter" id="fromStream-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_flow/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span></span>})
+  <span class="name"><a href="../cell_flow/Cell/fromStream.html">fromStream</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="fromStream-param-stream"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">stream</span>, {</span><span class="parameter" id="fromStream-param-journal"><span>required</span> <span class="type-annotation"><a href="../cell_flow/EffectJournal-class.html">EffectJournal</a></span> <span class="parameter-name">journal</span>, </span><span class="parameter" id="fromStream-param-cancelOnError"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">cancelOnError</span> = <span class="default-value">false</span>, </span><span class="parameter" id="fromStream-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_flow/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell_flow/Cell-class.html">Cell</a></span>
   </span>
   
@@ -702,6 +714,20 @@ a reactive demultiplexer, directing signals to specialized handlers.
 <dd>
   Synthesizes a <strong>Stateless Event Gateway</strong>—the primary entry point for
 bridging imperative signals into the reactive graph.
+  
+
+</dd>
+
+        <dt id="latestPulse" class="callable">
+  <span class="name"><a href="../cell_flow/Cell/latestPulse.html">latestPulse</a></span><span class="signature">(<wbr><span class="parameter" id="latestPulse-param-cell"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/Pulse-class.html">Pulse</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Last pulse retained for late subscribers, or <code>null</code> if <code>cell</code> has not
+emitted one.
   
 
 </dd>
@@ -793,7 +819,7 @@ for merging disparate data streams into a unified reactive output.
 </dd>
 
         <dt id="throttle" class="callable">
-  <span class="name"><a href="../cell_flow/Cell/throttle.html">throttle</a></span><span class="signature">(<wbr><span class="parameter" id="throttle-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span><span class="parameter" id="throttle-param-duration"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, {</span><span class="parameter" id="throttle-param-leading"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">leading</span> = <span class="default-value">true</span>, </span><span class="parameter" id="throttle-param-trailing"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">trailing</span> = <span class="default-value">false</span></span>})
+  <span class="name"><a href="../cell_flow/Cell/throttle.html">throttle</a></span><span class="signature">(<wbr><span class="parameter" id="throttle-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span><span class="parameter" id="throttle-param-duration"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, {</span><span class="parameter" id="throttle-param-journal"><span>required</span> <span class="type-annotation"><a href="../cell_flow/EffectJournal-class.html">EffectJournal</a></span> <span class="parameter-name">journal</span>, </span><span class="parameter" id="throttle-param-leading"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">leading</span> = <span class="default-value">true</span>, </span><span class="parameter" id="throttle-param-trailing"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">trailing</span> = <span class="default-value">false</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell_flow/Cell-class.html">Cell</a></span>
   </span>
   
@@ -874,7 +900,7 @@ reactive circuit breaker, controlling signal propagation through the graph.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

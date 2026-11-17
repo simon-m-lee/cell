@@ -404,7 +404,7 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
 /// **When NOT to use:**
 ///   {@macro ai-do-not-testcell-on-tissue}
 ///   {@macro ai-do-not-dart-list-as-system-of-record}
-/// **Live signature:** `TissueList<E>({bind, context, receptor, testRule, synapses, growable})` / `TissueList.of(iterable, {...})` / `TissueList.unmodifiable(bind, {...})` — pinned at `cell_tissue: 1.0.0`
+/// **Live signature:** `TissueList<E>({bind, context, receptor, testRule, synapses, growable})` / `TissueList.of(iterable, {...})` / `TissueList.unmodifiable(bind, {...})` — pinned at `cell_tissue: 1.1.0`
 /// **Do NOT confuse with:** `TissueQueue` (FIFO work, not indexable history) and `TissueSet` (unique membership, order not the story).
 /// **Guide:** `HowTo-Mitose-Tissue.md` §2.1 "TissueList — the audit book" (#tissue-list)
 /// **Example:** `example/cell_tissue_example.dart`

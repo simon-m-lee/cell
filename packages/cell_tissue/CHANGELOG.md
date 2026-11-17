@@ -5,6 +5,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Version numbers follow [SemVer](https://semver.org/). **Tissue** is the
 release codename; it is not part of the SemVer string.
 
+## Tissue (1.1.0) - Cell 2.0.0 Dependency
+
+- **Dependency floor**: `cell: ^2.0.0` (was `^1.1.0`) — the Causal Replay
+  release. The Tissue API surface is unchanged; this release re-publishes
+  the package against the new core so the pub.dev dependency graph resolves
+  (`cell` `2.0.0` cannot resolve against the old `^1.1.0` floor).
+  `cell_flow: ^1.0.0` is unchanged and resolves `cell_flow` `1.1.0`.
+- **Verification**: full suite (362 tests) passes against `cell` `2.0.0`;
+  analyzer clean; AI-guide pins and the generated API chooser refreshed to
+  `cell_tissue` `1.1.0`.
+
 ## Tissue (1.0.0) - Stable Release
 
 Stable release formalizing the **Forensic Application Layer** for reactive collections. This version establishes the audit-ready command model, finalizes factory signatures, and completes reactive engine hardening.

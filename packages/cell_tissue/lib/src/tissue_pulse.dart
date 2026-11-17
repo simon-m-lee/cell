@@ -415,7 +415,7 @@ class TissueEventShell<E> extends PulseShell<E, TissueReceptor>
 /// **Layer:** Tissue — the book's event signal. Not a Cell factory, not a Flow operator.
 /// **When to use:** optional second-order observe on a book (e.g. UI shows the audit log live); app observers in a Cell-variant Demo still sit on the **gate Cell**.
 /// **When NOT to use:** as the decision signal — Tissue records, Flow decides.
-/// **Live signature:** `abstract interface class TissuePulse<E> implements Pulse<E>` — pinned at `cell_tissue: 1.0.0`
+/// **Live signature:** `abstract interface class TissuePulse<E> implements Pulse<E>` — pinned at `cell_tissue: 1.1.0`
 /// **Do NOT confuse with:** `Pulse` (the generic graph signal; this is a collection event).
 /// **Guide:** `HowTo-Mitose-Tissue.md` §1 "What Tissue owns in a Demo" (#tissue-owns)
 /// **Example:** `example/cell_tissue_example.dart`

@@ -142,7 +142,7 @@ inputs are processed one at a time in a safe, isolated block.</li>
 <p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
 <strong>When to use:</strong> Late-bind a device / module after boot, or manually manage link/unlink topology.
 <strong>When NOT to use:</strong> standard external facts — use <code>Cell.ingress</code>; rare in v1 Demos.
-<strong>Live signature:</strong> <code>Cell.open({ephemeralPolicy, context, source, receptor, testRule, synapses, forceLock})</code> → <code>OpenCell</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Live signature:</strong> <code>Cell.open({ephemeralPolicy, context, source, receptor, testRule, synapses, forceLock})</code> → <code>OpenCell</code> — pinned at <code>cell: 2.0.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell.ingress</code> (fixed single-path entry).
 <strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)
 <strong>Example:</strong> <code>example/open_cell_demo.dart</code>
@@ -203,7 +203,7 @@ o.emit(Pulse('hello'));
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

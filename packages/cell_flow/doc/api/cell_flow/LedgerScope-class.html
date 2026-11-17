@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the LedgerScope class from the cell_flow library, for the Dart programming language.">
+  <title>LedgerScope class - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li><a href="../cell_flow/">cell_flow.dart</a></li>
+    <li class="self-crumb">LedgerScope class</li>
+  </ol>
+  <div class="self-name">LedgerScope</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flow&#47;cell_flow-library-sidebar.html"
+    data-below-sidebar="cell_flow&#47;LedgerScope-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">LedgerScope</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>The graph-scoped ambient that coordinates state capture and ledger
+append.</p>
+<h3 id="when-to-use">When to use</h3>
+<p><code>LedgerScope</code> is <strong>not</strong> per-pulse (that is <code>JournalScope</code>'s role);
+it lives for the lifetime of a <a href="../cell_flow/CellGraph-class.html">CellGraph</a>'s binding to a <a href="../cell_flow/Ledger-class.html">Ledger</a>.
+It provides two functions:</p>
+<ul>
+<li><a href="../cell_flow/LedgerScope/captureDelta.html">captureDelta</a> — called by <code>ValueCell.postProcessRule</code> when a cell
+commits a new value. Appends the delta to the <em>current pulse's</em>
+pending list. No-op if no <code>Ledger</code> is bound.</li>
+<li><a href="../cell_flow/LedgerScope/recordPulse.html">recordPulse</a> — called by <code>Cell.apply</code> and the <code>ValueCell</code>
+emit path after the receptor has produced its output. Takes the
+pulse, the receipt, and the effects from the active <code>JournalScope</code>,
+combines them with the deltas captured during the pulse's
+processing, and calls <code>Ledger.appendInternal</code>.</li>
+</ul>
+<h3 id="why-the-split">Why the split</h3>
+<p><code>postProcessRule</code> runs <em>inside</em> the receptor pipeline (it is the
+"postProcess" stage). It has access to <code>(before, after)</code> and to the
+cell's id, but <strong>not</strong> to the <code>ApplyReceipt</code> — the receipt is created
+by <code>Cell.apply</code> <em>before</em> the receptor runs. Conversely, <code>Cell.apply</code>
+has the receipt but cannot observe the delta (the receptor is opaque).
+The two halves must meet somewhere; <code>LedgerScope</code> is that meeting
+point.</p>
+<h3 id="non-obvious-no-scope-means-no-ledger">Non-obvious: no scope means no ledger</h3>
+<p>If no <code>LedgerScope</code> is active (a cell used outside a <code>CellGraph</code>),
+<a href="../cell_flow/LedgerScope/captureDelta.html">captureDelta</a> and <a href="../cell_flow/LedgerScope/recordPulse.html">recordPulse</a> are silent no-ops. This is what
+keeps existing code working: the framework's default is <em>not</em> to
+record, and recording is an opt-in provided by <code>CellGraph</code> +
+<a href="../cell_flow/Ledger-class.html">Ledger</a>. A user who wants auditable state binds a ledger; a user who
+does not, does not pay.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell_flow/CellGraph/run.html">CellGraph.run</a> — pushes a scope around a body of work.</li>
+<li><a href="../cell_flow/JournalScope-class.html">JournalScope</a> — the per-pulse stack this scope coordinates with.</li>
+</ul>
+</section>
+
+
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="LedgerScope.new" class="callable">
+          <span class="name"><a href="../cell_flow/LedgerScope/LedgerScope.html">LedgerScope</a></span><span class="signature">()</span>
+        </dt>
+        <dd>
+          
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section class="summary offset-anchor" id="static-properties">
+    <h2>Static Properties</h2>
+    <dl class="properties">
+        <dt id="current" class="property">
+  <span class="name"><a href="../cell_flow/LedgerScope/current.html">current</a></span>
+  <span class="signature">&#8594; <a href="../cell_flow/LedgerScopeImpl-class.html">LedgerScopeImpl</a>?</span>
+  
+
+</dt>
+<dd>
+  The currently active scope, or <code>null</code> if no ledger is bound.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section class="summary offset-anchor" id="static-methods">
+    <h2>Static Methods</h2>
+    <dl class="callables">
+        <dt id="captureDelta" class="callable">
+  <span class="name"><a href="../cell_flow/LedgerScope/captureDelta.html">captureDelta</a></span><span class="signature">(<wbr><span class="parameter" id="captureDelta-param-delta"><span class="type-annotation"><a href="../cell_flow/StateDelta-class.html">StateDelta</a></span> <span class="parameter-name">delta</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Capture a delta from <code>ValueCell.postProcessRule</code>. No-op if no scope
+is active.
+  
+
+</dd>
+
+        <dt id="captureEffect" class="callable">
+  <span class="name"><a href="../cell_flow/LedgerScope/captureEffect.html">captureEffect</a></span><span class="signature">(<wbr><span class="parameter" id="captureEffect-param-record"><span class="type-annotation"><a href="../cell_flow/EffectRecord-class.html">EffectRecord</a></span> <span class="parameter-name">record</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Hands an operator-recorded effect to the current scope. The effect
+is attributed to the pending pulse window; the append at window
+close carries it in the entry's <code>effects</code> list.
+  
+
+</dd>
+
+        <dt id="recordPulse" class="callable">
+  <span class="name"><a href="../cell_flow/LedgerScope/recordPulse.html">recordPulse</a></span><span class="signature">(<wbr>{<span class="parameter" id="recordPulse-param-pulse"><span>required</span> <span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, </span><span class="parameter" id="recordPulse-param-receipt"><span class="type-annotation"><a href="../cell_flow/ApplyReceipt.html">ApplyReceipt</a>?</span> <span class="parameter-name">receipt</span>, </span><span class="parameter" id="recordPulse-param-emitCell"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a>?</span> <span class="parameter-name">emitCell</span>, </span><span class="parameter" id="recordPulse-param-emitFunction"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">emitFunction</span>, </span><span class="parameter" id="recordPulse-param-emittedValue"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">emittedValue</span></span>})
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Records a completed pulse through the active scope (if any). When
+no receipt exists (the direct <code>ValueCell</code> emit path), a synthetic
+receipt is produced from <code>emitCell</code> and <code>emitFunction</code>. The caller
+remains synchronous: the append is queued on the scope's
+serialisation chain and drained when the enclosing <a href="../cell_flow/LedgerScope/run.html">run</a> completes.
+  
+
+</dd>
+
+        <dt id="recordPulseDeferred" class="callable">
+  <span class="name"><a href="../cell_flow/LedgerScope/recordPulseDeferred.html">recordPulseDeferred</a></span><span class="signature">(<wbr>{<span class="parameter" id="recordPulseDeferred-param-pulse"><span>required</span> <span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, </span><span class="parameter" id="recordPulseDeferred-param-receipt"><span class="type-annotation"><a href="../cell_flow/ApplyReceipt.html">ApplyReceipt</a>?</span> <span class="parameter-name">receipt</span>, </span><span class="parameter" id="recordPulseDeferred-param-emitCell"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a>?</span> <span class="parameter-name">emitCell</span>, </span><span class="parameter" id="recordPulseDeferred-param-emitFunction"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">emitFunction</span>, </span><span class="parameter" id="recordPulseDeferred-param-emittedValue"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">emittedValue</span></span>})
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Records a pulse whose <em>observable settlement</em> happens
+asynchronously (ingress emits whose downstream operators
+perform effects in detached continuations). The entry is appended
+one event-loop turn later — after the microtask queue settles, and
+with it the operator's cooperative <a href="../cell_flow/LedgerScope/captureEffect.html">captureEffect</a> calls — so the
+entry carries the effects and deltas the pulse actually produced.
+  
+
+</dd>
+
+        <dt id="run" class="callable">
+  <span class="name"><a href="../cell_flow/LedgerScope/run.html">run</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="run-param-scope"><span class="type-annotation"><a href="../cell_flow/LedgerScopeImpl-class.html">LedgerScopeImpl</a></span> <span class="parameter-name">scope</span>, </span><span class="parameter" id="run-param-body"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">body</span>()</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Runs <code>body</code> with <code>scope</code> pushed. Pops on exit (success or error),
+and drains the scope's queued appends before returning so a
+synchronous <code>body</code> that performed <code>ValueCell.update</code>s has its
+entries committed by the time this resolves.
+  
+
+</dd>
+
+        <dt id="runSync" class="callable">
+  <span class="name"><a href="../cell_flow/LedgerScope/runSync.html">runSync</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="runSync-param-scope"><span class="type-annotation"><a href="../cell_flow/LedgerScopeImpl-class.html">LedgerScopeImpl</a></span> <span class="parameter-name">scope</span>, </span><span class="parameter" id="runSync-param-body"><span class="type-annotation">T</span> <span class="parameter-name">body</span>()</span>)
+    <span class="returntype parameter">&#8594; T</span>
+  </span>
+  
+
+</dt>
+<dd>
+  The synchronous variant. Used by <code>ValueCell.postProcessRule</code>, which
+is synchronous.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li><a href="../cell_flow/">cell_flow</a></li>
+    <li class="self-crumb">LedgerScope class</li>
+</ol>
+
+    <h5>cell_flow library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

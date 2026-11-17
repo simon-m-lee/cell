@@ -425,7 +425,7 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
 /// **When NOT to use:**
 ///   {@macro ai-do-not-testcell-on-tissue}
 ///   `Cell.state<int>` when the WalkThrough named a reserve book.
-/// **Live signature:** `TissueValue<V>(V? value, {bind, context, testRule, receptor, synapses, finalValue})` / `TissueValue.empty({...})` / `TissueValue.unmodifiable(bind)` — pinned at `cell_tissue: 1.0.0`
+/// **Live signature:** `TissueValue<V>(V? value, {bind, context, testRule, receptor, synapses, finalValue})` / `TissueValue.empty({...})` / `TissueValue.unmodifiable(bind)` — pinned at `cell_tissue: 1.1.0`
 /// **Do NOT confuse with:** `Cell.state` (retained setting without Tissue semantics).
 /// **Guide:** `HowTo-Mitose-Tissue.md` §2.5 "TissueValue — the reserve scalar" (#tissue-value)
 /// **Example:** `example/cell_tissue_example.dart`

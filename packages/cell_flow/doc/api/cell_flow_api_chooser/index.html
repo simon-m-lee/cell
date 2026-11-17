@@ -107,7 +107,7 @@ drift.</p>
 </tr>
 <tr>
 <td>See <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip". With a custom <code>equals</code>, membership degrades to a linear scan over seen values (O(n²) worst case) until the code fix lands — prefer a keyed variant or a TissueSet-backed latch for hot paths.</td>
-<td>** <code>Distinct&lt;S&gt;({bool Function(S previous, S next)? equals, DistinctErrorHandler? onError, dynamic user})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Distinct&lt;S&gt;({bool Function(S previous, S next)? equals, DistinctErrorHandler? onError, dynamic user})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)</td>
 <td>** <code>example/distinct_noise_reduction_demo.dart</code></td>
 <td></td>
@@ -117,7 +117,7 @@ drift.</p>
 <td><code>DistinctUntilChanged</code></td>
 <td>** drop back-to-back duplicates only (heartbeats, no-change ticks) — <code>1, 2, 1</code> still emits three times.</td>
 <td>** global dedupe — that is <code>Distinct</code>; and never when an ACK must reset the latch (no <code>reset()</code>).</td>
-<td>** <code>DistinctUntilChanged&lt;S&gt;({bool Function(S previous, S next)? equals, DistinctErrorHandler? onError, dynamic user})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>DistinctUntilChanged&lt;S&gt;({bool Function(S previous, S next)? equals, DistinctErrorHandler? onError, dynamic user})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)</td>
 <td>** <code>example/distinct_noise_reduction_demo.dart</code></td>
 </tr>
@@ -125,7 +125,7 @@ drift.</p>
 <td><code>Filter</code></td>
 <td>** drop <code>none</code> / keep only <code>atRisk</code> on a stock chain, or a single-predicate pass before <code>MapValue</code>.</td>
 <td>** clause-ordered policy with a resettable latch — that is a custom <code>FlowInstructionBase</code> (stock <code>Filter</code> has no <code>reset()</code>).</td>
-<td>** <code>Filter&lt;S&gt;(bool Function(S value) test, {FilterErrorHandler? onError, dynamic user})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Filter&lt;S&gt;(bool Function(S value) test, {FilterErrorHandler? onError, dynamic user})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)</td>
 <td>** <code>example/filter_data_quality_demo.dart</code></td>
 </tr>
@@ -133,7 +133,7 @@ drift.</p>
 <td><code>Flow</code></td>
 <td>** walk §3 families of <code>HowTo-Mitose-Flow.md</code> against the BRD before writing a custom instruction; <code>Flow.*</code> covers feed adapters and adjacent journeys.</td>
 <td>** the <strong>decision</strong> gate of a Cell-variant Demo — that is <code>FlowInstructionBase</code> + <code>+</code> + <code>toHandle</code> (one Receptor, one lock).</td>
-<td>** <code>abstract class Flow</code> — static factories return <code>FlowHandle</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>abstract class Flow</code> — static factories return <code>FlowHandle</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3 "Examine the catalog against the BRD" (#flow-catalog)</td>
 <td>** <code>example/cell_flow_example.dart</code></td>
 </tr>
@@ -141,7 +141,7 @@ drift.</p>
 <td><code>Flow.asyncMapLatest</code></td>
 <td>** latest search / latest flight on stand — a new pulse cancels the previous in-flight result.</td>
 <td>** parallel lookups (<code>asyncMapConcurrent</code>) or ordered I/O (<code>asyncMap</code>).</td>
-<td>** <code>Flow.asyncMapLatest&lt;S, T&gt;(Cell source, {required FutureOr&lt;T&gt; Function(S value) mapper, AsyncMapErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.asyncMapLatest&lt;S, T&gt;(Cell source, {required FutureOr&lt;T&gt; Function(S value) mapper, AsyncMapErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)</td>
 <td>** <code>example/async_map_parallel_search_demo.dart</code></td>
 </tr>
@@ -149,7 +149,7 @@ drift.</p>
 <td><code>Flow.combineLatestWith</code></td>
 <td>** "one screen from occupancy + inbound + boarded" — emit whenever any source emits, with the latest of all.</td>
 <td>** index pairing (<code>zipWith</code>) or a Cell-variant Tick that the harness assembles in Dart (say so in Real desk).</td>
-<td>** <code>Flow.combineLatestWith&lt;S, R&gt;(Cell source, {required List&lt;Cell&gt; others, required R Function(S sourceValue, List&lt;Object?&gt; latest) combine, CombineErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.combineLatestWith&lt;S, R&gt;(Cell source, {required List&lt;Cell&gt; others, required R Function(S sourceValue, List&lt;Object?&gt; latest) combine, CombineErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.5 "Combine" (#flow-combine)</td>
 <td>** <code>example/combine_latest_sync_demo.dart</code></td>
 </tr>
@@ -157,7 +157,7 @@ drift.</p>
 <td><code>Flow.concatMap</code></td>
 <td>** order of issuer calls matters — each inner sequence finishes before the next starts (queue inners).</td>
 <td>** parallel I/O (mergeMap) or latest-only (switchMap).</td>
-<td>** <code>Flow.concatMap&lt;S, T&gt;(Cell source, {required FutureOr&lt;Object?&gt; Function(S value) project})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.concatMap&lt;S, T&gt;(Cell source, {required FutureOr&lt;Object?&gt; Function(S value) project})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)</td>
 <td>** <code>example/cell_flow_example.dart</code></td>
 </tr>
@@ -187,7 +187,7 @@ drift.</p>
 </tr>
 <tr>
 <td>See <code>HowTo-Mitose-Flow.md</code> §3.6 "Time".</td>
-<td>** <code>Flow.debounce&lt;S&gt;(Cell source, {required Duration duration})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.debounce&lt;S&gt;(Cell source, {required Duration duration})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.6 "Time" (#flow-time)</td>
 <td>** <code>example/stability_search_demo.dart</code></td>
 <td></td>
@@ -197,7 +197,7 @@ drift.</p>
 <td><code>Flow.distinct</code></td>
 <td>** "do not flood the log" on a 15 s feed — drop any payload seen before.</td>
 <td>** an ACK-resettable latch (stock <code>Distinct</code> has no <code>reset()</code> — use a custom instruction).</td>
-<td>** <code>Flow.distinct&lt;S&gt;(Cell source)</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.distinct&lt;S&gt;(Cell source)</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)</td>
 <td>** <code>example/distinct_noise_reduction_demo.dart</code></td>
 </tr>
@@ -205,7 +205,7 @@ drift.</p>
 <td><code>Flow.exhaustMap</code></td>
 <td>** prevent double submit / double checkout / double ACK — triggers while an inner sequence is busy are dropped.</td>
 <td>** a busy-flag pattern hand-rolled in the instruction (known race in <code>ExhaustMapLatest</code>: set the busy flag <strong>before</strong> scheduling the inner work; prefer this operator for outbound pumps).</td>
-<td>** <code>Flow.exhaustMap&lt;S, T&gt;(Cell source, {required FutureOr&lt;Object?&gt; Function(S value) project})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.exhaustMap&lt;S, T&gt;(Cell source, {required FutureOr&lt;Object?&gt; Function(S value) project})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)</td>
 <td>** <code>example/exhaust_map_submit_checkout_demo.dart</code></td>
 </tr>
@@ -213,7 +213,7 @@ drift.</p>
 <td><code>Flow.filter</code></td>
 <td>** drop <code>none</code> / keep only <code>atRisk</code> on a stock chain, or a single-predicate pass before <code>MapValue</code>.</td>
 <td>** clause-ordered policy with a resettable latch — that is a custom <code>FlowInstructionBase</code>.</td>
-<td>** <code>Flow.filter&lt;S&gt;(Cell source, {required bool Function(S value) test})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.filter&lt;S&gt;(Cell source, {required bool Function(S value) test})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)</td>
 <td>** <code>example/filter_data_quality_demo.dart</code></td>
 </tr>
@@ -221,7 +221,7 @@ drift.</p>
 <td><code>Flow.fromFuture</code></td>
 <td>** one AODB lookup / config load per arm trigger; emits the single future result.</td>
 <td>** continuous sources — that is <code>Flow.fromStream</code>.</td>
-<td>** <code>Flow.fromFuture&lt;S&gt;(Cell source, {required Future&lt;S&gt; future, Duration? timeout, FutureErrorHandler? onError, bool emitErrorPulse = true})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.fromFuture&lt;S&gt;(Cell source, {required Future&lt;S&gt; future, Duration? timeout, FutureErrorHandler? onError, bool emitErrorPulse = true})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.1 "Create" (#flow-create)</td>
 <td>** <code>example/from_future_forensic_pipeline_demo.dart</code></td>
 </tr>
@@ -229,7 +229,7 @@ drift.</p>
 <td><code>Flow.fromStream</code></td>
 <td>** the belt PLC is already a Dart <code>Stream</code> — bridge it into the graph.</td>
 <td>** a single value (<code>Flow.fromFuture</code>) or imperative callbacks (<code>Cell.ingress</code>).</td>
-<td>** <code>Flow.fromStream&lt;S&gt;(Cell source, {required Stream&lt;S&gt; stream, StreamErrorHandler? onError, bool emitErrorPulse = true})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.fromStream&lt;S&gt;(Cell source, {required Stream&lt;S&gt; stream, StreamErrorHandler? onError, bool emitErrorPulse = true})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.1 "Create" (#flow-create)</td>
 <td>** <code>example/from_stream_realtime_data_demo.dart</code></td>
 </tr>
@@ -237,7 +237,7 @@ drift.</p>
 <td><code>Flow.groupBy</code></td>
 <td>** group bag alerts by belt (FR-08) — emit <code>Grouped(key, value)</code> per pulse.</td>
 <td>** the WalkThrough often chooses a <code>TissueMap</code> key instead; do not run both without saying which is the system of record.</td>
-<td>** <code>Flow.groupBy&lt;S, K&gt;(Cell source, {required K Function(S value) keyOf, GroupErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.groupBy&lt;S, K&gt;(Cell source, {required K Function(S value) keyOf, GroupErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.7 "Collect / control" (#flow-collect-control)</td>
 <td>** <code>example/cell_flow_example.dart</code></td>
 </tr>
@@ -245,7 +245,7 @@ drift.</p>
 <td><code>Flow.map</code></td>
 <td>** project a payload on a stock chain; the facade over <code>MapValue</code>.</td>
 <td>** the rich-<code>*Decision</code> → seam-enum projection on a Cell-variant chain — use the <code>MapValue</code> class so it can join <code>+</code> chains.</td>
-<td>** <code>Flow.map&lt;S, T&gt;(Cell source, {required T Function(S value) project, MapErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.map&lt;S, T&gt;(Cell source, {required T Function(S value) project, MapErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.2 "Transform" (#flow-transform)</td>
 <td>** <code>example/cell_flow_example.dart</code></td>
 </tr>
@@ -253,7 +253,7 @@ drift.</p>
 <td><code>Flow.mergeMap</code></td>
 <td>** parallel CAD lookups / independent I/O per trigger; results in completion order.</td>
 <td>** order matters (concatMap) or only the latest matters (switchMap).</td>
-<td>** <code>Flow.mergeMap&lt;S, T&gt;(Cell source, {required FutureOr&lt;Object?&gt; Function(S value) project})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.mergeMap&lt;S, T&gt;(Cell source, {required FutureOr&lt;Object?&gt; Function(S value) project})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)</td>
 <td>** <code>example/async_map_parallel_search_demo.dart</code></td>
 </tr>
@@ -261,7 +261,7 @@ drift.</p>
 <td><code>Flow.mergeWith</code></td>
 <td>** interleave pulses from several sources into one gate ("merge clicks from two widgets").</td>
 <td>** value pairing — use <code>zipWith</code> / <code>combineLatestWith</code>; a Cell-variant Tick is usually assembled in the harness instead.</td>
-<td>** <code>Flow.mergeWith&lt;T&gt;(Cell source, {required List&lt;Cell&gt; others})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.mergeWith&lt;T&gt;(Cell source, {required List&lt;Cell&gt; others})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.5 "Combine" (#flow-combine)</td>
 <td>** <code>example/merge_stream_aggregation_demo.dart</code></td>
 </tr>
@@ -269,7 +269,7 @@ drift.</p>
 <td><code>Flow.of</code></td>
 <td>** replay a fixed fixture list of values on the first trigger (test data, init values).</td>
 <td>** v1 industry Demos usually <code>tickIn.emit</code> from the harness instead of Create operators.</td>
-<td>** <code>Flow.of&lt;T&gt;(Cell source, {required Iterable&lt;T&gt; values})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.of&lt;T&gt;(Cell source, {required Iterable&lt;T&gt; values})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.1 "Create" (#flow-create)</td>
 <td>** <code>example/cell_flow_example.dart</code></td>
 </tr>
@@ -277,7 +277,7 @@ drift.</p>
 <td><code>Flow.pluck</code></td>
 <td>** extract one named field from a record/map payload.</td>
 <td>** the rich-<code>*Decision</code> → seam-enum projection — that is <code>MapValue</code>.</td>
-<td>** <code>Flow.pluck&lt;T&gt;(Cell source, {required Object key, PluckErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.pluck&lt;T&gt;(Cell source, {required Object key, PluckErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.2 "Transform" (#flow-transform)</td>
 <td>** <code>example/cell_flow_example.dart</code></td>
 </tr>
@@ -285,7 +285,7 @@ drift.</p>
 <td><code>Flow.race</code></td>
 <td>** first feed that answers wins (two lookups, keep the faster).</td>
 <td>** deterministic pairing (<code>zipWith</code>) or all-sources screens (<code>combineLatestWith</code>).</td>
-<td>** <code>Flow.race&lt;T&gt;(Cell source, {required List&lt;Object?&gt; competitors})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.race&lt;T&gt;(Cell source, {required List&lt;Object?&gt; competitors})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.5 "Combine" (#flow-combine)</td>
 <td>** <code>example/retry_timeout_flaky_network_demo.dart</code></td>
 </tr>
@@ -293,7 +293,7 @@ drift.</p>
 <td><code>Flow.retry</code></td>
 <td>** flaky RTU / issuer — retry a <code>FutureOr</code> task up to <code>count</code> times on the <strong>outbound pump Cell</strong>.</td>
 <td>** inside <code>riskOf</code> (policy is pure); a harness <code>_driveAlert</code> retry-once is the usual v1 alternative.</td>
-<td>** <code>Flow.retry&lt;S, T&gt;(Cell source, {required RetryTask&lt;S, T&gt; task, int count = 3, RetryErrorHandler? onError, bool emitErrorPulse = true})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.retry&lt;S, T&gt;(Cell source, {required RetryTask&lt;S, T&gt; task, int count = 3, RetryErrorHandler? onError, bool emitErrorPulse = true})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.7 "Collect / control" (#flow-collect-control)</td>
 <td>** <code>example/retry_timeout_flaky_network_demo.dart</code></td>
 </tr>
@@ -301,7 +301,7 @@ drift.</p>
 <td><code>Flow.scan</code></td>
 <td>** running totals / cumulative state emitted per pulse.</td>
 <td>** a retained reserve — that is a <code>TissueValue</code> with an invariant in <code>cell_tissue</code>.</td>
-<td>** <code>Flow.scan&lt;S, A&gt;(Cell source, {required A Function(A acc, S value) accumulate})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.scan&lt;S, A&gt;(Cell source, {required A Function(A acc, S value) accumulate})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.2 "Transform" (#flow-transform)</td>
 <td>** <code>example/start_with_scan_ui_demo.dart</code></td>
 </tr>
@@ -309,7 +309,7 @@ drift.</p>
 <td><code>Flow.skip</code></td>
 <td>** ignore the first N pulses (seed / warm-up / header rows).</td>
 <td>** named policy filtering — that is <code>Flow.filter</code> or a custom instruction.</td>
-<td>** <code>Flow.skip&lt;S&gt;(Cell source, {required int count})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.skip&lt;S&gt;(Cell source, {required int count})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)</td>
 <td>** <code>example/cell_flow_example.dart</code></td>
 </tr>
@@ -317,7 +317,7 @@ drift.</p>
 <td><code>Flow.switchMap</code></td>
 <td>** "latest reservation / flight / search only" — a new trigger cancels the previous inner sequence.</td>
 <td>** parallel CAD lookups (mergeMap) or ordered calls (concatMap).</td>
-<td>** <code>Flow.switchMap&lt;S, T&gt;(Cell source, {required FutureOr&lt;Object?&gt; Function(S value) project})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.switchMap&lt;S, T&gt;(Cell source, {required FutureOr&lt;Object?&gt; Function(S value) project})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)</td>
 <td>** <code>example/switch_map_dynamic_dependency_demo.dart</code></td>
 </tr>
@@ -325,7 +325,7 @@ drift.</p>
 <td><code>Flow.take</code></td>
 <td>** first N alerts only; cap a burst; prefetch a page.</td>
 <td>** "first N alerts" in a Cell-variant Demo is usually a book concern (Tissue), not a chain operator.</td>
-<td>** <code>Flow.take&lt;S&gt;(Cell source, {required int count})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.take&lt;S&gt;(Cell source, {required int count})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)</td>
 <td>** <code>example/cell_flow_example.dart</code></td>
 </tr>
@@ -355,7 +355,7 @@ drift.</p>
 </tr>
 <tr>
 <td>See <code>HowTo-Mitose-Flow.md</code> §3.7 "Collect / control".</td>
-<td>** <code>Flow.tap&lt;S&gt;(Cell source, {required void Function(S value) onValue, TapErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.tap&lt;S&gt;(Cell source, {required void Function(S value) onValue, TapErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.7 "Collect / control" (#flow-collect-control)</td>
 <td>** <code>example/tap_logging_analytics_demo.dart</code></td>
 <td></td>
@@ -387,7 +387,7 @@ drift.</p>
 </tr>
 <tr>
 <td>See <code>HowTo-Mitose-Flow.md</code> §3.6 "Time".</td>
-<td>** <code>Flow.throttle&lt;S&gt;(Cell source, {required Duration duration, bool leading = true, bool trailing = false})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.throttle&lt;S&gt;(Cell source, {required Duration duration, bool leading = true, bool trailing = false})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.6 "Time" (#flow-time)</td>
 <td>** <code>example/throttle_rate_limiting_demo.dart</code></td>
 <td></td>
@@ -397,7 +397,7 @@ drift.</p>
 <td><code>Flow.timeout</code></td>
 <td>** "raise if stopped &gt; 60 s" style deadlines on an adjacent I/O cell — emits an error pulse if silence exceeds the duration.</td>
 <td>** ACK-within-N-minutes journeys in v1 (that is a tick-field / clock concern, not a chain operator); never as the policy gate.</td>
-<td>** <code>Flow.timeout&lt;S&gt;(Cell source, {required Duration duration, TimeoutErrorHandler? onError, bool emitErrorPulse = true})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Flow.timeout&lt;S&gt;(Cell source, {required Duration duration, TimeoutErrorHandler? onError, bool emitErrorPulse = true})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.6 "Time" (#flow-time)</td>
 <td>** <code>example/retry_timeout_flaky_network_demo.dart</code></td>
 </tr>
@@ -427,7 +427,7 @@ drift.</p>
 </tr>
 <tr>
 <td>See <code>HowTo-Mitose-Flow.md</code> §1 and §4.</td>
-<td>** <code>typedef FlowHandle = ({Cell cell, void Function(dynamic) emit, Future&lt;void&gt; Function(dynamic) emitAsync, ...})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>typedef FlowHandle = ({Cell cell, void Function(dynamic) emit, Future&lt;void&gt; Function(dynamic) emitAsync, ...})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §4 "When the BRD requires a custom FlowInstruction" (#flow-custom-instruction)</td>
 <td>** <code>example/cell_flow_example.dart</code></td>
 <td></td>
@@ -437,7 +437,7 @@ drift.</p>
 <td><code>FlowInstruction</code></td>
 <td>** type the chain (<code>FlowInstruction&lt;Cell, Pulse, Pulse&gt;</code>), compose with <code>+</code>, or write a small stateless gate closure.</td>
 <td>** clause-ordered policy with a resettable latch — subclass <code>FlowInstructionBase</code> instead (a bare closure cannot <code>reset()</code>).</td>
-<td>** <code>FlowInstruction&lt;C, I, O&gt;(O? Function(I pulse, {C? cell, dynamic user}) instruction, {dynamic user})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>FlowInstruction&lt;C, I, O&gt;(O? Function(I pulse, {C? cell, dynamic user}) instruction, {dynamic user})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §4 "When the BRD requires a custom FlowInstruction" (#flow-custom-instruction)</td>
 <td>** <code>example/cell_flow_example.dart</code></td>
 </tr>
@@ -483,7 +483,7 @@ drift.</p>
 </tr>
 <tr>
 <td>See <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)".</td>
-<td>** <code>class X extends FlowInstructionBase&lt;Cell, Pulse, Pulse&gt; { X(..., {required pass}); static Level riskOf(...); Level? lastDecision; Level get pass; void reset(); }</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>class X extends FlowInstructionBase&lt;Cell, Pulse, Pulse&gt; { X(..., {required pass}); static Level riskOf(...); Level? lastDecision; Level get pass; void reset(); }</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §4 "When the BRD requires a custom FlowInstruction" (#flow-custom-instruction)</td>
 <td>** <code>example/ICU-alarm-pipeline-Demo.dart</code></td>
 <td></td>
@@ -493,7 +493,7 @@ drift.</p>
 <td><code>MapValue</code></td>
 <td>** project a rich <code>*Decision</code> onto the narrow seam enum — required on the Cell-variant chain; <strong>never</strong> inside the custom instruction.</td>
 <td>** emitting a level directly from the decision itself (the instruction emits the rich decision; <code>MapValue</code> narrows it).</td>
-<td>** <code>MapValue&lt;S, T&gt;(T Function(S value) project, {MapErrorHandler? onError, dynamic user})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>MapValue&lt;S, T&gt;(T Function(S value) project, {MapErrorHandler? onError, dynamic user})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.2 "Transform" (#flow-transform)</td>
 <td>** <code>example/cell_flow_example.dart</code></td>
 </tr>
@@ -523,7 +523,7 @@ drift.</p>
 </tr>
 <tr>
 <td>See <code>HowTo-Mitose-Flow.md</code> §3.7 "Collect / control".</td>
-<td>** <code>Tap&lt;S&gt;(void Function(S value) onValue, {TapErrorHandler? onError, dynamic user})</code> — pinned at <code>cell_flow: 1.0.0</code></td>
+<td>** <code>Tap&lt;S&gt;(void Function(S value) onValue, {TapErrorHandler? onError, dynamic user})</code> — pinned at <code>cell_flow: 1.1.0</code></td>
 <td>** <code>HowTo-Mitose-Flow.md</code> §3.7 "Collect / control" (#flow-collect-control)</td>
 <td>** <code>example/tap_logging_analytics_demo.dart</code></td>
 <td></td>
@@ -589,7 +589,7 @@ drift.</p>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

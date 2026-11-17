@@ -56,6 +56,7 @@
       
 <span class="returntype"><a href="../../cell_flow/Cell-class.html">Cell</a></span>
 <span class="name ">fromStream</span>&lt;<wbr><span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="fromStream-param-stream"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">stream</span>, {</span></li>
+<li><span class="parameter" id="fromStream-param-journal"><span>required</span> <span class="type-annotation"><a href="../../cell_flow/EffectJournal-class.html">EffectJournal</a></span> <span class="parameter-name">journal</span>, </span></li>
 <li><span class="parameter" id="fromStream-param-cancelOnError"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">cancelOnError</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="fromStream-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell_flow/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
 </ol>})
@@ -132,13 +133,16 @@ walkthrough of bridging external real-time data.
 <p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
 <strong>When to use:</strong> bridge an existing Dart <code>Stream</code> (PLC belt, WebSocket, <code>Stream.periodic</code>) into the graph.
 <strong>When NOT to use:</strong> a single value — that is <code>Cell.fromFuture</code>; imperative callbacks — that is <code>Cell.ingress</code>.
-<strong>Live signature:</strong> <code>Cell.fromStream&lt;T&gt;(Stream&lt;T&gt; stream, {bool cancelOnError = false, EphemeralPolicy? ephemeralPolicy})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Live signature:</strong> <code>Cell.fromStream&lt;T&gt;(Stream&lt;T&gt; stream, {required EffectJournal journal, bool cancelOnError = false, EphemeralPolicy? ephemeralPolicy})</code> — pinned at <code>cell: 2.0.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell.fromFuture</code> (single value, not a sequence).
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.1 "Create" (#flow-create)
 <strong>Example:</strong> <code>test/operator_from_stream_test.dart</code>
 <strong>Cross-layer:</strong> the orchestration equivalent is <code>Flow.fromStream</code> in <code>cell_flow</code>.
 <strong>Minimal compilable example</strong></p>
-<pre class="language-dart"><code class="language-dart">final s = Cell.fromStream&lt;int&gt;(Stream.fromIterable([1, 2, 3]));
+<pre class="language-dart"><code class="language-dart">final s = Cell.fromStream&lt;int&gt;(
+  Stream.fromIterable([1, 2, 3]),
+  journal: RecordingJournal(),
+);
 final o = Cell.observe(source: s, effect: (Pulse p) =&gt; print(p.payload));
 await Future&lt;void&gt;.delayed(const Duration(milliseconds: 30));
 o.stop();
@@ -151,11 +155,13 @@ o.stop();
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static Cell fromStream&lt;T&gt;(
   Stream&lt;T&gt; stream, {
+  required EffectJournal journal,
   bool cancelOnError = false,
   EphemeralPolicy? ephemeralPolicy,
 }) =&gt;
     _fromStream&lt;T&gt;(
       stream,
+      journal: journal,
       cancelOnError: cancelOnError,
       ephemeralPolicy: ephemeralPolicy,
     );</code></pre>
@@ -186,7 +192,7 @@ o.stop();
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

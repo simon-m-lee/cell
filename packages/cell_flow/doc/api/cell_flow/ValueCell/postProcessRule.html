@@ -73,7 +73,44 @@ by <code>ValueCell</code> and <code>ValueNucleus</code>. You don't need to call 
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static Instruction postProcessRule =
     Instruction&lt;ValueCell, Pulse, Pulse&gt;((pulse, {cell, user}) {
-  cell!._nucleus.state.value = pulse.payload;
+  final scope = LedgerScope.current;
+  if (scope == null) {
+    cell!._nucleus.state.value = pulse.payload;
+    return pulse;
+  }
+
+  &#47;&#47; Capture the delta if a ledger is bound. The encoding
+  &#47;&#47; happens BEFORE the commit: a non-JSON-encodable payload must
+  &#47;&#47; never reach the state box. The entry points (_emit&#47;apply) already
+  &#47;&#47; validate the common path loudly at the caller&#39;s call site; this
+  &#47;&#47; pre-commit check closes the residual path where a transform
+  &#47;&#47; produces a non-encodable payload (the pipeline&#39;s error contract
+  &#47;&#47; swallows a throw here, so the write is simply dropped instead of
+  &#47;&#47; committed-and-silently-unrecorded).
+  final before = cell!._nucleus.state.value;
+  final Object? encodedBefore;
+  final Object? encodedAfter;
+  try {
+    encodedBefore = _encodeForLedger(before);
+    encodedAfter = _encodeForLedger(pulse.payload);
+  } catch (e, st) {
+    &#47;&#47; Hardening (review fix): the pipeline&#39;s error contract
+    &#47;&#47; swallows a throw here, which used to mean &quot;write silently
+    &#47;&#47; dropped and unrecorded&quot; with no observable signal at all. Fail
+    &#47;&#47; the pulse instead — the drop is now visible on the pulse&#39;s
+    &#47;&#47; onError channel, and the ledger&#39;s deferred window still records
+    &#47;&#47; the pulse (with its empty deltas) so the failure is part of the
+    &#47;&#47; history rather than a hole in it.
+    (pulse as PulseBase)._fail(e, stackTrace: st);
+    return pulse;
+  }
+  cell._nucleus.state.value = pulse.payload;
+  scope.captureDelta(StateDelta(
+    cellId: cell.id,
+    before: encodedBefore,
+    after: encodedAfter,
+    at: DateTime.now(),
+  ));
   return pulse;
 });</code></pre>
 </section>
@@ -104,7 +141,7 @@ by <code>ValueCell</code> and <code>ValueNucleus</code>. You don't need to call 
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

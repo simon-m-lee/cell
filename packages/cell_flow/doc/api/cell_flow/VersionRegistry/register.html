@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the register method from the VersionRegistry class, for the Dart programming language.">
+  <title>register method - VersionRegistry class - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">cell_flow.dart</a></li>
+    <li><a href="../../cell_flow/VersionRegistry-class.html">VersionRegistry</a></li>
+    <li class="self-crumb">register method</li>
+  </ol>
+  <div class="self-name">register</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flow&#47;VersionRegistry-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">register</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype">void</span>
+<span class="name ">register</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="register-param-cellId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">cellId</span>, </span></li>
+<li><span class="parameter" id="register-param-version"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">version</span>, </span></li>
+<li><span class="parameter" id="register-param-receptor"><span>required</span> <span class="type-annotation"><a href="../../cell_flow/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span>, </span></li>
+<li><span class="parameter" id="register-param-testRule"><span>required</span> <span class="type-annotation"><a href="../../cell_flow/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Registers <code>receptor</code> and <code>testRule</code> as the implementation for
+<code>cellId</code> at <code>version</code>. Both must have the same version string.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>Registering the same <code>(cellId, version)</code> twice is a no-op if the
+implementations are identical (by identity); otherwise it throws
+<a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a> — a version must map to exactly one implementation.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>cellId</code>: The cell whose historical implementation is registered.</li>
+<li><code>version</code>: The version string both implementations report.</li>
+<li><code>receptor</code>: The historical receptor.</li>
+<li><code>testRule</code>: The historical test rule.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">void register({
+  required String cellId,
+  required String version,
+  required Receptor receptor,
+  required TestCell testRule,
+}) {
+  if (receptor.version != version || testRule.version != version) {
+    throw StateError(
+      &#39;VersionRegistry.register: receptor.version=${receptor.version} &#39;
+      &#39;and testRule.version=${testRule.version} must both equal &#39;
+      &#39;version=&quot;$version&quot;.&#39;,
+    );
+  }
+  final byVersion = _byCellVersion.putIfAbsent(cellId, () =&gt; {});
+  final existing = byVersion[version];
+  if (existing != null) {
+    if (identical(existing.receptor, receptor) &amp;&amp;
+        identical(existing.testRule, testRule)) {
+      return; &#47;&#47; identical re-registration is a no-op
+    }
+    throw StateError(
+      &#39;VersionRegistry: (&quot;$cellId&quot;, &quot;$version&quot;) is already registered &#39;
+      &#39;with different implementations. A version must map to exactly &#39;
+      &#39;one (receptor, testRule) pair.&#39;,
+    );
+  }
+  byVersion[version] =
+      _VersionedImpl(receptor: receptor, testRule: testRule);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">cell_flow</a></li>
+    <li><a href="../../cell_flow/VersionRegistry-class.html">VersionRegistry</a></li>
+    <li class="self-crumb">register method</li>
+</ol>
+
+    <h5>VersionRegistry class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

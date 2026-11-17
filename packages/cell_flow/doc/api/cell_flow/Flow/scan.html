@@ -124,7 +124,7 @@ nums.emit(3); // -&gt; 6
 <p><strong>Layer:</strong> Flow — accumulation operator. Not a Cell factory, not a Tissue book.
 <strong>When to use:</strong> running totals / cumulative state emitted per pulse.
 <strong>When NOT to use:</strong> a retained reserve — that is a <code>TissueValue</code> with an invariant in <code>cell_tissue</code>.
-<strong>Live signature:</strong> <code>Flow.scan&lt;S, A&gt;(Cell source, {required A Function(A acc, S value) accumulate})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Live signature:</strong> <code>Flow.scan&lt;S, A&gt;(Cell source, {required A Function(A acc, S value) accumulate})</code> — pinned at <code>cell_flow: 1.1.0</code>
 <strong>Do NOT confuse with:</strong> <code>Flow.reduce</code> (emits only the final accumulated value).
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.2 "Transform" (#flow-transform)
 <strong>Example:</strong> <code>example/start_with_scan_ui_demo.dart</code>
@@ -175,7 +175,7 @@ o.stop();
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

@@ -55,7 +55,7 @@
     <section class="multi-line-signature">
       
       <span class="name ">ValueCell&lt;<wbr><span class="type-parameter">V</span>&gt;.fromNucleus</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="fromNucleus-param-nucleus"><span class="type-annotation"><a href="../../cell_tissue/ValueNucleus-class.html">ValueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">nucleus</span>, {</span></li>
-<li><span class="parameter" id="fromNucleus-param-initial"><span class="type-annotation">V?</span> <span class="parameter-name">initial</span>, </span></li>
+<li><span class="parameter" id="fromNucleus-param-initial"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">initial</span> = <span class="default-value">_seedUnset</span>, </span></li>
 </ol>})
     </section>
     
@@ -72,22 +72,21 @@ directly (bypassing the transform).</p>
 <ul>
 <li><code>nucleus</code>: <strong>Required.</strong> The <a href="../../cell_tissue/ValueNucleus-class.html">ValueNucleus</a> that defines the behavior,
 storage schema, and environmental <a href="../../cell_tissue/Context-class.html">Context</a> for this cell.</li>
-<li><code>initial</code>: An optional initial state of type <code>V?</code>. If provided, it
-populates the cell's storage immediately, overwriting any
-previous data in the nucleus's associated <a href="../../cell_tissue/Box-class.html">Box</a>.</li>
+<li><code>initial</code>: An optional initial state of type <code>V?</code>. When passed —
+including an explicit <code>null</code> — it overwrites whatever the nucleus
+currently holds. Omitting it leaves the nucleus untouched.</li>
 </ul>
-<h3 id="returns">Returns:</h3>
-<p>A fully hydrated <a href="../../cell_tissue/ValueCell-class.html">ValueCell</a> instance ready for reactive interaction.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">ValueCell.fromNucleus(ValueNucleus&lt;V&gt; super.nucleus, {V? initial})
+  <pre class="language-dart"><code class="language-dart">ValueCell.fromNucleus(ValueNucleus&lt;V&gt; super.nucleus,
+    {Object? initial = _seedUnset})
     : super.fromNucleus() {
-  if (initial != null) {
-    _nucleus.state.value = initial;
+  if (!identical(initial, _seedUnset)) {
+    _nucleus.state.value = initial as V?;
   }
 }</code></pre>
 </section>
@@ -117,7 +116,7 @@ previous data in the nucleus's associated <a href="../../cell_tissue/Box-class.h
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

@@ -59,7 +59,7 @@ symbol carries a machine-readable <code>### AI Agent Guide</code> block, and the
 below let an agent reliably pick the right book and generate code that
 compiles against the live API.</p>
 <ol>
-<li><strong>Version pin:</strong> <code>cell 1.1.0</code>, <code>cell_flow 1.0.0</code>, <code>cell_tissue 1.0.0</code>.</li>
+<li><strong>Version pin:</strong> <code>cell 2.0.0</code>, <code>cell_flow 1.1.0</code>, <code>cell_tissue 1.1.0</code>.</li>
 <li><strong>Preflight:</strong> <code>dart run tool/ai_preflight.dart</code> — prints the resolved versions and any stale pins.</li>
 <li><strong>API chooser:</strong> <code>lib/doc/api_chooser.dart</code> (generated from the <code>### AI Agent Guide</code> doc blocks).</li>
 <li><strong>Layer guides:</strong>
@@ -278,7 +278,7 @@ plumbing, and interoperates seamlessly with the rest of the Cell ecosystem.</p>
 <h2 id="installation">Installation</h2>
 <p>Add <code>cell_tissue</code> to your <code>pubspec.yaml</code>:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
-  cell_tissue: ^1.0.0-rc.9
+  cell_tissue: ^1.0.0
 </code></pre>
 <p>Then run:</p>
 <pre class="language-bash"><code class="language-bash">dart pub get
@@ -950,10 +950,8 @@ the demos, or read the demos themselves in this order:</p>
 </ol>
 <hr>
 <h2 id="status--known-gaps">Status &amp; Known Gaps</h2>
-<p><strong>Release Candidate on pub.dev</strong> (<code>1.0.0-rc.9</code>). The stable release <code>1.0.0</code>
-is prepared in this repository (see
-<a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/CHANGELOG.md">CHANGELOG.md</a>)
-and not yet published.</p>
+<p><strong>Stable on pub.dev</strong> (<code>1.1.0</code>, shipped with <code>cell</code> <code>2.0.0</code>, <code>cell_flow</code> <code>1.1.0</code>, and <code>mitosis</code> <code>3.0.0</code>). See
+<a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/CHANGELOG.md">CHANGELOG.md</a>.</p>
 <ul>
 <li><code>example/</code> ships four demos; <code>test/</code> passes <strong>362/362</strong> tests.</li>
 <li>Some dartdoc snippets are stale — use <code>TissueList.of([...])</code> rather than
@@ -1114,7 +1112,7 @@ reactive containers in <code>cell_tissue</code>.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

@@ -141,7 +141,7 @@ synthesis and deferred clearance.</li>
 <p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
 <strong>When to use:</strong> capability attenuation — read-only or narrowed-write views of a Cell for untrusted callers (UI, auditors).
 <strong>When NOT to use:</strong> to widen permissions (a deputy can only narrow); use <code>.unmodifiable</code> for the fixed read-only case.
-<strong>Live signature:</strong> <code>FutureOr&lt;Cell&gt; deputy({DeputyContext context = DeputyContext.system, TestCell testRule = TestCell.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Live signature:</strong> <code>FutureOr&lt;Cell&gt; deputy({DeputyContext context = DeputyContext.system, TestCell testRule = TestCell.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled})</code> — pinned at <code>cell: 2.0.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell.unmodifiable</code> (fixed read-only deputy).
 <strong>Guide:</strong> <code>guide/HowTo-DeputyContext.md</code> (deputies)
 <strong>Example:</strong> <code>example/cell_example.dart</code>
@@ -190,7 +190,7 @@ print(d);
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

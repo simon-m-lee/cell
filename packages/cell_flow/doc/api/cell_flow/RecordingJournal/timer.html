@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the timer method from the RecordingJournal class, for the Dart programming language.">
+  <title>timer method - RecordingJournal class - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">cell_flow.dart</a></li>
+    <li><a href="../../cell_flow/RecordingJournal-class.html">RecordingJournal</a></li>
+    <li class="self-crumb">timer method</li>
+  </ol>
+  <div class="self-name">timer</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flow&#47;RecordingJournal-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">timer</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+<span class="name ">timer</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="timer-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, </span></li>
+<li><span class="parameter" id="timer-param-input"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">input</span>, </span></li>
+<li><span class="parameter" id="timer-param-onFire"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span> <span class="parameter-name">onFire</span>(), </span></li>
+<li><span class="parameter" id="timer-param-fireAtEnd"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">fireAtEnd</span> = <span class="default-value">false</span>, </span></li>
+</ol>})
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Record (or replay) a timer firing. <code>duration</code> is the scheduled
+window; the journal records both the schedule and the fire time so
+that replay reproduces the same interleaving.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The <code>onFire</code> callback is invoked by the journal at the appropriate
+moment. On the recording side, the actual <code>Timer</code> is scheduled and
+the callback is called when it fires. On the replay side, the
+callback is called in journal order, not against a real timer. This
+is what makes <code>debounce</code>/<code>throttle</code> replayable.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>duration</code>: The scheduled window.</li>
+<li><code>input</code>: The timer's input; its fingerprint is recorded.</li>
+<li><code>onFire</code>: The callback to invoke when the timer fires.</li>
+<li><code>fireAtEnd</code>: Hints the ENGINE replay semantics: <code>true</code> for timers
+whose fire is an OUTPUT (a debounce trailing edge — it must run
+after the entry loop so the downstream write lands where the
+recording's did), <code>false</code> for timers whose fire is INTERNAL state
+(a throttle gate release — it must run promptly so the next entry
+sees the released gate). Recording ignores the hint.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+Future&lt;void&gt; timer({
+  required Duration duration,
+  required Object? input,
+  required FutureOr&lt;void&gt; Function() onFire,
+  bool fireAtEnd = false,
+}) async {
+  final at = _clockSource();
+  &#47;&#47; Review fix: append the record BEFORE awaiting the fire callback.
+  &#47;&#47; Any effects the callback performs are nested inside the timer;
+  &#47;&#47; appending after the callback placed them BEFORE the timer record
+  &#47;&#47; in the journal, and the replay side consumes the timer record
+  &#47;&#47; first — an inversion that diverged for nested effects. The
+  &#47;&#47; recorded `firedAtMillis` therefore approximates the schedule&#47;fire
+  &#47;&#47; moment rather than a post-fire timestamp (forensic only; replay
+  &#47;&#47; never validates it).
+  _records.add(TimerEffect(
+    ordinal: _nextOrdinal++,
+    inputDigest: fingerprint(input),
+    outputDigest: fingerprint(at.millisecondsSinceEpoch),
+    at: at,
+    scheduled: duration,
+    scheduledAtMillis: at.millisecondsSinceEpoch,
+    firedAtMillis: at.millisecondsSinceEpoch,
+  ));
+  await _timerScheduler(duration, onFire);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">cell_flow</a></li>
+    <li><a href="../../cell_flow/RecordingJournal-class.html">RecordingJournal</a></li>
+    <li class="self-crumb">timer method</li>
+</ol>
+
+    <h5>RecordingJournal class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

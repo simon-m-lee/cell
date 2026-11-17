@@ -170,7 +170,7 @@ walkthrough of pattern matching, priority ordering, and multicast routing.
 <p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
 <strong>When to use:</strong> One bus with many pulse types routed by <code>Pulse.type</code> (pattern / prefix / multicast).
 <strong>When NOT to use:</strong> v1 product lanes — two <code>Cell.ingress</code> lanes are simpler; do not replace a policy instruction.
-<strong>Live signature:</strong> <code>Cell.hub({spokes, governedSpokes, registrations, routing, multicast, fallback, distribution, relay, source})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Live signature:</strong> <code>Cell.hub({spokes, governedSpokes, registrations, routing, multicast, fallback, distribution, relay, source})</code> — pinned at <code>cell: 2.0.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell.ingress</code> (single-path entry, no routing).
 <strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)
 <strong>Example:</strong> <code>example/hub_demo.dart</code>
@@ -237,7 +237,7 @@ print(hub.root);
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

@@ -305,6 +305,55 @@ whatever else is listening.
   The foundational abstract implementation of the <a href="../cell_flow/Cell-class.html">Cell</a> interface.
 </dd>
 
+          <dt id="CellGraph">
+  <span class="name "><a href="../cell_flow/CellGraph-class.html">CellGraph</a></span> 
+
+</dt>
+<dd>
+  A registered cell graph: the unit of identity and replay in the
+framework.
+</dd>
+
+          <dt id="CellGraphBuilder">
+  <span class="name "><a href="../cell_flow/CellGraphBuilder-class.html">CellGraphBuilder</a></span> 
+
+</dt>
+<dd>
+  The entry point for constructing a <a href="../cell_flow/CellGraph-class.html">CellGraph</a>.
+</dd>
+
+          <dt id="CellGraphRegistry">
+  <span class="name "><a href="../cell_flow/CellGraphRegistry-class.html">CellGraphRegistry</a></span> 
+
+</dt>
+<dd>
+  Public read-only access to the cell id registry.
+</dd>
+
+          <dt id="CellGraphSnapshot">
+  <span class="name "><a href="../cell_flow/CellGraphSnapshot-class.html">CellGraphSnapshot</a></span> 
+
+</dt>
+<dd>
+  A serialisable snapshot of an entire cell graph.
+</dd>
+
+          <dt id="CellSnapshot">
+  <span class="name "><a href="../cell_flow/CellSnapshot-class.html">CellSnapshot</a></span> 
+
+</dt>
+<dd>
+  A serialisable projection of one cell's identity and current value.
+</dd>
+
+          <dt id="ClockEffect">
+  <span class="name "><a href="../cell_flow/ClockEffect-class.html">ClockEffect</a></span> 
+
+</dt>
+<dd>
+  A read of the system clock. Records the epoch millis.
+</dd>
+
           <dt id="CollectivePulse">
   <span class="name "><a href="../cell_flow/CollectivePulse-class.html">CollectivePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
 
@@ -348,6 +397,22 @@ boundaries — used by <a href="../cell_flow/TestCell-class.html">TestCell</a> r
 the core logic for <strong>Prototype-based Inheritance</strong> and <strong>Ontological Resolution</strong>.
 </dd>
 
+          <dt id="ContextTranslator">
+  <span class="name "><a href="../cell_flow/ContextTranslator-class.html">ContextTranslator</a></span> 
+
+</dt>
+<dd>
+  Bridges a <a href="../cell_flow/DeputyContext-class.html">DeputyContext</a> across mandate schema versions.
+</dd>
+
+          <dt id="ContextTranslatorRegistry">
+  <span class="name "><a href="../cell_flow/ContextTranslatorRegistry-class.html">ContextTranslatorRegistry</a></span> 
+
+</dt>
+<dd>
+  A simple registry of translators keyed by <code>(from, to)</code>.
+</dd>
+
           <dt id="CycleChecker">
   <span class="name "><a href="../cell_flow/CycleChecker-class.html">CycleChecker</a></span> 
 
@@ -374,6 +439,30 @@ fields in a model class.
 </dt>
 <dd>
   Represents the <strong>Formal Mandate</strong> and declaration of intention for a <a href="../cell_flow/Deputy-mixin.html">Deputy</a>.
+</dd>
+
+          <dt id="DivergenceReport">
+  <span class="name "><a href="../cell_flow/DivergenceReport-class.html">DivergenceReport</a></span> 
+
+</dt>
+<dd>
+  A single point at which a replay diverged from its recording.
+</dd>
+
+          <dt id="EffectJournal">
+  <span class="name "><a href="../cell_flow/EffectJournal-class.html">EffectJournal</a></span> 
+
+</dt>
+<dd>
+  The boundary between a receptor and the outside world.
+</dd>
+
+          <dt id="EffectRecord">
+  <span class="name "><a href="../cell_flow/EffectRecord-class.html">EffectRecord</a></span> 
+
+</dt>
+<dd>
+  A single recorded non-deterministic observation.
 </dd>
 
           <dt id="EmailPattern">
@@ -476,6 +565,31 @@ wrapper designed for fluent orchestration and pipeline assembly.
 within the <strong>Mitosis</strong> topography.
 </dd>
 
+          <dt id="ForkHandle">
+  <span class="name "><a href="../cell_flow/ForkHandle-class.html">ForkHandle</a></span> 
+
+</dt>
+<dd>
+  A forked history.
+</dd>
+
+          <dt id="ForkLedgerStore">
+  <span class="name "><a href="../cell_flow/ForkLedgerStore-class.html">ForkLedgerStore</a></span> 
+
+</dt>
+<dd>
+  A <a href="../cell_flow/LedgerStore-class.html">LedgerStore</a> wrapper that injects a synthetic <a href="../cell_flow/ForkRecord-class.html">ForkRecord</a> entry
+at seq 0.
+</dd>
+
+          <dt id="ForkRecord">
+  <span class="name "><a href="../cell_flow/ForkRecord-class.html">ForkRecord</a></span> 
+
+</dt>
+<dd>
+  The genesis record of a fork ledger.
+</dd>
+
           <dt id="FunctionObject">
   <span class="name "><a href="../cell_flow/FunctionObject-class.html">FunctionObject</a></span> 
 
@@ -512,6 +626,14 @@ behavioral guardrails within the framework's <a href="../cell_flow/Mandate.html"
 governance within the framework's <strong>Scene-Driven Ontology</strong>.
 </dd>
 
+          <dt id="HashChain">
+  <span class="name "><a href="../cell_flow/HashChain-class.html">HashChain</a></span> 
+
+</dt>
+<dd>
+  The rolling hash chain that binds ledger entries.
+</dd>
+
           <dt id="Identity">
   <span class="name "><a href="../cell_flow/Identity-class.html">Identity</a></span> 
 
@@ -526,6 +648,15 @@ governance within the framework's <strong>Scene-Driven Ontology</strong>.
 </dt>
 <dd>
   
+</dd>
+
+          <dt id="InMemoryLedgerStore">
+  <span class="name "><a href="../cell_flow/InMemoryLedgerStore-class.html">InMemoryLedgerStore</a></span> 
+
+</dt>
+<dd>
+  An in-memory <a href="../cell_flow/LedgerStore-class.html">LedgerStore</a>, suitable for tests and for ephemeral
+graphs whose ledger does not need to survive the process.
 </dd>
 
           <dt id="Instruction">
@@ -551,6 +682,66 @@ variants.
 </dt>
 <dd>
   A composite <a href="../cell_flow/Instruction-class.html">Instruction</a> that orchestrates a sequence of processing units.
+</dd>
+
+          <dt id="IoEffect">
+  <span class="name "><a href="../cell_flow/IoEffect-class.html">IoEffect</a></span> 
+
+</dt>
+<dd>
+  A single I/O call (network, disk, database). Records the label, the
+request digest, and the response digest; the <strong>raw response</strong> is held
+only if the caller supplied <code>rawOutput</code>. For replay, <code>rawOutput</code> is
+required — the digest alone cannot reconstruct the response.
+</dd>
+
+          <dt id="JournalScope">
+  <span class="name "><a href="../cell_flow/JournalScope-class.html">JournalScope</a></span> 
+
+</dt>
+<dd>
+  The task-local stack of active journals.
+</dd>
+
+          <dt id="Ledger">
+  <span class="name "><a href="../cell_flow/Ledger-class.html">Ledger</a></span> 
+
+</dt>
+<dd>
+  The durable, hash-chained record of every state transition.
+</dd>
+
+          <dt id="LedgerEntry">
+  <span class="name "><a href="../cell_flow/LedgerEntry-class.html">LedgerEntry</a></span> 
+
+</dt>
+<dd>
+  A single, immutable row in the ledger.
+</dd>
+
+          <dt id="LedgerScope">
+  <span class="name "><a href="../cell_flow/LedgerScope-class.html">LedgerScope</a></span> 
+
+</dt>
+<dd>
+  The graph-scoped ambient that coordinates state capture and ledger
+append.
+</dd>
+
+          <dt id="LedgerScopeImpl">
+  <span class="name "><a href="../cell_flow/LedgerScopeImpl-class.html">LedgerScopeImpl</a></span> 
+
+</dt>
+<dd>
+  The per-graph implementation of the scope.
+</dd>
+
+          <dt id="LedgerStore">
+  <span class="name "><a href="../cell_flow/LedgerStore-class.html">LedgerStore</a></span> 
+
+</dt>
+<dd>
+  The persistence backend for a <a href="../cell_flow/Ledger-class.html">Ledger</a>.
 </dd>
 
           <dt id="Lock">
@@ -624,6 +815,15 @@ separately from the live cell instance.
 a memory-optimized storage engine for reactive cell properties.
 </dd>
 
+          <dt id="NullJournal">
+  <span class="name "><a href="../cell_flow/NullJournal-class.html">NullJournal</a></span> 
+
+</dt>
+<dd>
+  The "no journal in scope" sentinel. Every effectful operation fails
+loudly.
+</dd>
+
           <dt id="OpenCell">
   <span class="name "><a href="../cell_flow/OpenCell-class.html">OpenCell</a></span> 
 
@@ -639,6 +839,22 @@ external stimulus injection and dynamic topology management.
 </dt>
 <dd>
   Represents the <strong>Asynchronous Governance Interface</strong> for an <a href="../cell_flow/OpenCell-class.html">OpenCell</a>.
+</dd>
+
+          <dt id="PolicyReplay">
+  <span class="name "><a href="../cell_flow/PolicyReplay-class.html">PolicyReplay</a></span> 
+
+</dt>
+<dd>
+  Policy-tick journaling for <a href="../cell_flow/EphemeralPolicy-class.html">EphemeralPolicy</a>.
+</dd>
+
+          <dt id="PolicyTickEffect">
+  <span class="name "><a href="../cell_flow/PolicyTickEffect-class.html">PolicyTickEffect</a></span> 
+
+</dt>
+<dd>
+  A single tick of an <a href="../cell_flow/EphemeralPolicy-class.html">EphemeralPolicy</a>.
 </dd>
 
           <dt id="PriorityQueue">
@@ -675,12 +891,29 @@ serving as a specialized <strong>Ranked Execution Buffer</strong> for the reacti
   The foundational blueprint for all nervous signals within the reactive graph.
 </dd>
 
+          <dt id="PulseCodec">
+  <span class="name "><a href="../cell_flow/PulseCodec-class.html">PulseCodec</a></span> 
+
+</dt>
+<dd>
+  Canonical serialiser for <a href="../cell_flow/Pulse-class.html">Pulse</a>.
+</dd>
+
           <dt id="PulseContext">
   <span class="name "><a href="../cell_flow/PulseContext-class.html">PulseContext</a></span> 
 
 </dt>
 <dd>
   Represents the <strong>Causal Identity</strong> and ontological <strong>Provenance</strong> of a <a href="../cell_flow/Pulse-class.html">Pulse</a>.
+</dd>
+
+          <dt id="PulseContextCodec">
+  <span class="name "><a href="../cell_flow/PulseContextCodec-class.html">PulseContextCodec</a></span> 
+
+</dt>
+<dd>
+  Serialises and deserialises <a href="../cell_flow/PulseContext-class.html">PulseContext</a>, preserving the full parent
+chain.
 </dd>
 
           <dt id="PulseEphemeralPolicy">
@@ -690,6 +923,14 @@ serving as a specialized <strong>Ranked Execution Buffer</strong> for the reacti
 <dd>
   A governance policy that defines the <strong>Lifecycle Constraints</strong> and <strong>Termination Logic</strong>
 for a <a href="../cell_flow/Pulse-class.html">Pulse</a> as it traverses the reactive graph.
+</dd>
+
+          <dt id="PulseReconstructor">
+  <span class="name "><a href="../cell_flow/PulseReconstructor-class.html">PulseReconstructor</a></span> 
+
+</dt>
+<dd>
+  Reconstructs the input <a href="../cell_flow/Pulse-class.html">Pulse</a> that produced a <a href="../cell_flow/LedgerEntry-class.html">LedgerEntry</a>.
 </dd>
 
           <dt id="PulseShell">
@@ -736,6 +977,55 @@ non‑blocking pulse processing and lifecycle synchronization.
 core synchronization and pulse propagation engine.
 </dd>
 
+          <dt id="RecordingJournal">
+  <span class="name "><a href="../cell_flow/RecordingJournal-class.html">RecordingJournal</a></span> 
+
+</dt>
+<dd>
+  The recording side of the journal.
+</dd>
+
+          <dt id="RegisteredCell">
+  <span class="name "><a href="../cell_flow/RegisteredCell-class.html">RegisteredCell</a></span> 
+
+</dt>
+<dd>
+  A thin wrapper that pairs a <a href="../cell_flow/Cell-class.html">Cell</a> with its graph-scoped name.
+</dd>
+
+          <dt id="ReplayEngine">
+  <span class="name "><a href="../cell_flow/ReplayEngine-class.html">ReplayEngine</a></span> 
+
+</dt>
+<dd>
+  The replay engine.
+</dd>
+
+          <dt id="ReplayJournal">
+  <span class="name "><a href="../cell_flow/ReplayJournal-class.html">ReplayJournal</a></span> 
+
+</dt>
+<dd>
+  The replay side of the journal.
+</dd>
+
+          <dt id="ReplayOptions">
+  <span class="name "><a href="../cell_flow/ReplayOptions-class.html">ReplayOptions</a></span> 
+
+</dt>
+<dd>
+  Strictness flags that control the replay engine's behaviour when the
+replayed state diverges from the recorded state.
+</dd>
+
+          <dt id="ReplayResult">
+  <span class="name "><a href="../cell_flow/ReplayResult-class.html">ReplayResult</a></span> 
+
+</dt>
+<dd>
+  The result of a <a href="../cell_flow/ReplayEngine/replay.html">ReplayEngine.replay</a> call.
+</dd>
+
           <dt id="Shell">
   <span class="name "><a href="../cell_flow/Shell-class.html">Shell</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
 
@@ -743,6 +1033,23 @@ core synchronization and pulse propagation engine.
 <dd>
   A specialized <strong>Defensive Perimeter</strong> and <strong>Projection Layer</strong> representing
 a formal contract for <strong>Bidirectional Mutual Authorization</strong>.
+</dd>
+
+          <dt id="StateDelta">
+  <span class="name "><a href="../cell_flow/StateDelta-class.html">StateDelta</a></span> 
+
+</dt>
+<dd>
+  A single cell's state change within a ledger entry.
+</dd>
+
+          <dt id="StreamEffect">
+  <span class="name "><a href="../cell_flow/StreamEffect-class.html">StreamEffect</a></span> 
+
+</dt>
+<dd>
+  A stream event. Records the event's stream label, the digest of the
+value, and optionally the raw value.
 </dd>
 
           <dt id="Synapses">
@@ -825,6 +1132,14 @@ functional <a href="../cell_flow/TestActionRule/action.html">action</a> executio
   The central validation gate for a <a href="../cell_flow/Cell-class.html">Cell</a> – it decides what's allowed.
 </dd>
 
+          <dt id="TestCellReplay">
+  <span class="name "><a href="../cell_flow/TestCellReplay-class.html">TestCellReplay</a></span> 
+
+</dt>
+<dd>
+  Purity-aware invocation of a <a href="../cell_flow/TestCell-class.html">TestCell</a>.
+</dd>
+
           <dt id="TestLinkRule">
   <span class="name "><a href="../cell_flow/TestLinkRule-class.html">TestLinkRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> 
 
@@ -858,6 +1173,15 @@ graph formation within the reactive framework.
   A fundamental architectural component representing an <strong>Integrity Gate</strong> or
 <strong>Validation Guard</strong>, responsible for enforcing structural and business
 invariants across the reactive graph.
+</dd>
+
+          <dt id="TimerEffect">
+  <span class="name "><a href="../cell_flow/TimerEffect-class.html">TimerEffect</a></span> 
+
+</dt>
+<dd>
+  A timer firing. Records the scheduled duration and the actual fire
+time; the pair is what makes debounce/throttle replayable.
 </dd>
 
           <dt id="TransactionBegun">
@@ -1047,6 +1371,14 @@ access.
   A specialized read‑only proxy of a <code>ValueCell</code> that enforces immutability.
 </dd>
 
+          <dt id="UuidEffect">
+  <span class="name "><a href="../cell_flow/UuidEffect-class.html">UuidEffect</a></span> 
+
+</dt>
+<dd>
+  A UUID generation. Records the generated UUID.
+</dd>
+
           <dt id="ValidationFailure">
   <span class="name "><a href="../cell_flow/ValidationFailure-class.html">ValidationFailure</a></span> 
 
@@ -1100,6 +1432,23 @@ validate whether a numeric input falls within a specific inclusive boundary.
 is present within a predefined collection of allowed values.
 </dd>
 
+          <dt id="VerdictEffect">
+  <span class="name "><a href="../cell_flow/VerdictEffect-class.html">VerdictEffect</a></span> 
+
+</dt>
+<dd>
+  The decision reached by an <code>effectful</code> <a href="../cell_flow/TestCell-class.html">TestCell</a>.
+</dd>
+
+          <dt id="VersionRegistry">
+  <span class="name "><a href="../cell_flow/VersionRegistry-class.html">VersionRegistry</a></span> 
+
+</dt>
+<dd>
+  Maps <code>(cellId, version)</code> to the receptor and test rule that
+implemented that version.
+</dd>
+
           <dt id="WebsiteUrlPattern">
   <span class="name "><a href="../cell_flow/WebsiteUrlPattern-class.html">WebsiteUrlPattern</a></span> 
 
@@ -1140,6 +1489,14 @@ reactive operations within the framework.
 <dd>
   Determines how the transaction scope behaves when a compensation attempt
 fails.
+</dd>
+
+          <dt id="ForkPolicy">
+  <span class="name "><a href="../cell_flow/ForkPolicy.html">ForkPolicy</a></span> 
+
+</dt>
+<dd>
+  How a fork handles the parent graph's state.
 </dd>
 
           <dt id="HubRouting">
@@ -1227,6 +1584,14 @@ the Cell framework's reactive graph.
 of a <a href="../cell_flow/Pulse-class.html">Pulse</a>.
 </dd>
 
+          <dt id="Purity">
+  <span class="name "><a href="../cell_flow/Purity.html">Purity</a></span> 
+
+</dt>
+<dd>
+  Classifies a <a href="../cell_flow/Receptor-class.html">Receptor</a> or <a href="../cell_flow/TestCell-class.html">TestCell</a> by its effect footprint.
+</dd>
+
           <dt id="ReasoningStrategy">
   <span class="name "><a href="../cell_flow/ReasoningStrategy.html">ReasoningStrategy</a></span> 
 
@@ -1265,6 +1630,24 @@ assigned to a <a href="../cell_flow/Deputy-mixin.html">Deputy</a>.
 <dd>
   The mixin implementing proxy behavior for <a href="../cell_flow/Cell/deputy.html">Cell.deputy</a> — you don't
 use this directly.
+</dd>
+
+          <dt id="Effectful">
+  <span class="name "><a href="../cell_flow/Effectful-mixin.html">Effectful</a></span> 
+
+</dt>
+<dd>
+  The declarative marker for effectful receptors and rules.
+</dd>
+
+          <dt id="EffectfulReadOnly">
+  <span class="name "><a href="../cell_flow/EffectfulReadOnly-mixin.html">EffectfulReadOnly</a></span> 
+
+</dt>
+<dd>
+  A variant of <a href="../cell_flow/Effectful-mixin.html">Effectful</a> for receptors that <em>read</em> the outside world
+but do not mutate it (clocks, environment variables, read-only
+database lookups). Reports <a href="../cell_flow/Purity.html">Purity.readOnlyExternal</a>.
 </dd>
 
           <dt id="FlowInstructionMixin">
@@ -1337,6 +1720,46 @@ bridge stateless instructions with live reactive topographies.
 extension designed to initiate pulse evolution directly from a <a href="../cell_flow/Cell-class.html">Cell</a>.
 </dd>
 
+          <dt id="CellGraphFork">
+  <span class="name "><a href="../cell_flow/CellGraphFork.html">CellGraphFork</a></span>
+  on <a href="../cell_flow/CellGraph-class.html">CellGraph</a>
+  
+
+</dt>
+<dd>
+  Forking extensions for <a href="../cell_flow/CellGraph-class.html">CellGraph</a>.
+</dd>
+
+          <dt id="CellGraphTranslators">
+  <span class="name "><a href="../cell_flow/CellGraphTranslators.html">CellGraphTranslators</a></span>
+  on <a href="../cell_flow/CellGraph-class.html">CellGraph</a>
+  
+
+</dt>
+<dd>
+  The graph-scoped translator registry.
+</dd>
+
+          <dt id="CellGraphVersions">
+  <span class="name "><a href="../cell_flow/CellGraphVersions.html">CellGraphVersions</a></span>
+  on <a href="../cell_flow/CellGraph-class.html">CellGraph</a>
+  
+
+</dt>
+<dd>
+  The graph-scoped version registry (see <a href="../cell_flow/VersionRegistry-class.html">VersionRegistry</a>).
+</dd>
+
+          <dt id="CellGraphVisualise">
+  <span class="name "><a href="../cell_flow/CellGraphVisualise.html">CellGraphVisualise</a></span>
+  on <a href="../cell_flow/CellGraph-class.html">CellGraph</a>
+  
+
+</dt>
+<dd>
+  Visualisation for <a href="../cell_flow/CellGraph-class.html">CellGraph</a> and <a href="../cell_flow/Ledger-class.html">Ledger</a>.
+</dd>
+
           <dt id="FlowOperators">
   <span class="name "><a href="../cell_flow/FlowOperators.html">FlowOperators</a></span>
   on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>
@@ -1346,6 +1769,37 @@ extension designed to initiate pulse evolution directly from a <a href="../cell_
 <dd>
   Synthesizes a <strong>Fluent Topographical Continuation</strong>—a specialized orchestration
 extension designed to chain pulse evolution from an existing <a href="../cell_flow/FlowHandle.html">FlowHandle</a>.
+</dd>
+
+          <dt id="ForkParentLookup">
+  <span class="name "><a href="../cell_flow/ForkParentLookup.html">ForkParentLookup</a></span>
+  on <a href="../cell_flow/Ledger-class.html">Ledger</a>
+  
+
+</dt>
+<dd>
+  The parent ledger's hash at a given sequence.
+</dd>
+
+          <dt id="ForkVerify">
+  <span class="name "><a href="../cell_flow/ForkVerify.html">ForkVerify</a></span>
+  on <a href="../cell_flow/ForkHandle-class.html">ForkHandle</a>
+  
+
+</dt>
+<dd>
+  Fork-aware verification. A fork's <a href="../cell_flow/ForkVerify/verify.html">verify</a> requires the parent
+ledger's <code>verify()</code> to pass.
+</dd>
+
+          <dt id="LedgerVisualise">
+  <span class="name "><a href="../cell_flow/LedgerVisualise.html">LedgerVisualise</a></span>
+  on <a href="../cell_flow/Ledger-class.html">Ledger</a>
+  
+
+</dt>
+<dd>
+  Visualisation for a <a href="../cell_flow/Ledger-class.html">Ledger</a>'s entries (also used by the CLI).
 </dd>
 
           <dt id="PulseExtension">
@@ -1368,6 +1822,17 @@ extension designed to chain pulse evolution from an existing <a href="../cell_fl
   Fluent extensions for collections of <a href="../cell_flow/Pulse-class.html">Pulse</a> objects.
 </dd>
 
+          <dt id="ReplayEngineFork">
+  <span class="name "><a href="../cell_flow/ReplayEngineFork.html">ReplayEngineFork</a></span>
+  on <a href="../cell_flow/ReplayEngine-class.html">ReplayEngine</a>
+  
+
+</dt>
+<dd>
+  Fork-aware replay: replays a parent ledger into a fork handle,
+applying a <a href="../cell_flow/Mutation.html">Mutation</a> to each entry.
+</dd>
+
           <dt id="TekartikLockExtension">
   <span class="name "><a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/TekartikLockExtension.html">TekartikLockExtension</a></span>
   on <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>
@@ -1386,6 +1851,46 @@ extension designed to chain pulse evolution from an existing <a href="../cell_fl
     <section class="summary offset-anchor" id="functions">
       <h2>Functions</h2>
       <dl class="callables">
+          <dt id="canonicalJsonDecode" class="callable">
+  <span class="name"><a href="../cell_flow/canonicalJsonDecode.html">canonicalJsonDecode</a></span><span class="signature">(<wbr><span class="parameter" id="canonicalJsonDecode-param-source"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">source</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Decodes a canonical JSON string into a JSON-encodable object tree.
+  
+
+</dd>
+
+          <dt id="canonicalJsonEncode" class="callable">
+  <span class="name"><a href="../cell_flow/canonicalJsonEncode.html">canonicalJsonEncode</a></span><span class="signature">(<wbr><span class="parameter" id="canonicalJsonEncode-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">value</span>, {</span><span class="parameter" id="canonicalJsonEncode-param-omitNulls"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">omitNulls</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Encodes <code>value</code> into deterministic, canonical JSON.
+  
+
+</dd>
+
+          <dt id="fingerprint" class="callable">
+  <span class="name"><a href="../cell_flow/fingerprint.html">fingerprint</a></span><span class="signature">(<wbr><span class="parameter" id="fingerprint-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Computes the SHA-256 fingerprint of <code>value</code>'s canonical JSON form,
+hex-encoded.
+  
+
+</dd>
+
           <dt id="get" class="callable">
   <span class="name"><a href="../cell_flow/get.html">get</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="get-param-fn"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">fn</span>, {</span><span class="parameter" id="get-param-fallback"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">fallback</span>, </span><span class="parameter" id="get-param-orElse"><span class="type-annotation">T?</span> <span class="parameter-name">orElse</span></span>})
     <span class="returntype parameter">&#8594; T</span>
@@ -1421,7 +1926,7 @@ with multi-stage recovery logic and hierarchical fallbacks.
 
 </dt>
 <dd>
-  Convenience: acquire the locks of <code>cells</code> in a deterministic order.
+  Acquires the locks of <code>cells</code> in a deterministic total order.
   
 
 </dd>
@@ -1434,8 +1939,7 @@ with multi-stage recovery logic and hierarchical fallbacks.
 
 </dt>
 <dd>
-  Acquires <code>locks</code> in the given order, runs <code>body</code>, then releases them
-in reverse order (LIFO unwind of nested <code>synchronized</code> sections).
+  Creates a cell that emits the values of a Dart <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a>.
   
 
 </dd>
@@ -1494,7 +1998,7 @@ in reverse order (LIFO unwind of nested <code>synchronized</code> sections).
           
   <dt id="ApplyReceipt" class="">
   <span class="name"><a href="../cell_flow/ApplyReceipt.html">ApplyReceipt</a></span>
-    = (<span class="field">{<span class="type-annotation"><a href="../cell_flow/ApplyArguments.html">ApplyArguments</a></span> <span class="field-name">arguments</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="field-name">function</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="field-name">id</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a></span> <span class="field-name">timestamp</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="field-name">txSequence</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="field-name">vetted</span>}</span>)
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_flow/ApplyArguments.html">ApplyArguments</a></span> <span class="field-name">arguments</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="field-name">contextVersion</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="field-name">function</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="field-name">id</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="field-name">ledgerSeq</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="field-name">pulseDigest</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="field-name">receptorVersion</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="field-name">ruleVersion</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a></span> <span class="field-name">timestamp</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="field-name">txSequence</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="field-name">vetted</span>}</span>)
   </span>
   
 
@@ -1617,6 +2121,20 @@ a node's operational identity and can be cascaded through the inheritance chain.
 
 
           
+  <dt id="Mutation" class="callable">
+    <span class="name"><a href="../cell_flow/Mutation.html">Mutation</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="../cell_flow/Pulse-class.html">Pulse</a>? Function<span class="signature">(<span class="parameter" id="param-entry"><span class="type-annotation"><a href="../cell_flow/LedgerEntry-class.html">LedgerEntry</a></span> <span class="parameter-name">entry</span>, </span><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    A what-if mutation hook.
+    
+
+  </dd>
+
+          
   <dt id="NucleusSimplest" class="">
   <span class="name"><a href="../cell_flow/NucleusSimplest.html">NucleusSimplest</a></span>
     = <a href="../cell_flow/Nucleolus-class.html">Nucleolus</a>
@@ -1716,6 +2234,32 @@ functions — the standard way to create and interact with a state atom.
     <section class="summary offset-anchor" id="exceptions">
       <h2>Exceptions / Errors</h2>
       <dl>
+          <dt id="ForkIntegrityException">
+  <span class="name "><a href="../cell_flow/ForkIntegrityException-class.html">ForkIntegrityException</a></span> 
+
+</dt>
+<dd>
+  Thrown by <a href="../cell_flow/ForkVerify/verify.html">ForkVerify.verify</a> when a fork's parent ledger, fork
+ledger, or genesis binding is invalid.
+</dd>
+
+          <dt id="LedgerIntegrityException">
+  <span class="name "><a href="../cell_flow/LedgerIntegrityException-class.html">LedgerIntegrityException</a></span> 
+
+</dt>
+<dd>
+  Thrown by <a href="../cell_flow/Ledger/verify.html">Ledger.verify</a> when an entry's hash, sequence, or
+predecessor chain does not match.
+</dd>
+
+          <dt id="ReplayDivergenceException">
+  <span class="name "><a href="../cell_flow/ReplayDivergenceException-class.html">ReplayDivergenceException</a></span> 
+
+</dt>
+<dd>
+  Thrown when a replay diverges from the recording.
+</dd>
+
           <dt id="TransactionConflictException">
   <span class="name "><a href="../cell_flow/TransactionConflictException-class.html">TransactionConflictException</a></span> 
 
@@ -1802,7 +2346,7 @@ participant cell, or a rejected command at commit time.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

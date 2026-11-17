@@ -418,7 +418,7 @@ abstract interface class TissueMapNucleus<K, V> implements TissueNucleus<V> {
 /// **When NOT to use:**
 ///   {@macro ai-do-not-testcell-on-tissue}
 ///   A new Map per bag — the payload on `V` carries the many.
-/// **Live signature:** `TissueMap<K, V>({bind, context, testRule, receptor, synapses, ...})` / `TissueMap.of(entries, {...})` / `TissueMap.unmodifiable(bind, {...})` — pinned at `cell_tissue: 1.0.0`
+/// **Live signature:** `TissueMap<K, V>({bind, context, testRule, receptor, synapses, ...})` / `TissueMap.of(entries, {...})` / `TissueMap.unmodifiable(bind, {...})` — pinned at `cell_tissue: 1.1.0`
 /// **Do NOT confuse with:** `Map` (dart:core — no validation, no collection pulses).
 /// **Guide:** `HowTo-Mitose-Tissue.md` §2.3 "TissueMap — open work keyed by location" (#tissue-map)
 /// **Example:** `example/cell_tissue_example.dart`

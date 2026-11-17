@@ -20,7 +20,7 @@ carries a machine-readable `### AI Agent Guide` block, and the surfaces below
 let an agent reliably pick the right operator and generate code that compiles
 against the live API.
 
-1. **Version pin:** `cell 1.1.0`, `cell_flow 1.0.0`, `cell_tissue 1.0.0`.
+1. **Version pin:** `cell 2.0.0`, `cell_flow 1.1.0`, `cell_tissue 1.1.0`.
 2. **Preflight:** `dart run tool/ai_preflight.dart` — prints the resolved versions and any stale pins.
 3. **API chooser:** `lib/doc/api_chooser.dart` (generated from the `### AI Agent Guide` doc blocks).
 4. **Layer guides:**
@@ -44,7 +44,7 @@ against the live API.
 
 ---
 
-**Codename: Mitosis** · `1.0.0`
+**Codename: Mitosis** · `1.1.0`
 
 [![Dart](https://img.shields.io/badge/Dart-3.5%2B-blue.svg)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg)](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/LICENSE)
@@ -64,11 +64,11 @@ Add both packages to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  cell: ^1.1.0     # the stable versions on pub.dev
+  cell: ^2.0.0     # the stable versions on pub.dev
   cell_flow: ^1.0.0
 ```
 
-> ℹ️ The stable releases (`cell` `1.1.0`, `cell_flow` `1.0.0`) are published on pub.dev (see [CHANGELOG.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/CHANGELOG.md)).
+> ℹ️ The stable releases (`cell` `2.0.0`, `cell_flow` `1.1.0`) are published on pub.dev (see [CHANGELOG.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/CHANGELOG.md)).
 
 Import once in your Dart file:
 
@@ -527,7 +527,7 @@ dart run example/filter_data_quality_demo.dart
 2. **`reduce` / `scan` are running folds**, not terminal values.
 3. **Fluent `filter().map()` = 2 cells.** Use `Filter + MapValue` for **one Receptor**.
 4. **Use `+` for sync policies.** Keep timers and HTTP on the next node.
-5. **Resolve `cell` and `cell_flow` together** — this package's pubspec pins `cell ^1.1.0`; resolve the stable line (`cell ^1.1.0`, `cell_flow ^1.0.0`) on pub.dev.
+5. **Resolve `cell` and `cell_flow` together** — this package's pubspec pins `cell ^2.0.0`; resolve the stable line (`cell ^2.0.0`, `cell_flow ^1.1.0`) on pub.dev.
 
 ---
 
@@ -535,10 +535,10 @@ dart run example/filter_data_quality_demo.dart
 
 | Package | Version | Status |
 |---|---|---|
-| `cell` | `1.1.0` | Stable — on pub.dev |
-| `cell_flow` | `1.0.0` | Stable — on pub.dev |
+| `cell` | `2.0.0` | Stable — on pub.dev |
+| `cell_flow` | `1.1.0` | Stable — on pub.dev |
 
-The stable releases — `cell` `1.1.0` and `cell_flow` `1.0.0` — are published on pub.dev (see [CHANGELOG.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/CHANGELOG.md)).
+The stable releases — `cell` `2.0.0` and `cell_flow` `1.1.0` — are published on pub.dev (see [CHANGELOG.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/CHANGELOG.md)).
 
 **Mitosis** is the release codename (like an Android Studio animal); it is not part of the SemVer string.
 

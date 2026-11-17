@@ -83,7 +83,7 @@ part of '../cell_tissue.dart';
 /// **When to use:** `testRule:` on **every** Tissue constructor: append-only log, non-negative reserve, key shape, or documented `allowAll`.
 /// **When NOT to use:**
 ///   {@macro ai-do-not-testcell-on-tissue}
-/// **Live signature:** `TestTissue<E, C extends Tissue<E>>(FutureOr<bool> Function(dynamic object, {C? host, dynamic arguments, dynamic user}) rule, {TestTissue<E, C>? parent, dynamic user})` — pinned at `cell_tissue: 1.0.0`
+/// **Live signature:** `TestTissue<E, C extends Tissue<E>>(FutureOr<bool> Function(dynamic object, {C? host, dynamic arguments, dynamic user}) rule, {TestTissue<E, C>? parent, dynamic user})` — pinned at `cell_tissue: 1.1.0`
 /// **Do NOT confuse with:** `TestCell` (Cell nodes only). They are not subtypes; swapping them fails the acceptance grep.
 /// **Guide:** `HowTo-Mitose-Tissue.md` §3 "TestTissue — considering factors" (#tissue-testtissue)
 /// **Example:** `example/cell_tissue_example.dart`

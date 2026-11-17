@@ -72,7 +72,7 @@ part of '../cell_flow.dart';
 /// **Layer:** Flow — the instruction interface. Not a Cell factory, not a Tissue book.
 /// **When to use:** type the chain (`FlowInstruction<Cell, Pulse, Pulse>`), compose with `+`, or write a small stateless gate closure.
 /// **When NOT to use:** clause-ordered policy with a resettable latch — subclass `FlowInstructionBase` instead (a bare closure cannot `reset()`).
-/// **Live signature:** `FlowInstruction<C, I, O>(O? Function(I pulse, {C? cell, dynamic user}) instruction, {dynamic user})` — pinned at `cell_flow: 1.0.0`
+/// **Live signature:** `FlowInstruction<C, I, O>(O? Function(I pulse, {C? cell, dynamic user}) instruction, {dynamic user})` — pinned at `cell_flow: 1.1.0`
 /// **Do NOT confuse with:** `FlowInstructionBase` (the base class you *extend* for stateful policy).
 /// **Guide:** `HowTo-Mitose-Flow.md` §4 "When the BRD requires a custom FlowInstruction" (#flow-custom-instruction)
 /// **Example:** `example/cell_flow_example.dart`
@@ -250,7 +250,7 @@ class _FlowInstructionChain<C extends Cell, I extends Pulse, O extends Pulse>
 /// **When NOT to use:**
 ///   {@macro ai-do-not-write-tissue-from-instruction}
 ///   {@macro ai-do-not-put-flatten-in-risko}
-/// **Live signature:** `class X extends FlowInstructionBase<Cell, Pulse, Pulse> { X(..., {required pass}); static Level riskOf(...); Level? lastDecision; Level get pass; void reset(); }` — pinned at `cell_flow: 1.0.0`
+/// **Live signature:** `class X extends FlowInstructionBase<Cell, Pulse, Pulse> { X(..., {required pass}); static Level riskOf(...); Level? lastDecision; Level get pass; void reset(); }` — pinned at `cell_flow: 1.1.0`
 /// **Do NOT confuse with:** `FlowInstruction` (interface / closure gate; no `reset()`).
 /// **Guide:** `HowTo-Mitose-Flow.md` §4 "When the BRD requires a custom FlowInstruction" (#flow-custom-instruction)
 /// **Example:** `example/ICU-alarm-pipeline-Demo.dart`
@@ -551,7 +551,7 @@ class _ActivatedFlowInstruction<C extends Cell, I extends Pulse,
 /// **When to use:** after `chain.toHandle(source: tickIn.cell)` — read `handle.cell` (the gate Cell), inject via `handle.emit(...)`.
 /// **When NOT to use:**
 ///   {@macro ai-do-not-tohandle-twice-per-product}
-/// **Live signature:** `typedef FlowHandle = ({Cell cell, void Function(dynamic) emit, Future<void> Function(dynamic) emitAsync, ...})` — pinned at `cell_flow: 1.0.0`
+/// **Live signature:** `typedef FlowHandle = ({Cell cell, void Function(dynamic) emit, Future<void> Function(dynamic) emitAsync, ...})` — pinned at `cell_flow: 1.1.0`
 /// **Do NOT confuse with:** `IngressHandle` (Cell-layer entry; no instruction behind it).
 /// **Guide:** `HowTo-Mitose-Flow.md` §4 "When the BRD requires a custom FlowInstruction" (#flow-custom-instruction)
 /// **Example:** `example/cell_flow_example.dart`

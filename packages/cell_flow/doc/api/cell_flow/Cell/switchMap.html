@@ -152,7 +152,7 @@ on using switching and routing operators.
 <p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
 <strong>When to use:</strong> dynamic source selection — the mapper returns a <code>Cell</code> and the graph rebinds to it ("latest reservation / flight only").
 <strong>When NOT to use:</strong> background enrichment where the mapper returns a <code>Future</code> — that is <code>Cell.asyncMap</code>.
-<strong>Live signature:</strong> <code>Cell.switchMap&lt;S, T&gt;(Cell source, Cell Function(S value) mapper, {ephemeralPolicy, context, testRule, synapses, forceLock})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Live signature:</strong> <code>Cell.switchMap&lt;S, T&gt;(Cell source, Cell Function(S value) mapper, {ephemeralPolicy, context, testRule, synapses, forceLock})</code> — pinned at <code>cell: 2.0.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell.asyncMap</code> (Future per pulse, not source rebinding).
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)
 <strong>Example:</strong> <code>example/instruction_pipeline_walkthrough.dart</code>
@@ -219,7 +219,7 @@ o.stop();
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

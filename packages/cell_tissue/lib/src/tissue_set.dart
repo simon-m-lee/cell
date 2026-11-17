@@ -416,7 +416,7 @@ abstract interface class TissueSetNucleus<E> implements TissueNucleus<E> {
 /// **When NOT to use:**
 ///   {@macro ai-do-not-testcell-on-tissue}
 ///   {@macro ai-do-not-two-lists-for-compliance}
-/// **Live signature:** `TissueSet<E>(Iterable<E> elements, {bind, context, testRule, receptor, synapses, ...})` / `TissueSet.unmodifiable(bind, {...})` — pinned at `cell_tissue: 1.0.0`
+/// **Live signature:** `TissueSet<E>(Iterable<E> elements, {bind, context, testRule, receptor, synapses, ...})` / `TissueSet.unmodifiable(bind, {...})` — pinned at `cell_tissue: 1.1.0`
 /// **Do NOT confuse with:** `TissueList` (ordered history; a set does not keep insertion order as the story).
 /// **Guide:** `HowTo-Mitose-Tissue.md` §2.2 "TissueSet — the guard register" (#tissue-set)
 /// **Example:** `example/cell_tissue_example.dart`

@@ -147,7 +147,7 @@ This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-
   <strong>DON'T</strong> keep two lists "for compliance" instead of one book plus a
 <code>.unmodifiable</code> / <code>.deputy</code> view. One book, many surfaces.
 See <code>HowTo-Mitose-Tissue.md</code> §9 "Anti-patterns".
-<strong>Live signature:</strong> <code>TissueSet&lt;E&gt;(Iterable&lt;E&gt; elements, {bind, context, testRule, receptor, synapses, ...})</code> / <code>TissueSet.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.0.0</code>
+<strong>Live signature:</strong> <code>TissueSet&lt;E&gt;(Iterable&lt;E&gt; elements, {bind, context, testRule, receptor, synapses, ...})</code> / <code>TissueSet.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.1.0</code>
 <strong>Do NOT confuse with:</strong> <code>TissueList</code> (ordered history; a set does not keep insertion order as the story).
 <strong>Guide:</strong> <code>HowTo-Mitose-Tissue.md</code> §2.2 "TissueSet — the guard register" (#tissue-set)
 <strong>Example:</strong> <code>example/cell_tissue_example.dart</code>
@@ -325,6 +325,18 @@ of this collection.
 </dt>
 <dd class="inherited">
   The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="id" class="property inherited">
+  <span class="name"><a href="../cell_tissue/Cell/id.html">id</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A stable, serialisable identifier for this cell handle.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -1327,7 +1339,7 @@ reactive DNA and storage mechanics.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Version numbers follow [SemVer](https://semver.org/). **Flow** is the
 release codename; it is not part of the SemVer string.
 
+## Flow (1.1.0) - Cell 2.0.0 Dependency
+
+- **Dependency floor**: `cell: ^2.0.0` (was `^1.1.0`) — the Causal Replay
+  release. The Flow operator surface is unchanged; this release re-publishes
+  the package against the new core so the pub.dev dependency graph resolves
+  (`cell` `2.0.0` cannot resolve against the old `^1.1.0` floor).
+- **Verification**: full suite (1091 tests) passes against `cell` `2.0.0`;
+  analyzer clean; AI-guide pins and the generated API chooser refreshed to
+  `cell_flow` `1.1.0`.
+
 ## Flow (1.0.0) - Stable Release
 
 Stable release formalizing the **Forensic Orchestration Layer**. This version establishes the final operator topography, ensures full causal anchor propagation across asynchronous boundaries, and aligns with the stable Mitosis ecosystem.

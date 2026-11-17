@@ -20,7 +20,7 @@ symbol carries a machine-readable `### AI Agent Guide` block, and the surfaces
 below let an agent reliably pick the right book and generate code that
 compiles against the live API.
 
-1. **Version pin:** `cell 1.1.0`, `cell_flow 1.0.0`, `cell_tissue 1.0.0`.
+1. **Version pin:** `cell 2.0.0`, `cell_flow 1.1.0`, `cell_tissue 1.1.0`.
 2. **Preflight:** `dart run tool/ai_preflight.dart` — prints the resolved versions and any stale pins.
 3. **API chooser:** `lib/doc/api_chooser.dart` (generated from the `### AI Agent Guide` doc blocks).
 4. **Layer guides:**
@@ -753,7 +753,7 @@ the demos, or read the demos themselves in this order:
 
 ## Status & Known Gaps
 
-**Stable on pub.dev** (`1.0.0`, shipped with `cell` `1.1.0`, `cell_flow` `1.0.0`, and `mitosis` `2.2.0`). See
+**Stable on pub.dev** (`1.1.0`, shipped with `cell` `2.0.0`, `cell_flow` `1.1.0`, and `mitosis` `3.0.0`). See
 [CHANGELOG.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/CHANGELOG.md).
 
 - `example/` ships four demos; `test/` passes **362/362** tests.

@@ -132,7 +132,7 @@ walkthrough of UI side-effects, terminal lifecycle management, and forensic logg
 <code>effect</code> may write Tissue books, call <code>reset()</code>, enqueue pumps, print.
 It may <strong>not</strong> call <code>riskOf</code>, change <code>pass</code>, or call <code>toHandle</code>.
 See <code>HowTo-Mitose-Cell.md</code> §3.2 "Cell.observe — the only Flow → Tissue glue".
-<strong>Live signature:</strong> <code>Cell.observe&lt;P extends Pulse&gt;({required Cell source, required void Function(P) effect, bool initiallyStarted = true})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Live signature:</strong> <code>Cell.observe&lt;P extends Pulse&gt;({required Cell source, required void Function(P) effect, bool initiallyStarted = true})</code> — pinned at <code>cell: 2.0.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell.ingress</code> (entry into the graph, not exit from it).
 <strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §3.2 "Cell.observe — the only Flow → Tissue glue" (#cell-observe)
 <strong>Example:</strong> <code>example/observe_demo.dart</code>
@@ -189,7 +189,7 @@ o.stop();
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

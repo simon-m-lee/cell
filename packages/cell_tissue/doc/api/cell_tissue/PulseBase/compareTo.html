@@ -141,6 +141,17 @@ int compareTo(Pulse other) {
   &#47;&#47;&#47; source and represents a more direct instruction, whereas a longer trace
   &#47;&#47;&#47; represents a signal that has undergone multiple layers of transformation
   &#47;&#47;&#47; and refinement.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; ### Non-obvious: returning `0` is load-bearing
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; Two distinct pulses with identical metadata deliberately compare
+  &#47;&#47;&#47; **equal**. The async receptor&#39;s priority queue treats `0` as
+  &#47;&#47;&#47; &quot;keep insertion order&quot;, which is the framework&#39;s FIFO guarantee
+  &#47;&#47;&#47; for same-precedence submits — adding a hash-based tiebreaker here
+  &#47;&#47;&#47; would reorder equal-precedence pulses and break that contract
+  &#47;&#47;&#47; (caught by `receptor_test.dart`&#39;s FIFO test). Callers who need a
+  &#47;&#47;&#47; total order over distinct pulses should use a comparator that
+  &#47;&#47;&#47; falls back to a submission sequence, not to `compareTo`.
   return trace.length.compareTo(other.trace.length);
 }</code></pre>
 </section>
@@ -170,7 +181,7 @@ int compareTo(Pulse other) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.1.0
   </span>
   
 </footer>

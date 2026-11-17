@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the CellGraph class from the cell_flow library, for the Dart programming language.">
+  <title>CellGraph class - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li><a href="../cell_flow/">cell_flow.dart</a></li>
+    <li class="self-crumb">CellGraph class</li>
+  </ol>
+  <div class="self-name">CellGraph</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flow&#47;cell_flow-library-sidebar.html"
+    data-below-sidebar="cell_flow&#47;CellGraph-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">CellGraph</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>A registered cell graph: the unit of identity and replay in the
+framework.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>As the container the <a href="../cell_flow/Ledger-class.html">Ledger</a> and the <a href="../cell_flow/ReplayEngine-class.html">ReplayEngine</a> operate on. Every
+graph that is recorded or replayed must first be assembled by
+<a href="../cell_flow/CellGraphBuilder-class.html">CellGraphBuilder</a>.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>A graph's invariants are:</p>
+<ul>
+<li><strong>Every cell in the graph has a stable <code>id</code>.</strong> Registered cells'
+nuclei are recorded in <code>_CellGraphRegistry</code>; their <code>id</code> getter
+returns the graph-assigned name.</li>
+<li><strong>Every cell is reachable from at least one registered root</strong> via
+the <code>bind</code>/<code>Synapses</code> graph, <em>in strict mode</em>. Reachability is
+computed at <code>build()</code> time and re-validated lazily.</li>
+<li><strong>No two cells share a name.</strong> Enforced by <a href="../cell_flow/CellGraphBuilder-class.html">CellGraphBuilder</a>.</li>
+<li><strong>Every cell's purity is known.</strong> The journal refuses to record a
+cell whose receptor and rule are both <a href="../cell_flow/Purity.html">Purity.pure</a> without
+admitting that journaling is a no-op; the engine refuses to replay
+an <code>effectful</code> cell that was not journalled.</li>
+</ul>
+<h3 id="non-obvious-strict-vs-unrestricted">Non-obvious: strict vs. unrestricted</h3>
+<p>In strict mode (the default), the graph enforces reachability and
+refuses to bind a cell that is not registered — see
+<code>_validateBindTarget</code>. <code>CellGraph.unrestricted()</code> disables these
+checks for tests; it is documented as unsafe and marked
+<code>@visibleForTesting</code>.</p>
+<h3 id="non-obvious-the-graph-does-not-own-the-cells">Non-obvious: the graph does not own the cells</h3>
+<p>The graph is a <em>view</em>, not a container. It holds references to the
+cells (so they cannot be garbage-collected while the graph is alive),
+but it does not <code>dispose</code> them, and a <code>cell</code> obtained from outside the
+graph continues to function after the graph is dropped. That is
+deliberate — the graph is metadata, not a lifecycle manager. The
+lifecycle manager is <a href="../cell_flow/EphemeralPolicy-class.html">EphemeralPolicy</a> (the journal hooks into it).</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell_flow/CellGraphBuilder-class.html">CellGraphBuilder</a> — how a graph is assembled.</li>
+<li><a href="../cell_flow/Ledger-class.html">Ledger</a> — the history a graph is bound to.</li>
+<li><a href="../cell_flow/ReplayEngine-class.html">ReplayEngine</a> — the engine that replays into a graph.</li>
+</ul>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+
+        
+        
+
+
+        
+  <dt>Available extensions</dt>
+  <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="../cell_flow/CellGraphFork.html">CellGraphFork</a></li>
+      <li><a href="../cell_flow/CellGraphTranslators.html">CellGraphTranslators</a></li>
+      <li><a href="../cell_flow/CellGraphVersions.html">CellGraphVersions</a></li>
+      <li><a href="../cell_flow/CellGraphVisualise.html">CellGraphVisualise</a></li>
+  </ul></dd>
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="CellGraph.unrestricted" class="callable">
+          <span class="name"><a href="../cell_flow/CellGraph/CellGraph.unrestricted.html">CellGraph.unrestricted</a></span><span class="signature">({<span class="parameter" id="unrestricted-param-graphId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">graphId</span></span>})</span>
+        </dt>
+        <dd>
+          Convenience factory for tests and for <code>CellGraph.unrestricted()</code>.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="graphId" class="property">
+  <span class="name"><a href="../cell_flow/CellGraph/graphId.html">graphId</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="id" class="property">
+  <span class="name"><a href="../cell_flow/CellGraph/id.html">id</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  The graph's id. Stable across processes if supplied to the builder.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="ledger" class="property">
+  <span class="name"><a href="../cell_flow/CellGraph/ledger.html">ledger</a></span>
+  <span class="signature">&#8594; <a href="../cell_flow/Ledger-class.html">Ledger</a>?</span>
+  
+
+</dt>
+<dd>
+  The ledger this graph is bound to, or <code>null</code> if the graph is not
+ledgered. A graph can have at most one ledger; call <code>unbindLedger</code>
+to sever the binding before binding a different one.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="registeredIds" class="property">
+  <span class="name"><a href="../cell_flow/CellGraph/registeredIds.html">registeredIds</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  The set of pulse sources the graph recognizes. Used by the journal to
+enforce that a journalled pulse's <code>source</code> is a registered cell.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="roots" class="property">
+  <span class="name"><a href="../cell_flow/CellGraph/roots.html">roots</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/RegisteredCell-class.html">RegisteredCell</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  The list of registered roots (in registration order).
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="strict" class="property">
+  <span class="name"><a href="../cell_flow/CellGraph/strict.html">strict</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="translators" class="property">
+  <span class="name"><a href="../cell_flow/CellGraphTranslators/translators.html">translators</a></span>
+  <span class="signature">&#8594; <a href="../cell_flow/ContextTranslatorRegistry-class.html">ContextTranslatorRegistry</a></span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_flow/CellGraph-class.html">CellGraph</a>,
+        provided by the <a href="../cell_flow/CellGraphTranslators.html">CellGraphTranslators</a> extension</span>
+      </p>
+  The graph's translator registry, created lazily on first access.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="versions" class="property">
+  <span class="name"><a href="../cell_flow/CellGraphVersions/versions.html">versions</a></span>
+  <span class="signature">&#8594; <a href="../cell_flow/VersionRegistry-class.html">VersionRegistry</a></span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_flow/CellGraph-class.html">CellGraph</a>,
+        provided by the <a href="../cell_flow/CellGraphVersions.html">CellGraphVersions</a> extension</span>
+      </p>
+  The graph's version registry. Created lazily on first access; the
+<a href="https://api.flutter.dev/flutter/dart-core/Expando-class.html">Expando</a> keeps it per-<code>CellGraph</code> instance and clears it when the
+graph is GC'd.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="bindLedger" class="callable">
+  <span class="name"><a href="../cell_flow/CellGraph/bindLedger.html">bindLedger</a></span><span class="signature">(<wbr>{<span class="parameter" id="bindLedger-param-store"><span>required</span> <span class="type-annotation"><a href="../cell_flow/LedgerStore-class.html">LedgerStore</a></span> <span class="parameter-name">store</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Ledger-class.html">Ledger</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Binds this graph to a new ledger backed by <code>store</code>. Runs
+<code>Ledger.openVerified</code> so a corrupt store fails at bind time, not on
+first append.
+  
+
+</dd>
+
+        <dt id="containsCell" class="callable">
+  <span class="name"><a href="../cell_flow/CellGraph/containsCell.html">containsCell</a></span><span class="signature">(<wbr><span class="parameter" id="containsCell-param-cell"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Whether <code>cell</code> is registered in this graph (by identity — deputies
+that share a principal's id are considered <em>different</em> cells and
+are not equal by this method unless they share the same name).
+  
+
+</dd>
+
+        <dt id="containsName" class="callable">
+  <span class="name"><a href="../cell_flow/CellGraph/containsName.html">containsName</a></span><span class="signature">(<wbr><span class="parameter" id="containsName-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Whether <code>name</code> is registered in this graph.
+  
+
+</dd>
+
+        <dt id="fork" class="callable">
+  <span class="name"><a href="../cell_flow/CellGraphFork/fork.html">fork</a></span><span class="signature">(<wbr>{<span class="parameter" id="fork-param-parent"><span>required</span> <span class="type-annotation"><a href="../cell_flow/Ledger-class.html">Ledger</a></span> <span class="parameter-name">parent</span>, </span><span class="parameter" id="fork-param-atSeq"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">atSeq</span>, </span><span class="parameter" id="fork-param-buildFreshGraph"><span>required</span> <span class="type-annotation"><a href="../cell_flow/CellGraph-class.html">CellGraph</a></span> <span class="parameter-name">buildFreshGraph</span>(), </span><span class="parameter" id="fork-param-buildStore"><span>required</span> <span class="type-annotation"><a href="../cell_flow/LedgerStore-class.html">LedgerStore</a></span> <span class="parameter-name">buildStore</span>(<span class="parameter" id="param-genesisHash"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">genesisHash</span></span>), </span><span class="parameter" id="fork-param-policy"><span class="type-annotation"><a href="../cell_flow/ForkPolicy.html">ForkPolicy</a></span> <span class="parameter-name">policy</span> = <span class="default-value">ForkPolicy.isolated</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/ForkHandle-class.html">ForkHandle</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_flow/CellGraph-class.html">CellGraph</a>,
+        provided by the <a href="../cell_flow/CellGraphFork.html">CellGraphFork</a> extension</span>
+      </p>
+  Forks this graph at <code>atSeq</code> of <code>parent</code>.
+  
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="purityOf" class="callable">
+  <span class="name"><a href="../cell_flow/CellGraph/purityOf.html">purityOf</a></span><span class="signature">(<wbr><span class="parameter" id="purityOf-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/Purity.html">Purity</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  The purity of a registered cell, computed from its receptor and
+test rule. Both must be <a href="../cell_flow/Purity.html">Purity.pure</a> for the cell to report
+<a href="../cell_flow/Purity.html">Purity.pure</a>; otherwise the <em>weaker</em> (more external) of the two
+wins.
+  
+
+</dd>
+
+        <dt id="registerVersion" class="callable">
+  <span class="name"><a href="../cell_flow/CellGraphVersions/registerVersion.html">registerVersion</a></span><span class="signature">(<wbr><span class="parameter" id="registerVersion-param-cellId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">cellId</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_flow/CellGraph-class.html">CellGraph</a>,
+        provided by the <a href="../cell_flow/CellGraphVersions.html">CellGraphVersions</a> extension</span>
+      </p>
+  Convenience: registers <code>cellId</code>'s current receptor and test rule
+under their current version.
+  
+
+</dd>
+
+        <dt id="run" class="callable">
+  <span class="name"><a href="../cell_flow/CellGraph/run.html">run</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="run-param-body"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">body</span>()</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Runs <code>body</code> with this graph's ledger scope active. All
+<code>Cell.apply</code>/<code>ValueCell.update</code> calls inside <code>body</code> are recorded,
+and the scope's queued appends are drained before this resolves.
+  
+
+</dd>
+
+        <dt id="snapshot" class="callable">
+  <span class="name"><a href="../cell_flow/CellGraph/snapshot.html">snapshot</a></span><span class="signature">(<wbr>{<span class="parameter" id="snapshot-param-lastLedgerSeq"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">lastLedgerSeq</span> = <span class="default-value">-1</span>, </span><span class="parameter" id="snapshot-param-parentLedgerHash"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">parentLedgerHash</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/CellGraphSnapshot-class.html">CellGraphSnapshot</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Produces a <a href="../cell_flow/CellGraphSnapshot-class.html">CellGraphSnapshot</a> of the current cell states.
+  
+
+</dd>
+
+        <dt id="toString" class="callable">
+  <span class="name"><a href="../cell_flow/CellGraph/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  A string representation of this object.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="unbindLedger" class="callable">
+  <span class="name"><a href="../cell_flow/CellGraph/unbindLedger.html">unbindLedger</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Ledger-class.html">Ledger</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Severs the graph's binding to its ledger. The ledger remains open
+(the caller must close it); subsequent <code>Cell.apply</code> calls on the
+graph are no longer recorded.
+  
+
+</dd>
+
+        <dt id="visualise" class="callable">
+  <span class="name"><a href="../cell_flow/CellGraphVisualise/visualise.html">visualise</a></span><span class="signature">(<wbr>{<span class="parameter" id="visualise-param-format"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">format</span> = <span class="default-value">&#39;mermaid&#39;</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_flow/CellGraph-class.html">CellGraph</a>,
+        provided by the <a href="../cell_flow/CellGraphVisualise.html">CellGraphVisualise</a> extension</span>
+      </p>
+  Renders this graph as a mermaid or DOT document.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="operator []" class="callable">
+  <span class="name"><a href="../cell_flow/CellGraph/operator_get.html">operator []</a></span><span class="signature">(<wbr><span class="parameter" id="[]-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/RegisteredCell-class.html">RegisteredCell</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Look up a registered cell by name.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+  <section class="summary offset-anchor" id="static-methods">
+    <h2>Static Methods</h2>
+    <dl class="callables">
+        <dt id="builder" class="callable">
+  <span class="name"><a href="../cell_flow/CellGraph/builder.html">builder</a></span><span class="signature">(<wbr>{<span class="parameter" id="builder-param-graphId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">graphId</span>, </span><span class="parameter" id="builder-param-strict"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">strict</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/CellGraphBuilder-class.html">CellGraphBuilder</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  The entry point for constructing a registered graph. See
+<a href="../cell_flow/CellGraphBuilder-class.html">CellGraphBuilder</a>.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li><a href="../cell_flow/">cell_flow</a></li>
+    <li class="self-crumb">CellGraph class</li>
+</ol>
+
+    <h5>cell_flow library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
