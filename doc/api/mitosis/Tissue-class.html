@@ -147,7 +147,7 @@ for the concrete collection types.</li>
 <p><strong>Layer:</strong> Tissue — the governed-book interface. Not a Cell factory, not a Flow operator.
 <strong>When to use:</strong> the shared surface of <code>TissueList</code> / <code>TissueSet</code> / <code>TissueMap</code> / <code>TissueQueue</code> / <code>TissueValue</code> — every book is a Cell under the hood with its own lock and collection pulses.
 <strong>When NOT to use:</strong> as a book directly — pick one of the five concrete types; a plain Dart <code>List</code> is not a book.
-<strong>Live signature:</strong> <code>abstract interface class Tissue&lt;E&gt; implements Cell, Iterable&lt;E&gt;</code> — pinned at <code>cell_tissue: 1.0.0</code>
+<strong>Live signature:</strong> <code>abstract interface class Tissue&lt;E&gt; implements Cell, Iterable&lt;E&gt;</code> — pinned at <code>cell_tissue: 1.1.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell</code> (graph node; Tissue adds collection semantics and <code>TestTissue</code>).
 <strong>Guide:</strong> <code>HowTo-Mitose-Tissue.md</code> §2 "Examine all five collections against the BRD" (#tissue-catalog)
 <strong>Example:</strong> <code>example/cell_tissue_example.dart</code>
@@ -301,6 +301,18 @@ of this collection.
 </dt>
 <dd class="inherited">
   The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="id" class="property inherited">
+  <span class="name"><a href="../mitosis/Cell/id.html">id</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A stable, serialisable identifier for this cell handle.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -1344,7 +1356,7 @@ its internal implementation types and storage.
 <footer>
   <span class="no-break">
     mitosis
-      2.2.0
+      3.0.0
   </span>
   
 </footer>

@@ -120,7 +120,7 @@ input.emit(4); // -&gt; 4
 <p><strong>Layer:</strong> Flow — predicate operator (Rx <code>filter</code>). Not a Cell factory, not a Tissue book.
 <strong>When to use:</strong> drop <code>none</code> / keep only <code>atRisk</code> on a stock chain, or a single-predicate pass before <code>MapValue</code>.
 <strong>When NOT to use:</strong> clause-ordered policy with a resettable latch — that is a custom <code>FlowInstructionBase</code>.
-<strong>Live signature:</strong> <code>Flow.filter&lt;S&gt;(Cell source, {required bool Function(S value) test})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Live signature:</strong> <code>Flow.filter&lt;S&gt;(Cell source, {required bool Function(S value) test})</code> — pinned at <code>cell_flow: 1.1.0</code>
 <strong>Do NOT confuse with:</strong> <code>Filter</code> (the chain class; same semantics) and <code>Cell.valve</code> (Cell-layer gate).
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)
 <strong>Example:</strong> <code>example/filter_data_quality_demo.dart</code>
@@ -171,7 +171,7 @@ o.stop();
 <footer>
   <span class="no-break">
     mitosis
-      2.2.0
+      3.0.0
   </span>
   
 </footer>

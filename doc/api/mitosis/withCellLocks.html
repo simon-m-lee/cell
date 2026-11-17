@@ -67,9 +67,11 @@
     </section>
     
 <section class="desc markdown">
-  <p>Convenience: acquire the locks of <code>cells</code> in a deterministic order.</p>
-<p><code>order</code> sorts a <em>copy</em> of <code>cells</code> before locks are read. Default is
-<code>hashCode</code> ascending (deadlock-free for any participant set).</p>
+  <p>Acquires the locks of <code>cells</code> in a deterministic total order.</p>
+<p><code>order</code> sorts a <em>copy</em> of <code>cells</code> before locks are read. The default
+order is cell id, then <a href="https://api.flutter.dev/flutter/dart-core/identityHashCode.html">identityHashCode</a>. Ordering by <a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">Cell.hashCode</a>
+is not a total order: equal hashes leave the sort unstable, so two
+transactions can lock the same cells in opposite orders and deadlock.</p>
 </section>
 
 
@@ -82,7 +84,7 @@
   int Function(Cell a, Cell b)? order,
 }) {
   final sorted = List&lt;Cell&gt;.from(cells);
-  sorted.sort(order ?? (a, b) =&gt; a.hashCode.compareTo(b.hashCode));
+  sorted.sort(order ?? _cellLockOrder);
 
   &#47;&#47; Prefer the public CellBase.lock accessor: reaching into the private
   &#47;&#47; `_nucleus` member fails for cross-package Cell implementations whose
@@ -117,7 +119,7 @@
 <footer>
   <span class="no-break">
     mitosis
-      2.2.0
+      3.0.0
   </span>
   
 </footer>

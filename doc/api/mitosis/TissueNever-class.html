@@ -192,6 +192,20 @@ authority, and causal lineage of this specific <a href="../mitosis/Cell-class.ht
 
 </dd>
 
+        <dt id="id" class="property">
+  <span class="name"><a href="../mitosis/TissueNever/id.html">id</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  The sentinel implements <a href="../mitosis/Tissue-class.html">Tissue</a> directly (no <a href="../mitosis/CellBase-class.html">CellBase</a> to inherit
+from), so <code>Cell.id</code> delegates to the shared const nucleus: every empty
+tissue reports the same stable, process-local identity.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
         <dt id="isEmpty" class="property inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/isEmpty.html">isEmpty</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
@@ -978,7 +992,7 @@ predicate <code>test</code>.
 <footer>
   <span class="no-break">
     mitosis
-      2.2.0
+      3.0.0
   </span>
   
 </footer>

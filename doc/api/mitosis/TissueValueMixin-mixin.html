@@ -130,7 +130,7 @@ and dispatches a <a href="../mitosis/Tissue/elementUpdated-constant.html">Tissue
     <dl class="properties">
         <dt id="async" class="property inherited">
   <span class="name"><a href="../mitosis/TissueValue/async.html">async</a></span>
-  <span class="signature">&#8594; <a href="../mitosis/ValueCellAsync-class.html">ValueCellAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  <span class="signature">&#8594; <a href="../mitosis/ModifiableValueAsync-class.html">ModifiableValueAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
   
 
 </dt>
@@ -190,6 +190,18 @@ of this collection.
 <dd>
   The hash code for this object.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="id" class="property inherited">
+  <span class="name"><a href="../mitosis/Cell/id.html">id</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A stable, serialisable identifier for this cell handle.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -319,18 +331,6 @@ downstream observers and does not broadcast pulses.
 </dt>
 <dd class="inherited">
   The number of elements in this <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a>.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="lock" class="property inherited">
-  <span class="name"><a href="../mitosis/CellBase/lock.html">lock</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>?</span>
-  
-
-</dt>
-<dd class="inherited">
-  The synchronization <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> owned by this cell's nucleus.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -1249,7 +1249,7 @@ collection.
 <footer>
   <span class="no-break">
     mitosis
-      2.2.0
+      3.0.0
   </span>
   
 </footer>

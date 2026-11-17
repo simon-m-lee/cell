@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the replayFork method from the ReplayEngineFork extension, for the Dart programming language.">
+  <title>replayFork method - ReplayEngineFork extension - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/ReplayEngineFork.html">ReplayEngineFork</a></li>
+    <li class="self-crumb">replayFork static method</li>
+  </ol>
+  <div class="self-name">replayFork</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;ReplayEngineFork-extension-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">replayFork</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../mitosis/ReplayResult-class.html">ReplayResult</a></span>&gt;</span></span>
+<span class="name ">replayFork</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="replayFork-param-fork"><span>required</span> <span class="type-annotation"><a href="../../mitosis/ForkHandle-class.html">ForkHandle</a></span> <span class="parameter-name">fork</span>, </span></li>
+<li><span class="parameter" id="replayFork-param-mutation"><span>required</span> <span class="type-annotation"><a href="../../mitosis/Mutation.html">Mutation</a></span> <span class="parameter-name">mutation</span>, </span></li>
+<li><span class="parameter" id="replayFork-param-options"><span class="type-annotation"><a href="../../mitosis/ReplayOptions-class.html">ReplayOptions</a></span> <span class="parameter-name">options</span> = <span class="default-value">ReplayOptions.strict</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Replays the <a href="../../mitosis/ForkHandle/parent.html">ForkHandle.parent</a> ledger's entries from
+<code>fork.record.divergedAt + 1</code>
+into <code>fork.graph</code>, applying <code>mutation</code> to each entry.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>fork</code>: The fork handle to replay into.</li>
+<li><code>mutation</code>: Receives the reconstructed input pulse for each
+entry. Returning <code>null</code> drops the entry (the fork's ledger will
+not contain it). Returning a pulse — same or different — replays
+that pulse into the fork's graph.</li>
+<li><code>options</code>: Strictness flags; defaults to <a href="../../mitosis/ReplayOptions/strict-constant.html">ReplayOptions.strict</a>.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The replay result.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The fork's ledger is written via <code>fork.ledger.appendInternal</code>.
+This is the <em>only</em> path that writes a fork ledger; a fork does
+not accept external <code>append</code> calls.</p>
+<h3 id="non-obvious-the-fork-replays-from-divergedat--1-not-from">Non-obvious: the fork replays from <code>divergedAt + 1</code>, not from</h3>
+<p><code>divergedAt</code></p>
+<p>The fork's <code>seq 0</code> is the <code>ForkRecord</code>. The parent's seq
+<code>divergedAt</code> is the <em>last entry</em> included in the fork's baseline.
+The first entry the fork replays is parent seq <code>divergedAt + 1</code>.
+This is what makes "fork at 100" mean "the fork's baseline is the
+parent's state at 100; the fork replays 101 onward".</p>
+<h3 id="non-obvious-the-fork-serves-the-parents-effects">Non-obvious: the fork <em>serves</em> the parent's effects</h3>
+<p>The parent's effects are in the parent ledger; the fork's entries
+carry them forward into the fork ledger. Each replayed entry is
+dispatched under a <code>ReplayJournal</code> built from the PARENT entry's
+records — the fork never re-runs effectful <code>io</code> against the real
+world, and the fork's ledger stores the same effect list the
+parent recorded. Consequence: a mutation that replaces a pulse
+whose I/O <em>differs</em> from the parent's will diverge instead of
+becoming the fork's history. What-if is defined over
+<strong>pulses</strong>, not effects; re-recording mutated effects (a fresh
+RecordingJournal + live I/O) is a later forking revision. When
+a mutation drops an entry, nothing is appended.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static Future&lt;ReplayResult&gt; replayFork({
+  required ForkHandle fork,
+  required Mutation mutation,
+  ReplayOptions options = ReplayOptions.strict,
+}) async {
+  if (!identical(fork.ledger.graph, fork.graph)) {
+    throw StateError(
+      &#39;ReplayEngine.replayFork: fork.ledger.graph is not fork.graph. &#39;
+      &#39;This is a bug in CellGraph.fork; file an issue.&#39;,
+    );
+  }
+
+  final parent = fork.parent;
+  final startSeq = fork.record.divergedAt + 1;
+
+  &#47;&#47; Hardening (review fix): never replay a corrupt history,
+  &#47;&#47; and never append onto a corrupt fork chain.
+  await parent.verify();
+  await fork.ledger.verify();
+
+  final divergences = &lt;DivergenceReport&gt;[];
+  int replayed = 0;
+  int? firstDivergedAt;
+  final parentsByDigest = &lt;String, Pulse&lt;dynamic&gt;&gt;{};
+  final deferredFires = &lt;FutureOr&lt;void&gt; Function()&gt;[];
+
+  await for (final entry in parent.entriesSince(startSeq)) {
+    if (options.maxEntries != null &amp;&amp; replayed &gt;= options.maxEntries!) {
+      break;
+    }
+
+    &#47;&#47; The parent ledger&#39;s entries are the source of truth for
+    &#47;&#47; *what was recorded*; the mutation decides *what the fork
+    &#47;&#47; replays*.
+    final cellId = entry.receiptCellId;
+    final registered = fork.graph[cellId];
+    if (registered == null) {
+      final d = DivergenceReport(
+        seq: entry.seq,
+        expected: cellId,
+        actual: &#39;&lt;not registered in fork&gt;&#39;,
+        reason: &#39;parent entry refers to cell &quot;$cellId&quot;, which is not &#39;
+            &#39;registered in the fork graph&#39;,
+      );
+      divergences.add(d);
+      firstDivergedAt ??= entry.seq;
+      if (options.failOnDivergence) {
+        throw ReplayDivergenceException(d.reason, seq: entry.seq, report: d);
+      }
+      replayed++;
+      continue;
+    }
+
+    final originalPulse = PulseReconstructor.reconstruct(
+      entry: entry,
+      cell: registered.cell,
+      parentsByDigest: parentsByDigest,
+    );
+    if (originalPulse == null) {
+      final d = DivergenceReport(
+        seq: entry.seq,
+        expected: &#39;&lt;reconstructable pulse&gt;&#39;,
+        actual: null,
+        reason: &#39;pulse could not be reconstructed from parent entry&#39;,
+      );
+      divergences.add(d);
+      firstDivergedAt ??= entry.seq;
+      if (options.failOnDivergence) {
+        throw ReplayDivergenceException(d.reason, seq: entry.seq, report: d);
+      }
+      replayed++;
+      continue;
+    }
+
+    &#47;&#47; Apply the mutation.
+    final mutatedPulse = mutation(entry, originalPulse);
+    if (mutatedPulse == null) {
+      &#47;&#47; Dropped. The fork&#39;s ledger will not contain a record of this
+      &#47;&#47; entry. That&#39;s the mutation&#39;s explicit choice.
+      replayed++;
+      continue;
+    }
+
+    &#47;&#47; Replay the mutated pulse into the fork&#39;s graph, writing to the
+    &#47;&#47; fork&#39;s ledger.
+    final divergence = await _replayForkOne(
+      entry: entry,
+      mutatedPulse: mutatedPulse,
+      fork: fork,
+      options: options,
+      deferredFires: deferredFires,
+    );
+
+    replayed++;
+    if (divergence != null) {
+      divergences.add(divergence);
+      firstDivergedAt ??= entry.seq;
+      if (options.failOnDivergence) {
+        throw ReplayDivergenceException(
+          divergence.reason,
+          seq: entry.seq,
+          report: divergence,
+        );
+      }
+    }
+  }
+
+  &#47;&#47; Run the deferred timer fires after the fork&#39;s entry loop, exactly
+  &#47;&#47; like the main engine.
+  for (final fire in deferredFires) {
+    await fire();
+  }
+
+  return ReplayResult(
+    success: divergences.isEmpty,
+    entriesReplayed: replayed,
+    divergedAt: firstDivergedAt,
+    divergences: List.unmodifiable(divergences),
+    newSnapshot: fork.graph.snapshot(
+      &#47;&#47; Tie the snapshot to the parent sequence the fork reached
+      &#47;&#47; (review fix: the default -1 made the snapshot unbound).
+      lastLedgerSeq: startSeq + replayed - 1,
+    ),
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/ReplayEngineFork.html">ReplayEngineFork</a></li>
+    <li class="self-crumb">replayFork static method</li>
+</ol>
+
+    <h5>ReplayEngineFork extension on <a href="../../mitosis/ReplayEngine-class.html">ReplayEngine</a></h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      3.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

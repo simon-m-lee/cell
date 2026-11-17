@@ -55,8 +55,9 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../mitosis/Cell-class.html">Cell</a></span>
-<span class="name ">fromFuture</span>&lt;<wbr><span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="fromFuture-param-future"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">future</span></span></li>
-</ol>)
+<span class="name ">fromFuture</span>&lt;<wbr><span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="fromFuture-param-future"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">future</span>, {</span></li>
+<li><span class="parameter" id="fromFuture-param-journal"><span>required</span> <span class="type-annotation"><a href="../../mitosis/EffectJournal-class.html">EffectJournal</a></span> <span class="parameter-name">journal</span>, </span></li>
+</ol>})
 
       
 
@@ -121,13 +122,13 @@ of bridging legacy async APIs into forensic pipelines.
 <p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
 <strong>When to use:</strong> bridge a single <code>Future</code> result into the graph (one config load, one AODB lookup); emits at most once.
 <strong>When NOT to use:</strong> continuous sources — that is <code>Cell.fromStream</code>; imperative callbacks — that is <code>Cell.ingress</code>.
-<strong>Live signature:</strong> <code>Cell.fromFuture&lt;T&gt;(Future&lt;T&gt; future)</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Live signature:</strong> <code>Cell.fromFuture&lt;T&gt;(Future&lt;T&gt; future, {required EffectJournal journal})</code> — pinned at <code>cell: 2.0.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell.fromStream</code> (sequence, not a single value).
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.1 "Create" (#flow-create)
 <strong>Example:</strong> <code>test/receptor_instruction_future_test.dart</code>
 <strong>Cross-layer:</strong> the orchestration equivalent is <code>Flow.fromFuture</code> in <code>cell_flow</code>.
 <strong>Minimal compilable example</strong></p>
-<pre class="language-dart"><code class="language-dart">final f = Cell.fromFuture&lt;int&gt;(Future.value(7));
+<pre class="language-dart"><code class="language-dart">final f = Cell.fromFuture&lt;int&gt;(Future.value(7), journal: RecordingJournal());
 final o = Cell.observe(source: f, effect: (Pulse p) =&gt; print(p.payload));
 await Future&lt;void&gt;.delayed(const Duration(milliseconds: 10));
 o.stop();
@@ -138,7 +139,11 @@ o.stop();
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Cell fromFuture&lt;T&gt;(Future&lt;T&gt; future) =&gt; _fromFuture&lt;T&gt;(future);</code></pre>
+  <pre class="language-dart"><code class="language-dart">static Cell fromFuture&lt;T&gt;(
+  Future&lt;T&gt; future, {
+  required EffectJournal journal,
+}) =&gt;
+    _fromFuture&lt;T&gt;(future, journal: journal);</code></pre>
 </section>
 
 
@@ -166,7 +171,7 @@ o.stop();
 <footer>
   <span class="no-break">
     mitosis
-      2.2.0
+      3.0.0
   </span>
   
 </footer>

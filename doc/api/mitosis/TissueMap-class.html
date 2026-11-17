@@ -152,7 +152,7 @@ print(uiView['score']); // 100
 <code>TissueSet</code> / <code>TissueQueue</code> / <code>TissueValue</code> constructor. Use <code>TestTissue</code>.
 This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-test.dart</code>.
   A new Map per bag — the payload on <code>V</code> carries the many.
-<strong>Live signature:</strong> <code>TissueMap&lt;K, V&gt;({bind, context, testRule, receptor, synapses, ...})</code> / <code>TissueMap.of(entries, {...})</code> / <code>TissueMap.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.0.0</code>
+<strong>Live signature:</strong> <code>TissueMap&lt;K, V&gt;({bind, context, testRule, receptor, synapses, ...})</code> / <code>TissueMap.of(entries, {...})</code> / <code>TissueMap.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.1.0</code>
 <strong>Do NOT confuse with:</strong> <code>Map</code> (dart:core — no validation, no collection pulses).
 <strong>Guide:</strong> <code>HowTo-Mitose-Tissue.md</code> §2.3 "TissueMap — open work keyed by location" (#tissue-map)
 <strong>Example:</strong> <code>example/cell_tissue_example.dart</code>
@@ -330,6 +330,18 @@ of this collection.
 </dt>
 <dd class="inherited">
   The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="id" class="property inherited">
+  <span class="name"><a href="../mitosis/Cell/id.html">id</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A stable, serialisable identifier for this cell handle.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -1527,7 +1539,7 @@ reactive map with explicit control over its behavioural and structural blueprint
 <footer>
   <span class="no-break">
     mitosis
-      2.2.0
+      3.0.0
   </span>
   
 </footer>

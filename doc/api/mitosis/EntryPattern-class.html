@@ -203,6 +203,22 @@ the <a href="../mitosis/EntryPattern/pattern.html">pattern</a>.</li>
 
 </dd>
 
+        <dt id="purity" class="property inherited">
+  <span class="name"><a href="../mitosis/TestRule/purity.html">purity</a></span>
+  <span class="signature">&#8594; <a href="../mitosis/Purity.html">Purity</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A rule's purity. Defaults to <a href="../mitosis/Purity.html">Purity.pure</a>; rules that perform
+external I/O must override — a rule that reads external state (a
+clock, an environment variable, a read-only database) to
+<a href="../mitosis/Purity.html">Purity.readOnlyExternal</a>, a rule that mutates external state (rare;
+mostly misuse) to <a href="../mitosis/Purity.html">Purity.effectful</a> and be journalled.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="runtimeType" class="property inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
@@ -211,6 +227,19 @@ the <a href="../mitosis/EntryPattern/pattern.html">pattern</a>.</li>
 </dt>
 <dd class="inherited">
   A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="version" class="property inherited">
+  <span class="name"><a href="../mitosis/TestRule/version.html">version</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A rule's version. Defaults to <code>'0.0.0'</code>; subclasses should override
+with a stable string. See <a href="../mitosis/Receptor/version.html">Receptor.version</a>.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -326,7 +355,7 @@ the <a href="../mitosis/EntryPattern/pattern.html">pattern</a>.</li>
 <footer>
   <span class="no-break">
     mitosis
-      2.2.0
+      3.0.0
   </span>
   
 </footer>

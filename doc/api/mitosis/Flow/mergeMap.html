@@ -123,7 +123,7 @@ ids.emit(2); // Starts fetching (parallel)
 <p><strong>Layer:</strong> Flow — concurrent flattener. Not a Cell factory, not a Tissue book.
 <strong>When to use:</strong> parallel CAD lookups / independent I/O per trigger; results in completion order.
 <strong>When NOT to use:</strong> order matters (concatMap) or only the latest matters (switchMap).
-<strong>Live signature:</strong> <code>Flow.mergeMap&lt;S, T&gt;(Cell source, {required FutureOr&lt;Object?&gt; Function(S value) project})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Live signature:</strong> <code>Flow.mergeMap&lt;S, T&gt;(Cell source, {required FutureOr&lt;Object?&gt; Function(S value) project})</code> — pinned at <code>cell_flow: 1.1.0</code>
 <strong>Do NOT confuse with:</strong> <code>Flow.switchMap</code> (cancels previous) and <code>Flow.concatMap</code> (queues inners).
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)
 <strong>Example:</strong> <code>example/async_map_parallel_search_demo.dart</code>
@@ -174,7 +174,7 @@ o.stop();
 <footer>
   <span class="no-break">
     mitosis
-      2.2.0
+      3.0.0
   </span>
   
 </footer>

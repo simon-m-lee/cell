@@ -139,7 +139,7 @@ This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-
 the WalkThrough named a Tissue book. Mutation signals and TestTissue
 validation only exist on the Tissue types.
 See <code>HowTo-Mitose-Tissue.md</code> §9 "Anti-patterns".
-<strong>Live signature:</strong> <code>TissueList&lt;E&gt;({bind, context, receptor, testRule, synapses, growable})</code> / <code>TissueList.of(iterable, {...})</code> / <code>TissueList.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.0.0</code>
+<strong>Live signature:</strong> <code>TissueList&lt;E&gt;({bind, context, receptor, testRule, synapses, growable})</code> / <code>TissueList.of(iterable, {...})</code> / <code>TissueList.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.1.0</code>
 <strong>Do NOT confuse with:</strong> <code>TissueQueue</code> (FIFO work, not indexable history) and <code>TissueSet</code> (unique membership, order not the story).
 <strong>Guide:</strong> <code>HowTo-Mitose-Tissue.md</code> §2.1 "TissueList — the audit book" (#tissue-list)
 <strong>Example:</strong> <code>example/cell_tissue_example.dart</code>
@@ -291,6 +291,18 @@ of this collection.
 </dt>
 <dd class="inherited">
   The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="id" class="property inherited">
+  <span class="name"><a href="../mitosis/Cell/id.html">id</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A stable, serialisable identifier for this cell handle.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -1705,7 +1717,7 @@ reactive list with explicit control over its behavioural and structural blueprin
 <footer>
   <span class="no-break">
     mitosis
-      2.2.0
+      3.0.0
   </span>
   
 </footer>

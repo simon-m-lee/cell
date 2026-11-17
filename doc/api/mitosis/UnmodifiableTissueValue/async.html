@@ -64,7 +64,7 @@
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-      <span class="returntype"><a href="../../mitosis/ValueCellAsync-class.html">ValueCellAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+      <span class="returntype"><a href="../../mitosis/ModifiableValueAsync-class.html">ModifiableValueAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
       get
       <span class="name ">async</span>
       <div class="features"><span class="feature">override</span></div>
@@ -75,7 +75,7 @@
   <p>Provides a high‑fidelity asynchronous handle for interacting with this
 reactive value within the <strong>Conactive Model</strong>.</p>
 <p>For an <a href="../../mitosis/UnmodifiableTissueValue-class.html">UnmodifiableTissueValue</a>, this getter returns a specialised
-<a href="../../mitosis/ValueCellAsync-class.html">ValueCellAsync</a> projection. While the standard <a href="../../mitosis/TissueValue-class.html">TissueValue</a>
+<a href="../../mitosis/ModifiableValueAsync-class.html">ModifiableValueAsync</a> projection. While the standard <a href="../../mitosis/TissueValue-class.html">TissueValue</a>
 interface provides synchronous access, the <code>.async</code> accessor bridges
 the gap for non‑blocking execution domains.</p>
 <h3 id="when-to-use">When to use</h3>
@@ -88,7 +88,7 @@ attempts will fail.</li>
 <li>Reads are synchronised via the cell's <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
-<p>A <a href="../../mitosis/ValueCellAsync-class.html">ValueCellAsync&lt;V&gt;</a> instance that provides a strictly
+<p>A <a href="../../mitosis/ModifiableValueAsync-class.html">ModifiableValueAsync&lt;V&gt;</a> instance that provides a strictly
 read‑only, asynchronous view of the reactive state.</p>
 </section>
 
@@ -96,7 +96,7 @@ read‑only, asynchronous view of the reactive state.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-ValueCellAsync&lt;V&gt; get async;</code></pre>
+ModifiableValueAsync&lt;V&gt; get async;</code></pre>
 </section>
 
   </section>
@@ -126,7 +126,7 @@ ValueCellAsync&lt;V&gt; get async;</code></pre>
 <footer>
   <span class="no-break">
     mitosis
-      2.2.0
+      3.0.0
   </span>
   
 </footer>

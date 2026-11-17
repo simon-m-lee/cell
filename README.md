@@ -4,11 +4,11 @@
 
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](https://github.com/simon-m-lee/cell/blob/master/LICENSE)
 [![Dart SDK](https://img.shields.io/badge/dart-%3E%3D3.5.0%20%3C4.0.0-blue.svg)](https://dart.dev)
-[![Status](https://img.shields.io/badge/status-2.2.1--stable-green.svg)](#-project-status--cadence)
+[![Status](https://img.shields.io/badge/status-3.0.0--stable-green.svg)](#-project-status--cadence)
 [![Melos](https://img.shields.io/badge/maintained%20with-melos-f700ff.svg)](https://github.com/invertase/melos)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#-contributing)
 
-**Mitosis** is a reactive application framework for Dart that treats state, events, and their **causal history** as one coherent, observable graph. It is an umbrella monorepo built from three layers — **Cell**, **Flow**, and **Tissue** — that scale from a single reactive value to a fully governed application body without ever dropping the forensic trail.
+**Mitosis** is a reactive application framework for Dart that treats state, events, and their **causal history** as one coherent, observable graph. It is an umbrella monorepo built from three layers — **Cell**, **Flow**, and **Tissue** — with a growing ecosystem of companion packages (Flutter bindings, cognitive policy) — that scale from a single reactive value to a fully governed application body without ever dropping the forensic trail.
 
 Mitosis is designed for systems where *why something happened* matters as much as *what happened*: financial and transaction-heavy software, security-sensitive services, audit-bound enterprise applications, real-time coordination, and increasingly, autonomous and multi-agent systems.
 
@@ -61,15 +61,30 @@ Mitosis is organized into three specialized layers. Each layer is a separate pac
 
 | Layer | Package | Version | Biological Analogue | Responsibility |
 |---|---|---|---|---|
-| **Core** | [**cell**](https://github.com/simon-m-lee/cell/tree/master/packages/cell) | `1.1.0` | The **cell** | Reactive primitives (`Cell`, `Pulse`, `Receptor`, `Nucleus`, `Synapses`), validation gates (`TestCell`), authority context (`Context`), deputies, transactions, and the causal integrity engine. |
-| **Orchestration** | [**cell_flow**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow) | `1.0.0` | The **nervous system** | 100+ Rx-shaped operators (`map`, `filter`, `debounce`, `throttle`, `switchMap`, `mergeMap`, `zip`, `retry`, `bufferCount`, …) as `FlowInstruction`s compiled into the *same* Cell graph — no translation layer. |
-| **Application** | [**cell_tissue**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue) | `1.0.0` | The **body** | Governed reactive collections (`TissueList`, `TissueSet`, `TissueMap`, `TissueQueue`, `TissueValue`) with validation, read-only views, deputies, capacity/backpressure, and async mutations. |
+| **Core** | [**cell**](https://github.com/simon-m-lee/cell/tree/master/packages/cell) | `2.0.0` | The **cell** | Reactive primitives (`Cell`, `Pulse`, `Receptor`, `Nucleus`, `Synapses`), validation gates (`TestCell`), authority context (`Context`), deputies, transactions, the causal integrity engine, and **Causal Replay** (effect journals, hash-chained ledgers, replay engine, what-if forks, governance replay, `cell-replay` CLI). |
+| **Orchestration** | [**cell_flow**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow) | `1.1.0` | The **nervous system** | 100+ Rx-shaped operators (`map`, `filter`, `debounce`, `throttle`, `switchMap`, `mergeMap`, `zip`, `retry`, `bufferCount`, …) as `FlowInstruction`s compiled into the *same* Cell graph — no translation layer. |
+| **Application** | [**cell_tissue**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue) | `1.1.0` | The **body** | Governed reactive collections (`TissueList`, `TissueSet`, `TissueMap`, `TissueQueue`, `TissueValue`) with validation, read-only views, deputies, capacity/backpressure, and async mutations. |
 
 **Key insight:** the graph, locks, validation, and provenance live in **cell**. Flow only decides *which* pulses leave and *when*. Tissue decides *where they are recorded and under which invariants*. The layers compose without duplicating governance.
 
 **Transactions are foundation, not add-on.** `Cell.transaction` (buffered multi-cell atomic commits) and `Cell.txApply` (staged commands with Saga compensation and rollback) ship in the core `cell` package. Flow pipelines and Tissue collections inherit them because they run on the same graph — a feature set most reactive frameworks do not offer.
 
-> 🌱 **Still dividing.** Like the biological process it is named after, Mitosis keeps growing. These three pillars are the foundation — more layers will come online as the ecosystem matures.
+### Beyond the pillars
+
+The umbrella ships additional packages alongside the three layers:
+
+| Package | Version | Role |
+|---|---|---|
+| [**cell_flutter**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter) | `1.0.0` | Flutter widget bindings (`CellBuilder`, `CellSelector`, `CellValueBuilder`, `CellListener`, error boundary, hooks layer, and a full test surface in `package:cell_flutter/testing.dart`). |
+| [**cell_flutter_persistence**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_persistence) | `0.1.0` | Durable state for `cell_flutter`: `CellPersistenceAdapter`, SharedPreferences/in-memory adapters, `PersistedCell`. |
+| [**cell_flutter_router**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_router) | `0.1.0` | `go_router` bridge: route state as a reactive cell (`CellRouterState`, `CellRouterStateMirror`, `CellRouterScope`, `useCellRouter`). |
+| [**cell_flutter_lints**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_lints) | `0.1.0` | Custom lint rules guarding the `cell_flutter` anti-patterns. |
+| `cell_mind` | `1.1.0` | Workspace member (cognitive policy: context-aware decisions, decision log with replay, prompted policy). Not yet published to pub.dev. |
+| `cell_organ` | `1.0.0` | Workspace-private package (`publish_to: none`). Not part of the published set. |
+
+The `cell_flutter/pipeline/` directory is repository tooling for running the Mitose pipeline on Flutter targets; it is **not published** and not part of the release set.
+
+> 🌱 **Still dividing.** Like the biological process it is named after, Mitosis keeps growing. These layers are the foundation — more layers will come online as the ecosystem matures.
 
 ---
 
@@ -244,10 +259,10 @@ cell/                          # Umbrella monorepo: "Mitosis"
 │   ├── ARCHITECTURE-AI-Generator.md
 │   └── FEATURES-AI-Generator.md
 ├── packages/
-│   ├── cell/                  # Core layer — reactive primitives & causal integrity
-│   │   ├── lib/               #   cell.dart, pulse, receptor, nucleus, synapses…
-│   │   ├── example/           #   Runnable demos (state, asyncMap, transaction…)
-│   │   ├── guide/             #   HowTo-*.md learning path
+│   ├── cell/                  # Core layer — reactive primitives, causal integrity & Causal Replay
+│   │   ├── lib/               #   cell.dart, pulse, receptor, nucleus, synapses, replay/…
+│   │   ├── example/           #   Runnable demos (state, asyncMap, transaction, replay forensics…)
+│   │   ├── guide/             #   HowTo-*.md learning path (incl. HowTo-Causal-Replay.md)
 │   │   ├── benchmark/         #   Micro/macro/memory suite, baseline.json, 15% regression gate
 │   │   └── test/
 │   ├── cell_flow/             # Orchestration layer — 100+ Flow operators
@@ -256,12 +271,23 @@ cell/                          # Umbrella monorepo: "Mitosis"
 │   │   ├── guide/
 │   │   ├── benchmark/         #   Per-operator cost pins, baseline.json, 15% regression gate
 │   │   └── test/
-│   └── cell_tissue/           # Application layer — reactive collections
-│       ├── lib/               #   tissue_list, tissue_map, tissue_queue, …
-│       ├── example/           #   Flow + Tissue seam demos (payments, dispatch, grid)
-│       ├── guide/
-│       ├── benchmark/         #   Per-shape mutation/propagation suite, baseline.json, 15% regression gate
-│       └── test/
+│   ├── cell_tissue/           # Application layer — reactive collections
+│   │   ├── lib/               #   tissue_list, tissue_map, tissue_queue, …
+│   │   ├── example/           #   Flow + Tissue seam demos (payments, dispatch, grid)
+│   │   ├── guide/
+│   │   ├── benchmark/         #   Per-shape mutation/propagation suite, baseline.json, 15% regression gate
+│   │   └── test/
+│   ├── cell_flutter/          # Flutter bindings — widgets, hooks, testing surface
+│   │   ├── lib/               #   cell_flutter.dart, hooks.dart, testing.dart
+│   │   ├── example/           #   Async search + production_app dogfooding app
+│   │   ├── guide/             #   Widget/hooks/migration guides
+│   │   ├── benchmark/         #   ValueListenableBuilder / Riverpod / Bloc comparisons
+│   │   └── pipeline/          #   Repository tooling (Flutter Mitose pipeline) — not published
+│   ├── cell_flutter_persistence/  # Durable state adapters for cell_flutter
+│   ├── cell_flutter_router/       # go_router bridge for cell_flutter
+│   ├── cell_flutter_lints/        # custom_lint rules for cell_flutter anti-patterns
+│   ├── cell_mind/             # Workspace member — cognitive policy (not on pub.dev)
+│   └── cell_organ/            # Workspace-private (publish_to: none)
 ├── example/                   # Umbrella demos — (Cell) instruction-side editions
 │   ├── card-auth-pipeline(Cell)-*   #   stock-operator FlowInstructionChain
 │   ├── grid-demand-response(Cell)-* #   custom GridDecisionInstruction
@@ -350,7 +376,7 @@ The umbrella package re-exports all three layers in one import:
 
 ```yaml
 dependencies:
-  mitosis: ^2.2.1
+  mitosis: ^3.0.0
 ```
 
 ```dart
@@ -361,12 +387,13 @@ Prefer the individual layers when you want fine-grained dependencies:
 
 ```yaml
 dependencies:
-  cell: ^1.1.0
-  cell_flow: ^1.0.0
-  cell_tissue: ^1.0.0
+  cell: ^2.0.0
+  cell_flow: ^1.1.0
+  cell_tissue: ^1.1.0
+  cell_flutter: ^1.0.0          # Flutter apps
 ```
 
-> ℹ️ These are the stable versions on pub.dev — `mitosis` `2.2.1` together with `cell` `1.1.0`, `cell_flow` `1.0.0`, and `cell_tissue` `1.0.0`.
+> ℹ️ These are the stable versions on pub.dev — `mitosis` `3.0.0` together with `cell` `2.0.0`, `cell_flow` `1.1.0`, `cell_tissue` `1.1.0`, and the `cell_flutter` family (`cell_flutter` `1.0.0`; `cell_flutter_persistence`, `cell_flutter_router`, `cell_flutter_lints` `0.1.0`).
 
 The workspace setup below is only needed for contributors working on the framework itself.
 
@@ -453,7 +480,7 @@ dart run example/stability_search_demo.dart
 
 | Document | What it is |
 |---|---|
-| [packages/cell/README.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/README.md) | Core layer: operators, governance, deputies, transactions |
+| [packages/cell/README.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/README.md) | Core layer: operators, governance, deputies, transactions, Causal Replay |
 | [packages/cell_flow/README.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/README.md) | Orchestration layer: full operator catalog, patterns, testing |
 | [packages/cell_tissue/README.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/README.md) | Application layer: collections, validation, Flow + Tissue seam |
 | [DEMO_GUIDE-Mitosis.md](https://github.com/simon-m-lee/cell/blob/master/DEMO_GUIDE-Mitosis.md) | Mitosis demo guide — the `(Cell)` instruction-side learning path |
@@ -472,12 +499,20 @@ dart run example/stability_search_demo.dart
 
 | Package | Version | Status |
 |---|---|---|
-| `mitosis` | `2.2.1` | Stable — on pub.dev |
-| `cell` | `1.1.0` | Stable — on pub.dev |
-| `cell_flow` | `1.0.0` | Stable — on pub.dev |
-| `cell_tissue` | `1.0.0` | Stable — on pub.dev |
+| `mitosis` | `3.0.0` | Stable — on pub.dev |
+| `cell` | `2.0.0` | Stable — on pub.dev (Causal Replay) |
+| `cell_flow` | `1.1.0` | Stable — on pub.dev |
+| `cell_tissue` | `1.1.0` | Stable — on pub.dev |
+| `cell_flutter` | `1.0.0` | Stable — on pub.dev |
+| `cell_flutter_persistence` | `0.1.0` | New — on pub.dev |
+| `cell_flutter_router` | `0.1.0` | New — on pub.dev |
+| `cell_flutter_lints` | `0.1.0` | New — on pub.dev |
 
-**Mitosis** is the umbrella codename for the release line. It is *not* part of the SemVer string. The **stable release line** is `cell` `1.1.0`, `cell_flow` `1.0.0`, `cell_tissue` `1.0.0`, and `mitosis` `2.2.1` — the umbrella version matches the **Mitose pipeline** version ([`guide/HowTo-Mitose.md`](guide/HowTo-Mitose.md) v2.2). These are the versions `dart pub add` resolves from pub.dev.
+**Mitosis** is the umbrella codename for the release line. It is *not* part of any package's SemVer string. The **stable release line** is `cell` `2.0.0`, `cell_flow` `1.1.0`, `cell_tissue` `1.1.0`, the `cell_flutter` family (`1.0.0` / `0.1.0`), and `mitosis` `3.0.0` — these are the versions `dart pub add` resolves from pub.dev.
+
+**The umbrella version is independent of the Mitose pipeline version.** The Mitose pipeline ([`guide/HowTo-Mitose.md`](guide/HowTo-Mitose.md), currently v2.2) and the `mitosis` package each carry their own SemVer. The umbrella version changes when the umbrella's own contents change — packages added to or removed from the set, re-export changes, or umbrella-level documentation — and the pipeline version changes when the pipeline changes. The two do not track each other: pipeline releases can happen without an umbrella release, and umbrella releases can carry package additions (such as the `cell_flutter` family) that are unrelated to the pipeline.
+
+**Umbrella `3.0.0` (MAJOR).** This release bumps the umbrella's dependency floor to `cell` `2.0.0`. The umbrella's own source is unchanged, but the bump is MAJOR because `mitosis` re-exports `package:cell/cell.dart`: the breaking change in `cell` `2.0.0` — `Cell.asyncMap`, `Cell.fromFuture`, `Cell.fromStream`, `Cell.debounce`, and `Cell.throttle` now require an `EffectJournal` — is therefore a breaking change for `mitosis` consumers who use those re-exported symbols. Code that compiled against `mitosis` `2.2.1` (which resolved `cell` `1.1.x`) will not compile against `3.0.0`. A dependency-floor change that exposes breaking changes through the package's own public surface is a MAJOR bump even when the package itself carries no code changes. This bump is driven by the package set, **not** by the Mitose pipeline.
 
 ---
 
@@ -502,10 +537,10 @@ Mitosis pays for itself first in systems where the causal trail is a requirement
 
 ## 🧾 Honest Caveats
 
-The stable release line on pub.dev is `mitosis` `2.2.1` with `cell` `1.1.0`, `cell_flow` `1.0.0`, and `cell_tissue` `1.0.0` (the first stable Mitosis release, replacing the earlier release candidates). Some things to know before you bet production on it:
+The stable release line on pub.dev is `mitosis` `3.0.0` with `cell` `2.0.0`, `cell_flow` `1.1.0`, and `cell_tissue` `1.1.0`, plus the Flutter family (`cell_flutter` `1.0.0`; `cell_flutter_persistence`, `cell_flutter_router`, and `cell_flutter_lints` `0.1.0`). Some things to know before you bet production on it:
 
 - **The Mitose pipeline is agentic tooling, not a validated code-generation service** — see [The Mitose Pipeline](#-the-mitose-pipeline). Output quality depends on the model (best to select a model which is built for agentic coding), the uploaded guide files, and the quality of the BRD. Treat every generated BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES as a first draft, and review it against the layer HowTos and live pub.dev APIs before relying on it.
-- **New layers may still appear.** The umbrella may add layers (`cell_organ`, …) that carry their own pre-release warnings.
+- **New layers and packages may still appear.** The umbrella keeps growing: the `cell_flutter` family shipped in the `2.0.0` line, and workspace members (`cell_mind`, …) carry their own pre-release or unpublished status. The umbrella version moves with the package set, not with the Mitose pipeline.
 - **`Context` metadata is not a compliance certification.** `Context.describe(...)` stores classification, actor, and purpose text; it does not implement or certify GDPR, HIPAA, PCI-DSS, or any other regulation.
 - **The framework is deliberately layered.** For a couple of flags or a single form, plain Dart or a lightweight notifier may be the better tool. Mitosis earns its complexity at scale.
 
@@ -545,10 +580,11 @@ Lee Man Hoi Simon — see [AUTHORS](https://github.com/simon-m-lee/cell/blob/mas
 
 - 🏠 **Repository:** [github.com/simon-m-lee/cell](https://github.com/simon-m-lee/cell)
 - 🐛 **Issues:** [github.com/simon-m-lee/cell/issues](https://github.com/simon-m-lee/cell/issues)
-- 📦 **pub.dev:** [cell](https://pub.dev/packages/cell) · [cell_flow](https://pub.dev/packages/cell_flow) · [cell_tissue](https://pub.dev/packages/cell_tissue)
+- 📦 **pub.dev:** [cell](https://pub.dev/packages/cell) · [cell_flow](https://pub.dev/packages/cell_flow) · [cell_tissue](https://pub.dev/packages/cell_tissue) · [cell_flutter](https://pub.dev/packages/cell_flutter) · [cell_flutter_persistence](https://pub.dev/packages/cell_flutter_persistence) · [cell_flutter_router](https://pub.dev/packages/cell_flutter_router) · [cell_flutter_lints](https://pub.dev/packages/cell_flutter_lints)
 - 📖 **Core layer:** [packages/cell](https://github.com/simon-m-lee/cell/tree/master/packages/cell)
 - 🔀 **Orchestration layer:** [packages/cell_flow](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow)
 - 🧩 **Application layer:** [packages/cell_tissue](https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue)
+- 📱 **Flutter bindings:** [packages/cell_flutter](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter)
 
 ---
 

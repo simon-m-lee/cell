@@ -119,7 +119,7 @@ final signupHandle = validateEmail.toHandle(source: signupField);
 <p><strong>Layer:</strong> Flow — the instruction interface. Not a Cell factory, not a Tissue book.
 <strong>When to use:</strong> type the chain (<code>FlowInstruction&lt;Cell, Pulse, Pulse&gt;</code>), compose with <code>+</code>, or write a small stateless gate closure.
 <strong>When NOT to use:</strong> clause-ordered policy with a resettable latch — subclass <code>FlowInstructionBase</code> instead (a bare closure cannot <code>reset()</code>).
-<strong>Live signature:</strong> <code>FlowInstruction&lt;C, I, O&gt;(O? Function(I pulse, {C? cell, dynamic user}) instruction, {dynamic user})</code> — pinned at <code>cell_flow: 1.0.0</code>
+<strong>Live signature:</strong> <code>FlowInstruction&lt;C, I, O&gt;(O? Function(I pulse, {C? cell, dynamic user}) instruction, {dynamic user})</code> — pinned at <code>cell_flow: 1.1.0</code>
 <strong>Do NOT confuse with:</strong> <code>FlowInstructionBase</code> (the base class you <em>extend</em> for stateful policy).
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §4 "When the BRD requires a custom FlowInstruction" (#flow-custom-instruction)
 <strong>Example:</strong> <code>example/cell_flow_example.dart</code>
@@ -349,7 +349,7 @@ defining pulse evolution within the reactive topography.
 <footer>
   <span class="no-break">
     mitosis
-      2.2.0
+      3.0.0
   </span>
   
 </footer>

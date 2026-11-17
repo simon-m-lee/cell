@@ -1,5 +1,82 @@
 # Changelog
 
+## Mitosis (3.0.0) - Causal Replay & Flutter Bindings
+
+> **Versioning decoupling + package-set update.** This entry records the
+> package additions since `2.2.1`, reverses the version-coupling policy
+> introduced in `2.2.0`, and bumps the umbrella to **`3.0.0` (MAJOR)** —
+> see the justification below.
+
+
+- **Why this is a MAJOR release (2.2.1 → 3.0.0).** The umbrella's own
+  source is unchanged; the major bump follows SemVer **through the
+  dependency surface**. `mitosis` re-exports `package:cell/cell.dart`, so
+  every breaking change in `cell` `2.0.0` is a breaking change for
+  `mitosis` consumers who use the re-exported symbols:
+  `Cell.asyncMap`, `Cell.fromFuture`, `Cell.fromStream`,
+  `Cell.debounce`, and `Cell.throttle` now require an `EffectJournal`,
+  and code that compiled against `mitosis` `2.2.1` (which resolved
+  `cell` `1.1.x`) no longer compiles. A dependency-floor change that
+  exposes breaking changes through the package's own public surface is a
+  MAJOR bump, even when the umbrella package itself carries no code
+  changes. This bump is driven by the package set, **not** by the Mitose
+  pipeline — the two version lines remain independent.
+- **Umbrella version no longer tracks the Mitose pipeline.** The `mitosis`
+  package version and the Mitose pipeline version
+  ([`guide/HowTo-Mitose.md`](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose.md))
+  are now **independent SemVer lines**. Underlying packages are added to,
+  removed from, or changed in the umbrella from time to time for reasons
+  unrelated to the pipeline (for example, the Flutter family below), and
+  pipeline bumps must not force an umbrella bump — or vice versa. The
+  umbrella version changes when the umbrella's own contents change:
+  packages added or removed, re-export changes, or umbrella-level docs.
+  (This supersedes the policy recorded in the `2.2.0` entry below.)
+- **`cell` `2.0.0` — Causal Replay.** The core package now ships the
+  Causal Replay module: `EffectJournal` recording/replay semantics,
+  canonical JSON codecs and SHA-256 fingerprints, identity and purity
+  classification, a hash-chained `Ledger` with tamper detection, a
+  deterministic `ReplayEngine` (incl. what-if forks and fork
+  verification), governance replay (`VersionRegistry`,
+  `ContextTranslator`), and the `cell-replay` CLI (`verify`, `diff`,
+  `fork`, `visualise`, `inspect`). Breaking change: the async operators
+  (`Cell.asyncMap`, `Cell.fromFuture`, `Cell.fromStream`,
+  `Cell.debounce`, `Cell.throttle`) now require an `EffectJournal` — and
+  because the umbrella re-exports these, this breaking change is what
+  makes the umbrella release a MAJOR bump (see above).
+  Full details in
+  [`packages/cell/CHANGELOG.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell/CHANGELOG.md).
+- **Flutter bindings family added** — four new packages, all first
+  publishes:
+  - [`cell_flutter`](https://pub.dev/packages/cell_flutter) `1.0.0` —
+    Flutter widget bindings (`CellBuilder`, `CellSelector`,
+    `CellValueBuilder`, `CellListener`, `CellErrorBoundary`), an optional
+    `flutter_hooks` layer, and a test surface
+    (`package:cell_flutter/testing.dart`).
+  - [`cell_flutter_persistence`](https://pub.dev/packages/cell_flutter_persistence)
+    `0.1.0` — durable state adapters (`CellPersistenceAdapter`,
+    SharedPreferences and in-memory adapters, `PersistedCell`).
+  - [`cell_flutter_router`](https://pub.dev/packages/cell_flutter_router)
+    `0.1.0` — `go_router` bridge (`CellRouterState`,
+    `CellRouterStateMirror`, `CellRouterScope`, `useCellRouter`).
+  - [`cell_flutter_lints`](https://pub.dev/packages/cell_flutter_lints)
+    `0.1.0` — custom lint rules for the `cell_flutter` anti-patterns.
+  - The `cell_flutter/pipeline/` directory (Flutter Mitose-pipeline
+    tooling) remains **repository tooling** and is excluded from the
+    published archive.
+- **Workspace members**: `cell_mind` `1.1.0` (cognitive policy) remains
+  a workspace member and is not yet published to pub.dev; `cell_organ`
+  stays workspace-private (`publish_to: none`). Neither is part of the
+  published umbrella set.
+- **Umbrella dependencies**: `cell: ^2.0.0` (was `^1.1.0`);
+  `cell_flow: ^1.1.0` and `cell_tissue: ^1.1.0` (both were `^1.0.0`) so the published graph resolves against the re-released siblings.
+- **README**: package inventory now covers the three pillars, the
+  Flutter family, and the workspace members; the versioning section
+  states the decoupled version policy.
+- **Package releases**: ships with `cell` `2.0.0`, `cell_flow` `1.1.0`,
+  `cell_tissue` `1.1.0`, `cell_flutter` `1.0.0`,
+  `cell_flutter_persistence` `0.1.0`, `cell_flutter_router` `0.1.0`,
+  and `cell_flutter_lints` `0.1.0`.
+
 ## Mitosis (2.2.1) - Patch Release
 
 - **Package archive hygiene**: the published umbrella archive no longer includes the repository-private `research/` notes directory — `/research/**` is now excluded via `.pubignore`. No public API, dependency, or documentation changes relative to `2.2.0`.

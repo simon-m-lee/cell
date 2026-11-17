@@ -140,7 +140,7 @@ state management and reactive patterns.
   <strong>DON'T</strong> use <code>Cell.state&lt;List&lt;E&gt;&gt;</code> as a system of record.
 Use <code>TissueList&lt;E&gt;</code> from <code>cell_tissue</code>.
 See <code>HowTo-Mitose-Tissue.md</code> §2.1 "TissueList — the audit book".
-<strong>Live signature:</strong> <code>Cell.state&lt;V&gt;({initial, evolve, testRule})</code> — pinned at <code>cell: 1.1.0</code>
+<strong>Live signature:</strong> <code>Cell.state&lt;V&gt;({initial, evolve, testRule})</code> — pinned at <code>cell: 2.0.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell.ingress</code> (stateless entry) and <code>TissueValue</code> (governed reserve book in <code>cell_tissue</code>).
 <strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)
 <strong>Example:</strong> <code>example/state_demo.dart</code>
@@ -198,7 +198,7 @@ print(counter.cell.value); // 5
 <footer>
   <span class="no-break">
     mitosis
-      2.2.0
+      3.0.0
   </span>
   
 </footer>

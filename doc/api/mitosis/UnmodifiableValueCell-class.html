@@ -147,6 +147,19 @@ authority, and causal lineage of this specific <a href="../mitosis/Cell-class.ht
 
 </dd>
 
+        <dt id="id" class="property inherited">
+  <span class="name"><a href="../mitosis/CellBase/id.html">id</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Wire identity. Delegates to the nucleus so deputies and their principal
+share one id unless a graph registration overrides it.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="isGoverned" class="property inherited">
   <span class="name"><a href="../mitosis/CellBase/isGoverned.html">isGoverned</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
@@ -465,6 +478,20 @@ designed to evolve the same payload multiple times.
 
 </dd>
 
+        <dt id="restoreValue" class="callable inherited">
+  <span class="name"><a href="../mitosis/ValueCell/restoreValue.html">restoreValue</a></span><span class="signature">(<wbr><span class="parameter" id="restoreValue-param-prior"><span class="type-annotation">V?</span> <span class="parameter-name">prior</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Writes <code>prior</code> into storage and notifies observers without running
+<code>evolve</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="tap" class="callable">
   <span class="name"><a href="../mitosis/CellFlowOperators/tap.html">tap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="tap-param-onValue"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">onValue</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="tap-param-onError"><span class="type-annotation">TapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
     <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
@@ -546,7 +573,7 @@ instruction designed to perform side-effects without altering pulse evolution.
 <footer>
   <span class="no-break">
     mitosis
-      2.2.0
+      3.0.0
   </span>
   
 </footer>
