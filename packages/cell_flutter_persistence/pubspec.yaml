@@ -1,6 +1,6 @@
 name: cell_flutter_persistence
 description: "Persistence adapters for cell_flutter: durable state with SharedPreferences or custom backends."
-version: 0.1.0
+version: 0.1.1
 homepage: https://github.com/simon-m-lee/cell
 environment:
   sdk: '>=3.5.0 <4.0.0'

@@ -1,0 +1,15 @@
+name: cell_flutter_router_example
+description: Example application for cell_flutter_router.
+publish_to: none
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+  flutter: '>=3.24.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cell_flutter: ^1.0.0
+  cell_flutter_router:
+    path: ..
+  go_router: '>=14.0.0 <19.0.0'
