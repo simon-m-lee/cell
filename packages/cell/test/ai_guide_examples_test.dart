@@ -22,10 +22,13 @@ void main() {
   test('generated AI guide example file is up to date', () {
     final blocks = parseAllBlocks('lib');
     expect(blocks, isNotEmpty, reason: 'No AI Agent Guide blocks in lib/');
-    final expected = generateExamples(blocks);
+    // Normalize line endings on both sides so a git/autocrlf checkout
+    // (CRLF working tree, LF index) cannot make the freshness check
+    // fail on Windows.
+    final expected = generateExamples(blocks).replaceAll('\r\n', '\n');
     final file = File(generated);
     expect(file.existsSync(), isTrue, reason: 'Generated file missing');
-    expect(file.readAsStringSync(), expected,
+    expect(file.readAsStringSync().replaceAll('\r\n', '\n'), expected,
         reason: 'Run: dart run tool/generate_ai_examples.dart');
   });
 

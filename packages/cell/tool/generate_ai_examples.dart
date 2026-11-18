@@ -88,7 +88,7 @@ Future<void> main(List<String> args) async {
     exitCode = 1;
     return;
   }
-  final output = generateExamples(blocks);
+  final output = generateExamples(blocks).replaceAll('\r\n', '\n');
   final file = File('$root${Platform.pathSeparator}test'
       '${Platform.pathSeparator}ai_guide_examples'
       '${Platform.pathSeparator}ai_guide_examples.generated.dart');

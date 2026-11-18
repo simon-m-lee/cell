@@ -15,6 +15,9 @@ What is automatic
     `test/` — including the Causal Replay suites under `test/replay/` —
     plus shared helpers that declare `test(` / `group(` (e.g.
     `test/replay/ledger_store_conformance.dart`)
+  - a source-under-test inventory of `lib/` — `lib/src/` (the core
+    engine) and `lib/replay/` (the Causal Replay module) — so the
+    report shows both halves of the package
   - group and test names listed under each file
   - optional `dart test` pass/fail
   - optional lcov line table if coverage/lcov.info exists or --coverage is set
@@ -129,6 +132,41 @@ def lib_rel(path: str) -> str:
     return norm
 
 
+def discover_sources(root: Path) -> list[dict]:
+    """Inventory the library under test (`lib/**/*.dart`).
+
+    The report groups the files into three areas so both halves of the
+    package are visible: `lib/src/` (core engine), `lib/replay/` (Causal
+    Replay), and the top-level barrels (`lib/*.dart`).
+    """
+    sources = []
+    lib_dir = root / "lib"
+    if not lib_dir.is_dir():
+        return sources
+    for p in sorted(lib_dir.rglob("*.dart")):
+        if not p.is_file():
+            continue
+        rel = str(p.relative_to(root)).replace("\\", "/")
+        if rel.startswith("lib/replay/"):
+            area = "replay"
+        elif rel.startswith("lib/src/"):
+            area = "src"
+        else:
+            area = "top-level"
+        text = p.read_text(encoding="utf-8", errors="replace")
+        lines = text.count("\n") + (0 if text.endswith("\n") or not text else 1)
+        sources.append(
+            {
+                "rel": rel,
+                "name": p.name,
+                "area": area,
+                "lines": lines,
+                "bytes": p.stat().st_size,
+            }
+        )
+    return sources
+
+
 def parse_lcov(lcov: Path) -> list[dict]:
     rows = []
     if not lcov.exists():
@@ -169,6 +207,19 @@ _SUMMARY_RE = re.compile(
 _PLUS_LINE_RE = re.compile(
     r"\+(?P<passed>\d+)(?:\s+-(?P<failed>\d+))?(?:\s+~(?P<skipped>\d+))?:",
 )
+
+
+def has_main(path: Path) -> bool:
+    """Shared helper files declare `test(` but no `main(` — they cannot be
+    run as a test entry point and must be excluded from `dart test`.
+    Match a real `main()` declaration at line start (not a doc-comment
+    mention such as the one in test/replay/ledger_store_conformance.dart)."""
+    text = path.read_text(encoding="utf-8", errors="replace")
+    return re.search(
+        r"^\s*(?:void\s+|Future<void>\s+|FutureOr<void>\s+)?main\s*\(\s*\)",
+        text,
+        re.M,
+    ) is not None
 
 
 def run_dart_test(package: Path, files: list[Path], coverage_dir: Path | None) -> dict:
@@ -237,6 +288,7 @@ def render(md: dict) -> str:
     total_bytes = sum(f["bytes"] for f in files)
     run = md.get("run")
     cov = md.get("coverage") or []
+    sources = md.get("sources") or []
 
     lines = []
     a = lines.append
@@ -255,6 +307,7 @@ def render(md: dict) -> str:
     a("  - [Snapshot](#snapshot)")
     a("  - [Quick Stats](#quick-stats)")
     a("- [Test File Inventory](#test-file-inventory)")
+    a("- [Source Under Test (`lib/`)](#source-under-test-lib)")
     a("- [Detailed Test Coverage](#detailed-test-coverage)")
     for i, f in enumerate(files, 1):
         heading = f"File {i}: {f['name']} ({f['tests']} tests)"
@@ -277,6 +330,17 @@ def render(md: dict) -> str:
         "Counts are `test(` declarations."
     )
     a("")
+    if sources:
+        n_src = sum(1 for s in sources if s["area"] == "src")
+        n_replay = sum(1 for s in sources if s["area"] == "replay")
+        n_top = sum(1 for s in sources if s["area"] == "top-level")
+        a(
+            f"The library under test is **{len(sources)} source files** in "
+            f"`lib/`: **{n_src}** under `lib/src/` (core engine), "
+            f"**{n_replay}** under `lib/replay/` (Causal Replay module), and "
+            f"**{n_top}** top-level barrel(s)."
+        )
+        a("")
     a("This file is **generated**. Edit the script flags or the stub sections "
       "at the bottom; do not hand-count `test(`.")
     a("")
@@ -357,6 +421,36 @@ def render(md: dict) -> str:
     a("")
     a("---")
     a("")
+    if sources:
+        a("## Source Under Test (`lib/`)")
+        a("")
+        a(
+            "Both halves of the package are inventoried: `lib/src/` (the core "
+            "engine) and `lib/replay/` (the Causal Replay module), plus the "
+            "top-level barrels."
+        )
+        a("")
+        a("| Area | Files | Lines | Size |")
+        a("|------|------:|------:|-----:|")
+        for area, label in (
+            ("src", "`lib/src/` — core engine"),
+            ("replay", "`lib/replay/` — Causal Replay"),
+            ("top-level", "top-level barrels"),
+        ):
+            in_area = [s for s in sources if s["area"] == area]
+            a(
+                f"| {label} | {len(in_area)} | "
+                f"{sum(s['lines'] for s in in_area):,} | "
+                f"{format_kb(sum(s['bytes'] for s in in_area))} |"
+            )
+        a("")
+        a("| File | Lines | Size |")
+        a("|------|------:|-----:|")
+        for s in sources:
+            a(f"| `{s['rel']}` | {s['lines']:,} | {format_kb(s['bytes'])} |")
+        a("")
+        a("---")
+        a("")
     a("## Detailed Test Coverage")
     a("")
     a("Generated from `group(` / `test(` names. Tighten the prose by hand if needed.")
@@ -440,6 +534,10 @@ def render(md: dict) -> str:
       "`replay_contract_test.dart` is the conformance harness for every "
       "`LedgerStore` implementation, and the engine's determinism gate "
       "lives in the replay suite.")
+    a("7. The report inventories both halves of the package — `lib/src/` "
+      "and `lib/replay/` (Source Under Test) with `test/` and `test/replay/` "
+      "(the suites) — so new replay tests and new replay sources should "
+      "appear together in the next generation.")
     a("")
     a("---")
     a("")
@@ -523,10 +621,16 @@ def main() -> int:
     for entry in analyzed:
         entry["rel"] = str(entry["path"].relative_to(test_dir)).replace("\\", "/")
 
+    sources = discover_sources(root)
+
     run = None
     if args.run_tests or args.coverage:
         cov_dir = root / "coverage" if args.coverage else None
-        run = run_dart_test(root, files, cov_dir)
+        # Shared helpers (e.g. test/replay/ledger_store_conformance.dart)
+        # declare tests but have no `main()` — `dart test` cannot run them
+        # as entry points, so only runnable files are passed.
+        runnable = [f for f in files if has_main(f)]
+        run = run_dart_test(root, runnable, cov_dir)
         if args.coverage:
             lcov_path = root / args.lcov
             if not lcov_path.exists():
@@ -557,6 +661,7 @@ def main() -> int:
             "root": package_display_root(name),
         },
         "files": analyzed,
+        "sources": sources,
         "run": run,
         "coverage": cov_rows,
     }
