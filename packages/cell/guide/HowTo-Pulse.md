@@ -50,6 +50,7 @@ Both parts cover the same underlying material.
 25. [Procedure J: Persist Pulse Provenance](#25-procedure-j-persist-pulse-provenance)
 26. [Verification Checklist for AI Agents](#26-verification-checklist-for-ai-agents)
 27. [References](#27-references)
+28. [Serializing a Pulse](#28-serializing-a-pulse)
 
 ---
 
@@ -1001,5 +1002,132 @@ If any check fails, correct the code before returning it. If a check cannot be v
 | [`packages/cell_organ/guide/Conactive_Model_Reference.md`](../cell_organ/guide/Conactive_Model_Reference.md) | The biological vocabulary explained. |
 
 ---
+
+## 28. Serializing a Pulse
+
+### 28.1 — The two idioms
+
+```dart
+// Encode — extension on Pulse<P>.
+final json = pulse.toJson();
+
+// Decode — factory on the Pulse interface, with a resolver for
+// source cells and optional overrides for every constructor param.
+final decoded = Pulse.fromJson(
+  json,
+  resolver: (id) => graph.cellById(id),
+  onComplete: myCallback, // optional override
+);
+```
+
+`toJson` is an **extension**, not an interface method — adding a
+method to `Pulse` would break every implementer. The extension gives
+the same ergonomics and stays additive. The underlying codec is the
+top-level pair `encodePulse` / `decodePulse`.
+
+### 28.2 — What round-trips
+
+| Field | Round-trips? | Notes |
+|---|---|---|
+| `payload` | ✅ JSON-encodable values | `int`, `String`, `bool`, `List`, `Map`, `null`; `DateTime` encodes to millisecond ISO-8601 (decodes as a `String`) |
+| `type` | ✅ `String` types | non-`String` types encode as `null` |
+| `timestamp` | ✅ millisecond precision, UTC | sub-millisecond precision is lost |
+| `source.id` | ✅ if the resolver returns the cell | the resolver is your contract |
+| `priority` | ✅ | |
+| `context` | ✅ via the `PulseContext` codec | |
+| `parent` / `trace` / `root` | ✅ recursive | the full causal chain, including evolved (appended-pulse) steps |
+| `user` | ✅ JSON-encodable | |
+| `policy` | ❌ | encode fails with `PulseNotSerializable('policy')` |
+| `onComplete` / `onError` / `onProgress` | ❌ | encode fails, naming the callback |
+| `scrutinize` | ❌ | encode fails |
+| `branches` / cycle checker | ❌ | per-wave runtime state; fresh on decode |
+| collective `children` | ✅ | `isComposite: true` + `children` array |
+
+### 28.3 — The non-serializable fields: fail loudly, don't fake it
+
+`encodePulse` / `toJson` throw `PulseNotSerializable(field, pulse)`
+for the first offending field anywhere in the pulse's causal chain:
+
+- `policy` — lifecycle governance carries closures.
+- `onComplete` / `onError` / `onProgress` — callbacks cannot be
+  serialized; silently dropping one would change replay semantics.
+- `scrutinize` — an authorization challenge function.
+- `source` — a cell whose `Cell.id` is empty.
+- `payload` / `context` / `user` — a value that is not JSON-encodable.
+
+`PulseDecodeError(message, cause)` is the counterpart: missing or
+unsupported `__pulse__` version discriminator, malformed timestamps /
+contexts / children, or an invalid override for the JSON's shape.
+
+### 28.4 — The resolver contract
+
+```dart
+typedef PulseResolver = Cell? Function(String id);
+```
+
+The codec is graph-agnostic: when the wire carries a `source`, it
+records the `Cell.id` (stable per the `Cell.id` contract) and the
+decoder asks **your resolver** for the live cell. A `null` resolution
+is not an error — the decoded pulse has `source == null`. Omit the
+resolver and the same happens, which is correct for a pulse whose
+originating cell has been collected.
+
+### 28.5 — The extended factory's overrides
+
+`Pulse.fromJson` accepts an override for every constructor parameter:
+
+| Field | Absent override | Override | Sentinel |
+|---|---|---|---|
+| `policy` | `null` (decoded pulses never have one) | the given policy | `pulseNullPolicy` |
+| `context` | the JSON's context | the given context | — (`null` = use JSON) |
+| `payload` | the JSON's payload | the given payload | `pulseNullPayload` |
+| `type` | the JSON's type | the given type | `pulseNullType` |
+| `source` | the resolved source | the given source | `pulseNullSource` |
+| `step` | the JSON's step | the given step | `pulseNullStep` |
+| `priority` | the JSON's priority | the given priority | — (`null` = use JSON) |
+| `onComplete` / `onError` / `onProgress` | `null` | the given callback | — |
+
+A nullable parameter cannot distinguish "no override" from
+"explicitly override to null" — the five `const` sentinels
+disambiguate. Pass the sentinel **itself**; identity is the only way
+to use one. A user value that merely equals a sentinel by `==` is an
+override.
+
+The factory preserves the decoded pulse's **parent chain by
+construction** — a manual `Pulse(...)` reconstruction would silently
+drop the causal lineage.
+
+### 28.6 — Collective pulses
+
+A JSON with `isComposite: true` cannot take a `payload` override
+(`PulseDecodeError`); children cannot be overridden. Build a different
+collective via `Pulse.batch`.
+
+### 28.7 — The non-serializable-override interaction
+
+Overriding `onComplete` / `onError` / `onProgress` / `policy` produces
+a pulse that cannot be re-encoded: `toJson` on the result throws the
+corresponding `PulseNotSerializable`. That is the honest answer — the
+caller chose to attach a non-serializable field.
+
+### 28.8 — Symmetry and asymmetry
+
+- `Pulse.fromJson(pulse.toJson())` reproduces the pulse at codec
+  precision (non-overridden fields).
+- `toJson` on a decoded pulse re-encodes **canonically**: a
+  hand-crafted non-canonical JSON is normalized, not necessarily
+  reproduced byte-identically.
+- Two pulses with the same logical content produce the same canonical
+  byte string (`canonicalJsonEncode`).
+
+### 28.9 — The `PulseEphemeralPolicy` gap
+
+The codec never reconstructs a policy except by explicit override in
+`Pulse.fromJson` — a policy carries two closures and would need a
+closure-factory registry. Serializing `PulseEphemeralPolicy` is a
+separate concern.
+
+---
+
 
 *If a guide and the source disagree, the source is current.*

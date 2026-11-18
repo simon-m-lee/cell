@@ -1,3 +1,36 @@
+## Unreleased — Pulse Serialization & Reconstruction
+
+The user-facing pulse serialization layer: a wire codec, an extended
+factory, an extension, a resolver contract, and five override
+sentinels.
+
+- Add `Pulse.toJson` extension on `Pulse<P>` — encodes the full
+  recursive pulse (payload, type, millisecond UTC timestamp, source
+  id, priority, context, step, user, parent chain, collective
+  children) under a `__pulse__: "1.0.0"` version discriminator.
+- Add `Pulse.fromJson` factory constructor with a full override
+  surface for every constructor parameter: `policy`, `context`,
+  `payload`, `type`, `source`, `step`, `priority`, `onComplete`,
+  `onError`, `onProgress`.
+- Add `encodePulse` / `decodePulse` top-level codec functions.
+- Add `PulseResolver` typedef — the caller's contract for resolving a
+  `Cell.id` back to a live cell; a `null` resolution decodes as
+  `source == null`.
+- Add `PulseNotSerializable(field, pulse)` and
+  `PulseDecodeError(message, cause)` typed errors. Non-serialisable
+  fields (policy, callbacks, scrutinize, empty source id,
+  non-JSON-encodable payload/context/user) fail loudly anywhere in
+  the causal chain — never silently dropped.
+- Add the five override sentinels `pulseNullPolicy`,
+  `pulseNullPayload`, `pulseNullType`, `pulseNullSource`,
+  `pulseNullStep` (identity-based null overrides).
+- Round-trip contract: payload (JSON-encodable), String types,
+  millisecond timestamps, priority, context, the full parent/evolved
+  chain with steps, `user`, and collective children round-trip;
+  branches and the cycle checker are per-wave state and reset on
+  decode. `PulseEphemeralPolicy` serialization remains out of scope.
+- Document the layer in `guide/HowTo-Pulse.md` §28.
+
 ## Cell (2.0.0) - Causal Replay
 
 Causal Replay makes a Cell graph's history first-class evidence: every

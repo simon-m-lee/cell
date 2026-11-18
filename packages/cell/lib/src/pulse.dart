@@ -6,6 +6,67 @@
 
 part of '../cell.dart';
 
+/// Resolves a `Cell.id` to a live [Cell].
+///
+/// ### When to use
+/// Pass a resolver to [Pulse.fromJson] / [decodePulse] when the decoded
+/// pulse carries a `source`. The resolver is the caller's contract with
+/// the decoded pulse: it answers "which cell is this id?" The codec does
+/// not supply a global registry, because the graph is the caller's
+/// context, not the codec's.
+///
+/// ### How it works
+/// The replay engine's resolver reads from the current graph; a unit
+/// test's resolver returns a stub cell; a tooling resolver returns
+/// `null` for ids that are not in the current graph. A `null` resolution
+/// is not an error — the decoded pulse has `source == null`.
+///
+/// {@category Replay}
+typedef PulseResolver = Cell? Function(String id);
+
+// ── Override sentinels ──────────────────────────────────────────────────────
+//
+// `Pulse.fromJson` accepts an override for every constructor parameter.
+// A nullable parameter cannot distinguish "no override" (use the JSON's
+// value) from "explicitly override to null", so five `const` singletons
+// disambiguate the two. Identity (`identical`) is the only way to use a
+// sentinel: a user value that merely equals one by `==` is an override.
+
+/// Explicitly override `policy` to `null` in [Pulse.fromJson].
+const Object pulseNullPolicy = _PulseNullPolicy();
+
+/// Explicitly override `payload` to `null` in [Pulse.fromJson].
+const Object pulseNullPayload = _PulseNullPayload();
+
+/// Explicitly override `type` to `null` in [Pulse.fromJson].
+const Object pulseNullType = _PulseNullType();
+
+/// Explicitly override `source` to `null` in [Pulse.fromJson].
+const Object pulseNullSource = _PulseNullSource();
+
+/// Explicitly override `step` to `null` in [Pulse.fromJson].
+const Object pulseNullStep = _PulseNullStep();
+
+class _PulseNullPolicy {
+  const _PulseNullPolicy();
+}
+
+class _PulseNullPayload {
+  const _PulseNullPayload();
+}
+
+class _PulseNullType {
+  const _PulseNullType();
+}
+
+class _PulseNullSource {
+  const _PulseNullSource();
+}
+
+class _PulseNullStep {
+  const _PulseNullStep();
+}
+
 /// An immutable signal derived from a previous pulse through a transformation
 /// step — a causal link in the signal's journey.
 ///
@@ -454,6 +515,143 @@ abstract interface class Pulse<P>
         onError: onError,
         onProgress: onProgress,
       );
+
+  /// Constructs a pulse from the canonical JSON produced by
+  /// [Pulse.toJson], with optional overrides for every constructor
+  /// parameter.
+  ///
+  /// The result is a **decoded pulse** — its `source` is resolved via
+  /// [resolver] (or overridden by `source`), its `policy` and callbacks
+  /// are `null` unless overridden, and its `branches` and cycle checker
+  /// are fresh. The decoded pulse is semantically the same pulse the
+  /// original had on the wire, plus the caller's overrides.
+  ///
+  /// ## Version discriminator
+  ///
+  /// The JSON must carry `"__pulse__": "<version>"` where `<version>` is
+  /// supported by the current codec (`1.x`). A missing or unsupported
+  /// version throws [PulseDecodeError].
+  ///
+  /// ## Source resolution
+  ///
+  /// If the encoded pulse carries a `source`, [resolver] is called with
+  /// the encoded [Cell.id]. The resolver returns the live cell with that
+  /// id, or `null` if the cell is not in the current graph. A `null`
+  /// resolution is not an error — the decoded pulse has `source == null`.
+  ///
+  /// If `source` is passed, it overrides the resolver's result. To
+  /// **strip** a source from the JSON, pass `source: pulseNullSource`.
+  ///
+  /// ## Overrides
+  ///
+  /// Every override is optional. An absent override means "use the JSON's
+  /// value." A sentinel (`pulseNullX`) means "explicitly override to
+  /// null." Anything else is an override.
+  ///
+  /// | Field | Absent override | Override | Sentinel |
+  /// |---|---|---|---|
+  /// | `policy` | `null` (a decoded pulse never has a policy) | the given policy | `pulseNullPolicy` (equivalent to absent) |
+  /// | `context` | the JSON's context | the given context | — (`null` means "use JSON") |
+  /// | `payload` | the JSON's payload | the given payload | `pulseNullPayload` |
+  /// | `type` | the JSON's type (inheriting from parent) | the given type | `pulseNullType` |
+  /// | `source` | the resolved source, or `null` | the given source | `pulseNullSource` |
+  /// | `step` | the JSON's step | the given step | `pulseNullStep` |
+  /// | `priority` | the JSON's priority (inheriting from parent) | the given priority | — (`null` means "use JSON") |
+  /// | `onComplete` | `null` | the given callback | — (`null` means "use JSON", i.e., none) |
+  /// | `onError` | `null` | the given callback | — (`null` means "use JSON", i.e., none) |
+  /// | `onProgress` | `null` | the given callback | — (`null` means "use JSON", i.e., none) |
+  ///
+  /// ## Collective pulses
+  ///
+  /// A JSON with `isComposite: true` cannot have a `payload` override;
+  /// the factory throws [PulseDecodeError]. The `children` cannot be
+  /// overridden; a caller who wants different children constructs a new
+  /// collective via [Pulse.batch].
+  ///
+  /// ## Re-encodability
+  ///
+  /// A pulse with an overridden `onComplete`, `onError`, `onProgress`, or
+  /// `policy` cannot be re-encoded. [Pulse.toJson] on the result throws
+  /// the corresponding [PulseNotSerializable]. This is the honest answer:
+  /// the caller chose to attach a non-serializable field.
+  ///
+  /// ## Errors
+  ///
+  /// - [PulseDecodeError] if the JSON is malformed, the version is
+  ///   unsupported, or an override is invalid for the JSON's shape.
+  /// - [PulseNotSerializable] is **not** thrown by this factory; it is
+  ///   thrown by [Pulse.toJson].
+  factory Pulse.fromJson(
+    Map<String, dynamic> json, {
+    PulseResolver? resolver,
+
+    // Overrides. Absent or null means "use the JSON's value."
+    // Sentinels mean "explicitly override to null."
+    Object? policy,
+    PulseContext? context,
+    Object? payload,
+    Object? type,
+    Object? source,
+    Object? step,
+    int? priority,
+    void Function(Pulse pulse)? onComplete,
+    void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? onError,
+    void Function(Pulse pulse, Cell cell, {String? message})? onProgress,
+  }) {
+    // 1. Reject an invalid override before any decoding work.
+    if (json['isComposite'] == true && payload != null) {
+      throw PulseDecodeError(
+        'cannot override payload on a collective pulse; '
+        'construct via Pulse.batch',
+      );
+    }
+
+    // 2. Decode the JSON's envelope.
+    final decoded = decodePulse(json, resolver: resolver);
+
+    // 3. Apply overrides. The helper implements the sentinel convention:
+    //    absent → JSON's value; sentinel → explicit null; present → the
+    //    override. Sentinels compare by identity — pass the sentinel
+    //    itself, never a value that merely equals it.
+    T? resolveOverride<T>(Object? override, Object sentinel, T? current) {
+      if (identical(override, sentinel)) return null;
+      if (override == null) return current;
+      return override as T;
+    }
+
+    final effectivePayload =
+        resolveOverride<P>(payload, pulseNullPayload, decoded.payload as P?);
+    final effectiveType =
+        resolveOverride<Object?>(type, pulseNullType, decoded.type);
+    final effectiveSource =
+        resolveOverride<Cell>(source, pulseNullSource, decoded.source);
+    final effectiveStep =
+        resolveOverride<String>(step, pulseNullStep, _localStepOf(decoded));
+    final effectivePolicy = identical(policy, pulseNullPolicy)
+        ? null
+        : (policy as PulseEphemeralPolicy?);
+    final effectiveContext = context ?? decoded.context;
+    final effectivePriority = priority ?? decoded.priority;
+    final effectiveParent = decoded._parent;
+
+    // 4. Construct. The type parameter P is the caller's; the cast is
+    //    safe because the override or the decoded payload is already
+    //    the correct type.
+    return _Pulse<P>(
+      payload: effectivePayload,
+      type: effectiveType,
+      context: effectiveContext,
+      timestamp: decoded.timestamp,
+      source: effectiveSource,
+      step: effectiveStep,
+      priority: effectivePriority,
+      policy: effectivePolicy,
+      parent: effectiveParent,
+      onComplete: onComplete,
+      onError: onError,
+      onProgress: onProgress,
+    );
+  }
 
   /// The primary data or instruction carried by this signal.
   ///
@@ -1049,6 +1247,23 @@ abstract interface class Pulse<P>
   /// A fixed-length [List<T>] containing the historical values in
   /// chronological order (Primordial -> Present).
   List<T> lineage<T>(LineageArgument arg);
+}
+
+/// Encodes this pulse to its canonical JSON wire form via [encodePulse].
+///
+/// The result is symmetric with [Pulse.fromJson] for the fields that are
+/// **not** overridden. For a pulse whose round-trip is defined (see the
+/// codec's round-trip table), `Pulse.fromJson(p.toJson())` reproduces the
+/// pulse to the codec's documented precision — millisecond timestamps,
+/// JSON-encodable payloads, `String` types, and the full parent chain.
+///
+/// Throws [PulseNotSerializable] if the pulse (or any pulse in its
+/// `parent` chain) carries a `policy`, an `onComplete` / `onError` /
+/// `onProgress` callback, or a `scrutinize` function.
+///
+/// {@category Replay}
+extension PulseJson<P> on Pulse<P> {
+  Map<String, dynamic> toJson() => encodePulse(this as PulseBase);
 }
 
 /// A read‑only projection of a pulse that enforces structural finality.

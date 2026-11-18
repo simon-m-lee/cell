@@ -53,7 +53,7 @@ class PulseCodec {
         pulse,
         'pulse',
         'PulseCodec cannot encode _FastPulse. '
-        'Call `PulseCodec.materialise()` first.',
+            'Call `PulseCodec.materialise()` first.',
       );
     }
     if (pulse is _StepPulse) {
@@ -61,7 +61,7 @@ class PulseCodec {
         pulse,
         'pulse',
         'PulseCodec cannot encode _StepPulse directly. '
-        'Call `PulseCodec.materialise()` first.',
+            'Call `PulseCodec.materialise()` first.',
       );
     }
 
@@ -149,9 +149,9 @@ class PulseCodec {
     // encode(decode(x)) == encode(x)): a system context round-trips to
     // `null` storage and the pulse stays ungoverned.
     final effectiveContext = canonicalJsonEncode(
-          PulseContextCodec.toJson(context),
-        ) ==
-        canonicalJsonEncode(PulseContextCodec.toJson(PulseContext.system))
+              PulseContextCodec.toJson(context),
+            ) ==
+            canonicalJsonEncode(PulseContextCodec.toJson(PulseContext.system))
         ? null
         : context;
 
@@ -266,8 +266,7 @@ class PulseCodec {
     final hasAppendedPulse = base._pulse != null;
     return _plainPulse(
       payload: base.payload,
-      localPayload:
-          (shape & PulseBase._kPayload) != 0 || hasAppendedPulse,
+      localPayload: (shape & PulseBase._kPayload) != 0 || hasAppendedPulse,
       type: (shape & PulseBase._kType) != 0 || hasAppendedPulse
           ? base.type
           : null,
@@ -368,8 +367,8 @@ class PulseCodec {
       payload,
       'payload',
       'PulseCodec cannot encode ${payload.runtimeType}. '
-      'Provide a payload that is JSON-encodable, or register a custom '
-      'payload codec for your domain type.',
+          'Provide a payload that is JSON-encodable, or register a custom '
+          'payload codec for your domain type.',
     );
   }
 
@@ -443,4 +442,379 @@ class _ReplayCellRegistry {
   static void forceReset() {
     _cells.clear();
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Public pulse JSON codec — `encodePulse` / `decodePulse` (Pulse-Serialization
+// plan). Distinct from [PulseCodec]: this codec serialises the full recursive
+// pulse (payload, type, timestamp, source id, priority, context, step, user,
+// parent chain, collective children) under a `__pulse__` version
+// discriminator, and refuses non-serialisable fields with a typed error.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// A pulse cannot be serialised because it carries a field that has no
+/// honest wire representation.
+///
+/// ### When to use
+/// Catch it around [Pulse.toJson] / [encodePulse] and either strip the
+/// offending field or log the rejection — never silently drop it.
+///
+/// ### How it works
+/// [field] names the offending field: `'policy'`, `'onComplete'`,
+/// `'onError'`, `'onProgress'`, `'scrutinize'`, `'source'` (empty
+/// [Cell.id]), `'payload'`, `'context'`, or `'user'` (non-JSON-encodable
+/// value). [pulse] is the pulse whose field failed — for a parent chain
+/// failure it is the node that carried the field.
+///
+/// ### Non-obvious
+/// - **Fail loudly, don't fake it.** A dropped callback would silently
+///   change replay semantics; the error is the honest answer.
+/// - **Callbacks and policies are not serialisable by construction.**
+///
+/// {@category Replay}
+class PulseNotSerializable implements Exception {
+  /// The offending field.
+  final String field;
+
+  /// The pulse whose field was non-serialisable.
+  final PulseBase pulse;
+
+  const PulseNotSerializable(this.field, this.pulse);
+
+  @override
+  String toString() => 'PulseNotSerializable: pulse carries $field. '
+      'Pulses with $field cannot be serialized.';
+}
+
+/// A pulse JSON record cannot be decoded.
+///
+/// ### When to use
+/// Catch it around [Pulse.fromJson] / [decodePulse]; the message names
+/// the decode problem and [cause] carries the underlying error when one
+/// exists.
+///
+/// {@category Replay}
+class PulseDecodeError implements Exception {
+  final String message;
+  final Object? cause;
+  const PulseDecodeError(this.message, [this.cause]);
+
+  @override
+  String toString() => 'PulseDecodeError: $message';
+}
+
+/// Encodes [pulse] to its canonical JSON wire form.
+///
+/// Throws [PulseNotSerializable] if the pulse (or any pulse in its
+/// `parent` chain) carries a non-serialisable field: `policy`,
+/// `onComplete`, `onError`, `onProgress`, `scrutinize`, a `source` whose
+/// [Cell.id] is empty, or a `payload` / `context` / `user` value that is
+/// not JSON-encodable.
+///
+/// The encoded form is canonical: two pulses with the same logical
+/// content produce the same byte string (see [canonicalJsonEncode]).
+///
+/// {@category Replay}
+Map<String, dynamic> encodePulse(PulseBase pulse) {
+  // 1. Non-serialisable field check over the WHOLE causal chain — the
+  //    honest boundary. The chain includes both the parent lineage and
+  //    the appended-pulse lineage (evolved nodes carry the appended
+  //    pulse in `_pulse`, not `_parent`).
+  _assertSerialisable(pulse);
+
+  // 2. Normalise the chain shape for the wire. `_FastPulse` /
+  //    `_StepPulse` flyweights and evolved chains read through the
+  //    public getters; the wire format never preserves the internal
+  //    representation, only the semantic chain (steps, payloads,
+  //    parents). The original pulse keeps its public surface (payload,
+  //    user, collective children) via the getters below.
+  final isComposite = pulse is CollectivePulse;
+  final payload = isComposite
+      ? null
+      : _tryJsonEncode(
+          pulse.payload,
+          field: 'payload',
+          pulse: pulse,
+        );
+  final user = _tryJsonEncode(
+    pulse._user,
+    field: 'user',
+    pulse: pulse,
+  );
+  final Map<String, Object?> contextJson;
+  try {
+    contextJson = PulseContextCodec.toJson(pulse.context);
+  } catch (_) {
+    throw PulseNotSerializable('context', pulse);
+  }
+
+  final parent = pulse._parent;
+  final source = pulse.source;
+  final timestamp = pulse.timestamp.toUtc();
+  final canonicalTimestamp = DateTime.utc(
+          timestamp.year,
+          timestamp.month,
+          timestamp.day,
+          timestamp.hour,
+          timestamp.minute,
+          timestamp.second,
+          timestamp.millisecond)
+      .toIso8601String();
+
+  return {
+    '__pulse__': '1.0.0',
+    'payload': payload,
+    'type': pulse.type is String ? pulse.type : null,
+    'timestamp': canonicalTimestamp,
+    'source': source?.id,
+    'priority': pulse.priority,
+    'context': contextJson,
+    'step': _localStepOf(pulse),
+    'user': user,
+    'parent': parent != null ? encodePulse(parent) : null,
+    'isComposite': isComposite,
+    'children': isComposite
+        ? [
+            for (final child in (pulse as CollectivePulse).payload)
+              encodePulse(child as PulseBase),
+          ]
+        : null,
+  };
+}
+
+/// Decodes a pulse from the canonical JSON produced by [encodePulse].
+///
+/// [resolver] is called when the encoded pulse carries a `source`; it
+/// returns the live [Cell] with that id, or `null` if the cell is not in
+/// the current graph. A `null` resolution is not an error — the decoded
+/// pulse simply has `source == null`.
+///
+/// Throws [PulseDecodeError] if the input is not well-formed canonical
+/// JSON or if the version discriminator is unsupported.
+///
+/// {@category Replay}
+PulseBase decodePulse(
+  Map<String, dynamic> json, {
+  Cell? Function(String id)? resolver,
+}) {
+  // 1. Version discriminator.
+  final version = json['__pulse__'];
+  if (version == null) {
+    throw PulseDecodeError('missing __pulse__ version discriminator');
+  }
+  if (version is! String || !version.startsWith('1.')) {
+    throw PulseDecodeError('unsupported pulse version: $version');
+  }
+
+  // 2. Parent chain (recursive).
+  final parentJson = json['parent'];
+  PulseBase? parent;
+  if (parentJson != null) {
+    if (parentJson is! Map) {
+      throw PulseDecodeError('malformed parent: expected a pulse object');
+    }
+    parent = decodePulse(
+      Map<String, dynamic>.from(parentJson),
+      resolver: resolver,
+    );
+  }
+
+  // 3. Source resolution.
+  final sourceId = json['source'];
+  if (sourceId != null && sourceId is! String) {
+    throw PulseDecodeError('malformed source: expected a cell id string');
+  }
+  final source = sourceId is String ? resolver?.call(sourceId) : null;
+
+  // 4. Context. Mirror the ledger codec's fidelity fix: a system context
+  //    round-trips to null storage so ungoverned pulses stay ungoverned.
+  final contextJson = json['context'];
+  if (contextJson is! Map) {
+    throw PulseDecodeError('missing or malformed context');
+  }
+  final PulseContext context;
+  try {
+    context = PulseContextCodec.fromJson(
+      Map<String, Object?>.from(contextJson),
+    );
+  } catch (e) {
+    throw PulseDecodeError('malformed context', e);
+  }
+  final storedContext =
+      canonicalJsonEncode(PulseContextCodec.toJson(context)) ==
+              canonicalJsonEncode(
+                PulseContextCodec.toJson(PulseContext.system),
+              )
+          ? null
+          : context;
+
+  // 5. Envelope fields.
+  final timestampRaw = json['timestamp'];
+  if (timestampRaw is! String) {
+    throw PulseDecodeError('missing or malformed timestamp');
+  }
+  final DateTime timestamp;
+  try {
+    timestamp = DateTime.parse(timestampRaw);
+  } catch (e) {
+    throw PulseDecodeError('malformed timestamp', e);
+  }
+
+  final priority = json['priority'];
+  if (priority != null && priority is! int) {
+    throw PulseDecodeError('malformed priority');
+  }
+  final type = json['type'];
+  if (type != null && type is! String) {
+    throw PulseDecodeError('malformed type');
+  }
+  final step = json['step'];
+  if (step != null && step is! String) {
+    throw PulseDecodeError('malformed step');
+  }
+  final isComposite = json['isComposite'] as bool? ?? false;
+
+  // 6. Payload and children.
+  if (isComposite) {
+    final childrenJson = json['children'];
+    if (childrenJson is! List) {
+      throw PulseDecodeError('composite pulse missing children');
+    }
+    final children = <Pulse<dynamic>>[
+      for (final child in childrenJson)
+        if (child is Map)
+          decodePulse(
+            Map<String, dynamic>.from(child),
+            resolver: resolver,
+          ) as Pulse<dynamic>
+        else
+          throw PulseDecodeError('malformed child: expected a pulse object'),
+    ];
+    return _CollectivePulse<dynamic>(
+      children,
+      type: type,
+      timestamp: timestamp,
+      source: source,
+      priority: priority,
+      context: storedContext,
+      parent: parent,
+    );
+  }
+
+  final payload = _jsonDecodeValue(json['payload']);
+  // A locally-null payload over a non-null parent payload is a distinct
+  // runtime state (_NullPayloadPulse pins the getter); plain _Pulse
+  // records cannot express it.
+  if (payload == null && parent != null && parent.payload != null) {
+    return _NullPayloadPulse(
+      context: storedContext,
+      type: type,
+      timestamp: timestamp,
+      source: source,
+      priority: priority,
+      step: step,
+      parent: parent,
+    );
+  }
+  return _Pulse<dynamic>(
+    payload: payload,
+    type: type,
+    timestamp: timestamp,
+    source: source,
+    priority: priority,
+    context: storedContext,
+    step: step,
+    parent: parent,
+  );
+}
+
+/// The leaf-local step of [pulse] — the one breadcrumb the node itself
+/// added, as opposed to the merged [Pulse.trace].
+///
+/// Evolved nodes carry their new pulse in `_pulse` (the appended-pulse
+/// lineage), so an evolved node's local step is the appended pulse's
+/// step; `_FastPulse` / `_StepPulse` flyweights keep it in plain fields.
+String? _localStepOf(PulseBase pulse) {
+  if (pulse is _FastPulse) return (pulse as dynamic)._step as String?;
+  if (pulse is _StepPulse) return (pulse as dynamic)._stepValue as String?;
+  final appended = pulse._pulse;
+  if (appended != null) {
+    final step = _localStepOf(appended);
+    if (step != null) return step;
+  }
+  if ((pulse._shape & PulseBase._kStep) != 0) {
+    return pulse._record.root.secondary.step as String?;
+  }
+  return null;
+}
+
+/// Fails loudly on the first non-serialisable field found anywhere in
+/// [pulse]'s causal chain — the parent lineage and, for evolved nodes,
+/// the appended-pulse lineage (`_pulse`).
+void _assertSerialisable(PulseBase pulse) {
+  if (pulse._onComplete != null) {
+    throw PulseNotSerializable('onComplete', pulse);
+  }
+  if (pulse._onError != null) throw PulseNotSerializable('onError', pulse);
+  if (pulse._onProgress != null) {
+    throw PulseNotSerializable('onProgress', pulse);
+  }
+  if (pulse._scrutinize != null) {
+    throw PulseNotSerializable('scrutinize', pulse);
+  }
+  if (pulse.policy != null) throw PulseNotSerializable('policy', pulse);
+  final source = pulse.source;
+  if (source != null && source.id.isEmpty) {
+    throw PulseNotSerializable('source', pulse);
+  }
+  final parent = pulse._parent;
+  if (parent != null) _assertSerialisable(parent);
+  final appended = pulse._pulse;
+  if (appended != null) _assertSerialisable(appended);
+}
+
+Object? _tryJsonEncode(
+  Object? value, {
+  required String field,
+  required PulseBase pulse,
+}) {
+  try {
+    return _jsonEncodeValue(value);
+  } catch (_) {
+    throw PulseNotSerializable(field, pulse);
+  }
+}
+
+Object? _jsonEncodeValue(Object? value) {
+  if (value == null) return null;
+  if (value is String || value is num || value is bool) return value;
+  if (value is List) {
+    return [for (final item in value) _jsonEncodeValue(item)];
+  }
+  if (value is Map) {
+    return {
+      for (final entry in value.entries)
+        '${entry.key}': _jsonEncodeValue(entry.value),
+    };
+  }
+  if (value is DateTime) {
+    final utc = value.toUtc();
+    return DateTime.utc(utc.year, utc.month, utc.day, utc.hour, utc.minute,
+            utc.second, utc.millisecond)
+        .toIso8601String();
+  }
+  throw StateError('not JSON-encodable: ${value.runtimeType}');
+}
+
+Object? _jsonDecodeValue(Object? value) {
+  if (value is Map) {
+    return {
+      for (final entry in value.entries)
+        '${entry.key}': _jsonDecodeValue(entry.value),
+    };
+  }
+  if (value is List) {
+    return [for (final item in value) _jsonDecodeValue(item)];
+  }
+  return value;
 }
