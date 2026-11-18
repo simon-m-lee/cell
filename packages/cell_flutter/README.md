@@ -21,7 +21,7 @@ import 'package:cell_flutter/testing.dart';       // test-only: pump/emit/assert
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.24%2B-blue.svg)](https://flutter.dev)
 [![License](https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg)](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/LICENSE)
-[![Version](https://img.shields.io/badge/cell__flutter-1.0.0-blue.svg)](#status)
+[![Version](https://img.shields.io/badge/cell__flutter-1.0.1-blue.svg)](#status)
 [![Status](https://img.shields.io/badge/Status-Stable-green.svg)](#status)
 
 This is the Flutter binding for the Cell Framework (Mitosis). Sibling packages add the core graph, stream combinators, and collections; this package adds the widget layer.
@@ -149,7 +149,7 @@ Defaults are pass-through and allow-all — the widget layer never requires lear
 
 ## What's new in 0.1
 
-This section is retained as the initial-release history (0.1.0 was the first published shape; the package is now at 0.6.0 — see [Status](#status)). Three headline surfaces ship as stable-shaped, experimental-quality API.
+This section is retained as the initial-release history (0.1.0 was the first published shape; the package is now at 1.0.1 — see [Status](#status)). Three headline surfaces ship as stable-shaped, experimental-quality API.
 
 ### Widgets that display, react, route, bridge, and test
 
@@ -243,7 +243,7 @@ From pub.dev:
 ```yaml
 dependencies:
   cell: ^2.0.0
-  cell_flutter: ^1.0.0  # stable — see Status below
+  cell_flutter: ^1.0.1  # stable — see Status below
 ```
 
 From git:
@@ -490,16 +490,16 @@ forgotten observation-link disposal, collection selectors without
 
 ## Status
 
-**1.0.0 — stable.** the production-readiness work is complete
-Completing it delivered: the `cell_flutter_router` and
-`cell_flutter_persistence` ecosystem packages, microbenchmark baselines
+**1.0.1 — stable.** The production-readiness work is complete
+Completing it delivered: the `cell_flutter_router` (`0.1.1`) and
+`cell_flutter_persistence` (`0.1.1`) ecosystem packages, microbenchmark baselines
 with a 15% regression gate (`benchmark/`, `tool/benchmark.dart`), CI
 workflows for analysis/coverage/benchmarks/publish dry-runs
 (`.github/workflows/cell_flutter*.yml`), and the full documentation
 set. The suite is 364 tests (1 intentionally skipped: the release-mode devtools path) with ≥95% line coverage of `lib/`; the
 golden suite is regeneration-checked in CI; `dart doc` is warning-free.
 
-The 1.0.0 API freeze covers every public symbol in `cell_flutter.dart`
+The 1.0.x API freeze covers every public symbol in `cell_flutter.dart`
 and `hooks.dart`; breaking changes go through major versions per
 semver. See [ARCHITECTURE-flutter.md §12](ARCHITECTURE-flutter.md) for
 the stability policy and roadmap.
@@ -517,7 +517,7 @@ What 1.0.x guarantees:
 - **Bridges**: `asValueCell` mirrors a `Cell` into a `ValueCell`; `asStream` bridges to `Stream<V?>`; `CellNotifier` is a correct read-only `ValueListenable`.
 - **Hooks**: `useCell*` mirror the widget contracts, with `flutter_hooks`' rules inherited and two documented cell-swap caveats (see the hooks layer section).
 - **Test surface**: `pumpWithCells` / `pumpCell` / `emitAndSettle` / `emitAndPump` / `recordPulses` / `expectCellValue` / `expectCellGolden` / `CellTestHarness` behave as documented.
-- **Router bridge (`cell_flutter_router`)**: `CellRouterStateMirror` mirrors go/push/replace/pop/deep links into a restorable `CellRouterState` cell; `useCellRouter` provides a reactive controller. Tested against go_router 17 (the SDK-3.11-compatible line).
+- **Router bridge (`cell_flutter_router`)**: `CellRouterStateMirror` mirrors go/push/replace/pop/deep links into a restorable `CellRouterState` cell; `useCellRouter` provides a reactive controller. Tested against go_router 18 (the current line).
 - **Persistence (`cell_flutter_persistence`)**: `PersistedCell` composes a `RestorableCell` with a `CellPersistenceAdapter` (SharedPreferencesAsync or in-memory) under immediate / debounced / onAppPause write modes.
 
 What 1.0.x does **not** claim:
@@ -525,7 +525,7 @@ What 1.0.x does **not** claim:
 - Concurrent `Cell.asyncMap` effect attribution (tracked separately in `cell`).
 - Error-pulse visibility for `Cell.fromStream` and `Cell.asyncMap` in the widget layer (they do not emit error pulses in the core package at present; see `record_pulses.dart`).
 - Per-platform golden precision (see `HowTo-Testing.md` for the recommended per-platform override pattern).
-- Production-readiness for the paths the failed 1.0.0 gates cover (G3 benchmarks, G6 CI-only fuzz, G10 usability).
+- Production-readiness for the paths the failed 1.0.0 gates cover (benchmarks, CI-only fuzz, external usability).
 
 Feedback and issues are useful at this stage.
 
