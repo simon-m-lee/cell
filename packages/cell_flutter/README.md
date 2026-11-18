@@ -21,7 +21,7 @@ import 'package:cell_flutter/testing.dart';       // test-only: pump/emit/assert
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.24%2B-blue.svg)](https://flutter.dev)
 [![License](https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg)](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/LICENSE)
-[![Version](https://img.shields.io/badge/cell__flutter-1.0.1-blue.svg)](#status)
+[![Version](https://img.shields.io/badge/cell__flutter-1.0.2-blue.svg)](#status)
 [![Status](https://img.shields.io/badge/Status-Stable-green.svg)](#status)
 
 This is the Flutter binding for the Cell Framework (Mitosis). Sibling packages add the core graph, stream combinators, and collections; this package adds the widget layer.
@@ -177,7 +177,7 @@ From pub.dev:
 ```yaml
 dependencies:
   cell: ^2.0.0
-  cell_flutter: ^1.0.1  # stable — see Status below
+  cell_flutter: ^1.0.2  # stable — see Status below
 ```
 
 From git:
@@ -424,7 +424,7 @@ forgotten observation-link disposal, collection selectors without
 
 ## Status
 
-**1.0.1 — stable.** The production-readiness work is complete
+**1.0.2 — stable.** The production-readiness work is complete
 Completing it delivered: the `cell_flutter_router` (`0.1.1`) and
 `cell_flutter_persistence` (`0.1.1`) ecosystem packages, microbenchmark baselines
 with a 15% regression gate (`benchmark/`, `tool/benchmark.dart`), CI

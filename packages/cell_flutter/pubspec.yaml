@@ -1,6 +1,6 @@
 name: cell_flutter
 description: Flutter widget bindings for Mitosis cells — reactive builders, selectors, listeners, error boundaries, hooks, and a complete widget-testing surface.
-version: 1.0.1
+version: 1.0.2
 homepage: https://github.com/simon-m-lee/cell
 repository: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter
 issue_tracker: https://github.com/simon-m-lee/cell/issues

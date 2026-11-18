@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.2
+
+- **README cleanup**: removed the pre-public "What's new in 0.1" section —
+  the first public release is the 1.0.x line, so the README no longer
+  presents the unpublished 0.1 history as news (the full history remains
+  in this changelog). No code or API changes.
+
 ## 1.0.1
 
 pub.dev scoring pass — no public API changes.
