@@ -1,127 +1,124 @@
-# Mitosis (Cell Framework): End-Game Prediction — Stable Line
+# Mitosis (Cell Framework): End-Game Prediction — Causal Replay & Flutter Bindings
 
 **Subject:** `https://github.com/simon-m-lee/cell`  
 **Author of the framework:** Lee Man Hoi Simon  
-**Prior forecasts:** *Mitosis (Cell Framework): End-Game Prediction* (against `1.0.0-rc.5`); *Mitosis (Cell Framework): Follow-Up End-Game Prediction* (against umbrella `1.0.0-rc.9` / Mitose introduction)  
-**Status of the codebase reviewed:** umbrella monorepo “Mitosis” at stable `mitosis` `2.2.1` (tracking Mitose pipeline v2.2); published layers `cell` `1.1.0`, `cell_flow` `1.0.0`, `cell_tissue` `1.0.0` — first stable release line, replacing the RC series  
-**Trigger for this note:** the transition from release candidates to stable, with the Mitose pipeline elevated to the primary operating mode of the repository and instrumented for AI agents  
+**Prior forecasts:** *End-Game Prediction* (against `1.0.0-rc.5`); *Follow-Up End-Game Prediction* (against umbrella `1.0.0-rc.9` / Mitose introduction); *End-Game Prediction — Stable Line* (against `mitosis` `2.2.1` / `cell` `1.1.0`)  
+**Status of the codebase reviewed:** umbrella monorepo “Mitosis” at stable `mitosis` `3.0.0`; published layers `cell` `2.0.0` (Causal Replay), `cell_flow` `1.1.0`, `cell_tissue` `1.1.0`; new Flutter surface `cell_flutter` `1.0.x` plus companion packages `cell_flutter_persistence`, `cell_flutter_router`, `cell_flutter_lints` at `0.1.x`  
+**Trigger for this note:** the first stable delivery of Causal Replay (the durable pulse) and first-party Flutter bindings  
 **Document type:** architectural forecast, not a product endorsement  
-**Date:** November 11, 2026
+**Date:** November 18, 2026
 
 ---
 
-## 1. What actually shipped after the rc.9 note
+## 1. What actually shipped after the stable 2.2 note
 
-The prior note treated Mitose as the first honest answer to the “stranger can ship without learning the whole body” test: an operator-plus-agent procedure that freezes the three-layer doctrine and keeps a causal chain from BRD to Demo. That reading still holds. What changed is that the procedure has been promoted from an RC feature into the stable identity of the project, and the runtime has been made machine-readable for the agents that execute it.
+The prior note identified two unpaid items as decisive: a durable pulse that could be snapshotted and restored inside the same causal model, and either a thin Flutter binding or an explicit backend-first declaration. Both have now landed.
 
-Between `1.0.0-rc.9` and the stable `2.2.1` / `1.x` line the repository did not add a fourth public runtime layer. It hardened the three that exist and turned the development graph into a first-class artefact.
+Between `mitosis` `2.2.1` / `cell` `1.1.0` and `mitosis` `3.0.0` / `cell` `2.0.0` the repository did not add a fourth core runtime layer. It operationalized the forensic thesis that had remained live-graph only, and it added a widget surface that binds to the existing graph rather than inventing a second state model.
 
-- **Stable packages.** `cell` `1.1.0`, `cell_flow` `1.0.0`, `cell_tissue` `1.0.0`, and the umbrella `mitosis` `2.2.1` are published on pub.dev. The umbrella version now tracks the Mitose pipeline version (v2.2). This is the first non-RC release line.
-- **Mitose 2.2 is the operating system of the monorepo.** The pipeline supports step-by-step human gates and an opt-in autonomous mode (“Mitose autonomous”). It produces a residual ledger of executed evidence, comprehension checks, change-mode documents, and versioned artefacts (`Version:` / `Supersedes:`). “Precision Software Engineering” is the framing: a stated requirement is carried into running behaviour that is recorded, explicit, bounded, checkable, traceable, and verifiable.
-- **AI-facing surface on every public symbol.** Each major factory and type in the three packages carries a machine-readable `### AI Agent Guide` block in dartdoc (layer assertion, when/when-not, live signature pin, guide pointer, anti-patterns, minimal compilable example). Supporting tooling includes AI preflight, generated executable examples under test, seam-rule tests, API-chooser matrices, and a failure-log loop. The guides themselves open with “Verified against” pins to the stable versions.
-- **Runtime deltas remain taxonomic and hardening-oriented.** Tissue received queue/capacity fixes, deputy sync corrections, event equality, safer source casts, and dispatch-path enforcement for structural mutations. Pulse type handling continues to accommodate domain enums. No new product surface appeared. The public graph is still three packages. `cell_organ` has not returned. Persistence, causal replay, mesh, and first-party Flutter bindings remain absent.
-- **The root is now a writing and verification system.** Guide scripts, generators, validation tools, AI starter surfaces, and dual-audience HowTos dominate the visible surface. The packages still compile Dart; the repository’s daily motion is the pipeline that produces solutions on those packages.
+- **Causal Replay in `cell` 2.0.0.** An opt-in library (`package:cell/replay.dart`) makes the pulse trail first-class evidence. Every mutation is recorded as a hash-chained ledger entry (pulse + receipt + effects + state deltas). The history can be verified for integrity, replayed into a freshly built graph to reconstruct the exact recorded state, or forked for what-if exploration. The contract is enforced: undeclared effects fail at the journal boundary, tampering fails the chain, and replay divergence is reported with sequence number, expected/actual values, and reason. Supporting surfaces include `CellGraph` with stable identity and purity declarations, `EffectJournal` for external observations (clock, UUID, I/O, timers, verdicts), `ReplayEngine`, fork machinery, governance-aware replay, and a `cell-replay` CLI. This is the durable pulse the earlier notes said was missing. It is not a bit-exact re-execution of user code and not a simple snapshot restore; it is causal re-execution of the recorded trail with journaled external effects.
+- **Flutter bindings in `cell_flutter` 1.0.x.** First-party widgets (`CellBuilder`, `CellSelector`, `CellValueBuilder`, `CellListener`, `CellAsyncBuilder`, `CellScope`) bind the existing graph to the widget tree without a second state model. Optional hooks, a testing surface (`pumpWithCells`, `emitAndSettle`, `recordPulses`, etc.), and companion packages for persistence, routing, and lints ship alongside. The widgets observe the committed state; validation, transactions, deputies, and the pulse trail remain in the cell layer. This closes the “Flutter adapters” gap that had been unpaid since the rc.5 note.
+- **Version floor and umbrella bump.** `mitosis` `3.0.0` raises the dependency floor to `cell` `2.0.0`. Several factories that previously ran without an `EffectJournal` now require one when replay is in scope; the MAJOR bump reflects the re-export of those breaking changes. Flow and Tissue moved to `1.1.0` on the new floor. Mitose pipeline version remains 2.2; the umbrella no longer tracks it one-to-one.
+- **Runtime and process surface otherwise continuous.** No fourth public core package (`cell_organ` remains workspace-private and unpublished). AI Agent Guide blocks, Mitose 2.2 (step-by-step and autonomous), residual ledgers, and Precision Software Engineering framing continue. Popularity remains negligible.
 
-Popularity remains negligible. The cathedral is larger and more self-describing. The congregation is not.
+The cathedral now has both a durable trail and a widget door. Whether either changes the congregation is the open question.
 
 ---
 
-## 2. Why Mitose 2.2 and the AI-facing surface are the features that matter
+## 2. Why Causal Replay and the Flutter surface are the features that matter
 
-The rc.9 note said Mitose was ontogeny arriving as procedure rather than as a compiler. The stable line makes that procedure the primary way the organism is allowed to be extended, and it gives the procedure the instrumentation an agent needs to stay inside the causal model.
+The earlier notes treated the forensic thesis as live-graph only. Causal Replay converts that thesis into an operational tool: a trail that can be verified, reconstructed, and branched without leaving the causal model. That is the difference between “the signal is the audit record” as a design claim and as a recoverable artefact. Residual ledgers produced by Mitose can now, in principle, be more than paper; a generated Demo’s pulse trail can be snapshotted and restored. The gap the prior notes called decisive is no longer unpaid in the core package.
 
-The stranger is still an operator plus an agent. The operator brings a BRD (or participates in the interview that produces one). The agent is instructed not to invent actors, numbers, or clauses; to resolve live signatures from the installed packages; to use `Cell.observe` as the only glue; to keep Tissue writes outside the instruction; and to record every autonomous decision. Human gates remain available; autonomous mode is explicit opt-in after the BRD exists, with residual acceptance recorded as delegation rather than user approval. The residual ledger and comprehension artefacts extend the Pulse thesis: a change is not only a value with lineage inside the runtime; the solution itself must remember the requirement and the decisions that grew it.
+The Flutter bindings matter for a different reason. They remove the excuse that the framework is backend-only by necessity. A stranger can now place a governed cell in a widget tree with first-party widgets and a testing surface that understands pulses. Progressive disclosure remains a documentation strategy, but the counter path is no longer only a README claim; it has a binding. The widgets do not dilute the governance contract—they observe it. That is the correct shape if the goal is still a causally intelligible runtime rather than a Flutter state-management win.
 
-Two details continue the same mind as the runtime.
+Together they change the empirical tests the prior notes set:
 
-First, the seam sentence remains load-bearing: instruction decides, chain assembles, observer glues. Mitose 2.2 does not invent a fourth architecture. It freezes the three-layer one more tightly, with version pins and seam tests so an agent cannot silently violate it.
+1. A stranger’s BRD can still become a compiling Demo via Mitose.
+2. A generated ledger can now be snapshotted and replayed inside the same causal model (the second test is no longer purely aspirational).
+3. A fourth package has shipped once and not been removed—`cell_flutter` is public and stable. (The organ package remains private; the “fourth package” test is partially met by the Flutter surface.)
 
-Second, the document order is still a causal chain, now with residual evidence. BRD is *what*. WalkThrough is *how it must behave*. Demo is *what the program actually does*. Ledger and comprehension close the loop against executed runs. That is the same thesis as a Pulse, applied to the act of construction.
-
-The AI Agent Guide blocks and verification tooling are the practical consequence. At rc.9 an agent could be told “verify against source.” At 2.2 the source itself answers the questions an agent must ask, in a fixed order, with pins that tooling can check. This is not yet an agent runtime (tool calls are still not first-class Cells). It is a governed agent development protocol that has been made executable and checkable. For a solo maintainer, that remains the rational sequence.
+The AI-facing instrumentation of Mitose 2.2 remains in place. Causal Replay and the Flutter bindings do not replace the agent protocol; they give the artefacts that protocol produces a durable runtime substrate and a UI surface.
 
 ---
 
 ## 3. What the prior forecasts got right, and where they drifted
 
-**Right: the product is not Riverpod.** Nothing in the stable line tries to win typical Flutter screens. The examples remain ledgers, dispatch, grids, baggage, ED flow, and pipeline-generated samples (tide-warden, cafe-coffee, etc.). Honest caveats are unchanged in spirit: `Context.describe(...)` is text, not a compliance program; simple flags still do not need a genome.
+**Right: the product is not Riverpod.** The Flutter bindings do not attempt to win typical screens by replacing the graph. They bind to it. Honest caveats remain: `Context` is still text, not a compliance program; simple flags still do not need a genome.
 
-**Right: the monorepo will keep dividing — and the author knows when not to.** `cell_organ` stayed removed. The stable release did not re-introduce a relations layer that lacked a Tissue-grade contract. Daughter packages remain allowed only when they inherit the parent DNA. That discipline held.
+**Right: the monorepo will keep dividing under discipline.** `cell_organ` stayed unpublished. The new public package is a binding, not a fourth scale of the organism. The durable-pulse work landed inside the existing core rather than as a sibling product with a different contract.
 
-**Right: cognitive load at the root will not go down.** The root now carries the full Mitose script set, generators, verification tools, AI-facing documentation infrastructure, BRD samples, and the cabinet of prior predictions. Packages remain three. The repository is a precision-engineering system that happens to compile Dart.
+**Right: cognitive load at the root will not go down.** The root now carries Mitose 2.2, AI Agent Guide infrastructure, Causal Replay guides and CLI, Flutter packages, and the accumulating prediction cabinet. Packages are still three core layers plus bindings. The repository remains a writing and verification system that compiles Dart and now also Flutter.
 
-**Drift: agents arrived as protocol and instrumentation before they arrived as runtime.** The long-term language of inspectable agents and digital twins is still future. What landed is a machine-readable development protocol plus residual evidence. Tool-call graphs are not yet Cells. The thing that is first-class is the instruction set and the verification surface around it.
+**Drift corrected: the durable pulse arrived.** The prior notes correctly identified its absence as the barrier between illustrations and ledgers. It has arrived, with the expected constraints (declared purity, stable identity, journaled effects, not bit-exact re-execution). Whether it is used outside the author’s own demos is still unproven.
 
-**Drift: consolidation happened in process and documentation more than in APIs.** The near-term list at rc.5 and rc.9 included freeze, Flutter adapters, counter-without-Nucleus as the default path, and closing example/source drift. The public story is now stable rather than RC. Example/source drift is addressed procedurally by the WalkThrough-versus-Demo-versus-ledger loop and by AI preflight. Flutter adapters did not land. The counter path remains a documented claim rather than the path most agents will take when handed a non-trivial BRD.
+**Drift corrected: Flutter adapters arrived.** They arrived as a first-party binding rather than a declaration that the framework is backend-first. The near-term list is no longer entirely unpaid on that axis.
 
-**Still missing, and now more obvious:** a durable pulse (`cell_memory` or equivalent), causal replay, mesh across isolates and networks, and any published cost model. Mitose can generate a Demo and a residual ledger of what the Demo did in one run. It cannot yet snapshot the pulse trail that Demo emits and restore it inside the same causal model. The forensic thesis is still live-graph plus paper trail, not durable-graph.
+**Still open:** mesh across isolates and networks, any published cost model, and evidence that a stranger can run Mitose to a closing residual ledger without the author in the loop. Causal Replay makes the second empirical test possible; it does not guarantee that external Demos exercise it. Popularity remains the binding constraint.
 
 ---
 
 ## 4. Revised end-game prediction
 
-The end game is no longer only “a layered platform whose graph survives regulation, distribution, and autonomy.” After the stable Mitose 2.2 line it is that platform **plus a governed, machine-readable way of growing new tissue on it**, with residual evidence that the growth respected the requirement.
+The end game is no longer only a layered platform plus a governed way of growing tissue on it. After Causal Replay and Flutter bindings it is that platform **with a durable, verifiable trail and a widget surface that observes the same trail**.
 
-### Near term (through continued 1.x / 2.x stability)
+### Near term (through continued 2.x / 3.x stability)
 
-The decisive proof is no longer “freeze the API” or “Mitose exists.” It is **Mitose on a stranger’s BRD, run by a generic coding agent, producing a compiling Demo whose residual ledger matches the BRD without the author editing the WalkThrough in private**.
+The decisive proof is no longer “does the durable pulse exist?” It is **whether an external operator’s Mitose-generated Demo produces a ledger that can be verified and replayed by someone who did not write the Demo, and whether the Flutter bindings are used for anything beyond the counter example**.
 
-If an outside operator can sit down with a one-paragraph requirement or an `example/BRD/` sample, run the pipeline (step-by-step or autonomous), accept or reject at the remaining gates, and obtain a Demo that compiles against the published packages and whose ledger closes, Mitosis has a distribution channel that does not require Flutter widgets and does not require the operator to learn Nucleus. That is a genuine answer to the Tuesday/Thursday test — outsourced, gated, documented, and now instrumented for agents.
+If an outside operator can run Mitose on a stranger’s BRD, obtain a compiling Demo whose residual ledger closes, snapshot the pulse trail, and replay it (or bind the result into a Flutter tree with `cell_flutter`) without the author editing the WalkThrough, Mitosis has both a distribution channel and an operational forensic tool. That closes the Tuesday/Thursday test more tightly than before.
 
-If Mitose only works when the author is the hidden reviewer, or when the agent’s model already “knows” the author’s style, then the stable feature is a private scriptorium attached to the private cathedral. The root README will read like a platform with Precision Software Engineering. The working set will remain three packages and one person.
+If the replay surface is used only in the author’s own verification suite, and the Flutter widgets appear only in README counters, then the new features remain private cathedral equipment. The root README will read like a platform with causal replay and Flutter bindings. The working set will remain three core packages, one person, and a set of illustrations that now have better paper and a widget door.
 
-Secondary near-term work is unchanged and still unpaid: either ship a thin Flutter binding or declare the framework backend-first in one sentence; stop re-adding `cell_organ` until relations have an event taxonomy as tight as `TissueEvent`; and begin the durable-pulse work that turns residual ledgers into something that can be restored.
+Secondary near-term work: keep the replay contract tight enough that agents and humans do not treat it as a general snapshot store; decide whether `cell_organ` ever becomes public; and either grow the Flutter companions or keep them thin.
 
 ### Medium term
 
-Two paths remain visible. They are not equally likely.
+Two paths remain visible. The arrival of the durable pulse and the Flutter surface shifts their relative likelihood only modestly.
 
-**Path A — method becomes product.** Mitose stays markdown-plus-tooling, but the artefacts it produces become the onboarding surface. New organs (`cell_organ`, then memory, then mesh) ship only when a HowTo-Mitose-* file and an AI Agent Guide block can place them without inventing APIs. Persistence adapters land because replay is the first thing a generated ledger cannot fake. Codegen (`cell_ontogeny` proper) appears as a compiler for WalkThroughs that have already been accepted and ledgered, not as a substitute for the BRD gate. The framework is used as a coordination layer for Dart services that already needed transactions, deputies, and an audit trail — plus as a way for teams to let agents write that layer without laundering requirements.
+**Path A — method and substrate become product.** Mitose artefacts continue as the onboarding surface. Causal Replay is used to snapshot and restore generated ledgers. New organs ship only when a HowTo-Mitose-* file and an AI Agent Guide can place them. The Flutter bindings become the default way teams that already need the graph also need widgets. The framework is used as a coordination layer for Dart services (and now Flutter clients) that already needed transactions, deputies, an audit trail, and a way for agents to extend that trail without laundering requirements.
 
-**Path B — method outruns runtime.** Guides, BRDs, AI Agent Guide blocks, and cross-model prediction folders keep accumulating. Runtime type changes remain small. Replay never ships. Organ remains a commit that gets reverted. Agents generate fluent documents and Demos whose residual ledgers are paraphrases of the author’s original set. Adoption stays flat. The project becomes the most carefully annotated and machine-readable unused graph in Dart.
+**Path B — features outrun use.** Guides, AI Agent Guide blocks, replay documentation, and Flutter examples keep accumulating. Replay is exercised mainly by the author’s tests. Flutter bindings are adopted mainly for the counter. Organ remains private. Adoption stays flat. The project becomes the most carefully annotated, machine-readable, and now replayable unused graph in Dart.
 
-Path A requires one thing the repository still does not have: a durable pulse. Until a trail can be snapshotted and restored without leaving the causal model, Mitose can only produce *illustrations* of forensic systems, now with better paper. Illustrations are how cathedrals recruit. They are not how ledgers run.
+Path A no longer requires the durable pulse as a prerequisite; it requires that the pulse be used by someone other than its author, and that the Flutter door be walked through by someone other than the person who built it.
 
 ### Long term
 
-The strategic bet is sharper than it was at rc.5 or rc.9.
+The strategic bet is now partially cashed.
 
 Then: *if software systems — especially agentic ones — are going to be asked why they acted, the expensive architecture is “the signal is the audit record.”*
 
-Now: *the same expensive architecture is being applied to the act of building the system, and the building instructions have been made machine-readable.* A requirement that never became a BRD cannot be traced. A WalkThrough that was never assessed against an executed Demo and a residual ledger is a pulse that never existed. Mitose 2.2 is the author’s attempt to make the development graph as causally closed, and as agent-operable, as the runtime graph.
+Now: *the signal can be the audit record, the record can be verified and replayed, and the same record can be observed from a Flutter widget.* A requirement that never became a BRD still cannot be traced. A WalkThrough that was never assessed against an executed Demo and a residual ledger is still a pulse that never existed. Mitose remains the attempt to make the development graph as causally closed as the runtime graph. Causal Replay makes the runtime graph’s closure recoverable. The Flutter bindings make that closure visible in a UI.
 
-If that closes, Mitosis becomes interesting in a narrower and more valuable place than “Flutter state” or even “digital twins.” It becomes a substrate for **governed multi-agent construction and operation**: tool use, compensation (`txApply`), restricted views (deputies), collection invariants (Tissue), residual evidence that starts at the BRD, and — eventually — a durable trail that can be restored. That is the same shape the earlier notes already saw in `txApply` + Flow + a Tissue ledger. Mitose adds the prequel and the agent interface.
+If the loop closes externally, Mitosis becomes a substrate for governed multi-agent construction and operation that can also be rendered and replayed: tool use, compensation, restricted views, collection invariants, residual evidence from the BRD, and a durable trail that can be restored and displayed. That is the shape the earlier notes already saw, now with the missing operational pieces present in source.
 
-If it does not close, the failure mode is also sharper. Isolation levels and `Context` still look like a compliance program and still are not one. Mitose will look like an AI software factory with Precision Software Engineering branding and still will not be one. The lexicon will have grown another German verb and a set of AI Agent Guide blocks. The proofs will not have.
+If it does not close, the failure mode is sharper still. Isolation levels and `Context` still look like a compliance program and still are not one. Mitose still looks like an AI software factory and still is not one. Causal Replay will look like a forensic product and still will not be used as one. The lexicon will have grown a German verb, AI Agent Guide blocks, a replay library, and Flutter widgets. The proofs will not have.
 
 Predicted steady state, revised:
 
-- It will still not displace Riverpod or Bloc on typical Flutter screens.
-- It is slightly more likely than at rc.9 to be reachable as a specialized backend and coordination layer, *if* Mitose can be run by someone other than Simon and the residual ledgers close.
-- It is now most interesting where an organization already needs both an auditable runtime *and* an auditable, agent-operable way to extend that runtime. That is a smaller market than “state management.” It is a more coherent one.
-- Additional packages will still arrive under the mitosis metaphor. The continued absence of `cell_organ` is evidence that arrival is no longer automatic. Cognitive load will continue to live at the repository root and will be managed, if at all, by making each package one scale, each guide one gate, and each public symbol one machine-readable block.
-- The metaphor is now doing triple duty: cells divide, *Mitose* is the verb for the division, and the pipeline is the mitotic spindle that tries to copy validation, authority, and trace into the next solution without tearing the chromosome. That is elegant. Elegance is not evidence.
+- It will still not displace Riverpod or Bloc on typical Flutter screens. The bindings make that non-goal explicit rather than accidental.
+- It is more reachable than at the 2.2 line as a specialized backend and coordination layer, *if* Mitose can be run by someone other than Simon and the replay surface is exercised on external ledgers.
+- It is now most interesting where an organization already needs both an auditable runtime *and* an auditable, agent-operable, replayable way to extend that runtime—and, optionally, to observe it from Flutter. That remains a smaller market than “state management.” It is a more coherent one.
+- Additional packages will still arrive under the mitosis metaphor. The continued privacy of `cell_organ` and the public status of `cell_flutter` show that arrival is selective. Cognitive load will continue to live at the repository root.
+- The metaphor continues to do triple duty. Causal Replay is the part that tries to make the copied chromosome recoverable. Elegance is still not evidence.
 
-Predicted failure mode, revised: the pipeline and its AI-facing instrumentation become the product, and the product remains unrunnable by strangers. A framework that requires an AI agent, a BRD template, three layer HowTos, residual ledgers, and a human (or delegated) gate to produce a counter has not reduced complexity. It has relocated it into process and verification. Process without a second maintainer, a second successful external Demo, or a durable trail is still a private cathedral — only now with a liturgy and machine-readable rubrics.
+Predicted failure mode, revised: the pipeline, the AI-facing instrumentation, the replay library, and the Flutter bindings become the product, and the product remains unrunnable or unused by strangers. A framework that requires an AI agent, a BRD template, three layer HowTos, residual ledgers, a replay journal, and a human (or delegated) gate to produce a counter that can also be displayed in Flutter has not reduced complexity. It has relocated it into process, verification, and now also into replay and widget configuration. Process without a second maintainer, a second successful external Demo that exercises replay, or a durable trail that is actually restored by someone else is still a private cathedral—only now with a liturgy, machine-readable rubrics, a replay engine, and a front door.
 
 ---
 
 ## 5. Closing judgment
 
-At rc.5, Simon was building an organism. At rc.9, he was writing the instructions for how that organism is allowed to divide. At the stable 2.2 / 1.x line, he has instrumented those instructions so an agent can follow them and leave residual evidence that it did.
+At rc.5, Simon was building an organism. At rc.9, he was writing the instructions for how that organism is allowed to divide. At the stable 2.2 line, he instrumented those instructions for agents. At `mitosis` 3.0.0, he gave the organism a recoverable memory and a way to be seen from Flutter.
 
-Cell, Flow, and Tissue are still the first three tissues. Mitose is not a fourth tissue. It is the mitotic spindle, now with version pins, seam tests, and AI Agent Guide blocks so the copy has names a machine can hold and checks a machine can run. `cell_organ` remains an aborted division, which is healthier than a malformed daughter. The AI-facing surface is a small alignment so the development graph can be named from the outside — which is exactly what an agent pipeline needs.
+Cell, Flow, and Tissue are still the first three tissues. Mitose is still the mitotic spindle. Causal Replay is the mechanism that tries to make the copied chromosome recoverable rather than only live. `cell_flutter` is a binding, not a fourth tissue; it observes the graph instead of replacing it. `cell_organ` remains an aborted or deferred division.
 
-The framework still feels over-engineered for typical use, and it is still over-engineered for typical use *by design*. That judgment does not change. What changes is the intended user of the extra machinery. The extra machinery is no longer only for the payment switch and the grid controller. It is for the agent that is about to generate the next payment switch, under a BRD it did not invent, through a WalkThrough a human (or a delegated autonomous run) had to accept, with a residual ledger that can be checked.
-
-Whether that is wisdom or overreach will not be decided by the elegance of the verb, the density of the AI Agent Guide blocks, or the green stable badge. It will be decided by three empirical tests the repository cannot write for itself:
+The framework still feels over-engineered for typical use, and it is still over-engineered for typical use *by design*. That judgment does not change. What changes is that two of the three empirical tests the earlier notes set can now be run in source:
 
 1. A stranger’s BRD becomes a compiling Demo whose residual ledger closes, without the author editing the WalkThrough in private.
 2. A generated ledger can be snapshotted and replayed inside the same causal model.
-3. A fourth package ships once, carries an AI Agent Guide and a HowTo-Mitose-* placement, and is not immediately removed.
+3. A fourth package ships once, carries the appropriate surface (AI Agent Guide and/or HowTo placement), and is not immediately removed. (`cell_flutter` has done so; `cell_organ` has not.)
 
-Until those hold, Mitosis remains what the earlier notes said it was: a causally ambitious runtime whose genome is complete enough to copy, whose mitotic spindle has been instrumented for agents, and which is not yet proven to copy faithfully outside the cell that wrote it.
+Until the first of those is demonstrated by someone other than the author, and until the second is exercised on a ledger the author did not generate, Mitosis remains what the earlier notes said it was: a causally ambitious runtime whose genome is complete enough to copy, whose mitotic spindle has been instrumented for agents, whose trail can now be recovered, and which is not yet proven to copy faithfully outside the cell that wrote it.
 
 ---
 
-*Document prepared as an architectural forecast. All observations are derived from the public repository state as of the stable `mitosis` 2.2.1 / `cell` 1.1.0 line.*
+*Document prepared as an architectural forecast. All observations are derived from the public repository state as of the stable `mitosis` 3.0.0 / `cell` 2.0.0 line (Causal Replay & Flutter bindings).*

@@ -1,192 +1,114 @@
-# Follow-Up Prediction: The Mitosis Framework after Causal Replay and Flutter Bindings
+**Mitosis (Cell Framework): Fourth End‑Game Prediction**
 
-How the 3.0 package set changes the trajectory forecast for github.com/simon-m-lee/cell.
+**Subject:** https://github.com/simon-m-lee/cell  
+**Author of the framework:** Lee Man Hoi Simon  
+**Prior forecasts:** *End‑Game Prediction* (rc.5), *Follow‑Up End‑Game Prediction* (rc.9), and *Third End‑Game Prediction* (stable 1.1.0 / umbrella 2.2.1), all written by DeepSeek  
+**Status of the codebase reviewed:** Umbrella monorepo **Mitosis 3.0.0**; `cell` **2.0.0** (first package to ship Causal Replay), `cell_flow` **1.1.0**, `cell_tissue` **1.1.0**; new Flutter family: `cell_flutter` **1.0.0**, `cell_flutter_persistence` **0.1.0**, `cell_flutter_router` **0.1.0**, `cell_flutter_lints` **0.1.0**  
+**Trigger for this note:** The release of **Causal Replay** in `cell` 2.0.0 — effect journals, hash‑chained ledgers, a deterministic ReplayEngine, what‑if forks, and the `cell-replay` CLI — together with the first stable **Flutter bindings** family and the associated MAJOR bump of the umbrella to 3.0.0  
+**Prepared as a follow‑up to:** *END_GAME_PREDICTION.md*, *END_GAME_PREDICTION(1).md*, and *END_GAME_PREDICTION(2).md*
 
-| | |
-| --- | --- |
-| **Subject** | Mitosis: `mitosis` 3.0.0, `cell` 2.0.0, `cell_flow` 1.1.0, `cell_tissue` 1.1.0, and the new Flutter family (`cell_flutter` 1.0.2, `cell_flutter_persistence` 0.1.x, `cell_flutter_router` 0.1.x, `cell_flutter_lints` 0.1.0) |
-| **Prepared** | 18 November 2026 |
-| **Trigger** | `mitosis` 3.0.0, "Causal Replay & Flutter Bindings", published on or about 17 November 2026 |
-| **Updates** | The original *End-Game Prediction* (September 2026); *Follow-Up Prediction: The Mitosis Framework after the Mitose Pipeline* (30 September); *Follow-Up Prediction: The Mitosis Framework at First Stable Release* (11 November) |
-| **Basis** | pub.dev changelogs, version histories and README pages for `mitosis`, `cell`, `cell_flow` and `cell_flutter`; repository pages as far as they could be retrieved (see Basis and limitations) |
+---
 
-## Key findings
+## Executive Summary
 
-- **I misread the roadmap last time.** The 11 November report treated the disappearance of the Phase 1 to Phase 3 roadmap from the umbrella README as the most informative change and lowered the graduation forecast because of it. Within about a week, two of the items I had called "no longer stated" shipped: Flutter bindings and causal replay. The earlier reading overweighted a README edit.
-- **The milestone is large and real.** `cell` 2.0.0 adds a hash-chained ledger, a deterministic replay engine, what-if forks, governance replay and a `cell-replay` CLI. Four new Flutter packages add widgets, hooks, a test surface, a router bridge, persistence adapters and lint rules.
-- **"Stable" turned over in about a week.** The first stable `cell` (1.1.0) was superseded by a breaking 2.0.0 roughly seven days later, and the version-coupling policy introduced in `mitosis` 2.2.0 was reversed in 3.0.0.
-- **The Flutter binding's own changelog discloses unmet 1.0 gates.** A gate evaluation dated 13 November records a failed benchmark gate and a blocked external-usability gate, and the package still shipped as 1.0.0 with an explicit list of what it does not claim.
-- **Adoption evidence is still thin.** Downloads rose roughly 13 to 14% in a week to about 1,150 to 1,210 for the three original packages I could check; likes remain 0 to 1; the last GitHub view I could retrieve showed 0 stars and 0 forks.
-- **Revised forecast (12-month horizon):** agent-first niche toolkit about 28%, breadth-driven stall about 33%, Flutter-led niche about 17%, production graduation about 15%, methodology spin-out about 7%. These are the author of this assessment's own estimates and are not stated anywhere in the repository.
+The previous three predictions tracked Mitosis from a release‑candidate experiment to a stable, AI‑governed framework. The rc.5 analysis argued that the apparent over‑engineering was the minimum viable architecture for causal integrity. The rc.9 follow‑up described how the Mitose pipeline delegated layer placement and governance wiring to an AI agent. The third prediction, written at the stable 2.2.1 milestone, identified the pipeline’s autonomous mode as the primary adoption mechanism and framed the unresolved question as whether the pipeline’s ledgers could be as honest as the framework’s pulses.
 
-## 1. What changed since the last assessment
+The current milestone is qualitatively different again. **Causal Replay has shipped.** It is no longer a roadmap item. `cell` 2.0.0 contains the full replay machinery: an `EffectJournal` that records non‑deterministic effects, a hash‑chained `Ledger` with tamper detection, a `ReplayEngine` that reconstructs state from the causal record, governance replay through `VersionRegistry` and `ContextTranslator`, and a `cell-replay` CLI with `verify`, `diff`, `fork`, `visualise`, and `inspect` subcommands. The framework can now answer not only *what happened* but *re‑execute what happened* against a fresh graph and report any deviation with the ledger sequence number, the expected value, the actual value, and the reason.
 
-### 1.1 Timeline
+Simultaneously, the **Flutter bindings family** has arrived. `cell_flutter` 1.0.0 ships `CellBuilder`, `CellSelector`, `CellValueBuilder`, `CellListener`, `CellAsyncBuilder`, `CellScope`, an optional hooks layer, and a full test surface. Three companion packages — persistence, router, and lints — extend the Flutter surface into durable state, navigation, and static analysis. The umbrella `mitosis` has moved to 3.0.0, a MAJOR bump driven by a breaking change in the async operators: `Cell.asyncMap`, `Cell.fromFuture`, `Cell.fromStream`, `Cell.debounce`, and `Cell.throttle` now require an `EffectJournal`. This is the first time the framework has made a breaking change whose purpose is to *enforce* the replay contract at the API level.
 
-Dates are approximate, derived from the relative ages shown on pub.dev and from dates quoted in changelogs.
+The strategic implication is that Mitosis has crossed a threshold the earlier predictions anticipated but could not confirm. The causal graph is no longer merely an *audit log* that can be inspected after the fact. It is a **replayable substrate** — an executable record of causes and effects that can be re‑run, forked, and verified. The end game remains a causally intelligible runtime for complex, governed systems, but the runtime now has a memory that can be *executed*, not just read.
 
-| Date | Event |
-| --- | --- |
-| ≈10 Nov | Stable line: `mitosis` 2.2.0/2.2.1, `cell` 1.1.0, `cell_flow` 1.0.0, `cell_tissue` 1.0.0 |
-| 13 Nov | `cell_flutter` 1.0 gate evaluation (dated in its changelog): benchmark gate failed, usability gate blocked |
-| ≈17 Nov | `mitosis` 3.0.0; `cell` 2.0.0; `cell_flow` 1.1.0; `cell_tissue` 1.1.0; first publishes of the four Flutter packages. `cell_flutter` 1.0.0, 1.0.1 and 1.0.2 were uploaded within about an hour of each other |
+---
 
-### 1.2 The 3.0 package set
+## What Changed at This Milestone
 
-| Package | Version | Documented content |
-| --- | --- | --- |
-| `cell` | 2.0.0 | Causal Replay module (`package:cell/replay.dart`): `EffectJournal`, canonical JSON and SHA-256 fingerprints, a hash-chained `Ledger`, a `ReplayEngine` with what-if forks and fork verification, governance replay (version registry, context translators), and the `cell-replay` CLI (`verify`, `diff`, `fork`, `visualise`, `inspect`). Breaking: `Cell.asyncMap`, `fromFuture`, `fromStream`, `debounce` and `throttle` now require a `journal:`. New dependency: `crypto` |
-| `cell_flow` | 1.1.0 | Republished only to move the dependency floor to `cell` ^2.0.0; the operator surface is unchanged |
-| `cell_tissue` | 1.1.0 | Re-released against the new core; I did not open its changelog |
-| `cell_flutter` | 1.0.2 | Widgets (`CellBuilder`, `CellSelector`, `CellValueBuilder`, `CellAsyncBuilder`, `CellListener`, `CellScope`), optional hooks, a widget-test surface, state restoration, forms, `CellErrorBoundary`, virtualized list views, an in-app inspector, migration guides from Provider, Riverpod, Bloc and setState, and a comparison document |
-| `cell_flutter_persistence`, `cell_flutter_router`, `cell_flutter_lints` | 0.1.x | `SharedPreferences` and in-memory adapters; a `go_router` bridge; four `custom_lint` rules |
-| `mitosis` | 3.0.0 | Umbrella; MAJOR bump through the dependency surface; version no longer tracks the Mitose pipeline |
+### Causal Replay: The Phase 2 Feature Arrives
 
-Two workspace members are not published: `cell_mind` 1.1.0 (described as "cognitive policy") and `cell_organ` (workspace-private).
+The original roadmap placed causal replay in Phase 2, after the stabilization of the reactive core. That feature is now shipped. The `cell` 2.0.0 release notes describe the Causal Replay module in precise terms: effect journals with recording and replay semantics, canonical JSON codecs and SHA‑256 fingerprints, identity and purity classification, a hash‑chained ledger with tamper detection, a deterministic `ReplayEngine` including what‑if forks and fork verification, and governance replay via `VersionRegistry` and `ContextTranslator`.
 
-## 2. What the evidence shows
+The `HowTo‑Causal‑Replay` guide states the one‑sentence contract explicitly: *“If every effect that is not a function of the pulse goes through an EffectJournal, and every cell is registered, and the receptor implementations are versioned, then replaying a ledger into a fresh graph reproduces the recorded state exactly — and any deviation is reported with the ledger sequence number, the expected value, the actual value, and the reason”*. This is the formalization of the causal contract that the earlier predictions described as the framework’s real product. It is no longer a promise; it is an enforced property.
 
-**1. The earlier roadmap largely arrived, and faster than any forecast assumed.**
-*Documented:* the early umbrella README listed Flutter adapters, causal replay with what-if branches, persistence adapters, a CLI and a graph debugger. Status now:
+The guide is equally clear about what replay is *not*. It is not bit‑exact re‑execution of arbitrary user code; user functions run again, but their observations are served from the journal. It is not a snapshot restore; it reconstructs *how* a state came to be, which is what makes auditing possible. It is not a database migration tool; replay across a graph shape change is refused, and migration is deferred to a future revision. These boundaries matter: they define the scope of the guarantee and prevent the replay contract from becoming an unbounded claim.
 
-| Earlier roadmap item | Status on 18 November |
-| --- | --- |
-| Flutter adapters and recipes | Delivered: `cell_flutter` 1.0.2 plus router, persistence and lint packages |
-| Causal replay and what-if branches | Delivered at graph level in `cell` 2.0.0. The roadmap framed it against Tissue state; I found no claim of Tissue-level replay |
-| Storage and persistence adapters | Partly: Flutter value persistence exists; the ledger stores named are in-memory and file only |
-| CLI and developer tooling | Partly: the `cell-replay` CLI (with Mermaid and DOT output), an in-app inspector and lint rules. No IDE plugin or live graph debugger found |
-| Full test matrix and coverage | Delivered by the author's own suites: `cell` 1,371 tests (1,174 core and 197 replay), `cell_flow` 1,091, `cell_flutter` 364 with at least 95% line coverage |
-| API freeze | Not clean: `cell_flutter` declares a 1.0.x freeze, while the core went from 1.1.0 to 2.0.0 in a week |
-| Multi-isolate and distributed cells, Phase 3 items | Not delivered; no mention found |
+The `cell-replay` CLI turns the ledger into an operational artifact. `verify` checks a ledger against a graph; `diff` compares two ledgers; `fork` creates a what‑if branch; `visualise` renders the causal chain; `inspect` drills into a sequence entry. This is the tooling layer that separates a research prototype from an engineering substrate. An auditor, a compliance officer, or a debugging engineer can now interact with the causal record without writing Dart code.
 
-*Reading:* the author is working through the roadmap roughly in order and then documenting the gaps. The public record cannot show when the work began, because the `cell_flutter` 0.x history was never published.
+### Flutter Bindings: The Adoption Vector
 
-**2. Replay is substantive, and its stated limits are specific.**
-*Documented:* every mutation is recorded as a hash-chained ledger entry (pulse, receipt, effects, state deltas); replay rebuilds recorded state in a fresh graph; undeclared effects fail at the journal boundary; any replay deviation reports the ledger sequence and expected versus actual values. A determinism gate runs the replay suite twice and fails on differing outcomes. Stated limits: `verify` checks the chain only and the `--graph` and `--genesis` options are planned; context translators throw `UnimplementedError` when none is registered and are not yet wired into engine dispatch; the fork engine supports an isolated policy only. The `cell_flutter` changelog adds that the replay round-trip is verified for pure state, debounce, throttle, `fromFuture` and `fromStream`, that concurrent `asyncMap` effect attribution is tracked separately, and that only `Cell.fromFuture` emits error pulses.
-*Reading:* replay turns "forensic trail" from a description into a checkable artifact, which is the closest thing the framework has to a differentiating feature for its stated target domains. It is also days old, and `cell_flow`'s changelog does not say whether Flow's time and async operators journal their effects.
+The rc.5 prediction identified cognitive load as the framework’s primary adoption barrier: three layers, a biological vocabulary, and a governance model that demands disciplined understanding before productive use. The Mitose pipeline addressed that barrier by delegating layer placement to an AI agent. The Flutter bindings address it from a different direction: they make the framework *usable* by developers who never interact with the ontology directly.
 
-**3. A hash chain is not, by itself, tamper-proof.**
-*Documented:* the changelog describes SHA-256 hashing of each entry and a one-pass `Ledger.verify()` that recomputes every hash. It does not describe signatures or external anchoring of the head hash.
-*Reading:* I did not review the implementation, so this is a question to ask rather than a finding. If the only copy of a ledger sits in a store the same party controls, that party could rewrite the whole chain and recompute it. For audit use, where the head hash is anchored matters as much as the chain.
+`cell_flutter` 1.0.0 is not a thin adapter. It provides `CellBuilder` for live state display with subtree‑only rebuilds, `CellSelector` for slice‑level granularity, `CellValueBuilder` for any cell type, `CellListener` for side effects on pulses without tree rebuilds, and `CellAsyncBuilder` for `AsyncSnapshot`‑shaped async state. `CellScope` offers app‑level dependency injection for genuinely global identifiers. `asValueCell`, `asStream`, and `CellNotifier` provide zero‑copy bridges out of the widget tree without leaving the reactive graph. The optional hooks layer (`useCell`, `useCellValue`, `useCellNotifier`, `useCellListener`, `useCellAsync`) serves `HookWidget` users. The test surface — `pumpWithCells`, `pumpCell`, `emitAndSettle`, `emitAndPump`, `recordPulses`, `expectCellValue`, `expectCellGolden`, and `CellTestHarness` — ships in a single import.
 
-**4. Replay was bought with an API break on the most common async operators.**
-*Documented:* the five operators listed above now fail to compile without a `journal:`, and `NullJournal` is described as a loud sentinel that fails on the first effect.
-*Reading:* this is in tension with the principle that you should not have to learn governance machinery until you need it. The changelog does not say whether a lightweight option exists for users who do not want replay; I did not verify. Recording overhead is also not quantified in the pages I read.
+The companion packages extend the surface. `cell_flutter_persistence` 0.1.0 provides `CellPersistenceAdapter`, SharedPreferences and in‑memory adapters, and `PersistedCell` for durable state. `cell_flutter_router` 0.1.0 bridges `go_router` with `CellRouterState`, `CellRouterStateMirror`, `CellRouterScope`, and `useCellRouter`. `cell_flutter_lints` 0.1.0 ships custom lint rules guarding against `cell_flutter` anti‑patterns. The Flutter family is not a afterthought; it is a coordinated ecosystem layer designed to make Mitosis a practical choice for Flutter applications while preserving the causal contract.
 
-**5. The version choreography is honest, and it means "stable" does not mean slow-moving.**
-*Documented:* `cell_flow` and `cell_tissue` were republished only to move a dependency floor, because `cell` 2.0.0 cannot resolve against the old `^1.1.0` constraint. The umbrella changelog justifies the MAJOR bump through SemVer on the re-exported surface and reverses, one week after introducing it, the policy that tied the umbrella version to the Mitose pipeline.
-*Reading:* the SemVer reasoning is sound and openly argued. The practical consequence is that a consumer pinned to "stable" should expect breaking majors at weekly cadence until the core settles.
+### The Breaking Change: Enforcing the Replay Contract at the API Level
 
-**6. The Flutter binding is carefully built, and its own record shows what is unproven.**
-*Documented:* the binding ships with CI, a 15% benchmark regression gate, a golden-test suite and migration guides whose examples are executed against real Provider, Riverpod and Bloc code. The 13 November gate evaluation records these outcomes:
+The umbrella’s MAJOR bump to 3.0.0 is driven not by new umbrella code but by a dependency‑floor change: `cell` 2.0.0 makes the async operators require an `EffectJournal`. Because the umbrella re‑exports these symbols, code that compiled against `mitosis` 2.2.1 (resolving `cell` 1.1.x) no longer compiles. This is a deliberate and consequential choice. The framework is saying that asynchronous effects cannot be left outside the journal without breaking the replay guarantee. The breaking change is the enforcement mechanism.
 
-| Gate | Result recorded in the changelog |
-| --- | --- |
-| Documentation, coverage, migration guides, accessibility, soak, security review, link check | Passed |
-| Benchmark | Failed on multi-builder bursts: 10 builders at 2.31 times and 100 builders at 2.93 times the `ValueListenableBuilder` baseline (single builder 1.25 times, which passed). The overhead is attributed to the core's pulse machinery |
-| External usability | Blocked: no external developer was available to run the migration test |
-| External production adoption | "No external production adopters yet" |
+The versioning decoupling is equally significant. The umbrella version and the Mitose pipeline version are now independent SemVer lines. Pipeline bumps no longer force umbrella bumps, and umbrella bumps occur only when the umbrella’s own contents change — packages added or removed, re‑export changes, or umbrella‑level documentation. This is a maturation of the release discipline: the pipeline is a tool, the framework is a product, and the two evolve on different cadences.
 
-The 1.0.x README then lists what it does not claim, including production readiness for the paths those gates cover. On pub.dev, `cell_flutter` is shown as published by an "unverified uploader", unlike the three original packages, which sit under the verified `opencell.dev` publisher. I did not check the other new packages.
-*Reading:* the candor is a credibility point. The label is looser: 1.0.0 shipped with a failed performance gate, an unrun usability test and an API-freeze promise. A reader should take the Status section, not the version number, as the guide to maturity.
+---
 
-**7. The project now pursues two audiences.**
-*Documented:* the Flutter package compares itself openly with Provider, Riverpod and Bloc and carries a "should I use this at all?" decision document. The umbrella still lists payments, safety telemetry, energy, mobility, security and agents as target domains, and a Flutter variant of the Mitose pipeline exists as repository tooling excluded from the archive.
-*Reading:* this supersedes the September view that the audience was narrowing to regulated backends. The author is now trying to reach Flutter developers, regulated-domain engineers and AI-agent users with one framework. Each path has a plausible first user, and each dilutes the effort available to the others.
+## Revised End‑Game Prediction
 
-**8. Adoption indicators moved a little.**
-*Documented:* pub.dev showed about 1.21k (`mitosis`), 1.17k (`cell`) and 1.15k (`cell_flow`) downloads, against 1.06k, 1.03k and 1.02k a week earlier; `cell` has 1 like and the others 0. The new packages show no download counts yet. All checked packages score 160 of 160 pub points. The last GitHub view I could retrieve, which was stale, showed 0 stars, 0 forks, 1 watcher and 1 open pull request.
-*Reading:* near-identical counts across packages that depend on each other still point to installs pulled through the dependency chain, CI and mirrors rather than independent users. The week-on-week rise is consistent with release-day installs and says little about adoption.
+The three‑phase trajectory from the original analysis remains intact: stabilize the reactive core, add causal replay and distributed cells, then evolve into a runtime for autonomous and multi‑agent systems. With Causal Replay shipped, Phase 2 is no longer a prediction. It is the current state, at least in its single‑process, registered‑graph form. The remaining Phase 2 items — distributed cells that preserve provenance across network boundaries, and storage adapters that snapshot graph state without leaving the causal model — are still unshipped, but the replay substrate they will build upon now exists.
 
-## 3. Track record of earlier calls
+### Near Term (Post‑3.0.0): Prove Replay, Then Prove Replay at Scale
 
-| Earlier call | Outcome |
-| --- | --- |
-| September: new capabilities would likely arrive as their own packages | Half right: the Flutter family arrived as new packages; replay landed inside `cell` |
-| September: Flutter bindings, persistence and codegen were forthcoming | Flutter and persistence arrived; no codegen seen |
-| September: a solo maintainer makes a stall after 1.0 likely | Not borne out in the short run; the next milestone came in a week |
-| 30 September: agent-facing developer experience would arrive before any agent runtime | Held: the AI-facing surface shipped in 2.2, and `cell_mind` is still unpublished |
-| 30 September: documentation-led momentum might leave the core behind | Refuted by the stable and 3.0 releases |
-| 11 November: the roadmap commitments were deferred or dropped | Wrong within a week |
+The immediate question is no longer whether causal replay works in the laboratory. The `cell-replay` CLI and the `test/replay/` suite suggest it does, within the boundaries the guide defines. The question is whether replay remains *honest* when the graph is generated by the Mitose pipeline and operated under autonomous mode.
 
-## 4. Scorecard against the 11 November signals
+The previous prediction identified the pipeline’s ledger as a “natural precursor to a replayable causal trace.” That precursor has now become a full replay engine. The near‑term test is whether a Mitose‑generated application, produced from a BRD without human intervention at each gate, can be replayed against its own ledger and pass the same invariants that the framework’s own test suite enforces. If the pipeline’s autonomous decisions leave gaps in the journal — an undeclared effect, an unregistered cell, a receptor version that cannot be resolved — replay will fail loudly, as the design intends. That failure is preferable to a silent corruption, but it is still a failure of the pipeline’s promise.
 
-| Signal to watch | Status on 18 November |
-| --- | --- |
-| First issue, pull request, discussion or public dependent from a non-author | No evidence; now measured across eight published packages |
-| Independent run of the pipeline on a third-party BRD | No evidence |
-| Independent review of `txApply` and compensation, or reproduced benchmarks | No evidence; the new gates are author-run |
-| Another structural rewrite of the guides within 90 days | No guide rewrite noted in 3.0.0, but a versioning policy was reversed within a week |
-| A written position on Flutter bindings and on replay and distributed cells | Flutter and replay delivered; distributed cells unaddressed |
-| A fourth layer appearing before outside users exist | Not published, but `cell_mind` and `cell_organ` exist as workspace members |
+The Flutter bindings add a second near‑term test: whether the widget layer preserves the causal trail. `CellListener` invokes a handler once per pulse without rebuilding the tree, and `CellScope` registers a small set of cells for subtree lookup. These are not just ergonomic features; they are the points where the graph meets the widget tree, and where provenance could be dropped if the binding is careless. The `cell_flutter_lints` package exists precisely to guard against such carelessness, but lint rules are static; the dynamic test is whether a Flutter application built with `cell_flutter` can produce a ledger that the `cell-replay` CLI can verify without manual reconstruction.
 
-## 5. Updated end-game forecast (12-month horizon)
+### Medium Term (3.x): Replay as the Auditing Substrate for Distributed and Governed Systems
 
-| Scenario | Now | 11 Nov |
-| --- | --- | --- |
-| Agent-first niche toolkit | 28% | 40% (before the Flutter path was split out) |
-| Flutter-led niche | 17% | not separate |
-| Breadth-driven stall | 33% | 35% |
-| Production graduation | 15% | 15% |
-| Methodology spin-out | 7% | 10% |
+The medium‑term prediction is the one the earlier forecasts could only gesture toward. Causal replay is the bridge from “governed generation” to “auditable runtime.” Once a ledger is replayable, the ledger becomes the evidence artifact for compliance, incident investigation, and what‑if analysis. The `cell-replay` CLI’s `fork` subcommand is particularly consequential: it allows an auditor or a debugging engineer to re‑run a historical trace under a modified condition — a different input, a different governance policy, a different receptor version — and compare the forked outcome against the recorded outcome. This is not merely debugging; it is *counterfactual auditing*.
 
-Treat each figure as plus or minus ten points. A sole-maintainer project with about a thousand downloads and no visible outside users usually does not reach broad adoption; I have not quantified that base rate, and it is why the stall scenario stays the largest.
+Distributed cells, when they ship, will extend replay across network boundaries. The `HowTo‑Causal‑Replay` guide already draws a boundary: replay is not cross‑process without registration, because an unregistered cell’s id is a process‑local hash. The distributed‑cells feature will need to solve the registration problem at the network scale — stable identities that survive serialization, versioned receptors that can be resolved in a different process, and a ledger format that can be merged or partitioned without breaking the causal order. This is not a trivial extension, but the single‑process replay engine provides the semantic foundation.
 
-### 28%: agent-first niche toolkit
+The Flutter ecosystem will likely follow the same trajectory. `cell_flutter_persistence` 0.1.0 is a first step toward durable state that can survive app restarts. If persistence can be made replay‑compatible — if the persisted state is accompanied by a journal that records how it was reached — then a Flutter application can be audited across sessions, not just within a single run. The current persistence package is at 0.1.0 and does not yet claim replay compatibility, but the architectural direction is clear.
 
-A small group uses the Mitose pipeline and the AI-facing API surface to generate governed prototypes and services, with replay as an audit feature. The framework stays Dart-first and is known for its approach to AI-assisted development more than for state management.
+### Long Term: The Governance Layer for Agentic Systems, Now with an Executable Audit Trail
 
-### 17%: Flutter-led niche
+The long‑term end game remains a runtime for autonomous and multi‑agent systems, where the causal graph is the substrate for accountability. What has changed is that the accountability is no longer only *inspectable*; it is *re‑executable*. An agentic system built on Mitosis can produce a ledger of its decisions and effects, and that ledger can be replayed by an independent auditor to verify that the decisions followed the governed procedure. The Mitose pipeline’s `[AI DECIDED — autonomous]` tags become ledger entries that can be replayed against the same gates, and any deviation is reported with sequence number and reason.
 
-A small number of Flutter developers adopt `cell_flutter` for its testing surface, restoration and replay, probably migrating from Provider or Riverpod through the guides. The bar is low (a handful of real users), but the Flutter state-management segment is crowded, the binding is slower than `ValueListenableBuilder` under multi-builder bursts, and its usability test has not been run by an outsider.
+This is a more defensible version of the earlier bet. The rc.9 prediction worried that autonomous mode institutionalized the risk of causal errors without providing a way to detect them after the fact. Causal Replay provides that detection mechanism. The framework can now say: *if the journal is complete and the ledger is honest, replay will reproduce the state or report the exact point of divergence.* The remaining question is whether the journal can be made complete under autonomous operation, and whether the ledger’s hash chain is sufficient to detect tampering at the pipeline level, not just at the storage level.
 
-### 33%: breadth-driven stall
+The Flutter bindings matter for the long‑term vision because they determine whether Mitosis can be the substrate for *interactive* agentic systems, not just backend or batch systems. An agentic application that a human operates through a Flutter UI needs the same causal guarantees as a headless service. If `cell_flutter` can preserve the ledger across widget rebuilds, navigation, and persistence, then the governance layer extends to the user‑facing surface. If it cannot, the Flutter ecosystem becomes a separate, causally weaker tier.
 
-The project now has eight published packages and two workspace members, each with a compatibility promise, and one maintainer. Releases thin out, known gaps remain (error pulses, concurrent `asyncMap` attribution, Tissue-level replay), and no outside user appears. This is lower in the short run than it looked a week ago, because the author just delivered two roadmap items in days. It remains the largest scenario because breadth raises maintenance load without raising adoption.
+---
 
-### 15%: production graduation
+## Risk Assessment, Revised
 
-An independent team uses the ledger and replay in an audited domain, the integrity engine receives outside review, and contributors appear. The ceiling is higher than before because replay is the feature those domains ask for. The floor is not: replay is days old, its stores are in-memory and file-based, and no independent review of the engine has appeared.
+The rc.9 prediction identified two risks: causal correctness of generated output, and the substitution of generation for understanding. The stable‑release prediction added a third: the expectation of production readiness outstripping the shipped feature set. Causal Replay and the Flutter bindings change the risk profile in three ways.
 
-### 7%: methodology spin-out
+**Risk 1: Replay creates a false sense of completeness.** The `HowTo‑Causal‑Replay` guide is admirably explicit about the boundaries of replay: it is not bit‑exact re‑execution, not a snapshot restore, not a migration tool, not cross‑process without registration. But the existence of a `verify` command and a hash‑chained ledger can create the impression that *any* ledger can be verified, and that a passing verification means the system is causally sound. In practice, the journal’s completeness depends on every non‑deterministic effect being declared, and the ledger’s honesty depends on the recording process itself not being compromised. A ledger that omits an undeclared effect will verify successfully against a replay that never observed the effect. The risk is not that replay is wrong; it is that replay’s *scope* is easy to overestimate.
 
-The pipeline's method (requirements gate, executed-evidence ledger, numbered change files) is adopted or imitated outside Dart. It is portable Markdown with a coined name, but I found no external reference to it, which keeps this low.
+**Risk 2: The breaking change fragments the ecosystem.** The `EffectJournal` requirement on async operators is the right enforcement mechanism for the replay contract, but it is a breaking change at the `cell` 2.0.0 level and therefore at the umbrella 3.0.0 level. Applications built against `mitosis` 2.2.1 will not compile without modification. The Flutter bindings are new and versioned at 1.0.0, but they depend on `cell` 2.0.0 and will not work with the old line. The risk is not that the breaking change is unjustified; it is that the ecosystem is young enough that a MAJOR bump can stall adoption before the replay value is understood. The versioning decoupling helps — the pipeline can continue to evolve independently — but the package set’s coherence now depends on users upgrading to a line that requires them to journal their async effects.
 
-## 6. Risks specific to this milestone
+**Risk 3: The Flutter bindings are ergonomic but not yet proven at scale.** `cell_flutter` 1.0.0 ships a substantial widget surface, a hooks layer, and a test harness. The companion packages are at 0.1.0, which signals that they are early. The `cell_flutter_persistence` package does not yet claim replay compatibility. The `cell_flutter_router` package bridges `go_router`, but routing is a stateful, navigation‑heavy concern where causal trails are easy to lose. The risk is that the Flutter ecosystem becomes the dominant adoption path — because Flutter developers are the most likely to adopt a Dart framework with widget bindings — while the causal guarantees that distinguish Mitosis from Riverpod or Bloc are weakest at the widget layer.
 
-- **Breadth against capacity.** Eight published packages plus unpublished members, a declared 1.0.x freeze on the Flutter surface, and one maintainer. The patch releases uploaded within an hour of the first stable uploads (`cell_flutter` 1.0.1 and 1.0.2, and earlier `mitosis` 2.2.1) show release checks catching scoring and hygiene items after publication.
-- **A young, unaudited integrity layer.** Replay sits on the same engine whose transaction and compensation internals earlier notes described as not independently reviewed, and 2.0 changed it again. Anchoring of the ledger head is an open question (section 2, item 3).
-- **Determinism has edges.** Replay depends on effects being declared; concurrent `asyncMap` attribution and error-pulse coverage for `fromStream` and `asyncMap` are documented gaps; Flow and Tissue coverage is not stated.
-- **Unquantified cost.** I found no recording overhead figures, and the Flutter binding is 2.3 to 2.9 times slower than the baseline under multi-builder bursts. For the real-time domains in the target list, this is the number that matters.
-- **Positioning split.** The umbrella says it is not "another state-management library", while the Flutter package competes in exactly that segment and `pub.dev` topics still say `state-management`.
-- **Journal friction.** Common async operators now demand a replay primitive, which strains progressive disclosure.
-- **Provenance of the packages themselves.** For a framework sold on provenance, publisher verification should be uniform across the family; I checked only one new package.
+**Risk 4: The pipeline and the replay engine evolve on different timelines.** The versioning decoupling is a sensible release‑discipline choice, but it introduces a coordination risk. The Mitose pipeline generates applications against the `cell` API. If the pipeline’s templates and placement rules are not updated in lockstep with replay‑related API changes, generated applications may compile but fail replay verification. The `tool/ai_preflight.dart` and the seam tests are instruments for catching this, but they are framework‑level checks, not pipeline‑output checks. The medium‑term risk is a drift between what the pipeline generates and what the replay engine can verify.
 
-## 7. Intention of the author
+---
 
-The September reading was a long-horizon runtime for systems where causality and auditability are non-negotiable. The 30 September and 11 November readings added agent-first onboarding and a pipeline-centred identity. This milestone shows a third behaviour: the author executes the written roadmap, then publishes the gaps and failed gates in the changelog. The Flutter binding reads as an adoption on-ramp, replay as the differentiator, and the pipeline as the process story. The likeliest strategy is to keep several routes open and see which finds a first user. That is an inference; the repository does not say it. It raises the number of ways to get a first user, and it spreads one maintainer's effort across them.
+## Strategic Implication
 
-## 8. Signals to watch
+The bet has changed again, and this time it has become more concrete. The rc.5 framework bet that the target use case would become typical organically. The rc.9 framework bet that AI‑generated solutions could make the use case typical. The stable‑release framework bet that AI could be trusted to operate the engineering discipline that makes causal integrity verifiable. The 3.0.0 framework bets that **causal replay is the feature that turns governance from a promise into a verifiable property** — and that Flutter bindings are the adoption vector that brings that property to the largest segment of Dart developers.
 
-| Signal | Effect on the forecast |
-| --- | --- |
-| First non-author issue, pull request, discussion or public dependent on any of the eight packages (check reverse dependencies on pub.dev, especially for `cell_flutter`) | Moves roughly 5 to 10 points from stall to the niche scenarios |
-| An outsider completes the Flutter migration usability test, or the multi-builder benchmark ratio falls toward the single-builder figure | Raises the Flutter-led niche |
-| A third-party `LedgerStore` passing the published conformance suite, or an independent review of the ledger (signatures, head anchoring, an external store) | Raises graduation |
-| No further breaking major in `cell` for about 90 days | Reduces breadth-driven stall risk; a second major in that window raises it |
-| Replay extended to Flow and Tissue, concurrent `asyncMap` attribution closed, error pulses added for `fromStream` and `asyncMap` | Raises graduation and agent-first niche |
-| Publication of `cell_mind` or `cell_organ` before outside users exist | Signals scope outrunning adoption |
-| Download growth that persists between release days | The first evidence of real use |
-| A stated position on multi-isolate and distributed cells | Restores or retires the last undelivered Phase 2 item |
+This is a sharper bet than its predecessors because it is testable in a way the earlier bets were not. The earlier predictions asked whether developers would learn the ontology, or whether an AI could operate the gates. The replay bet asks a narrower, more falsifiable question: *can a ledger produced by a Mitose‑generated application be replayed against a fresh graph and reproduce the recorded state?* If the answer is yes, the framework has a demonstrable property that Riverpod and Bloc do not offer: an executable audit trail. If the answer is no, the failure is specific and diagnosable — a missing journal entry, an unregistered cell, a version mismatch — rather than a vague disappointment.
 
-## 9. Conclusion
+What Riverpod and Bloc cannot easily replicate is not the reactive graph, and it is no longer only the procedural contract. It is the **combination of a governed pipeline and a replayable ledger**. A conventional state‑management framework can offer predictability; it cannot offer *re‑executable causality* without rebuilding its core around provenance and journals. Mitosis has now built that core. The Flutter bindings determine whether the core reaches the developers who need it.
 
-The milestone converts most of the original roadmap into published artifacts, and it corrects my last report: the framework is moving faster, and more deliberately, than the README edit suggested. Technically it is the widest and most mature the project has been, with a replay ledger that gives the audit pitch something concrete to stand on and a Flutter binding that opens a mainstream route in. Adoption evidence has not moved in step. The decisive tests over the next six months are the first independent user of any package, an outside review of the ledger and the engine beneath it, and whether the core holds still long enough for anyone to depend on it.
+The unresolved question is whether the replay guarantee survives the transition from a framework‑controlled test suite to pipeline‑generated, autonomous‑mode applications at scale. The framework’s own instruments — the `cell-replay` CLI, the `EffectJournal` enforcement, the hash‑chained ledger, the Flutter test surface — are the right instruments for answering that question. They measure the right properties. The risk is not that they are the wrong tools; it is that the ecosystem’s adoption path may prioritize the ergonomic Flutter surface over the forensic replay surface, and that the replay guarantee may become an underused feature rather than the defining one.
 
-## Basis and limitations
+---
 
-- **Primary sources:** pub.dev changelogs and pages for `mitosis` 3.0.0, `cell` 2.0.0, `cell_flow` 1.1.0 and `cell_flutter` 1.0.2 (README, changelog, versions). The `cell_tissue` 1.1.0 changelog and the pages for `cell_flutter_persistence`, `cell_flutter_router` and `cell_flutter_lints` were not opened; their details come from the umbrella changelog and the `cell_flutter` README.
-- **Stale views:** the umbrella README retrievable during this assessment was an October snapshot, and the GitHub pages were cached (README at rc.5). I could not read the 3.0.0 README, so I cannot say whether a roadmap section has returned. Commit history and tags were not retrievable. Stars and forks are last-observed values and may be out of date. The early roadmap table in section 2 comes from that older README.
-- **Not reviewed:** source code, the replay implementation, the Flutter pipeline tooling and guides, and sample outputs. Test counts, benchmark ratios and gate results are quoted from changelogs as reported and were not reproduced.
-- **Approximations:** dates derive from relative ages on pub.dev ("published 7 hours ago") and may be off by a day. Download counts include CI, mirrors and the author's own installs, and the counting window is not stated.
-- **Estimates:** every probability is my own judgment and should be updated as the signals above resolve.
+## Conclusion
+
+The end game remains a **causally intelligible runtime for complex, governed systems**. At this milestone, Mitosis has taken the step that the earlier predictions identified as the dividing line between a framework with an audit log and a framework with an *executable* audit log. Causal Replay is no longer a roadmap item. It is shipped, documented, and instrumented with a CLI. The Flutter bindings family is no longer a missing adoption vector. It is a coordinated ecosystem layer with widgets, hooks, persistence, routing, and lints.
+
+The framework is no longer over‑engineered for typical use. It is engineered for a mode of software production in which a business requirement, a gated AI pipeline, a reactive graph, and a replayable ledger together constitute the development and accountability process. The stable release made that process installable. Autonomous mode made it scalable. Causal Replay makes it **verifiable**. The unresolved question is whether verifiability at the framework level translates into trustworthiness at the pipeline and ecosystem levels — whether a ledger produced without a human watching each gate can be replayed without a human reconstructing each cause.
+
+Success will depend less on the elegance of the three layers, which remains considerable, than on whether the replay engine’s guarantees are as honest as the framework’s pulses and as complete as the pipeline’s ledgers. If they are, Mitosis may become the default substrate for AI‑generated governed systems with an executable audit trail. If they are not, the 3.0.0 release will have made a powerful framework more verifiable in principle and more fragmented in practice — a replay engine waiting for a pipeline that can produce ledgers worth replaying.

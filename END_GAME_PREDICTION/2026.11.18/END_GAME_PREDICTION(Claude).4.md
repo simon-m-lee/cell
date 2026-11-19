@@ -1,164 +1,192 @@
-# Follow-Up Prediction: The Mitosis Framework at First Stable Release
+# Follow-Up Prediction: The Mitosis Framework after Causal Replay and Flutter Bindings
 
-How the 2.2 stable line changes the trajectory forecast for github.com/simon-m-lee/cell.
+How the 3.0 package set changes the trajectory forecast for github.com/simon-m-lee/cell.
 
 | | |
 | --- | --- |
-| **Subject** | Mitosis: `mitosis` 2.2.1, `cell` 1.1.0, `cell_flow` 1.0.0, `cell_tissue` 1.0.0 (github.com/simon-m-lee/cell) |
-| **Prepared** | 11 November 2026 |
-| **Trigger** | First stable release of all four packages, published on or about 10 November 2026 (pub.dev showed "published 17 hours ago") |
-| **Updates** | *Follow-Up Prediction: The Mitosis Framework after the Mitose Pipeline* (30 September 2026) and the earlier *End-Game Prediction* it revised |
-| **Basis** | pub.dev changelogs, version histories, scores and README for the four packages; repository pages as far as they could be retrieved (see Basis and limitations) |
+| **Subject** | Mitosis: `mitosis` 3.0.0, `cell` 2.0.0, `cell_flow` 1.1.0, `cell_tissue` 1.1.0, and the new Flutter family (`cell_flutter` 1.0.2, `cell_flutter_persistence` 0.1.x, `cell_flutter_router` 0.1.x, `cell_flutter_lints` 0.1.0) |
+| **Prepared** | 18 November 2026 |
+| **Trigger** | `mitosis` 3.0.0, "Causal Replay & Flutter Bindings", published on or about 17 November 2026 |
+| **Updates** | The original *End-Game Prediction* (September 2026); *Follow-Up Prediction: The Mitosis Framework after the Mitose Pipeline* (30 September); *Follow-Up Prediction: The Mitosis Framework at First Stable Release* (11 November) |
+| **Basis** | pub.dev changelogs, version histories and README pages for `mitosis`, `cell`, `cell_flow` and `cell_flutter`; repository pages as far as they could be retrieved (see Basis and limitations) |
 
 ## Key findings
 
-- **Stable shipped.** The 30 September report listed the stable release as a signal to watch and noted that the freeze had slipped since rc.5. Stable arrived about six weeks later, and it is substantive: a new command model in the core, six performance phases with a benchmark gate, and a long list of correctness fixes.
-- **The API moved at the finish line.** Several breaking changes landed in the stable cycle, so "stable" marks a labeling and hygiene milestone more than an API freeze.
-- **The project's identity has consolidated around the Mitose pipeline and agent-facing API discovery.** The Phase 1 to Phase 3 roadmap that earlier assessments relied on (Flutter adapters, causal replay, distributed cells, multi-agent orchestration) no longer appears in the umbrella README as rendered on pub.dev.
-- **Adoption evidence has barely moved.** Each package shows roughly 1,000 downloads and 0 to 1 likes. The last observed GitHub counts were 0 stars and 0 forks. Engineering maturity is now well ahead of adoption evidence.
-- **Revised forecast (12-month horizon):** agent-first niche toolkit about 40%, post-stable stall about 35%, production graduation about 15%, methodology spin-out about 10%. These are the author of this assessment's own estimates and are not stated anywhere in the repository.
+- **I misread the roadmap last time.** The 11 November report treated the disappearance of the Phase 1 to Phase 3 roadmap from the umbrella README as the most informative change and lowered the graduation forecast because of it. Within about a week, two of the items I had called "no longer stated" shipped: Flutter bindings and causal replay. The earlier reading overweighted a README edit.
+- **The milestone is large and real.** `cell` 2.0.0 adds a hash-chained ledger, a deterministic replay engine, what-if forks, governance replay and a `cell-replay` CLI. Four new Flutter packages add widgets, hooks, a test surface, a router bridge, persistence adapters and lint rules.
+- **"Stable" turned over in about a week.** The first stable `cell` (1.1.0) was superseded by a breaking 2.0.0 roughly seven days later, and the version-coupling policy introduced in `mitosis` 2.2.0 was reversed in 3.0.0.
+- **The Flutter binding's own changelog discloses unmet 1.0 gates.** A gate evaluation dated 13 November records a failed benchmark gate and a blocked external-usability gate, and the package still shipped as 1.0.0 with an explicit list of what it does not claim.
+- **Adoption evidence is still thin.** Downloads rose roughly 13 to 14% in a week to about 1,150 to 1,210 for the three original packages I could check; likes remain 0 to 1; the last GitHub view I could retrieve showed 0 stars and 0 forks.
+- **Revised forecast (12-month horizon):** agent-first niche toolkit about 28%, breadth-driven stall about 33%, Flutter-led niche about 17%, production graduation about 15%, methodology spin-out about 7%. These are the author of this assessment's own estimates and are not stated anywhere in the repository.
 
 ## 1. What changed since the last assessment
 
-### 1.1 Release timeline
+### 1.1 Timeline
 
-Dates are approximate, derived from the relative ages shown on pub.dev.
+Dates are approximate, derived from the relative ages shown on pub.dev and from dates quoted in changelogs.
 
-| Umbrella version | Approx. date | Headline |
-| --- | --- | --- |
-| 1.0.0-rc.9 | 30 Sep | Mitose pipeline 1.0: BRD gate, WalkThrough, Demo (the subject of the last report) |
-| 1.0.0-rc.10 | 18 Oct | Mitose 2.0: residual ledger, comprehension checks, change mode, an always-written test file, the term "Precision Software Engineering" |
-| 1.0.0-rc.11 | 2 Nov | Autonomous mode ("Mitose autonomous"); a master document generator |
-| 1.0.0-rc.12 to rc.14 | 4 Nov | cafe-coffee worked sample; master generator extended with density and small-instruction rules; guide-validation script |
-| 2.2.0 and 2.2.1 | 10 Nov | Stable line; master generator removed; AI-facing API discovery across all packages; patch removes private research notes from the archive |
+| Date | Event |
+| --- | --- |
+| ≈10 Nov | Stable line: `mitosis` 2.2.0/2.2.1, `cell` 1.1.0, `cell_flow` 1.0.0, `cell_tissue` 1.0.0 |
+| 13 Nov | `cell_flutter` 1.0 gate evaluation (dated in its changelog): benchmark gate failed, usability gate blocked |
+| ≈17 Nov | `mitosis` 3.0.0; `cell` 2.0.0; `cell_flow` 1.1.0; `cell_tissue` 1.1.0; first publishes of the four Flutter packages. `cell_flutter` 1.0.0, 1.0.1 and 1.0.2 were uploaded within about an hour of each other |
 
-Twelve umbrella versions appeared in about 57 days (rc.5 to 2.2.1), seven of them since rc.9.
-
-### 1.2 The stable line
+### 1.2 The 3.0 package set
 
 | Package | Version | Documented content |
 | --- | --- | --- |
-| `cell` | 1.1.0 | Forensic command model (`ApplyCommand`, sealed `ApplyOutcome`); the loosely typed `Cell.apply` retired in favour of `apply<R>(ApplyCommand)`; four non-functional propagation strategies removed; six optimization phases; benchmark suite with a 15% regression gate |
-| `cell_flow` | 1.0.0 | Per-activation operator state; race fixes in `ExhaustMapLatest` and `MergeScan`; `Flow` no longer a `CellBase`; 100 public factories; benchmark suite |
-| `cell_tissue` | 1.0.0 | Command bridge `TissueBase.apply<R>`; live zero-copy unmodifiable views; positional `principal` in `evolve` factories; 30-result benchmark baseline |
-| `mitosis` | 2.2.1 | Umbrella; version now tracks the Mitose pipeline version (2.2); README restructured around Precision Software Engineering and the pipeline |
+| `cell` | 2.0.0 | Causal Replay module (`package:cell/replay.dart`): `EffectJournal`, canonical JSON and SHA-256 fingerprints, a hash-chained `Ledger`, a `ReplayEngine` with what-if forks and fork verification, governance replay (version registry, context translators), and the `cell-replay` CLI (`verify`, `diff`, `fork`, `visualise`, `inspect`). Breaking: `Cell.asyncMap`, `fromFuture`, `fromStream`, `debounce` and `throttle` now require a `journal:`. New dependency: `crypto` |
+| `cell_flow` | 1.1.0 | Republished only to move the dependency floor to `cell` ^2.0.0; the operator surface is unchanged |
+| `cell_tissue` | 1.1.0 | Re-released against the new core; I did not open its changelog |
+| `cell_flutter` | 1.0.2 | Widgets (`CellBuilder`, `CellSelector`, `CellValueBuilder`, `CellAsyncBuilder`, `CellListener`, `CellScope`), optional hooks, a widget-test surface, state restoration, forms, `CellErrorBoundary`, virtualized list views, an in-app inspector, migration guides from Provider, Riverpod, Bloc and setState, and a comparison document |
+| `cell_flutter_persistence`, `cell_flutter_router`, `cell_flutter_lints` | 0.1.x | `SharedPreferences` and in-memory adapters; a `go_router` bridge; four `custom_lint` rules |
+| `mitosis` | 3.0.0 | Umbrella; MAJOR bump through the dependency surface; version no longer tracks the Mitose pipeline |
+
+Two workspace members are not published: `cell_mind` 1.1.0 (described as "cognitive policy") and `cell_organ` (workspace-private).
 
 ## 2. What the evidence shows
 
-**1. The stable release is a real engineering step.**
-*Documented:* the `cell` changelog reports single-hop emit falling from about 170 µs to about 5 to 6 µs, `Cell.distinct` from about 1.7 ms to about 8 µs, and chain depth 50 from about 8.3 s (described as exponential) to about 12.7 ms (linear). It also reports 1,000 `TissueList.add` calls falling from about 3.2 s to about 56 ms. All four packages score 160 of 160 pub points.
-*Reading:* these are the author's own measurements, not independently reproduced. The same changelog states that the remaining overhead against a bare stream is roughly 120 times per hop and publishes a cost ladder explaining it. That candor is a credibility point.
+**1. The earlier roadmap largely arrived, and faster than any forecast assumed.**
+*Documented:* the early umbrella README listed Flutter adapters, causal replay with what-if branches, persistence adapters, a CLI and a graph debugger. Status now:
 
-**2. The changelog is candid about latent defects, and that cuts both ways.**
-*Documented:* the stable cycle fixed, among others, a branch-completion counter that could fire `onComplete` once per terminal or never; Flow operators whose handles shared timers and accumulators; "unmodifiable" views that were copies rather than live views; and four propagation strategies described as silently non-functional.
-*Reading:* this is evidence of rigor in disclosure. It is also evidence that earlier release candidates, which reported about 1,100 tests and above 93% line coverage, still carried defects in exactly the areas the framework is pitched on (integrity, atomicity, lifecycle). Coverage did not equal correctness. The same discipline the pipeline demands of generated code, evidence from executed runs, applies to the framework itself.
-
-**3. Breaking changes landed at the stable boundary.**
-*Documented:* `Cell.apply` and `Tissue.apply` were removed; `evolve` factories changed `principal` from named to positional; `PropagationStrategy.exhaust`, `.sample`, `.resilient` and `.retry` were removed; `FlowHandle` lost its generic parameter. `cell` has no 1.0.0 stable release; its first stable version is 1.1.0.
-*Reading:* no stable consumer could be broken, because no stable existed. But the earlier roadmap promised an API freeze after the release-candidate cycle, and the final candidate cycle ended with the API still moving.
-
-**4. The agent-facing surface is now machine-checked.**
-*Documented:* every top public symbol carries an `### AI Agent Guide` doc block with a pinned `Live signature:`; each package ships a generated API chooser (BRD sentence to factory), a preflight tool that fails on signature drift, doc-comment examples that are compiled and executed in tests, a `seam_test.dart` that enforces the Mitose placement rules inside the package's own suite, and a structured AI failure log (`ai_failure_log.jsonl`) with a stated quarterly review.
-*Reading:* this directly answers two risks in the 30 September report (guide-to-source drift and the cold-start problem for agents). It moves the framework's AI strategy from guides that tell an agent what to do toward an API that checks the agent's work.
-
-**5. The process layer is volatile.**
-*Documented:* the master document generator appeared in rc.11, was extended in rc.14 and was removed in 2.2.0, roughly a week of life. The README now says every generator is followed individually and that a document produced without following its named generator is invalid. Earlier, the guides were withdrawn in rc.8 and restored in rc.9.
-*Reading:* AI-executable scripts are the product's surface, and their structure is still being reshaped release to release. Users of the pipeline cannot yet assume that a guide set stays stable between versions.
-
-**6. The roadmap has been replaced by the pipeline.**
-*Documented:* the stable README's Vision section now describes the Mitose pipeline as "the first agentic workflow shipped with the project" and the way the repository is meant to be operated day to day. The Now/Next/Later table and the three phases are absent. The target-domain list is unchanged, and the Honest Caveats now name `cell_organ` as a possible future layer.
-*Reading:* I cannot tell whether the roadmap moved to another document. As rendered on pub.dev, the commitments I previously tracked (Flutter adapters, replay, distributed cells) are no longer stated, and their absence is the most informative change for the long-run forecast.
-
-**7. The umbrella version is now a pipeline version.**
-*Documented:* `mitosis` 2.2.x tracks `guide/HowTo-Mitose.md` v2.2, while the API packages are 1.x. The `guide/` directory was excluded from the pub.dev archive in rc.9, and no later changelog entry reverses that.
-*Reading:* the umbrella's version number now describes content that is not in the package archive. That is workable but easy to misread.
-
-**8. Adoption indicators remain thin.**
-*Documented:* pub.dev shows about 1,060 (`mitosis`), 1,030 (`cell`), 1,020 (`cell_flow`) and 970 (`cell_tissue`) downloads, with 0 likes on three packages and 1 on `cell`. Snapshots in October showed roughly 430 to 440. GitHub views, last observed, showed 0 stars, 0 forks, 1 watcher and 1 open pull request.
-*Reading:* near-identical counts across four packages that depend on each other are consistent with installs pulled through the dependency chain, CI and mirrors, rather than independent users choosing individual layers. The doubling since October is real but small in absolute terms.
-
-## 3. Scorecard against the 30 September signals
-
-| Signal to watch | Status on 11 November |
+| Earlier roadmap item | Status on 18 November |
 | --- | --- |
-| Stable 1.0.0 ships and the API freezes | Stable shipped; the freeze was not clean (section 2, item 3) |
-| Generated demos are compiled and tested | Partly: the pipeline now always writes a test file and a ledger from executed runs. Whether anyone other than the author runs generated output in CI is not shown |
-| Anyone other than the author files an issue or pull request | No evidence; unchanged |
-| Flutter adapters from Phase 1 arrive | Not delivered; the phase list no longer appears in the README |
-| Pipeline used on a real BRD outside the samples | Samples grew (cafe-coffee, pantry-bridge, saltline-scramble, tide-warden); no outside use evidenced. I did not open the sample outputs |
+| Flutter adapters and recipes | Delivered: `cell_flutter` 1.0.2 plus router, persistence and lint packages |
+| Causal replay and what-if branches | Delivered at graph level in `cell` 2.0.0. The roadmap framed it against Tissue state; I found no claim of Tissue-level replay |
+| Storage and persistence adapters | Partly: Flutter value persistence exists; the ledger stores named are in-memory and file only |
+| CLI and developer tooling | Partly: the `cell-replay` CLI (with Mermaid and DOT output), an in-app inspector and lint rules. No IDE plugin or live graph debugger found |
+| Full test matrix and coverage | Delivered by the author's own suites: `cell` 1,371 tests (1,174 core and 197 replay), `cell_flow` 1,091, `cell_flutter` 364 with at least 95% line coverage |
+| API freeze | Not clean: `cell_flutter` declares a 1.0.x freeze, while the core went from 1.1.0 to 2.0.0 in a week |
+| Multi-isolate and distributed cells, Phase 3 items | Not delivered; no mention found |
 
-## 4. Revisions to earlier claims
+*Reading:* the author is working through the roadmap roughly in order and then documenting the gaps. The public record cannot show when the work began, because the `cell_flutter` 0.x history was never published.
 
-| Earlier claim | Revised view |
+**2. Replay is substantive, and its stated limits are specific.**
+*Documented:* every mutation is recorded as a hash-chained ledger entry (pulse, receipt, effects, state deltas); replay rebuilds recorded state in a fresh graph; undeclared effects fail at the journal boundary; any replay deviation reports the ledger sequence and expected versus actual values. A determinism gate runs the replay suite twice and fails on differing outcomes. Stated limits: `verify` checks the chain only and the `--graph` and `--genesis` options are planned; context translators throw `UnimplementedError` when none is registered and are not yet wired into engine dispatch; the fork engine supports an isolated policy only. The `cell_flutter` changelog adds that the replay round-trip is verified for pure state, debounce, throttle, `fromFuture` and `fromStream`, that concurrent `asyncMap` effect attribution is tracked separately, and that only `Cell.fromFuture` emits error pulses.
+*Reading:* replay turns "forensic trail" from a description into a checkable artifact, which is the closest thing the framework has to a differentiating feature for its stated target domains. It is also days old, and `cell_flow`'s changelog does not say whether Flow's time and async operators journal their effects.
+
+**3. A hash chain is not, by itself, tamper-proof.**
+*Documented:* the changelog describes SHA-256 hashing of each entry and a one-pass `Ledger.verify()` that recomputes every hash. It does not describe signatures or external anchoring of the head hash.
+*Reading:* I did not review the implementation, so this is a question to ask rather than a finding. If the only copy of a ledger sits in a store the same party controls, that party could rewrite the whole chain and recompute it. For audit use, where the head hash is anchored matters as much as the chain.
+
+**4. Replay was bought with an API break on the most common async operators.**
+*Documented:* the five operators listed above now fail to compile without a `journal:`, and `NullJournal` is described as a loud sentinel that fails on the first effect.
+*Reading:* this is in tension with the principle that you should not have to learn governance machinery until you need it. The changelog does not say whether a lightweight option exists for users who do not want replay; I did not verify. Recording overhead is also not quantified in the pages I read.
+
+**5. The version choreography is honest, and it means "stable" does not mean slow-moving.**
+*Documented:* `cell_flow` and `cell_tissue` were republished only to move a dependency floor, because `cell` 2.0.0 cannot resolve against the old `^1.1.0` constraint. The umbrella changelog justifies the MAJOR bump through SemVer on the re-exported surface and reverses, one week after introducing it, the policy that tied the umbrella version to the Mitose pipeline.
+*Reading:* the SemVer reasoning is sound and openly argued. The practical consequence is that a consumer pinned to "stable" should expect breaking majors at weekly cadence until the core settles.
+
+**6. The Flutter binding is carefully built, and its own record shows what is unproven.**
+*Documented:* the binding ships with CI, a 15% benchmark regression gate, a golden-test suite and migration guides whose examples are executed against real Provider, Riverpod and Bloc code. The 13 November gate evaluation records these outcomes:
+
+| Gate | Result recorded in the changelog |
 | --- | --- |
-| Documentation-led momentum: rc.6 to rc.9 were mostly guides and demos, so the core might not mature at the pace implied | **Superseded.** The stable cycle contained large core changes. The pattern is bursts: a documentation-heavy stretch followed by a large batch of core work |
-| Cold start: the pipeline must carry all framework knowledge and may drift from the source | **Partly mitigated** by signature pins, preflight and compiled examples. Adherence of agents across models is still unmeasured |
-| The project is moving from library to platform, but only partly | **Stronger form.** The platform commitments are no longer stated; the pipeline is the stated centre of the project |
-| A single maintainer is the main bottleneck | **Unchanged.** Throughput is clearly high, but it arrives in bursts, and one person owns the framework, the guides and the release process |
-| Agents will use Mitosis to build systems before it orchestrates agents | **Reinforced.** Agent orchestration remains only a target-domain bullet |
+| Documentation, coverage, migration guides, accessibility, soak, security review, link check | Passed |
+| Benchmark | Failed on multi-builder bursts: 10 builders at 2.31 times and 100 builders at 2.93 times the `ValueListenableBuilder` baseline (single builder 1.25 times, which passed). The overhead is attributed to the core's pulse machinery |
+| External usability | Blocked: no external developer was available to run the migration test |
+| External production adoption | "No external production adopters yet" |
+
+The 1.0.x README then lists what it does not claim, including production readiness for the paths those gates cover. On pub.dev, `cell_flutter` is shown as published by an "unverified uploader", unlike the three original packages, which sit under the verified `opencell.dev` publisher. I did not check the other new packages.
+*Reading:* the candor is a credibility point. The label is looser: 1.0.0 shipped with a failed performance gate, an unrun usability test and an API-freeze promise. A reader should take the Status section, not the version number, as the guide to maturity.
+
+**7. The project now pursues two audiences.**
+*Documented:* the Flutter package compares itself openly with Provider, Riverpod and Bloc and carries a "should I use this at all?" decision document. The umbrella still lists payments, safety telemetry, energy, mobility, security and agents as target domains, and a Flutter variant of the Mitose pipeline exists as repository tooling excluded from the archive.
+*Reading:* this supersedes the September view that the audience was narrowing to regulated backends. The author is now trying to reach Flutter developers, regulated-domain engineers and AI-agent users with one framework. Each path has a plausible first user, and each dilutes the effort available to the others.
+
+**8. Adoption indicators moved a little.**
+*Documented:* pub.dev showed about 1.21k (`mitosis`), 1.17k (`cell`) and 1.15k (`cell_flow`) downloads, against 1.06k, 1.03k and 1.02k a week earlier; `cell` has 1 like and the others 0. The new packages show no download counts yet. All checked packages score 160 of 160 pub points. The last GitHub view I could retrieve, which was stale, showed 0 stars, 0 forks, 1 watcher and 1 open pull request.
+*Reading:* near-identical counts across packages that depend on each other still point to installs pulled through the dependency chain, CI and mirrors rather than independent users. The week-on-week rise is consistent with release-day installs and says little about adoption.
+
+## 3. Track record of earlier calls
+
+| Earlier call | Outcome |
+| --- | --- |
+| September: new capabilities would likely arrive as their own packages | Half right: the Flutter family arrived as new packages; replay landed inside `cell` |
+| September: Flutter bindings, persistence and codegen were forthcoming | Flutter and persistence arrived; no codegen seen |
+| September: a solo maintainer makes a stall after 1.0 likely | Not borne out in the short run; the next milestone came in a week |
+| 30 September: agent-facing developer experience would arrive before any agent runtime | Held: the AI-facing surface shipped in 2.2, and `cell_mind` is still unpublished |
+| 30 September: documentation-led momentum might leave the core behind | Refuted by the stable and 3.0 releases |
+| 11 November: the roadmap commitments were deferred or dropped | Wrong within a week |
+
+## 4. Scorecard against the 11 November signals
+
+| Signal to watch | Status on 18 November |
+| --- | --- |
+| First issue, pull request, discussion or public dependent from a non-author | No evidence; now measured across eight published packages |
+| Independent run of the pipeline on a third-party BRD | No evidence |
+| Independent review of `txApply` and compensation, or reproduced benchmarks | No evidence; the new gates are author-run |
+| Another structural rewrite of the guides within 90 days | No guide rewrite noted in 3.0.0, but a versioning policy was reversed within a week |
+| A written position on Flutter bindings and on replay and distributed cells | Flutter and replay delivered; distributed cells unaddressed |
+| A fourth layer appearing before outside users exist | Not published, but `cell_mind` and `cell_organ` exist as workspace members |
 
 ## 5. Updated end-game forecast (12-month horizon)
 
-| Scenario | Now | 30 Sep |
+| Scenario | Now | 11 Nov |
 | --- | --- | --- |
-| Agent-first niche toolkit | 40% | 45% |
-| Post-stable stall | 35% | 30% |
-| Production graduation | 15% | 25% |
-| Methodology spin-out | 10% | (inside the niche scenario) |
+| Agent-first niche toolkit | 28% | 40% (before the Flutter path was split out) |
+| Flutter-led niche | 17% | not separate |
+| Breadth-driven stall | 33% | 35% |
+| Production graduation | 15% | 15% |
+| Methodology spin-out | 7% | 10% |
 
-Treat each figure as plus or minus ten points. Projects with a single maintainer, zero stars and about a thousand downloads rarely reach broad adoption; I have not quantified that base rate, but it is the reason the stall scenario is not lower.
+Treat each figure as plus or minus ten points. A sole-maintainer project with about a thousand downloads and no visible outside users usually does not reach broad adoption; I have not quantified that base rate, and it is why the stall scenario stays the largest.
 
-### 40%: agent-first niche toolkit
+### 28%: agent-first niche toolkit
 
-A small group uses the pipeline to generate governed reactive prototypes and small services. The framework remains Dart-only, stays maintained at a reduced cadence, and is known mainly for its approach to AI-assisted development rather than for state management. By November 2027 there are a handful of outside users and perhaps a few external issues.
+A small group uses the Mitose pipeline and the AI-facing API surface to generate governed prototypes and services, with replay as an audit feature. The framework stays Dart-first and is known for its approach to AI-assisted development more than for state management.
 
-### 35%: post-stable stall
+### 17%: Flutter-led niche
 
-The stable release is the natural completion point of a self-set milestone. After it, releases thin out and the repository goes quiet. The documentation stays extensive and the work is treated as finished. Several things raise this above the 30 September figure: the burst cadence is hard to sustain, about ten weeks of public releases have produced no visible outside engagement, and the removal of the roadmap removes forward commitments that would have kept the project moving.
+A small number of Flutter developers adopt `cell_flutter` for its testing surface, restoration and replay, probably migrating from Provider or Riverpod through the guides. The bar is low (a handful of real users), but the Flutter state-management segment is crowded, the binding is slower than `ValueListenableBuilder` under multi-builder bursts, and its usability test has not been run by an outsider.
+
+### 33%: breadth-driven stall
+
+The project now has eight published packages and two workspace members, each with a compatibility promise, and one maintainer. Releases thin out, known gaps remain (error pulses, concurrent `asyncMap` attribution, Tissue-level replay), and no outside user appears. This is lower in the short run than it looked a week ago, because the author just delivered two roadmap items in days. It remains the largest scenario because breadth raises maintenance load without raising adoption.
 
 ### 15%: production graduation
 
-Outside teams ship systems on it, contributors appear, and the integrity engine gets independent review. This falls from 25% because the roadmap items that would have carried it (replay, distributed cells, Flutter bindings) are no longer stated, the transaction and compensation engine was rewritten in the final release without independent audit, and no outside users are visible. It does not fall further because the technical floor rose materially: benchmarks with regression gates, a 160/160 pub score and stable version labels.
+An independent team uses the ledger and replay in an audited domain, the integrity engine receives outside review, and contributors appear. The ceiling is higher than before because replay is the feature those domains ask for. The floor is not: replay is days old, its stores are in-memory and file-based, and no independent review of the engine has appeared.
 
-### 10%: methodology spin-out
+### 7%: methodology spin-out
 
-The pipeline's method (a requirements gate, an executed-evidence ledger, numbered change files) is adopted or imitated beyond Dart, while Mitosis itself stays obscure. The method is written as portable Markdown scripts and has a coined name, so it is separable from the framework. I found no external reference to it, which keeps this low.
+The pipeline's method (requirements gate, executed-evidence ledger, numbered change files) is adopted or imitated outside Dart. It is portable Markdown with a coined name, but I found no external reference to it, which keeps this low.
 
 ## 6. Risks specific to this milestone
 
-- **An unaudited integrity engine, changed at the last moment.** Earlier release-candidate notes stated that no independent correctness or security review had occurred and that transaction and compensation internals had not been independently reviewed end to end. I found no evidence of a review since, yet the command model and `txApply` behavior changed in 1.1.0. The README is careful to say `Context` metadata is not a compliance certification, but the target domains (payments, safety telemetry, energy) are exactly where such review matters.
-- **Self-reported evidence.** Benchmarks, test counts and the pipeline-versus-vibe-coding comparison table are all authored and run by the maintainer.
-- **Process-layer churn.** See section 2, item 5. There is no published pass rate for the pipeline across models; the README itself describes it as "agentic tooling, not a validated code-generation service".
-- **Distribution channel.** The pipeline lives in the GitHub repository, not in the package archive. During this assessment automated retrieval of some GitHub pages (commit history, tags and the guide directory) was refused, although individual file pages loaded. The pipeline's lookup order checks the workspace first, so the effect may be small, but agents without workspace copies could meet friction.
-- **Release hygiene.** The 2.2.1 patch removed a private `research/` notes directory that the 2.2.0 archive had shipped. Both are listed as stable versions.
-- **Positioning mismatch.** pub.dev topics still list `state-management`, while the README states the project is not "another state-management library". Discoverability and positioning point in different directions.
-- **Roadmap vacuum.** Without stated future commitments, neither users nor assessors can tell what the project is heading toward beyond the pipeline.
+- **Breadth against capacity.** Eight published packages plus unpublished members, a declared 1.0.x freeze on the Flutter surface, and one maintainer. The patch releases uploaded within an hour of the first stable uploads (`cell_flutter` 1.0.1 and 1.0.2, and earlier `mitosis` 2.2.1) show release checks catching scoring and hygiene items after publication.
+- **A young, unaudited integrity layer.** Replay sits on the same engine whose transaction and compensation internals earlier notes described as not independently reviewed, and 2.0 changed it again. Anchoring of the ledger head is an open question (section 2, item 3).
+- **Determinism has edges.** Replay depends on effects being declared; concurrent `asyncMap` attribution and error-pulse coverage for `fromStream` and `asyncMap` are documented gaps; Flow and Tissue coverage is not stated.
+- **Unquantified cost.** I found no recording overhead figures, and the Flutter binding is 2.3 to 2.9 times slower than the baseline under multi-builder bursts. For the real-time domains in the target list, this is the number that matters.
+- **Positioning split.** The umbrella says it is not "another state-management library", while the Flutter package competes in exactly that segment and `pub.dev` topics still say `state-management`.
+- **Journal friction.** Common async operators now demand a replay primitive, which strains progressive disclosure.
+- **Provenance of the packages themselves.** For a framework sold on provenance, publisher verification should be uniform across the family; I checked only one new package.
 
 ## 7. Intention of the author
 
-The September assessment described a long-horizon, opinionated runtime for systems where causality and auditability are non-negotiable, plus a practical second intent: making that framework usable by people who will not learn its vocabulary. The stable release adds a third, clearer signal. Doc comments written for machines, pinned signatures, executable examples and a failure log all treat an AI coding agent as the primary reader of the API. The coined term Precision Software Engineering and the explicit contrast with vibe coding place the project in the AI-assisted development conversation rather than the Flutter state-management one. The most likely reading is that the framework is now the substrate and the pipeline is the product, with the older platform ambitions deferred rather than abandoned. That reading is an inference; the repository does not say it.
+The September reading was a long-horizon runtime for systems where causality and auditability are non-negotiable. The 30 September and 11 November readings added agent-first onboarding and a pipeline-centred identity. This milestone shows a third behaviour: the author executes the written roadmap, then publishes the gaps and failed gates in the changelog. The Flutter binding reads as an adoption on-ramp, replay as the differentiator, and the pipeline as the process story. The likeliest strategy is to keep several routes open and see which finds a first user. That is an inference; the repository does not say it. It raises the number of ways to get a first user, and it spreads one maintainer's effort across them.
 
 ## 8. Signals to watch
 
 | Signal | Effect on the forecast |
 | --- | --- |
-| First issue, pull request, discussion or public dependent from anyone other than the author | Moves roughly 5 to 10 points from stall to niche |
-| An independent run of the pipeline on a third-party BRD, with the ledger published | Moves niche up and starts to make graduation plausible |
-| An independent review of `txApply` and compensation, or independent reproduction of the benchmark baselines | Raises graduation |
-| Another structural rewrite of the guides within 90 days (as with the master generator) | Raises stall; signals the method is not yet settled |
-| A published evaluation of the pipeline across models, with pass rates on the sample BRDs | Raises niche and spin-out |
-| Whether the first quarterly review of `ai_failure_log.jsonl` happens (due around early 2027) and whether entries exist | Tests whether the feedback loop is a practice or a promise |
-| A written position on Flutter bindings and on replay and distributed cells | Restores or retires the commitments that were dropped |
-| A fourth layer (`cell_organ` or another) appearing before outside users exist | Would indicate scope outrunning adoption |
+| First non-author issue, pull request, discussion or public dependent on any of the eight packages (check reverse dependencies on pub.dev, especially for `cell_flutter`) | Moves roughly 5 to 10 points from stall to the niche scenarios |
+| An outsider completes the Flutter migration usability test, or the multi-builder benchmark ratio falls toward the single-builder figure | Raises the Flutter-led niche |
+| A third-party `LedgerStore` passing the published conformance suite, or an independent review of the ledger (signatures, head anchoring, an external store) | Raises graduation |
+| No further breaking major in `cell` for about 90 days | Reduces breadth-driven stall risk; a second major in that window raises it |
+| Replay extended to Flow and Tissue, concurrent `asyncMap` attribution closed, error pulses added for `fromStream` and `asyncMap` | Raises graduation and agent-first niche |
+| Publication of `cell_mind` or `cell_organ` before outside users exist | Signals scope outrunning adoption |
+| Download growth that persists between release days | The first evidence of real use |
+| A stated position on multi-isolate and distributed cells | Restores or retires the last undelivered Phase 2 item |
 
 ## 9. Conclusion
 
-The stable release closes the gap the earlier reports identified in engineering maturity: a hardened core, pinned and executable documentation, benchmark gates and stable labels. It does not close the gap in adoption evidence, which is the one that decides the end game. The forecast shifts from a possible platform toward a narrower and better-defined outcome: a governed-reactive toolkit built to be operated by AI agents, with the pipeline as its main claim. The clearest test over the next six months is not another release but a first independent user, and an independent check on the integrity engine that the framework's own pitch depends on.
+The milestone converts most of the original roadmap into published artifacts, and it corrects my last report: the framework is moving faster, and more deliberately, than the README edit suggested. Technically it is the widest and most mature the project has been, with a replay ledger that gives the audit pitch something concrete to stand on and a Flutter binding that opens a mainstream route in. Adoption evidence has not moved in step. The decisive tests over the next six months are the first independent user of any package, an outside review of the ledger and the engine beneath it, and whether the core holds still long enough for anyone to depend on it.
 
 ## Basis and limitations
 
-- **Primary sources:** pub.dev changelogs, version lists, scores and READMEs for `mitosis`, `cell`, `cell_flow` and `cell_tissue`. Statements about the 2.2 pipeline come from the umbrella README and changelog on pub.dev, not from the guide files themselves.
-- **Stale or partial GitHub views:** the repository pages retrieved for this assessment were cached or partial. The README showed rc.5, the CHANGELOG showed rc.9 as newest, and `HowTo-Mitose.md` appeared in its 1.0 form. Commit history, tags and the guide directory could not be retrieved. Stars, forks and watchers are last-observed values and may be out of date.
-- **Not reviewed:** the guide files for the 2.x pipeline, the sample outputs, the source code, and the benchmark runs. Benchmark and test figures are quoted from changelogs as reported, not reproduced.
-- **Approximations:** release dates are derived from relative ages on pub.dev. Download counts include CI, mirrors and the author's own installs, and the counting window is not stated on the pages.
-- **Estimates:** every probability in this document is my own judgment and should be updated as the signals above resolve.
+- **Primary sources:** pub.dev changelogs and pages for `mitosis` 3.0.0, `cell` 2.0.0, `cell_flow` 1.1.0 and `cell_flutter` 1.0.2 (README, changelog, versions). The `cell_tissue` 1.1.0 changelog and the pages for `cell_flutter_persistence`, `cell_flutter_router` and `cell_flutter_lints` were not opened; their details come from the umbrella changelog and the `cell_flutter` README.
+- **Stale views:** the umbrella README retrievable during this assessment was an October snapshot, and the GitHub pages were cached (README at rc.5). I could not read the 3.0.0 README, so I cannot say whether a roadmap section has returned. Commit history and tags were not retrievable. Stars and forks are last-observed values and may be out of date. The early roadmap table in section 2 comes from that older README.
+- **Not reviewed:** source code, the replay implementation, the Flutter pipeline tooling and guides, and sample outputs. Test counts, benchmark ratios and gate results are quoted from changelogs as reported and were not reproduced.
+- **Approximations:** dates derive from relative ages on pub.dev ("published 7 hours ago") and may be off by a day. Download counts include CI, mirrors and the author's own installs, and the counting window is not stated.
+- **Estimates:** every probability is my own judgment and should be updated as the signals above resolve.
