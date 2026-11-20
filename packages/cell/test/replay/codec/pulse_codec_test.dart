@@ -208,9 +208,20 @@ void main() {
       expect(decodedMap, {'b': 2, 'a': 1});
     });
 
-    test('non-String types encode as null', () {
+    test('non-String types throw in strict mode (lenient amendment)', () {
       final pulse = Pulse<int>(1, type: Object());
-      expect(encodePulse(pulse as PulseBase)['type'], isNull);
+      expect(
+        () => encodePulse(pulse as PulseBase),
+        throwsA(
+          isA<PulseNotSerializable>().having((e) => e.field, 'field', 'type'),
+        ),
+      );
+    });
+
+    test('PulseNotSerializable.toString() names the lenient escape hatch', () {
+      final error =
+          PulseNotSerializable('onComplete', Pulse<int>(1) as PulseBase);
+      expect(error.toString(), contains('lenient: true'));
     });
   });
 

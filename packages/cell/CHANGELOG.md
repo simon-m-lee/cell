@@ -19,8 +19,23 @@ sentinels.
 - Add `PulseNotSerializable(field, pulse)` and
   `PulseDecodeError(message, cause)` typed errors. Non-serialisable
   fields (policy, callbacks, scrutinize, empty source id,
-  non-JSON-encodable payload/context/user) fail loudly anywhere in
-  the causal chain — never silently dropped.
+  non-JSON-encodable payload/context/user, non-String type) fail
+  loudly anywhere in the causal chain — never silently dropped.
+- Add **lenient mode** (`lenient: true`) on `encodePulse`,
+  `decodePulse`, `Pulse.fromJson`, and `Pulse.toJson`: substitutes a
+  documented safe default for each non-serialisable field (`null` for
+  closures/values/types, `PulseContext.system` for a context codec
+  failure), records every substitution in the wire's sorted
+  `__skipped__` array (per parent-chain level), and surfaces the
+  aggregate via the decode-side `onSkipped` callback with qualified
+  paths plus `user['__skipped__']['wire']` / `['decode']` for
+  post-hoc inspection. Structural corruption (unknown `__pulse__`
+  version, malformed parent/children/timestamp) still throws in
+  lenient mode; a lenient encoding of a fully-serialisable pulse is
+  byte-identical to the strict encoding.
+- Two strict-mode amendments: a non-JSON-encodable `payload` and a
+  non-`String` `type` now throw `PulseNotSerializable` instead of
+  being silently encoded as `null` (the base plan's silent defaults).
 - Add the five override sentinels `pulseNullPolicy`,
   `pulseNullPayload`, `pulseNullType`, `pulseNullSource`,
   `pulseNullStep` (identity-based null overrides).

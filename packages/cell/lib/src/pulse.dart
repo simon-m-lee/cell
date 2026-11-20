@@ -568,12 +568,26 @@ abstract interface class Pulse<P>
   /// overridden; a caller who wants different children constructs a new
   /// collective via [Pulse.batch].
   ///
+  /// ## Lenient mode
+  ///
+  /// Pass `lenient: true` to accept the lenient decode contract: where
+  /// the document structure is sound but a reference or codec
+  /// resolution fails (a context codec mismatch), a safe default is
+  /// substituted ([PulseContext.system]) and the field is recorded.
+  /// [onSkipped] is invoked once after decoding with the aggregated
+  /// skip list — qualified paths for parent/child levels
+  /// (`'parent.onComplete'`). Structural corruption still throws, and
+  /// an override always wins over the lenient fallback and is never
+  /// counted as skipped.
+  ///
   /// ## Re-encodability
   ///
   /// A pulse with an overridden `onComplete`, `onError`, `onProgress`, or
-  /// `policy` cannot be re-encoded. [Pulse.toJson] on the result throws
-  /// the corresponding [PulseNotSerializable]. This is the honest answer:
-  /// the caller chose to attach a non-serializable field.
+  /// `policy` cannot be re-encoded strictly. [Pulse.toJson] on the
+  /// result throws the corresponding [PulseNotSerializable]; pass
+  /// `lenient: true` to substitute and record instead. This is the
+  /// honest answer: the caller chose to attach a non-serializable
+  /// field.
   ///
   /// ## Errors
   ///
@@ -584,6 +598,8 @@ abstract interface class Pulse<P>
   factory Pulse.fromJson(
     Map<String, dynamic> json, {
     PulseResolver? resolver,
+    bool lenient = false,
+    void Function(List<String> skipped)? onSkipped,
 
     // Overrides. Absent or null means "use the JSON's value."
     // Sentinels mean "explicitly override to null."
@@ -606,8 +622,17 @@ abstract interface class Pulse<P>
       );
     }
 
-    // 2. Decode the JSON's envelope.
-    final decoded = decodePulse(json, resolver: resolver);
+    // 2. Decode the JSON's envelope. [lenient] and [onSkipped] are
+    //    passed through to the codec: lenient substitutes a safe
+    //    default for reference/codec resolution failures (never for
+    //    structural corruption) and records every substitution in the
+    //    onSkipped callback with qualified paths.
+    final decoded = decodePulse(
+      json,
+      resolver: resolver,
+      lenient: lenient,
+      onSkipped: onSkipped,
+    );
 
     // 3. Apply overrides. The helper implements the sentinel convention:
     //    absent → JSON's value; sentinel → explicit null; present → the
@@ -1263,7 +1288,8 @@ abstract interface class Pulse<P>
 ///
 /// {@category Replay}
 extension PulseJson<P> on Pulse<P> {
-  Map<String, dynamic> toJson() => encodePulse(this as PulseBase);
+  Map<String, dynamic> toJson({bool lenient = false}) =>
+      encodePulse(this as PulseBase, lenient: lenient);
 }
 
 /// A read‑only projection of a pulse that enforces structural finality.

@@ -1127,7 +1127,133 @@ The codec never reconstructs a policy except by explicit override in
 closure-factory registry. Serializing `PulseEphemeralPolicy` is a
 separate concern.
 
----
+### 28.10 — When to use lenient mode
 
+Strict mode (the default) fails loudly: [encodePulse] throws
+[PulseNotSerializable] on the first field that cannot be honestly
+reconstructed. That is the right discipline for a replay ledger.
+
+Lenient mode (`lenient: true` on `encodePulse`, `decodePulse`,
+`Pulse.fromJson`, or `Pulse.toJson`) is the explicit opt-in for a
+caller who **knows** the pulse carries a non-serializable field, accepts
+its loss, and wants usable JSON now instead of an exception. Two
+legitimate cases: a **diagnostic export** and a **best-effort
+migration**. Nothing is suppressed by default.
+
+Lenient mode does not erase the omission — it records every substituted
+field in a sorted `__skipped__` array on the wire and surfaces the same
+list via the decode-side `onSkipped` callback.
+
+A command-line utility for Dart development.
+
+Usage: dart <command|dart-file> [arguments]
+
+Global options:
+-v, --verbose               Show additional command output.
+    --version               Print the Dart SDK version.
+    --enable-analytics      Enable analytics.
+    --disable-analytics     Disable analytics.
+    --suppress-analytics    Disallow analytics for this `dart *` run without changing the analytics configuration.
+-h, --help                  Print this usage information.
+
+Available commands:
+
+Global
+  install     Install or upgrade a Dart CLI tool for global use.
+  installed   List globally installed Dart CLI tools.
+  uninstall   Remove a globally installed Dart CLI tool.
+
+Project
+  build       Build a Dart application including code assets.
+  compile     Compile Dart to various formats.
+  create      Create a new Dart project.
+  pub         Work with packages.
+  run         Run a Dart program from a file or a local package.
+  test        Run tests for a project.
+
+Source code
+  analyze     Analyze Dart code in a directory.
+  doc         Generate API documentation for Dart projects.
+  fix         Apply automated fixes to Dart source code.
+  format      Idiomatically format Dart source code.
+
+Tools
+  devtools    Open DevTools (optionally connecting to an existing application).
+  info        Show diagnostic information about the installed tooling.
+
+Run "dart help <command>" for more information about a command.
+See https://dart.dev/tools/dart-tool for detailed documentation.
+
+### 28.11 — The substitution table
+
+| Field | Strict | Lenient substitution | Consequence |
+|---|---|---|---|
+| `onComplete` | throw | `null` | The callback never fires on replay. |
+| `onError` | throw | `null` | Error callback lost. |
+| `onProgress` | throw | `null` | Progress callback lost. |
+| `scrutinize` | throw | `null` | Authorization gate lost — see 28.14. |
+| `policy` | throw | `null` | The pulse becomes **immortal** (no TTL). |
+| `source` (empty `id`) | throw | `null` | No origin; the resolver cannot rebuild the link. |
+| `context` (codec failure) | throw | `PulseContext.system` | Runs at system authority. |
+| `payload` (non-JSON) | throw | `null` | Payload lost; a signal without data. |
+| `user` (non-JSON) | throw | `null` | Custom metadata lost. |
+| `type` (non-`String`) | throw | `null` | The type discriminator is lost. |
+
+Every row is recorded in `__skipped__`; nothing is silently dropped.
+
+### 28.12 — The `__skipped__` contract
+
+- **Present iff a substitution occurred at that level.** A strict
+  encoding never has the field; a lenient encoding of a
+  fully-serializable pulse is **byte-identical** to the strict encoding.
+- **Sorted lexicographically** (canonicality preserved).
+- **Values use the `PulseNotSerializable.field` vocabulary**
+  (`'onComplete'`, `'policy'`, `'payload'`, ...), so callers
+  pattern-match on the same strings on both sides of the round-trip.
+- **Each level of the parent chain records its own `__skipped__`.**
+  The decoder's `onSkipped` aggregates with qualified paths
+  (`'parent.onComplete'`).
+- The decoded pulse's `user` carries the structured detail for
+  post-hoc inspection: `user['__skipped__']['wire']` (what the encoder
+  dropped) vs `user['__skipped__']['decode']` (what this decode
+  couldn't resolve).
+
+### 28.13 — What lenient does NOT suppress
+
+Lenient mode resolves **reference gaps and non-serializable fields** in
+a well-formed document. Structural corruption still throws in both
+modes: a missing or unsupported `__pulse__` version, a malformed
+`parent`, a malformed `children` array, an unparseable timestamp,
+and a malformed `payload` value. The line is the boundary between
+best-effort and guess.
+
+### 28.14 — Consequences of lenient mode
+
+- **Dropped `policy` — the pulse becomes immortal.** A
+  `PulseEphemeralPolicy` is a TTL; without it the pulse lives until
+  the process collects it. This is fail-open (a longer lifetime than
+  intended). The recovery path is `Pulse.fromJson(json, policy:
+  myPolicy)`.
+- **Dropped `scrutinize` — the authorization gate is absent.** The
+  reconstructed pulse propagates unconditionally. **Do not serialize a
+  scrutinized pulse in lenient mode unless the reconstructed run will
+  not propagate the pulse.** If a gate is needed, construct a new pulse
+  via `Pulse(...)` instead.
+- **Dropped callbacks — the side effects are absent.** For a replay
+  consumer this is exactly right: a replay must not double-fire the
+  original callbacks. For a diagnostic export the callbacks were never
+  going to fire anyway.
+
+### 28.15 — Recovery paths and naming
+
+- Re-attach a policy or callback via `Pulse.fromJson`'s overrides
+  (an override always wins and is never counted as skipped).
+- Lenient mode is a **per-operation flag**, not a property of the
+  decoded pulse. A pulse does not remember it was decoded leniently;
+  the omission is re-detected on the next strict encode.
+- If your prior API called this `ignoreException`, it is `lenient`
+  here.
+
+---
 
 *If a guide and the source disagree, the source is current.*

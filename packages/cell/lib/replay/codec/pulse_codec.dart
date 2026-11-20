@@ -408,6 +408,7 @@ class _NullPayloadPulse extends _SinglePulseBase<dynamic> {
     super.priority,
     super.step,
     super.parent,
+    super.user,
   });
 
   @override
@@ -483,7 +484,7 @@ class PulseNotSerializable implements Exception {
 
   @override
   String toString() => 'PulseNotSerializable: pulse carries $field. '
-      'Pulses with $field cannot be serialized.';
+      'Pass lenient: true to encodePulse to substitute a safe default.';
 }
 
 /// A pulse JSON record cannot be decoded.
@@ -505,22 +506,78 @@ class PulseDecodeError implements Exception {
 
 /// Encodes [pulse] to its canonical JSON wire form.
 ///
-/// Throws [PulseNotSerializable] if the pulse (or any pulse in its
-/// `parent` chain) carries a non-serialisable field: `policy`,
-/// `onComplete`, `onError`, `onProgress`, `scrutinize`, a `source` whose
-/// [Cell.id] is empty, or a `payload` / `context` / `user` value that is
-/// not JSON-encodable.
+/// ## Strict mode (default)
+///
+/// Throws [PulseNotSerializable] on the first field that cannot be
+/// honestly reconstructed: `policy`, `onComplete`, `onError`,
+/// `onProgress`, `scrutinize`, a `source` whose [Cell.id] is empty, a
+/// non-JSON-encodable `payload` or `user`, a non-`String` `type`, or a
+/// [PulseContextCodec] failure.
+///
+/// ## Lenient mode
+///
+/// When [lenient] is `true`, suppresses [PulseNotSerializable]. For
+/// each non-serialisable field, a safe default is substituted (`null`
+/// for closures, values, and the type; [PulseContext.system] for a
+/// context codec failure) and the field name is recorded in the
+/// encoded JSON's sorted `__skipped__` array. The result is always
+/// valid canonical JSON that decodes in strict or lenient mode.
+///
+/// **Lenient mode does not suppress structural corruption.** A `parent`
+/// chain whose JSON cannot be parsed, an unknown `__pulse__` version,
+/// or a non-`Map` `children` entry still throws.
 ///
 /// The encoded form is canonical: two pulses with the same logical
 /// content produce the same byte string (see [canonicalJsonEncode]).
+/// A lenient encoding of a fully-serialisable pulse is byte-identical
+/// to the strict encoding.
 ///
 /// {@category Replay}
-Map<String, dynamic> encodePulse(PulseBase pulse) {
-  // 1. Non-serialisable field check over the WHOLE causal chain — the
-  //    honest boundary. The chain includes both the parent lineage and
-  //    the appended-pulse lineage (evolved nodes carry the appended
-  //    pulse in `_pulse`, not `_parent`).
-  _assertSerialisable(pulse);
+Map<String, dynamic> encodePulse(PulseBase pulse, {bool lenient = false}) {
+  final skipped = <String>[];
+
+  T guarded<T>(String field, T Function() check, T fallback) {
+    try {
+      return check();
+    } on PulseNotSerializable {
+      if (!lenient) rethrow;
+      skipped.add(field);
+      return fallback;
+    }
+  }
+
+  // 1. Lifecycle state over this wire level — the node itself AND its
+  //    appended-pulse lineage (evolved nodes carry the appended pulse
+  //    in `_pulse`, not `_parent`). The checks read the node's OWN
+  //    record (shape-bitmasked), not the inheriting getters — a
+  //    parent's callback belongs to the parent's wire level.
+  void checkLifecycle(PulseBase node) {
+    guarded(
+      'onComplete',
+      () => _requireNull(_ownOnComplete(node), 'onComplete', node),
+      null,
+    );
+    guarded(
+      'onError',
+      () => _requireNull(_ownOnError(node), 'onError', node),
+      null,
+    );
+    guarded(
+      'onProgress',
+      () => _requireNull(_ownOnProgress(node), 'onProgress', node),
+      null,
+    );
+    guarded(
+      'scrutinize',
+      () => _requireNull(_ownScrutinize(node), 'scrutinize', node),
+      null,
+    );
+    guarded('policy', () => _requireNoPolicy(node), null);
+    final appended = node._pulse;
+    if (appended != null) checkLifecycle(appended);
+  }
+
+  checkLifecycle(pulse);
 
   // 2. Normalise the chain shape for the wire. `_FastPulse` /
   //    `_StepPulse` flyweights and evolved chains read through the
@@ -531,25 +588,41 @@ Map<String, dynamic> encodePulse(PulseBase pulse) {
   final isComposite = pulse is CollectivePulse;
   final payload = isComposite
       ? null
-      : _tryJsonEncode(
-          pulse.payload,
-          field: 'payload',
-          pulse: pulse,
+      : guarded(
+          'payload',
+          () => _tryJsonEncode(
+            pulse.payload,
+            field: 'payload',
+            pulse: pulse,
+          ),
+          null,
         );
-  final user = _tryJsonEncode(
-    pulse._user,
-    field: 'user',
-    pulse: pulse,
+  final user = guarded(
+    'user',
+    () => _tryJsonEncode(
+      pulse._user,
+      field: 'user',
+      pulse: pulse,
+    ),
+    null,
   );
-  final Map<String, Object?> contextJson;
-  try {
-    contextJson = PulseContextCodec.toJson(pulse.context);
-  } catch (_) {
-    throw PulseNotSerializable('context', pulse);
-  }
+  final context = guarded(
+    'context',
+    () => PulseContextCodec.toJson(pulse.context),
+    PulseContextCodec.toJson(PulseContext.system),
+  );
+  final type = guarded<String?>(
+    'type',
+    () => _requireStringOrNull(pulse.type, pulse),
+    null,
+  );
+  final source = guarded<Cell?>(
+    'source',
+    () => _requireResolvableSource(pulse),
+    null,
+  );
 
   final parent = pulse._parent;
-  final source = pulse.source;
   final timestamp = pulse.timestamp.toUtc();
   final canonicalTimestamp = DateTime.utc(
           timestamp.year,
@@ -561,25 +634,30 @@ Map<String, dynamic> encodePulse(PulseBase pulse) {
           timestamp.millisecond)
       .toIso8601String();
 
-  return {
+  final wire = <String, dynamic>{
     '__pulse__': '1.0.0',
     'payload': payload,
-    'type': pulse.type is String ? pulse.type : null,
+    'type': type,
     'timestamp': canonicalTimestamp,
     'source': source?.id,
     'priority': pulse.priority,
-    'context': contextJson,
+    'context': context,
     'step': _localStepOf(pulse),
     'user': user,
-    'parent': parent != null ? encodePulse(parent) : null,
+    'parent': parent != null ? encodePulse(parent, lenient: lenient) : null,
     'isComposite': isComposite,
     'children': isComposite
         ? [
             for (final child in (pulse as CollectivePulse).payload)
-              encodePulse(child as PulseBase),
+              encodePulse(child as PulseBase, lenient: lenient),
           ]
         : null,
   };
+  if (skipped.isNotEmpty) {
+    skipped.sort();
+    wire['__skipped__'] = skipped;
+  }
+  return wire;
 }
 
 /// Decodes a pulse from the canonical JSON produced by [encodePulse].
@@ -596,8 +674,10 @@ Map<String, dynamic> encodePulse(PulseBase pulse) {
 PulseBase decodePulse(
   Map<String, dynamic> json, {
   Cell? Function(String id)? resolver,
+  bool lenient = false,
+  void Function(List<String> skipped)? onSkipped,
 }) {
-  // 1. Version discriminator.
+  // 1. Version discriminator — always throws, even in lenient mode.
   final version = json['__pulse__'];
   if (version == null) {
     throw PulseDecodeError('missing __pulse__ version discriminator');
@@ -606,7 +686,10 @@ PulseBase decodePulse(
     throw PulseDecodeError('unsupported pulse version: $version');
   }
 
-  // 2. Parent chain (recursive).
+  final skipped = <String>[];
+
+  // 2. Parent chain (recursive). Structural corruption always throws;
+  //    inner skips bubble up with qualified paths.
   final parentJson = json['parent'];
   PulseBase? parent;
   if (parentJson != null) {
@@ -616,10 +699,15 @@ PulseBase decodePulse(
     parent = decodePulse(
       Map<String, dynamic>.from(parentJson),
       resolver: resolver,
+      lenient: lenient,
+      onSkipped: (inner) => skipped.addAll(
+        inner.map((field) => 'parent.$field'),
+      ),
     );
   }
 
-  // 3. Source resolution.
+  // 3. Source resolution — unchanged from the base plan: an unresolved
+  //    source is already non-fatal (`source == null`).
   final sourceId = json['source'];
   if (sourceId != null && sourceId is! String) {
     throw PulseDecodeError('malformed source: expected a cell id string');
@@ -628,17 +716,21 @@ PulseBase decodePulse(
 
   // 4. Context. Mirror the ledger codec's fidelity fix: a system context
   //    round-trips to null storage so ungoverned pulses stay ungoverned.
+  //    This is the ONE lenient decode substitution: a codec mismatch
+  //    substitutes PulseContext.system and records 'context'.
   final contextJson = json['context'];
   if (contextJson is! Map) {
     throw PulseDecodeError('missing or malformed context');
   }
-  final PulseContext context;
+  PulseContext context = PulseContext.system;
   try {
     context = PulseContextCodec.fromJson(
       Map<String, Object?>.from(contextJson),
     );
   } catch (e) {
-    throw PulseDecodeError('malformed context', e);
+    if (!lenient) throw PulseDecodeError('malformed context', e);
+    skipped.add('context');
+    context = PulseContext.system;
   }
   final storedContext =
       canonicalJsonEncode(PulseContextCodec.toJson(context)) ==
@@ -648,7 +740,7 @@ PulseBase decodePulse(
           ? null
           : context;
 
-  // 5. Envelope fields.
+  // 5. Envelope fields — always throw on malformed shapes.
   final timestampRaw = json['timestamp'];
   if (timestampRaw is! String) {
     throw PulseDecodeError('missing or malformed timestamp');
@@ -674,7 +766,7 @@ PulseBase decodePulse(
   }
   final isComposite = json['isComposite'] as bool? ?? false;
 
-  // 6. Payload and children.
+  // 6. Payload and children — always throw on malformed shapes.
   if (isComposite) {
     final childrenJson = json['children'];
     if (childrenJson is! List) {
@@ -686,11 +778,15 @@ PulseBase decodePulse(
           decodePulse(
             Map<String, dynamic>.from(child),
             resolver: resolver,
+            lenient: lenient,
+            onSkipped: (inner) => skipped.addAll(
+              inner.map((field) => 'child.$field'),
+            ),
           ) as Pulse<dynamic>
         else
           throw PulseDecodeError('malformed child: expected a pulse object'),
     ];
-    return _CollectivePulse<dynamic>(
+    final result = _CollectivePulse<dynamic>(
       children,
       type: type,
       timestamp: timestamp,
@@ -698,7 +794,11 @@ PulseBase decodePulse(
       priority: priority,
       context: storedContext,
       parent: parent,
+      user: _decodeUserValue(json, skipped),
     );
+    _surfaceSkips(result, json, skipped,
+        lenient: lenient, onSkipped: onSkipped);
+    return result;
   }
 
   final payload = _jsonDecodeValue(json['payload']);
@@ -706,7 +806,7 @@ PulseBase decodePulse(
   // runtime state (_NullPayloadPulse pins the getter); plain _Pulse
   // records cannot express it.
   if (payload == null && parent != null && parent.payload != null) {
-    return _NullPayloadPulse(
+    final result = _NullPayloadPulse(
       context: storedContext,
       type: type,
       timestamp: timestamp,
@@ -714,9 +814,13 @@ PulseBase decodePulse(
       priority: priority,
       step: step,
       parent: parent,
+      user: _decodeUserValue(json, skipped),
     );
+    _surfaceSkips(result, json, skipped,
+        lenient: lenient, onSkipped: onSkipped);
+    return result;
   }
-  return _Pulse<dynamic>(
+  final result = _Pulse<dynamic>(
     payload: payload,
     type: type,
     timestamp: timestamp,
@@ -725,7 +829,52 @@ PulseBase decodePulse(
     context: storedContext,
     step: step,
     parent: parent,
+    user: _decodeUserValue(json, skipped),
   );
+  _surfaceSkips(result, json, skipped, lenient: lenient, onSkipped: onSkipped);
+  return result;
+}
+
+/// The decoded pulse's `user` value. When a skip occurred (on the wire,
+/// during this decode, or both), the wire's `__skipped__` is preserved
+/// and the decode's substitutions are recorded side by side:
+///
+/// ```dart
+/// user['__skipped__'] == {'wire': [...], 'decode': [...]}
+/// ```
+Object? _decodeUserValue(
+    Map<String, dynamic> json, List<String> decodeSkipped) {
+  final wireSkipped = json['__skipped__'] is List
+      ? (json['__skipped__'] as List).whereType<String>().toList()
+      : const <String>[];
+  if (wireSkipped.isEmpty && decodeSkipped.isEmpty) {
+    return json['user'];
+  }
+  final existing = json['user'];
+  final base = existing is Map
+      ? Map<String, dynamic>.from(existing)
+      : <String, dynamic>{};
+  base['__skipped__'] = {'wire': wireSkipped, 'decode': decodeSkipped};
+  return base;
+}
+
+/// Invokes [onSkipped] with the aggregated skip list. The callback is
+/// only invoked when [lenient] is `true` and at least one field was
+/// skipped (on the wire or during this decode).
+void _surfaceSkips(
+  PulseBase result,
+  Map<String, dynamic> json,
+  List<String> decodeSkipped, {
+  required bool lenient,
+  required void Function(List<String> skipped)? onSkipped,
+}) {
+  final wireSkipped = json['__skipped__'] is List
+      ? (json['__skipped__'] as List).whereType<String>().toList()
+      : const <String>[];
+  final allSkipped = <String>[...wireSkipped, ...decodeSkipped];
+  if (lenient && allSkipped.isNotEmpty) {
+    onSkipped?.call(allSkipped);
+  }
 }
 
 /// The leaf-local step of [pulse] — the one breadcrumb the node itself
@@ -748,29 +897,62 @@ String? _localStepOf(PulseBase pulse) {
   return null;
 }
 
-/// Fails loudly on the first non-serialisable field found anywhere in
-/// [pulse]'s causal chain — the parent lineage and, for evolved nodes,
-/// the appended-pulse lineage (`_pulse`).
-void _assertSerialisable(PulseBase pulse) {
-  if (pulse._onComplete != null) {
-    throw PulseNotSerializable('onComplete', pulse);
-  }
-  if (pulse._onError != null) throw PulseNotSerializable('onError', pulse);
-  if (pulse._onProgress != null) {
-    throw PulseNotSerializable('onProgress', pulse);
-  }
-  if (pulse._scrutinize != null) {
-    throw PulseNotSerializable('scrutinize', pulse);
-  }
+/// Throws [PulseNotSerializable] when [value] is non-null — closures and
+/// functions have no honest wire representation.
+Null _requireNull(Object? value, String field, PulseBase pulse) {
+  if (value != null) throw PulseNotSerializable(field, pulse);
+  return null;
+}
+
+/// Throws [PulseNotSerializable] when the pulse carries a lifecycle
+/// policy — policies carry closures and cannot be reconstructed.
+Null _requireNoPolicy(PulseBase pulse) {
   if (pulse.policy != null) throw PulseNotSerializable('policy', pulse);
+  return null;
+}
+
+/// The node's OWN onComplete — shape-bitmasked record read, no parent
+/// inheritance (a parent's callback belongs to the parent's wire level).
+void Function(Pulse pulse)? _ownOnComplete(PulseBase node) =>
+    (node._shape & PulseBase._kOnComplete) != 0
+        ? node._record.root.callbacks.onComplete
+        : null;
+
+/// The node's OWN onError — see [_ownOnComplete].
+void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? _ownOnError(
+        PulseBase node) =>
+    (node._shape & PulseBase._kOnError) != 0
+        ? node._record.root.callbacks.onError
+        : null;
+
+/// The node's OWN onProgress — see [_ownOnComplete].
+void Function(Pulse pulse, Cell cell, {String? message})? _ownOnProgress(
+        PulseBase node) =>
+    (node._shape & PulseBase._kOnProgress) != 0
+        ? node._record.root.callbacks.onProgress
+        : null;
+
+/// The node's OWN scrutinize — see [_ownOnComplete].
+Function? _ownScrutinize(PulseBase node) =>
+    (node._shape & PulseBase._kScrutinize) != 0
+        ? node._record.root.tertiary.scrutinize
+        : null;
+
+/// Throws [PulseNotSerializable] when the source cell's [Cell.id] is
+/// empty — the resolver could not rebuild the link.
+Cell? _requireResolvableSource(PulseBase pulse) {
   final source = pulse.source;
   if (source != null && source.id.isEmpty) {
     throw PulseNotSerializable('source', pulse);
   }
-  final parent = pulse._parent;
-  if (parent != null) _assertSerialisable(parent);
-  final appended = pulse._pulse;
-  if (appended != null) _assertSerialisable(appended);
+  return source;
+}
+
+/// Throws [PulseNotSerializable] when [type] is neither `null` nor a
+/// `String` — a non-`String` type discriminator is a silent loss.
+String? _requireStringOrNull(Object? type, PulseBase pulse) {
+  if (type == null || type is String) return type as String?;
+  throw PulseNotSerializable('type', pulse);
 }
 
 Object? _tryJsonEncode(

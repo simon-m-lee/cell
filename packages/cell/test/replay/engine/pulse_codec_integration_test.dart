@@ -102,5 +102,52 @@ void main() {
       sub.stop();
       expect(observed, [42]);
     });
+
+    test('record, lenient-encode, lenient-decode, replay keeps the state',
+        () async {
+      final source = Cell.ingress<int>();
+      final recordSub = Cell.observe(
+        source: source.cell,
+        effect: (Pulse pulse) {},
+      );
+      final original = Pulse.governed(
+        payload: 7,
+        type: 'tick',
+        policy: PulseEphemeralPolicy(
+          onEvent: (cell, {required policy}) => (hops: 0),
+          onInvalidate: (pulse) => true,
+        ),
+        onComplete: (_) {},
+      );
+      source.emit(original.payload as int);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      recordSub.stop();
+
+      // The lenient wire round-trip drops the policy and the callback,
+      // records both, and keeps the serializable fields intact.
+      final skipped = <String>[];
+      final wire = original.toJson(lenient: true);
+      final decoded = Pulse.fromJson(
+        wire,
+        lenient: true,
+        onSkipped: skipped.addAll,
+      );
+      expect(skipped, ['onComplete', 'policy']);
+      expect(decoded.policy, isNull);
+
+      // Replay through a fresh ingress: the state is the strict-mode
+      // state — the payload, not the lifecycle state.
+      final replaySource = Cell.ingress<int>();
+      final replayed = <int>[];
+      final replaySub = Cell.observe(
+        source: replaySource.cell,
+        effect: (Pulse pulse) => replayed.add(pulse.payload as int),
+      );
+      replaySource.emit(decoded.payload as int);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      replaySub.stop();
+      expect(replayed, [7]);
+      expect(decoded.toJson()['payload'], 7);
+    });
   });
 }
