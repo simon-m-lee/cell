@@ -1,0 +1,29 @@
+name: cell_flutter_audit_example
+description: Example application for cell_flutter_audit.
+publish_to: none
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+  flutter: '>=3.24.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cell: ^2.0.0
+  cell_flutter: ^1.0.0
+  cell_flutter_audit:
+    path: ..
+
+dependency_overrides:
+  cell:
+    path: ../../cell
+  cell_flutter:
+    path: ../../cell_flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true

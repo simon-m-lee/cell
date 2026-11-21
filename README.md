@@ -78,6 +78,7 @@ The umbrella ships additional packages alongside the three layers:
 | [**cell_flutter**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter) | `1.0.0` | Flutter widget bindings (`CellBuilder`, `CellSelector`, `CellValueBuilder`, `CellListener`, error boundary, hooks layer, and a full test surface in `package:cell_flutter/testing.dart`). |
 | [**cell_flutter_persistence**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_persistence) | `0.1.0` | Durable state for `cell_flutter`: `CellPersistenceAdapter`, SharedPreferences/in-memory adapters, `PersistedCell`. |
 | [**cell_flutter_router**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_router) | `0.1.0` | `go_router` bridge: route state as a reactive cell (`CellRouterState`, `CellRouterStateMirror`, `CellRouterScope`, `useCellRouter`). |
+| [**cell_flutter_audit**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_audit) | `0.1.0` | Audit trail UI for the `ApplyReceipt` ledger: `AuditTrailView`, `AuditTrailController`, `AuditTrailExporter`, `AuditEntryTile`. |
 | [**cell_flutter_lints**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_lints) | `0.1.0` | Custom lint rules guarding the `cell_flutter` anti-patterns. |
 | `cell_mind` | `1.1.0` | Workspace member, repository-private work in progress — kept out of version control; not on GitHub or pub.dev. |
 | `cell_organ` | `1.0.0` | Workspace-private package (`publish_to: none`). Not part of the published set. |
@@ -284,6 +285,7 @@ cell/                          # Umbrella monorepo: "Mitosis"
 │   │   ├── benchmark/         #   ValueListenableBuilder / Riverpod / Bloc comparisons
 │   ├── cell_flutter_persistence/  # Durable state adapters for cell_flutter
 │   ├── cell_flutter_router/       # go_router bridge for cell_flutter
+│   ├── cell_flutter_audit/        # Audit trail widgets over ApplyReceipts
 │   ├── cell_flutter_lints/        # custom_lint rules for cell_flutter anti-patterns
 │   ├── mitose_flutter/         #   Repository tooling (Flutter Mitose pipeline) — publish_to: none
 │   ├── cell_mind/             # Workspace member — repository-private (kept out of version control)
@@ -582,7 +584,7 @@ Lee Man Hoi Simon — see [AUTHORS](https://github.com/simon-m-lee/cell/blob/mas
 
 - 🏠 **Repository:** [github.com/simon-m-lee/cell](https://github.com/simon-m-lee/cell)
 - 🐛 **Issues:** [github.com/simon-m-lee/cell/issues](https://github.com/simon-m-lee/cell/issues)
-- 📦 **pub.dev:** [cell](https://pub.dev/packages/cell) · [cell_flow](https://pub.dev/packages/cell_flow) · [cell_tissue](https://pub.dev/packages/cell_tissue) · [cell_flutter](https://pub.dev/packages/cell_flutter) · [cell_flutter_persistence](https://pub.dev/packages/cell_flutter_persistence) · [cell_flutter_router](https://pub.dev/packages/cell_flutter_router) · [cell_flutter_lints](https://pub.dev/packages/cell_flutter_lints)
+- 📦 **pub.dev:** [cell](https://pub.dev/packages/cell) · [cell_flow](https://pub.dev/packages/cell_flow) · [cell_tissue](https://pub.dev/packages/cell_tissue) · [cell_flutter](https://pub.dev/packages/cell_flutter) · [cell_flutter_persistence](https://pub.dev/packages/cell_flutter_persistence) · [cell_flutter_router](https://pub.dev/packages/cell_flutter_router) · [cell_flutter_audit](https://pub.dev/packages/cell_flutter_audit) · [cell_flutter_lints](https://pub.dev/packages/cell_flutter_lints)
 - 📖 **Core layer:** [packages/cell](https://github.com/simon-m-lee/cell/tree/master/packages/cell)
 - 🔀 **Orchestration layer:** [packages/cell_flow](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow)
 - 🧩 **Application layer:** [packages/cell_tissue](https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue)
