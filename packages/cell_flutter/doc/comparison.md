@@ -32,6 +32,18 @@ Community size uses pub.dev like counts as a *proxy* on 2026-11-17 —
 imperfect, but honest and checkable. Read that row as "order of
 magnitude", not a census.
 
+**About "codegen" and the Mitose pipeline:** the umbrella's
+[agentic Mitose pipeline](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose.md)
+can *author* a working `Cell` class from a business requirement — but it
+is a one-shot, model-dependent authoring tool, not build-time code
+generation: it is not shipped by `cell_flutter`, it does not run during
+your build, and nothing regenerates the file when your models change.
+The umbrella README itself describes it as "agentic tooling, not a
+validated code-generation service." This row therefore compares
+*build-time* codegen (`riverpod_generator`, `freezed`), where Cell
+honestly remains **None** — the pipeline is an authoring aid, not a
+reason to claim the row.
+
 ## What each package is for
 
 - **Riverpod:** "For most Flutter apps. Compile-time safety, mature
@@ -82,7 +94,10 @@ questions above have been answered.)
 
 ## What Cell does not do
 
-- **No code generation.** Every cell is written by hand.
+- **No code generation.** Every cell is written by hand. (The Mitose
+  pipeline can author a cell from a business requirement, but that is
+  agentic authoring, not build-time codegen — see the note under the
+  matrix.)
 - **No mature DevTools extension.** The 0.1 extension shows the ledger;
   it does not have the full inspection tools Riverpod provides.
 - **No compile-time safety.** Cell's state is runtime-checked, not
