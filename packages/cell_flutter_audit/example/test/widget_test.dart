@@ -1,7 +1,7 @@
 // Example smoke test: the README quick-start works.
 library;
 
-import 'package:cell_flutter_audit_example/main.dart';
+import 'package:cell_flutter_audit_example/cell_flutter_audit_example.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="cell_flutter_devtools API docs, for the Dart programming language.">
+  <title>cell_flutter_devtools - Dart API docs</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="static-assets/github.css?v1">
+  <link rel="stylesheet" href="static-assets/styles.css?v1">
+  <link rel="icon" href="static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="https://github.com/simon-m-lee/cell">cell_flutter_devtools package</a></li>
+  </ol>
+  <div class="self-name">cell_flutter_devtools</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div id="dartdoc-main-content" class="main-content">
+      
+<section class="desc markdown">
+  <h1 id="cell_flutter_devtools">cell_flutter_devtools</h1>
+<p>A <a href="https://docs.flutter.dev/tools/devtools">Flutter DevTools</a> extension for
+the Cell framework: the <code>ApplyReceipt</code> ledger of a running app, live inside
+DevTools — a filterable timeline next to the widget inspector, not a widget
+inside your app (for in-app display, use
+<a href="https://pub.dev/packages/cell_flutter_audit"><code>cell_flutter_audit</code></a>).</p>
+<p><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter_devtools/LICENSE"><img src="https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg" alt="License"></a>
+<a href="#status"><img src="https://img.shields.io/badge/cell__flutter__devtools-0.1.0-blue.svg" alt="Version"></a></p>
+<h2 id="add-it-to-your-app-under-5-minutes">Add it to your app (under 5 minutes)</h2>
+<ol>
+<li>
+<p>Add the dev dependency:</p>
+<pre class="language-yaml"><code class="language-yaml">dev_dependencies:
+  cell_flutter_devtools: ^0.1.0
+</code></pre>
+</li>
+<li>
+<p>Register the ledger in <code>main()</code>:</p>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flutter_devtools/cell_flutter_devtools.dart';
+
+void main() {
+  registerCellDevTools(receipts: () =&gt; myReceipts);
+  runApp(const MyApp());
+}
+</code></pre>
+</li>
+<li>
+<p>Run the app, open DevTools, and enable the <strong>cell_flutter_devtools</strong>
+extension (DevTools prompts the first time).</p>
+</li>
+</ol>
+<p><strong>Where <code>myReceipts</code> comes from:</strong> <code>ApplyLedger</code> mints receipts; it does
+not store them. Keep the receipts your apply pipeline produces — the same
+list you feed <code>cell_flutter_audit</code>:</p>
+<pre class="language-dart"><code class="language-dart">final receipts = &lt;ApplyReceipt&gt;[];
+
+final outcome = await myCell.apply(myCommand);
+if (outcome is ApplyAccepted) receipts.add(outcome.receipt);
+</code></pre>
+<p>Rejections can be reported separately through the optional
+<code>rejections:</code> callback (a <code>List&lt;CellDevtoolsRejection&gt;</code> — receipt + gate
+reason); the extension shows their count in the summary panel.</p>
+<p>The registration is wrapped in <code>assert</code>, so <strong>release builds tree-shake
+the entire DevTools surface</strong> — no binary-size or security cost.</p>
+<h2 id="what-the-extension-shows">What the extension shows</h2>
+<ul>
+<li><strong>Timeline</strong> — every receipt, newest first: <code>HH:mm:ss.SSS</code> timestamp,
+command name, truncated id, vetted ✓/✗, <code>tx #N</code>, formatted payload.
+Click a row for the full receipt JSON.</li>
+<li><strong>Filter bar</strong> — command name (free text), vetted status
+(All / Vetted / Unvetted), time range (Last 1 / 5 / 30 min / All), and a
+Clear button.</li>
+<li><strong>Summary panel</strong> — total receipts, receipts in the last minute, and
+rejected attempts.</li>
+<li><strong>Live indicator</strong> — the extension polls <code>ext.cell.getLedger</code> every
+500ms; new receipts appear without a refresh.</li>
+</ul>
+<h2 id="architecture">Architecture</h2>
+<pre class="language-dart"><code>cell_flutter_devtools/            # the package you depend on
+  lib/                            # registerCellDevTools + serialization
+  extension/devtools/
+    config.yaml                   # DevTools metadata
+    build/                        # pre-compiled extension web app
+cell_flutter_devtools_extension/  # the extension UI source (web app)
+</code></pre>
+<p>The extension web app uses <code>package:devtools_extensions</code> and connects to
+the running app through the VM service extension <code>ext.cell.getLedger</code>.</p>
+<h2 id="the-live-demo">The live demo</h2>
+<p>The <a href="https://simon-m-lee.github.io/cell/audit-trail/">Audit Trail demo</a>
+registers the extension (<code>demo/audit_trail/lib/main.dart</code>) — run it with
+<code>flutter run</code>, open DevTools, and the demo's ledger appears. It is the
+"try it live" experience for this package.</p>
+<h2 id="building-the-extension-maintainers">Building the extension (maintainers)</h2>
+<pre class="language-bash"><code class="language-bash">cd packages/cell_flutter_devtools_extension
+dart run devtools_extensions build_and_copy \
+  --source=. \
+  --dest=../cell_flutter_devtools/extension/devtools
+dart run devtools_extensions validate --package=../cell_flutter_devtools
+</code></pre>
+<h2 id="status">Status</h2>
+<p>0.1.0 — initial release. Dependencies: <code>cell</code> only (the extension web app
+source lives in this repository as a sibling package, pre-compiled into
+<code>extension/devtools/build/</code>).</p>
+</section>
+
+
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <dt id="cell_flutter_devtools">
+  <span class="name"><a href="cell_flutter_devtools/">cell_flutter_devtools</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+        </dl>
+      </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="https://github.com/simon-m-lee/cell">cell_flutter_devtools package</a></li>
+</ol>
+
+    <h5 class="hidden-xs"><span class="package-name">cell_flutter_devtools</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="cell_flutter_devtools/">cell_flutter_devtools</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+</main>
+<footer>
+  <span class="no-break">
+    cell_flutter_devtools
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="static-assets/highlight.pack.js?v1"></script>
+<script src="static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

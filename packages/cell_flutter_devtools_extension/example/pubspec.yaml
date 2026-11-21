@@ -1,0 +1,20 @@
+name: cell_flutter_devtools_extension_example
+description: Example application for cell_flutter_devtools_extension.
+publish_to: none
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cell_flutter_devtools_extension:
+    path: ..
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true

@@ -4,3 +4,6 @@
 build/
 coverage/
 .dart_tool/
+
+# Maintainer tooling stays in the repository, not in the published package.
+tool/

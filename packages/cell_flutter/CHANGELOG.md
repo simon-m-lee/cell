@@ -76,6 +76,17 @@ changes). Addresses the claims in
     `package:synchronized` and the internal commons types), and the
     chooser table warns about `CellErrorBoundary`'s global handler and
     `CellScope`'s whole-map rebuild.
+- **Ecosystem documentation pass** — `doc/comparison.md` rewritten as
+  the six-package fair comparison page (Plan4: sourced 10×6 matrix with
+  five "Cell loses" rows, per-package summaries, decision tree, and a
+  "what Cell does not do" list), linked from the README, the migration
+  guide, and the audit demo. The new ecosystem packages
+  (`cell_flutter_audit`, `cell_flutter_devtools`, and the
+  `cell_flutter_devtools_extension` source app) now each carry the
+  standard tooling — `tool/generate_test_verification.py` with
+  `TEST_VERIFICATION.md`, a named `<package>_example.dart` entry in
+  `example/`, a `doc/` index (plus generated `doc/api/` where
+  published), and CHANGELOG/README entries in the Cell framework style.
 
 ## 1.0.2
 

@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the AuditTrailController class from the cell_flutter_audit library, for the Dart programming language.">
+  <title>AuditTrailController class - cell_flutter_audit library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flutter_audit</a></li>
+    <li><a href="../cell_flutter_audit/">cell_flutter_audit.dart</a></li>
+    <li class="self-crumb">AuditTrailController class</li>
+  </ol>
+  <div class="self-name">AuditTrailController</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flutter_audit&#47;cell_flutter_audit-library-sidebar.html"
+    data-below-sidebar="cell_flutter_audit&#47;AuditTrailController-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">AuditTrailController</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Holds the audit history, applies filters/search/sort, and pages the
+visible window for large ledgers.</p>
+<p>The controller accepts receipts through three equally valid paths:</p>
+<ul>
+<li>a <code>List&lt;ApplyReceipt&gt;</code> passed to the constructor,</li>
+<li>a <code>Stream&lt;ApplyReceipt&gt;</code> of live receipts,</li>
+<li><a href="../cell_flutter_audit/AuditTrailController/addReceipt.html">addReceipt</a> / <a href="../cell_flutter_audit/AuditTrailController/addOutcome.html">addOutcome</a> calls from your apply pipeline.</li>
+</ul>
+<p>Rejections are <strong>not</strong> in the ledger. <code>ApplyRejected</code> outcomes passed
+to <a href="../cell_flutter_audit/AuditTrailController/addOutcome.html">addOutcome</a> are stored separately as <a href="../cell_flutter_audit/RejectionEvent-class.html">RejectionEvent</a>s, which
+<a href="../cell_flutter_audit/AuditTrailView-class.html">AuditTrailView</a> optionally interleaves into the timeline.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier-class.html">ChangeNotifier</a></li>
+      <li>AuditTrailController</li>
+    </ul>
+  </dd>
+
+        
+        
+
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="AuditTrailController.new" class="callable">
+          <span class="name"><a href="../cell_flutter_audit/AuditTrailController/AuditTrailController.html">AuditTrailController</a></span><span class="signature">({<span class="parameter" id="-param-receipts"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">ApplyReceipt</span>&gt;</span></span> <span class="parameter-name">receipts</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="-param-stream"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter">ApplyReceipt</span>&gt;</span>?</span> <span class="parameter-name">stream</span></span>})</span>
+        </dt>
+        <dd>
+          Creates the controller from an optional initial <code>receipts</code> list and
+an optional live <code>stream</code> of receipts.
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="entries" class="property">
+  <span class="name"><a href="../cell_flutter_audit/AuditTrailController/entries.html">entries</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flutter_audit/AuditEntry-class.html">AuditEntry</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Every receipt as a display entry, in append order (unfiltered).
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="filteredEntries" class="property">
+  <span class="name"><a href="../cell_flutter_audit/AuditTrailController/filteredEntries.html">filteredEntries</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flutter_audit/AuditEntry-class.html">AuditEntry</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  The current filter/search/sort applied to <a href="../cell_flutter_audit/AuditTrailController/entries.html">entries</a>, truncated to the
+current <a href="../cell_flutter_audit/AuditTrailController/visibleLimit.html">visibleLimit</a>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hasListeners" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/hasListeners.html">hasListeners</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Whether any listeners are currently registered.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hasMore" class="property">
+  <span class="name"><a href="../cell_flutter_audit/AuditTrailController/hasMore.html">hasMore</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Whether more matching entries exist beyond <a href="../cell_flutter_audit/AuditTrailController/filteredEntries.html">filteredEntries</a>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="isAscending" class="property">
+  <span class="name"><a href="../cell_flutter_audit/AuditTrailController/isAscending.html">isAscending</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Whether the active sort is ascending.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="receipts" class="property">
+  <span class="name"><a href="../cell_flutter_audit/AuditTrailController/receipts.html">receipts</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">ApplyReceipt</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Every receipt currently held by the controller, in append order.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="rejections" class="property">
+  <span class="name"><a href="../cell_flutter_audit/AuditTrailController/rejections.html">rejections</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flutter_audit/RejectionEvent-class.html">RejectionEvent</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  The denial events recorded so far, oldest first.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="sortField" class="property">
+  <span class="name"><a href="../cell_flutter_audit/AuditTrailController/sortField.html">sortField</a></span>
+  <span class="signature">&#8594; <a href="../cell_flutter_audit/SortField.html">SortField</a></span>
+  
+
+</dt>
+<dd>
+  The active sort field.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="totalMatches" class="property">
+  <span class="name"><a href="../cell_flutter_audit/AuditTrailController/totalMatches.html">totalMatches</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The total number of entries matching the current filter and search,
+before pagination.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="visibleLimit" class="property">
+  <span class="name"><a href="../cell_flutter_audit/AuditTrailController/visibleLimit.html">visibleLimit</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The number of entries <a href="../cell_flutter_audit/AuditTrailController/filteredEntries.html">filteredEntries</a> may show.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="addListener" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/addListener.html">addListener</a></span><span class="signature">(<wbr><span class="parameter" id="addListener-param-listener"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/VoidCallback.html">VoidCallback</a></span> <span class="parameter-name">listener</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Register a closure to be called when the object changes.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addOutcome" class="callable">
+  <span class="name"><a href="../cell_flutter_audit/AuditTrailController/addOutcome.html">addOutcome</a></span><span class="signature">(<wbr><span class="parameter" id="addOutcome-param-outcome"><span class="type-annotation">ApplyOutcome<span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">outcome</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Records an apply outcome:
+  
+
+</dd>
+
+        <dt id="addReceipt" class="callable">
+  <span class="name"><a href="../cell_flutter_audit/AuditTrailController/addReceipt.html">addReceipt</a></span><span class="signature">(<wbr><span class="parameter" id="addReceipt-param-receipt"><span class="type-annotation">ApplyReceipt</span> <span class="parameter-name">receipt</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Appends one receipt and notifies listeners.
+  
+
+</dd>
+
+        <dt id="addReceipts" class="callable">
+  <span class="name"><a href="../cell_flutter_audit/AuditTrailController/addReceipts.html">addReceipts</a></span><span class="signature">(<wbr><span class="parameter" id="addReceipts-param-receipts"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">ApplyReceipt</span>&gt;</span></span> <span class="parameter-name">receipts</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Appends a receipt and notifies listeners, in one synchronous step.
+  
+
+</dd>
+
+        <dt id="addRejection" class="callable">
+  <span class="name"><a href="../cell_flutter_audit/AuditTrailController/addRejection.html">addRejection</a></span><span class="signature">(<wbr><span class="parameter" id="addRejection-param-event"><span class="type-annotation"><a href="../cell_flutter_audit/RejectionEvent-class.html">RejectionEvent</a></span> <span class="parameter-name">event</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Records a denial event and notifies listeners. Use this when the gate
+itself supplied no reason and your UI wants to show one.
+  
+
+</dd>
+
+        <dt id="clear" class="callable">
+  <span class="name"><a href="../cell_flutter_audit/AuditTrailController/clear.html">clear</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Drops every receipt, rejection, and filter.
+  
+
+</dd>
+
+        <dt id="clearFilters" class="callable">
+  <span class="name"><a href="../cell_flutter_audit/AuditTrailController/clearFilters.html">clearFilters</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Removes all filters (keeps the search query — use <a href="../cell_flutter_audit/AuditTrailController/search.html">search</a> with an
+empty string to clear that too).
+  
+
+</dd>
+
+        <dt id="dispose" class="callable">
+  <span class="name"><a href="../cell_flutter_audit/AuditTrailController/dispose.html">dispose</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Discards any resources used by the object. After this is called, the
+object is not in a usable state and should be discarded (calls to
+<a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/addListener.html">addListener</a> will throw after the object is disposed).
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="filterBy" class="callable">
+  <span class="name"><a href="../cell_flutter_audit/AuditTrailController/filterBy.html">filterBy</a></span><span class="signature">(<wbr>{<span class="parameter" id="filterBy-param-commandName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">commandName</span>, </span><span class="parameter" id="filterBy-param-vetted"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">vetted</span>, </span><span class="parameter" id="filterBy-param-after"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a>?</span> <span class="parameter-name">after</span>, </span><span class="parameter" id="filterBy-param-before"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a>?</span> <span class="parameter-name">before</span>, </span><span class="parameter" id="filterBy-param-exact"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">exact</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Filters by command name (substring by default; <code>exact</code> for equality),
+vetted status, and/or an inclusive time range.
+  
+
+</dd>
+
+        <dt id="loadMore" class="callable">
+  <span class="name"><a href="../cell_flutter_audit/AuditTrailController/loadMore.html">loadMore</a></span><span class="signature">(<wbr>{<span class="parameter" id="loadMore-param-pageSize"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">pageSize</span> = <span class="default-value">50</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Grows the visible window by <code>pageSize</code> entries. Returns <code>true</code> when
+more entries became visible.
+  
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="notifyListeners" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/notifyListeners.html">notifyListeners</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Call all the registered listeners.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="removeListener" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/removeListener.html">removeListener</a></span><span class="signature">(<wbr><span class="parameter" id="removeListener-param-listener"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/VoidCallback.html">VoidCallback</a></span> <span class="parameter-name">listener</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Remove a previously registered closure from the list of closures that are
+notified when the object changes.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="search" class="callable">
+  <span class="name"><a href="../cell_flutter_audit/AuditTrailController/search.html">search</a></span><span class="signature">(<wbr><span class="parameter" id="search-param-query"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">query</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sets the full-text search query, matched case-insensitively against
+the command name and the formatted arguments. An empty query clears
+the search.
+  
+
+</dd>
+
+        <dt id="sortBy" class="callable">
+  <span class="name"><a href="../cell_flutter_audit/AuditTrailController/sortBy.html">sortBy</a></span><span class="signature">(<wbr><span class="parameter" id="sortBy-param-field"><span class="type-annotation"><a href="../cell_flutter_audit/SortField.html">SortField</a></span> <span class="parameter-name">field</span>, {</span><span class="parameter" id="sortBy-param-ascending"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">ascending</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sorts by <code>field</code>; <code>ascending</code> defaults to <code>false</code> (newest/largest
+first).
+  
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flutter_audit</a></li>
+    <li><a href="../cell_flutter_audit/">cell_flutter_audit</a></li>
+    <li class="self-crumb">AuditTrailController class</li>
+</ol>
+
+    <h5>cell_flutter_audit library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flutter_audit
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

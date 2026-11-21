@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="cell_flutter_audit API docs, for the Dart programming language.">
+  <title>cell_flutter_audit - Dart API docs</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="static-assets/github.css?v1">
+  <link rel="stylesheet" href="static-assets/styles.css?v1">
+  <link rel="icon" href="static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="https://github.com/simon-m-lee/cell">cell_flutter_audit package</a></li>
+  </ol>
+  <div class="self-name">cell_flutter_audit</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div id="dartdoc-main-content" class="main-content">
+      
+<section class="desc markdown">
+  <h1 id="cell_flutter_audit">cell_flutter_audit</h1>
+<p>Audit trail widgets for <a href="https://pub.dev/packages/cell_flutter">cell_flutter</a>:
+render the Cell framework's <code>ApplyReceipt</code> forensic ledger as a ready-made,
+filterable, exportable timeline. The framework mints the receipts — this
+package gives you the UI.</p>
+<p><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter_audit/LICENSE"><img src="https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg" alt="License"></a>
+<a href="#status"><img src="https://img.shields.io/badge/cell__flutter__audit-0.1.0-blue.svg" alt="Version"></a></p>
+<h2 id="quick-start">Quick start</h2>
+<pre class="language-dart"><code class="language-dart">final controller = AuditTrailController();          // 1. the data
+final outcome = await myCell.apply(myCommand);      // 2. an apply outcome
+controller.addOutcome(outcome);                     // 3. record it
+// ...
+AuditTrailView(controller: controller)              // 4. the widget
+</code></pre>
+<p><strong>Important:</strong> the view shows receipts minted by <code>Cell.apply</code>. A cell
+mutated with <code>value = …</code> produces no receipts — if the timeline is empty,
+the view itself says so ("No receipts yet. Mutations must go through
+<code>cell.apply</code> to appear here."). That message is the package teaching the
+requirement, not a bug.</p>
+<p>See <a href="example/"><code>example/</code></a> for the full runnable quick-start.</p>
+<h2 id="the-widgets">The widgets</h2>
+<h3 id="audittrailview--the-timeline"><code>AuditTrailView</code> — the timeline</h3>
+<p>A scrollable list of receipt cards: green left border for vetted receipts,
+amber for unvetted (trusted internal) receipts, monospace truncated ids
+(full id on tap), <code>HH:mm:ss.SSS</code> timestamps, <code>tx #N</code> chips for staged
+transactions, and collapsible argument payloads. Auto-scrolls to the
+newest receipt (configurable).</p>
+<pre class="language-dart"><code class="language-dart">AuditTrailView(
+  controller: controller,
+  autoScroll: true,            // or per-theme
+  showRejections: true,        // interleave RejectionEvents as red cards
+)
+</code></pre>
+<h3 id="audittrailcontroller--the-data"><code>AuditTrailController</code> — the data</h3>
+<p>A <code>ChangeNotifier</code> that holds the history, applies filters/search/sort,
+and pages large ledgers:</p>
+<pre class="language-dart"><code class="language-dart">final controller = AuditTrailController(
+  receipts: initialReceipts,   // optional
+  stream: receiptStream,       // optional live stream
+);
+controller.filterBy(commandName: 'add', vetted: true, after: since);
+controller.clearFilters();
+controller.search('payload');
+controller.sortBy(SortField.timestamp);          // or .commandName / .vetted
+await controller.loadMore(pageSize: 50);          // pagination
+</code></pre>
+<ul>
+<li><code>addReceipt</code> / <code>addReceipts</code> — push receipts directly.</li>
+<li><code>addOutcome(ApplyOutcome)</code> — routes <code>ApplyAccepted</code>/<code>ApplyStaged</code>
+receipts into the timeline and <code>ApplyRejected</code> into <code>rejections</code>.</li>
+<li><code>addRejection(RejectionEvent)</code> — attach your own denial copy when the
+gate supplies no reason.</li>
+</ul>
+<h3 id="auditentrytile--the-compact-row"><code>AuditEntryTile</code> — the compact row</h3>
+<p>Timestamp, command name, and vetted status in one embeddable row; tapping
+expands the payload:</p>
+<pre class="language-dart"><code class="language-dart">AuditEntryTile(entry: AuditEntry.fromReceipt(receipt))
+</code></pre>
+<h3 id="audittrailtheme--the-styling"><code>AuditTrailTheme</code> — the styling</h3>
+<p><code>vettedColor</code>, <code>unvettedColor</code>, <code>rejectedColor</code>, <code>monospaceFont</code>,
+<code>cardPadding</code>/<code>cardMargin</code>, and the <code>showId</code> / <code>showTimestamp</code> /
+<code>showVettedIcon</code> toggles.</p>
+<h2 id="the-exporter">The exporter</h2>
+<pre class="language-dart"><code class="language-dart">final json = AuditTrailExporter.toJson(receipts);   // indented array
+final csv = AuditTrailExporter.toCsv(receipts);     // RFC-4180 escaping
+</code></pre>
+<p>File export (dart:io platforms; keeps the main library web-compatible):</p>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flutter_audit/io.dart';
+
+await AuditTrailFileExporter.exportToFile(
+  receipts,
+  path: '/tmp/audit.json',
+  format: ExportFormat.json,       // or ExportFormat.csv
+);
+</code></pre>
+<p>The JSON shape is one object per receipt:
+<code>id</code>, <code>function</code>, <code>arguments</code> (<code>positional</code> / <code>named</code>), <code>timestamp</code>,
+<code>vetted</code>, <code>txSequence</code>. Exports are intended for ledgers under ~10,000
+entries; larger ledgers should page with <code>loadMore</code>.</p>
+<h2 id="rejections">Rejections</h2>
+<p><code>ApplyLedger</code> records only accepted commands — a denied command is an
+<code>ApplyRejected</code> outcome, not a ledger entry. Feed it through
+<code>addOutcome</code> (or wrap it in a <code>RejectionEvent</code> yourself) and
+<code>AuditTrailView</code> renders it as a red-bordered card with the gate's reason,
+interleaved by timestamp.</p>
+<h2 id="integration-with-the-live-demo">Integration with the live demo</h2>
+<p>The <a href="https://simon-m-lee.github.io/cell/audit-trail/">Audit Trail demo</a>
+renders the same ledger this package is designed for.
+<code>test/integration/audit_demo_ledger_test.dart</code> replays the demo's exact
+mechanics — the governed counter, the gate-rejected mutation, and the
+<code>Cell.txApply</code> undo — and asserts the view renders the same receipts,
+including the demo's rejection copy.</p>
+<h2 id="status">Status</h2>
+<p>0.1.0 — initial release. The public API covers <code>AuditTrailView</code>,
+<code>AuditTrailController</code>, <code>AuditTrailExporter</code> (+ <code>io.dart</code> file export),
+<code>AuditEntryTile</code>, <code>AuditTrailTheme</code>, <code>AuditEntry</code>, and <code>RejectionEvent</code>.
+Dependencies: <code>cell</code>, <code>cell_flutter</code>, and Flutter — nothing else.</p>
+</section>
+
+
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <dt id="cell_flutter_audit">
+  <span class="name"><a href="cell_flutter_audit/">cell_flutter_audit</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="io">
+  <span class="name"><a href="io/">io</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+        </dl>
+      </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="https://github.com/simon-m-lee/cell">cell_flutter_audit package</a></li>
+</ol>
+
+    <h5 class="hidden-xs"><span class="package-name">cell_flutter_audit</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="cell_flutter_audit/">cell_flutter_audit</a></li>
+      <li><a href="io/">io</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+</main>
+<footer>
+  <span class="no-break">
+    cell_flutter_audit
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="static-assets/highlight.pack.js?v1"></script>
+<script src="static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

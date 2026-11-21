@@ -405,6 +405,8 @@ If a guide and the source disagree, **the source is current**.
 | **cell_flutter/hooks.dart** | Now | Optional `flutter_hooks` integration for `HookWidget` users |
 | **cell_flutter_router** | Now | `go_router` bridge: `CellRouterStateMirror` / `CellRouterScope` / `useCellRouter` |
 | **cell_flutter_persistence** | Now | `SharedPreferencesAdapter`, `InMemoryAdapter`, `PersistedCell` write modes |
+| **cell_flutter_audit** | New | Audit trail widgets over `ApplyReceipt`s: `AuditTrailView` / `AuditTrailController` / `AuditTrailExporter` |
+| **cell_flutter_devtools** | New | DevTools extension: the live receipt ledger as a filterable timeline (`registerCellDevTools` + pre-compiled web app) |
 | **cell_flutter_lints** | Now | Four `custom_lint` rules guarding known anti-patterns |
 
 The widget layer renders cells regardless of which layer produced them: a `Cell.state` from `cell`, a `Flow` from `cell_flow`, a `TissueList` from `cell_tissue`. The three `CellBuilder` / `CellValueBuilder` / `CellAsyncBuilder` widgets are the universal bridge.
