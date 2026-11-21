@@ -27,10 +27,21 @@ jobs:
         package: [cell, cell_flow, cell_tissue, cell_flutter_devtools]
     steps:
       - uses: actions/checkout@v5
-      - uses: dart-lang/setup-dart@v1
+      - name: Setup Dart (pure-Dart packages)
+        if: matrix.package != 'cell_flutter_devtools'
+        uses: dart-lang/setup-dart@v1
         with:
-          # Matches benchmark.yml; bump together with a benchmark rebaseline.
-          sdk: '3.14.0'
+          # Matches the Dart bundled with cell_flutter.yml's Flutter 3.41.9;
+          # the doc-chooser generator output is SDK-sensitive, so this pin
+          # keeps the freshness tests aligned with the checked-in files.
+          sdk: '3.11.5'
+      - name: Setup Flutter (cell_flutter_devtools — its example/ is a Flutter app)
+        if: matrix.package == 'cell_flutter_devtools'
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.9'
+          channel: stable
+          cache: true
       - name: dart pub get
         working-directory: packages/${{ matrix.package }}
         run: dart pub get
@@ -47,10 +58,19 @@ jobs:
         package: [cell, cell_flow, cell_tissue, cell_flutter_devtools]
     steps:
       - uses: actions/checkout@v5
-      - uses: dart-lang/setup-dart@v1
+      - name: Setup Dart (pure-Dart packages)
+        if: matrix.package != 'cell_flutter_devtools'
+        uses: dart-lang/setup-dart@v1
         with:
-          # Matches benchmark.yml; bump together with a benchmark rebaseline.
-          sdk: '3.14.0'
+          # Matches the Dart bundled with cell_flutter.yml's Flutter 3.41.9.
+          sdk: '3.11.5'
+      - name: Setup Flutter (cell_flutter_devtools — its example/ is a Flutter app)
+        if: matrix.package == 'cell_flutter_devtools'
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.9'
+          channel: stable
+          cache: true
       - name: dart pub get
         working-directory: packages/${{ matrix.package }}
         run: dart pub get
