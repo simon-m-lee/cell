@@ -93,4 +93,5 @@ Read it top-to-bottom in under five minutes.
 The GitHub Pages deployment (`.github/workflows/audit_demo_deploy.yml`)
 runs on pushes to `master` that touch `demo/audit_trail/**` — a trivial
 commit here is enough to re-trigger it. The repository's only branch is
-`master` (not `main`).
+`master` (not `main`). The repo must have **Settings → Pages → Source:
+GitHub Actions** saved for the deploy job to succeed.
