@@ -1,0 +1,13 @@
+# https://dart.dev/guides/libraries/private-files
+.dart_tool/
+
+# Library packages do not commit lockfiles.
+pubspec.lock
+
+# Generated test coverage and build output
+coverage/
+build/
+
+# The pre-compiled DevTools extension ships in the published package.
+!extension/devtools/build/
+!extension/devtools/build/**

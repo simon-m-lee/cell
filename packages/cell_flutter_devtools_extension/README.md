@@ -1,0 +1,35 @@
+# cell_flutter_devtools_extension
+
+The **source** of the DevTools extension web app shipped by
+[`cell_flutter_devtools`](../cell_flutter_devtools). Not published — the
+compiled output is copied into `cell_flutter_devtools/extension/devtools/build/`.
+
+## Run locally
+
+```bash
+flutter pub get
+flutter run -d chrome --dart-define=use_simulated_environment=true
+```
+
+The simulated environment provides a fake DevTools connection for fast
+development.
+
+## Tests
+
+```bash
+flutter test
+```
+
+The widget tests inject fake fetch functions (the real `ServiceLedgerClient`
+imports web-only `package:devtools_extensions` APIs and stays out of the VM
+test path); `contract_test.dart` parses the provider package's real
+serializer output through this UI's model.
+
+## Build into the provider package
+
+```bash
+dart run devtools_extensions build_and_copy \
+  --source=. \
+  --dest=../cell_flutter_devtools/extension/devtools
+dart run devtools_extensions validate --package=../cell_flutter_devtools
+```

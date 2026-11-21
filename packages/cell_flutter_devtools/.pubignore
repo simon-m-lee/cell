@@ -1,0 +1,6 @@
+# Member-specific publish ignores.
+# NOTE: see tool/release-publish.sh — the root `/packages/**` rule must be
+# neutralised while publishing workspace members.
+build/
+coverage/
+.dart_tool/

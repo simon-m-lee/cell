@@ -27,6 +27,8 @@ library;
 import 'dart:async';
 
 import 'package:cell_flutter/cell_flutter.dart';
+// ignore: depend_on_referenced_packages (dev-only; assert-guarded in release)
+import 'package:cell_flutter_devtools/cell_flutter_devtools.dart';
 import 'package:flutter/material.dart';
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -128,7 +130,16 @@ class LedgerEntry {
 // The demo application.
 // ────────────────────────────────────────────────────────────────────────────
 
-void main() => runApp(const AuditTrailApp());
+/// Exposed to the DevTools extension (`ext.cell.getLedger`).
+final _devtoolsReceipts = <ApplyReceipt>[];
+final _devtoolsRejections = <CellDevtoolsRejection>[];
+
+void main() {
+  registerCellDevTools(
+      receipts: () => List.of(_devtoolsReceipts),
+      rejections: () => List.of(_devtoolsRejections));
+  runApp(const AuditTrailApp());
+}
 
 class AuditTrailApp extends StatelessWidget {
   const AuditTrailApp({super.key});
@@ -170,6 +181,7 @@ class _AuditTrailDemoState extends State<AuditTrailDemo> {
     final outcome = await _counter.apply<int>(command);
     switch (outcome) {
       case ApplyAccepted<int>(result: final after, receipt: final r):
+        _devtoolsReceipts.add(r);
         setState(() {
           _counter.value = after;
           _display.update(after);
@@ -185,6 +197,8 @@ class _AuditTrailDemoState extends State<AuditTrailDemo> {
           }
         });
       case ApplyRejected<int>(receipt: final r):
+        _devtoolsRejections.add(CellDevtoolsRejection(
+            receipt: r, reason: 'negative mutations are not allowed'));
         setState(() {
           _receipts.add(LedgerEntry(
             receipt: r,
@@ -249,6 +263,7 @@ class _AuditTrailDemoState extends State<AuditTrailDemo> {
       _lastCompensation = null;
       final done = staged;
       if (done != null) {
+        _devtoolsReceipts.add(done.receipt);
         _receipts.add(LedgerEntry(
           receipt: done.receipt,
           label: 'undo: subtract (−5)',

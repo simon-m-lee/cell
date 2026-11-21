@@ -1,0 +1,22 @@
+name: cell_flutter_devtools
+description: "DevTools extension for the Cell framework: inspect ApplyReceipt ledgers live inside DevTools."
+version: 0.1.0
+homepage: https://github.com/simon-m-lee/cell
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  cell: ^2.0.0
+
+dev_dependencies:
+  lints: ^4.0.0
+  test: ^1.30.0
+
+dependency_overrides:
+  cell:
+    path: ../cell
+
+topics:
+  - devtools
+  - reactive
+  - state-management

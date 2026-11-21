@@ -31,6 +31,13 @@ packages:
       relative: true
     source: path
     version: "1.0.2"
+  cell_flutter_devtools:
+    dependency: "direct dev"
+    description:
+      path: "../../packages/cell_flutter_devtools"
+      relative: true
+    source: path
+    version: "0.1.0"
   characters:
     dependency: transitive
     description:
