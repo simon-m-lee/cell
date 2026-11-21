@@ -87,3 +87,10 @@ cached.
 
 `lib/main.dart` is the entire demo (under 500 lines, heavily commented).
 Read it top-to-bottom in under five minutes.
+
+## Deployment trigger
+
+The GitHub Pages deployment (`.github/workflows/audit_demo_deploy.yml`)
+runs on pushes to `master` that touch `demo/audit_trail/**` — a trivial
+commit here is enough to re-trigger it. The repository's only branch is
+`master` (not `main`).
