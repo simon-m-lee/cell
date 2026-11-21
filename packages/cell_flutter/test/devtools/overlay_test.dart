@@ -187,11 +187,27 @@ void main() {
         child: MaterialApp(home: Scaffold(body: Text('hello'))),
       ));
       await tester.tap(find.byType(FloatingActionButton));
+      // The fallback entry refreshes on a post-frame markNeedsBuild, so
+      // the panel appears on the second frame.
+      await tester.pump();
       await tester.pump();
 
       expect(find.text('Cell Inspector'), findsOneWidget);
       expect(find.text('counter'), findsOneWidget);
       expect(find.text('hello'), findsOneWidget);
+
+      // Toggle closed and open again: the deferred refresh must follow
+      // the current stack on later toggles too.
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('counter'), findsNothing);
+
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('counter'), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('clear empties the panel and close hides it', (tester) async {

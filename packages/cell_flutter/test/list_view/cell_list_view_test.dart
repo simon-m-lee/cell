@@ -279,4 +279,41 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+
+  group('CellListView review fixes', () {
+    testWidgets('keyed rebuilds a row when the value changes under a '
+        'stable key', (tester) async {
+      final list = Cell.state<List<String>>(initial: ['a-old', 'b']);
+      await tester.pumpWidget(_wrap(
+        CellListView<String>.keyed(
+          cell: list.cell,
+          itemKey: (item) => item.substring(0, 1), // id-stable key
+          itemBuilder: (_, item, i) => Text('todo:$item'),
+        ),
+      ));
+      expect(find.text('todo:a-old'), findsOneWidget);
+
+      // Same key ('a'), new value: the row must not freeze the first one.
+      list.update(['a-new', 'b']);
+      await tester.pump();
+      expect(find.text('todo:a-new'), findsOneWidget);
+      expect(find.text('todo:a-old'), findsNothing);
+    });
+
+    testWidgets('builder clamps an oversized itemCount to the list length',
+        (tester) async {
+      final list = Cell.state<List<int>>(initial: [1, 2]);
+      await tester.pumpWidget(_wrap(
+        CellListView<int>.builder(
+          cell: list.cell,
+          itemCount: 10, // larger than the current list
+          itemBuilder: (_, item, i) => Text('item:$item'),
+        ),
+      ));
+
+      expect(find.text('item:1'), findsOneWidget);
+      expect(find.text('item:2'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  });
 }

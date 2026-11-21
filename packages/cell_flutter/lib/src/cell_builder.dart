@@ -37,8 +37,8 @@ import 'cell_notifier.dart';
 ///    calls [builder] with the notifier's current value on every change.
 /// 3. **Rebind**: if [cell] identity changes in `didUpdateWidget`, the old
 ///    notifier is disposed and a new one is constructed. Identity is
-///    compared with `identical` — swapping a cell requires rebinding; the
-///    same cell (or an equal handle) does not.
+///    compared with `identical` — only the identical handle skips the
+///    rebind; an equal-but-distinct handle (e.g. a new deputy) is a swap.
 /// 4. **Dispose**: the notifier is disposed, which stops the egress.
 ///
 /// ### Design Note: `CellBuilder` vs. `CellValueBuilder` vs. `CellSelector`

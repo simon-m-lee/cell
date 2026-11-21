@@ -177,6 +177,9 @@ class CellScope extends InheritedWidget {
   /// caller bug, not an absence. Use this only when absence is a valid
   /// test outcome.
   ///
+  /// Unlike [of], `maybeOf` does not emit the nested-shadow debug warning
+  /// — it is the quiet probe for optional lookups.
+  ///
   /// ### Parameters:
   /// * [context]: **The Lookup Context.**
   /// * [id]: **The Registration Key.**

@@ -59,6 +59,15 @@ import 'pulse_delivery.dart';
 ///   the cell.
 /// - **Cancellation stops the egress**: after `onCancel`, no further pulses
 ///   are forwarded.
+/// - **The stream never completes.** The controller is deliberately never
+///   closed (see *How it works*), so `await for`, `drain`, and `toList`
+///   hang forever on it. Use `listen` with a manual `cancel`, `take(...)`
+///   with a completing terminal, or `timeout` — do not await completion.
+/// - **Synchronous error delivery**: with [sync] `= true` (default), a
+///   seed that turns out to be an error pulse is delivered synchronously
+///   inside `listen`; a caller that has not registered `onError` before
+///   the first microtask will see an unhandled zone error. Register
+///   `onError`, or pass `sync: false`.
 ///
 /// ### Seed semantics (please read)
 /// The lazy seed is sourced from [retainedPulseOf], which reads the core
@@ -128,6 +137,9 @@ extension CellAsStream on Cell {
   /// [emitErrors] is `true` (default). The internal egress is opened on
   /// `onListen` and stopped on `onCancel`. See the extension-level docs for
   /// sync/async delivery, lifecycle, seeding, and error semantics.
+  ///
+  /// **The stream never completes** — do not `await for` or `drain` it.
+  /// Cancel the subscription instead.
   Stream<V?> asStream<V>({bool sync = true, bool emitErrors = true}) {
     late final StreamController<V?> controller;
     EgressHandle<Pulse<Object?>>? egress;

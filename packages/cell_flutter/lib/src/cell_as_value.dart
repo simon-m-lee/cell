@@ -43,6 +43,10 @@ import 'pulse_delivery.dart';
 ///   invalidated separately. Once `dispose` has been called the mirror
 ///   simply stops updating; it does not become invalidated and its current
 ///   value remains readable.
+/// - **The mirror is a one-way copy.** It is an ordinary [ValueCell]:
+///   writes to `mirror.cell.value` do **not** reach the source, and the
+///   next source pulse overwrites them. "Mirror" describes the read
+///   direction only — the source is the single writer.
 ///
 /// ### Parameters (record fields)
 /// * `cell`: **The Mirror.** A fresh [ValueCell] that is seeded from the
@@ -185,6 +189,12 @@ extension CellAsValue on Cell {
   /// call it leaves the egress attached to this cell, receiving (and holding)
   /// every pulse for the mirror's remaining lifetime. `dispose` is safe to
   /// call more than once.
+  ///
+  /// ### The mirror is a one-way copy
+  /// The returned [ValueCell] is writable like any other, but writes to it
+  /// do **not** reach the source and are overwritten by the next source
+  /// pulse. Mutate the source cell when the value must change; treat the
+  /// mirror as read-only in practice.
   ///
   /// ### Error pulses
   /// Error pulses are **silently skipped**; the mirror's value stays at its

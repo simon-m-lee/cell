@@ -37,12 +37,13 @@ import 'cell_value_builder.dart';
 ///
 /// - **[CellListView.keyed]** — the diffed variant. [itemKey] extracts a
 ///   stable key per item; the list keeps a widget cache and only calls
-///   [itemBuilder] for items whose key is new. Items are wrapped in
-///   `KeyedSubtree(ValueKey(itemKey))` and the list supplies
-///   `findChildIndexCallback`, so unchanged items preserve their element
-///   state (focus, scroll offsets, animations) across mutations and
-///   reorders. Duplicate keys throw [StateError] — keys must be unique
-///   within the list.
+///   [itemBuilder] for items whose key is new **or whose value changed**
+///   (the item is compared with `==` against the value the row was last
+///   built with). Items are wrapped in `KeyedSubtree(ValueKey(itemKey))`
+///   and the list supplies `findChildIndexCallback`, so unchanged items
+///   preserve their element state (focus, scroll offsets, animations)
+///   across mutations and reorders. Duplicate keys throw [StateError] —
+///   keys must be unique within the list.
 ///
 ///   **Index freshness note:** a cached item widget keeps the index it was
 ///   built with. A reorder does not re-run [itemBuilder], so widgets that
@@ -117,7 +118,9 @@ class CellListView<T> extends StatelessWidget {
   /// Forwarded to the underlying [ListView.builder].
   final ScrollController? controller;
 
-  /// Overrides the item count; defaults to the list length.
+  /// Overrides the item count; defaults to the list length. A caller
+  /// count larger than the current list is clamped to the list length —
+  /// the builder never indexes past the list.
   final int? itemCount;
 
   @override
@@ -141,7 +144,13 @@ class CellListView<T> extends StatelessWidget {
           scrollDirection: scrollDirection,
           padding: padding,
           controller: controller,
-          itemCount: itemCount ?? list.length,
+          // Clamp: a caller-supplied itemCount larger than the current
+          // list must not index off the end inside build.
+          itemCount: itemCount == null
+              ? list.length
+              : itemCount! > list.length
+                  ? list.length
+                  : itemCount!,
           itemBuilder: (ctx, i) => itemBuilder(ctx, list[i], i),
         );
       },
@@ -173,7 +182,10 @@ class _KeyedItemsView<T> extends StatefulWidget {
 }
 
 class _KeyedItemsViewState<T> extends State<_KeyedItemsView<T>> {
-  final Map<Object, Widget> _cache = {};
+  // Widget cache plus the item value each widget was built with: a stable
+  // key whose data changed must rebuild the row (same KeyedSubtree key, so
+  // element state is preserved) instead of freezing the first value.
+  final Map<Object, ({T item, Widget widget})> _cache = {};
 
   @override
   Widget build(BuildContext context) {
@@ -189,15 +201,15 @@ class _KeyedItemsViewState<T> extends State<_KeyedItemsView<T>> {
         );
       }
       final cached = _cache[key];
-      if (cached != null) {
-        widgets.add(cached);
+      if (cached != null && cached.item == item) {
+        widgets.add(cached.widget);
         continue;
       }
       final built = widget.itemBuilder(context, item, i);
       // The automatic key is what preserves element state across reorders
       // and mutations — the widget cache only avoids the rebuild.
       final keyed = KeyedSubtree(key: ValueKey<Object>(key), child: built);
-      _cache[key] = keyed;
+      _cache[key] = (item: item, widget: keyed);
       widgets.add(keyed);
     }
     // Prune removed keys (internal cache maintenance; no rebuild needed).

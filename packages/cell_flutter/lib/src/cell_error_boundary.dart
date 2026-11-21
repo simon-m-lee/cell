@@ -38,11 +38,15 @@ import 'package:flutter/widgets.dart';
 /// Reports on the `cell_flutter` channel pass through every boundary
 /// unchanged.
 ///
-/// ### Known limitation
-/// The interception is global (`FlutterError.onError`) while the boundary
-/// is mounted: a non-cell error thrown elsewhere in the app is attributed
-/// to the boundary if it arrives first. Use the boundary as a **root**
-/// safety net, not as fine-grained per-screen instrumentation.
+/// ### Known limitation (read before using)
+/// The interception is process-global: while mounted, the boundary
+/// replaces `FlutterError.onError` and consumes **every** framework error
+/// reported under the `widgets library`, `scheduler library`, or
+/// `rendering library` banner — including errors thrown outside [child].
+/// Nested boundaries work by overwriting the same global handler, so the
+/// **innermost** boundary wins and the outer one never sees the error.
+/// Use the boundary as a **root** safety net, not as fine-grained
+/// per-screen instrumentation.
 ///
 /// ### Example
 /// ```dart
@@ -183,7 +187,10 @@ class CellErrorBoundaryState extends State<CellErrorBoundary> {
   @override
   void dispose() {
     if (identical(FlutterError.onError, _installedHandler)) {
-      FlutterError.onError = _previousOnError!;
+      // `_previousOnError` is normally FlutterError.presentError, but a
+      // caller may have set FlutterError.onError to null before mounting;
+      // restoring presentError keeps dispose from throwing.
+      FlutterError.onError = _previousOnError ?? FlutterError.presentError;
     }
     super.dispose();
   }

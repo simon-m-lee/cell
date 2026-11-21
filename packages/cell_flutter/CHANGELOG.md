@@ -4,7 +4,8 @@
 
 Documentation and packaging accuracy pass (additive API — no breaking
 changes). Addresses the claims in
-`research/Flutter-Binding/_Pending/code-review(Claude).md`.
+`research/Flutter-Binding/_Pending/code-review(Claude).md` and
+`research/Flutter-Binding/_Pending/code-review(Grok).md`.
 
 - **Barrel doc rewritten** — the stale 0.7.0 "gate failed" status block
   (pre-1.0 content) is gone; the library doc now reflects the 1.x frozen
@@ -32,6 +33,49 @@ changes). Addresses the claims in
   comment now says plainly that it is mandatory at resolution time and
   optional at import time, and the dependency-override comment explains
   why pub dependents are unaffected.
+- **Behavior and documentation fixes from the Grok review**:
+  - `CellListView.keyed` no longer freezes item data — a stable key whose
+    value changed (`==`) rebuilds that row while keeping its
+    `KeyedSubtree` element state; `CellListView.builder` clamps a
+    caller-supplied `itemCount` to the list length instead of indexing
+    off the end.
+  - `CellErrorBoundary.dispose` restores `FlutterError.presentError`
+    when the previous handler was null (no more force-unwrap throw);
+    the class and barrel docs now state plainly that the boundary takes
+    over the process-global `FlutterError.onError`, captures errors from
+    outside `child`, and that nested boundaries overwrite each other
+    (innermost wins).
+  - `CellInspectorOverlay`: dropped the fixed global `heroTag` (two
+    overlays or a same-tagged app FAB used to throw) and deferred the
+    no-Directionality fallback's `OverlayEntry.markNeedsBuild` to a
+    post-frame callback (it asserted during the build that creates the
+    `Overlay`).
+  - `CellTextField`: the controller listener is removed before dispose on
+    cell swaps; the class doc now states the controller IS disposed when
+    the cell identity changes, and that `onChanged` also fires for
+    cell-originated writes.
+  - `CellBuilder`'s rebind comment now matches the code (`identical`;
+    equal-but-distinct handles are a swap); `CellSelector`'s
+    `didUpdateWidget` documents why the no-`setState` slice assignment is
+    safe.
+  - `RestorableCell` asserts (debug) when only one custom codec is
+    passed — a one-sided codec used to fall through to the primitive
+    codec and throw `UnsupportedError` on the other side;
+    `restorableState` and `CellRestorationScope.maybeOf` docs now state
+    the top-level-alias naming and the silent no-restoration behavior
+    when no scope encloses the lookup.
+  - `asValueCell` docs state the mirror is a **one-way copy** (writes do
+    not reach the source; the next pulse overwrites them); `asStream`
+    docs warn that the stream **never completes** (`await for` / `drain`
+    hang) and that a sync error seed needs `onError`.
+  - The barrel's "exactly one `Cell.observe`" claim is now scoped to the
+    value-rendering widgets (scope/restoration/boundary/devtools observe
+    differently), the build-phase deferral note now describes the three
+    real policies (coalesce / flush-in-order / per-pulse `runAfterBuild`),
+    the core re-export is described as wholesale (including
+    `package:synchronized` and the internal commons types), and the
+    chooser table warns about `CellErrorBoundary`'s global handler and
+    `CellScope`'s whole-map rebuild.
 
 ## 1.0.2
 

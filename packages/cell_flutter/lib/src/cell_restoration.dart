@@ -74,13 +74,21 @@ class RestorableCell<V> extends ValueCell<V> {
   ///
   /// [fromPrimitives] / [toPrimitives] default to the primitive codecs
   /// described on the class; pass both (or neither) to persist custom
-  /// types.
+  /// types. Passing only one is a bug: the missing side falls through to
+  /// the primitive codec and throws [UnsupportedError] for custom types —
+  /// debug builds assert on the mismatch.
   RestorableCell({
     required this.restorationId,
     super.initial,
     V? Function(Object? data)? fromPrimitives,
     Object? Function(V? value)? toPrimitives,
-  })  : _initial = initial,
+  })  : assert(
+          (fromPrimitives == null) == (toPrimitives == null),
+          'RestorableCell: pass both fromPrimitives and toPrimitives, '
+          'or neither (a one-sided custom codec falls back to the '
+          'primitive codec on the missing side).',
+        ),
+        _initial = initial,
         _fromPrimitives = fromPrimitives,
         _toPrimitives = toPrimitives;
 
@@ -182,6 +190,12 @@ extension CellRestoration on Cell {
 }
 
 /// The unqualified alias for [CellRestoration.restorableState].
+///
+/// Exported by `package:cell_flutter/cell_flutter.dart` as a top-level
+/// function — it is **not** a member of `Cell`. Register the returned cell
+/// under a [CellRestorationScope]; with no enclosing scope,
+/// `CellRestorationScope.maybeOf` returns `null` and restoration silently
+/// never happens.
 ///
 /// ```dart
 /// final counter = restorableState<int>(restorationId: 'counter', initial: 0);

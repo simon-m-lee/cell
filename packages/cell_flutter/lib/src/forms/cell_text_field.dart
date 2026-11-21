@@ -30,9 +30,18 @@ import 'cell_editing_controller.dart';
 ///    keeps focus because the controller is replaced, not the element.
 ///
 /// ### Focus and cursor
-/// Focus is preserved across cell updates (the controller is never
-/// disposed on update). The cursor's offset from the end is preserved on
-/// cell-driven updates; see [CellEditingController] for the exact rule.
+/// Focus is preserved across non-cell updates (the controller is only
+/// disposed when the [cell] identity changes). The cursor's offset from
+/// the end is preserved on cell-driven updates; see [CellEditingController]
+/// for the exact rule.
+///
+/// ### `onChanged` semantics
+/// [CellTextField.onChanged] fires for **every** controller change,
+/// including writes that originated in the cell (for example another
+/// widget updating the bound cell) — the widget cannot distinguish them
+/// from user edits. `TextFormField.onChanged` only fires for user edits.
+/// Use `onFieldSubmitted` or the controller directly when you must react
+/// to keystrokes only.
 ///
 /// ### Example
 /// ```dart
@@ -103,6 +112,7 @@ class _CellTextFieldState extends State<CellTextField> {
   void didUpdateWidget(CellTextField oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!identical(oldWidget.cell, widget.cell)) {
+      _controller.removeListener(_notifyOnChanged);
       _controller.dispose();
       _controller = CellEditingController(widget.cell);
       _controller.addListener(_notifyOnChanged);
@@ -111,6 +121,7 @@ class _CellTextFieldState extends State<CellTextField> {
 
   @override
   void dispose() {
+    _controller.removeListener(_notifyOnChanged);
     _controller.dispose();
     super.dispose();
   }

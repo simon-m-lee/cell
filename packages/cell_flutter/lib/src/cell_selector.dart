@@ -182,10 +182,13 @@ class _CellSelectorState<V, S> extends State<CellSelector<V, S>> {
       _notifier.dispose();
       _notifier = CellNotifier<V>(widget.cell);
       _notifier.addListener(_onChange);
+      // No setState: didUpdateWidget runs inside the build that follows,
+      // so assigning the slice here is exactly what build will render.
       _selected = widget.select(_notifier.value);
     } else if (!identical(oldWidget.select, widget.select)) {
       // Selector logic changed with the same cell: recompute the slice
-      // rather than render a stale value until the next pulse.
+      // rather than render a stale value until the next pulse. Same
+      // reasoning as above — this runs inside the following build.
       final next = widget.select(_notifier.value);
       if (!_equals(_selected, next)) {
         _selected = next;

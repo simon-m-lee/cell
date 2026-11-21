@@ -579,4 +579,23 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+
+  test('a one-sided custom codec asserts in debug builds', () {
+    expect(
+      () => RestorableCell<int>(
+        restorationId: 'x',
+        initial: 0,
+        fromPrimitives: (data) => data as int, // toPrimitives missing
+      ),
+      throwsAssertionError,
+    );
+    expect(
+      () => RestorableCell<int>(
+        restorationId: 'x',
+        initial: 0,
+        toPrimitives: (value) => value, // fromPrimitives missing
+      ),
+      throwsAssertionError,
+    );
+  });
 }

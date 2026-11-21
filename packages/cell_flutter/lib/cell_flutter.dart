@@ -38,9 +38,14 @@
 ///
 /// ### How it works
 /// The binding is layered on three core primitives:
-/// 1. **`Cell.observe`** — the graph-level pulse subscription. Every
-///    widget and helper in this library opens exactly one of these on the
-///    cell it is given.
+/// 1. **`Cell.observe`** — the graph-level pulse subscription. The
+///    value-rendering widgets and helpers ([CellBuilder], [CellSelector],
+///    [CellValueBuilder], [CellAsyncBuilder], [CellListener], mirrors,
+///    streams) open exactly one of these per element on the cell they are
+///    given. Infrastructure widgets observe differently: [CellScope] and
+///    [CellRestorationScope] observe nothing themselves, the DevTools
+///    registry opens one egress per `register` call, and
+///    [CellErrorBoundary] observes no cell at all.
 /// 2. **`Pulse`** — the signal shape every widget decodes. Data pulses
 ///    carry a `V`; error pulses carry an `Object` and a `type == 'error'`
 ///    discriminator.
@@ -115,11 +120,11 @@
 /// | Reach a `Listenable` for Flutter primitives | [CellNotifier] |
 /// | Bridge out to `Stream` | [CellAsStream.asStream] |
 /// | Bridge out to a `ValueCell` mirror | [CellAsValue.asValueCell] |
-/// | Register app-level cells for subtree lookup | [CellScope] |
+/// | Register app-level cells for subtree lookup | [CellScope] (all dependents rebuild when any registration changes) |
 /// | Bind a text field to a cell | [CellTextField] |
 /// | Wrap a form field in cell validation | [CellFormField] |
 /// | Survive process-kill restoration | [RestorableCell] |
-/// | Isolate a failing subtree | [CellErrorBoundary] |
+/// | Isolate a failing subtree | [CellErrorBoundary] (**root-level**: it takes over the process-global `FlutterError.onError`) |
 /// | Scroll a derived-cell collection | [CellListView] |
 /// | Inspect the live graph | `package:cell_flutter/devtools.dart` |
 ///
@@ -127,13 +132,28 @@
 /// - **Explicit lifecycle for mirrors**: `asValueCell` returns a record
 ///   with a `dispose` callback because mirroring opens an egress that
 ///   must be released. There is no "auto-dispose" variant — the
-///   widget-managed alternative is [CellValueBuilder].
+///   widget-managed alternative is [CellValueBuilder]. The mirror is a
+///   **one-way copy**: writes to it never reach the source and the next
+///   source pulse overwrites them.
 /// - **Read-only by contract**: [CellNotifier] overrides `value`'s
 ///   setter to throw. Mutate the cell, not the notifier.
-/// - **Build-phase safety by deferral**: widgets that must defer pulses
-///   out of a build phase use a pending queue and a single post-frame
-///   flush; widgets that must not defer (e.g. `CellSelector`'s
-///   `setState`) route through `runAfterBuild`.
+/// - **Build-phase safety, three policies**: [CellValueBuilder] and
+///   [CellAsyncBuilder] queue pulses and coalesce to the latest one;
+///   [CellListener] flushes the whole queue in order;
+///   [CellSelector] schedules one post-frame `runAfterBuild` callback per
+///   build-phase pulse (no coalescing — the selector itself decides
+///   whether the slice changed).
+/// - **`asStream` never completes**: the bridge mirrors pulses and
+///   deliberately never closes its controller — `await for`, `drain`, and
+///   `toList` hang on it. Cancel the subscription instead.
+/// - **Forms pull `package:flutter/material.dart` into the library
+///   graph**: importing this barrel (or the forms entry files) makes
+///   Material types resolvable even in a widgets-only app.
+/// - **The core re-export is wholesale**, not a curated facade:
+///   `cell.dart` itself re-exports `package:synchronized/synchronized.dart`
+///   and the internal commons types (`Box`, `QueueList`, `PriorityQueue`,
+///   `SyncQueue`, `SymbolConverter`, …). Every future `cell ^2.x` export
+///   becomes part of this package's API automatically.
 ///
 /// ### See also
 /// - `package:cell/cell.dart` — the core graph primitives this library

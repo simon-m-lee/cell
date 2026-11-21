@@ -8,6 +8,7 @@
 // material_ui; kept for compatibility with the stable SDK used here.
 // ignore: deprecated_member_use
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import 'cell_flutter_devtools.dart';
 
@@ -78,7 +79,8 @@ class _OverlayHostState extends State<_OverlayHost> {
           right: 16,
           bottom: 16,
           child: FloatingActionButton.small(
-            heroTag: 'cell-inspector-fab',
+            // No heroTag: a fixed global tag would collide with a second
+            // overlay or an app FAB that uses the same tag (Hero asserts).
             tooltip: 'Cell Inspector',
             onPressed: () => setState(() => _open = !_open),
             child: Icon(_open ? Icons.close : Icons.insights),
@@ -104,7 +106,13 @@ class _OverlayHostState extends State<_OverlayHost> {
     }
     _stack = stack;
     _fallbackEntry ??= OverlayEntry(builder: (context) => _stack);
-    _fallbackEntry!.markNeedsBuild();
+    // Defer: markNeedsBuild asserts when the entry has not been inserted
+    // into an Overlay yet, and this build is what creates the Overlay.
+    // The entry's first build already read _stack above; this callback
+    // refreshes it on later toggles.
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _fallbackEntry?.markNeedsBuild();
+    });
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Overlay(initialEntries: [_fallbackEntry!]),

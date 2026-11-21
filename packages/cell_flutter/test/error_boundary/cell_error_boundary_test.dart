@@ -236,6 +236,26 @@ void main() {
       expect(identical(FlutterError.onError, original), isTrue);
     });
 
+    testWidgets('dispose survives a null previous onError', (tester) async {
+      // A caller may legitimately have nulled the global handler before
+      // mounting; dispose must fall back to presentError instead of the
+      // old force-unwrap throwing.
+      FlutterError.onError = null;
+      addTearDown(() => FlutterError.onError = FlutterError.presentError);
+
+      await tester.pumpWidget(MaterialApp(
+        home: CellErrorBoundary(
+          onError: (error, stack) => const Text('fallback'),
+          child: const SizedBox.shrink(),
+        ),
+      ));
+      await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+
+      expect(identical(FlutterError.onError, FlutterError.presentError),
+          isTrue);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('a second error while the fallback is showing is forwarded',
         (tester) async {
       await tester.pumpWidget(MaterialApp(

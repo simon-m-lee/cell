@@ -77,6 +77,12 @@ class CellRestorationScope extends StatelessWidget {
   final RestorationBucket? bucket;
 
   /// Returns the nearest enclosing [CellRestorationScopeState], or `null`.
+  ///
+  /// Registration is one-shot and state-based (`findAncestorStateOfType`):
+  /// the lookup does not register an inherited-widget dependency, and a
+  /// **missing scope silently skips restoration**. When no scope encloses
+  /// [context], `maybeOf(context)?.register(cell)` is a no-op — use
+  /// [of] (or an assert) when restoration is required.
   static CellRestorationScopeState? maybeOf(BuildContext context) =>
       context.findAncestorStateOfType<CellRestorationScopeState>();
 
