@@ -384,6 +384,7 @@ See [ARCHITECTURE-flutter.md](https://github.com/simon-m-lee/cell/blob/master/pa
 | [HowTo-Router.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/guide/HowTo-Router.md) | `go_router` bridge (`cell_flutter_router`) |
 | [HowTo-Persistence.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/guide/HowTo-Persistence.md) | Durable state (`cell_flutter_persistence`) |
 | [HowTo-Testing.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/guide/HowTo-Testing.md) | Pump, emit, and assert |
+| [Migrating-From-Riverpod-BLoC.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/guide/Migrating-From-Riverpod-BLoC.md) | Riverpod/BLoC → Cell migration guide with runnable before/after references |
 | [ARCHITECTURE-flutter.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/ARCHITECTURE-flutter.md) | Why the pieces are shaped this way (known gaps in §11) |
 
 Guides use `HowTo-*.md` (hyphens). Generate API docs with `dart doc .` and open `doc/api/index.html`.
@@ -413,10 +414,14 @@ The widget layer renders cells regardless of which layer produced them: a `Cell.
 
 See [`doc/comparison.md`](doc/comparison.md) for an honest
 Provider / Riverpod / Bloc / cell_flutter comparison and a
-should-I-use-this decision guide.
+should-I-use-this decision guide. The
+[combined Riverpod/BLoC migration guide](guide/Migrating-From-Riverpod-BLoC.md)
+is the step-by-step execution: full before/after code, annotated diffs,
+and three runnable reference apps.
 
 ### Migrating
 
+- [Migrating from Riverpod and Bloc — combined guide](guide/Migrating-From-Riverpod-BLoC.md)
 - [Migrating from Provider](guide/Migrating-From-Provider.md)
 - [Migrating from Riverpod](guide/Migrating-From-Riverpod.md)
 - [Migrating from Bloc](guide/Migrating-From-Bloc.md)
@@ -424,7 +429,9 @@ should-I-use-this decision guide.
 
 Each guide's worked examples are fixture-verified
 (`test/migration/`) — the guide's code is executed and compared
-against the source package's code by the test suite.
+against the source package's code by the test suite. The combined
+guide's reference apps live in `example/migration/` and carry their
+own test suites.
 
 ### Lint rules
 

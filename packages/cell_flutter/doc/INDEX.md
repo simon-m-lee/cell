@@ -8,6 +8,7 @@ The map to everything in `cell_flutter` 0.5.0.
 - Evaluating whether to use it at all? → `doc/CHOOSING.md`
 - Migrating from Riverpod? → `guide/MigratingFrom-Riverpod.md`
 - Migrating from Bloc? → `guide/MigratingFrom-Bloc.md`
+- Comparing both and deciding? → `guide/Migrating-From-Riverpod-BLoC.md`
 
 ## Decision table
 

@@ -7,13 +7,16 @@ coverage/
 build/
 
 # Tooling and benchmarks stay in the repository, not in the published
-# package: benchmark/ and pipeline/ are their own packages (their
-# pubspecs would confuse pub) and tool/ are maintainer scripts.
+# package: benchmark/ is its own package (its
+# pubspec would confuse pub) and tool/ are maintainer scripts.
 benchmark/
-pipeline/
 tool/
 
 # Internal audit records (e.g. doc/internal/phase_1_doc_claims.csv) are
 # repository artifacts, not published documentation.
 doc/internal/
 reports/
+
+# The migration guide's reference projects are separate Flutter apps
+# (their own pubspecs would confuse the published package's example/).
+example/migration/

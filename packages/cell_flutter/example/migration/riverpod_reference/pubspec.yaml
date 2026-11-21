@@ -1,0 +1,23 @@
+name: riverpod_reference
+description: Riverpod reference screen for the Cell migration guide — a todo list with filtering and async submission.
+publish_to: 'none'
+version: 1.0.0
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.0.0
+  riverpod_annotation: ^3.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.0
+  riverpod_generator: ^3.0.0
+
+flutter:
+  uses-material-design: true
