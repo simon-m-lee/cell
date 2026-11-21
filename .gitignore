@@ -23,6 +23,7 @@ local.properties
 packages/cell_g/
 packages/cell_organ/
 packages/cell_mind/
+packages/mitose_flutter/
 
 # .deepcode directory containing sensitive API keys and model settings
 .deepcode/

@@ -109,8 +109,8 @@
   - [`cell_flutter_lints`](https://pub.dev/packages/cell_flutter_lints)
     `0.1.0` — custom lint rules for the `cell_flutter` anti-patterns.
   - The `packages/mitose_flutter/` package (Flutter Mitose-pipeline
-    tooling) remains **repository tooling** and is excluded from the
-    published archive.
+    tooling) is **repository-private** — kept out of version control,
+    not on GitHub or pub.dev.
 - **Workspace members**: `cell_mind` (cognitive policy) remains
   repository-private work in progress — kept out of version control, not on GitHub or pub.dev; `cell_organ`
   stays workspace-private (`publish_to: none`). Neither is part of the

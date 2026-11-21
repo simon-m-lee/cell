@@ -85,7 +85,9 @@ The umbrella ships additional packages alongside the three layers:
 | `cell_mind` | `1.1.0` | Workspace member, repository-private work in progress — kept out of version control; not on GitHub or pub.dev. |
 | `cell_organ` | `1.0.0` | Workspace-private package (`publish_to: none`). Not part of the published set. |
 
-The `packages/mitose_flutter/` package is repository tooling for running the Mitose pipeline on Flutter targets; it is **not published** (`publish_to: none`) and not part of the release set.
+The `packages/mitose_flutter/` package (Flutter Mitose-pipeline tooling,
+`publish_to: none`) is **repository-private** — kept out of version
+control, not on GitHub or pub.dev.
 
 > 🌱 **Still dividing.** Like the biological process it is named after, Mitosis keeps growing. These layers are the foundation — more layers will come online as the ecosystem matures.
 
@@ -292,7 +294,7 @@ cell/                          # Umbrella monorepo: "Mitosis"
 │   ├── cell_flutter_devtools/     # DevTools extension (ledger timeline)
 │   ├── cell_flutter_devtools_extension/  # Extension web app source (publish_to: none)
 │   ├── cell_flutter_lints/        # custom_lint rules for cell_flutter anti-patterns
-│   ├── mitose_flutter/         #   Repository tooling (Flutter Mitose pipeline) — publish_to: none
+│   ├── mitose_flutter/         #   Repository-private (publish_to: none) — kept out of version control
 │   ├── cell_mind/             # Workspace member — repository-private (kept out of version control)
 │   └── cell_organ/            # Workspace-private (publish_to: none)
 ├── demo/                      # Standalone Flutter web demos
