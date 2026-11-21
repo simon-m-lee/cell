@@ -26,6 +26,20 @@ import 'package:cell_flutter/testing.dart';       // test-only: pump/emit/assert
 
 This is the Flutter binding for the Cell Framework (Mitosis). Sibling packages add the core graph, stream combinators, and collections; this package adds the widget layer.
 
+## See it live
+
+The **[Audit Trail demo](https://simon-m-lee.github.io/cell/audit-trail/)** proves the
+Cell difference in under a minute: a state change that is **recorded**
+(live `ApplyReceipt` ledger), **rejected** by a `TestCell` integrity gate,
+and **undone** through a recorded compensation executed inside a real
+`Cell.txApply` transaction — three buttons, one screen, no installation.
+
+<!-- GIF placeholder: record a 10-second loop (add → invalid → undo) of the
+     live demo at ~640×480 and keep it under 2 MB. -->
+[![Try it live](https://img.shields.io/badge/Try%20it%20live-Audit%20Trail%20demo-blue.svg)](https://simon-m-lee.github.io/cell/audit-trail/)
+
+Source: [`demo/audit_trail/`](https://github.com/simon-m-lee/cell/tree/master/demo/audit_trail) — under 500 lines, comments included.
+
 ---
 
 ## Overview

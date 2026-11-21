@@ -1,0 +1,49 @@
+name: Deploy Audit Demo
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'demo/audit_trail/**'
+      - '.github/workflows/audit_demo_deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: audit-demo-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+        working-directory: demo/audit_trail
+      - run: flutter test
+        working-directory: demo/audit_trail
+      - run: flutter build web --release --base-href /cell/audit-trail/ --pwa-strategy=none
+        working-directory: demo/audit_trail
+      - name: Stage the demo under /audit-trail/
+        run: |
+          mkdir -p _site
+          cp -r demo/audit_trail/build/web _site/audit-trail
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

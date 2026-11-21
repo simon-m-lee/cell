@@ -1,0 +1,29 @@
+name: cell_audit_demo
+description: Live "Audit Trail" demo for the Cell framework — auditable, reversible, governed state in one screen.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Published constraints; local development resolves the in-repo packages
+  # through the dependency_overrides below.
+  cell: ^2.0.0
+  cell_flutter: ^1.0.0
+
+dependency_overrides:
+  cell:
+    path: ../../packages/cell
+  cell_flutter:
+    path: ../../packages/cell_flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true

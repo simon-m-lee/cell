@@ -6,6 +6,7 @@
 melos.yaml
 pubspec.lock
 /packages/**
+/demo/**
 
 /END_GAME_PREDICTION/**
 /test/**

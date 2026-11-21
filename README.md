@@ -82,7 +82,7 @@ The umbrella ships additional packages alongside the three layers:
 | `cell_mind` | `1.1.0` | Workspace member, repository-private work in progress — kept out of version control; not on GitHub or pub.dev. |
 | `cell_organ` | `1.0.0` | Workspace-private package (`publish_to: none`). Not part of the published set. |
 
-The `cell_flutter/pipeline/` directory is repository tooling for running the Mitose pipeline on Flutter targets; it is **not published** and not part of the release set.
+The `packages/mitose_flutter/` package is repository tooling for running the Mitose pipeline on Flutter targets; it is **not published** (`publish_to: none`) and not part of the release set.
 
 > 🌱 **Still dividing.** Like the biological process it is named after, Mitosis keeps growing. These layers are the foundation — more layers will come online as the ecosystem matures.
 
@@ -282,12 +282,14 @@ cell/                          # Umbrella monorepo: "Mitosis"
 │   │   ├── example/           #   Async search + production_app dogfooding app
 │   │   ├── guide/             #   Widget/hooks/migration guides
 │   │   ├── benchmark/         #   ValueListenableBuilder / Riverpod / Bloc comparisons
-│   │   └── pipeline/          #   Repository tooling (Flutter Mitose pipeline) — not published
 │   ├── cell_flutter_persistence/  # Durable state adapters for cell_flutter
 │   ├── cell_flutter_router/       # go_router bridge for cell_flutter
 │   ├── cell_flutter_lints/        # custom_lint rules for cell_flutter anti-patterns
+│   ├── mitose_flutter/         #   Repository tooling (Flutter Mitose pipeline) — publish_to: none
 │   ├── cell_mind/             # Workspace member — repository-private (kept out of version control)
 │   └── cell_organ/            # Workspace-private (publish_to: none)
+├── demo/                      # Standalone Flutter web demos
+│   └── audit_trail/          #   Live "Audit Trail" demo — apply receipts, TestCell gate, txApply undo
 ├── example/                   # Umbrella demos — (Cell) instruction-side editions
 │   ├── card-auth-pipeline(Cell)-*   #   stock-operator FlowInstructionChain
 │   ├── grid-demand-response(Cell)-* #   custom GridDecisionInstruction
