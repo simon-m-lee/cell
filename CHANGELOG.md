@@ -1,5 +1,53 @@
 # Changelog
 
+## Unreleased — Audit & DevTools ecosystem (→ 3.1.0)
+
+> **Package-set and adoption-artifact update, not yet published.** This
+> entry records the additions since `3.0.0`: two new Flutter-family
+> packages, their companion source package, the live adoption artifacts,
+> and the `cell_flutter` `1.1.0` line. Per the policy recorded in the
+> `3.0.0` entry, the umbrella version moves with the package set and the
+> umbrella-level docs — these are additive changes, so the bump is a
+> **MINOR (3.0.0 → 3.1.0)**, applied when the family is published.
+
+- **`cell_flutter_audit` `0.1.0`** — the audit trail UI for the
+  `ApplyReceipt` ledger: `AuditTrailView` (receipt timeline with
+  rejection cards and collapsible payloads), `AuditTrailController`
+  (filter / search / sort / pagination), `AuditEntryTile`,
+  `AuditTrailTheme`, `AuditEntry` / `RejectionEvent`, and
+  `AuditTrailExporter` (JSON/CSV, file export in `io.dart`). In the
+  repository and not yet on pub.dev.
+- **`cell_flutter_devtools` `0.1.0`** — the Flutter DevTools extension
+  provider: `registerCellDevTools` (assert-guarded, tree-shaken from
+  release builds) exposes `ext.cell.getLedger`, and the pre-compiled
+  extension web app (timeline, filter bar, summary panel, 500ms live
+  polling) ships in `extension/devtools/build/`. Its companion source
+  package **`cell_flutter_devtools_extension`** (`publish_to: none`)
+  carries the UI and the cross-package wire-contract test. In the
+  repository and not yet on pub.dev.
+- **`cell_flutter` `1.1.0`** (unpublished) — the `devtools.dart` entry
+  point (DevTools registry and overlay leave the app barrel in 2.0), the
+  barrel-doc rewrite from the two code reviews, and the behavior fixes
+  (`CellListView.keyed` value refresh, `CellErrorBoundary` dispose,
+  `CellInspectorOverlay` fallback, form/restoration docs).
+- **Adoption artifacts** — the live
+  [Audit Trail demo](https://simon-m-lee.github.io/cell/audit-trail/)
+  (`demo/audit_trail`, deployed by `.github/workflows/audit_demo_deploy.yml`),
+  the combined Riverpod/BLoC
+  [migration guide](packages/cell_flutter/guide/Migrating-From-Riverpod-BLoC.md)
+  with three runnable reference apps
+  (`packages/cell_flutter/example/migration/`), and the six-package
+  [fair comparison page](packages/cell_flutter/doc/comparison.md)
+  (Cell vs Riverpod, BLoC, Provider, GetX, Signals, with a decision
+  tree).
+- **Verification-standard tooling** — the new packages each carry
+  `tool/generate_test_verification.py` → `TEST_VERIFICATION.md`
+  (audit 42 green, devtools 7 green, extension UI 12 green), a named
+  `<package>_example.dart` entry in `example/`, and a `doc/` index (plus
+  generated `doc/api/` for the publishable pair).
+- **Mitose pipeline** — unchanged; the `mitosis` and Mitose-pipeline
+  version lines remain independent (see `3.0.0`).
+
 ## Mitosis (3.0.0) - Causal Replay & Flutter Bindings
 
 > **Versioning decoupling + package-set update.** This entry records the
@@ -60,7 +108,7 @@
     `CellRouterStateMirror`, `CellRouterScope`, `useCellRouter`).
   - [`cell_flutter_lints`](https://pub.dev/packages/cell_flutter_lints)
     `0.1.0` — custom lint rules for the `cell_flutter` anti-patterns.
-  - The `cell_flutter/pipeline/` directory (Flutter Mitose-pipeline
+  - The `packages/mitose_flutter/` package (Flutter Mitose-pipeline
     tooling) remains **repository tooling** and is excluded from the
     published archive.
 - **Workspace members**: `cell_mind` (cognitive policy) remains

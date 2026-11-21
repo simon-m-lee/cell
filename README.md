@@ -80,6 +80,7 @@ The umbrella ships additional packages alongside the three layers:
 | [**cell_flutter_router**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_router) | `0.1.0` | `go_router` bridge: route state as a reactive cell (`CellRouterState`, `CellRouterStateMirror`, `CellRouterScope`, `useCellRouter`). |
 | [**cell_flutter_audit**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_audit) | `0.1.0` | Audit trail UI for the `ApplyReceipt` ledger: `AuditTrailView`, `AuditTrailController`, `AuditTrailExporter`, `AuditEntryTile`. |
 | [**cell_flutter_devtools**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_devtools) | `0.1.0` | DevTools extension: the live `ApplyReceipt` ledger as a filterable timeline inside Flutter DevTools. |
+| `cell_flutter_devtools_extension` | `0.1.0` | The DevTools extension web app *source* (`publish_to: none`) — compiled into `cell_flutter_devtools/extension/devtools/build/`. |
 | [**cell_flutter_lints**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_lints) | `0.1.0` | Custom lint rules guarding the `cell_flutter` anti-patterns. |
 | `cell_mind` | `1.1.0` | Workspace member, repository-private work in progress — kept out of version control; not on GitHub or pub.dev. |
 | `cell_organ` | `1.0.0` | Workspace-private package (`publish_to: none`). Not part of the published set. |
@@ -282,6 +283,7 @@ cell/                          # Umbrella monorepo: "Mitosis"
 │   ├── cell_flutter/          # Flutter bindings — widgets, hooks, testing surface
 │   │   ├── lib/               #   cell_flutter.dart, hooks.dart, testing.dart
 │   │   ├── example/           #   Async search + production_app dogfooding app
+│   │   │   │                   #   + migration/ (Riverpod / BLoC / Cell reference apps)
 │   │   ├── guide/             #   Widget/hooks/migration guides
 │   │   ├── benchmark/         #   ValueListenableBuilder / Riverpod / Bloc comparisons
 │   ├── cell_flutter_persistence/  # Durable state adapters for cell_flutter
@@ -400,7 +402,7 @@ dependencies:
   cell_flutter: ^1.0.0          # Flutter apps
 ```
 
-> ℹ️ These are the stable versions on pub.dev — `mitosis` `3.0.0` together with `cell` `2.0.0`, `cell_flow` `1.1.0`, `cell_tissue` `1.1.0`, and the `cell_flutter` family (`cell_flutter` `1.0.0`; `cell_flutter_persistence`, `cell_flutter_router`, `cell_flutter_lints` `0.1.0`).
+> ℹ️ These are the stable versions on pub.dev — `mitosis` `3.0.0` together with `cell` `2.0.0`, `cell_flow` `1.1.0`, `cell_tissue` `1.1.0`, and the `cell_flutter` family (`cell_flutter` `1.0.0`; `cell_flutter_persistence`, `cell_flutter_router`, `cell_flutter_lints` `0.1.0`). The newest additions — `cell_flutter_audit` `0.1.0` and `cell_flutter_devtools` `0.1.0` — are **in the repository and not yet on pub.dev** (together with `cell_flutter` `1.1.0`, which adds the `devtools.dart` entry point).
 
 The workspace setup below is only needed for contributors working on the framework itself.
 
@@ -544,7 +546,7 @@ Mitosis pays for itself first in systems where the causal trail is a requirement
 
 ## 🧾 Honest Caveats
 
-The stable release line on pub.dev is `mitosis` `3.0.0` with `cell` `2.0.0`, `cell_flow` `1.1.0`, and `cell_tissue` `1.1.0`, plus the Flutter family (`cell_flutter` `1.0.0`; `cell_flutter_persistence`, `cell_flutter_router`, and `cell_flutter_lints` `0.1.0`). Some things to know before you bet production on it:
+The stable release line on pub.dev is `mitosis` `3.0.0` with `cell` `2.0.0`, `cell_flow` `1.1.0`, and `cell_tissue` `1.1.0`, plus the Flutter family (`cell_flutter` `1.0.0`; `cell_flutter_persistence`, `cell_flutter_router`, and `cell_flutter_lints` `0.1.0`). The newest additions — `cell_flutter_audit` `0.1.0`, `cell_flutter_devtools` `0.1.0` (with its `cell_flutter_devtools_extension` source package), and `cell_flutter` `1.1.0` — are in the repository and **not yet on pub.dev**. Some things to know before you bet production on it:
 
 - **The Mitose pipeline is agentic tooling, not a validated code-generation service** — see [The Mitose Pipeline](#-the-mitose-pipeline). Output quality depends on the model (best to select a model which is built for agentic coding), the uploaded guide files, and the quality of the BRD. Treat every generated BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES as a first draft, and review it against the layer HowTos and live pub.dev APIs before relying on it.
 - **New layers and packages may still appear.** The umbrella keeps growing: the `cell_flutter` family shipped in the `2.0.0` line, and repository-private members (`cell_mind`, …) carry their own pre-release or unpublished status. The umbrella version moves with the package set, not with the Mitose pipeline.
@@ -592,6 +594,8 @@ Lee Man Hoi Simon — see [AUTHORS](https://github.com/simon-m-lee/cell/blob/mas
 - 🔀 **Orchestration layer:** [packages/cell_flow](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow)
 - 🧩 **Application layer:** [packages/cell_tissue](https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue)
 - 📱 **Flutter bindings:** [packages/cell_flutter](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter)
+- 🛠 **DevTools extension source:** [packages/cell_flutter_devtools_extension](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_devtools_extension)
+- 🎬 **Live audit demo:** [demo/audit_trail](https://github.com/simon-m-lee/cell/tree/master/demo/audit_trail) · deployed at [simon-m-lee.github.io/cell/audit-trail](https://simon-m-lee.github.io/cell/audit-trail/)
 
 ---
 
