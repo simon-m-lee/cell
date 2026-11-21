@@ -1,124 +1,148 @@
-# `cell_flutter` compared to Provider, Riverpod, and Bloc
+# The fair comparison: Cell vs Riverpod, BLoC, Provider, GetX, and Signals
 
-This page answers "why would I choose `cell_flutter` over the state
-management package I already know?" It is deliberately honest: where
-`cell_flutter` lacks a feature, the table says so. Read the Status
-section of the README alongside this page — this document describes
-*shape*, the README describes *maturity*.
+> This page compares Cell to the most widely-used Flutter state management
+> packages. It is written by the Cell maintainers, so treat it with the
+> skepticism any first-party comparison deserves. Every row is checked
+> against each package's current documentation. Where Cell loses, the row
+> says so. The decision tree at the end tells you when *not* to use Cell.
 
-## 1. The philosophy
+**Legend:** 🟢 Cell wins on this row · ⚪ neutral / tie · 🔴 Cell loses on
+this row. Cell loses on five of the ten rows — on purpose. The five rows it
+wins are its reason to exist.
 
-The four packages differ in what they treat as the unit of state.
+**Last verified:** 2026-11-17, against each package's pub.dev page and
+documentation (sources cited below the matrix).
 
-- **Provider** is dependency injection with rebuilds. Its unit is the
-  *provider* — an object lookup keyed by type, with `ChangeNotifier`
-  as the workhorse. State itself is plain Dart classes you write.
-- **Riverpod** is compile-safe DI with a reactive graph. Its unit is
-  still the *provider*, but providers are first-class reactive nodes:
-  they can watch each other, be overridden in tests, and be
-  auto-disposed. State is still your classes (or `AsyncValue`).
-- **Bloc** is an event-driven architecture. Its unit is the
-  *Cubit/Bloc*: state transitions happen only through events, which
-  makes every change traceable and forces the business logic out of
-  the widget layer.
-- **`cell_flutter`** is a reactive graph of *cells*. Its unit is the
-  cell itself: a node that holds or derives a value and emits
-  governed **pulses** when it changes. `Cell.state` / `Cell.derive` /
-  `Cell.asyncMap` are the graph operators; the widgets (`CellBuilder`,
-  `CellSelector`, `CellListener`, ...) are thin observers. The widget
-  layer is deliberately dumb — it renders pulses and does nothing
-  else.
+## The comparison matrix
 
-The practical consequence: in Provider/Riverpod/Bloc, the widget layer
-owns rebuild orchestration (`Consumer`, `ref.watch`, `BlocBuilder`);
-in `cell_flutter`, the *graph* owns propagation and the widgets merely
-subscribe. This is why `cell_flutter` can offer transactions, pulse
-forensics, and least-privilege views that the others structure out.
+| Dimension | Cell | Riverpod | BLoC | Provider | GetX | Signals | Winner |
+|---|---|---|---|---|---|---|---|
+| **Learning curve** | High — new concepts (cells, pulses, gates) [1] | Moderate [2] | Moderate [3] | Low [4] | Low [5] | Moderate [6] | 🔴 |
+| **Codegen support** | None — everything hand-written [1] | Mature (`riverpod_generator` 4.x) [2] | Optional (`freezed` ecosystem) [3] | None [4] | None [5] | None [6] | 🔴 |
+| **DevTools integration** | New — `cell_flutter_devtools` 0.1 (ledger timeline) [7] | Mature (provider graph, state inspection, overrides) [2] | Mature (`BlocObserver`, browser extension) [3] | None official [4] | Minimal (community tooling) [5] | Minimal [6] | 🔴 |
+| **Community size** | Small [8] | Large [8] | Large [8] | Large [8] | Large [8] | Small [8] | 🔴 |
+| **Compile-time safety** | Partial — runtime-checked state [1] | Strong — codegen + lint rules [2] | Moderate — convention + `freezed` [3] | Weak [4] | Weak [5] | Strong — compile-time derivation [6] | 🔴 |
+| **Async state** | `CellAsyncBuilder` / `asyncMap` [9] | `AsyncValue` [2] | Manual (events into states) [3] | `FutureBuilder` by hand [4] | `Obx` + reactive getters [5] | Derived signals [6] | ⚪ |
+| **Audit trail (built-in)** | **Yes** — `ApplyLedger` receipts for every `Cell.apply` [10] | No | No (convention only) | No | No | No | 🟢 |
+| **Multi-cell atomic commits with rollback** | **Yes** — `Cell.txApply` with compensations [11] | No | No | No | No | No | 🟢 |
+| **Restricted views (zero-copy)** | **Yes** — `unmodifiable` / `deputy` [12] | `select` only [2] | No | `Selector` (slice rebuilds, not capability restriction) [4] | No | No | 🟢 |
+| **Governance gates** | **Yes** — `TestCell` gates enforce before every mutation [13] | Convention | Convention | No | No | No | 🟢 |
 
-## 2. Feature comparison
+Community size uses pub.dev like counts as a *proxy* on 2026-11-17 —
+imperfect, but honest and checkable. Read that row as "order of
+magnitude", not a census.
 
-Honesty rule for this table: a `✓` means the capability ships in the
-published surface today (or is the package's standard pattern). `—`
-means it does not — no "coming soon".
+## What each package is for
 
-| Capability | Provider | Riverpod | Bloc | cell_flutter |
-|---|---|---|---|---|
-| Local mutable state | ✓ `ChangeNotifier` | ✓ providers | ✓ `Cubit` | ✓ `Cell.state` |
-| Derived state | ✓ `Selector`/manual | ✓ `Provider` | ✓ computed in state | ✓ `Cell.derive` |
-| Async state | manual `FutureBuilder` | ✓ `AsyncValue` | manual/`Bloc` events | ✓ `CellAsyncBuilder`/`asyncMap` |
-| Error visibility in UI | manual | ✓ `AsyncError` | ✓ state holds error | ✓ `Cell.fromFuture` errors + `CellErrorBoundary` |
-| Dependency injection | ✓ (its core) | ✓ (its core) | — (manual) | — (manual; `CellScope` for scoping) |
-| Side effects | `ref.listen`-ish manual | ✓ `ref.listen` | ✓ `BlocListener` | ✓ `CellListener` |
-| Testing | manual mocking | ✓ overrides | ✓ `bloc_test` | ✓ first-class harness (`recordPulses`, `pumpWithCells`, determinism gate) |
-| Transactions (atomic multi-write) | — | — | — | ✓ (unique: graph-governed pulses) |
-| Pulse forensics (replay/audit) | — | — | — | ✓ (unique: `cell` replay engine) |
-| Least-privilege views | — | — | — | ✓ (unique: `ValueCell`/`Cell` split) |
-| DevTools | — | ✓ mature | ✓ | ✓ in-app `CellInspectorOverlay` (new; not as deep as Riverpod's) |
-| Persistence | manual | `riverpod_persistence` | `hydrated_bloc` | ✓ `restorableState` (Flutter restoration) |
-| Codegen | — | ✓ `riverpod_generator` | ✓ `freezed` ecosystem | — |
-| Form helpers | — | — | — | ✓ `CellTextField`/`CellFormField` |
-| List virtualization | manual | manual | manual | ✓ `CellListView` |
-| Error boundary | — | — | — | ✓ `CellErrorBoundary` |
-| Routing integration | manual | manual | manual | — (backlog) |
-| Migration guides | ✓ | ✓ | ✓ | ✓ (this phase) |
-| Lint rules | — | ✓ `riverpod_lint` | ✓ `bloc_lint` | ✓ `cell_flutter_lints` (new) |
+- **Riverpod:** "For most Flutter apps. Compile-time safety, mature
+  codegen, excellent async, and a large ecosystem. The default choice for
+  a new Flutter project in 2026."
+- **BLoC:** "For teams that need auditable event flows and strict
+  architectural discipline. Events and states are first-class; the
+  boilerplate is the price."
+- **Provider:** "For small apps and legacy codebases. The simplest option;
+  the community has largely moved to Riverpod."
+- **GetX:** "For rapid prototyping. Low boilerplate; weaker type safety.
+  The package is still maintained (last release 2025-11) but has a
+  history of community maintenance concerns — check the issue tracker
+  before adopting."
+- **Signals:** "For apps where raw performance is the primary constraint.
+  Compile-time-optimized; smaller community."
+- **Cell:** "For apps where state must be **auditable, reversible, and
+  governed** — regulated industries, multi-step operations with rollback,
+  and AI-agent-mutated state. Use Cell when Riverpod or BLoC cannot give
+  you the guarantees you need."
 
-## 3. Where `cell_flutter` wins
+## The decision tree
 
-- **Testing.** `recordPulses`, `pumpWithCells`, `emitAndSettle`, and the
-  pulse-level determinism gate test *sequences* of state changes, not
-  just final values. Bloc's event log is close in spirit; no other
-  package asserts pulse order, payloads, and error types with the same
-  directness.
-- **Transactions.** A governed write can atomically commit several cell
-  updates with one logical pulse — no other package in this table has a
-  native multi-state transaction primitive.
-- **Forensics.** Pulses are first-class, typed, source-tagged objects
-  with a replay engine in the core package. When a bug needs "what
-  happened in which order", `cell_flutter` answers from data, not from
-  re-adding logs.
-- **Least-privilege views.** The `ValueCell` (read-write) / `Cell`
-  (read-only) split is enforced by the type system: a child widget
-  receiving a `Cell` *cannot* write state, no convention required.
+```
+Do you need an audit trail of every state change?
+├── Yes → Cell
+└── No
+    Do you need atomic multi-cell commits with rollback?
+    ├── Yes → Cell
+    └── No
+        Do you need restricted views (read-only, deputy) of the same state?
+        ├── Yes → Cell
+        └── No
+            Are you on a team that needs strict event/state architecture?
+            ├── Yes → BLoC
+            └── No
+                Do you need compile-time safety and codegen?
+                ├── Yes → Riverpod
+                └── No
+                    Provider (or setState for the simplest cases)
+```
 
-## 4. Where `cell_flutter` loses
+Answer "No" to the first three questions and the tree is telling you not
+to use Cell — that is the tree working as intended. (GetX and Signals are
+deliberately absent from the tree: they fit "rapid prototyping" and
+"raw performance" niches, which are rarely the deciding axis once the
+questions above have been answered.)
 
-- **DevTools maturity.** The in-app `CellInspectorOverlay` is real and
-  useful, but Riverpod's DevTools (provider graph, state inspection,
-  override UI) is years ahead. The browser DevTools extension is still
-  on the roadmap.
-- **Ecosystem.** There is no `riverpod_persistence` equivalent, no
-  `hydrated_bloc` equivalent, no codegen, no router bridge yet.
-- **Learning curve.** Provider and Bloc teach their model in an hour;
-  `cell_flutter` requires reading the architecture doc to use well
-  (cells, pulses, scopes). The current guides are the fix, but
-  the curve is real.
-- **Community.** Smaller ecosystem, fewer StackOverflow answers,
-  fewer example apps in the wild.
+## What Cell does not do
 
-## 5. Should I use this?
+- **No code generation.** Every cell is written by hand.
+- **No mature DevTools extension.** The 0.1 extension shows the ledger;
+  it does not have the full inspection tools Riverpod provides.
+- **No compile-time safety.** Cell's state is runtime-checked, not
+  compile-checked.
+- **No migration path from Riverpod's `AsyncNotifier`.** The async
+  primitives are different.
+- **A small ecosystem.** `cell_flutter_persistence`, `cell_flutter_router`,
+  `cell_flutter_lints`, and `cell_flutter_audit` exist, but there is no
+  `riverpod_lint`-depth tooling and no large third-party community yet.
+  *(The original plan draft claimed there was no
+  `cell_flutter_persistence`; that shipped since — this gap is kept
+  accurate, not dramatic.)*
 
-- **Use `cell_flutter` if** you value testable state sequences,
-  transactions, and auditability more than ecosystem size; if your
-  team will read one architecture doc; and if you want Flutter-native
-  restoration and forms out of the box.
-- **Use Riverpod if** you want the most mature all-in-one reactive
-  ecosystem today: codegen, DevTools, DI, and async ergonomics.
-- **Use Bloc if** you want a hard event/state boundary enforced by
-  convention and tooling, with a large team of developers who know the
-  pattern.
-- **Use Provider if** you need simple, boring, well-understood DI with
-  rebuilds and nothing more.
+## When to migrate
 
-## 6. Migration paths
+> If you have decided that Cell's differentiators are worth the migration
+> cost, see [Migrating-From-Riverpod-BLoC.md](../guide/Migrating-From-Riverpod-BLoC.md)
+> for a step-by-step guide — complete before/after code, annotated diffs,
+> and three runnable reference apps.
 
-- [Migrating from Provider](guide/Migrating-From-Provider.md) — one
-  `ChangeNotifier` → one `Cell.state`; `Consumer` → `CellBuilder`.
-- [Migrating from Riverpod](guide/Migrating-From-Riverpod.md) —
-  providers → cells; `AsyncValue` → `AsyncSnapshot` via
-  `CellAsyncBuilder`; families → `Map`/`Cell.switchMap`.
-- [Migrating from Bloc](guide/Migrating-From-Bloc.md) — `Cubit` →
-  `Cell.state`; events → `Cell.ingress`; `BlocBuilder` →
-  `CellBuilder`.
-- [Migrating from setState](guide/Migrating-From-SetState.md) — the
-  smallest possible first step.
+This page tells you **whether**; that guide tells you **how**. The other
+adoption artifacts answer the remaining questions: the
+[live Audit Trail demo](https://simon-m-lee.github.io/cell/audit-trail/)
+is the "see it" proof, and
+[`cell_flutter_audit`](https://pub.dev/packages/cell_flutter_audit) is
+"here is the widget" for the audit trail.
+
+## Sources
+
+1. `cell_flutter` API docs and guides (cells, pulses, `TestCell` gates) —
+   [pub.dev](https://pub.dev/packages/cell_flutter)
+2. Riverpod docs — [riverpod.dev](https://riverpod.dev) (codegen, DevTools,
+   `AsyncValue`, `select`); generator on
+   [pub.dev](https://pub.dev/packages/riverpod_generator)
+3. BLoC docs — [bloclibrary.dev](https://bloclibrary.dev) (`BlocObserver`,
+   browser DevTools extension); `freezed` ecosystem on pub.dev
+4. Provider docs and `Selector` — [pub.dev](https://pub.dev/packages/provider)
+5. GetX repository and README — [pub.dev](https://pub.dev/packages/get)
+6. Signals README (compile-time derivation claim) —
+   [pub.dev](https://pub.dev/packages/signals)
+7. `cell_flutter_devtools` extension — in-repo
+   [README](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_devtools)
+8. Community-size proxy: pub.dev like counts for
+   [cell_flutter](https://pub.dev/packages/cell_flutter),
+   [flutter_riverpod](https://pub.dev/packages/flutter_riverpod),
+   [flutter_bloc](https://pub.dev/packages/flutter_bloc),
+   [provider](https://pub.dev/packages/provider),
+   [get](https://pub.dev/packages/get), and
+   [signals](https://pub.dev/packages/signals) — checked 2026-11-17
+9. `CellAsyncBuilder` — cell_flutter API docs
+10. `ApplyLedger` — `cell` API docs (`ApplyReceipt` minting for every
+    `Cell.apply`)
+11. `Cell.txApply` — [`cell` ARCHITECTURE.md §5](https://github.com/simon-m-lee/cell/blob/master/packages/cell/ARCHITECTURE.md)
+12. `unmodifiable` / `deputy` — `cell` API docs (proxy views without copy)
+13. `TestCell` — `cell` API docs (validation gate in front of mutations)
+
+## How this page is maintained
+
+This is a living document, not a one-time artifact: the five other
+packages' documentation is checked quarterly, and any cell in the matrix
+is updated when the source documentation changes. Every claim carries a
+source above so you can verify it yourself — please open an issue when a
+row goes stale.

@@ -413,9 +413,11 @@ The widget layer renders cells regardless of which layer produced them: a `Cell.
 
 ### Comparing to other packages
 
-See [`doc/comparison.md`](doc/comparison.md) for an honest
-Provider / Riverpod / Bloc / cell_flutter comparison and a
-should-I-use-this decision guide. The
+See [the fair comparison page](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/doc/comparison.md) —
+the sourced comparison against Riverpod, BLoC, Provider, GetX, and
+Signals: a 10-dimension matrix where Cell loses five rows, per-package
+"what it is for" summaries, a 30-second decision tree, and the list of
+what Cell does **not** do. The
 [combined Riverpod/BLoC migration guide](guide/Migrating-From-Riverpod-BLoC.md)
 is the step-by-step execution: full before/after code, annotated diffs,
 and three runnable reference apps.

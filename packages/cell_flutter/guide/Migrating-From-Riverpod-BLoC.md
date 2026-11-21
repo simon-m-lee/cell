@@ -16,6 +16,11 @@ state change that is recorded, rejected by a governance gate, and undone
 through a recorded compensation — the three mechanisms this guide migrates
 you toward.
 
+**Should you migrate at all?** That decision belongs to the
+[fair comparison page](../doc/comparison.md) — the six-package matrix
+(where Cell loses five rows), the per-package summaries, and the 30-second
+decision tree. It tells you *whether*; this guide tells you *how*.
+
 **The reference projects** — three runnable apps, each with passing
 tests, are committed next to this guide:
 

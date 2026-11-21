@@ -6,6 +6,8 @@ The map to everything in `cell_flutter` 0.5.0.
 
 - New to Mitosis? → `guide/HowTo-CellBuilder.md`
 - Evaluating whether to use it at all? → `doc/CHOOSING.md`
+- Comparing Cell against Riverpod / BLoC / Provider / GetX / Signals? →
+  `doc/comparison.md` (the fair comparison matrix + decision tree)
 - Migrating from Riverpod? → `guide/MigratingFrom-Riverpod.md`
 - Migrating from Bloc? → `guide/MigratingFrom-Bloc.md`
 - Comparing both and deciding? → `guide/Migrating-From-Riverpod-BLoC.md`
@@ -14,6 +16,7 @@ The map to everything in `cell_flutter` 0.5.0.
 
 | I want to... | Read |
 |---|---|
+| Decide whether Cell is right for my app | `doc/comparison.md` |
 | Display state in a widget | `guide/HowTo-CellBuilder.md` |
 | React to pulses (navigation, snackbars) | `guide/HowTo-CellListener.md` |
 | Share cells app-wide | `guide/HowTo-CellScope.md` |

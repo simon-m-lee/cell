@@ -66,6 +66,16 @@ cached.
           width="1024" height="600" style="border:0"></iframe>
   ```
 
+## Learn more
+
+- **Should you use Cell at all?** — the
+  [fair comparison page](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/doc/comparison.md)
+  (Cell vs Riverpod, BLoC, Provider, GetX, Signals, with a decision tree).
+- **Should you migrate, and how?** — the
+  [Riverpod/BLoC migration guide](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/guide/Migrating-From-Riverpod-BLoC.md).
+- **The widget for this ledger** — [`cell_flutter_audit`](https://pub.dev/packages/cell_flutter_audit).
+- **The debugging surface** — [`cell_flutter_devtools`](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_devtools).
+
 ## pub.dev integration (from the plan)
 
 1. Record a 10-second loop (add → invalid → undo) at ~640×480, compress
