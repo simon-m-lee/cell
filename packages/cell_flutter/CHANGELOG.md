@@ -1,5 +1,38 @@
 # Changelog
 
+## 1.1.0
+
+Documentation and packaging accuracy pass (additive API — no breaking
+changes). Addresses the claims in
+`research/Flutter-Binding/_Pending/code-review(Claude).md`.
+
+- **Barrel doc rewritten** — the stale 0.7.0 "gate failed" status block
+  (pre-1.0 content) is gone; the library doc now reflects the 1.x frozen
+  API, carries no volatile release numbers or test counts, and links
+  status/limitations to the README and this changelog. The export
+  inventory and the "Which widget do I reach for?" table now cover every
+  export, including forms, restoration, `CellErrorBoundary`,
+  `CellListView`, and the DevTools surface.
+- **`devtools.dart` entry point added** — `CellRegistry`,
+  `CellRegistryEntry`, `CellPulseRecord`, and `CellInspectorOverlay` now
+  have a dedicated `package:cell_flutter/devtools.dart`, mirroring
+  `hooks.dart` and `testing.dart`. The barrel re-export is retained for
+  1.x compatibility and is scheduled for removal in 2.0. The
+  production-app example and the DevTools tests import the new entry
+  point.
+- **`library cell_flutter;` → unnamed `library;`**, exports sorted and
+  grouped with comments, and the stray colon on the "See Also" heading
+  fixed; doc links now use full GitHub URLs instead of repository-relative
+  paths.
+- **Pubspec comments corrected** — the `flutter_test` justification no
+  longer cites bloc_test / mocktail / mockito (those depend on `test` /
+  `test_api`, not `flutter_test`); the real reason (the `testing.dart`
+  entry point must resolve for consumers) is stated, with the
+  `cell_flutter_test` extraction scheduled for 2.0. The `flutter_hooks`
+  comment now says plainly that it is mandatory at resolution time and
+  optional at import time, and the dependency-override comment explains
+  why pub dependents are unaffected.
+
 ## 1.0.2
 
 - **README cleanup**: removed the pre-public "What's new in 0.1" section —

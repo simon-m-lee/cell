@@ -9,6 +9,9 @@
 // router mirroring, persisted nickname, and the in-app inspector.
 
 import 'package:cell_flutter/cell_flutter.dart';
+// The dedicated entry point; the barrel re-export goes away in 2.0.
+// ignore: unnecessary_import
+import 'package:cell_flutter/devtools.dart';
 import 'package:cell_flutter_persistence/cell_flutter_persistence.dart';
 import 'package:cell_flutter_router/hooks.dart';
 import 'package:flutter/material.dart';

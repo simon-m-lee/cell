@@ -7,6 +7,9 @@
 // The in-app Cell Inspector (registry + overlay).
 
 import 'package:cell_flutter/cell_flutter.dart';
+// The dedicated entry point; the barrel re-export goes away in 2.0.
+// ignore: unnecessary_import
+import 'package:cell_flutter/devtools.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

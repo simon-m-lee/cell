@@ -12,6 +12,7 @@ flutter pub add flutter_hooks
 ```dart
 import 'package:cell_flutter/cell_flutter.dart'; // app surface (re-exports package:cell)
 import 'package:cell_flutter/hooks.dart';         // optional: flutter_hooks integration
+import 'package:cell_flutter/devtools.dart';      // dev: live cell registry + inspector overlay
 import 'package:cell_flutter/testing.dart';       // test-only: pump/emit/assert helpers
 ```
 
