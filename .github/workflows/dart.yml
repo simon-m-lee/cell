@@ -1,0 +1,59 @@
+name: dart
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/dart.yml'
+      - 'packages/cell/**'
+      - 'packages/cell_flow/**'
+      - 'packages/cell_tissue/**'
+      - 'packages/cell_flutter_devtools/**'
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/dart.yml'
+      - 'packages/cell/**'
+      - 'packages/cell_flow/**'
+      - 'packages/cell_tissue/**'
+      - 'packages/cell_flutter_devtools/**'
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [cell, cell_flow, cell_tissue, cell_flutter_devtools]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dart-lang/setup-dart@v1
+        with:
+          # Matches benchmark.yml; bump together with a benchmark rebaseline.
+          sdk: '3.14.0'
+      - name: dart pub get
+        working-directory: packages/${{ matrix.package }}
+        run: dart pub get
+      - name: dart analyze (lib + test)
+        working-directory: packages/${{ matrix.package }}
+        run: dart analyze lib test
+
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [cell, cell_flow, cell_tissue, cell_flutter_devtools]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dart-lang/setup-dart@v1
+        with:
+          # Matches benchmark.yml; bump together with a benchmark rebaseline.
+          sdk: '3.14.0'
+      - name: dart pub get
+        working-directory: packages/${{ matrix.package }}
+        run: dart pub get
+      - name: dart test
+        working-directory: packages/${{ matrix.package }}
+        run: dart test

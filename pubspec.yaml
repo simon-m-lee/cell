@@ -42,5 +42,8 @@ workspace:
   - packages/cell
   - packages/cell_flow
   - packages/cell_tissue
-  - packages/cell_organ
-  - packages/cell_mind
+  # cell_organ and cell_mind are repository-private (kept out of version
+  # control) and therefore cannot be workspace members — a fresh checkout
+  # has no such directories, and pub refuses to resolve the workspace.
+  # They resolve the local sources through their own path
+  # dependency_overrides instead.
