@@ -4,7 +4,7 @@
 
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](https://github.com/simon-m-lee/cell/blob/master/LICENSE)
 [![Dart SDK](https://img.shields.io/badge/dart-%3E%3D3.5.0%20%3C4.0.0-blue.svg)](https://dart.dev)
-[![Status](https://img.shields.io/badge/status-3.0.0--stable-green.svg)](#-project-status--cadence)
+[![Status](https://img.shields.io/badge/status-3.1.0--stable-green.svg)](#-project-status--cadence)
 [![Melos](https://img.shields.io/badge/maintained%20with-melos-f700ff.svg)](https://github.com/invertase/melos)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#-contributing)
 
@@ -61,9 +61,9 @@ Mitosis is organized into three specialized layers. Each layer is a separate pac
 
 | Layer | Package | Version | Biological Analogue | Responsibility |
 |---|---|---|---|---|
-| **Core** | [**cell**](https://github.com/simon-m-lee/cell/tree/master/packages/cell) | `2.0.0` | The **cell** | Reactive primitives (`Cell`, `Pulse`, `Receptor`, `Nucleus`, `Synapses`), validation gates (`TestCell`), authority context (`Context`), deputies, transactions, the causal integrity engine, and **Causal Replay** (effect journals, hash-chained ledgers, replay engine, what-if forks, governance replay, `cell-replay` CLI). |
-| **Orchestration** | [**cell_flow**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow) | `1.1.0` | The **nervous system** | 100+ Rx-shaped operators (`map`, `filter`, `debounce`, `throttle`, `switchMap`, `mergeMap`, `zip`, `retry`, `bufferCount`, …) as `FlowInstruction`s compiled into the *same* Cell graph — no translation layer. |
-| **Application** | [**cell_tissue**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue) | `1.1.0` | The **body** | Governed reactive collections (`TissueList`, `TissueSet`, `TissueMap`, `TissueQueue`, `TissueValue`) with validation, read-only views, deputies, capacity/backpressure, and async mutations. |
+| **Core** | [**cell**](https://github.com/simon-m-lee/cell/tree/master/packages/cell) | `2.1.0` | The **cell** | Reactive primitives (`Cell`, `Pulse`, `Receptor`, `Nucleus`, `Synapses`), validation gates (`TestCell`), authority context (`Context`), deputies, transactions, the causal integrity engine, **Causal Replay** (effect journals, hash-chained ledgers, replay engine, what-if forks, governance replay, `cell-replay` CLI), and **Pulse serialization** (`encodePulse` / `decodePulse`, strict & lenient modes). |
+| **Orchestration** | [**cell_flow**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow) | `1.2.0` | The **nervous system** | 100+ Rx-shaped operators (`map`, `filter`, `debounce`, `throttle`, `switchMap`, `mergeMap`, `zip`, `retry`, `bufferCount`, …) as `FlowInstruction`s compiled into the *same* Cell graph — no translation layer; ships an official **Agent Skill** (`skills/cell-flow-operators/`). |
+| **Application** | [**cell_tissue**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue) | `1.2.0` | The **body** | Governed reactive collections (`TissueList`, `TissueSet`, `TissueMap`, `TissueQueue`, `TissueValue`) with validation, read-only views, deputies, capacity/backpressure, async mutations, and **Tissue serialization** (`encodeTissue` / `decodeTissue`, per-shape `fromJson` factories). |
 
 **Key insight:** the graph, locks, validation, and provenance live in **cell**. Flow only decides *which* pulses leave and *when*. Tissue decides *where they are recorded and under which invariants*. The layers compose without duplicating governance.
 
@@ -380,7 +380,7 @@ The umbrella package re-exports all three layers in one import:
 
 ```yaml
 dependencies:
-  mitosis: ^3.0.0
+  mitosis: ^3.1.0
 ```
 
 ```dart
@@ -391,13 +391,19 @@ Prefer the individual layers when you want fine-grained dependencies:
 
 ```yaml
 dependencies:
-  cell: ^2.0.0
-  cell_flow: ^1.1.0
-  cell_tissue: ^1.1.0
-  cell_flutter: ^1.0.0          # Flutter apps
+  cell: ^2.1.0
+  cell_flow: ^1.2.0
+  cell_tissue: ^1.2.0
+  cell_flutter: ^1.1.0          # Flutter apps
 ```
 
-> ℹ️ These are the stable versions on pub.dev — `mitosis` `3.0.0` together with `cell` `2.0.0`, `cell_flow` `1.1.0`, `cell_tissue` `1.1.0`, and the `cell_flutter` family (`cell_flutter` `1.1.0`; `cell_flutter_persistence`, `cell_flutter_router`, `cell_flutter_lints`, `cell_flutter_audit`, `cell_flutter_devtools` `0.1.0`).
+> ℹ️ These are the stable versions on pub.dev — `mitosis` `3.1.0` together with `cell` `2.1.0`, `cell_flow` `1.2.0`, `cell_tissue` `1.2.0`, and the `cell_flutter` family (`cell_flutter` `1.1.0`; `cell_flutter_persistence`, `cell_flutter_router`, `cell_flutter_lints`, `cell_flutter_audit`, `cell_flutter_devtools` `0.1.0`).
+
+Each layer package ships an official **Agent Skill** for AI coding
+agents — install them with `dart run skills@ get cell`,
+`dart run skills@ get cell_flow`, or `dart run skills@ get cell_tissue`.
+The skill carries the factory/operator/book-picking rules and the
+generated API-chooser matrix, versioned with the package.
 
 The workspace setup below is only needed for contributors working on the framework itself.
 
@@ -503,20 +509,24 @@ dart run example/stability_search_demo.dart
 
 | Package | Version | Status |
 |---|---|---|
-| `mitosis` | `3.0.0` | Stable — on pub.dev |
-| `cell` | `2.0.0` | Stable — on pub.dev (Causal Replay) |
-| `cell_flow` | `1.1.0` | Stable — on pub.dev |
-| `cell_tissue` | `1.1.0` | Stable — on pub.dev |
-| `cell_flutter` | `1.0.0` | Stable — on pub.dev |
+| `mitosis` | `3.1.0` | Stable — on pub.dev |
+| `cell` | `2.1.0` | Stable — on pub.dev (Causal Replay + Pulse serialization) |
+| `cell_flow` | `1.2.0` | Stable — on pub.dev |
+| `cell_tissue` | `1.2.0` | Stable — on pub.dev (Tissue serialization) |
+| `cell_flutter` | `1.1.0` | Stable — on pub.dev |
 | `cell_flutter_persistence` | `0.1.0` | New — on pub.dev |
 | `cell_flutter_router` | `0.1.0` | New — on pub.dev |
 | `cell_flutter_lints` | `0.1.0` | New — on pub.dev |
+| `cell_flutter_audit` | `0.1.0` | New — on pub.dev |
+| `cell_flutter_devtools` | `0.1.0` | New — on pub.dev |
 
-**Mitosis** is the umbrella codename for the release line. It is *not* part of any package's SemVer string. The **stable release line** is `cell` `2.0.0`, `cell_flow` `1.1.0`, `cell_tissue` `1.1.0`, the `cell_flutter` family (`1.0.0` / `0.1.0`), and `mitosis` `3.0.0` — these are the versions `dart pub add` resolves from pub.dev.
+**Mitosis** is the umbrella codename for the release line. It is *not* part of any package's SemVer string. The **stable release line** is `cell` `2.1.0`, `cell_flow` `1.2.0`, `cell_tissue` `1.2.0`, the `cell_flutter` family (`1.1.0` / `0.1.0`), and `mitosis` `3.1.0` — these are the versions `dart pub add` resolves from pub.dev.
 
 **The umbrella version is independent of the Mitose pipeline version.** The Mitose pipeline ([`guide/HowTo-Mitose.md`](guide/HowTo-Mitose.md), currently v2.2) and the `mitosis` package each carry their own SemVer. The umbrella version changes when the umbrella's own contents change — packages added to or removed from the set, re-export changes, or umbrella-level documentation — and the pipeline version changes when the pipeline changes. The two do not track each other: pipeline releases can happen without an umbrella release, and umbrella releases can carry package additions (such as the `cell_flutter` family) that are unrelated to the pipeline.
 
 **Umbrella `3.0.0` (MAJOR).** This release bumps the umbrella's dependency floor to `cell` `2.0.0`. The umbrella's own source is unchanged, but the bump is MAJOR because `mitosis` re-exports `package:cell/cell.dart`: the breaking change in `cell` `2.0.0` — `Cell.asyncMap`, `Cell.fromFuture`, `Cell.fromStream`, `Cell.debounce`, and `Cell.throttle` now require an `EffectJournal` — is therefore a breaking change for `mitosis` consumers who use those re-exported symbols. Code that compiled against `mitosis` `2.2.1` (which resolved `cell` `1.1.x`) will not compile against `3.0.0`. A dependency-floor change that exposes breaking changes through the package's own public surface is a MAJOR bump even when the package itself carries no code changes. This bump is driven by the package set, **not** by the Mitose pipeline.
+
+**Umbrella `3.1.0` (MINOR).** This release bumps the dependency floors to `cell` `2.1.0`, `cell_flow` `1.2.0`, and `cell_tissue` `1.2.0`, and publishes the umbrella against the new package set (including the `cell_flutter` `1.1.0` line and the new audit/devtools companions). The bump is MINOR because everything added since `3.0.0` — pulse serialization, tissue serialization, and the layer packages' Agent Skills — is additive through the umbrella's re-exported surface; no symbol that worked under `3.0.0` changes meaning or disappears. This bump is driven by the package set, **not** by the Mitose pipeline.
 
 ---
 
@@ -541,7 +551,7 @@ Mitosis pays for itself first in systems where the causal trail is a requirement
 
 ## 🧾 Honest Caveats
 
-The stable release line on pub.dev is `mitosis` `3.0.0` with `cell` `2.0.0`, `cell_flow` `1.1.0`, and `cell_tissue` `1.1.0`, plus the Flutter family (`cell_flutter` `1.1.0`; `cell_flutter_persistence`, `cell_flutter_router`, `cell_flutter_lints`, `cell_flutter_audit`, and `cell_flutter_devtools` `0.1.0`). Some things to know before you bet production on it:
+The stable release line on pub.dev is `mitosis` `3.1.0` with `cell` `2.1.0`, `cell_flow` `1.2.0`, and `cell_tissue` `1.2.0`, plus the Flutter family (`cell_flutter` `1.1.0`; `cell_flutter_persistence`, `cell_flutter_router`, `cell_flutter_lints`, `cell_flutter_audit`, and `cell_flutter_devtools` `0.1.0`). Some things to know before you bet production on it:
 
 - **The Mitose pipeline is agentic tooling, not a validated code-generation service** — see [The Mitose Pipeline](#-the-mitose-pipeline). Output quality depends on the model (best to select a model which is built for agentic coding), the uploaded guide files, and the quality of the BRD. Treat every generated BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES as a first draft, and review it against the layer HowTos and live pub.dev APIs before relying on it.
 - **New layers and packages may still appear.** The umbrella keeps growing: the `cell_flutter` family shipped in the `2.0.0` line, and repository-private members (`cell_mind`, …) carry their own pre-release or unpublished status. The umbrella version moves with the package set, not with the Mitose pipeline.

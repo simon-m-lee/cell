@@ -1,15 +1,36 @@
 # Changelog
 
-## Unreleased — Audit & DevTools ecosystem (→ 3.1.0)
+## Mitosis (3.1.0) - Serialization, Agent Skills & Flutter Audit
 
 > **Package-set and adoption-artifact update — family published
 > 2026-11-22.** This entry records the additions since `3.0.0`: two new
 > Flutter-family packages, their companion source package, the live
-> adoption artifacts, and the `cell_flutter` `1.1.0` line. Per the
+> adoption artifacts, the `cell_flutter` `1.1.0` line, and the Dart-layer
+> releases below. Per the
 > policy recorded in the `3.0.0` entry, the umbrella version moves with
 > the package set and the umbrella-level docs — these are additive
 > changes, so the umbrella bump is **MINOR (3.0.0 → 3.1.0)**, applied
-> when the umbrella itself is next published.
+> now that the umbrella itself is published.
+
+- **`cell` `2.1.0`** (published 2026-11-22) — Pulse Serialization &
+  Reconstruction: the user-facing wire codec (`Pulse.toJson` /
+  `Pulse.fromJson`, `encodePulse` / `decodePulse`, strict and lenient
+  modes, override sentinels, typed errors), the official package skill
+  `skills/cell-core/`, and the `asyncMap` benchmark regression budgets.
+- **`cell_flow` `1.2.0`** (published 2026-11-22) — the official package
+  skill `skills/cell-flow-operators/` and the generated API-chooser
+  matrix shipping inside the skill; no operator API changes.
+- **`cell_tissue` `1.2.0`** (published 2026-11-22) — Serialization &
+  Reconstruction: the two-mode tissue codec (`encodeTissue` /
+  `decodeTissue`, per-shape `fromJson` factories, `toJson` extensions,
+  seven override sentinels, resolver contracts, lenient mode), the
+  `Container.finalValue` bug fix, and the official package skill
+  `skills/cell-tissue-collections/`.
+- **Dependency floors**: `cell: ^2.1.0`, `cell_flow: ^1.2.0`,
+  `cell_tissue: ^1.2.0` — the umbrella re-exports all three layers, so
+  the new pulse/tissue serialization APIs are available through
+  `package:mitosis/mitosis.dart`. Consumers install each layer's agent
+  skill with `dart run skills@ get <package>`.
 
 - **`cell_flutter_audit` `0.1.0`** — the audit trail UI for the
   `ApplyReceipt` ledger: `AuditTrailView` (receipt timeline with
