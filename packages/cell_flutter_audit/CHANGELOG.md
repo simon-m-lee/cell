@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.3
+
+- Suppress the material_ui deprecation hints on the three
+  `package:flutter/material.dart` imports (with a documented reason):
+  pub.dev's analyzer evaluates against the newest Flutter, where
+  material.dart is deprecated from 3.47 — these INFO findings cost the
+  last 10 static-analysis points.
+
 ## 0.1.2
 
 - Declare the `flutter: '>=3.24.0'` environment floor (matching

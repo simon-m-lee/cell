@@ -1,4 +1,10 @@
 // Styling knobs for the audit widgets.
+//
+// `package:flutter/material.dart` is deprecated from Flutter 3.47 onwards
+// (material_ui migration). This package supports Flutter >= 3.24, where
+// material.dart is the correct import, so the analyzer hints raised by
+// pub.dev's newest-SDK analysis are intentionally ignored here.
+// ignore_for_file: deprecated_member_use, deprecated_import
 library;
 
 import 'package:flutter/material.dart';

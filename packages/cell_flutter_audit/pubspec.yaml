@@ -1,6 +1,6 @@
 name: cell_flutter_audit
 description: "Audit trail widgets for cell_flutter: render ApplyReceipt ledgers as a filterable, exportable timeline."
-version: 0.1.2
+version: 0.1.3
 homepage: https://github.com/simon-m-lee/cell
 environment:
   sdk: '>=3.5.0 <4.0.0'
