@@ -1,13 +1,17 @@
 name: cell_flutter_lints
 description: Custom lint rules that guard the anti-patterns the cell_flutter docs warn about.
-version: 0.1.0
+version: 0.1.1
 homepage: https://github.com/simon-m-lee/cell
 environment:
   sdk: '>=3.5.0 <4.0.0'
 
 dependencies:
   custom_lint_builder: ^0.8.0
-  analyzer: ^8.4.0
+  # custom_lint_builder 0.8 pins the resolved analyzer to 8.4.x through
+  # custom_lint_visitor; the wide range keeps the pub.dev score check
+  # ("dependencies supported in the latest version") satisfied while
+  # real resolution still picks the analyzer the visitor needs.
+  analyzer: '>=8.4.0 <15.0.0'
 
 dev_dependencies:
   custom_lint: ^0.8.0
