@@ -82,10 +82,6 @@ The umbrella ships additional packages alongside the three layers:
 | [**cell_flutter_devtools**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_devtools) | `0.1.0` | DevTools extension: the live `ApplyReceipt` ledger as a filterable timeline inside Flutter DevTools. |
 | [**cell_flutter_lints**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_lints) | `0.1.0` | Custom lint rules guarding the `cell_flutter` anti-patterns. |
 
-The `packages/mitose_flutter/` package (Flutter Mitose-pipeline tooling,
-`publish_to: none`) is **repository-private** — kept out of version
-control, not on GitHub or pub.dev.
-
 > 🌱 **Still dividing.** Like the biological process it is named after, Mitosis keeps growing. These layers are the foundation — more layers will come online as the ecosystem matures.
 
 ---
