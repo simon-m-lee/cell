@@ -80,10 +80,7 @@ The umbrella ships additional packages alongside the three layers:
 | [**cell_flutter_router**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_router) | `0.1.0` | `go_router` bridge: route state as a reactive cell (`CellRouterState`, `CellRouterStateMirror`, `CellRouterScope`, `useCellRouter`). |
 | [**cell_flutter_audit**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_audit) | `0.1.0` | Audit trail UI for the `ApplyReceipt` ledger: `AuditTrailView`, `AuditTrailController`, `AuditTrailExporter`, `AuditEntryTile`. |
 | [**cell_flutter_devtools**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_devtools) | `0.1.0` | DevTools extension: the live `ApplyReceipt` ledger as a filterable timeline inside Flutter DevTools. |
-| `cell_flutter_devtools_extension` | `0.1.0` | The DevTools extension web app *source* (`publish_to: none`) — compiled into `cell_flutter_devtools/extension/devtools/build/`. |
 | [**cell_flutter_lints**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_lints) | `0.1.0` | Custom lint rules guarding the `cell_flutter` anti-patterns. |
-| `cell_mind` | `1.1.0` | Workspace member, repository-private work in progress — kept out of version control; not on GitHub or pub.dev. |
-| `cell_organ` | `1.0.0` | Workspace-private package (`publish_to: none`). Not part of the published set. |
 
 The `packages/mitose_flutter/` package (Flutter Mitose-pipeline tooling,
 `publish_to: none`) is **repository-private** — kept out of version
