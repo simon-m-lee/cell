@@ -121,9 +121,9 @@ the receiving type statically.</p>
   &#47;&#47; encode(decode(x)) == encode(x)): a system context round-trips to
   &#47;&#47; `null` storage and the pulse stays ungoverned.
   final effectiveContext = canonicalJsonEncode(
-        PulseContextCodec.toJson(context),
-      ) ==
-      canonicalJsonEncode(PulseContextCodec.toJson(PulseContext.system))
+            PulseContextCodec.toJson(context),
+          ) ==
+          canonicalJsonEncode(PulseContextCodec.toJson(PulseContext.system))
       ? null
       : context;
 

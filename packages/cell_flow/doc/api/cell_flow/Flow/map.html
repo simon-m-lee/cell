@@ -139,7 +139,7 @@ input.emit(7);  // -&gt; 14
 <p><strong>Layer:</strong> Flow — projection operator (Rx <code>map</code>). Not a Cell factory, not a Tissue book.
 <strong>When to use:</strong> project a payload on a stock chain; the facade over <code>MapValue</code>.
 <strong>When NOT to use:</strong> the rich-<code>*Decision</code> → seam-enum projection on a Cell-variant chain — use the <code>MapValue</code> class so it can join <code>+</code> chains.
-<strong>Live signature:</strong> <code>Flow.map&lt;S, T&gt;(Cell source, {required T Function(S value) project, MapErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.1.0</code>
+<strong>Live signature:</strong> <code>Flow.map&lt;S, T&gt;(Cell source, {required T Function(S value) project, MapErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.2.0</code>
 <strong>Do NOT confuse with:</strong> <code>MapValue</code> (the chain class) and <code>Map</code> (dart:core data structure).
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.2 "Transform" (#flow-transform)
 <strong>Example:</strong> <code>example/cell_flow_example.dart</code>
@@ -191,7 +191,7 @@ o.stop();
 <footer>
   <span class="no-break">
     cell_flow
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

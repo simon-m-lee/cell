@@ -79,8 +79,8 @@ if the entry should be removed.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; removeWhere(bool Function(K key, V value) predicate) {
-  return Future&lt;void&gt;(() =&gt; _tissue.removeWhere(predicate));
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; removeWhere(bool Function(K key, V value) predicate) async {
+  await _runTissueMutation(_tissue, _tissue.removeWhere, [predicate]);
 }</code></pre>
 </section>
 
@@ -109,7 +109,7 @@ if the entry should be removed.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

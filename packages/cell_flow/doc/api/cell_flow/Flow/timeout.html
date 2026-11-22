@@ -123,7 +123,7 @@ final handle = Flow.timeout&lt;String&gt;(
 <p><strong>Layer:</strong> Flow — time operator. Not a Cell factory, not a Tissue book.
 <strong>When to use:</strong> "raise if stopped &gt; 60 s" style deadlines on an adjacent I/O cell — emits an error pulse if silence exceeds the duration.
 <strong>When NOT to use:</strong> ACK-within-N-minutes journeys in v1 (that is a tick-field / clock concern, not a chain operator); never as the policy gate.
-<strong>Live signature:</strong> <code>Flow.timeout&lt;S&gt;(Cell source, {required Duration duration, TimeoutErrorHandler? onError, bool emitErrorPulse = true})</code> — pinned at <code>cell_flow: 1.1.0</code>
+<strong>Live signature:</strong> <code>Flow.timeout&lt;S&gt;(Cell source, {required Duration duration, TimeoutErrorHandler? onError, bool emitErrorPulse = true})</code> — pinned at <code>cell_flow: 1.2.0</code>
 <strong>Do NOT confuse with:</strong> <code>Flow.timeoutWithFallback</code> (emits a fallback value instead of an error pulse).
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.6 "Time" (#flow-time)
 <strong>Example:</strong> <code>example/retry_timeout_flaky_network_demo.dart</code>
@@ -181,7 +181,7 @@ o.stop();
 <footer>
   <span class="no-break">
     cell_flow
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

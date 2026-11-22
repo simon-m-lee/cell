@@ -77,7 +77,13 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;V?&gt; remove(Object? key) =&gt; Future&lt;V?&gt;(() =&gt; _tissue.remove(key));</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;V?&gt; remove(Object? key) async {
+  final outcome = await _runTissueMutation(_tissue, _tissue.remove, [key]);
+  if (outcome is ApplyRejected&lt;dynamic&gt;) {
+    return null;
+  }
+  return (outcome as ApplyAccepted&lt;dynamic&gt;).result as V?;
+}</code></pre>
 </section>
 
 

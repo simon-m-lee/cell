@@ -58,6 +58,7 @@
 <span class="name ">dispatch</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="dispatch-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span></li>
 <li><span class="parameter" id="dispatch-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span></li>
 <li><span class="parameter" id="dispatch-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span></li>
+<li><span class="parameter" id="dispatch-param-sync"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">sync</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
 
       
@@ -79,26 +80,35 @@ directly, mirroring the retired dynamic gateway.</p>
   Function function, {
   List? positionalArguments,
   Map&lt;Symbol, dynamic&gt;? namedArguments,
+  bool sync = false,
 }) {
   &#47;&#47; Aligned with the other tissue mixins: only whitelisted functions
   &#47;&#47; execute. Unmodifiable views expose an empty whitelist, so unknown
   &#47;&#47; functions are rejected instead of running unvetted.
   if (modifiable.contains(function)) {
     try {
-      if (validate.action(function, host: this, arguments: (
-            positionalArguments: positionalArguments,
-            namedArguments: namedArguments
-          )) ==
-          true) {
-        final notification = namedArguments?[#$notification] ?? true;
-        final deputy = namedArguments?[#deputy];
+      return _permit(
+        validate.action(function, host: this, arguments: (
+          positionalArguments: positionalArguments,
+          namedArguments: namedArguments
+        )),
+        () {
+          final notification = namedArguments?[#$notification] ?? true;
+          final deputy = namedArguments?[#deputy];
 
-        if (function == set) {
-          return Function.apply(_set, positionalArguments,
-              {#notification: notification, #deputy: deputy});
-        }
+          if (function == set) {
+            return Function.apply(_set, positionalArguments,
+                {#notification: notification, #deputy: deputy, #sync: sync});
+          }
+          return null;
+        },
+        sync: sync,
+      );
+    } catch (e) {
+      if (e is StateError || e is _AsyncRuleOnSyncPath) {
+        rethrow;
       }
-    } catch (_) {}
+    }
   }
   return null;
 }</code></pre>

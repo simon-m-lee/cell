@@ -71,8 +71,9 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; removeRange(int start, int end) =&gt;
-    Future&lt;void&gt;(() =&gt; _tissue.removeRange(start, end));</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; removeRange(int start, int end) async {
+  await _runTissueMutation(_tissue, _tissue.removeRange, [start, end]);
+}</code></pre>
 </section>
 
 

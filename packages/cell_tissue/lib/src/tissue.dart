@@ -108,7 +108,7 @@ part of '../cell_tissue.dart';
 /// **Layer:** Tissue — the governed-book interface. Not a Cell factory, not a Flow operator.
 /// **When to use:** the shared surface of `TissueList` / `TissueSet` / `TissueMap` / `TissueQueue` / `TissueValue` — every book is a Cell under the hood with its own lock and collection pulses.
 /// **When NOT to use:** as a book directly — pick one of the five concrete types; a plain Dart `List` is not a book.
-/// **Live signature:** `abstract interface class Tissue<E> implements Cell, Iterable<E>` — pinned at `cell_tissue: 1.1.0`
+/// **Live signature:** `abstract interface class Tissue<E> implements Cell, Iterable<E>` — pinned at `cell_tissue: 1.2.0`
 /// **Do NOT confuse with:** `Cell` (graph node; Tissue adds collection semantics and `TestTissue`).
 /// **Guide:** `HowTo-Mitose-Tissue.md` §2 "Examine all five collections against the BRD" (#tissue-catalog)
 /// **Example:** `example/cell_tissue_example.dart`
@@ -673,7 +673,7 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
 /// **Layer:** Tissue — the read-only book surface. Not a Cell factory, not a Flow operator.
 /// **When to use:** COMPLY / council views — `book.unmodifiable` is a **live** zero-copy view, not a snapshot; use `.deputy(testRule: …)` for a narrowed write set.
 /// **When NOT to use:** a daily PDF roll-up (that is a harness **read**, not a view); never keep two books "for compliance".
-/// **Live signature:** `abstract interface class UnmodifiableTissue<E> implements Tissue<E>, Unmodifiable` — pinned at `cell_tissue: 1.1.0`
+/// **Live signature:** `abstract interface class UnmodifiableTissue<E> implements Tissue<E>, Unmodifiable` — pinned at `cell_tissue: 1.2.0`
 /// **Do NOT confuse with:** `Tissue` itself (the writable book; this is its read-only surface).
 /// **Guide:** `HowTo-Mitose-Tissue.md` §4 "Deputies and .unmodifiable" (#tissue-deputies)
 /// **Example:** `example/cell_tissue_example.dart`

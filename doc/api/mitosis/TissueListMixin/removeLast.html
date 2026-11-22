@@ -78,7 +78,7 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 E removeLast() {
-  final result = dispatch(removeLast);
+  final result = dispatch(removeLast, sync: true);
   if (result == null) {
     throw UnsupportedError(&#39;Unmodifiable operation&#39;);
   }

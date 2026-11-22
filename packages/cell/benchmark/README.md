@@ -46,7 +46,8 @@ dart run benchmark/runner.dart --out current.json --runs 3 --retries 1
 dart run benchmark/compare.dart \
   --baseline benchmark/baseline.json \
   --current current.json \
-  --max-regression 0.15
+  --max-regression 0.15 \
+  --budgets benchmark/regression-budgets.json
 
 # Memory benchmarks need the VM service
 dart run --observe benchmark/memory/per_cell_footprint.dart
@@ -158,6 +159,15 @@ To re-baseline (also required whenever the CI image or Dart SDK changes):
    `packages/{cell,cell_tissue,cell_flow}/benchmark/` (and the research
    suite baseline into `packages/cell_tissue/benchmark/tissue/`), then
    commit them. The artifact also records the Dart SDK version used.
+
+`benchmark/regression-budgets.json` overrides the three-tier gate per
+benchmark. The `asyncMap` family is listed there at 1.0 (100%): its
+measurement is dominated by `await Future.delayed(Duration.zero)`
+event-loop spins, which swing far more than the default 15-50% tiers
+between runner machines without any framework change. The CI gate passes
+`--budgets benchmark/regression-budgets.json`; keep the entries in sync
+when benchmark names change, and revisit the 1.0 allowances when the
+baseline is refreshed.
 
 For local experiments only (numbers will differ from CI):
 

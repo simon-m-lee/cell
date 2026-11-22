@@ -63,7 +63,6 @@
     
 <section class="desc markdown">
   <p>Asynchronously removes all elements from the associated <a href="../../cell_tissue/TissueQueue-class.html">TissueQueue</a>.</p>
-<p>This method wraps the synchronous <code>_tissue.clear()</code> call in a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>.</p>
 <h3 id="returns">Returns:</h3>
 <p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;void&gt;</a> that completes after the clear operation on the
   underlying queue (including any reactive updates) has finished.</p>
@@ -74,7 +73,7 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; clear() async {
-  return Future&lt;void&gt;(() =&gt; _tissue.clear());
+  await _runTissueMutation(_tissue, _tissue.clear);
 }</code></pre>
 </section>
 
@@ -103,7 +102,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

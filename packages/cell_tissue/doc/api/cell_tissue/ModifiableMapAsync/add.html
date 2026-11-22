@@ -80,8 +80,10 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;bool&gt; add(K key, V value) {
-  return Future&lt;bool&gt;(() =&gt; _tissue.add(key, value));
+  <pre class="language-dart"><code class="language-dart">Future&lt;bool&gt; add(K key, V value) async {
+  final outcome =
+      await _runTissueMutation(_tissue, _tissue.add, [key, value]);
+  return outcome is ApplyAccepted&lt;dynamic&gt;;
 }</code></pre>
 </section>
 
@@ -110,7 +112,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

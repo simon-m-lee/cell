@@ -457,7 +457,7 @@ class _ReplayCellRegistry {
 /// honest wire representation.
 ///
 /// ### When to use
-/// Catch it around [Pulse.toJson] / [encodePulse] and either strip the
+/// Catch it around `Pulse.toJson` / `encodePulse` and either strip the
 /// offending field or log the rejection — never silently drop it.
 ///
 /// ### How it works

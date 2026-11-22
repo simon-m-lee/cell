@@ -87,7 +87,8 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 void setRange(int start, int end, Iterable&lt;E&gt; iterable, [int skipCount = 0]) {
-  dispatch(setRange, positionalArguments: [start, end, iterable, skipCount]);
+  dispatch(setRange,
+      positionalArguments: [start, end, iterable, skipCount], sync: true);
 }</code></pre>
 </section>
 

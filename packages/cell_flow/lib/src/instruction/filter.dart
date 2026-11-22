@@ -162,7 +162,7 @@ Pulse<S> _fromPayload<S>(S value, Pulse sourcePulse, Cell? cell, String step) {
 /// **Layer:** Flow — predicate operator (Rx `filter`). Not a Cell factory, not a Tissue book.
 /// **When to use:** drop `none` / keep only `atRisk` on a stock chain, or a single-predicate pass before `MapValue`.
 /// **When NOT to use:** clause-ordered policy with a resettable latch — that is a custom `FlowInstructionBase` (stock `Filter` has no `reset()`).
-/// **Live signature:** `Filter<S>(bool Function(S value) test, {FilterErrorHandler? onError, dynamic user})` — pinned at `cell_flow: 1.1.0`
+/// **Live signature:** `Filter<S>(bool Function(S value) test, {FilterErrorHandler? onError, dynamic user})` — pinned at `cell_flow: 1.2.0`
 /// **Do NOT confuse with:** `Cell.valve` (Cell-layer pulse gate; this is a chain instruction).
 /// **Guide:** `HowTo-Mitose-Flow.md` §3.3 "Filter / take / skip" (#flow-filter-take-skip)
 /// **Example:** `example/filter_data_quality_demo.dart`

@@ -246,9 +246,10 @@ final remoteValidated = TestTissue<String, TissueList<String>>(
 
 **For AI agents:**
 
-1. When a rule returns a `Future<bool>`, the mutation suspends until the future resolves.
-2. The Tissue's lock is **held** during the suspension. Keep async rules short.
-3. If the future resolves to `false`, the mutation is rejected atomically.
+1. When a rule returns a `Future<bool>`, the mutation suspends until the future resolves. Await it through the `.async` facade (`await list.async.add(x)`) or the command gateway (`await list.apply(...)`) — both complete only after the rule has decided and the mutation was applied or rejected.
+2. The **synchronous** mutation surface (`list.add(x)`, `map.put(...)`, `value.set(...)`, …) cannot await a rule: an asynchronous verdict throws `UnsupportedError` telling the caller to use the `.async` facade. Never call a synchronous mutation on a Tissue governed by an async rule expecting a silent reject.
+3. If the future resolves to `false`, the mutation is rejected atomically (the collection is unchanged and the `.async` future completes normally).
+4. The Tissue's lock is **held** during the suspension. Keep async rules short.
 
 ⚠️ **Failure mode:** Long-running async rules can cause lock contention. If you need to validate asynchronously, consider validating outside the Tissue and passing an already-validated value.
 
@@ -996,7 +997,164 @@ Future<void> increment(TissueValue<int> counter) async {
 
 ---
 
-## 13. References
+## 13. Serializing a tissue
+
+The package ships a two-mode JSON codec for every collection shape:
+`encodeTissue` / `decodeTissue` plus a `fromJson` factory and a `toJson`
+extension on each of the five concrete interfaces.
+
+### The two idioms
+
+```dart
+// Encode — strict by default.
+final json = list.toJson(); // or encodeTissue(list)
+
+// Decode — Cell elements and binds re-link through a resolver.
+final list = TissueList<int>.fromJson(
+  json,
+  cellResolver: (id) => registry[id],
+  governanceResolver: (tag) => rules[tag],
+);
+```
+
+### Per-shape round-trip table
+
+| Shape | Round-trips | Notes |
+|---|---|---|
+| `TissueList` | ✅ elements, order, `growableTrue` / `growableFalse` | `Cell` elements encode as `{"__cell__": id}` |
+| `TissueSet` | ✅ elements, insertion order, uniqueness, `set` / `identitySet` | Identity uniqueness survives via resolvers |
+| `TissueMap` | ✅ entries, `map` / `identityMap` | String keys use the object form; other keys the `[[k, v], ...]` array form; unresolved `Cell` keys throw in strict mode |
+| `TissueQueue` | ✅ elements, `capacity` | `-1` is omitted; `0` is explicit |
+| `TissueValue` | ✅ value (including `null`), `value` / `finalValue` | Write-once preserved |
+
+### The governance serialization contract
+
+The wire encodes **tags, never functions**: `allowAll`, `readOnly`, or
+`registered:<key>`. Register named rules in-process with
+`TissueGovernanceRegistry.register` (encode and decode resolve the tag), or
+pass a `TissueGovernanceResolver` on decode. Anonymous and composite
+unregistered rules fail strictly.
+
+Only `TissueReceptor.passThrough` is serializable — a custom receptor is a
+mutation-pipeline behaviour, not a validation policy. `EphemeralPolicy`
+closures never serialize.
+
+### The deputy / unmodifiable limit
+
+Serializing a `deputy` or an `.unmodifiable` view produces a **standalone
+tissue with equivalent governance**, never a live deputy relationship.
+Lock sharing is a per-process optimisation and is not encoded. An
+unmodifiable view encodes as a `readOnly` tissue.
+
+### The two resolvers
+
+* `TissueCellResolver` (`Cell? Function(String id)`) — elements, Map keys,
+  and `bind`.
+* `TissueGovernanceResolver` (`TestTissue? Function(String tag)`) —
+  `registered:` tags.
+
+The null paths are deliberately asymmetric. An unresolved **cell element**
+becomes `null` (List/Set/Queue/Value) — a data gap. An unresolved
+**governance tag** throws in strict mode and degrades to the fail-closed
+`readOnly` rule in lenient mode — never a wider permission.
+
+### The extended factory overrides
+
+Every `fromJson` factory accepts `testRule`, `context`, `bind`, `container`,
+`user`, and the shape payload (`elements` / `entries` / `value`), plus
+`capacity` (Queue) and `identity` (Set/Map). Overrides always win and are
+never counted as skipped. Seven `const` sentinels disambiguate "no
+override" from "explicitly reset to the default": `tissueNullTestRule`,
+`tissueNullBind`, `tissueNullContainer`, `tissueNullUser`,
+`tissueNullElements`, `tissueNullCapacity`, `tissueNullValue`.
+
+`tissueNullTestRule` explicitly widens to `TestTissue.allowAll` — "I want
+no validation". This is **not** the lenient fallback.
+
+### When to use lenient mode
+
+**What it does.** `lenient: true` suppresses `TissueNotSerializable` /
+`TissueDecodeError` where the document structure is sound, substitutes a
+safe default for each non-serializable field, and records every
+substitution in a sorted `__skipped__` array on the wire.
+
+**The encode substitution table.**
+
+| Field | Strict | Lenient substitution |
+|---|---|---|
+| `receptor` | throw | `passThrough` |
+| `policy` | throw | dropped |
+| `testRule` | throw | `lenientFallbackTestRule` (default `readOnly`) |
+| `container` | throw | framework default per kind |
+| `context` | throw | `Context.system` |
+| `bind` | throw | `null` |
+| `user` | throw | `null` |
+| element (`Cell` / non-JSON) | throw | element dropped |
+| Map key/value | throw | entry dropped |
+
+**The decode substitution table.** Lenient mode resolves *reference gaps*:
+an unresolved `registered:` tag falls back to `lenientFallbackTestRule`;
+an unresolved Map key/value drops the entry; an unresolved List/Set/Queue/
+Value cell becomes `null`. It does **not** suppress structural corruption —
+an unknown `__tissue__` version, an unknown `kind`, or malformed
+`elements` still throws. A partial result from a corrupt document would be
+fabricated, not partial.
+
+**The fail-closed default.** `lenientFallbackTestRule` defaults to
+`TestTissue.readOnly`. The caller who wants the wider permission must ask
+for it by name:
+
+```dart
+final json = list.toJson(
+  lenient: true,
+  lenientFallbackTestRule: TestTissue.allowAll, // explicit risk acceptance
+);
+```
+
+**The `__skipped__` contract.** Present iff a substitution occurred,
+sorted lexicographically, and absent from strict encodings. On decode the
+information surfaces through the `onSkipped` callback and through
+`tissue.skippedReport` (`{'wire': [...], 'decode': [...]}`) — `wire` lists
+what the encoder substituted, `decode` what this decode could not resolve.
+A lenient encode with nothing to skip is byte-identical to the strict
+encode; a lenient encode → decode → re-encode is byte-identical when the
+decode skipped nothing new.
+
+**What lenient does NOT suppress.** Version mismatch, unknown kind,
+malformed elements — those throw in both modes.
+
+**The two legitimate cases.** Diagnostic export (record what was lost) and
+best-effort migration (obtain a usable artifact now). Prefer strict mode
+for anything that feeds a ledger.
+
+**The naming note.** If a prior API called this flag `ignoreException`, it
+is our `lenient` — the name describes the semantics (tolerant
+encoding/decoding), not the implementation.
+
+### The asymmetry
+
+`fromJson(toJson(t))` reproduces `t` to codec precision. The reverse is not
+guaranteed: `toJson(fromJson(nonCanonical))` produces the canonical form.
+Override asymmetry is explicit: `fromJson(json, elements: []).toJson()`
+emits `[]` regardless of the record.
+
+### The `EphemeralPolicy` gap
+
+An `EphemeralPolicy` carries closures; reconstructing it needs a
+closure-factory registry, which is a separate concern (same as the Pulse
+layer). Strict mode throws; lenient mode drops the policy and records
+`'policy'` in `__skipped__`.
+
+### The `TissuePulse` relationship
+
+Tissue serialization captures **state + governance**; Pulse serialization
+captures the **event stream**. Recorded runs compose the two: a tissue
+snapshot establishes the initial book, and replayed pulses reproduce its
+evolution.
+
+---
+
+## 14. References
 
 | Document | Purpose |
 |---|---|

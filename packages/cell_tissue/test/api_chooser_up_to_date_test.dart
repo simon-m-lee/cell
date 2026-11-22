@@ -24,4 +24,13 @@ void main() {
     expect(file.readAsStringSync(), expected,
         reason: 'Run: dart run tool/generate_api_chooser.dart');
   });
+
+  test('skill references/api_chooser.md is generated and up to date', () {
+    final blocks = parseAllBlocks('lib');
+    final expected = generateApiChooserMarkdown(blocks);
+    final file = File(skillApiChooserPath);
+    expect(file.existsSync(), isTrue, reason: 'skill api_chooser.md missing');
+    expect(file.readAsStringSync(), expected,
+        reason: 'Run: dart run tool/generate_api_chooser.dart');
+  });
 }

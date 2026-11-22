@@ -1391,6 +1391,15 @@ change events emitted by a <a href="../mitosis/Tissue-class.html">Tissue</a> col
 receiver to authenticate itself before the event's payload is revealed.
 </dd>
 
+          <dt id="TissueGovernanceRegistry">
+  <span class="name "><a href="../mitosis/TissueGovernanceRegistry-class.html">TissueGovernanceRegistry</a></span> 
+
+</dt>
+<dd>
+  An in-process registry mapping governance tags (<code>registered:&lt;key&gt;</code>) to
+<a href="../mitosis/TestTissue-class.html">TestTissue</a> instances.
+</dd>
+
           <dt id="TissueList">
   <span class="name "><a href="../mitosis/TissueList-class.html">TissueList</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
 
@@ -2485,6 +2494,16 @@ ledger's <code>verify()</code> to pass.
   Fluent extensions for collections of <a href="../mitosis/Pulse-class.html">Pulse</a> objects.
 </dd>
 
+          <dt id="PulseJson">
+  <span class="name "><a href="../mitosis/PulseJson.html">PulseJson</a></span>
+  on <a href="../mitosis/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span>
+  
+
+</dt>
+<dd>
+  Encodes this pulse to its canonical JSON wire form via <a href="../mitosis/encodePulse.html">encodePulse</a>.
+</dd>
+
           <dt id="ReplayEngineFork">
   <span class="name "><a href="../mitosis/ReplayEngineFork.html">ReplayEngineFork</a></span>
   on <a href="../mitosis/ReplayEngine-class.html">ReplayEngine</a>
@@ -2506,12 +2525,225 @@ applying a <a href="../mitosis/Mutation.html">Mutation</a> to each entry.
   Extension on <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> to provide synchronous execution when possible
 </dd>
 
+          <dt id="TissueListJson">
+  <span class="name "><a href="../mitosis/TissueListJson.html">TissueListJson</a></span>
+  on <a href="../mitosis/TissueList-class.html">TissueList</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>
+  
+
+</dt>
+<dd>
+  JSON serialisation surface for <a href="../mitosis/TissueList-class.html">TissueList</a>.
+</dd>
+
+          <dt id="TissueMapJson">
+  <span class="name "><a href="../mitosis/TissueMapJson.html">TissueMapJson</a></span>
+  on <a href="../mitosis/TissueMap-class.html">TissueMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span>
+  
+
+</dt>
+<dd>
+  JSON serialisation surface for <a href="../mitosis/TissueMap-class.html">TissueMap</a>.
+</dd>
+
+          <dt id="TissueQueueJson">
+  <span class="name "><a href="../mitosis/TissueQueueJson.html">TissueQueueJson</a></span>
+  on <a href="../mitosis/TissueQueue-class.html">TissueQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>
+  
+
+</dt>
+<dd>
+  JSON serialisation surface for <a href="../mitosis/TissueQueue-class.html">TissueQueue</a>.
+</dd>
+
+          <dt id="TissueSetJson">
+  <span class="name "><a href="../mitosis/TissueSetJson.html">TissueSetJson</a></span>
+  on <a href="../mitosis/TissueSet-class.html">TissueSet</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>
+  
+
+</dt>
+<dd>
+  JSON serialisation surface for <a href="../mitosis/TissueSet-class.html">TissueSet</a>.
+</dd>
+
+          <dt id="TissueSkippedReport">
+  <span class="name "><a href="../mitosis/TissueSkippedReport.html">TissueSkippedReport</a></span>
+  on <a href="../mitosis/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>
+  
+
+</dt>
+<dd>
+  The skip metadata recorded on a decoded tissue.
+</dd>
+
+          <dt id="TissueValueJson">
+  <span class="name "><a href="../mitosis/TissueValueJson.html">TissueValueJson</a></span>
+  on <a href="../mitosis/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span>
+  
+
+</dt>
+<dd>
+  JSON serialisation surface for <a href="../mitosis/TissueValue-class.html">TissueValue</a>.
+</dd>
+
       </dl>
     </section>
 
     <section class="summary offset-anchor" id="constants">
       <h2>Constants</h2>
       <dl class="properties">
+          <dt id="pulseNullPayload" class="constant">
+    <span class="name "><a href="../mitosis/pulseNullPayload-constant.html">pulseNullPayload</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>
+  
+
+</dt>
+<dd>
+  Explicitly override <code>payload</code> to <code>null</code> in <a href="../mitosis/Pulse/Pulse.fromJson.html">Pulse.fromJson</a>.
+  
+
+</dd>
+
+          <dt id="pulseNullPolicy" class="constant">
+    <span class="name "><a href="../mitosis/pulseNullPolicy-constant.html">pulseNullPolicy</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>
+  
+
+</dt>
+<dd>
+  Explicitly override <code>policy</code> to <code>null</code> in <a href="../mitosis/Pulse/Pulse.fromJson.html">Pulse.fromJson</a>.
+  
+
+</dd>
+
+          <dt id="pulseNullSource" class="constant">
+    <span class="name "><a href="../mitosis/pulseNullSource-constant.html">pulseNullSource</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>
+  
+
+</dt>
+<dd>
+  Explicitly override <code>source</code> to <code>null</code> in <a href="../mitosis/Pulse/Pulse.fromJson.html">Pulse.fromJson</a>.
+  
+
+</dd>
+
+          <dt id="pulseNullStep" class="constant">
+    <span class="name "><a href="../mitosis/pulseNullStep-constant.html">pulseNullStep</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>
+  
+
+</dt>
+<dd>
+  Explicitly override <code>step</code> to <code>null</code> in <a href="../mitosis/Pulse/Pulse.fromJson.html">Pulse.fromJson</a>.
+  
+
+</dd>
+
+          <dt id="pulseNullType" class="constant">
+    <span class="name "><a href="../mitosis/pulseNullType-constant.html">pulseNullType</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>
+  
+
+</dt>
+<dd>
+  Explicitly override <code>type</code> to <code>null</code> in <a href="../mitosis/Pulse/Pulse.fromJson.html">Pulse.fromJson</a>.
+  
+
+</dd>
+
+          <dt id="tissueNullBind" class="constant">
+    <span class="name "><a href="../mitosis/tissueNullBind-constant.html">tissueNullBind</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>
+  
+
+</dt>
+<dd>
+  The <strong>Explicit Null Bind Sentinel</strong> for the <code>TissueXxx.fromJson</code> override
+surface. Passing it strips the upstream bind (<code>bind: null</code>).
+  
+
+</dd>
+
+          <dt id="tissueNullCapacity" class="constant">
+    <span class="name "><a href="../mitosis/tissueNullCapacity-constant.html">tissueNullCapacity</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>
+  
+
+</dt>
+<dd>
+  The <strong>Explicit Null Capacity Sentinel</strong> for <code>TissueQueue.fromJson</code>.
+Passing it reconstructs an unlimited queue (<code>capacity: -1</code>).
+  
+
+</dd>
+
+          <dt id="tissueNullContainer" class="constant">
+    <span class="name "><a href="../mitosis/tissueNullContainer-constant.html">tissueNullContainer</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>
+  
+
+</dt>
+<dd>
+  The <strong>Explicit Null Container Sentinel</strong> for the <code>TissueXxx.fromJson</code>
+override surface. Passing it selects the framework default container for
+the collection kind (e.g. <a href="../mitosis/Container/growableTrue-constant.html">Container.growableTrue</a> for a list).
+  
+
+</dd>
+
+          <dt id="tissueNullElements" class="constant">
+    <span class="name "><a href="../mitosis/tissueNullElements-constant.html">tissueNullElements</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>
+  
+
+</dt>
+<dd>
+  The <strong>Explicit Null Elements Sentinel</strong> for the <code>TissueXxx.fromJson</code>
+override surface. Passing it reconstructs an empty collection
+(<code>[]</code> for List/Set/Queue, <code>{}</code> for Map).
+  
+
+</dd>
+
+          <dt id="tissueNullTestRule" class="constant">
+    <span class="name "><a href="../mitosis/tissueNullTestRule-constant.html">tissueNullTestRule</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>
+  
+
+</dt>
+<dd>
+  The <strong>Explicit Null Test‑Rule Sentinel</strong> for the <code>TissueXxx.fromJson</code>
+override surface.
+  
+
+</dd>
+
+          <dt id="tissueNullUser" class="constant">
+    <span class="name "><a href="../mitosis/tissueNullUser-constant.html">tissueNullUser</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>
+  
+
+</dt>
+<dd>
+  The <strong>Explicit Null User Sentinel</strong> for the <code>TissueXxx.fromJson</code> override
+surface. Passing it strips custom metadata (<code>user: null</code>).
+  
+
+</dd>
+
+          <dt id="tissueNullValue" class="constant">
+    <span class="name "><a href="../mitosis/tissueNullValue-constant.html">tissueNullValue</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>
+  
+
+</dt>
+<dd>
+  The <strong>Explicit Null Value Sentinel</strong> for <code>TissueValue.fromJson</code>.
+Passing it reconstructs a <a href="../mitosis/TissueValue-class.html">TissueValue</a> whose value is <code>null</code>.
+  
+
+</dd>
+
           <dt id="verbByName" class="constant">
     <span class="name "><a href="../mitosis/verbByName-constant.html">verbByName</a></span>
   <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="../mitosis/TissueVerb.html">TissueVerb</a></span>&gt;</span></span>
@@ -2553,6 +2785,58 @@ applying a <a href="../mitosis/Mutation.html">Mutation</a> to each entry.
 </dt>
 <dd>
   Encodes <code>value</code> into deterministic, canonical JSON.
+  
+
+</dd>
+
+          <dt id="decodePulse" class="callable">
+  <span class="name"><a href="../mitosis/decodePulse.html">decodePulse</a></span><span class="signature">(<wbr><span class="parameter" id="decodePulse-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span> <span class="parameter-name">json</span>, {</span><span class="parameter" id="decodePulse-param-resolver"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a>?</span> <span class="parameter-name">resolver</span>(<span class="parameter" id="param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">id</span></span>)?, </span><span class="parameter" id="decodePulse-param-lenient"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">lenient</span> = <span class="default-value">false</span>, </span><span class="parameter" id="decodePulse-param-onSkipped"><span class="type-annotation">void</span> <span class="parameter-name">onSkipped</span>(<span class="parameter" id="param-skipped"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">skipped</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/PulseBase-class.html">PulseBase</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Decodes a pulse from the canonical JSON produced by <a href="../mitosis/encodePulse.html">encodePulse</a>.
+  
+
+</dd>
+
+          <dt id="decodeTissue" class="callable">
+  <span class="name"><a href="../mitosis/decodeTissue.html">decodeTissue</a></span><span class="signature">(<wbr><span class="parameter" id="decodeTissue-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span> <span class="parameter-name">json</span>, {</span><span class="parameter" id="decodeTissue-param-cellResolver"><span class="type-annotation"><a href="../mitosis/TissueCellResolver.html">TissueCellResolver</a>?</span> <span class="parameter-name">cellResolver</span>, </span><span class="parameter" id="decodeTissue-param-governanceResolver"><span class="type-annotation"><a href="../mitosis/TissueGovernanceResolver.html">TissueGovernanceResolver</a>?</span> <span class="parameter-name">governanceResolver</span>, </span><span class="parameter" id="decodeTissue-param-lenient"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">lenient</span> = <span class="default-value">false</span>, </span><span class="parameter" id="decodeTissue-param-lenientFallbackTestRule"><span class="type-annotation"><a href="../mitosis/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">dynamic</span>, <span class="type-parameter"><a href="../mitosis/Tissue-class.html">Tissue</a></span>&gt;</span></span> <span class="parameter-name">lenientFallbackTestRule</span> = <span class="default-value">TestTissue.readOnly</span>, </span><span class="parameter" id="decodeTissue-param-onSkipped"><span class="type-annotation">void</span> <span class="parameter-name">onSkipped</span>(<span class="parameter" id="param-skipped"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">skipped</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/TissueBase-class.html">TissueBase</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Decodes a tissue from canonical JSON produced by <a href="../mitosis/encodeTissue.html">encodeTissue</a>.
+  
+
+</dd>
+
+          <dt id="encodePulse" class="callable">
+  <span class="name"><a href="../mitosis/encodePulse.html">encodePulse</a></span><span class="signature">(<wbr><span class="parameter" id="encodePulse-param-pulse"><span class="type-annotation"><a href="../mitosis/PulseBase-class.html">PulseBase</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="encodePulse-param-lenient"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">lenient</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Encodes <code>pulse</code> to its canonical JSON wire form.
+  
+
+</dd>
+
+          <dt id="encodeTissue" class="callable">
+  <span class="name"><a href="../mitosis/encodeTissue.html">encodeTissue</a></span><span class="signature">(<wbr><span class="parameter" id="encodeTissue-param-tissue"><span class="type-annotation"><a href="../mitosis/Tissue-class.html">Tissue</a></span> <span class="parameter-name">tissue</span>, {</span><span class="parameter" id="encodeTissue-param-lenient"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">lenient</span> = <span class="default-value">false</span>, </span><span class="parameter" id="encodeTissue-param-lenientFallbackTestRule"><span class="type-annotation"><a href="../mitosis/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">dynamic</span>, <span class="type-parameter"><a href="../mitosis/Tissue-class.html">Tissue</a></span>&gt;</span></span> <span class="parameter-name">lenientFallbackTestRule</span> = <span class="default-value">TestTissue.readOnly</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Encodes <code>tissue</code> to its canonical JSON wire form.
   
 
 </dd>
@@ -2934,6 +3218,20 @@ and the terminal ancestor of all reactive blueprints.
 
 
           
+  <dt id="PulseResolver" class="callable">
+    <span class="name"><a href="../mitosis/PulseResolver.html">PulseResolver</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="../mitosis/Cell-class.html">Cell</a>? Function<span class="signature">(<span class="parameter" id="param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">id</span></span>)</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Resolves a <code>Cell.id</code> to a live <a href="../mitosis/Cell-class.html">Cell</a>.
+    
+
+  </dd>
+
+          
   <dt id="SpokeRegistration" class="">
   <span class="name"><a href="../mitosis/SpokeRegistration.html">SpokeRegistration</a></span>
     = (<span class="field">{<span class="type-annotation"><a href="../mitosis/DeputyContext-class.html">DeputyContext</a>?</span> <span class="field-name">context</span>, </span><span class="field"><span class="type-annotation"><a href="../mitosis/Pulse-class.html">Pulse</a>? Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../mitosis/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span>?</span> <span class="field-name">handler</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="field-name">key</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">type</span></span>)</span>?</span> <span class="field-name">match</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="field-name">priority</span>, </span><span class="field"><span class="type-annotation"><a href="../mitosis/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="field-name">receptor</span>}</span>)
@@ -2997,6 +3295,34 @@ functions — the standard way to create and interact with a state atom.
 
 
           
+  <dt id="TissueCellResolver" class="callable">
+    <span class="name"><a href="../mitosis/TissueCellResolver.html">TissueCellResolver</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="../mitosis/Cell-class.html">Cell</a>? Function<span class="signature">(<span class="parameter" id="param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">id</span></span>)</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Resolves a <code>Cell.id</code> to a live <a href="../mitosis/Cell-class.html">Cell</a>.
+    
+
+  </dd>
+
+          
+  <dt id="TissueGovernanceResolver" class="callable">
+    <span class="name"><a href="../mitosis/TissueGovernanceResolver.html">TissueGovernanceResolver</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="../mitosis/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">dynamic</span>, <span class="type-parameter"><a href="../mitosis/Tissue-class.html">Tissue</a></span>&gt;</span>? Function<span class="signature">(<span class="parameter" id="param-tag"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">tag</span></span>)</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Resolves a governance tag (<code>registered:&lt;key&gt;</code>) to a <a href="../mitosis/TestTissue-class.html">TestTissue</a>.
+    
+
+  </dd>
+
+          
   <dt id="TransactionScope" class="">
   <span class="name"><a href="../mitosis/TransactionScope.html">TransactionScope</a></span>
     = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span></span>)</span></span> <span class="field-name">begin</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">()</span></span> <span class="field-name">commit</span>, </span><span class="field"><span class="type-annotation">dynamic Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)</span></span> <span class="field-name">pending</span>, </span><span class="field"><span class="type-annotation">dynamic Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)</span></span> <span class="field-name">read</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">({<span class="parameter" id="param-savepoint"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">savepoint</span></span>})</span></span> <span class="field-name">rollback</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a> Function<span class="signature">()</span></span> <span class="field-name">savepoint</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-value"><span class="type-annotation">dynamic</span> <span class="parameter-name">value</span></span>)</span></span> <span class="field-name">update</span>}</span>)
@@ -3035,12 +3361,46 @@ ledger, or genesis binding is invalid.
 predecessor chain does not match.
 </dd>
 
+          <dt id="PulseDecodeError">
+  <span class="name "><a href="../mitosis/PulseDecodeError-class.html">PulseDecodeError</a></span> 
+
+</dt>
+<dd>
+  A pulse JSON record cannot be decoded.
+</dd>
+
+          <dt id="PulseNotSerializable">
+  <span class="name "><a href="../mitosis/PulseNotSerializable-class.html">PulseNotSerializable</a></span> 
+
+</dt>
+<dd>
+  A pulse cannot be serialised because it carries a field that has no
+honest wire representation.
+</dd>
+
           <dt id="ReplayDivergenceException">
   <span class="name "><a href="../mitosis/ReplayDivergenceException-class.html">ReplayDivergenceException</a></span> 
 
 </dt>
 <dd>
   Thrown when a replay diverges from the recording.
+</dd>
+
+          <dt id="TissueDecodeError">
+  <span class="name "><a href="../mitosis/TissueDecodeError-class.html">TissueDecodeError</a></span> 
+
+</dt>
+<dd>
+  A tissue JSON record cannot be decoded.
+</dd>
+
+          <dt id="TissueNotSerializable">
+  <span class="name "><a href="../mitosis/TissueNotSerializable-class.html">TissueNotSerializable</a></span> 
+
+</dt>
+<dd>
+  A tissue cannot be serialised because it carries a field with no honest
+wire representation.
 </dd>
 
           <dt id="TransactionConflictException">

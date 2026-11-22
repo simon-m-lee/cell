@@ -83,7 +83,8 @@
 V update(K key, V Function(V value) update, {V Function()? ifAbsent}) =&gt;
     dispatch(this.update,
         positionalArguments: [key, update],
-        namedArguments: {#ifAbsent: ifAbsent});</code></pre>
+        namedArguments: {#ifAbsent: ifAbsent},
+        sync: true);</code></pre>
 </section>
 
 
@@ -111,7 +112,7 @@ V update(K key, V Function(V value) update, {V Function()? ifAbsent}) =&gt;
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

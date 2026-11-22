@@ -150,7 +150,7 @@ final uiView = source.deputy(testRule: TestTissue.readOnly);
 <code>TissueSet</code> / <code>TissueQueue</code> / <code>TissueValue</code> constructor. Use <code>TestTissue</code>.
 This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-test.dart</code>.
   <code>Cell.state&lt;int&gt;</code> when the WalkThrough named a reserve book.
-<strong>Live signature:</strong> <code>TissueValue&lt;V&gt;(V? value, {bind, context, testRule, receptor, synapses, finalValue})</code> / <code>TissueValue.empty({...})</code> / <code>TissueValue.unmodifiable(bind)</code> — pinned at <code>cell_tissue: 1.1.0</code>
+<strong>Live signature:</strong> <code>TissueValue&lt;V&gt;(V? value, {bind, context, testRule, receptor, synapses, finalValue})</code> / <code>TissueValue.empty({...})</code> / <code>TissueValue.unmodifiable(bind)</code> — pinned at <code>cell_tissue: 1.2.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell.state</code> (retained setting without Tissue semantics).
 <strong>Guide:</strong> <code>HowTo-Mitose-Tissue.md</code> §2.5 "TissueValue — the reserve scalar" (#tissue-value)
 <strong>Example:</strong> <code>example/cell_tissue_example.dart</code>
@@ -193,6 +193,8 @@ print(q.length); // 2
       <li><a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/NullableIterableExtensions.html">NullableIterableExtensions</a></li>
       <li><a href="../cell_tissue/PulseIterableExtension.html">PulseIterableExtension</a></li>
+      <li><a href="../cell_tissue/TissueSkippedReport.html">TissueSkippedReport</a></li>
+      <li><a href="../cell_tissue/TissueValueJson.html">TissueValueJson</a></li>
   </ul></dd>
         
 
@@ -218,6 +220,14 @@ creating a reactive, singular state node governed by the <strong>Conactive Model
         <dd>
           Architectural factory for instantiating an empty, reactive <a href="../cell_tissue/TissueValue-class.html">TissueValue</a>
 governed by the <strong>Conactive Model</strong>.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="TissueValue.fromJson" class="callable">
+          <span class="name"><a href="../cell_tissue/TissueValue/TissueValue.fromJson.html">TissueValue.fromJson</a></span><span class="signature">(<span class="parameter" id="fromJson-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span> <span class="parameter-name">json</span>, {</span><span class="parameter" id="fromJson-param-cellResolver"><span class="type-annotation"><a href="../cell_tissue/TissueCellResolver.html">TissueCellResolver</a>?</span> <span class="parameter-name">cellResolver</span>, </span><span class="parameter" id="fromJson-param-governanceResolver"><span class="type-annotation"><a href="../cell_tissue/TissueGovernanceResolver.html">TissueGovernanceResolver</a>?</span> <span class="parameter-name">governanceResolver</span>, </span><span class="parameter" id="fromJson-param-lenient"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">lenient</span> = <span class="default-value">false</span>, </span><span class="parameter" id="fromJson-param-lenientFallbackTestRule"><span class="type-annotation"><a href="../cell_tissue/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">dynamic</span>, <span class="type-parameter"><a href="../cell_tissue/Tissue-class.html">Tissue</a></span>&gt;</span></span> <span class="parameter-name">lenientFallbackTestRule</span> = <span class="default-value">TestTissue.readOnly</span>, </span><span class="parameter" id="fromJson-param-onSkipped"><span class="type-annotation">void</span> <span class="parameter-name">onSkipped</span>(<span class="parameter" id="param-skipped"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">skipped</span></span>)?, </span><span class="parameter" id="fromJson-param-testRule"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">testRule</span>, </span><span class="parameter" id="fromJson-param-context"><span class="type-annotation"><a href="../cell_tissue/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="fromJson-param-bind"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="fromJson-param-container"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">container</span>, </span><span class="parameter" id="fromJson-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="fromJson-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">value</span></span>})</span>
+        </dt>
+        <dd>
+          Reconstructs a <a href="../cell_tissue/TissueValue-class.html">TissueValue</a> from the canonical JSON produced by
+<code>encodeTissue</code> / <a href="../cell_tissue/TissueValueJson/toJson.html">TissueValueJson.toJson</a>.
             <div class="constructor-modifier features">factory</div>
         </dd>
         <dt id="TissueValue.fromNucleus" class="callable">
@@ -515,6 +525,23 @@ downstream observers and does not broadcast pulses.
         provided by the <a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a> extension</span>
       </p>
   The single element of this iterator, or <code>null</code>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="skippedReport" class="property">
+  <span class="name"><a href="../cell_tissue/TissueSkippedReport/skippedReport.html">skippedReport</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>,
+        provided by the <a href="../cell_tissue/TissueSkippedReport.html">TissueSkippedReport</a> extension</span>
+      </p>
+  The <code>{'wire': [...], 'decode': [...]}</code> skip report, or <code>null</code> when no
+skip occurred.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -1022,6 +1049,23 @@ whether the state transition was successfully committed.
 
 </dd>
 
+        <dt id="toJson" class="callable">
+  <span class="name"><a href="../cell_tissue/TissueValueJson/toJson.html">toJson</a></span><span class="signature">(<wbr>{<span class="parameter" id="toJson-param-lenient"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">lenient</span> = <span class="default-value">false</span>, </span><span class="parameter" id="toJson-param-lenientFallbackTestRule"><span class="type-annotation"><a href="../cell_tissue/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">dynamic</span>, <span class="type-parameter"><a href="../cell_tissue/Tissue-class.html">Tissue</a></span>&gt;</span></span> <span class="parameter-name">lenientFallbackTestRule</span> = <span class="default-value">TestTissue.readOnly</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_tissue/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span>,
+        provided by the <a href="../cell_tissue/TissueValueJson.html">TissueValueJson</a> extension</span>
+      </p>
+  Encodes this value to its canonical JSON wire form.
+  
+
+</dd>
+
         <dt id="toList" class="callable inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/toList.html">toList</a></span><span class="signature">(<wbr>{<span class="parameter" id="toList-param-growable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">growable</span> = <span class="default-value">true</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
@@ -1214,7 +1258,7 @@ reactive value with explicit control over its behavioural and structural bluepri
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

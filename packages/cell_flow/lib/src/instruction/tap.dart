@@ -207,7 +207,7 @@ class TapSnapshot<A> {
 /// **When to use:** adjacent concerns on a stock chain — logging, metrics, analytics — without rewriting the pulse.
 /// **When NOT to use:**
 ///   {@macro ai-do-not-tap-tissue-on-decision-chain}
-/// **Live signature:** `Tap<S>(void Function(S value) onValue, {TapErrorHandler? onError, dynamic user})` — pinned at `cell_flow: 1.1.0`
+/// **Live signature:** `Tap<S>(void Function(S value) onValue, {TapErrorHandler? onError, dynamic user})` — pinned at `cell_flow: 1.2.0`
 /// **Do NOT confuse with:** `Cell.observe` (the Cell-layer glue that writes books; Tap lives in the chain).
 /// **Guide:** `HowTo-Mitose-Flow.md` §3.7 "Collect / control" (#flow-collect-control)
 /// **Example:** `example/tap_logging_analytics_demo.dart`

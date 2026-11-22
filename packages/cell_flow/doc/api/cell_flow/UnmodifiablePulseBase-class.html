@@ -84,6 +84,7 @@
   <dd><ul class="comma-separated clazz-relationships">
       <li><a href="../cell_flow/PulseExtension.html">PulseExtension</a></li>
       <li><a href="../cell_flow/PulseIterableExtension.html">PulseIterableExtension</a></li>
+      <li><a href="../cell_flow/PulseJson.html">PulseJson</a></li>
   </ul></dd>
         
 
@@ -460,19 +461,6 @@ metadata attached.
 
 </dd>
 
-        <dt id="cast" class="callable inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/cast.html">cast</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>
-  </span>
-  
-
-</dt>
-<dd class="inherited">
-  A view of this iterable as an iterable of <code>R</code> instances.
-  <div class="features"><span class="feature">inherited</span></div>
-
-</dd>
-
         <dt id="cast" class="callable">
   <span class="name"><a href="../cell_flow/PulseExtension/cast.html">cast</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="../cell_flow/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
@@ -487,6 +475,19 @@ metadata attached.
       </p>
   Re-casts the pulse payload to type <code>T</code> while maintaining causal history.
   
+
+</dd>
+
+        <dt id="cast" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/cast.html">cast</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A view of this iterable as an iterable of <code>R</code> instances.
+  <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -851,6 +852,23 @@ this pulse instance.
 
 </dd>
 
+        <dt id="toJson" class="callable">
+  <span class="name"><a href="../cell_flow/PulseJson/toJson.html">toJson</a></span><span class="signature">(<wbr>{<span class="parameter" id="toJson-param-lenient"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">lenient</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_flow/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span>,
+        provided by the <a href="../cell_flow/PulseJson.html">PulseJson</a> extension</span>
+      </p>
+  
+  
+
+</dd>
+
         <dt id="toList" class="callable inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/toList.html">toList</a></span><span class="signature">(<wbr>{<span class="parameter" id="toList-param-growable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">growable</span> = <span class="default-value">true</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>&gt;</span></span>
@@ -1012,7 +1030,7 @@ causal chain.
 <footer>
   <span class="no-break">
     cell_flow
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

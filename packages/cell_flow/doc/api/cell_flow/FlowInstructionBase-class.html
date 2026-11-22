@@ -104,7 +104,7 @@ See <code>HowTo-Mitose-Flow.md</code> §5 "Mix-and-match rules".
 <code>exhaustMap</code>) <em>inside</em> <code>riskOf</code>. Flatten wraps I/O after or beside the
 decision.
 See <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)".
-<strong>Live signature:</strong> <code>class X extends FlowInstructionBase&lt;Cell, Pulse, Pulse&gt; { X(..., {required pass}); static Level riskOf(...); Level? lastDecision; Level get pass; void reset(); }</code> — pinned at <code>cell_flow: 1.1.0</code>
+<strong>Live signature:</strong> <code>class X extends FlowInstructionBase&lt;Cell, Pulse, Pulse&gt; { X(..., {required pass}); static Level riskOf(...); Level? lastDecision; Level get pass; void reset(); }</code> — pinned at <code>cell_flow: 1.2.0</code>
 <strong>Do NOT confuse with:</strong> <code>FlowInstruction</code> (interface / closure gate; no <code>reset()</code>).
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §4 "When the BRD requires a custom FlowInstruction" (#flow-custom-instruction)
 <strong>Example:</strong> <code>example/ICU-alarm-pipeline-Demo.dart</code>
@@ -358,7 +358,7 @@ resilience.
 <footer>
   <span class="no-break">
     cell_flow
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

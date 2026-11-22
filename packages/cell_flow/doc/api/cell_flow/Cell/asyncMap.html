@@ -130,25 +130,21 @@ to a new "live" stream of data based on a selection.</p>
 </ul>
 <p><strong>Summary</strong>: Use <a href="../../cell_flow/Cell/asyncMap.html">asyncMap</a> for a background job; use <a href="../../cell_flow/Cell/switchMap.html">switchMap</a> to
 pick a new live data source.</p>
-<h3 id="example-profile-loader">Example: Profile Loader</h3>
-<pre class="language-dart"><code class="language-dart">final userId = Cell.ingress&lt;int&gt;();
+<h3 id="example-audited-async-profile-lookup">Example: Audited Async Profile Lookup</h3>
+<pre class="language-dart"><code class="language-dart">// 1. Create a journal to track the forensic trail
+final profileJournal = ForensicJournal(name: 'ProfileLookup');
 
-final profile = Cell.asyncMap&lt;int, UserProfile&gt;(
-  userId.cell,
-  (id) =&gt; api.fetchProfile(id),
-  latestOnly: true, // Only care about the user most recently clicked
+// 2. Define the async cell
+final profileCell = userIdCell.asyncMap(
+  (id) =&gt; api.fetchUser(id),
+  journal: profileJournal,
 );
-</code></pre>
-<h3 id="example-exhaust">Example (exhaust)</h3>
-<pre class="language-dart"><code class="language-dart">final clicks = Cell.ingress&lt;void&gt;();
-final saves = Cell.asyncMap&lt;void, String&gt;(
-  clicks.cell,
-  (_) async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    return 'saved';
-  },
-  exhaust: true,
-);
+
+// 3. Observe the outcome
+profileCell.observe((pulse) {
+  print('New profile arrived: ${pulse.payload}');
+  print('Causal Trace: ${pulse.trace}');
+});
 </code></pre>
 <h3 id="parameters">Parameters:</h3>
 <ul>
@@ -160,6 +156,10 @@ each input.</li>
 <li><code>latestOnly</code>: <strong>Discard Policy.</strong> If <code>true</code>, only the result of the
 most recent input is emitted.</li>
 <li><code>exhaust</code> – exhaustMap-style (ignore upstream while busy)</li>
+<li><code>journal</code>: <strong>(Required)</strong> The <code>ForensicJournal</code> used to record the
+asynchronous journey. Because async operations can complete out of
+order, the journal ensures the ledger can correctly correlate
+results with their original impulses.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
 <p>A <a href="../../cell_flow/Cell-class.html">Cell</a> instance representing an <strong>Asynchronous Transformation</strong>. It
@@ -169,6 +169,7 @@ emits the resolved results of the background tasks.</p>
 <li><strong>Example</strong>: See <code>example/async_map_demo.dart</code> for a complete
 walkthrough of managing parallel fetches, latest-only search updates,
 and ordered sequential background tasks..</li>
+<li><code>ForensicJournal</code>: The ledger component that tracks async lifecycles.</li>
 </ul>
 <ul>
 <li><a href="../../cell_flow/Cell/switchMap.html">Cell.switchMap</a>: To switch to a different source cell entirely.</li>
@@ -179,7 +180,7 @@ and ordered sequential background tasks..</li>
 <p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
 <strong>When to use:</strong> a background <code>Future</code> per pulse with concurrency control (<code>concurrency</code>, <code>latestOnly</code>, <code>exhaust</code>).
 <strong>When NOT to use:</strong> source selection (mapper returns a <code>Cell</code>) — that is <code>Cell.switchMap</code>; and never inside the policy decision itself.
-<strong>Live signature:</strong> <code>Cell.asyncMap&lt;S, T&gt;(Cell source, Future&lt;T&gt; Function(S value, {required EffectJournal journal}) mapper, {required EffectJournal journal, int concurrency = 0, bool latestOnly = false, bool exhaust = false})</code> — pinned at <code>cell: 2.0.0</code>
+<strong>Live signature:</strong> <code>Cell.asyncMap&lt;S, T&gt;(Cell source, Future&lt;T&gt; Function(S value, {required EffectJournal journal}) mapper, {required EffectJournal journal, int concurrency = 0, bool latestOnly = false, bool exhaust = false})</code> — pinned at <code>cell: 2.1.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell.switchMap</code> (dynamic source rebinding, mapper returns <code>Cell</code>).
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)
 <strong>Example:</strong> <code>example/async_map_demo.dart</code>
@@ -245,7 +246,7 @@ o.stop();
 <footer>
   <span class="no-break">
     cell_flow
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

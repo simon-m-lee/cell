@@ -122,7 +122,7 @@ input.emit(2); // -&gt; Grouped(even, 2)
 <p><strong>Layer:</strong> Flow — collect operator. Not a Cell factory, not a Tissue book.
 <strong>When to use:</strong> group bag alerts by belt (FR-08) — emit <code>Grouped(key, value)</code> per pulse.
 <strong>When NOT to use:</strong> the WalkThrough often chooses a <code>TissueMap</code> key instead; do not run both without saying which is the system of record.
-<strong>Live signature:</strong> <code>Flow.groupBy&lt;S, K&gt;(Cell source, {required K Function(S value) keyOf, GroupErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.1.0</code>
+<strong>Live signature:</strong> <code>Flow.groupBy&lt;S, K&gt;(Cell source, {required K Function(S value) keyOf, GroupErrorHandler? onError})</code> — pinned at <code>cell_flow: 1.2.0</code>
 <strong>Do NOT confuse with:</strong> <code>Flow.groupCollect</code> (collects each group into a list).
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.7 "Collect / control" (#flow-collect-control)
 <strong>Example:</strong> <code>example/cell_flow_example.dart</code>

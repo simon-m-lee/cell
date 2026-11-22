@@ -828,22 +828,27 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [newLength]: The desired new size for the list.
   @override
   set length(int newLength) {
-    dispatch(_length, positionalArguments: [newLength]);
+    dispatch(_length, positionalArguments: [newLength], sync: true);
   }
 
   /// Structural resize. Validated like every other mutation and blocked on
   /// unmodifiable views. A resize has no dedicated event flag, so it emits
   /// no per-element pulses — a documented structural operation, not a
   /// bypass of the reactive contract.
-  TissuePulse? _length(int newLength,
-      {bool notification = true, Tissue<E>? deputy}) {
-    if (this is! Unmodifiable &&
+  FutureOr<TissuePulse?> _length(int newLength,
+      {bool notification = true, Tissue<E>? deputy, bool sync = false}) {
+    if (this is! Unmodifiable) {
+      return _permit<TissuePulse?>(
         validate.action(_length, host: this as C, arguments: (
-              positionalArguments: [newLength],
-              namedArguments: null,
-            )) ==
-            true) {
-      _nucleus.container.store.length = newLength;
+          positionalArguments: [newLength],
+          namedArguments: null,
+        )),
+        () {
+          _nucleus.container.store.length = newLength;
+          return null;
+        },
+        sync: sync,
+      );
     }
     return null;
   }
@@ -862,14 +867,15 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [value]: The new value to be stored at that position.
   @override
   void setValueAt(int index, E value) =>
-      dispatch(setValueAt, positionalArguments: [index, value]);
+      dispatch(setValueAt, positionalArguments: [index, value], sync: true);
 
   /// Sets the first element of the list to [value] after validation.
   ///
   /// ### Parameters:
   /// - [value]: The new element for index 0.
   @override
-  void setFirst(E value) => dispatch(setFirst, positionalArguments: [value]);
+  void setFirst(E value) =>
+      dispatch(setFirst, positionalArguments: [value], sync: true);
 
   /// The standard Dart index assignment operator.
   ///
@@ -882,7 +888,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [value]: The new element to store.
   @override
   void operator []=(int index, E value) =>
-      dispatch(setValueAt, positionalArguments: [index, value]);
+      dispatch(setValueAt, positionalArguments: [index, value], sync: true);
 
   /// Appends [element] to the end of the list through the reactive system.
   ///
@@ -893,7 +899,8 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// ### Parameters:
   /// - [element]: The item to be added.
   @override
-  void add(E element) => dispatch(add, positionalArguments: [element]);
+  void add(E element) =>
+      dispatch(add, positionalArguments: [element], sync: true);
 
   /// Appends all items in [iterable] to the end of this list.
   ///
@@ -901,14 +908,14 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [iterable]: The collection of elements to add.
   @override
   void addAll(Iterable<E> iterable) =>
-      dispatch(addAll, positionalArguments: [iterable]);
+      dispatch(addAll, positionalArguments: [iterable], sync: true);
 
   /// Removes all elements from the list.
   ///
   /// This effectively resets the list to an empty state (length 0)
   /// after passing validation.
   @override
-  void clear() => dispatch(clear);
+  void clear() => dispatch(clear, sync: true);
 
   /// Removes the first occurrence of [object] from the list.
   ///
@@ -920,7 +927,9 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// otherwise `false`.
   @override
   bool remove(Object? object) =>
-      (dispatch(remove, positionalArguments: [object])?.isNotEmpty) ?? false;
+      (dispatch(remove, positionalArguments: [object], sync: true)
+          ?.isNotEmpty) ??
+      false;
 
   /// Removes all elements that satisfy the given [test] predicate.
   ///
@@ -928,7 +937,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [test]: A function returning `true` for items to be removed.
   @override
   void removeWhere(bool Function(E element) test) =>
-      dispatch(removeWhere, positionalArguments: [test]);
+      dispatch(removeWhere, positionalArguments: [test], sync: true);
 
   /// Retains only the elements that satisfy the given [test] predicate.
   ///
@@ -936,7 +945,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [test]: A function returning `true` for items to keep.
   @override
   void retainWhere(bool Function(E element) test) =>
-      dispatch(retainWhere, positionalArguments: [test]);
+      dispatch(retainWhere, positionalArguments: [test], sync: true);
 
   /// Replaces a range of elements with [fillValue].
   ///
@@ -945,8 +954,8 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [end]: Ending index (exclusive).
   /// - [fillValue]: The value used to overwrite the range.
   @override
-  void fillRange(int start, int end, [E? fillValue]) =>
-      dispatch(fillRange, positionalArguments: [start, end, fillValue]);
+  void fillRange(int start, int end, [E? fillValue]) => dispatch(fillRange,
+      positionalArguments: [start, end, fillValue], sync: true);
 
   /// Inserts [element] at the specified [index].
   ///
@@ -957,7 +966,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [element]: The element to insert.
   @override
   void insert(int index, E element) =>
-      dispatch(insert, positionalArguments: [index, element]);
+      dispatch(insert, positionalArguments: [index, element], sync: true);
 
   /// Inserts a collection of elements starting at the specified [index].
   ///
@@ -966,7 +975,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [iterable]: The elements to insert.
   @override
   void insertAll(int index, Iterable<E> iterable) =>
-      dispatch(insertAll, positionalArguments: [index, iterable]);
+      dispatch(insertAll, positionalArguments: [index, iterable], sync: true);
 
   /// Removes the element at the given [index] and returns it.
   ///
@@ -977,7 +986,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// The element that was removed.
   @override
   E removeAt(int index) {
-    final result = dispatch(removeAt, positionalArguments: [index]);
+    final result = dispatch(removeAt, positionalArguments: [index], sync: true);
     if (result == null) {
       throw UnsupportedError('Unmodifiable operation');
     }
@@ -990,7 +999,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// The removed element.
   @override
   E removeLast() {
-    final result = dispatch(removeLast);
+    final result = dispatch(removeLast, sync: true);
     if (result == null) {
       throw UnsupportedError('Unmodifiable operation');
     }
@@ -1004,7 +1013,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [end]: The ending index (exclusive).
   @override
   void removeRange(int start, int end) =>
-      dispatch(removeRange, positionalArguments: [start, end]);
+      dispatch(removeRange, positionalArguments: [start, end], sync: true);
 
   /// Replaces a specified range of elements with the contents of [newContents].
   ///
@@ -1014,7 +1023,8 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [newContents]: The iterable providing the new elements.
   @override
   void replaceRange(int start, int end, Iterable<E> newContents) =>
-      dispatch(replaceRange, positionalArguments: [start, end, newContents]);
+      dispatch(replaceRange,
+          positionalArguments: [start, end, newContents], sync: true);
 
   /// Overwrites elements with the objects of [iterable] starting at [index].
   ///
@@ -1023,7 +1033,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [iterable]: The source elements.
   @override
   void setAll(int index, Iterable<E> iterable) =>
-      dispatch(setAll, positionalArguments: [index, iterable]);
+      dispatch(setAll, positionalArguments: [index, iterable], sync: true);
 
   /// Writes some elements of [iterable] into a range of this list.
   ///
@@ -1034,7 +1044,8 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [skipCount]: How many elements to skip in the source [iterable].
   @override
   void setRange(int start, int end, Iterable<E> iterable, [int skipCount = 0]) {
-    dispatch(setRange, positionalArguments: [start, end, iterable, skipCount]);
+    dispatch(setRange,
+        positionalArguments: [start, end, iterable, skipCount], sync: true);
   }
 
   /// Shuffles the elements of this list randomly.
@@ -1043,7 +1054,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [random]: An optional [Random] number generator to use.
   @override
   void shuffle([Random? random]) =>
-      dispatch(shuffle, positionalArguments: [random]);
+      dispatch(shuffle, positionalArguments: [random], sync: true);
 
   /// Sorts this list according to the order specified by the [compare] function.
   ///
@@ -1051,7 +1062,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   /// - [compare]: An optional comparison function.
   @override
   void sort([int Function(E a, E b)? compare]) =>
-      dispatch(sort, positionalArguments: [compare]);
+      dispatch(sort, positionalArguments: [compare], sync: true);
 
   // ... (private mutation methods _setValueAt, _add, _addAll, _clear, etc.)
   // These methods follow the same pattern and are documented in the mixin
@@ -1062,81 +1073,86 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     Function function, {
     List? positionalArguments,
     Map<Symbol, dynamic>? namedArguments,
+    bool sync = false,
   }) {
     if (modifiable.contains(function)) {
       try {
-        if (validate.action(function, host: this as C, arguments: (
-              positionalArguments: positionalArguments,
-              namedArguments: namedArguments
-            )) ==
-            true) {
-          final notification = namedArguments?[#$notification] ?? true;
-          final deputy = namedArguments?[#deputy];
+        return _permit(
+          validate.action(function, host: this as C, arguments: (
+            positionalArguments: positionalArguments,
+            namedArguments: namedArguments
+          )),
+          () {
+            final notification = namedArguments?[#$notification] ?? true;
+            final deputy = namedArguments?[#deputy];
 
-          if (function == add) {
-            return Function.apply(_add, positionalArguments,
-                {#notification: notification, #deputy: deputy});
-          } else if (function == addAll) {
-            return Function.apply(_addAll, positionalArguments,
-                {#notification: notification, #deputy: deputy});
-          } else if (function == clear) {
-            return Function.apply(
-                _clear, null, {#notification: notification, #deputy: deputy});
-          } else if (function == remove) {
-            return Function.apply(_remove, positionalArguments,
-                {#notification: notification, #deputy: deputy});
-          } else if (function == removeWhere) {
-            return Function.apply(_removeWhere, positionalArguments,
-                {#notification: notification, #deputy: deputy});
-          } else if (function == retainWhere) {
-            return Function.apply(_retainWhere, positionalArguments,
-                {#notification: notification, #deputy: deputy});
-          } else if (function == fillRange) {
-            return Function.apply(_fillRange, positionalArguments,
-                {#notification: notification, #deputy: deputy});
-          } else if (function == insert) {
-            return Function.apply(_insert, positionalArguments,
-                {#notification: notification, #deputy: deputy});
-          } else if (function == insertAll) {
-            return Function.apply(_insertAll, positionalArguments,
-                {#notification: notification, #deputy: deputy});
-          } else if (function == removeAt) {
-            return Function.apply(_removeAt, positionalArguments,
-                {#notification: notification, #deputy: deputy});
-          } else if (function == removeLast) {
-            return Function.apply(_removeLast, null,
-                {#notification: notification, #deputy: deputy});
-          } else if (function == removeRange) {
-            return Function.apply(_removeRange, positionalArguments,
-                {#notification: notification, #deputy: deputy});
-          } else if (function == replaceRange) {
-            return Function.apply(_replaceRange, positionalArguments,
-                {#notification: notification, #deputy: deputy});
-          } else if (function == setValueAt) {
-            return Function.apply(_setValueAt, positionalArguments,
-                {#notification: notification, #deputy: deputy});
-          } else if (function == setFirst) {
-            return Function.apply(_setFirst, positionalArguments,
-                {#notification: notification, #deputy: deputy});
-          } else if (function == setAll) {
-            return Function.apply(_setAll, positionalArguments,
-                {#notification: notification, #deputy: deputy});
-          } else if (function == setRange) {
-            return Function.apply(_setRange, positionalArguments,
-                {#notification: notification, #deputy: deputy});
-          } else if (function == sort) {
-            return Function.apply(_sort, positionalArguments,
-                {#notification: notification, #deputy: deputy});
-          } else if (function == shuffle) {
-            return Function.apply(_shuffle, positionalArguments,
-                {#notification: notification, #deputy: deputy});
-          } else if (function == _length) {
-            return Function.apply(_length, positionalArguments,
-                {#notification: notification, #deputy: deputy});
-          }
-        }
+            if (function == add) {
+              return Function.apply(_add, positionalArguments,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            } else if (function == addAll) {
+              return Function.apply(_addAll, positionalArguments,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            } else if (function == clear) {
+              return Function.apply(_clear, null,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            } else if (function == remove) {
+              return Function.apply(_remove, positionalArguments,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            } else if (function == removeWhere) {
+              return Function.apply(_removeWhere, positionalArguments,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            } else if (function == retainWhere) {
+              return Function.apply(_retainWhere, positionalArguments,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            } else if (function == fillRange) {
+              return Function.apply(_fillRange, positionalArguments,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            } else if (function == insert) {
+              return Function.apply(_insert, positionalArguments,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            } else if (function == insertAll) {
+              return Function.apply(_insertAll, positionalArguments,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            } else if (function == removeAt) {
+              return Function.apply(_removeAt, positionalArguments,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            } else if (function == removeLast) {
+              return Function.apply(_removeLast, null,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            } else if (function == removeRange) {
+              return Function.apply(_removeRange, positionalArguments,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            } else if (function == replaceRange) {
+              return Function.apply(_replaceRange, positionalArguments,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            } else if (function == setValueAt) {
+              return Function.apply(_setValueAt, positionalArguments,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            } else if (function == setFirst) {
+              return Function.apply(_setFirst, positionalArguments,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            } else if (function == setAll) {
+              return Function.apply(_setAll, positionalArguments,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            } else if (function == setRange) {
+              return Function.apply(_setRange, positionalArguments,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            } else if (function == sort) {
+              return Function.apply(_sort, positionalArguments,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            } else if (function == shuffle) {
+              return Function.apply(_shuffle, positionalArguments,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            } else if (function == _length) {
+              return Function.apply(_length, positionalArguments,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            }
+            return null;
+          },
+          sync: sync,
+        );
       } catch (e) {
-        if (e is StateError) {
+        if (e is StateError || e is _AsyncRuleOnSyncPath) {
           rethrow;
         }
       }
@@ -1145,336 +1161,454 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return null;
   }
 
-  TissuePulse<E>? _add(E element,
-      {bool notification = true, Tissue<E>? deputy}) {
-    if (this is! Unmodifiable &&
-        validate.element(element, host: this as C, action: add) == true) {
-      _nucleus.container.store.add(element);
-      final cell = element;
-      if (cell is Cell) {
-        _nucleus.synapses.link(cell, downstreamCell: this);
-      }
-      final event = _TissuePulse<E>(
-          source: deputy ?? this, payload: element, type: Tissue.elementAdded);
-      if (notification) {
-        _nucleus.receptor(event);
-      }
-      return event;
+  FutureOr<TissuePulse<E>?> _add(E element,
+      {bool notification = true, Tissue<E>? deputy, bool sync = false}) {
+    if (this is! Unmodifiable) {
+      return _permit<TissuePulse<E>?>(
+        validate.element(element, host: this as C, action: add),
+        () {
+          _nucleus.container.store.add(element);
+          final cell = element;
+          if (cell is Cell) {
+            _nucleus.synapses.link(cell, downstreamCell: this);
+          }
+          final event = _TissuePulse<E>(
+              source: deputy ?? this,
+              payload: element,
+              type: Tissue.elementAdded);
+          if (notification) {
+            _nucleus.receptor(event);
+          }
+          return event;
+        },
+        sync: sync,
+      );
     }
     return null;
   }
 
-  TissuePulse? _addAll(Iterable<E> iterable,
-      {bool notification = true, Tissue<E>? deputy}) {
-    TissuePulse? result;
+  FutureOr<TissuePulse?> _addAll(Iterable<E> iterable,
+      {bool notification = true, Tissue<E>? deputy, bool sync = false}) {
     if (this is! Unmodifiable) {
+      final items = iterable.toList();
       final added = <E>[];
-      for (final e in iterable) {
-        if (validate.element(e, host: this as C, action: add) == true) {
+      final processing = _permitEach(
+        items.length,
+        (i) => validate.element(items[i], host: this as C, action: add),
+        (i) {
+          final e = items[i];
           _nucleus.container.store.add(e);
           added.add(e);
           final cell = e;
           if (cell is Cell) {
             _nucleus.synapses.link(cell, downstreamCell: this);
           }
+        },
+        sync: sync,
+      );
+      TissuePulse? finish() {
+        if (added.isEmpty) {
+          return null;
         }
-      }
-      if (added.isNotEmpty) {
         final events = added
             .map((e) => _TissuePulse<E>(
                 source: deputy ?? this, payload: e, type: Tissue.elementAdded))
             .toList();
-        result =
+        final result =
             events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification && events.length == 1) {
           _nucleus.receptor(result);
         }
+        return result;
       }
+
+      return processing is Future ? processing.then((_) => finish()) : finish();
     }
-    return result;
+    return null;
   }
 
-  TissuePulse? _clear({bool notification = true, Tissue<E>? deputy}) {
-    TissuePulse? result;
+  FutureOr<TissuePulse?> _clear(
+      {bool notification = true, Tissue<E>? deputy, bool sync = false}) {
     if (this is! Unmodifiable) {
+      final items = _nucleus.container.store.toList();
       final events = <TissuePulse<E>>[];
-      final snapshot = _nucleus.container.store.toList();
-      for (final e in snapshot) {
-        if (validate.element(e, host: this as C, action: remove) == true) {
+      final processing = _permitEach(
+        items.length,
+        (i) => validate.element(items[i], host: this as C, action: remove),
+        (i) {
+          final e = items[i];
           _nucleus.container.store.remove(e);
           events.add(_TissuePulse<E>(
               source: deputy ?? this, payload: e, type: Tissue.elementRemoved));
+        },
+        sync: sync,
+      );
+      TissuePulse? finish() {
+        if (events.isEmpty) {
+          return null;
         }
-      }
-      if (events.isNotEmpty) {
-        result =
+        final result =
             events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification) {
           _nucleus.receptor(result);
         }
+        return result;
       }
+
+      return processing is Future ? processing.then((_) => finish()) : finish();
     }
-    return result;
+    return null;
   }
 
-  TissuePulse<E>? _remove(Object? object,
-      {bool notification = true, Tissue<E>? deputy}) {
+  FutureOr<TissuePulse<E>?> _remove(Object? object,
+      {bool notification = true, Tissue<E>? deputy, bool sync = false}) {
     if (this is! Unmodifiable && object is E) {
       final index = _nucleus.container.store.indexOf(object);
-      if (index >= 0 &&
-          validate.element(object, host: this as C, action: remove) == true) {
-        _nucleus.container.store.removeAt(index);
-        final event = _TissuePulse<E>(
-            source: deputy ?? this,
-            payload: object,
-            type: Tissue.elementRemoved);
-        if (notification) {
-          _nucleus.receptor(event);
-        }
-        return event;
+      if (index >= 0) {
+        return _permit<TissuePulse<E>?>(
+          validate.element(object, host: this as C, action: remove),
+          () {
+            _nucleus.container.store.removeAt(index);
+            final event = _TissuePulse<E>(
+                source: deputy ?? this,
+                payload: object,
+                type: Tissue.elementRemoved);
+            if (notification) {
+              _nucleus.receptor(event);
+            }
+            return event;
+          },
+          sync: sync,
+        );
       }
     }
     return null;
   }
 
-  TissuePulse? _removeWhere(bool Function(E element) test,
-      {bool notification = true, Tissue<E>? deputy}) {
-    TissuePulse? result;
+  FutureOr<TissuePulse?> _removeWhere(bool Function(E element) test,
+      {bool notification = true, Tissue<E>? deputy, bool sync = false}) {
     if (this is! Unmodifiable) {
+      final items = _nucleus.container.store.where(test).toList();
       final events = <TissuePulse<E>>[];
-      final snapshot = _nucleus.container.store.where(test).toList();
-      for (final e in snapshot) {
-        if (validate.element(e, host: this as C, action: remove) == true) {
+      final processing = _permitEach(
+        items.length,
+        (i) => validate.element(items[i], host: this as C, action: remove),
+        (i) {
+          final e = items[i];
           _nucleus.container.store.remove(e);
           events.add(_TissuePulse<E>(
               source: deputy ?? this, payload: e, type: Tissue.elementRemoved));
+        },
+        sync: sync,
+      );
+      TissuePulse? finish() {
+        if (events.isEmpty) {
+          return null;
         }
-      }
-      if (events.isNotEmpty) {
-        result =
+        final result =
             events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification) {
           _nucleus.receptor(result);
         }
+        return result;
       }
+
+      return processing is Future ? processing.then((_) => finish()) : finish();
     }
-    return result;
+    return null;
   }
 
-  TissuePulse? _retainWhere(bool Function(E element) test,
-      {bool notification = true, Tissue<E>? deputy}) {
+  FutureOr<TissuePulse?> _retainWhere(bool Function(E element) test,
+      {bool notification = true, Tissue<E>? deputy, bool sync = false}) {
     return _removeWhere((e) => !test(e),
-        notification: notification, deputy: deputy);
+        notification: notification, deputy: deputy, sync: sync);
   }
 
-  TissuePulse<E>? _setValueAt(int index, E value,
-      {bool notification = true, Tissue<E>? deputy}) {
+  FutureOr<TissuePulse<E>?> _setValueAt(int index, E value,
+      {bool notification = true, Tissue<E>? deputy, bool sync = false}) {
     if (this is! Unmodifiable &&
         index >= 0 &&
         index < _nucleus.container.store.length) {
-      if (validate.element(value, host: this as C, action: setValueAt) ==
-          true) {
-        _nucleus.container.store[index] = value;
-        final event = _TissuePulse<E>(
-            source: deputy ?? this, payload: value, type: Tissue.elementAdded);
-        if (notification) {
-          _nucleus.receptor(event);
-        }
-        return event;
-      }
+      return _permit<TissuePulse<E>?>(
+        validate.element(value, host: this as C, action: setValueAt),
+        () {
+          _nucleus.container.store[index] = value;
+          final event = _TissuePulse<E>(
+              source: deputy ?? this,
+              payload: value,
+              type: Tissue.elementAdded);
+          if (notification) {
+            _nucleus.receptor(event);
+          }
+          return event;
+        },
+        sync: sync,
+      );
     }
     return null;
   }
 
-  TissuePulse<E>? _setFirst(E value,
-      {bool notification = true, Tissue<E>? deputy}) {
+  FutureOr<TissuePulse<E>?> _setFirst(E value,
+      {bool notification = true, Tissue<E>? deputy, bool sync = false}) {
     if (_nucleus.container.store.isEmpty) {
       return null;
     }
-    return _setValueAt(0, value, notification: notification, deputy: deputy);
+    return _setValueAt(0, value,
+        notification: notification, deputy: deputy, sync: sync);
   }
 
-  TissuePulse<E>? _fillRange(int start, int end, E? fillValue,
-      {bool notification = true, Tissue<E>? deputy}) {
-    if (this is! Unmodifiable &&
-        fillValue != null &&
-        validate.element(fillValue, host: this as C, action: fillRange) ==
-            true) {
-      _nucleus.container.store.fillRange(start, end, fillValue);
-      final event = _TissuePulse<E>(
-          source: deputy ?? this,
-          payload: fillValue,
-          type: Tissue.elementAdded);
-      if (notification) {
-        _nucleus.receptor(event);
-      }
-      return event;
+  FutureOr<TissuePulse<E>?> _fillRange(int start, int end, E? fillValue,
+      {bool notification = true, Tissue<E>? deputy, bool sync = false}) {
+    if (this is! Unmodifiable && fillValue != null) {
+      return _permit<TissuePulse<E>?>(
+        validate.element(fillValue, host: this as C, action: fillRange),
+        () {
+          _nucleus.container.store.fillRange(start, end, fillValue);
+          final event = _TissuePulse<E>(
+              source: deputy ?? this,
+              payload: fillValue,
+              type: Tissue.elementAdded);
+          if (notification) {
+            _nucleus.receptor(event);
+          }
+          return event;
+        },
+        sync: sync,
+      );
     }
     return null;
   }
 
-  TissuePulse<E>? _insert(int index, E element,
-      {bool notification = true, Tissue<E>? deputy}) {
-    if (this is! Unmodifiable &&
-        validate.element(element, host: this as C, action: insert) == true) {
-      _nucleus.container.store.insert(index, element);
-      final cell = element;
-      if (cell is Cell) {
-        _nucleus.synapses.link(cell, downstreamCell: this);
-      }
-      final event = _TissuePulse<E>(
-          source: deputy ?? this, payload: element, type: Tissue.elementAdded);
-      if (notification) {
-        _nucleus.receptor(event);
-      }
-      return event;
-    }
-    return null;
-  }
-
-  TissuePulse? _insertAll(int index, Iterable<E> iterable,
-      {bool notification = true, Tissue<E>? deputy}) {
-    TissuePulse? result;
+  FutureOr<TissuePulse<E>?> _insert(int index, E element,
+      {bool notification = true, Tissue<E>? deputy, bool sync = false}) {
     if (this is! Unmodifiable) {
+      return _permit<TissuePulse<E>?>(
+        validate.element(element, host: this as C, action: insert),
+        () {
+          _nucleus.container.store.insert(index, element);
+          final cell = element;
+          if (cell is Cell) {
+            _nucleus.synapses.link(cell, downstreamCell: this);
+          }
+          final event = _TissuePulse<E>(
+              source: deputy ?? this,
+              payload: element,
+              type: Tissue.elementAdded);
+          if (notification) {
+            _nucleus.receptor(event);
+          }
+          return event;
+        },
+        sync: sync,
+      );
+    }
+    return null;
+  }
+
+  FutureOr<TissuePulse?> _insertAll(int index, Iterable<E> iterable,
+      {bool notification = true, Tissue<E>? deputy, bool sync = false}) {
+    if (this is! Unmodifiable) {
+      final items = iterable.toList();
       final added = <E>[];
-      for (final e in iterable) {
-        if (validate.element(e, host: this as C, action: insert) == true) {
+      final processing = _permitEach(
+        items.length,
+        (i) => validate.element(items[i], host: this as C, action: insert),
+        (i) {
+          final e = items[i];
           _nucleus.container.store.insert(index + added.length, e);
           added.add(e);
+        },
+        sync: sync,
+      );
+      TissuePulse? finish() {
+        if (added.isEmpty) {
+          return null;
         }
-      }
-      if (added.isNotEmpty) {
-        final events = added.map((e) => _TissuePulse<E>(
-            source: deputy ?? this, payload: e, type: Tissue.elementAdded));
-        result =
+        final events = added
+            .map((e) => _TissuePulse<E>(
+                source: deputy ?? this, payload: e, type: Tissue.elementAdded))
+            .toList();
+        final result =
             events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification && events.length == 1) {
           _nucleus.receptor(result);
         }
+        return result;
       }
+
+      return processing is Future ? processing.then((_) => finish()) : finish();
     }
-    return result;
+    return null;
   }
 
-  E? _removeAt(int index, {bool notification = true, Tissue<E>? deputy}) {
+  FutureOr<E?> _removeAt(int index,
+      {bool notification = true, Tissue<E>? deputy, bool sync = false}) {
     if (this is! Unmodifiable &&
         index >= 0 &&
         index < _nucleus.container.store.length) {
       final e = _nucleus.container.store[index];
-      if (validate.element(e, host: this as C, action: removeAt) == true) {
-        _nucleus.container.store.removeAt(index);
-        final event = _TissuePulse<E>(
-            source: deputy ?? this, payload: e, type: Tissue.elementRemoved);
-        if (notification) {
-          _nucleus.receptor(event);
-        }
-        return e;
-      }
+      return _permit<E?>(
+        validate.element(e, host: this as C, action: removeAt),
+        () {
+          _nucleus.container.store.removeAt(index);
+          final event = _TissuePulse<E>(
+              source: deputy ?? this, payload: e, type: Tissue.elementRemoved);
+          if (notification) {
+            _nucleus.receptor(event);
+          }
+          return e;
+        },
+        sync: sync,
+      );
     }
     return null;
   }
 
-  E? _removeLast({bool notification = true, Tissue<E>? deputy}) {
+  FutureOr<E?> _removeLast(
+      {bool notification = true, Tissue<E>? deputy, bool sync = false}) {
     if (this is! Unmodifiable && _nucleus.container.store.isNotEmpty) {
       return _removeAt(_nucleus.container.store.length - 1,
-          notification: notification, deputy: deputy);
+          notification: notification, deputy: deputy, sync: sync);
     }
     return null;
   }
 
-  TissuePulse? _removeRange(int start, int end,
-      {bool notification = true, Tissue<E>? deputy}) {
-    TissuePulse? result;
+  FutureOr<TissuePulse?> _removeRange(int start, int end,
+      {bool notification = true, Tissue<E>? deputy, bool sync = false}) {
     if (this is! Unmodifiable) {
+      final items = _nucleus.container.store.sublist(start, end);
       final events = <TissuePulse<E>>[];
-      final snapshot = _nucleus.container.store.sublist(start, end);
-      for (final e in snapshot) {
-        if (validate.element(e, host: this as C, action: remove) == true) {
+      final processing = _permitEach(
+        items.length,
+        (i) => validate.element(items[i], host: this as C, action: remove),
+        (i) {
+          final e = items[i];
           _nucleus.container.store.remove(e);
           events.add(_TissuePulse<E>(
               source: deputy ?? this, payload: e, type: Tissue.elementRemoved));
+        },
+        sync: sync,
+      );
+      TissuePulse? finish() {
+        if (events.isEmpty) {
+          return null;
         }
-      }
-      if (events.isNotEmpty) {
-        result =
+        final result =
             events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification) {
           _nucleus.receptor(result);
         }
+        return result;
       }
+
+      return processing is Future ? processing.then((_) => finish()) : finish();
     }
-    return result;
+    return null;
   }
 
-  TissuePulse? _replaceRange(int start, int end, Iterable<E> newContents,
-      {bool notification = true, Tissue<E>? deputy}) {
-    TissuePulse? result;
+  FutureOr<TissuePulse?> _replaceRange(
+      int start, int end, Iterable<E> newContents,
+      {bool notification = true, Tissue<E>? deputy, bool sync = false}) {
     if (this is! Unmodifiable) {
-      final replacement = newContents
-          .where(
-              (e) => validate.element(e, host: this as C, action: add) == true)
-          .toList();
-      _nucleus.container.store.replaceRange(start, end, replacement);
-      if (replacement.isNotEmpty) {
+      final items = newContents.toList();
+      final replacement = <E>[];
+      final processing = _permitEach(
+        items.length,
+        (i) => validate.element(items[i], host: this as C, action: add),
+        (i) => replacement.add(items[i]),
+        sync: sync,
+      );
+      TissuePulse? finish() {
+        _nucleus.container.store.replaceRange(start, end, replacement);
+        if (replacement.isEmpty) {
+          return null;
+        }
         final events = replacement
             .map((e) => _TissuePulse<E>(
                 source: deputy ?? this, payload: e, type: Tissue.elementAdded))
             .toList();
-        result =
+        final result =
             events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification && events.length == 1) {
           _nucleus.receptor(result);
         }
+        return result;
       }
+
+      return processing is Future ? processing.then((_) => finish()) : finish();
     }
-    return result;
+    return null;
   }
 
-  TissuePulse? _setAll(int index, Iterable<E> iterable,
-      {bool notification = true, Tissue<E>? deputy}) {
-    TissuePulse? result;
+  FutureOr<TissuePulse?> _setAll(int index, Iterable<E> iterable,
+      {bool notification = true, Tissue<E>? deputy, bool sync = false}) {
     if (this is! Unmodifiable) {
-      final values = iterable
-          .where(
-              (e) => validate.element(e, host: this as C, action: add) == true)
-          .toList();
-      _nucleus.container.store.setAll(index, values);
-      if (values.isNotEmpty) {
-        final events = values.map((e) => _TissuePulse<E>(
-            source: deputy ?? this, payload: e, type: Tissue.elementAdded));
-        result =
+      final items = iterable.toList();
+      final values = <E>[];
+      final processing = _permitEach(
+        items.length,
+        (i) => validate.element(items[i], host: this as C, action: add),
+        (i) => values.add(items[i]),
+        sync: sync,
+      );
+      TissuePulse? finish() {
+        _nucleus.container.store.setAll(index, values);
+        if (values.isEmpty) {
+          return null;
+        }
+        final events = values
+            .map((e) => _TissuePulse<E>(
+                source: deputy ?? this, payload: e, type: Tissue.elementAdded))
+            .toList();
+        final result =
             events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification && events.length == 1) {
           _nucleus.receptor(result);
         }
+        return result;
       }
+
+      return processing is Future ? processing.then((_) => finish()) : finish();
     }
-    return result;
+    return null;
   }
 
-  TissuePulse? _setRange(
+  FutureOr<TissuePulse?> _setRange(
       int start, int end, Iterable<E> iterable, int skipCount,
-      {bool notification = true, Tissue<E>? deputy}) {
-    TissuePulse? result;
+      {bool notification = true, Tissue<E>? deputy, bool sync = false}) {
     if (this is! Unmodifiable) {
-      final values = iterable.skip(skipCount).take(end - start).where(
-          (e) => validate.element(e, host: this as C, action: add) == true);
-      _nucleus.container.store.setRange(start, end, values, skipCount);
-      if (values.isNotEmpty) {
-        final events = values.map((e) => _TissuePulse<E>(
-            source: deputy ?? this, payload: e, type: Tissue.elementAdded));
-        result =
+      final items = iterable.skip(skipCount).take(end - start).toList();
+      final values = <E>[];
+      final processing = _permitEach(
+        items.length,
+        (i) => validate.element(items[i], host: this as C, action: add),
+        (i) => values.add(items[i]),
+        sync: sync,
+      );
+      TissuePulse? finish() {
+        _nucleus.container.store.setRange(start, end, values, skipCount);
+        if (values.isEmpty) {
+          return null;
+        }
+        final events = values
+            .map((e) => _TissuePulse<E>(
+                source: deputy ?? this, payload: e, type: Tissue.elementAdded))
+            .toList();
+        final result =
             events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification && events.length == 1) {
           _nucleus.receptor(result);
         }
+        return result;
       }
+
+      return processing is Future ? processing.then((_) => finish()) : finish();
     }
-    return result;
+    return null;
   }
 
   TissuePulse<E>? _sort(int Function(E a, E b)? compare,
-      {bool notification = true, Tissue<E>? deputy}) {
+      {bool notification = true, Tissue<E>? deputy, bool sync = false}) {
     if (this is! Unmodifiable) {
       _nucleus.container.store.sort(compare);
       if (_nucleus.container.store.isEmpty) {
@@ -1491,7 +1625,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   }
 
   TissuePulse<E>? _shuffle(Random? random,
-      {bool notification = true, Tissue<E>? deputy}) {
+      {bool notification = true, Tissue<E>? deputy, bool sync = false}) {
     if (this is! Unmodifiable) {
       _nucleus.container.store.shuffle(random);
       if (_nucleus.container.store.isEmpty) {
@@ -1528,14 +1662,15 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
 /// perform asynchronous mutations.
 ///
 /// ### How it works
-/// - It wraps the synchronous mutation methods (like `add`, `removeAt`,
-///   `clear`, etc.) in a `Future`.
+/// - Mutations are submitted through the tissue's command gateway, so
+///   asynchronous [TestTissue] rules are awaited before the returned
+///   [Future] completes.
 /// - All operations are scheduled through the tissue's lock, ensuring
 ///   atomicity.
 /// - The returned `Future` completes when the mutation has been validated,
 ///   applied, and propagated through the reactive graph.
-/// - The underlying synchronous method is called within the `Future`'s
-///   execution, so all validation and pulse emission happen exactly as they
+/// - The underlying synchronous mutation logic runs once the rule has
+///   decided, so all validation and pulse emission happen exactly as they
 ///   would in a synchronous call.
 ///
 /// ### Example
@@ -1575,7 +1710,7 @@ class ModifiableListAsync<E> extends TissueModifiableAsync<E, TissueList<E>> {
   /// ### Returns:
   ///   A `Future<void>` that completes when the operation is done.
   Future<void> setValueAt(int index, E value) async {
-    return Future<void>(() => _tissue.setValueAt(index, value));
+    await _runTissueMutation(_tissue, _tissue.setValueAt, [index, value]);
   }
 
   /// Asynchronously replaces the element at [index] with [value].
@@ -1592,7 +1727,9 @@ class ModifiableListAsync<E> extends TissueModifiableAsync<E, TissueList<E>> {
   ///
   /// ### Returns:
   /// A [Future] that resolves once the forensic causal chain is complete.
-  Future<void> setFirst(E value) => Future<void>(() => _tissue.setFirst(value));
+  Future<void> setFirst(E value) async {
+    await _runTissueMutation(_tissue, _tissue.setFirst, [value]);
+  }
 
   /// Asynchronously appends [element] to the end of this list.
   ///
@@ -1601,7 +1738,9 @@ class ModifiableListAsync<E> extends TissueModifiableAsync<E, TissueList<E>> {
   /// [element] passes the DNA integrity checks (`testRule`), a new [Pulse]
   /// is emitted containing a [Tissue.elementAdded] event.
   ///
-  Future<void> add(E element) => Future<void>(() => _tissue.add(element));
+  Future<void> add(E element) async {
+    await _runTissueMutation(_tissue, _tissue.add, [element]);
+  }
 
   /// Asynchronously appends all [elements] to the end of this list.
   ///
@@ -1609,32 +1748,40 @@ class ModifiableListAsync<E> extends TissueModifiableAsync<E, TissueList<E>> {
   /// This operation is treated as an atomic batch. If multiple elements are
   /// valid, they are bundled into a single [TissuePulse.batch], ensuring
   /// observers receive one forensic update for the entire set of additions.
-  Future<void> addAll(Iterable<E> elements) =>
-      Future<void>(() => _tissue.addAll(elements));
+  Future<void> addAll(Iterable<E> elements) async {
+    await _runTissueMutation(_tissue, _tissue.addAll, [elements]);
+  }
 
   /// Asynchronously removes all elements from this list.
   ///
   /// ### How it works
   /// Triggers a `clear` command. All current elements are logically removed,
   /// and a termination event is propagated through the tissue's receptor.
-  Future<void> clear() => Future<void>(() => _tissue.clear());
+  Future<void> clear() async {
+    await _runTissueMutation(_tissue, _tissue.clear);
+  }
 
   /// Asynchronously removes the first occurrence of [element] from this list.
   ///
   /// ### Returns:
   /// A [Future<bool>] that completes with `true` if [element] was in the list
   /// and was successfully removed, and `false` otherwise.
-  Future<bool> remove(Object? element) =>
-      Future<bool>(() => _tissue.remove(element));
+  Future<bool> remove(Object? element) async {
+    final outcome =
+        await _runTissueMutation(_tissue, _tissue.remove, [element]);
+    return outcome is ApplyAccepted<dynamic>;
+  }
 
   /// Asynchronously removes all elements that satisfy the [test] predicate.
   ///
-  Future<void> removeWhere(bool Function(E element) test) =>
-      Future<void>(() => _tissue.removeWhere(test));
+  Future<void> removeWhere(bool Function(E element) test) async {
+    await _runTissueMutation(_tissue, _tissue.removeWhere, [test]);
+  }
 
   /// Asynchronously removes all elements that do not satisfy [test].
-  Future<void> retainWhere(bool Function(E element) test) =>
-      Future<void>(() => _tissue.retainWhere(test));
+  Future<void> retainWhere(bool Function(E element) test) async {
+    await _runTissueMutation(_tissue, _tissue.retainWhere, [test]);
+  }
 
   /// Asynchronously overwrites a range of elements with [fillValue].
   ///
@@ -1642,61 +1789,83 @@ class ModifiableListAsync<E> extends TissueModifiableAsync<E, TissueList<E>> {
   /// - [start]: The inclusive start index.
   /// - [end]: The exclusive end index.
   /// - [fillValue]: The value to populate the range with.
-  Future<void> fillRange(int start, int end, [E? fillValue]) =>
-      Future<void>(() => _tissue.fillRange(start, end, fillValue));
+  Future<void> fillRange(int start, int end, [E? fillValue]) async {
+    await _runTissueMutation(
+        _tissue, _tissue.fillRange, [start, end, fillValue]);
+  }
 
   /// Asynchronously inserts [element] at the specified [index].
   ///
   /// ### How it works
   /// This shifts all subsequent elements to the right. The resulting
   /// [Pulse] contains the specific index of insertion for forensic auditing.
-  Future<void> insert(int index, E element) =>
-      Future<void>(() => _tissue.insert(index, element));
+  Future<void> insert(int index, E element) async {
+    await _runTissueMutation(_tissue, _tissue.insert, [index, element]);
+  }
 
   /// Asynchronously inserts all [iterable] elements at [index].
-  Future<void> insertAll(int index, Iterable<E> iterable) =>
-      Future<void>(() => _tissue.insertAll(index, iterable));
+  Future<void> insertAll(int index, Iterable<E> iterable) async {
+    await _runTissueMutation(_tissue, _tissue.insertAll, [index, iterable]);
+  }
 
   /// Asynchronously removes the element at [index].
   ///
   /// ### Returns:
   /// A [Future] that resolves once the element is removed and the
   /// [Tissue.elementRemoved] event has propagated.
-  Future<void> removeAt(int index) =>
-      Future<void>(() => _tissue.removeAt(index));
+  Future<void> removeAt(int index) async {
+    final outcome =
+        await _runTissueMutation(_tissue, _tissue.removeAt, [index]);
+    if (outcome is ApplyRejected<dynamic>) {
+      throw UnsupportedError('Unmodifiable operation');
+    }
+  }
 
   /// Asynchronously removes and returns the last element in the list.
-  Future<void> removeLast() => Future<void>(() => _tissue.removeLast());
+  Future<void> removeLast() async {
+    final outcome = await _runTissueMutation(_tissue, _tissue.removeLast);
+    if (outcome is ApplyRejected<dynamic>) {
+      throw UnsupportedError('Unmodifiable operation');
+    }
+  }
 
   /// Asynchronously removes a range of elements.
-  Future<void> removeRange(int start, int end) =>
-      Future<void>(() => _tissue.removeRange(start, end));
+  Future<void> removeRange(int start, int end) async {
+    await _runTissueMutation(_tissue, _tissue.removeRange, [start, end]);
+  }
 
   /// Asynchronously replaces a range of elements with [newContents].
-  Future<void> replaceRange(int start, int end, Iterable<E> newContents) =>
-      Future<void>(() => _tissue.replaceRange(start, end, newContents));
+  Future<void> replaceRange(int start, int end, Iterable<E> newContents) async {
+    await _runTissueMutation(
+        _tissue, _tissue.replaceRange, [start, end, newContents]);
+  }
 
   /// Asynchronously overwrites elements starting at [index] with [iterable].
-  Future<void> setAll(int index, Iterable<E> iterable) =>
-      Future<void>(() => _tissue.setAll(index, iterable));
+  Future<void> setAll(int index, Iterable<E> iterable) async {
+    await _runTissueMutation(_tissue, _tissue.setAll, [index, iterable]);
+  }
 
   /// Asynchronously overwrites a specific range with elements from [iterable].
   Future<void> setRange(int start, int end, Iterable<E> iterable,
-          [int skipCount = 0]) =>
-      Future<void>(() => _tissue.setRange(start, end, iterable, skipCount));
+      [int skipCount = 0]) async {
+    await _runTissueMutation(
+        _tissue, _tissue.setRange, [start, end, iterable, skipCount]);
+  }
 
   /// Asynchronously shuffles the elements of this list.
   ///
-  Future<void> shuffle([Random? random]) =>
-      Future<void>(() => _tissue.shuffle(random));
+  Future<void> shuffle([Random? random]) async {
+    await _runTissueMutation(_tissue, _tissue.shuffle, [random]);
+  }
 
   /// Asynchronously sorts the list according to [compare].
   ///
   /// ### How it works
   /// The sort is performed in-place on the underlying storage. Once complete,
   /// a signal is sent through the [Synapses] to notify reactive dependencies.
-  Future<void> sort([int Function(E a, E b)? compare]) =>
-      Future<void>(() => _tissue.sort(compare));
+  Future<void> sort([int Function(E a, E b)? compare]) async {
+    await _runTissueMutation(_tissue, _tissue.sort, [compare]);
+  }
 }
 
 /// An unmodifiable async facade that throws [UnsupportedError] on any mutation.

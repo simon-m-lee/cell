@@ -71,8 +71,9 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; insertAll(int index, Iterable&lt;E&gt; iterable) =&gt;
-    Future&lt;void&gt;(() =&gt; _tissue.insertAll(index, iterable));</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; insertAll(int index, Iterable&lt;E&gt; iterable) async {
+  await _runTissueMutation(_tissue, _tissue.insertAll, [index, iterable]);
+}</code></pre>
 </section>
 
 
@@ -100,7 +101,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

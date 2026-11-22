@@ -129,7 +129,7 @@ implementations for each collection type.</li>
 <p><strong>Layer:</strong> Tissue — the read-only book surface. Not a Cell factory, not a Flow operator.
 <strong>When to use:</strong> COMPLY / council views — <code>book.unmodifiable</code> is a <strong>live</strong> zero-copy view, not a snapshot; use <code>.deputy(testRule: …)</code> for a narrowed write set.
 <strong>When NOT to use:</strong> a daily PDF roll-up (that is a harness <strong>read</strong>, not a view); never keep two books "for compliance".
-<strong>Live signature:</strong> <code>abstract interface class UnmodifiableTissue&lt;E&gt; implements Tissue&lt;E&gt;, Unmodifiable</code> — pinned at <code>cell_tissue: 1.1.0</code>
+<strong>Live signature:</strong> <code>abstract interface class UnmodifiableTissue&lt;E&gt; implements Tissue&lt;E&gt;, Unmodifiable</code> — pinned at <code>cell_tissue: 1.2.0</code>
 <strong>Do NOT confuse with:</strong> <code>Tissue</code> itself (the writable book; this is its read-only surface).
 <strong>Guide:</strong> <code>HowTo-Mitose-Tissue.md</code> §4 "Deputies and .unmodifiable" (#tissue-deputies)
 <strong>Example:</strong> <code>example/cell_tissue_example.dart</code>
@@ -174,6 +174,7 @@ print(ro.length); // 2
       <li><a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/NullableIterableExtensions.html">NullableIterableExtensions</a></li>
       <li><a href="../cell_tissue/PulseIterableExtension.html">PulseIterableExtension</a></li>
+      <li><a href="../cell_tissue/TissueSkippedReport.html">TissueSkippedReport</a></li>
   </ul></dd>
         
 
@@ -486,6 +487,23 @@ downstream observers and does not broadcast pulses.
         provided by the <a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a> extension</span>
       </p>
   The single element of this iterator, or <code>null</code>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="skippedReport" class="property">
+  <span class="name"><a href="../cell_tissue/TissueSkippedReport/skippedReport.html">skippedReport</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>,
+        provided by the <a href="../cell_tissue/TissueSkippedReport.html">TissueSkippedReport</a> extension</span>
+      </p>
+  The <code>{'wire': [...], 'decode': [...]}</code> skip report, or <code>null</code> when no
+skip occurred.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -1101,7 +1119,7 @@ collection.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

@@ -62,22 +62,24 @@
     </section>
     
 <section class="desc markdown">
-  <p>Asynchronously removes and returns the last element of the associated <a href="../../cell_tissue/TissueQueue-class.html">TissueQueue</a>.</p>
-<p>This method wraps the synchronous <code>_tissue.removeLast()</code> call in a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>.
-The underlying <code>removeLast()</code> operation would typically throw a <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a> if the
-queue is empty.</p>
+  <p>Asynchronously removes and returns the last element of the associated
+<a href="../../cell_tissue/TissueQueue-class.html">TissueQueue</a>.</p>
 <h3 id="returns">Returns:</h3>
-<p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;E&gt;</a> that completes with the element removed from the end of the queue.
-  The Future will complete with an error (e.g., <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a> from the underlying
-  operation) if the queue is empty.</p>
+<p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;E&gt;</a> that completes with the element removed from the end of
+  the queue. The Future completes with an <a href="https://api.flutter.dev/flutter/dart-core/UnsupportedError-class.html">UnsupportedError</a> if the
+  operation is rejected, or a <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a> if the queue is empty.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;E&gt; removeLast() {
-  return Future&lt;E&gt;(() =&gt; _tissue.removeLast());
+  <pre class="language-dart"><code class="language-dart">Future&lt;E&gt; removeLast() async {
+  final outcome = await _runTissueMutation(_tissue, _tissue.removeLast);
+  if (outcome is ApplyRejected&lt;dynamic&gt;) {
+    throw UnsupportedError(&#39;Unmodifiable operation&#39;);
+  }
+  return (outcome as ApplyAccepted&lt;dynamic&gt;).result as E;
 }</code></pre>
 </section>
 
@@ -106,7 +108,7 @@ queue is empty.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

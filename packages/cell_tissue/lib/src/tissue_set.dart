@@ -101,7 +101,6 @@ abstract interface class TissueSetNucleus<E> implements TissueNucleus<E> {
       EphemeralPolicy? ephemeralPolicy,
       Record? user}) = _TissueSetNucleus<E, TissueSet<E>>;
 
-
   /// Creates a specialized **Architectural Extension** of an existing [TissueSetNucleus]
   /// to support hierarchical property inheritance and contextual overrides for sets.
   ///
@@ -173,7 +172,8 @@ abstract interface class TissueSetNucleus<E> implements TissueNucleus<E> {
   /// ### Returns:
   /// A new [TissueSetNucleus<E>] instance acting as a specialized behavioral
   /// layer over the [principal].
-  factory TissueSetNucleus.evolve(TissueSetNucleus<E> principal, {
+  factory TissueSetNucleus.evolve(
+    TissueSetNucleus<E> principal, {
     Cell? bind,
     Context? context,
     TissueReceptor<E, TissueSet<E>>? receptor,
@@ -416,7 +416,7 @@ abstract interface class TissueSetNucleus<E> implements TissueNucleus<E> {
 /// **When NOT to use:**
 ///   {@macro ai-do-not-testcell-on-tissue}
 ///   {@macro ai-do-not-two-lists-for-compliance}
-/// **Live signature:** `TissueSet<E>(Iterable<E> elements, {bind, context, testRule, receptor, synapses, ...})` / `TissueSet.unmodifiable(bind, {...})` — pinned at `cell_tissue: 1.1.0`
+/// **Live signature:** `TissueSet<E>(Iterable<E> elements, {bind, context, testRule, receptor, synapses, ...})` / `TissueSet.unmodifiable(bind, {...})` — pinned at `cell_tissue: 1.2.0`
 /// **Do NOT confuse with:** `TissueList` (ordered history; a set does not keep insertion order as the story).
 /// **Guide:** `HowTo-Mitose-Tissue.md` §2.2 "TissueSet — the guard register" (#tissue-set)
 /// **Example:** `example/cell_tissue_example.dart`
@@ -656,6 +656,82 @@ abstract interface class TissueSet<E> implements Tissue<E>, Set<E> {
   /// A concrete [TissueSet<E>] instance.
   factory TissueSet.fromNucleus(TissueSetNucleus<E> nucleus,
       {Iterable<E>? elements}) = _TissueSet<E, TissueSet<E>>.fromNucleus;
+
+  /// Reconstructs a [TissueSet] from the canonical JSON produced by
+  /// `encodeTissue` / [TissueSetJson.toJson].
+  ///
+  /// ### Overrides
+  ///
+  /// | Override | Behaviour |
+  /// |---|---|
+  /// | `testRule` | [tissueNullTestRule] → [TestTissue.allowAll] (explicit widening); otherwise the rule to install. |
+  /// | `context` | `null` = use the JSON's context. |
+  /// | `bind` | [tissueNullBind] strips the bind; otherwise the upstream cell. |
+  /// | `container` | [tissueNullContainer] → the set default ([Container.set]); otherwise the strategy. |
+  /// | `identity` | `true` → [Container.identitySet], `false` → [Container.set], `null` = use the JSON. |
+  /// | `elements` | Replaces the JSON's elements. |
+  /// | `user` | [tissueNullUser] strips metadata; otherwise the caller's record. |
+  ///
+  /// ### Lenient mode
+  ///
+  /// Mirrors [decodeTissue]; overrides always win and are never counted as
+  /// skipped.
+  factory TissueSet.fromJson(
+    Map<String, dynamic> json, {
+    TissueCellResolver? cellResolver,
+    TissueGovernanceResolver? governanceResolver,
+    bool lenient = false,
+    TestTissue<dynamic, Tissue<dynamic>> lenientFallbackTestRule =
+        TestTissue.readOnly,
+    void Function(List<String> skipped)? onSkipped,
+    Object? testRule,
+    Context? context,
+    Object? bind,
+    Object? container,
+    bool? identity,
+    Object? user,
+    Iterable<E>? elements,
+  }) {
+    if (json['kind'] != 'set') {
+      throw TissueDecodeError(
+          'TissueSet.fromJson received kind: ${json['kind']}');
+    }
+    final hasOverrides = testRule != null ||
+        context != null ||
+        bind != null ||
+        container != null ||
+        identity != null ||
+        user != null ||
+        elements != null;
+    final base = decodeTissue(json,
+        cellResolver: cellResolver,
+        governanceResolver:
+            testRule != null ? (_) => TestTissue.allowAll : governanceResolver,
+        lenient: lenient,
+        lenientFallbackTestRule: lenientFallbackTestRule,
+        onSkipped: hasOverrides ? null : onSkipped);
+    final effectiveRule = _resolveRuleOverride(testRule, base.validate);
+    final effectiveContext = context ?? base.context;
+    final effectiveBind = _resolveBindOverride(bind, base._nucleus.bind);
+    final effectiveContainer =
+        _resolveContainerOverride(container, base._nucleus.containerType);
+    final effectiveUser = _resolveUserOverride(
+        user,
+        hasOverrides
+            ? _unwrapDecodedUser(base._nucleus.user)
+            : base._nucleus.user);
+    final effectiveElements = elements ?? Set<E>.from(base);
+    final nucleus = TissueSetNucleus.create<E, TissueSet<E>>(
+        testRule: effectiveRule as dynamic,
+        context: effectiveContext,
+        bind: effectiveBind,
+        container: identity == null
+            ? effectiveContainer
+            : (identity ? Container.identitySet : Container.set),
+        synapses: _synapsesFromJson(json),
+        user: effectiveUser as dynamic);
+    return TissueSet.fromNucleus(nucleus, elements: effectiveElements);
+  }
 
   /// A high‑fidelity architectural factory for creating a **Deeply
   /// Immodifiable Reactive View** (Deputy) of an existing [TissueSet].
@@ -1103,4 +1179,22 @@ abstract interface class UnmodifiableTissueSet<E>
         unmodifiableElement: unmodifiableElement,
         elements: elements);
   }
+}
+
+/// JSON serialisation surface for [TissueSet].
+///
+/// ### How it works
+/// `set.toJson()` delegates to [encodeTissue]. Insertion order and
+/// uniqueness are preserved; the `set` / `identitySet` container tags
+/// round-trip; `Cell` elements round-trip as `{"__cell__": id}` references
+/// resolved on decode via [TissueCellResolver].
+extension TissueSetJson<E> on TissueSet<E> {
+  /// Encodes this set to its canonical JSON wire form.
+  Map<String, dynamic> toJson({
+    bool lenient = false,
+    TestTissue<dynamic, Tissue<dynamic>> lenientFallbackTestRule =
+        TestTissue.readOnly,
+  }) =>
+      encodeTissue(this,
+          lenient: lenient, lenientFallbackTestRule: lenientFallbackTestRule);
 }

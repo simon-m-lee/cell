@@ -74,7 +74,9 @@ is emitted containing a <a href="../../mitosis/Tissue/elementAdded-constant.html
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; add(E element) =&gt; Future&lt;void&gt;(() =&gt; _tissue.add(element));</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; add(E element) async {
+  await _runTissueMutation(_tissue, _tissue.add, [element]);
+}</code></pre>
 </section>
 
 

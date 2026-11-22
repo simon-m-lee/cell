@@ -76,8 +76,8 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; addEntries(Iterable&lt;MapEntry&lt;K, V&gt;&gt; newEntries) {
-  return Future&lt;void&gt;(() =&gt; _tissue.addEntries(newEntries));
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; addEntries(Iterable&lt;MapEntry&lt;K, V&gt;&gt; newEntries) async {
+  await _runTissueMutation(_tissue, _tissue.addEntries, [newEntries]);
 }</code></pre>
 </section>
 

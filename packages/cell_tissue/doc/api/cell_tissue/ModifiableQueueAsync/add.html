@@ -79,7 +79,7 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; add(E value) async {
-  return Future&lt;void&gt;(() =&gt; _tissue.add(value));
+  await _runTissueMutation(_tissue, _tissue.add, [value]);
 }</code></pre>
 </section>
 
@@ -108,7 +108,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

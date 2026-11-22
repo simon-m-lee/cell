@@ -24,6 +24,7 @@ packages/cell_g/
 packages/cell_organ/
 packages/cell_mind/
 packages/mitose_flutter/
+packages/cell_ontogeny/
 
 # .deepcode directory containing sensitive API keys and model settings
 .deepcode/

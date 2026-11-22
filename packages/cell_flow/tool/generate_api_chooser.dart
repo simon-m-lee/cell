@@ -16,6 +16,11 @@ import 'ai_guide_doc.dart';
 
 const String packageName = 'cell_flow';
 const String libraryName = 'cell_flow_api_chooser';
+
+/// Where the Markdown twin of the matrix lives inside the published skill.
+const String skillApiChooserPath =
+    'skills/cell-flow-operators/references/api_chooser.md';
+
 const String intro = '''
 **Layer:** Flow. Owns: `riskOf` / operators / latch / product filter /
 chain assembly / `toHandle`. Does **not** own: ingress, observe,
@@ -64,6 +69,40 @@ String generateApiChooser(List<AiGuideBlock> blocks) {
   return buffer.toString();
 }
 
+String generateApiChooserMarkdown(List<AiGuideBlock> blocks) {
+  final buffer = StringBuffer();
+  buffer.writeln('<!-- GENERATED FILE — do not edit by hand. -->');
+  buffer.writeln('<!-- Regenerate with: dart run tool/generate_api_chooser.dart -->');
+  buffer.writeln();
+  buffer.writeln('# API Chooser — `$packageName`');
+  buffer.writeln();
+  for (final line in intro.trim().split('\n')) {
+    buffer.writeln(line);
+  }
+  buffer.writeln();
+  buffer.writeln('The full decision procedure lives in the layer HowTo; this matrix');
+  buffer.writeln('is generated from the `### AI Agent Guide` doc blocks and cannot');
+  buffer.writeln('drift.');
+  buffer.writeln();
+  buffer.writeln('| Symbol | When to use | When NOT to use | Live signature | Guide | Example |');
+  buffer.writeln('|---|---|---|---|---|---|');
+
+  final sorted = [...blocks]..sort((a, b) => a.key.compareTo(b.key));
+  for (final b in sorted) {
+    buffer.writeln('| `${b.key}` | ${_cell(b.whenToUse)} | '
+        '${_cell(b.whenNotToUse)} | ${_cell(b.liveSignature)} | '
+        '${_cell(b.guide)} | ${_cell(b.example)} |');
+  }
+  buffer.writeln();
+  buffer.writeln('## How this matrix stays fresh');
+  buffer.writeln();
+  buffer.writeln('* `dart run tool/generate_api_chooser.dart` — regenerates this file.');
+  buffer.writeln('* `test/api_chooser_up_to_date_test.dart` — fails CI if stale.');
+  buffer.writeln('* `dart run tool/ai_preflight.dart` — fails CI if a pin drifts.');
+  buffer.writeln();
+  return buffer.toString();
+}
+
 String _cell(String value) {
   return value
       .replaceAll('|', '/')
@@ -86,4 +125,9 @@ Future<void> main(List<String> args) async {
   file.parent.createSync(recursive: true);
   file.writeAsStringSync(output);
   stdout.writeln('Wrote ${file.path} (${blocks.length} rows).');
+
+  final skillFile = File('$root${Platform.pathSeparator}$skillApiChooserPath');
+  skillFile.parent.createSync(recursive: true);
+  skillFile.writeAsStringSync(generateApiChooserMarkdown(blocks));
+  stdout.writeln('Wrote ${skillFile.path} (${blocks.length} rows).');
 }

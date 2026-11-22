@@ -224,3 +224,160 @@ class _TestTissueReadOnly extends TestTissue<Never, Never> {
     return true;
   }
 }
+
+// ── Shared FutureOr‑aware verdict plumbing ─────────────────────────────
+
+/// The user‑facing message for [_AsyncRuleOnSyncPath].
+const _asyncVerdictMessage =
+    'Asynchronous TestTissue validation cannot complete on the synchronous '
+    'mutation path. Use the `.async` facade (for example '
+    '`await tissue.async.add(...)`) so the rule can be awaited.';
+
+/// Internal signal: an asynchronous validation verdict reached the
+/// synchronous mutation surface.
+///
+/// It extends [UnsupportedError] so the caller can catch the public error
+/// type, while the dispatch engines recognise the exact class and convert /
+/// rethrow it without disturbing their legacy error‑swallowing behaviour
+/// for [UnsupportedError]s raised by mutation helpers.
+class _AsyncRuleOnSyncPath extends UnsupportedError {
+  _AsyncRuleOnSyncPath() : super(_asyncVerdictMessage);
+}
+
+/// Applies a validation verdict that may complete asynchronously.
+///
+/// A synchronous `true` verdict runs [onAllow] inline; a synchronous
+/// `false` verdict returns `null` without running it. A [Future] verdict is
+/// awaited through the returned [Future], which completes with the
+/// [onAllow] result when the verdict resolves to `true` and with `null`
+/// when it resolves to `false`.
+///
+/// The synchronous mutation surface (`list.add(...)`) cannot await a rule:
+/// on that surface (`sync: true`) a [Future] verdict throws
+/// [_AsyncRuleOnSyncPath] *before* any mutation is applied, instead of
+/// silently dropping the operation. The `.async` facade and the
+/// [Cell.apply] command gateway pass `sync: false` and await the result.
+FutureOr<R?> _permit<R>(
+  FutureOr<bool> verdict,
+  FutureOr<R?> Function() onAllow, {
+  bool sync = false,
+}) {
+  if (verdict is Future<bool>) {
+    if (sync) {
+      throw _AsyncRuleOnSyncPath();
+    }
+    return verdict.then((allowed) => allowed ? onAllow() : null);
+  }
+  return verdict == true ? onAllow() : null;
+}
+
+/// Like [_permit], but a rejection throws [UnsupportedError] instead of
+/// returning `null`.
+///
+/// Used by mutations whose contract is to return a value or throw (e.g.
+/// `removeFirst` / `removeLast` on a queue).
+FutureOr<R> _require<R>(
+  FutureOr<bool> verdict,
+  R Function() onAllow, {
+  bool sync = false,
+}) {
+  if (verdict is Future<bool>) {
+    if (sync) {
+      throw _AsyncRuleOnSyncPath();
+    }
+    return verdict.then((allowed) {
+      if (!allowed) {
+        throw UnsupportedError('Unmodifiable operation');
+      }
+      return onAllow();
+    });
+  }
+  if (verdict != true) {
+    throw UnsupportedError('Unmodifiable operation');
+  }
+  return onAllow();
+}
+
+/// Sequentially validates and applies a batch of mutations.
+///
+/// Calls [verdictOf] for each index in `0 .. length - 1` and runs
+/// [onAllow] for every verdict that resolves to `true`, preserving
+/// iteration order. In asynchronous mode the first [Future] verdict
+/// switches the remaining batch to the asynchronous path, so mutations
+/// settle in order and the returned [Future] completes only after the
+/// whole batch has been decided.
+///
+/// In synchronous mode (`sync: true`) the whole batch is validated
+/// against the pre‑mutation state before anything is applied; a [Future]
+/// verdict throws [_AsyncRuleOnSyncPath] without partially mutating the
+/// collection.
+FutureOr<dynamic> _permitEach(
+  int length,
+  FutureOr<bool> Function(int index) verdictOf,
+  void Function(int index) onAllow, {
+  bool sync = false,
+}) {
+  if (sync) {
+    final verdicts = <bool>[];
+    for (var i = 0; i < length; i++) {
+      final verdict = verdictOf(i);
+      if (verdict is Future<bool>) {
+        throw _AsyncRuleOnSyncPath();
+      }
+      verdicts.add(verdict == true);
+    }
+    for (var i = 0; i < length; i++) {
+      if (verdicts[i]) {
+        onAllow(i);
+      }
+    }
+    return null;
+  }
+  return _permitEachFrom(0, length, verdictOf, onAllow);
+}
+
+/// Continuation of [_permitEach] from [index] after an awaited verdict.
+Future<void> _permitEachFrom(
+  int index,
+  int length,
+  FutureOr<bool> Function(int index) verdictOf,
+  void Function(int index) onAllow,
+) async {
+  for (var i = index; i < length; i++) {
+    final verdict = verdictOf(i);
+    if (verdict is Future<bool>) {
+      final allowed = await verdict;
+      if (allowed) {
+        onAllow(i);
+      }
+      await _permitEachFrom(i + 1, length, verdictOf, onAllow);
+      return;
+    }
+    if (verdict == true) {
+      onAllow(i);
+    }
+  }
+}
+
+/// Submits [function] through the tissue command gateway and awaits the
+/// auditable outcome.
+///
+/// The async facades route every mutation through this helper so an
+/// asynchronous [TestTissue] rule is awaited — and the mutation applied or
+/// rejected — before the facade's [Future] completes.
+Future<ApplyOutcome<dynamic>> _runTissueMutation(
+  Cell tissue,
+  Function function, [
+  List<Object?>? positionalArguments,
+  Map<Symbol, Object?>? namedArguments,
+]) async {
+  final outcome = tissue.apply<dynamic>((
+    function: function,
+    arguments: (
+      positionalArguments: positionalArguments,
+      namedArguments: namedArguments,
+    ),
+    compensation: null,
+  ));
+  return await outcome;
+}

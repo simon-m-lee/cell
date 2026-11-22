@@ -175,15 +175,14 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
   /// ### Returns:
   /// A new [TissueValueNucleus<V>] instance acting as a specialized behavioral
   /// layer over the [principal].
-  factory TissueValueNucleus.evolve(TissueValueNucleus<V> principal, {
-    Cell? bind,
-    Context? context,
-    TissueReceptor<V, TissueValue<V>>? receptor,
-    TestTissue<V, TissueValue<V>>? testRule,
-    Synapses? synapses,
-    EphemeralPolicy? ephemeralPolicy,
-    TissueValueNucleus<V>? override
-  }) {
+  factory TissueValueNucleus.evolve(TissueValueNucleus<V> principal,
+      {Cell? bind,
+      Context? context,
+      TissueReceptor<V, TissueValue<V>>? receptor,
+      TestTissue<V, TissueValue<V>>? testRule,
+      Synapses? synapses,
+      EphemeralPolicy? ephemeralPolicy,
+      TissueValueNucleus<V>? override}) {
     return _TissueValueNucleus<V, TissueValue<V>>.fromRecord((
       local: override != null
           ? (override as NucleusBase).record.local
@@ -237,18 +236,17 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
   /// ### Returns:
   /// A nucleus instance strictly configured for the specified value and
   /// tissue types.
-  static TissueValueNucleusBase<V, C> create<V, C extends TissueValue<V>>({
-    Cell? bind,
-    Context? context,
-    TissueReceptor<V, C>? receptor,
-    TestTissue<V, C>? testRule,
-    Synapses? synapses,
-    Container? container,
-    Record? user,
-    EphemeralPolicy? ephemeralPolicy,
-    forceLock = false,
-    TissueValueNucleusBase<V, C>? principal
-  }) {
+  static TissueValueNucleusBase<V, C> create<V, C extends TissueValue<V>>(
+      {Cell? bind,
+      Context? context,
+      TissueReceptor<V, C>? receptor,
+      TestTissue<V, C>? testRule,
+      Synapses? synapses,
+      Container? container,
+      Record? user,
+      EphemeralPolicy? ephemeralPolicy,
+      forceLock = false,
+      TissueValueNucleusBase<V, C>? principal}) {
     if (principal != null) {
       final local = TissueNucleusBase.mask<V, ValueContainer<V>, C>(
         container: container,
@@ -425,7 +423,7 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
 /// **When NOT to use:**
 ///   {@macro ai-do-not-testcell-on-tissue}
 ///   `Cell.state<int>` when the WalkThrough named a reserve book.
-/// **Live signature:** `TissueValue<V>(V? value, {bind, context, testRule, receptor, synapses, finalValue})` / `TissueValue.empty({...})` / `TissueValue.unmodifiable(bind)` — pinned at `cell_tissue: 1.1.0`
+/// **Live signature:** `TissueValue<V>(V? value, {bind, context, testRule, receptor, synapses, finalValue})` / `TissueValue.empty({...})` / `TissueValue.unmodifiable(bind)` — pinned at `cell_tissue: 1.2.0`
 /// **Do NOT confuse with:** `Cell.state` (retained setting without Tissue semantics).
 /// **Guide:** `HowTo-Mitose-Tissue.md` §2.5 "TissueValue — the reserve scalar" (#tissue-value)
 /// **Example:** `example/cell_tissue_example.dart`
@@ -570,6 +568,81 @@ abstract interface class TissueValue<V> implements Tissue<V> {
   /// A concrete [TissueValue<V>] instance.
   factory TissueValue.fromNucleus(TissueValueNucleus<V> nucleus, {V? value}) =
       _TissueValue<V, TissueValue<V>>.fromNucleus;
+
+  /// Reconstructs a [TissueValue] from the canonical JSON produced by
+  /// `encodeTissue` / [TissueValueJson.toJson].
+  ///
+  /// ### Overrides
+  ///
+  /// | Override | Behaviour |
+  /// |---|---|
+  /// | `testRule` | [tissueNullTestRule] → [TestTissue.allowAll] (explicit widening); otherwise the rule to install. |
+  /// | `context` | `null` = use the JSON's context. |
+  /// | `bind` | [tissueNullBind] strips the bind; otherwise the upstream cell. |
+  /// | `container` | [tissueNullContainer] → the value default ([Container.value]); otherwise the strategy. |
+  /// | `value` | [tissueNullValue] → a `TissueValue` holding `null`; any other value replaces the JSON's value regardless of the record. |
+  /// | `user` | [tissueNullUser] strips metadata; otherwise the caller's record. |
+  ///
+  /// ### Lenient mode
+  ///
+  /// Mirrors [decodeTissue]; overrides always win and are never counted as
+  /// skipped.
+  factory TissueValue.fromJson(
+    Map<String, dynamic> json, {
+    TissueCellResolver? cellResolver,
+    TissueGovernanceResolver? governanceResolver,
+    bool lenient = false,
+    TestTissue<dynamic, Tissue<dynamic>> lenientFallbackTestRule =
+        TestTissue.readOnly,
+    void Function(List<String> skipped)? onSkipped,
+    Object? testRule,
+    Context? context,
+    Object? bind,
+    Object? container,
+    Object? user,
+    Object? value,
+  }) {
+    if (json['kind'] != 'value') {
+      throw TissueDecodeError(
+          'TissueValue.fromJson received kind: ${json['kind']}');
+    }
+    final hasOverrides = testRule != null ||
+        context != null ||
+        bind != null ||
+        container != null ||
+        user != null ||
+        value != null;
+    final base = decodeTissue(json,
+        cellResolver: cellResolver,
+        governanceResolver:
+            testRule != null ? (_) => TestTissue.allowAll : governanceResolver,
+        lenient: lenient,
+        lenientFallbackTestRule: lenientFallbackTestRule,
+        onSkipped: hasOverrides ? null : onSkipped);
+    final effectiveRule = _resolveRuleOverride(testRule, base.validate);
+    final effectiveContext = context ?? base.context;
+    final effectiveBind = _resolveBindOverride(bind, base._nucleus.bind);
+    final effectiveContainer =
+        _resolveContainerOverride(container, base._nucleus.containerType);
+    final effectiveUser = _resolveUserOverride(
+        user,
+        hasOverrides
+            ? _unwrapDecodedUser(base._nucleus.user)
+            : base._nucleus.user);
+    final effectiveValue = value == null
+        ? (base as TissueValue<dynamic>).value as V?
+        : identical(value, tissueNullValue)
+            ? null
+            : value as V;
+    final nucleus = TissueValueNucleus.create<V, TissueValue<V>>(
+        testRule: effectiveRule as dynamic,
+        context: effectiveContext,
+        bind: effectiveBind,
+        container: effectiveContainer,
+        synapses: _synapsesFromJson(json),
+        user: effectiveUser as dynamic);
+    return TissueValue.fromNucleus(nucleus, value: effectiveValue);
+  }
 
   /// A high‑fidelity architectural factory for creating a **Deeply
   /// Immodifiable Reactive View** (Deputy) of an existing [TissueValue].
@@ -795,8 +868,13 @@ abstract interface class TissueValue<V> implements Tissue<V> {
   /// - `false`: The operation was rejected or was a no‑op.
   bool set(V? value);
 
-  // ignore: unused_element_parameter (notification and deputy are used by implementations)
-  TissuePulse<ElementUpdatedRecord<V, TissueValue<V>>>? _set(V? v, {bool notification = true, Tissue<V>? deputy});
+  FutureOr<TissuePulse<ElementUpdatedRecord<V, TissueValue<V>>>?> _set(V? v,
+      // ignore: unused_element_parameter
+      {bool notification = true,
+      // ignore: unused_element_parameter
+      Tissue<V>? deputy,
+      // ignore: unused_element_parameter
+      bool sync = false});
 
   /// Returns a read‑only, reactive projection (Deputy) of this [TissueValue].
   ///
@@ -1132,4 +1210,22 @@ abstract interface class UnmodifiableTissueValue<V>
   /// read‑only, asynchronous view of the reactive state.
   @override
   ModifiableValueAsync<V> get async;
+}
+
+/// JSON serialisation surface for [TissueValue].
+///
+/// ### How it works
+/// `value.toJson()` delegates to [encodeTissue]. The scalar (including
+/// `null`) round-trips; the `value` / `finalValue` container tags preserve
+/// the write-once flag; a `Cell` value round-trips as a `{"__cell__": id}`
+/// reference resolved on decode via [TissueCellResolver].
+extension TissueValueJson<V> on TissueValue<V> {
+  /// Encodes this value to its canonical JSON wire form.
+  Map<String, dynamic> toJson({
+    bool lenient = false,
+    TestTissue<dynamic, Tissue<dynamic>> lenientFallbackTestRule =
+        TestTissue.readOnly,
+  }) =>
+      encodeTissue(this,
+          lenient: lenient, lenientFallbackTestRule: lenientFallbackTestRule);
 }

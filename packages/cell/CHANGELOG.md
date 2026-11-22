@@ -1,4 +1,4 @@
-## Unreleased — Pulse Serialization & Reconstruction
+## Cell (2.1.0) - Pulse Serialization & Reconstruction
 
 The user-facing pulse serialization layer: a wire codec, an extended
 factory, an extension, a resolver contract, and five override
@@ -45,6 +45,19 @@ sentinels.
   branches and the cycle checker are per-wave state and reset on
   decode. `PulseEphemeralPolicy` serialization remains out of scope.
 - Document the layer in `guide/HowTo-Pulse.md` §28.
+- **Official package skill** (`skills/cell-core/`): an Agent Skills
+  `SKILL.md` for package consumers — factory-picking workflow, hard rules
+  (never a custom Cell for policy, never a collection in `Cell.state`),
+  and the BRD elevator matrix — installed with `dart run skills@ get cell`.
+- **Skill matrix**: `tool/generate_api_chooser.dart` now also emits the
+  decision matrix as `skills/cell-core/references/api_chooser.md`;
+  `test/api_chooser_up_to_date_test.dart` asserts both outputs fresh.
+- **Benchmark budgets**: new `benchmark/regression-budgets.json` with 1.0
+  (100%) allowances for the six `asyncMap` benchmarks, whose event-loop
+  spin cost swings with runner scheduling rather than framework
+  performance; the CI gate passes the file via `--budgets`.
+- **Docs**: README opens with the package-skill install command; AI-guide
+  pins refreshed to `cell` 2.1.0; `Context` constructors reformatted.
 
 ## Cell (2.0.0) - Causal Replay
 

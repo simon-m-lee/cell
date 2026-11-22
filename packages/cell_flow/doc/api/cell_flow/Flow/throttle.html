@@ -131,7 +131,7 @@ final handle = Flow.throttle&lt;ScrollEvent&gt;(
 policy gate. Time operators shape feeds (belt chatter, search boxes);
 the decision belongs in a <code>FlowInstructionBase</code> subclass.
 See <code>HowTo-Mitose-Flow.md</code> §3.6 "Time".
-<strong>Live signature:</strong> <code>Flow.throttle&lt;S&gt;(Cell source, {required Duration duration, bool leading = true, bool trailing = false})</code> — pinned at <code>cell_flow: 1.1.0</code>
+<strong>Live signature:</strong> <code>Flow.throttle&lt;S&gt;(Cell source, {required Duration duration, bool leading = true, bool trailing = false})</code> — pinned at <code>cell_flow: 1.2.0</code>
 <strong>Do NOT confuse with:</strong> <code>Flow.debounce</code> (waits for silence; this is a fixed rate window).
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.6 "Time" (#flow-time)
 <strong>Example:</strong> <code>example/throttle_rate_limiting_demo.dart</code>
@@ -190,7 +190,7 @@ o.stop();
 <footer>
   <span class="no-break">
     cell_flow
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

@@ -80,7 +80,7 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 V putIfAbsent(K key, V Function() ifAbsent) =&gt;
-    dispatch(putIfAbsent, positionalArguments: [key, ifAbsent]);</code></pre>
+    dispatch(putIfAbsent, positionalArguments: [key, ifAbsent], sync: true);</code></pre>
 </section>
 
 

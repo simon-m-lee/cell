@@ -73,7 +73,8 @@ successfully added (i.e., it passed validation and was not already present).</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Future&lt;bool&gt; add(E element) async {
-  return Future&lt;bool&gt;(() =&gt; _tissue.add(element));
+  final outcome = await _runTissueMutation(_tissue, _tissue.add, [element]);
+  return outcome is ApplyAccepted&lt;dynamic&gt;;
 }</code></pre>
 </section>
 
@@ -102,7 +103,7 @@ successfully added (i.e., it passed validation and was not already present).</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

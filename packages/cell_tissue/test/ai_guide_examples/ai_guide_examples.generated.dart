@@ -36,14 +36,14 @@ Future<void> aiExampleTestTissue() async {
   print(book.length); // 1
 }
 
-// <lib/src/tissue_list.dart:401>
+// <lib/src/tissue_list.dart:400>
 Future<void> aiExampleTissueList() async {
   final list = TissueList.of(['a', 'b']);
   list.add('c');
   print(list.length); // 3
 }
 
-// <lib/src/tissue_map.dart:415>
+// <lib/src/tissue_map.dart:416>
 Future<void> aiExampleTissueMap() async {
   final map = TissueMap<String, int>(entries: [MapEntry('a', 1)]);
   map['b'] = 2;
@@ -64,7 +64,7 @@ Future<void> aiExampleTissueSet() async {
   print(set.length); // 2
 }
 
-// <lib/src/tissue_value.dart:422>
+// <lib/src/tissue_value.dart:420>
 Future<void> aiExampleTissueValue() async {
   final q = TissueQueue<int>(capacity: 3);
   q.addLast(1);

@@ -5,6 +5,54 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Version numbers follow [SemVer](https://semver.org/). **Tissue** is the
 release codename; it is not part of the SemVer string.
 
+## Tissue (1.2.0) - Serialization & Reconstruction
+
+- **Two-mode tissue codec**: `encodeTissue` / `decodeTissue` with the
+  canonical `__tissue__: 1.0.0` envelope, per-shape `elements`, config tags
+  (`growableTrue`/`growableFalse`, `set`/`identitySet`, `map`/`identityMap`,
+  `queue`, `value`/`finalValue`, `capacity`, `synapses`), and governance
+  tags (`allowAll`, `readOnly`, `registered:<key>`, `Context`, `bind`).
+- **Strict mode** (default) throws `TissueNotSerializable(field, tissue)`
+  for a custom receptor, an untaggable rule, an `EphemeralPolicy`, a custom
+  container, an empty-`id` `Cell`, or a non-JSON element/user.
+- **Lenient mode** (`lenient: true`) substitutes safe, fail-closed defaults
+  and records every substitution in a sorted `__skipped__` array on the
+  wire; decode surfaces the report via the `onSkipped` callback and
+  `tissue.skippedReport`. `lenientFallbackTestRule` defaults to
+  `TestTissue.readOnly` — `allowAll` is an explicit opt-in. Structural
+  corruption (unknown version/kind, malformed elements) still throws.
+- **Extended `fromJson` factories** on `TissueList`, `TissueSet`,
+  `TissueMap`, `TissueQueue`, and `TissueValue` with the full override
+  surface (`testRule`, `context`, `bind`, `container`, `user`, payload,
+  plus `capacity` and `identity`), and **`toJson` extensions** per shape.
+- **Seven sentinels**: `tissueNullTestRule`, `tissueNullBind`,
+  `tissueNullContainer`, `tissueNullUser`, `tissueNullElements`,
+  `tissueNullCapacity`, `tissueNullValue` — `tissueNullTestRule` explicitly
+  widens to `allowAll` and is distinct from the lenient fallback.
+- **Resolver contracts**: `TissueCellResolver` (cells and binds) and
+  `TissueGovernanceResolver` (governance tags), plus the in-process
+  `TissueGovernanceRegistry` so `registered:` tags round-trip by name.
+- **Deputy / unmodifiable flattening**: serializing a deputy or an
+  `.unmodifiable` view produces a standalone tissue with equivalent
+  governance (unmodifiable encodes as `readOnly`); lock sharing is never
+  encoded.
+- **Bug fix**: `Container.finalValue` now stores its value in a
+  `ValueContainer` (as its add/remove contract already assumed), so
+  write-once `TissueValue`s construct, read, and round-trip correctly.
+- **Guide**: `HowTo-Tissue.md` §13 "Serializing a tissue", including "When
+  to use lenient mode".
+- **Official package skill** (`skills/cell-tissue-collections/`): an Agent
+  Skills `SKILL.md` for package consumers — book-picking workflow, hard
+  rules (every book constructor gets `TestTissue`, plain Dart collections
+  are not books), and the BRD elevator matrix — installed with
+  `dart run skills@ get cell_tissue`.
+- **Skill matrix**: `tool/generate_api_chooser.dart` now also emits the
+  decision matrix as
+  `skills/cell-tissue-collections/references/api_chooser.md`;
+  `test/api_chooser_up_to_date_test.dart` asserts both outputs fresh.
+- **Docs**: README opens with the package-skill install command; AI-guide
+  pins refreshed to `cell_tissue` 1.2.0.
+
 ## Tissue (1.1.0) - Cell 2.0.0 Dependency
 
 - **Dependency floor**: `cell: ^2.0.0` (was `^1.1.0`) — the Causal Replay

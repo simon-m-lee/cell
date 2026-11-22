@@ -100,7 +100,7 @@ walkthrough of bank transfer logic and multi-node consistency.
 <p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
 <strong>When to use:</strong> The BRD says two retained facts move together or not at all, or an external act can fail after a local write — participants are <strong>Tissue books</strong>, with <code>apply</code> + <code>compensate</code>.
 <strong>When NOT to use:</strong> one book with no undo (an ordinary Tissue write from <code>Cell.observe</code>); never wrap <code>riskOf</code> (policy is pure).
-<strong>Live signature:</strong> <code>Cell.txApply([TxApplyOptions options = const TxApplyOptions()])</code> → <code>ApplyTransactionScope</code> — pinned at <code>cell: 2.0.0</code>
+<strong>Live signature:</strong> <code>Cell.txApply([TxApplyOptions options = const TxApplyOptions()])</code> → <code>ApplyTransactionScope</code> — pinned at <code>cell: 2.1.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell.transaction</code> (coordinates <code>ValueCell</code>, not Tissue).
 <strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §3.4 "Cell.txApply — the only atomic commit, on Tissue" (#cell-txapply)
 <strong>Example:</strong> <code>example/atomic_multi_update.dart</code>
@@ -150,7 +150,7 @@ print(counter.cell.value);
 <footer>
   <span class="no-break">
     cell
-      2.0.0
+      2.1.0
   </span>
   
 </footer>

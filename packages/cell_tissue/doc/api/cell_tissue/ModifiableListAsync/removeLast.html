@@ -69,7 +69,12 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; removeLast() =&gt; Future&lt;void&gt;(() =&gt; _tissue.removeLast());</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; removeLast() async {
+  final outcome = await _runTissueMutation(_tissue, _tissue.removeLast);
+  if (outcome is ApplyRejected&lt;dynamic&gt;) {
+    throw UnsupportedError(&#39;Unmodifiable operation&#39;);
+  }
+}</code></pre>
 </section>
 
 
@@ -97,7 +102,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

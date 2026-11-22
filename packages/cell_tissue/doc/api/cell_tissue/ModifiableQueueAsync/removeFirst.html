@@ -62,23 +62,24 @@
     </section>
     
 <section class="desc markdown">
-  <p>Asynchronously removes and returns the first element of the associated <a href="../../cell_tissue/TissueQueue-class.html">TissueQueue</a>.</p>
-<p>The provided code snippet for this method within the <code>ModifiableQueueAsync</code> class
-shows it throwing an <code>UnsupportedError</code>. A typical modifiable implementation would wrap
-<code>_tissue.removeFirst()</code>, which itself would throw a <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a> if the queue is empty.</p>
+  <p>Asynchronously removes and returns the first element of the associated
+<a href="../../cell_tissue/TissueQueue-class.html">TissueQueue</a>.</p>
 <h3 id="returns">Returns:</h3>
-<p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;E&gt;</a> that completes with the element removed from the front of the queue.
-  It will complete with an <a href="https://api.flutter.dev/flutter/dart-core/UnsupportedError-class.html">UnsupportedError</a> if the operation is not supported by this
-  async wrapper. If it were a modifiable wrapper, the Future could complete with a
-  <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a> if the underlying queue is empty.</p>
+<p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;E&gt;</a> that completes with the element removed from the front
+  of the queue. The Future completes with an <a href="https://api.flutter.dev/flutter/dart-core/UnsupportedError-class.html">UnsupportedError</a> if the
+  operation is rejected, or a <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a> if the queue is empty.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;E&gt; removeFirst() {
-  return Future&lt;E&gt;(() =&gt; _tissue.removeFirst());
+  <pre class="language-dart"><code class="language-dart">Future&lt;E&gt; removeFirst() async {
+  final outcome = await _runTissueMutation(_tissue, _tissue.removeFirst);
+  if (outcome is ApplyRejected&lt;dynamic&gt;) {
+    throw UnsupportedError(&#39;Unmodifiable operation&#39;);
+  }
+  return (outcome as ApplyAccepted&lt;dynamic&gt;).result as E;
 }</code></pre>
 </section>
 
@@ -107,7 +108,7 @@ shows it throwing an <code>UnsupportedError</code>. A typical modifiable impleme
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

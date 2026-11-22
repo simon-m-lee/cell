@@ -83,7 +83,7 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 E removeAt(int index) {
-  final result = dispatch(removeAt, positionalArguments: [index]);
+  final result = dispatch(removeAt, positionalArguments: [index], sync: true);
   if (result == null) {
     throw UnsupportedError(&#39;Unmodifiable operation&#39;);
   }

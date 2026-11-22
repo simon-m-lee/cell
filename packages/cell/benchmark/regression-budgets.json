@@ -1,0 +1,8 @@
+{
+  "asyncMap c=0 latest=false exhaust=false n=200": 1.0,
+  "asyncMap c=1 latest=false exhaust=false n=200": 1.0,
+  "asyncMap c=4 latest=false exhaust=false n=200": 1.0,
+  "asyncMap c=16 latest=false exhaust=false n=200": 1.0,
+  "asyncMap c=0 latest=true exhaust=false n=200": 1.0,
+  "asyncMap c=0 latest=false exhaust=true n=200": 1.0
+}

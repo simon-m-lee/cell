@@ -1,0 +1,32 @@
+name: lint-skills
+
+# Validates every SKILL.md against the Agent Skills specification with
+# skills_lint: the published package skills under packages/*/skills/ and
+# the repository-internal skills under .agents/skills/.
+# Recipe: https://github.com/google/skills_lint.dart#recipe-github-actions
+#
+# The umbrella .pubignore hides /packages/** unless tool/release-publish.sh
+# neutralises it; the sed step mirrors that so pub-archive-includes-skill
+# checks the archive that actually gets published for each member.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions: read-all
+
+jobs:
+  lint-skills:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dart-lang/setup-dart@v1
+        with:
+          # skills_lint requires Dart >=3.12; keep in step with the
+          # benchmark/rebaseline SDK pin.
+          sdk: '3.14.0'
+      - name: Neutralise the umbrella /packages/** publish rule
+        run: sed -i 's|^/packages/\*\*|/packages/_none_/**|' .pubignore
+      - run: dart install skills_lint
+      - run: skills_lint

@@ -458,7 +458,8 @@ abstract class TissueMapBase<K, V, C extends TissueMap<K, V>>
   /// - [key]: The key to associate.
   /// - [value]: The value to store.
   @override
-  void put(K key, V value) => dispatch(put, positionalArguments: [key, value]);
+  void put(K key, V value) =>
+      dispatch(put, positionalArguments: [key, value], sync: true);
 
   /// Looks up the value for [key] directly from the underlying storage.
   ///
@@ -479,21 +480,23 @@ abstract class TissueMapBase<K, V, C extends TissueMap<K, V>>
   /// present and validation passed), `false` otherwise.
   @override
   bool add(K key, V value) =>
-      (dispatch(add, positionalArguments: [key, value])?.isNotEmpty) ?? false;
+      (dispatch(add, positionalArguments: [key, value], sync: true)
+          ?.isNotEmpty) ??
+      false;
 
   /// Adds all entries from the given [other] map.
   @override
   void addAll(Map<K, V> other) =>
-      dispatch(addAll, positionalArguments: [other]);
+      dispatch(addAll, positionalArguments: [other], sync: true);
 
   /// Adds all entries from the given [newEntries] iterable.
   @override
   void addEntries(Iterable<MapEntry<K, V>> newEntries) =>
-      dispatch(addEntries, positionalArguments: [newEntries]);
+      dispatch(addEntries, positionalArguments: [newEntries], sync: true);
 
   /// Removes all entries from the map.
   @override
-  void clear() => dispatch(clear);
+  void clear() => dispatch(clear, sync: true);
 
   /// Looks up the value of [key], or adds a new entry if it isn't there.
   ///
@@ -501,17 +504,18 @@ abstract class TissueMapBase<K, V, C extends TissueMap<K, V>>
   /// [ifAbsent] to produce a new value, adds it, and returns that value.
   @override
   V putIfAbsent(K key, V Function() ifAbsent) =>
-      dispatch(putIfAbsent, positionalArguments: [key, ifAbsent]);
+      dispatch(putIfAbsent, positionalArguments: [key, ifAbsent], sync: true);
 
   /// Removes [key] and its associated value, returning the removed value,
   /// or `null` if the key was not present.
   @override
-  V? remove(Object? key) => dispatch(remove, positionalArguments: [key]);
+  V? remove(Object? key) =>
+      dispatch(remove, positionalArguments: [key], sync: true);
 
   /// Removes all entries that satisfy the given [predicate].
   @override
   void removeWhere(bool Function(K key, V value) predicate) =>
-      dispatch(removeWhere, positionalArguments: [predicate]);
+      dispatch(removeWhere, positionalArguments: [predicate], sync: true);
 
   /// Updates the value associated with [key] using the [update] function.
   ///
@@ -520,12 +524,13 @@ abstract class TissueMapBase<K, V, C extends TissueMap<K, V>>
   V update(K key, V Function(V value) update, {V Function()? ifAbsent}) =>
       dispatch(this.update,
           positionalArguments: [key, update],
-          namedArguments: {#ifAbsent: ifAbsent});
+          namedArguments: {#ifAbsent: ifAbsent},
+          sync: true);
 
   /// Updates all values by applying the [update] function to each entry.
   @override
   void updateAll(V Function(K key, V value) update) =>
-      dispatch(updateAll, positionalArguments: [update]);
+      dispatch(updateAll, positionalArguments: [update], sync: true);
 
   // ---- Deputy & Async ----
 
@@ -926,80 +931,93 @@ mixin TissueMapMixin<K, V, C extends TissueMap<K, V>>
     Function function, {
     List? positionalArguments,
     Map<Symbol, dynamic>? namedArguments,
+    bool sync = false,
   }) {
     try {
-      if (validate.action(function, host: this as C, arguments: (
-            positionalArguments: positionalArguments,
-            namedArguments: namedArguments
-          )) ==
-          true) {
-        final notification = namedArguments?[#$notification] ?? true;
-        final deputy = namedArguments?[#deputy];
+      return _permit(
+        validate.action(function, host: this as C, arguments: (
+          positionalArguments: positionalArguments,
+          namedArguments: namedArguments
+        )),
+        () {
+          final notification = namedArguments?[#$notification] ?? true;
+          final deputy = namedArguments?[#deputy];
 
-        if (function == add) {
-          return Function.apply(_add, positionalArguments,
-              {#notification: notification, #deputy: deputy});
-        } else if (function == addAll) {
-          return Function.apply(_addAll, positionalArguments,
-              {#notification: notification, #deputy: deputy});
-        } else if (function == addEntries) {
-          return Function.apply(_addEntries, positionalArguments,
-              {#notification: notification, #deputy: deputy});
-        } else if (function == put) {
-          return Function.apply(_put, positionalArguments,
-              {#notification: notification, #deputy: deputy});
-        } else if (function == clear) {
-          return Function.apply(
-              _clear, null, {#notification: notification, #deputy: deputy});
-        } else if (function == putIfAbsent) {
-          return Function.apply(_putIfAbsent, positionalArguments,
-              {#notification: notification, #deputy: deputy});
-        } else if (function == remove) {
-          return Function.apply(_remove, positionalArguments,
-              {#notification: notification, #deputy: deputy});
-        } else if (function == removeWhere) {
-          return Function.apply(_removeWhere, positionalArguments,
-              {#notification: notification, #deputy: deputy});
-        } else if (function == update) {
-          return Function.apply(_update, positionalArguments, {
-            #notification: notification,
-            #deputy: deputy,
-            #ifAbsent: namedArguments?[#ifAbsent]
-          });
-        } else if (function == updateAll) {
-          return Function.apply(_updateAll, positionalArguments,
-              {#notification: notification, #deputy: deputy});
-        }
-      }
+          if (function == add) {
+            return Function.apply(_add, positionalArguments,
+                {#notification: notification, #deputy: deputy, #sync: sync});
+          } else if (function == addAll) {
+            return Function.apply(_addAll, positionalArguments,
+                {#notification: notification, #deputy: deputy, #sync: sync});
+          } else if (function == addEntries) {
+            return Function.apply(_addEntries, positionalArguments,
+                {#notification: notification, #deputy: deputy, #sync: sync});
+          } else if (function == put) {
+            return Function.apply(_put, positionalArguments,
+                {#notification: notification, #deputy: deputy, #sync: sync});
+          } else if (function == clear) {
+            return Function.apply(_clear, null,
+                {#notification: notification, #deputy: deputy, #sync: sync});
+          } else if (function == putIfAbsent) {
+            return Function.apply(_putIfAbsent, positionalArguments,
+                {#notification: notification, #deputy: deputy, #sync: sync});
+          } else if (function == remove) {
+            return Function.apply(_remove, positionalArguments,
+                {#notification: notification, #deputy: deputy, #sync: sync});
+          } else if (function == removeWhere) {
+            return Function.apply(_removeWhere, positionalArguments,
+                {#notification: notification, #deputy: deputy, #sync: sync});
+          } else if (function == update) {
+            return Function.apply(_update, positionalArguments, {
+              #notification: notification,
+              #deputy: deputy,
+              #ifAbsent: namedArguments?[#ifAbsent],
+              #sync: sync
+            });
+          } else if (function == updateAll) {
+            return Function.apply(_updateAll, positionalArguments,
+                {#notification: notification, #deputy: deputy, #sync: sync});
+          }
+          return null;
+        },
+        sync: sync,
+      );
     } catch (e) {
-      if (e is StateError) {
+      if (e is StateError || e is _AsyncRuleOnSyncPath) {
         rethrow;
       }
     }
+    return null;
   }
 
-  TissuePulse<MapEntry<K, V>>? _add(K key, V value,
-      {bool notification = true, Tissue<V>? deputy}) {
-    TissuePulse<MapEntry<K, V>>? event;
+  FutureOr<TissuePulse<MapEntry<K, V>>?> _add(K key, V value,
+      {bool notification = true, Tissue<V>? deputy, bool sync = false}) {
     if (this is! Unmodifiable && modifiable.contains(add)) {
       final dynamic map = _nucleus.container.store;
-      if (!map.containsKey(key) &&
-          validate.element(value, host: this as C, action: add) == true) {
-        map[key] = value;
-        final cell = value;
-        if (cell is Cell) {
-          _nucleus.synapses.link(cell, downstreamCell: this);
-        }
-        event = _TissuePulse<MapEntry<K, V>>(
-            source: deputy ?? this,
-            payload: MapEntry<K, V>(key, value),
-            type: Tissue.elementAdded);
-        if (notification) {
-          _nucleus.receptor(event);
-        }
+      if (map.containsKey(key)) {
+        return null;
       }
+      return _permit<TissuePulse<MapEntry<K, V>>?>(
+        validate.element(value, host: this as C, action: add),
+        () {
+          map[key] = value;
+          final cell = value;
+          if (cell is Cell) {
+            _nucleus.synapses.link(cell, downstreamCell: this);
+          }
+          final event = _TissuePulse<MapEntry<K, V>>(
+              source: deputy ?? this,
+              payload: MapEntry<K, V>(key, value),
+              type: Tissue.elementAdded);
+          if (notification) {
+            _nucleus.receptor(event);
+          }
+          return event;
+        },
+        sync: sync,
+      );
     }
-    return event;
+    return null;
   }
 
   /// Upserts [key]/[value] through the `put` command vector.
@@ -1008,265 +1026,367 @@ mixin TissueMapMixin<K, V, C extends TissueMap<K, V>>
   /// or inserts a new entry (emitting `Tissue.elementAdded`). Reactive links
   /// of [Cell] values are maintained: a replaced child cell is unlinked (if
   /// it no longer occurs in the store) and the new child cell is linked.
-  TissuePulseBase? _put(K key, V value,
-          {bool notification = true, Tissue<V>? deputy}) =>
+  FutureOr<TissuePulseBase?> _put(K key, V value,
+          {bool notification = true, Tissue<V>? deputy, bool sync = false}) =>
       _setEntry(key, value,
-          action: put, notification: notification, deputy: deputy);
+          action: put, notification: notification, deputy: deputy, sync: sync);
 
   /// Shared insert-or-replace engine used by [put]/`[]=` and [update].
   ///
   /// The [action] parameter is the whitelisted mutation vector used both for
   /// the [modifiable] gate and element validation, so `put` and `update`
   /// remain distinguishable by action‑aware [TestTissue] rules.
-  TissuePulseBase? _setEntry(
+  FutureOr<TissuePulseBase?> _setEntry(
     K key,
     V value, {
     required Function action,
     bool notification = true,
     Tissue<V>? deputy,
+    bool sync = false,
   }) {
     if (this is! Unmodifiable && modifiable.contains(action)) {
       final dynamic map = _nucleus.container.store;
       final existed = map.containsKey(key);
       final before = existed ? map[key] as V : null;
-      if (validate.element(value, host: this as C, action: action) == true) {
-        map[key] = value;
-        if (existed && before is Cell && !map.containsValue(before)) {
-          _nucleus.synapses.unlink(before, downstreamCell: this);
-        }
-        if (value is Cell) {
-          _nucleus.synapses.link(value, downstreamCell: this);
-        }
-        final event = existed
-            ? _TissuePulse<EntryUpdatedRecord<K, V>>(
-                source: deputy ?? this,
-                payload: (key: key, before: before, after: value),
-                type: Tissue.entryUpdated)
-            : _TissuePulse<MapEntry<K, V>>(
-                source: deputy ?? this,
-                payload: MapEntry<K, V>(key, value),
-                type: Tissue.elementAdded);
-        if (notification) {
-          _nucleus.receptor(event);
-        }
-        return event;
-      }
+      return _permit<TissuePulseBase?>(
+        validate.element(value, host: this as C, action: action),
+        () {
+          map[key] = value;
+          if (existed && before is Cell && !map.containsValue(before)) {
+            _nucleus.synapses.unlink(before, downstreamCell: this);
+          }
+          if (value is Cell) {
+            _nucleus.synapses.link(value, downstreamCell: this);
+          }
+          final event = existed
+              ? _TissuePulse<EntryUpdatedRecord<K, V>>(
+                  source: deputy ?? this,
+                  payload: (key: key, before: before, after: value),
+                  type: Tissue.entryUpdated)
+              : _TissuePulse<MapEntry<K, V>>(
+                  source: deputy ?? this,
+                  payload: MapEntry<K, V>(key, value),
+                  type: Tissue.elementAdded);
+          if (notification) {
+            _nucleus.receptor(event);
+          }
+          return event;
+        },
+        sync: sync,
+      );
     }
     return null;
   }
 
-  TissuePulse? _addAll(Map<K, V> other,
-      {bool notification = true, Tissue<V>? deputy}) {
-    TissuePulse? result;
+  FutureOr<TissuePulse?> _addAll(Map<K, V> other,
+      {bool notification = true, Tissue<V>? deputy, bool sync = false}) {
     if (this is! Unmodifiable && modifiable.contains(addAll)) {
-      final entries = <MapEntry<K, V>>[];
+      final items = other.entries.toList();
       final dynamic map = _nucleus.container.store;
-      for (final entry in other.entries) {
-        final value = entry.value;
-        if (!map.containsKey(entry.key) &&
-            validate.element(value, host: this as C, action: add) == true) {
+      final entries = <MapEntry<K, V>>[];
+      final processing = _permitEach(
+        items.length,
+        (i) {
+          if (map.containsKey(items[i].key)) {
+            return false;
+          }
+          return validate.element(items[i].value, host: this as C, action: add);
+        },
+        (i) {
+          final entry = items[i];
+          final value = entry.value;
           map[entry.key] = value;
           if (value is Cell) {
             _nucleus.synapses.link(value, downstreamCell: this);
           }
           entries.add(MapEntry<K, V>(entry.key, value));
+        },
+        sync: sync,
+      );
+      TissuePulse? finish() {
+        if (entries.isEmpty) {
+          return null;
         }
-      }
-      if (entries.isNotEmpty) {
         final events = entries.map((en) => _TissuePulse<MapEntry<K, V>>(
             source: deputy ?? this, payload: en, type: Tissue.elementAdded));
-        result = events.length == 1
+        final result = events.length == 1
             ? events.first
             : TissuePulse.batch<MapEntry<K, V>>(events);
         if (notification) {
           _nucleus.receptor(result);
         }
+        return result;
       }
+
+      return processing is Future ? processing.then((_) => finish()) : finish();
     }
-    return result;
+    return null;
   }
 
-  TissuePulse? _addEntries(Iterable<MapEntry<K, V>> newEntries,
-      {bool notification = true, Tissue<V>? deputy}) {
-    TissuePulse? result;
+  FutureOr<TissuePulse?> _addEntries(Iterable<MapEntry<K, V>> newEntries,
+      {bool notification = true, Tissue<V>? deputy, bool sync = false}) {
     if (this is! Unmodifiable && modifiable.contains(addEntries)) {
-      final entries = <MapEntry<K, V>>[];
+      final items = newEntries.toList();
       final dynamic map = _nucleus.container.store;
-      for (final entry in newEntries) {
-        final value = entry.value;
-        if (!map.containsKey(entry.key) &&
-            validate.element(value, host: this as C, action: add) == true) {
+      final entries = <MapEntry<K, V>>[];
+      final processing = _permitEach(
+        items.length,
+        (i) {
+          if (map.containsKey(items[i].key)) {
+            return false;
+          }
+          return validate.element(items[i].value, host: this as C, action: add);
+        },
+        (i) {
+          final entry = items[i];
+          final value = entry.value;
           map[entry.key] = value;
           if (value is Cell) {
             _nucleus.synapses.link(value, downstreamCell: this);
           }
           entries.add(MapEntry<K, V>(entry.key, value));
+        },
+        sync: sync,
+      );
+      TissuePulse? finish() {
+        if (entries.isEmpty) {
+          return null;
         }
-      }
-      if (entries.isNotEmpty) {
         final events = entries.map((en) => _TissuePulse<MapEntry<K, V>>(
             source: deputy ?? this, payload: en, type: Tissue.elementAdded));
-        result = events.length == 1
+        final result = events.length == 1
             ? events.first
             : TissuePulse.batch<MapEntry<K, V>>(events);
         if (notification) {
           _nucleus.receptor(result);
         }
+        return result;
       }
+
+      return processing is Future ? processing.then((_) => finish()) : finish();
     }
-    return result;
+    return null;
   }
 
-  TissuePulse? _clear({bool notification = true, Tissue<V>? deputy}) {
-    TissuePulse? result;
+  FutureOr<TissuePulse?> _clear(
+      {bool notification = true, Tissue<V>? deputy, bool sync = false}) {
     if (this is! Unmodifiable && modifiable.contains(clear)) {
-      final entries = <MapEntry<K, V>>[];
       final dynamic map = _nucleus.container.store;
       final keys = map.keys.toList();
-      for (final key in keys) {
-        final value = map[key];
-        if (value != null &&
-            validate.element(value, host: this as C, action: remove) == true) {
+      final entries = <MapEntry<K, V>>[];
+      final processing = _permitEach(
+        keys.length,
+        (i) {
+          final value = map[keys[i]];
+          if (value == null) {
+            return false;
+          }
+          return validate.element(value, host: this as C, action: remove);
+        },
+        (i) {
+          final key = keys[i];
+          final value = map[key];
+          if (value == null) {
+            return;
+          }
           _nucleus.container.store.remove(key);
           if (value is Cell && !map.containsValue(value)) {
             _nucleus.synapses.unlink(value, downstreamCell: this);
           }
           entries.add(MapEntry<K, V>(key, value));
+        },
+        sync: sync,
+      );
+      TissuePulse? finish() {
+        if (entries.isEmpty) {
+          return null;
         }
-      }
-      if (entries.isNotEmpty) {
         final events = entries.map((en) => _TissuePulse<MapEntry<K, V>>(
             source: deputy ?? this, payload: en, type: Tissue.elementRemoved));
-        result = events.length == 1
+        final result = events.length == 1
             ? events.first
             : TissuePulse.batch<MapEntry<K, V>>(events);
         if (notification) {
           _nucleus.receptor(result);
         }
+        return result;
       }
+
+      return processing is Future ? processing.then((_) => finish()) : finish();
     }
-    return result;
+    return null;
   }
 
-  V _putIfAbsent(K key, V Function() ifAbsent,
-      {bool notification = true, Tissue<V>? deputy}) {
+  FutureOr<V> _putIfAbsent(K key, V Function() ifAbsent,
+      {bool notification = true, Tissue<V>? deputy, bool sync = false}) {
     if (this is! Unmodifiable && modifiable.contains(putIfAbsent)) {
       final dynamic map = _nucleus.container.store;
       if (map.containsKey(key)) {
         return map[key] as V;
       }
       final value = ifAbsent();
-      if (validate.element(value, host: this as C, action: add) == true) {
-        map[key] = value;
-        if (value is Cell) {
-          _nucleus.synapses.link(value, downstreamCell: this);
-        }
-        final event = _TissuePulse<MapEntry<K, V>>(
-            source: deputy ?? this,
-            payload: MapEntry<K, V>(key, value),
-            type: Tissue.elementAdded);
-        if (notification) {
-          _nucleus.receptor(event);
-        }
+      final applied = _permit<TissuePulse<MapEntry<K, V>>?>(
+        validate.element(value, host: this as C, action: add),
+        () {
+          map[key] = value;
+          if (value is Cell) {
+            _nucleus.synapses.link(value, downstreamCell: this);
+          }
+          final event = _TissuePulse<MapEntry<K, V>>(
+              source: deputy ?? this,
+              payload: MapEntry<K, V>(key, value),
+              type: Tissue.elementAdded);
+          if (notification) {
+            _nucleus.receptor(event);
+          }
+          return event;
+        },
+        sync: sync,
+      );
+      if (applied is Future) {
+        return (applied as Future).then((_) => value);
       }
       return value;
     }
     throw UnsupportedError('Unmodifiable operation');
   }
 
-  V? _remove(Object? key, {bool notification = true, Tissue<V>? deputy}) {
+  FutureOr<V?> _remove(Object? key,
+      {bool notification = true, Tissue<V>? deputy, bool sync = false}) {
     if (this is! Unmodifiable && modifiable.contains(remove)) {
       final dynamic map = _nucleus.container.store;
       if (map.containsKey(key)) {
-        V? value = map[key];
-        if (value != null &&
-            validate.element(value, host: this as C, action: remove) == true) {
-          final en = MapEntry<K, V>(key as K, value);
-          value = map.remove(key);
-          if (value is Cell && !map.containsValue(value)) {
-            _nucleus.synapses.unlink(value, downstreamCell: this);
-          }
-          final event = _TissuePulse<MapEntry<K, V>>(
-              source: deputy ?? this, payload: en, type: Tissue.elementRemoved);
-          if (notification) {
-            _nucleus.receptor(event);
-          }
+        final value = map[key];
+        if (value == null) {
+          return null;
         }
-        return value;
+        return _permit<V?>(
+          validate.element(value, host: this as C, action: remove),
+          () {
+            final en = MapEntry<K, V>(key as K, value);
+            final removed = map.remove(key);
+            if (removed is Cell && !map.containsValue(removed)) {
+              _nucleus.synapses.unlink(removed, downstreamCell: this);
+            }
+            final event = _TissuePulse<MapEntry<K, V>>(
+                source: deputy ?? this,
+                payload: en,
+                type: Tissue.elementRemoved);
+            if (notification) {
+              _nucleus.receptor(event);
+            }
+            return removed as V?;
+          },
+          sync: sync,
+        );
       }
     }
     return null;
   }
 
-  TissuePulse? _removeWhere(bool Function(K key, V value) predicate,
-      {bool notification = true, Tissue<V>? deputy}) {
-    TissuePulse? result;
+  FutureOr<TissuePulse?> _removeWhere(bool Function(K key, V value) predicate,
+      {bool notification = true, Tissue<V>? deputy, bool sync = false}) {
     if (this is! Unmodifiable && modifiable.contains(removeWhere)) {
       final dynamic map = _nucleus.container.store;
-      final entries = <MapEntry<K, V>>[];
       final keys = map.keys.toList();
-      for (final rawKey in keys) {
-        final key = rawKey;
-        V? value = map[key];
-        if (value != null &&
-            predicate(key, value) &&
-            validate.element(value, host: this as C, action: remove) == true) {
+      final entries = <MapEntry<K, V>>[];
+      final processing = _permitEach(
+        keys.length,
+        (i) {
+          final key = keys[i];
+          final value = map[key];
+          if (value == null || !predicate(key, value)) {
+            return false;
+          }
+          return validate.element(value, host: this as C, action: remove);
+        },
+        (i) {
+          final key = keys[i];
+          final value = map[key];
+          if (value == null) {
+            return;
+          }
           map.remove(key);
           if (value is Cell && !map.containsValue(value)) {
             _nucleus.synapses.unlink(value, downstreamCell: this);
           }
           entries.add(MapEntry<K, V>(key, value));
+        },
+        sync: sync,
+      );
+      TissuePulse? finish() {
+        if (entries.isEmpty) {
+          return null;
         }
-      }
-      if (entries.isNotEmpty) {
         final events = entries.map((en) => _TissuePulse<MapEntry<K, V>>(
             source: deputy ?? this, payload: en, type: Tissue.elementRemoved));
-        result = events.length == 1
+        final result = events.length == 1
             ? events.first
             : TissuePulse.batch<MapEntry<K, V>>(events);
         if (notification) {
           _nucleus.receptor(result);
         }
+        return result;
       }
+
+      return processing is Future ? processing.then((_) => finish()) : finish();
     }
-    return result;
+    return null;
   }
 
-  V _update(K key, V Function(V value) update,
-      {V Function()? ifAbsent, bool notification = true, Tissue<V>? deputy}) {
+  FutureOr<V> _update(K key, V Function(V value) update,
+      {V Function()? ifAbsent,
+      bool notification = true,
+      Tissue<V>? deputy,
+      bool sync = false}) {
     if (this is! Unmodifiable && modifiable.contains(this.update)) {
       final dynamic map = _nucleus.container.store;
       if (map.containsKey(key)) {
         final newValue = update(map[key] as V);
-        _setEntry(key, newValue,
-            action: this.update, notification: notification, deputy: deputy);
-        return newValue;
+        final applied = _setEntry(key, newValue,
+            action: this.update,
+            notification: notification,
+            deputy: deputy,
+            sync: sync);
+        return applied is Future
+            ? (applied as Future).then((_) => newValue)
+            : newValue;
       }
 
       if (ifAbsent != null) {
         final value = ifAbsent();
-        _setEntry(key, value,
-            action: this.update, notification: notification, deputy: deputy);
-        return value;
+        final applied = _setEntry(key, value,
+            action: this.update,
+            notification: notification,
+            deputy: deputy,
+            sync: sync);
+        return applied is Future
+            ? (applied as Future).then((_) => value)
+            : value;
       }
       throw StateError('No element');
     }
     throw UnsupportedError('Unmodifiable operation');
   }
 
-  TissuePulse? _updateAll(V Function(K key, V value) update,
-      {bool notification = true, Tissue<V>? deputy}) {
-    TissuePulse? result;
+  FutureOr<TissuePulse?> _updateAll(V Function(K key, V value) update,
+      {bool notification = true, Tissue<V>? deputy, bool sync = false}) {
     if (this is! Unmodifiable && modifiable.contains(updateAll)) {
       final dynamic map = _nucleus.container.store;
-      final records = <EntryUpdatedRecord<K, V>>[];
       final keys = map.keys.toList();
-      for (final rawKey in keys) {
-        final key = rawKey;
-        final oldValue = map[key] as V;
-        final newValue = update(key, oldValue);
-        if (validate.element(newValue, host: this as C, action: updateAll) ==
-            true) {
+      final newValues = <V>[];
+      final records = <EntryUpdatedRecord<K, V>>[];
+      final processing = _permitEach(
+        keys.length,
+        (i) {
+          final newValue = update(keys[i], map[keys[i]] as V);
+          newValues.add(newValue);
+          return validate.element(newValue, host: this as C, action: updateAll);
+        },
+        (i) {
+          final key = keys[i];
+          final newValue = newValues[i];
+          final oldValue = map[key] as V;
           map[key] = newValue;
           if (oldValue is Cell && !map.containsValue(oldValue)) {
             _nucleus.synapses.unlink(oldValue, downstreamCell: this);
@@ -1275,23 +1395,30 @@ mixin TissueMapMixin<K, V, C extends TissueMap<K, V>>
             _nucleus.synapses.link(newValue, downstreamCell: this);
           }
           records.add((key: key, before: oldValue, after: newValue));
+        },
+        sync: sync,
+      );
+      TissuePulse? finish() {
+        if (records.isEmpty) {
+          return null;
         }
-      }
-      if (records.isNotEmpty) {
         final events = records.map<TissuePulse<EntryUpdatedRecord<K, V>>>(
             (rec) => _TissuePulse<EntryUpdatedRecord<K, V>>(
                 source: deputy ?? this,
                 payload: rec,
                 type: Tissue.entryUpdated));
-        result = events.length == 1
+        final result = events.length == 1
             ? events.first
             : TissuePulse.batch<EntryUpdatedRecord<K, V>>(events);
         if (notification) {
           _nucleus.receptor(result);
         }
+        return result;
       }
+
+      return processing is Future ? processing.then((_) => finish()) : finish();
     }
-    return result;
+    return null;
   }
 }
 
@@ -1351,8 +1478,10 @@ class ModifiableMapAsync<K, V>
   ///   A [Future<bool>] that completes with `true` if the entry was
   ///   successfully added (i.e., the key was not already present and validation
   ///   passed), and `false` otherwise.
-  Future<bool> add(K key, V value) {
-    return Future<bool>(() => _tissue.add(key, value));
+  Future<bool> add(K key, V value) async {
+    final outcome =
+        await _runTissueMutation(_tissue, _tissue.add, [key, value]);
+    return outcome is ApplyAccepted<dynamic>;
   }
 
   /// Asynchronously upserts the ([key], [value]) pair into the map.
@@ -1366,8 +1495,8 @@ class ModifiableMapAsync<K, V>
   ///
   /// ### Returns:
   ///   A [Future<void>] that completes after the operation is attempted.
-  Future<void> put(K key, V value) {
-    return Future<void>(() => _tissue.put(key, value));
+  Future<void> put(K key, V value) async {
+    await _runTissueMutation(_tissue, _tissue.put, [key, value]);
   }
 
   /// Asynchronously adds all entries from the given [other] map.
@@ -1377,8 +1506,8 @@ class ModifiableMapAsync<K, V>
   ///
   /// ### Returns:
   ///   A [Future<void>] that completes after the operation is attempted.
-  Future<void> addAll(Map<K, V> other) {
-    return Future<void>(() => _tissue.addAll(other));
+  Future<void> addAll(Map<K, V> other) async {
+    await _runTissueMutation(_tissue, _tissue.addAll, [other]);
   }
 
   /// Adds all entries from the given [newEntries] iterable.
@@ -1388,16 +1517,16 @@ class ModifiableMapAsync<K, V>
   ///
   /// ### Returns:
   ///   A [Future<void>] that completes after the operation is attempted.
-  Future<void> addEntries(Iterable<MapEntry<K, V>> newEntries) {
-    return Future<void>(() => _tissue.addEntries(newEntries));
+  Future<void> addEntries(Iterable<MapEntry<K, V>> newEntries) async {
+    await _runTissueMutation(_tissue, _tissue.addEntries, [newEntries]);
   }
 
   /// Asynchronously removes all entries from the map.
   ///
   /// ### Returns:
   ///   A [Future<void>] that completes after the clear operation is attempted.
-  Future<void> clear() {
-    return Future<void>(() => _tissue.clear());
+  Future<void> clear() async {
+    await _runTissueMutation(_tissue, _tissue.clear);
   }
 
   /// Asynchronously looks up the value of [key], or adds a new entry if it isn't there.
@@ -1408,8 +1537,13 @@ class ModifiableMapAsync<K, V>
   ///
   /// ### Returns:
   ///   A [Future<V>] that completes with the value associated with [key].
-  Future<V> putIfAbsent(K key, V Function() ifAbsent) {
-    return Future<V>(() => _tissue.putIfAbsent(key, ifAbsent));
+  Future<V> putIfAbsent(K key, V Function() ifAbsent) async {
+    final outcome =
+        await _runTissueMutation(_tissue, _tissue.putIfAbsent, [key, ifAbsent]);
+    if (outcome is ApplyRejected<dynamic>) {
+      throw UnsupportedError('Unmodifiable operation');
+    }
+    return (outcome as ApplyAccepted<dynamic>).result as V;
   }
 
   /// Asynchronously removes [key] and its associated value.
@@ -1420,7 +1554,13 @@ class ModifiableMapAsync<K, V>
   /// ### Returns:
   ///   A [Future<V?>] that completes with the value associated with [key]
   ///   before it was removed, or `null` if [key] was not found.
-  Future<V?> remove(Object? key) => Future<V?>(() => _tissue.remove(key));
+  Future<V?> remove(Object? key) async {
+    final outcome = await _runTissueMutation(_tissue, _tissue.remove, [key]);
+    if (outcome is ApplyRejected<dynamic>) {
+      return null;
+    }
+    return (outcome as ApplyAccepted<dynamic>).result as V?;
+  }
 
   /// Asynchronously removes all entries that satisfy the given [predicate].
   ///
@@ -1430,8 +1570,8 @@ class ModifiableMapAsync<K, V>
   ///
   /// ### Returns:
   ///   A [Future<void>] that completes after the removal operation is attempted.
-  Future<void> removeWhere(bool Function(K key, V value) predicate) {
-    return Future<void>(() => _tissue.removeWhere(predicate));
+  Future<void> removeWhere(bool Function(K key, V value) predicate) async {
+    await _runTissueMutation(_tissue, _tissue.removeWhere, [predicate]);
   }
 
   /// Asynchronously updates the value associated with [key].
@@ -1444,8 +1584,13 @@ class ModifiableMapAsync<K, V>
   /// ### Returns:
   ///   A [Future<V>] that completes with the new value associated with [key].
   Future<V> update(K key, V Function(V value) update,
-      {V Function()? ifAbsent}) {
-    return Future<V>(() => _tissue.update(key, update, ifAbsent: ifAbsent));
+      {V Function()? ifAbsent}) async {
+    final outcome = await _runTissueMutation(
+        _tissue, _tissue.update, [key, update], {#ifAbsent: ifAbsent});
+    if (outcome is ApplyRejected<dynamic>) {
+      throw UnsupportedError('Unmodifiable operation');
+    }
+    return (outcome as ApplyAccepted<dynamic>).result as V;
   }
 
   /// Asynchronously updates all values in the map.
@@ -1455,8 +1600,8 @@ class ModifiableMapAsync<K, V>
   ///
   /// ### Returns:
   ///   A [Future<void>] that completes after the update operation is attempted.
-  Future<void> updateAll(V Function(K key, V value) update) {
-    return Future<void>(() => _tissue.updateAll(update));
+  Future<void> updateAll(V Function(K key, V value) update) async {
+    await _runTissueMutation(_tissue, _tissue.updateAll, [update]);
   }
 }
 

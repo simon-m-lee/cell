@@ -147,7 +147,7 @@ This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-
   <strong>DON'T</strong> keep two lists "for compliance" instead of one book plus a
 <code>.unmodifiable</code> / <code>.deputy</code> view. One book, many surfaces.
 See <code>HowTo-Mitose-Tissue.md</code> §9 "Anti-patterns".
-<strong>Live signature:</strong> <code>TissueSet&lt;E&gt;(Iterable&lt;E&gt; elements, {bind, context, testRule, receptor, synapses, ...})</code> / <code>TissueSet.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.1.0</code>
+<strong>Live signature:</strong> <code>TissueSet&lt;E&gt;(Iterable&lt;E&gt; elements, {bind, context, testRule, receptor, synapses, ...})</code> / <code>TissueSet.unmodifiable(bind, {...})</code> — pinned at <code>cell_tissue: 1.2.0</code>
 <strong>Do NOT confuse with:</strong> <code>TissueList</code> (ordered history; a set does not keep insertion order as the story).
 <strong>Guide:</strong> <code>HowTo-Mitose-Tissue.md</code> §2.2 "TissueSet — the guard register" (#tissue-set)
 <strong>Example:</strong> <code>example/cell_tissue_example.dart</code>
@@ -189,6 +189,8 @@ print(set.length); // 2
       <li><a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/NullableIterableExtensions.html">NullableIterableExtensions</a></li>
       <li><a href="../cell_tissue/PulseIterableExtension.html">PulseIterableExtension</a></li>
+      <li><a href="../cell_tissue/TissueSetJson.html">TissueSetJson</a></li>
+      <li><a href="../cell_tissue/TissueSkippedReport.html">TissueSkippedReport</a></li>
   </ul></dd>
         
 
@@ -222,6 +224,14 @@ governed by the <strong>Conactive Model</strong>.
         <dd>
           Factory constructor to create a new, pre‑populated <a href="../cell_tissue/TissueSet-class.html">TissueSet</a> from an
 <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> of elements, performing dynamic type casting.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="TissueSet.fromJson" class="callable">
+          <span class="name"><a href="../cell_tissue/TissueSet/TissueSet.fromJson.html">TissueSet.fromJson</a></span><span class="signature">(<span class="parameter" id="fromJson-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span> <span class="parameter-name">json</span>, {</span><span class="parameter" id="fromJson-param-cellResolver"><span class="type-annotation"><a href="../cell_tissue/TissueCellResolver.html">TissueCellResolver</a>?</span> <span class="parameter-name">cellResolver</span>, </span><span class="parameter" id="fromJson-param-governanceResolver"><span class="type-annotation"><a href="../cell_tissue/TissueGovernanceResolver.html">TissueGovernanceResolver</a>?</span> <span class="parameter-name">governanceResolver</span>, </span><span class="parameter" id="fromJson-param-lenient"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">lenient</span> = <span class="default-value">false</span>, </span><span class="parameter" id="fromJson-param-lenientFallbackTestRule"><span class="type-annotation"><a href="../cell_tissue/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">dynamic</span>, <span class="type-parameter"><a href="../cell_tissue/Tissue-class.html">Tissue</a></span>&gt;</span></span> <span class="parameter-name">lenientFallbackTestRule</span> = <span class="default-value">TestTissue.readOnly</span>, </span><span class="parameter" id="fromJson-param-onSkipped"><span class="type-annotation">void</span> <span class="parameter-name">onSkipped</span>(<span class="parameter" id="param-skipped"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">skipped</span></span>)?, </span><span class="parameter" id="fromJson-param-testRule"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">testRule</span>, </span><span class="parameter" id="fromJson-param-context"><span class="type-annotation"><a href="../cell_tissue/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="fromJson-param-bind"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="fromJson-param-container"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">container</span>, </span><span class="parameter" id="fromJson-param-identity"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">identity</span>, </span><span class="parameter" id="fromJson-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="fromJson-param-elements"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>?</span> <span class="parameter-name">elements</span></span>})</span>
+        </dt>
+        <dd>
+          Reconstructs a <a href="../cell_tissue/TissueSet-class.html">TissueSet</a> from the canonical JSON produced by
+<code>encodeTissue</code> / <a href="../cell_tissue/TissueSetJson/toJson.html">TissueSetJson.toJson</a>.
             <div class="constructor-modifier features">factory</div>
         </dd>
         <dt id="TissueSet.fromNucleus" class="callable">
@@ -535,6 +545,23 @@ downstream observers and does not broadcast pulses.
         provided by the <a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a> extension</span>
       </p>
   The single element of this iterator, or <code>null</code>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="skippedReport" class="property">
+  <span class="name"><a href="../cell_tissue/TissueSkippedReport/skippedReport.html">skippedReport</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>,
+        provided by the <a href="../cell_tissue/TissueSkippedReport.html">TissueSkippedReport</a> extension</span>
+      </p>
+  The <code>{'wire': [...], 'decode': [...]}</code> skip report, or <code>null</code> when no
+skip occurred.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -1172,6 +1199,23 @@ of the collection using the provided function.
 
 </dd>
 
+        <dt id="toJson" class="callable">
+  <span class="name"><a href="../cell_tissue/TissueSetJson/toJson.html">toJson</a></span><span class="signature">(<wbr>{<span class="parameter" id="toJson-param-lenient"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">lenient</span> = <span class="default-value">false</span>, </span><span class="parameter" id="toJson-param-lenientFallbackTestRule"><span class="type-annotation"><a href="../cell_tissue/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">dynamic</span>, <span class="type-parameter"><a href="../cell_tissue/Tissue-class.html">Tissue</a></span>&gt;</span></span> <span class="parameter-name">lenientFallbackTestRule</span> = <span class="default-value">TestTissue.readOnly</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_tissue/TissueSet-class.html">TissueSet</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>,
+        provided by the <a href="../cell_tissue/TissueSetJson.html">TissueSetJson</a> extension</span>
+      </p>
+  Encodes this set to its canonical JSON wire form.
+  
+
+</dd>
+
         <dt id="toList" class="callable inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/toList.html">toList</a></span><span class="signature">(<wbr>{<span class="parameter" id="toList-param-growable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">growable</span> = <span class="default-value">true</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>
@@ -1339,7 +1383,7 @@ reactive DNA and storage mechanics.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

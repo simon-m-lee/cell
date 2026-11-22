@@ -275,7 +275,16 @@ abstract class TissueReceptorBase<E, C extends Tissue<E>>
         out = _tissueStack<E>(tissue: cell, event: pulse) ?? pulse;
       }
 
-      return super.call(out) as FutureOr<PulseBase?>;
+      // `super.call` is typed `FutureOr<Pulse?>`; the interface type [Pulse]
+      // is the supertype of [PulseBase], so a `Future<Pulse?>` cannot be cast
+      // to `FutureOr<PulseBase?>` directly — the cast fails whenever the
+      // validation rule is asynchronous. Await the [Future] and re-type the
+      // resolved pulse instead.
+      final result = super.call(out);
+      if (result is Future<Pulse?>) {
+        return result.then((handled) => handled as PulseBase?);
+      }
+      return result as PulseBase?;
     }
     return null;
   }

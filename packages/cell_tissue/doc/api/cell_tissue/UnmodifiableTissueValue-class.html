@@ -142,6 +142,8 @@ myWidget(value: readOnly);
       <li><a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/NullableIterableExtensions.html">NullableIterableExtensions</a></li>
       <li><a href="../cell_tissue/PulseIterableExtension.html">PulseIterableExtension</a></li>
+      <li><a href="../cell_tissue/TissueSkippedReport.html">TissueSkippedReport</a></li>
+      <li><a href="../cell_tissue/TissueValueJson.html">TissueValueJson</a></li>
   </ul></dd>
         
 
@@ -458,6 +460,23 @@ downstream observers and does not broadcast pulses.
         provided by the <a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a> extension</span>
       </p>
   The single element of this iterator, or <code>null</code>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="skippedReport" class="property">
+  <span class="name"><a href="../cell_tissue/TissueSkippedReport/skippedReport.html">skippedReport</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>,
+        provided by the <a href="../cell_tissue/TissueSkippedReport.html">TissueSkippedReport</a> extension</span>
+      </p>
+  The <code>{'wire': [...], 'decode': [...]}</code> skip report, or <code>null</code> when no
+skip occurred.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -965,6 +984,23 @@ whether the state transition was successfully committed.
 
 </dd>
 
+        <dt id="toJson" class="callable">
+  <span class="name"><a href="../cell_tissue/TissueValueJson/toJson.html">toJson</a></span><span class="signature">(<wbr>{<span class="parameter" id="toJson-param-lenient"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">lenient</span> = <span class="default-value">false</span>, </span><span class="parameter" id="toJson-param-lenientFallbackTestRule"><span class="type-annotation"><a href="../cell_tissue/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">dynamic</span>, <span class="type-parameter"><a href="../cell_tissue/Tissue-class.html">Tissue</a></span>&gt;</span></span> <span class="parameter-name">lenientFallbackTestRule</span> = <span class="default-value">TestTissue.readOnly</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_tissue/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span>,
+        provided by the <a href="../cell_tissue/TissueValueJson.html">TissueValueJson</a> extension</span>
+      </p>
+  Encodes this value to its canonical JSON wire form.
+  
+
+</dd>
+
         <dt id="toList" class="callable inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/toList.html">toList</a></span><span class="signature">(<wbr>{<span class="parameter" id="toList-param-growable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">growable</span> = <span class="default-value">true</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
@@ -1158,7 +1194,7 @@ and structural identity.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

@@ -19,7 +19,7 @@ Future<void> aiExampleCell() async {
   print(seen); // [1]
 }
 
-// <lib/src/cell.dart:1884>
+// <lib/src/cell.dart:1883>
 Future<void> aiExampleCell_asyncMap() async {
   final src = Cell.ingress<int>();
   final am = Cell.asyncMap<int, String>(
@@ -48,7 +48,7 @@ Future<void> aiExampleCell_debounce() async {
   o.stop();
 }
 
-// <lib/src/cell.dart:2281>
+// <lib/src/cell.dart:2280>
 Future<void> aiExampleCell_deputy() async {
   final c = Cell.state<int>(initial: 1);
   final d = await c.cell.deputy(testRule: TestCell.readOnly);
@@ -80,7 +80,7 @@ Future<void> aiExampleCell_distinct() async {
   print(seen); // [1, 2]
 }
 
-// <lib/src/cell.dart:2072>
+// <lib/src/cell.dart:2071>
 Future<void> aiExampleCell_fromFuture() async {
   final f = Cell.fromFuture<int>(Future.value(7), journal: RecordingJournal());
   final o = Cell.observe(source: f, effect: (Pulse p) => print(p.payload));
@@ -101,7 +101,7 @@ Future<void> aiExampleCell_fromNucleus() async {
   print(authCell);
 }
 
-// <lib/src/cell.dart:1987>
+// <lib/src/cell.dart:1986>
 Future<void> aiExampleCell_fromStream() async {
   final s = Cell.fromStream<int>(
     Stream.fromIterable([1, 2, 3]),
@@ -172,7 +172,7 @@ Future<void> aiExampleCell_state() async {
   print(counter.cell.value); // 5
 }
 
-// <lib/src/cell.dart:2170>
+// <lib/src/cell.dart:2169>
 Future<void> aiExampleCell_switchMap() async {
   final src = Cell.ingress<String>();
   final sm = Cell.switchMap<String, int>(
@@ -236,7 +236,7 @@ Future<void> aiExampleCell_txApply() async {
   print(counter.cell.value);
 }
 
-// <lib/src/cell.dart:2735>
+// <lib/src/cell.dart:2734>
 Future<void> aiExampleCell_unmodifiable() async {
   final c = Cell.state<int>(initial: 1);
   final ro = c.cell.unmodifiable;

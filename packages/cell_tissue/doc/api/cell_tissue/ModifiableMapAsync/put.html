@@ -80,8 +80,8 @@ completes after the reactive propagation has settled.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; put(K key, V value) {
-  return Future&lt;void&gt;(() =&gt; _tissue.put(key, value));
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; put(K key, V value) async {
+  await _runTissueMutation(_tissue, _tissue.put, [key, value]);
 }</code></pre>
 </section>
 
@@ -110,7 +110,7 @@ completes after the reactive propagation has settled.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

@@ -77,7 +77,8 @@ or <code>null</code> if the key was not present.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-V? remove(Object? key) =&gt; dispatch(remove, positionalArguments: [key]);</code></pre>
+V? remove(Object? key) =&gt;
+    dispatch(remove, positionalArguments: [key], sync: true);</code></pre>
 </section>
 
 
@@ -105,7 +106,7 @@ V? remove(Object? key) =&gt; dispatch(remove, positionalArguments: [key]);</code
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

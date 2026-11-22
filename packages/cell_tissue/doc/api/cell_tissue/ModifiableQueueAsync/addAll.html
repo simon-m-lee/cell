@@ -65,7 +65,6 @@
 <section class="desc markdown">
   <p>Asynchronously adds all elements of the <code>iterable</code> to the end of the
 associated <a href="../../cell_tissue/TissueQueue-class.html">TissueQueue</a>.</p>
-<p>This method wraps the synchronous <code>_tissue.addAll(iterable)</code> call in a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>iterable</code>: The <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable&lt;E&gt;</a> of elements to add.</li>
@@ -80,7 +79,7 @@ associated <a href="../../cell_tissue/TissueQueue-class.html">TissueQueue</a>.</
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; addAll(Iterable&lt;E&gt; iterable) async {
-  return Future&lt;void&gt;(() =&gt; _tissue.addAll(iterable));
+  await _runTissueMutation(_tissue, _tissue.addAll, [iterable]);
 }</code></pre>
 </section>
 
@@ -109,7 +108,7 @@ associated <a href="../../cell_tissue/TissueQueue-class.html">TissueQueue</a>.</
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

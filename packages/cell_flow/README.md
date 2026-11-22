@@ -15,14 +15,21 @@ import 'package:cell_tissue/cell_tissue.dart';
 
 Read this before opening any other page.
 
+Install the official package skill and the agent gets the workflow rules,
+the BRD elevator matrix, and the generated API matrix automatically:
+
+```bash
+dart run skills@ get cell_flow
+```
+
 `cell_flow` is designed with AI coding agents in mind. Every top public symbol
 carries a machine-readable `### AI Agent Guide` block, and the surfaces below
 let an agent reliably pick the right operator and generate code that compiles
 against the live API.
 
-1. **Version pin:** `cell 2.0.0`, `cell_flow 1.1.0`, `cell_tissue 1.1.0`.
+1. **Version pin:** `cell 2.1.0`, `cell_flow 1.2.0`, `cell_tissue 1.2.0`.
 2. **Preflight:** `dart run tool/ai_preflight.dart` — prints the resolved versions and any stale pins.
-3. **API chooser:** `lib/doc/api_chooser.dart` (generated from the `### AI Agent Guide` doc blocks).
+3. **API chooser:** `lib/doc/api_chooser.dart` (generated from the `### AI Agent Guide` doc blocks; the same matrix ships inside the package skill at `skills/cell-flow-operators/references/api_chooser.md`).
 4. **Layer guides:**
     - `guide/HowTo-Mitose-Flow.md` — Flow operator choices
     - `guide/HowTo-Mitose-Cell.md` — Cell factory choices

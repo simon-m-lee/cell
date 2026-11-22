@@ -80,7 +80,8 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-void setFirst(E value) =&gt; dispatch(setFirst, positionalArguments: [value]);</code></pre>
+void setFirst(E value) =&gt;
+    dispatch(setFirst, positionalArguments: [value], sync: true);</code></pre>
 </section>
 
 
@@ -108,7 +109,7 @@ void setFirst(E value) =&gt; dispatch(setFirst, positionalArguments: [value]);</
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

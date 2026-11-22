@@ -63,6 +63,7 @@
 <span class="name ">dispatch</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="dispatch-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span></li>
 <li><span class="parameter" id="dispatch-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span></li>
 <li><span class="parameter" id="dispatch-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span></li>
+<li><span class="parameter" id="dispatch-param-sync"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">sync</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
 
       <div class="features"><span class="feature">override</span></div>
@@ -86,46 +87,51 @@ dynamic dispatch(
   Function function, {
   List? positionalArguments,
   Map&lt;Symbol, dynamic&gt;? namedArguments,
+  bool sync = false,
 }) {
-  if (validate.action(function, host: this, arguments: (
-        positionalArguments: positionalArguments,
-        namedArguments: namedArguments
-      )) ==
-      true) {
-    final notification = namedArguments?[#$notification] ?? true;
+  return _permit(
+    validate.action(function, host: this, arguments: (
+      positionalArguments: positionalArguments,
+      namedArguments: namedArguments
+    )),
+    () {
+      final notification = namedArguments?[#$notification] ?? true;
 
-    if (function == add) {
-      return Function.apply(
-          _add, positionalArguments, {#notification: notification});
-    } else if (function == addFirst) {
-      return Function.apply(
-          _addFirst, positionalArguments, {#notification: notification});
-    } else if (function == addLast) {
-      return Function.apply(
-          _addLast, positionalArguments, {#notification: notification});
-    } else if (function == addAll) {
-      return Function.apply(
-          _addAll, positionalArguments, {#notification: notification});
-    } else if (function == clear) {
-      return Function.apply(_clear, null, {#notification: notification});
-    } else if (function == remove) {
-      return Function.apply(
-          _remove, positionalArguments, {#notification: notification});
-    } else if (function == removeFirst) {
-      return Function.apply(
-          _removeFirst, positionalArguments, {#notification: notification});
-    } else if (function == removeLast) {
-      return Function.apply(
-          _removeLast, positionalArguments, {#notification: notification});
-    } else if (function == removeWhere) {
-      return Function.apply(
-          _removeWhere, positionalArguments, {#notification: notification});
-    } else if (function == retainWhere) {
-      return Function.apply(
-          _retainWhere, positionalArguments, {#notification: notification});
-    }
-    return Function.apply(function, positionalArguments, namedArguments);
-  }
+      if (function == add) {
+        return Function.apply(_add, positionalArguments,
+            {#notification: notification, #sync: sync});
+      } else if (function == addFirst) {
+        return Function.apply(_addFirst, positionalArguments,
+            {#notification: notification, #sync: sync});
+      } else if (function == addLast) {
+        return Function.apply(_addLast, positionalArguments,
+            {#notification: notification, #sync: sync});
+      } else if (function == addAll) {
+        return Function.apply(_addAll, positionalArguments,
+            {#notification: notification, #sync: sync});
+      } else if (function == clear) {
+        return Function.apply(
+            _clear, null, {#notification: notification, #sync: sync});
+      } else if (function == remove) {
+        return Function.apply(_remove, positionalArguments,
+            {#notification: notification, #sync: sync});
+      } else if (function == removeFirst) {
+        return Function.apply(_removeFirst, positionalArguments,
+            {#notification: notification, #sync: sync});
+      } else if (function == removeLast) {
+        return Function.apply(_removeLast, positionalArguments,
+            {#notification: notification, #sync: sync});
+      } else if (function == removeWhere) {
+        return Function.apply(_removeWhere, positionalArguments,
+            {#notification: notification, #sync: sync});
+      } else if (function == retainWhere) {
+        return Function.apply(_retainWhere, positionalArguments,
+            {#notification: notification, #sync: sync});
+      }
+      return Function.apply(function, positionalArguments, namedArguments);
+    },
+    sync: sync,
+  );
 }</code></pre>
 </section>
 
@@ -154,7 +160,7 @@ dynamic dispatch(
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

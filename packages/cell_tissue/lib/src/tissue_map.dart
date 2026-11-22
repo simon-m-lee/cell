@@ -170,7 +170,8 @@ abstract interface class TissueMapNucleus<K, V> implements TissueNucleus<V> {
   /// ### Returns:
   /// A new [TissueMapNucleus<K, V>] instance acting as a specialized behavioral
   /// layer over the [principal].
-  factory TissueMapNucleus.evolve(TissueMapNucleus<K,V> principal, {
+  factory TissueMapNucleus.evolve(
+    TissueMapNucleus<K, V> principal, {
     Cell? bind,
     Context? context,
     TissueReceptor<V, TissueMap<K, V>>? receptor,
@@ -418,7 +419,7 @@ abstract interface class TissueMapNucleus<K, V> implements TissueNucleus<V> {
 /// **When NOT to use:**
 ///   {@macro ai-do-not-testcell-on-tissue}
 ///   A new Map per bag — the payload on `V` carries the many.
-/// **Live signature:** `TissueMap<K, V>({bind, context, testRule, receptor, synapses, ...})` / `TissueMap.of(entries, {...})` / `TissueMap.unmodifiable(bind, {...})` — pinned at `cell_tissue: 1.1.0`
+/// **Live signature:** `TissueMap<K, V>({bind, context, testRule, receptor, synapses, ...})` / `TissueMap.of(entries, {...})` / `TissueMap.unmodifiable(bind, {...})` — pinned at `cell_tissue: 1.2.0`
 /// **Do NOT confuse with:** `Map` (dart:core — no validation, no collection pulses).
 /// **Guide:** `HowTo-Mitose-Tissue.md` §2.3 "TissueMap — open work keyed by location" (#tissue-map)
 /// **Example:** `example/cell_tissue_example.dart`
@@ -597,6 +598,102 @@ abstract interface class TissueMap<K, V> implements Tissue<V> {
   factory TissueMap.fromNucleus(TissueMapNucleus<K, V> properties,
           {Iterable<MapEntry<K, V>>? entries}) =
       _TissueMap<K, V, TissueMap<K, V>>.fromNucleus;
+
+  /// Reconstructs a [TissueMap] from the canonical JSON produced by
+  /// `encodeTissue` / [TissueMapJson.toJson].
+  ///
+  /// ### Overrides
+  ///
+  /// | Override | Behaviour |
+  /// |---|---|
+  /// | `testRule` | [tissueNullTestRule] → [TestTissue.allowAll] (explicit widening); otherwise the rule to install. |
+  /// | `context` | `null` = use the JSON's context. |
+  /// | `bind` | [tissueNullBind] strips the bind; otherwise the upstream cell. |
+  /// | `container` | [tissueNullContainer] → the map default ([Container.map]); otherwise the strategy. |
+  /// | `identity` | `true` → [Container.identityMap], `false` → [Container.map], `null` = use the JSON. |
+  /// | `entries` | Replaces the JSON's entries; must be a `Map<K, V>` or `Iterable<MapEntry<K, V>>`. |
+  /// | `user` | [tissueNullUser] strips metadata; otherwise the caller's record. |
+  ///
+  /// ### Lenient mode
+  ///
+  /// Mirrors [decodeTissue]; overrides always win and are never counted as
+  /// skipped. An unresolved `Cell` key or value drops the entry in lenient
+  /// mode and throws [TissueDecodeError] in strict mode.
+  factory TissueMap.fromJson(
+    Map<String, dynamic> json, {
+    TissueCellResolver? cellResolver,
+    TissueGovernanceResolver? governanceResolver,
+    bool lenient = false,
+    TestTissue<dynamic, Tissue<dynamic>> lenientFallbackTestRule =
+        TestTissue.readOnly,
+    void Function(List<String> skipped)? onSkipped,
+    Object? testRule,
+    Context? context,
+    Object? bind,
+    Object? container,
+    bool? identity,
+    Object? user,
+    Object? entries,
+  }) {
+    if (json['kind'] != 'map') {
+      throw TissueDecodeError(
+          'TissueMap.fromJson received kind: ${json['kind']}');
+    }
+    final hasOverrides = testRule != null ||
+        context != null ||
+        bind != null ||
+        container != null ||
+        identity != null ||
+        user != null ||
+        entries != null;
+    final base = decodeTissue(json,
+        cellResolver: cellResolver,
+        governanceResolver:
+            testRule != null ? (_) => TestTissue.allowAll : governanceResolver,
+        lenient: lenient,
+        lenientFallbackTestRule: lenientFallbackTestRule,
+        onSkipped: hasOverrides ? null : onSkipped);
+    final effectiveRule = _resolveRuleOverride(testRule, base.validate);
+    final effectiveContext = context ?? base.context;
+    final effectiveBind = _resolveBindOverride(bind, base._nucleus.bind);
+    final effectiveContainer =
+        _resolveContainerOverride(container, base._nucleus.containerType);
+    final effectiveUser = _resolveUserOverride(
+        user,
+        hasOverrides
+            ? _unwrapDecodedUser(base._nucleus.user)
+            : base._nucleus.user);
+    final Iterable<MapEntry<K, V>> effectiveEntries;
+    if (entries != null && identical(entries, tissueNullElements)) {
+      effectiveEntries = <MapEntry<K, V>>[];
+    } else if (entries is Map) {
+      effectiveEntries = [
+        for (final entry in entries.entries)
+          MapEntry<K, V>(entry.key as K, entry.value as V),
+      ];
+    } else if (entries is Iterable<MapEntry<K, V>>) {
+      effectiveEntries = entries;
+    } else if (entries == null) {
+      effectiveEntries = [
+        for (final entry in (base as TissueMap<dynamic, dynamic>).entries)
+          MapEntry<K, V>(entry.key as K, entry.value as V),
+      ];
+    } else {
+      throw TissueDecodeError(
+          'TissueMap.fromJson entries override must be a Map<K, V> or '
+          'Iterable<MapEntry<K, V>>');
+    }
+    final nucleus = TissueMapNucleus.create<K, V, TissueMap<K, V>>(
+        testRule: effectiveRule as dynamic,
+        context: effectiveContext,
+        bind: effectiveBind,
+        container: identity == null
+            ? effectiveContainer
+            : (identity ? Container.identityMap : Container.map),
+        synapses: _synapsesFromJson(json),
+        user: effectiveUser as dynamic);
+    return TissueMap.fromNucleus(nucleus, entries: effectiveEntries);
+  }
 
   /// A high‑fidelity architectural factory for creating a **Deeply
   /// Immodifiable Reactive View** (Deputy) of an existing [TissueMap].
@@ -1142,4 +1239,23 @@ abstract interface class UnmodifiableTissueMap<K, V>
         unmodifiableElement: unmodifiableElement,
         entries: entries);
   }
+}
+
+/// JSON serialisation surface for [TissueMap].
+///
+/// ### How it works
+/// `map.toJson()` delegates to [encodeTissue]. String-keyed entries use the
+/// object form; other keys use the `[[k, v], ...]` array form. The `map` /
+/// `identityMap` container tags round-trip; `Cell` keys and values encode
+/// as `{"__cell__": id}` references resolved on decode via
+/// [TissueCellResolver].
+extension TissueMapJson<K, V> on TissueMap<K, V> {
+  /// Encodes this map to its canonical JSON wire form.
+  Map<String, dynamic> toJson({
+    bool lenient = false,
+    TestTissue<dynamic, Tissue<dynamic>> lenientFallbackTestRule =
+        TestTissue.readOnly,
+  }) =>
+      encodeTissue(this,
+          lenient: lenient, lenientFallbackTestRule: lenientFallbackTestRule);
 }

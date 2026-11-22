@@ -73,14 +73,15 @@ on any <a href="../mitosis/TissueList-class.html">TissueList</a> (e.g., <code>my
 perform asynchronous mutations.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
-<li>It wraps the synchronous mutation methods (like <code>add</code>, <code>removeAt</code>,
-<code>clear</code>, etc.) in a <code>Future</code>.</li>
+<li>Mutations are submitted through the tissue's command gateway, so
+asynchronous <a href="../mitosis/TestTissue-class.html">TestTissue</a> rules are awaited before the returned
+<a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> completes.</li>
 <li>All operations are scheduled through the tissue's lock, ensuring
 atomicity.</li>
 <li>The returned <code>Future</code> completes when the mutation has been validated,
 applied, and propagated through the reactive graph.</li>
-<li>The underlying synchronous method is called within the <code>Future</code>'s
-execution, so all validation and pulse emission happen exactly as they
+<li>The underlying synchronous mutation logic runs once the rule has
+decided, so all validation and pulse emission happen exactly as they
 would in a synchronous call.</li>
 </ul>
 <h3 id="example">Example</h3>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Pulse.fromJson constructor from Class Pulse from the cell library, for the Dart programming language.">
+  <title>Pulse.fromJson constructor - Pulse - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/Pulse-class.html">Pulse<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
+    <li class="self-crumb">Pulse.fromJson factory constructor</li>
+  </ol>
+  <div class="self-name">Pulse.fromJson</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell&#47;Pulse-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">Pulse&lt;<wbr><span class="type-parameter">P</span>&gt;.fromJson</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">Pulse&lt;<wbr><span class="type-parameter">P</span>&gt;.fromJson</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="fromJson-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span> <span class="parameter-name">json</span>, {</span></li>
+<li><span class="parameter" id="fromJson-param-resolver"><span class="type-annotation"><a href="../../cell/PulseResolver.html">PulseResolver</a>?</span> <span class="parameter-name">resolver</span>, </span></li>
+<li><span class="parameter" id="fromJson-param-lenient"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">lenient</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="fromJson-param-onSkipped"><span class="type-annotation">void</span> <span class="parameter-name">onSkipped</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-skipped"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">skipped</span></span></li>
+</ol>)?, </span></li>
+<li><span class="parameter" id="fromJson-param-policy"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">policy</span>, </span></li>
+<li><span class="parameter" id="fromJson-param-context"><span class="type-annotation"><a href="../../cell/PulseContext-class.html">PulseContext</a>?</span> <span class="parameter-name">context</span>, </span></li>
+<li><span class="parameter" id="fromJson-param-payload"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">payload</span>, </span></li>
+<li><span class="parameter" id="fromJson-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">type</span>, </span></li>
+<li><span class="parameter" id="fromJson-param-source"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">source</span>, </span></li>
+<li><span class="parameter" id="fromJson-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">step</span>, </span></li>
+<li><span class="parameter" id="fromJson-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">priority</span>, </span></li>
+<li><span class="parameter" id="fromJson-param-onComplete"><span class="type-annotation">void</span> <span class="parameter-name">onComplete</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span></li>
+</ol>)?, </span></li>
+<li><span class="parameter" id="fromJson-param-onError"><span class="type-annotation">void</span> <span class="parameter-name">onError</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, </span></li>
+<li><span class="parameter" id="param-error"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">error</span>, {</span></li>
+<li><span class="parameter" id="param-stackTrace"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/StackTrace-class.html">StackTrace</a>?</span> <span class="parameter-name">stackTrace</span>, </span></li>
+</ol>})?, </span></li>
+<li><span class="parameter" id="fromJson-param-onProgress"><span class="type-annotation">void</span> <span class="parameter-name">onProgress</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, </span></li>
+<li><span class="parameter" id="param-cell"><span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, {</span></li>
+<li><span class="parameter" id="param-message"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">message</span>, </span></li>
+</ol>})?, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Constructs a pulse from the canonical JSON produced by
+<code>Pulse.toJson</code>, with optional overrides for every constructor
+parameter.</p>
+<p>The result is a <strong>decoded pulse</strong> — its <code>source</code> is resolved via
+<code>resolver</code> (or overridden by <code>source</code>), its <code>policy</code> and callbacks
+are <code>null</code> unless overridden, and its <code>branches</code> and cycle checker
+are fresh. The decoded pulse is semantically the same pulse the
+original had on the wire, plus the caller's overrides.</p>
+<h2 id="version-discriminator">Version discriminator</h2>
+<p>The JSON must carry <code>"__pulse__": "&lt;version&gt;"</code> where <code>&lt;version&gt;</code> is
+supported by the current codec (<code>1.x</code>). A missing or unsupported
+version throws <a href="../../cell/PulseDecodeError-class.html">PulseDecodeError</a>.</p>
+<h2 id="source-resolution">Source resolution</h2>
+<p>If the encoded pulse carries a <code>source</code>, <code>resolver</code> is called with
+the encoded <a href="../../cell/Cell/id.html">Cell.id</a>. The resolver returns the live cell with that
+id, or <code>null</code> if the cell is not in the current graph. A <code>null</code>
+resolution is not an error — the decoded pulse has <code>source == null</code>.</p>
+<p>If <code>source</code> is passed, it overrides the resolver's result. To
+<strong>strip</strong> a source from the JSON, pass <code>source: pulseNullSource</code>.</p>
+<h2 id="overrides">Overrides</h2>
+<p>Every override is optional. An absent override means "use the JSON's
+value." A sentinel (<code>pulseNullX</code>) means "explicitly override to
+null." Anything else is an override.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Absent override</th>
+<th>Override</th>
+<th>Sentinel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>policy</code></td>
+<td><code>null</code> (a decoded pulse never has a policy)</td>
+<td>the given policy</td>
+<td><code>pulseNullPolicy</code> (equivalent to absent)</td>
+</tr>
+<tr>
+<td><code>context</code></td>
+<td>the JSON's context</td>
+<td>the given context</td>
+<td>— (<code>null</code> means "use JSON")</td>
+</tr>
+<tr>
+<td><code>payload</code></td>
+<td>the JSON's payload</td>
+<td>the given payload</td>
+<td><code>pulseNullPayload</code></td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>the JSON's type (inheriting from parent)</td>
+<td>the given type</td>
+<td><code>pulseNullType</code></td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td>the resolved source, or <code>null</code></td>
+<td>the given source</td>
+<td><code>pulseNullSource</code></td>
+</tr>
+<tr>
+<td><code>step</code></td>
+<td>the JSON's step</td>
+<td>the given step</td>
+<td><code>pulseNullStep</code></td>
+</tr>
+<tr>
+<td><code>priority</code></td>
+<td>the JSON's priority (inheriting from parent)</td>
+<td>the given priority</td>
+<td>— (<code>null</code> means "use JSON")</td>
+</tr>
+<tr>
+<td><code>onComplete</code></td>
+<td><code>null</code></td>
+<td>the given callback</td>
+<td>— (<code>null</code> means "use JSON", i.e., none)</td>
+</tr>
+<tr>
+<td><code>onError</code></td>
+<td><code>null</code></td>
+<td>the given callback</td>
+<td>— (<code>null</code> means "use JSON", i.e., none)</td>
+</tr>
+<tr>
+<td><code>onProgress</code></td>
+<td><code>null</code></td>
+<td>the given callback</td>
+<td>— (<code>null</code> means "use JSON", i.e., none)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="collective-pulses">Collective pulses</h2>
+<p>A JSON with <code>isComposite: true</code> cannot have a <code>payload</code> override;
+the factory throws <a href="../../cell/PulseDecodeError-class.html">PulseDecodeError</a>. The <code>children</code> cannot be
+overridden; a caller who wants different children constructs a new
+collective via <a href="../../cell/Pulse/batch.html">Pulse.batch</a>.</p>
+<h2 id="lenient-mode">Lenient mode</h2>
+<p>Pass <code>lenient: true</code> to accept the lenient decode contract: where
+the document structure is sound but a reference or codec
+resolution fails (a context codec mismatch), a safe default is
+substituted (<a href="../../cell/PulseContext/system-constant.html">PulseContext.system</a>) and the field is recorded.
+<code>onSkipped</code> is invoked once after decoding with the aggregated
+skip list — qualified paths for parent/child levels
+(<code>'parent.onComplete'</code>). Structural corruption still throws, and
+an override always wins over the lenient fallback and is never
+counted as skipped.</p>
+<h2 id="re-encodability">Re-encodability</h2>
+<p>A pulse with an overridden <code>onComplete</code>, <code>onError</code>, <code>onProgress</code>, or
+<code>policy</code> cannot be re-encoded strictly. <code>Pulse.toJson</code> on the
+result throws the corresponding <a href="../../cell/PulseNotSerializable-class.html">PulseNotSerializable</a>; pass
+<code>lenient: true</code> to substitute and record instead. This is the
+honest answer: the caller chose to attach a non-serializable
+field.</p>
+<h2 id="errors">Errors</h2>
+<ul>
+<li><a href="../../cell/PulseDecodeError-class.html">PulseDecodeError</a> if the JSON is malformed, the version is
+unsupported, or an override is invalid for the JSON's shape.</li>
+<li><a href="../../cell/PulseNotSerializable-class.html">PulseNotSerializable</a> is <strong>not</strong> thrown by this factory; it is
+thrown by <code>Pulse.toJson</code>.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">factory Pulse.fromJson(
+  Map&lt;String, dynamic&gt; json, {
+  PulseResolver? resolver,
+  bool lenient = false,
+  void Function(List&lt;String&gt; skipped)? onSkipped,
+
+  &#47;&#47; Overrides. Absent or null means &quot;use the JSON&#39;s value.&quot;
+  &#47;&#47; Sentinels mean &quot;explicitly override to null.&quot;
+  Object? policy,
+  PulseContext? context,
+  Object? payload,
+  Object? type,
+  Object? source,
+  Object? step,
+  int? priority,
+  void Function(Pulse pulse)? onComplete,
+  void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? onError,
+  void Function(Pulse pulse, Cell cell, {String? message})? onProgress,
+}) {
+  &#47;&#47; 1. Reject an invalid override before any decoding work.
+  if (json[&#39;isComposite&#39;] == true &amp;&amp; payload != null) {
+    throw PulseDecodeError(
+      &#39;cannot override payload on a collective pulse; &#39;
+      &#39;construct via Pulse.batch&#39;,
+    );
+  }
+
+  &#47;&#47; 2. Decode the JSON&#39;s envelope. [lenient] and [onSkipped] are
+  &#47;&#47;    passed through to the codec: lenient substitutes a safe
+  &#47;&#47;    default for reference&#47;codec resolution failures (never for
+  &#47;&#47;    structural corruption) and records every substitution in the
+  &#47;&#47;    onSkipped callback with qualified paths.
+  final decoded = decodePulse(
+    json,
+    resolver: resolver,
+    lenient: lenient,
+    onSkipped: onSkipped,
+  );
+
+  &#47;&#47; 3. Apply overrides. The helper implements the sentinel convention:
+  &#47;&#47;    absent → JSON&#39;s value; sentinel → explicit null; present → the
+  &#47;&#47;    override. Sentinels compare by identity — pass the sentinel
+  &#47;&#47;    itself, never a value that merely equals it.
+  T? resolveOverride&lt;T&gt;(Object? override, Object sentinel, T? current) {
+    if (identical(override, sentinel)) return null;
+    if (override == null) return current;
+    return override as T;
+  }
+
+  final effectivePayload =
+      resolveOverride&lt;P&gt;(payload, pulseNullPayload, decoded.payload as P?);
+  final effectiveType =
+      resolveOverride&lt;Object?&gt;(type, pulseNullType, decoded.type);
+  final effectiveSource =
+      resolveOverride&lt;Cell&gt;(source, pulseNullSource, decoded.source);
+  final effectiveStep =
+      resolveOverride&lt;String&gt;(step, pulseNullStep, _localStepOf(decoded));
+  final effectivePolicy = identical(policy, pulseNullPolicy)
+      ? null
+      : (policy as PulseEphemeralPolicy?);
+  final effectiveContext = context ?? decoded.context;
+  final effectivePriority = priority ?? decoded.priority;
+  final effectiveParent = decoded._parent;
+
+  &#47;&#47; 4. Construct. The type parameter P is the caller&#39;s; the cast is
+  &#47;&#47;    safe because the override or the decoded payload is already
+  &#47;&#47;    the correct type.
+  return _Pulse&lt;P&gt;(
+    payload: effectivePayload,
+    type: effectiveType,
+    context: effectiveContext,
+    timestamp: decoded.timestamp,
+    source: effectiveSource,
+    step: effectiveStep,
+    priority: effectivePriority,
+    policy: effectivePolicy,
+    parent: effectiveParent,
+    onComplete: onComplete,
+    onError: onError,
+    onProgress: onProgress,
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/Pulse-class.html">Pulse<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
+    <li class="self-crumb">Pulse.fromJson factory constructor</li>
+</ol>
+
+    <h5>Pulse class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      2.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

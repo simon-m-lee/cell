@@ -73,7 +73,7 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; addAll(Iterable&lt;E&gt; elements) async {
-  return Future&lt;void&gt;(() =&gt; _tissue.addAll(elements));
+  await _runTissueMutation(_tissue, _tissue.addAll, [elements]);
 }</code></pre>
 </section>
 

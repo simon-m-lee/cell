@@ -136,6 +136,8 @@ source.add(4); // readOnly now contains [1, 2, 3, 4]
       <li><a href="https://api.flutter.dev/flutter/dart-js_interop/ListToJSArray.html">ListToJSArray</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/NullableIterableExtensions.html">NullableIterableExtensions</a></li>
       <li><a href="../mitosis/PulseIterableExtension.html">PulseIterableExtension</a></li>
+      <li><a href="../mitosis/TissueListJson.html">TissueListJson</a></li>
+      <li><a href="../mitosis/TissueSkippedReport.html">TissueSkippedReport</a></li>
   </ul></dd>
         
 
@@ -464,6 +466,23 @@ does not support any modifiable operations.
 
 </dd>
 
+        <dt id="skippedReport" class="property">
+  <span class="name"><a href="../mitosis/TissueSkippedReport/skippedReport.html">skippedReport</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>,
+        provided by the <a href="../mitosis/TissueSkippedReport.html">TissueSkippedReport</a> extension</span>
+      </p>
+  The <code>{'wire': [...], 'decode': [...]}</code> skip report, or <code>null</code> when no
+skip occurred.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
         <dt id="toJS" class="property">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-js_interop/ListToJSArray/toJS.html">toJS</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-js_interop/JSArray-extension-type.html">JSArray</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
@@ -765,7 +784,7 @@ and validation logic.
 </dd>
 
         <dt id="dispatch" class="callable inherited">
-  <span class="name"><a href="../mitosis/TissueListMixin/dispatch.html">dispatch</a></span><span class="signature">(<wbr><span class="parameter" id="dispatch-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="dispatch-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="dispatch-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span></span>})
+  <span class="name"><a href="../mitosis/TissueListMixin/dispatch.html">dispatch</a></span><span class="signature">(<wbr><span class="parameter" id="dispatch-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="dispatch-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="dispatch-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="dispatch-param-sync"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">sync</span> = <span class="default-value">false</span></span>})
     <span class="returntype parameter">&#8594; dynamic</span>
   </span>
   
@@ -1493,6 +1512,23 @@ designed to evolve the same payload multiple times.
       </p>
   Materializes a <strong>Passive Observation Gate</strong>—a specialized orchestration
 instruction designed to perform side-effects without altering pulse evolution.
+  
+
+</dd>
+
+        <dt id="toJson" class="callable">
+  <span class="name"><a href="../mitosis/TissueListJson/toJson.html">toJson</a></span><span class="signature">(<wbr>{<span class="parameter" id="toJson-param-lenient"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">lenient</span> = <span class="default-value">false</span>, </span><span class="parameter" id="toJson-param-lenientFallbackTestRule"><span class="type-annotation"><a href="../mitosis/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">dynamic</span>, <span class="type-parameter"><a href="../mitosis/Tissue-class.html">Tissue</a></span>&gt;</span></span> <span class="parameter-name">lenientFallbackTestRule</span> = <span class="default-value">TestTissue.readOnly</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/TissueList-class.html">TissueList</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>,
+        provided by the <a href="../mitosis/TissueListJson.html">TissueListJson</a> extension</span>
+      </p>
+  Encodes this list to its canonical JSON wire form.
   
 
 </dd>

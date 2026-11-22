@@ -63,6 +63,7 @@
 <span class="name ">dispatch</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="dispatch-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span></li>
 <li><span class="parameter" id="dispatch-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span></li>
 <li><span class="parameter" id="dispatch-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span></li>
+<li><span class="parameter" id="dispatch-param-sync"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">sync</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
 
       <div class="features"><span class="feature">override</span></div>
@@ -83,56 +84,63 @@ dynamic dispatch(
   Function function, {
   List? positionalArguments,
   Map&lt;Symbol, dynamic&gt;? namedArguments,
+  bool sync = false,
 }) {
   try {
-    if (validate.action(function, host: this as C, arguments: (
-          positionalArguments: positionalArguments,
-          namedArguments: namedArguments
-        )) ==
-        true) {
-      final notification = namedArguments?[#$notification] ?? true;
-      final deputy = namedArguments?[#deputy];
+    return _permit(
+      validate.action(function, host: this as C, arguments: (
+        positionalArguments: positionalArguments,
+        namedArguments: namedArguments
+      )),
+      () {
+        final notification = namedArguments?[#$notification] ?? true;
+        final deputy = namedArguments?[#deputy];
 
-      if (function == add) {
-        return Function.apply(_add, positionalArguments,
-            {#notification: notification, #deputy: deputy});
-      } else if (function == addAll) {
-        return Function.apply(_addAll, positionalArguments,
-            {#notification: notification, #deputy: deputy});
-      } else if (function == addEntries) {
-        return Function.apply(_addEntries, positionalArguments,
-            {#notification: notification, #deputy: deputy});
-      } else if (function == put) {
-        return Function.apply(_put, positionalArguments,
-            {#notification: notification, #deputy: deputy});
-      } else if (function == clear) {
-        return Function.apply(
-            _clear, null, {#notification: notification, #deputy: deputy});
-      } else if (function == putIfAbsent) {
-        return Function.apply(_putIfAbsent, positionalArguments,
-            {#notification: notification, #deputy: deputy});
-      } else if (function == remove) {
-        return Function.apply(_remove, positionalArguments,
-            {#notification: notification, #deputy: deputy});
-      } else if (function == removeWhere) {
-        return Function.apply(_removeWhere, positionalArguments,
-            {#notification: notification, #deputy: deputy});
-      } else if (function == update) {
-        return Function.apply(_update, positionalArguments, {
-          #notification: notification,
-          #deputy: deputy,
-          #ifAbsent: namedArguments?[#ifAbsent]
-        });
-      } else if (function == updateAll) {
-        return Function.apply(_updateAll, positionalArguments,
-            {#notification: notification, #deputy: deputy});
-      }
-    }
+        if (function == add) {
+          return Function.apply(_add, positionalArguments,
+              {#notification: notification, #deputy: deputy, #sync: sync});
+        } else if (function == addAll) {
+          return Function.apply(_addAll, positionalArguments,
+              {#notification: notification, #deputy: deputy, #sync: sync});
+        } else if (function == addEntries) {
+          return Function.apply(_addEntries, positionalArguments,
+              {#notification: notification, #deputy: deputy, #sync: sync});
+        } else if (function == put) {
+          return Function.apply(_put, positionalArguments,
+              {#notification: notification, #deputy: deputy, #sync: sync});
+        } else if (function == clear) {
+          return Function.apply(_clear, null,
+              {#notification: notification, #deputy: deputy, #sync: sync});
+        } else if (function == putIfAbsent) {
+          return Function.apply(_putIfAbsent, positionalArguments,
+              {#notification: notification, #deputy: deputy, #sync: sync});
+        } else if (function == remove) {
+          return Function.apply(_remove, positionalArguments,
+              {#notification: notification, #deputy: deputy, #sync: sync});
+        } else if (function == removeWhere) {
+          return Function.apply(_removeWhere, positionalArguments,
+              {#notification: notification, #deputy: deputy, #sync: sync});
+        } else if (function == update) {
+          return Function.apply(_update, positionalArguments, {
+            #notification: notification,
+            #deputy: deputy,
+            #ifAbsent: namedArguments?[#ifAbsent],
+            #sync: sync
+          });
+        } else if (function == updateAll) {
+          return Function.apply(_updateAll, positionalArguments,
+              {#notification: notification, #deputy: deputy, #sync: sync});
+        }
+        return null;
+      },
+      sync: sync,
+    );
   } catch (e) {
-    if (e is StateError) {
+    if (e is StateError || e is _AsyncRuleOnSyncPath) {
       rethrow;
     }
   }
+  return null;
 }</code></pre>
 </section>
 
@@ -161,7 +169,7 @@ dynamic dispatch(
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

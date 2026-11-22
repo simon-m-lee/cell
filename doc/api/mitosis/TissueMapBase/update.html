@@ -83,7 +83,8 @@
 V update(K key, V Function(V value) update, {V Function()? ifAbsent}) =&gt;
     dispatch(this.update,
         positionalArguments: [key, update],
-        namedArguments: {#ifAbsent: ifAbsent});</code></pre>
+        namedArguments: {#ifAbsent: ifAbsent},
+        sync: true);</code></pre>
 </section>
 
 

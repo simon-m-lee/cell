@@ -108,7 +108,7 @@ print(evolved.type); // 'counter' (inherited)
 <p><strong>Layer:</strong> Cell — this is the graph's message, not an operator (Flow), not a book (Tissue).
 <strong>When to use:</strong> read <code>pulse.payload</code>, <code>pulse.source</code>, <code>pulse.type</code> in observers; create one for manual injection (<code>Pulse(value, type: '...')</code>).
 <strong>When NOT to use:</strong> as a storage unit — state lives in <code>Cell.state</code> / Tissue books; pulses are immutable signals.
-<strong>Live signature:</strong> <code>Pulse&lt;P&gt;(P? payload, {dynamic type, Cell? source, int? priority, String? step})</code> — pinned at <code>cell: 2.0.0</code>
+<strong>Live signature:</strong> <code>Pulse&lt;P&gt;(P? payload, {dynamic type, Cell? source, int? priority, String? step})</code> — pinned at <code>cell: 2.1.0</code>
 <strong>Do NOT confuse with:</strong> <code>TissuePulse</code> (the collection-event variant in <code>cell_tissue</code>).
 <strong>Guide:</strong> <code>guide/HowTo-Pulse.md</code> (pulse anatomy)
 <strong>Example:</strong> <code>example/ingress_demo.dart</code>
@@ -140,6 +140,7 @@ print('${p.payload},${p.type}'); // 42,counter
   <dd><ul class="comma-separated clazz-relationships">
       <li><a href="../mitosis/PulseExtension.html">PulseExtension</a></li>
       <li><a href="../mitosis/PulseIterableExtension.html">PulseIterableExtension</a></li>
+      <li><a href="../mitosis/PulseJson.html">PulseJson</a></li>
   </ul></dd>
         
 
@@ -156,6 +157,15 @@ print('${p.payload},${p.type}'); // 42,counter
         </dt>
         <dd>
           Creates a simple, ungoverned pulse.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="Pulse.fromJson" class="callable">
+          <span class="name"><a href="../mitosis/Pulse/Pulse.fromJson.html">Pulse.fromJson</a></span><span class="signature">(<span class="parameter" id="fromJson-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span> <span class="parameter-name">json</span>, {</span><span class="parameter" id="fromJson-param-resolver"><span class="type-annotation"><a href="../mitosis/PulseResolver.html">PulseResolver</a>?</span> <span class="parameter-name">resolver</span>, </span><span class="parameter" id="fromJson-param-lenient"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">lenient</span> = <span class="default-value">false</span>, </span><span class="parameter" id="fromJson-param-onSkipped"><span class="type-annotation">void</span> <span class="parameter-name">onSkipped</span>(<span class="parameter" id="param-skipped"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">skipped</span></span>)?, </span><span class="parameter" id="fromJson-param-policy"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">policy</span>, </span><span class="parameter" id="fromJson-param-context"><span class="type-annotation"><a href="../mitosis/PulseContext-class.html">PulseContext</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="fromJson-param-payload"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">payload</span>, </span><span class="parameter" id="fromJson-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">type</span>, </span><span class="parameter" id="fromJson-param-source"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">source</span>, </span><span class="parameter" id="fromJson-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">step</span>, </span><span class="parameter" id="fromJson-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">priority</span>, </span><span class="parameter" id="fromJson-param-onComplete"><span class="type-annotation">void</span> <span class="parameter-name">onComplete</span>(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../mitosis/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)?, </span><span class="parameter" id="fromJson-param-onError"><span class="type-annotation">void</span> <span class="parameter-name">onError</span>(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../mitosis/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, </span><span class="parameter" id="param-error"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">error</span>, {</span><span class="parameter" id="param-stackTrace"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/StackTrace-class.html">StackTrace</a>?</span> <span class="parameter-name">stackTrace</span></span>})?, </span><span class="parameter" id="fromJson-param-onProgress"><span class="type-annotation">void</span> <span class="parameter-name">onProgress</span>(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../mitosis/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, </span><span class="parameter" id="param-cell"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, {</span><span class="parameter" id="param-message"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">message</span></span>})?</span>})</span>
+        </dt>
+        <dd>
+          Constructs a pulse from the canonical JSON produced by
+<code>Pulse.toJson</code>, with optional overrides for every constructor
+parameter.
             <div class="constructor-modifier features">factory</div>
         </dd>
         <dt id="Pulse.governed" class="callable">
@@ -524,19 +534,6 @@ metadata attached.
 
 </dd>
 
-        <dt id="cast" class="callable inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/cast.html">cast</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>
-  </span>
-  
-
-</dt>
-<dd class="inherited">
-  A view of this iterable as an iterable of <code>R</code> instances.
-  <div class="features"><span class="feature">inherited</span></div>
-
-</dd>
-
         <dt id="cast" class="callable">
   <span class="name"><a href="../mitosis/PulseExtension/cast.html">cast</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="../mitosis/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
@@ -551,6 +548,19 @@ metadata attached.
       </p>
   Re-casts the pulse payload to type <code>T</code> while maintaining causal history.
   
+
+</dd>
+
+        <dt id="cast" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/cast.html">cast</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A view of this iterable as an iterable of <code>R</code> instances.
+  <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -911,6 +921,23 @@ of the collection using the provided function.
       </p>
   Executes a side-effect <code>action</code> using the current <a href="../mitosis/Pulse/payload.html">payload</a> and returns
 this pulse instance.
+  
+
+</dd>
+
+        <dt id="toJson" class="callable">
+  <span class="name"><a href="../mitosis/PulseJson/toJson.html">toJson</a></span><span class="signature">(<wbr>{<span class="parameter" id="toJson-param-lenient"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">lenient</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span>,
+        provided by the <a href="../mitosis/PulseJson.html">PulseJson</a> extension</span>
+      </p>
+  
   
 
 </dd>

@@ -860,21 +860,22 @@ abstract interface class Context {
   ///   'ISO-27001').
   /// - [others]: A catch-all map for custom, scene-specific ontological
   ///   metadata that falls outside the standard pillars.
-  factory Context(
-      {String? type,
-      String? identity,
-      String? domains,
-      String? dataSources,
-      String? taxonomy,
-      String? topology,
-      String? version,
-      String? subDomains,
-      String? stakeholders,
-      Map<String, dynamic>? constraints,
-      String? isNot,
-      String? compliances,
-      String? partOf,
-      Map<String, dynamic>? others}) = _Context;
+  factory Context({
+    String? type,
+    String? identity,
+    String? domains,
+    String? dataSources,
+    String? taxonomy,
+    String? topology,
+    String? version,
+    String? subDomains,
+    String? stakeholders,
+    Map<String, dynamic>? constraints,
+    String? isNot,
+    String? compliances,
+    String? partOf,
+    Map<String, dynamic>? others
+  }) = _Context;
 
   /// Creates a specialized **Deputy Mandate**, allowing for authority
   /// delegation, mandate attenuation, and temporal governance.

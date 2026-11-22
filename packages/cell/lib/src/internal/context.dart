@@ -121,22 +121,22 @@ class _ContextSystem implements Context {
 }
 
 class _Context extends ContextBase {
-  _Context(
-      {String? type,
-      String? identity,
-      String? domains,
-      String? dataSources,
-      String? taxonomy,
-      String? topology,
-      String? version,
-      String? subDomains,
-      String? stakeholders,
-      Map<String, dynamic>? constraints,
-      String? isNot,
-      String? compliances,
-      String? partOf,
-      Map<String, dynamic>? others})
-      : this.fromEntries(<GovernanceEntry>[
+  _Context({
+    String? type,
+    String? identity,
+    String? domains,
+    String? dataSources,
+    String? taxonomy,
+    String? topology,
+    String? version,
+    String? subDomains,
+    String? stakeholders,
+    Map<String, dynamic>? constraints,
+    String? isNot,
+    String? compliances,
+    String? partOf,
+    Map<String, dynamic>? others
+  }) : this.fromEntries(<GovernanceEntry>[
           if (type != null) Ontology.type.entry(type),
           if (identity != null) Ontology.identity.entry(identity),
           if (partOf != null) Ontology.partOf.entry(partOf),
@@ -206,8 +206,7 @@ abstract class ContextBase implements Context {
   ///   specialised **Scene-Driven** logic.
   /// - [parent]: The ancestral [Context] from which this instance derives
   ///   its baseline governance and identity.
-  ContextBase(Iterable<GovernanceEntry> entries,
-      {Map<String, dynamic>? others, Context? parent})
+  ContextBase(Iterable<GovernanceEntry> entries, {Map<String, dynamic>? others, Context? parent})
       : this.fromRecord((
           map: Map<Governance, dynamic>.unmodifiable(
             Map.fromEntries(entries.map((e) => e.toEntry())),

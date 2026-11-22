@@ -83,7 +83,7 @@ or validation-specific error).</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; setValueAt(int index, E value) async {
-  return Future&lt;void&gt;(() =&gt; _tissue.setValueAt(index, value));
+  await _runTissueMutation(_tissue, _tissue.setValueAt, [index, value]);
 }</code></pre>
 </section>
 

@@ -84,12 +84,10 @@ If it is unmodifiable, the <code>Future</code> resolves to <code>false</code>.</
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Future&lt;bool&gt; set(V? value) async {
-  return Future&lt;bool&gt;(() {
-    if (this is! Unmodifiable) {
-      return _tissue._set(value) != null;
-    }
-    return false;
-  });
+  if (this is! Unmodifiable) {
+    return await _tissue._set(value) != null;
+  }
+  return false;
 }</code></pre>
 </section>
 

@@ -78,7 +78,9 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 bool remove(Object? object) =&gt;
-    (dispatch(remove, positionalArguments: [object])?.isNotEmpty) ?? false;</code></pre>
+    (dispatch(remove, positionalArguments: [object], sync: true)
+        ?.isNotEmpty) ??
+    false;</code></pre>
 </section>
 
 

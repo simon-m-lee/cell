@@ -1822,6 +1822,16 @@ ledger's <code>verify()</code> to pass.
   Fluent extensions for collections of <a href="../cell_flow/Pulse-class.html">Pulse</a> objects.
 </dd>
 
+          <dt id="PulseJson">
+  <span class="name "><a href="../cell_flow/PulseJson.html">PulseJson</a></span>
+  on <a href="../cell_flow/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span>
+  
+
+</dt>
+<dd>
+  Encodes this pulse to its canonical JSON wire form via <a href="../cell_flow/encodePulse.html">encodePulse</a>.
+</dd>
+
           <dt id="ReplayEngineFork">
   <span class="name "><a href="../cell_flow/ReplayEngineFork.html">ReplayEngineFork</a></span>
   on <a href="../cell_flow/ReplayEngine-class.html">ReplayEngine</a>
@@ -1846,6 +1856,71 @@ applying a <a href="../cell_flow/Mutation.html">Mutation</a> to each entry.
       </dl>
     </section>
 
+    <section class="summary offset-anchor" id="constants">
+      <h2>Constants</h2>
+      <dl class="properties">
+          <dt id="pulseNullPayload" class="constant">
+    <span class="name "><a href="../cell_flow/pulseNullPayload-constant.html">pulseNullPayload</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>
+  
+
+</dt>
+<dd>
+  Explicitly override <code>payload</code> to <code>null</code> in <a href="../cell_flow/Pulse/Pulse.fromJson.html">Pulse.fromJson</a>.
+  
+
+</dd>
+
+          <dt id="pulseNullPolicy" class="constant">
+    <span class="name "><a href="../cell_flow/pulseNullPolicy-constant.html">pulseNullPolicy</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>
+  
+
+</dt>
+<dd>
+  Explicitly override <code>policy</code> to <code>null</code> in <a href="../cell_flow/Pulse/Pulse.fromJson.html">Pulse.fromJson</a>.
+  
+
+</dd>
+
+          <dt id="pulseNullSource" class="constant">
+    <span class="name "><a href="../cell_flow/pulseNullSource-constant.html">pulseNullSource</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>
+  
+
+</dt>
+<dd>
+  Explicitly override <code>source</code> to <code>null</code> in <a href="../cell_flow/Pulse/Pulse.fromJson.html">Pulse.fromJson</a>.
+  
+
+</dd>
+
+          <dt id="pulseNullStep" class="constant">
+    <span class="name "><a href="../cell_flow/pulseNullStep-constant.html">pulseNullStep</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>
+  
+
+</dt>
+<dd>
+  Explicitly override <code>step</code> to <code>null</code> in <a href="../cell_flow/Pulse/Pulse.fromJson.html">Pulse.fromJson</a>.
+  
+
+</dd>
+
+          <dt id="pulseNullType" class="constant">
+    <span class="name "><a href="../cell_flow/pulseNullType-constant.html">pulseNullType</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>
+  
+
+</dt>
+<dd>
+  Explicitly override <code>type</code> to <code>null</code> in <a href="../cell_flow/Pulse/Pulse.fromJson.html">Pulse.fromJson</a>.
+  
+
+</dd>
+
+      </dl>
+    </section>
 
 
     <section class="summary offset-anchor" id="functions">
@@ -1873,6 +1948,32 @@ applying a <a href="../cell_flow/Mutation.html">Mutation</a> to each entry.
 </dt>
 <dd>
   Encodes <code>value</code> into deterministic, canonical JSON.
+  
+
+</dd>
+
+          <dt id="decodePulse" class="callable">
+  <span class="name"><a href="../cell_flow/decodePulse.html">decodePulse</a></span><span class="signature">(<wbr><span class="parameter" id="decodePulse-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span> <span class="parameter-name">json</span>, {</span><span class="parameter" id="decodePulse-param-resolver"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a>?</span> <span class="parameter-name">resolver</span>(<span class="parameter" id="param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">id</span></span>)?, </span><span class="parameter" id="decodePulse-param-lenient"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">lenient</span> = <span class="default-value">false</span>, </span><span class="parameter" id="decodePulse-param-onSkipped"><span class="type-annotation">void</span> <span class="parameter-name">onSkipped</span>(<span class="parameter" id="param-skipped"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">skipped</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/PulseBase-class.html">PulseBase</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Decodes a pulse from the canonical JSON produced by <a href="../cell_flow/encodePulse.html">encodePulse</a>.
+  
+
+</dd>
+
+          <dt id="encodePulse" class="callable">
+  <span class="name"><a href="../cell_flow/encodePulse.html">encodePulse</a></span><span class="signature">(<wbr><span class="parameter" id="encodePulse-param-pulse"><span class="type-annotation"><a href="../cell_flow/PulseBase-class.html">PulseBase</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="encodePulse-param-lenient"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">lenient</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Encodes <code>pulse</code> to its canonical JSON wire form.
   
 
 </dd>
@@ -2166,6 +2267,20 @@ and the terminal ancestor of all reactive blueprints.
 
 
           
+  <dt id="PulseResolver" class="callable">
+    <span class="name"><a href="../cell_flow/PulseResolver.html">PulseResolver</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="../cell_flow/Cell-class.html">Cell</a>? Function<span class="signature">(<span class="parameter" id="param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">id</span></span>)</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Resolves a <code>Cell.id</code> to a live <a href="../cell_flow/Cell-class.html">Cell</a>.
+    
+
+  </dd>
+
+          
   <dt id="SpokeRegistration" class="">
   <span class="name"><a href="../cell_flow/SpokeRegistration.html">SpokeRegistration</a></span>
     = (<span class="field">{<span class="type-annotation"><a href="../cell_flow/DeputyContext-class.html">DeputyContext</a>?</span> <span class="field-name">context</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a>? Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span>?</span> <span class="field-name">handler</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="field-name">key</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">type</span></span>)</span>?</span> <span class="field-name">match</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="field-name">priority</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flow/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="field-name">receptor</span>}</span>)
@@ -2250,6 +2365,23 @@ ledger, or genesis binding is invalid.
 <dd>
   Thrown by <a href="../cell_flow/Ledger/verify.html">Ledger.verify</a> when an entry's hash, sequence, or
 predecessor chain does not match.
+</dd>
+
+          <dt id="PulseDecodeError">
+  <span class="name "><a href="../cell_flow/PulseDecodeError-class.html">PulseDecodeError</a></span> 
+
+</dt>
+<dd>
+  A pulse JSON record cannot be decoded.
+</dd>
+
+          <dt id="PulseNotSerializable">
+  <span class="name "><a href="../cell_flow/PulseNotSerializable-class.html">PulseNotSerializable</a></span> 
+
+</dt>
+<dd>
+  A pulse cannot be serialised because it carries a field that has no
+honest wire representation.
 </dd>
 
           <dt id="ReplayDivergenceException">
@@ -2346,7 +2478,7 @@ participant cell, or a rejected command at commit time.
 <footer>
   <span class="no-break">
     cell_flow
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

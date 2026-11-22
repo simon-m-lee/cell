@@ -1,9 +1,9 @@
 # cell package - Test Verification Report
 
-**Generated:** 2026-11-19
-**Package:** cell (v2.0.0)
-**Test Files Analyzed:** 75
-**Total Tests:** 1426 (0 skipped)
+**Generated:** 2026-11-22
+**Package:** cell (v2.1.0)
+**Test Files Analyzed:** 79
+**Total Tests:** 1462 (0 skipped)
 
 ---
 
@@ -17,7 +17,7 @@
 - [Detailed Test Coverage](#detailed-test-coverage)
   - [ai_guide_examples_test.dart](#file-1-ai_guide_examples_test.dart-3-tests)
   - [ai_preflight_test.dart](#file-2-ai_preflight_test.dart-1-tests)
-  - [api_chooser_up_to_date_test.dart](#file-3-api_chooser_up_to_date_test.dart-1-tests)
+  - [api_chooser_up_to_date_test.dart](#file-3-api_chooser_up_to_date_test.dart-2-tests)
   - [apply_command_test.dart](#file-4-apply_command_test.dart-12-tests)
   - [cell_policy_test.dart](#file-5-cell_policy_test.dart-39-tests)
   - [cell_test.dart](#file-6-cell_test.dart-78-tests)
@@ -40,56 +40,60 @@
   - [canonical_json_test.dart](#file-23-canonical_json_test.dart-13-tests)
   - [context_roundtrip_test.dart](#file-24-context_roundtrip_test.dart-8-tests)
   - [fastpulse_rejected_test.dart](#file-25-fastpulse_rejected_test.dart-4-tests)
-  - [pulse_codec_test.dart](#file-26-pulse_codec_test.dart-20-tests)
+  - [pulse_codec_test.dart](#file-26-pulse_codec_test.dart-21-tests)
   - [pulse_from_json_overrides_test.dart](#file-27-pulse_from_json_overrides_test.dart-19-tests)
   - [pulse_from_json_test.dart](#file-28-pulse_from_json_test.dart-9-tests)
-  - [pulse_roundtrip_test.dart](#file-29-pulse_roundtrip_test.dart-7-tests)
-  - [pulse_sentinel_test.dart](#file-30-pulse_sentinel_test.dart-4-tests)
-  - [pulse_to_json_test.dart](#file-31-pulse_to_json_test.dart-3-tests)
-  - [snapshot_roundtrip_test.dart](#file-32-snapshot_roundtrip_test.dart-9-tests)
-  - [cycle_checker_reseeded_test.dart](#file-33-cycle_checker_reseeded_test.dart-1-tests)
-  - [divergence_effect_mismatch_test.dart](#file-34-divergence_effect_mismatch_test.dart-2-tests)
-  - [divergence_missing_effect_test.dart](#file-35-divergence_missing_effect_test.dart-1-tests)
-  - [divergence_pure_receptor_test.dart](#file-36-divergence_pure_receptor_test.dart-2-tests)
-  - [pulse_codec_integration_test.dart](#file-37-pulse_codec_integration_test.dart-5-tests)
-  - [pulses_500_replay_test.dart](#file-38-pulses_500_replay_test.dart-1-tests)
-  - [replay_identical_graph_test.dart](#file-39-replay_identical_graph_test.dart-3-tests)
-  - [fork_at_seq_test.dart](#file-40-fork_at_seq_test.dart-2-tests)
-  - [fork_isolation_test.dart](#file-41-fork_isolation_test.dart-1-tests)
-  - [fork_verify_requires_original_test.dart](#file-42-fork_verify_requires_original_test.dart-3-tests)
-  - [whatif_replace_pulse_test.dart](#file-43-whatif_replace_pulse_test.dart-2-tests)
-  - [effectful_testcell_replayed_test.dart](#file-44-effectful_testcell_replayed_test.dart-2-tests)
-  - [ephemeral_policy_tick_order_test.dart](#file-45-ephemeral_policy_tick_order_test.dart-2-tests)
-  - [readonlyexternal_testcell_reexecuted_test.dart](#file-46-readonlyexternal_testcell_reexecuted_test.dart-2-tests)
-  - [version_boundary_without_translator_test.dart](#file-47-version_boundary_without_translator_test.dart-4-tests)
-  - [version_dispatch_test.dart](#file-48-version_dispatch_test.dart-6-tests)
-  - [graph_snapshot_restore_test.dart](#file-49-graph_snapshot_restore_test.dart-4-tests)
-  - [id_uniqueness_test.dart](#file-50-id_uniqueness_test.dart-5-tests)
-  - [purity_classification_test.dart](#file-51-purity_classification_test.dart-6-tests)
-  - [registration_test.dart](#file-52-registration_test.dart-4-tests)
-  - [unregistered_bind_rejected_test.dart](#file-53-unregistered_bind_rejected_test.dart-4-tests)
-  - [async_map_records_effects_test.dart](#file-54-async_map_records_effects_test.dart-1-tests)
-  - [debounce_timer_order_test.dart](#file-55-debounce_timer_order_test.dart-2-tests)
-  - [from_stream_ordering_test.dart](#file-56-from_stream_ordering_test.dart-2-tests)
-  - [null_journal_rejects_effectful_test.dart](#file-57-null_journal_rejects_effectful_test.dart-5-tests)
-  - [pure_receptor_no_journal_test.dart](#file-58-pure_receptor_no_journal_test.dart-3-tests)
-  - [reordered_effects_diverge_test.dart](#file-59-reordered_effects_diverge_test.dart-7-tests)
-  - [append_and_verify_test.dart](#file-60-append_and_verify_test.dart-2-tests)
-  - [append_outside_apply_rejected_test.dart](#file-61-append_outside_apply_rejected_test.dart-6-tests)
-  - [file_store_roundtrip_test.dart](#file-62-file_store_roundtrip_test.dart-2-tests)
-  - [state_delta_capture_test.dart](#file-63-state_delta_capture_test.dart-5-tests)
-  - [tamper_detection_test.dart](#file-64-tamper_detection_test.dart-3-tests)
-  - [ledger_store_conformance.dart](#file-65-ledger_store_conformance.dart-6-tests)
-  - [replay_contract_test.dart](#file-66-replay_contract_test.dart-0-tests)
-  - [review_hardening_test.dart](#file-67-review_hardening_test.dart-35-tests)
-  - [seam_test.dart](#file-68-seam_test.dart-2-tests)
-  - [synapses_test.dart](#file-69-synapses_test.dart-75-tests)
-  - [synthesis_cell_test.dart](#file-70-synthesis_cell_test.dart-37-tests)
-  - [test_cell_test.dart](#file-71-test_cell_test.dart-45-tests)
-  - [test_chain_test.dart](#file-72-test_chain_test.dart-4-tests)
-  - [test_rule_meta_test.dart](#file-73-test_rule_meta_test.dart-49-tests)
-  - [transaction_test.dart](#file-74-transaction_test.dart-55-tests)
-  - [tx_apply_test.dart](#file-75-tx_apply_test.dart-49-tests)
+  - [pulse_lenient_consequences_test.dart](#file-29-pulse_lenient_consequences_test.dart-4-tests)
+  - [pulse_lenient_decode_test.dart](#file-30-pulse_lenient_decode_test.dart-13-tests)
+  - [pulse_lenient_encode_test.dart](#file-31-pulse_lenient_encode_test.dart-11-tests)
+  - [pulse_lenient_factory_test.dart](#file-32-pulse_lenient_factory_test.dart-5-tests)
+  - [pulse_roundtrip_test.dart](#file-33-pulse_roundtrip_test.dart-7-tests)
+  - [pulse_sentinel_test.dart](#file-34-pulse_sentinel_test.dart-4-tests)
+  - [pulse_to_json_test.dart](#file-35-pulse_to_json_test.dart-3-tests)
+  - [snapshot_roundtrip_test.dart](#file-36-snapshot_roundtrip_test.dart-9-tests)
+  - [cycle_checker_reseeded_test.dart](#file-37-cycle_checker_reseeded_test.dart-1-tests)
+  - [divergence_effect_mismatch_test.dart](#file-38-divergence_effect_mismatch_test.dart-2-tests)
+  - [divergence_missing_effect_test.dart](#file-39-divergence_missing_effect_test.dart-1-tests)
+  - [divergence_pure_receptor_test.dart](#file-40-divergence_pure_receptor_test.dart-2-tests)
+  - [pulse_codec_integration_test.dart](#file-41-pulse_codec_integration_test.dart-6-tests)
+  - [pulses_500_replay_test.dart](#file-42-pulses_500_replay_test.dart-1-tests)
+  - [replay_identical_graph_test.dart](#file-43-replay_identical_graph_test.dart-3-tests)
+  - [fork_at_seq_test.dart](#file-44-fork_at_seq_test.dart-2-tests)
+  - [fork_isolation_test.dart](#file-45-fork_isolation_test.dart-1-tests)
+  - [fork_verify_requires_original_test.dart](#file-46-fork_verify_requires_original_test.dart-3-tests)
+  - [whatif_replace_pulse_test.dart](#file-47-whatif_replace_pulse_test.dart-2-tests)
+  - [effectful_testcell_replayed_test.dart](#file-48-effectful_testcell_replayed_test.dart-2-tests)
+  - [ephemeral_policy_tick_order_test.dart](#file-49-ephemeral_policy_tick_order_test.dart-2-tests)
+  - [readonlyexternal_testcell_reexecuted_test.dart](#file-50-readonlyexternal_testcell_reexecuted_test.dart-2-tests)
+  - [version_boundary_without_translator_test.dart](#file-51-version_boundary_without_translator_test.dart-4-tests)
+  - [version_dispatch_test.dart](#file-52-version_dispatch_test.dart-6-tests)
+  - [graph_snapshot_restore_test.dart](#file-53-graph_snapshot_restore_test.dart-4-tests)
+  - [id_uniqueness_test.dart](#file-54-id_uniqueness_test.dart-5-tests)
+  - [purity_classification_test.dart](#file-55-purity_classification_test.dart-6-tests)
+  - [registration_test.dart](#file-56-registration_test.dart-4-tests)
+  - [unregistered_bind_rejected_test.dart](#file-57-unregistered_bind_rejected_test.dart-4-tests)
+  - [async_map_records_effects_test.dart](#file-58-async_map_records_effects_test.dart-1-tests)
+  - [debounce_timer_order_test.dart](#file-59-debounce_timer_order_test.dart-2-tests)
+  - [from_stream_ordering_test.dart](#file-60-from_stream_ordering_test.dart-2-tests)
+  - [null_journal_rejects_effectful_test.dart](#file-61-null_journal_rejects_effectful_test.dart-5-tests)
+  - [pure_receptor_no_journal_test.dart](#file-62-pure_receptor_no_journal_test.dart-3-tests)
+  - [reordered_effects_diverge_test.dart](#file-63-reordered_effects_diverge_test.dart-7-tests)
+  - [append_and_verify_test.dart](#file-64-append_and_verify_test.dart-2-tests)
+  - [append_outside_apply_rejected_test.dart](#file-65-append_outside_apply_rejected_test.dart-6-tests)
+  - [file_store_roundtrip_test.dart](#file-66-file_store_roundtrip_test.dart-2-tests)
+  - [state_delta_capture_test.dart](#file-67-state_delta_capture_test.dart-5-tests)
+  - [tamper_detection_test.dart](#file-68-tamper_detection_test.dart-3-tests)
+  - [ledger_store_conformance.dart](#file-69-ledger_store_conformance.dart-6-tests)
+  - [replay_contract_test.dart](#file-70-replay_contract_test.dart-0-tests)
+  - [review_hardening_test.dart](#file-71-review_hardening_test.dart-35-tests)
+  - [seam_test.dart](#file-72-seam_test.dart-2-tests)
+  - [synapses_test.dart](#file-73-synapses_test.dart-75-tests)
+  - [synthesis_cell_test.dart](#file-74-synthesis_cell_test.dart-37-tests)
+  - [test_cell_test.dart](#file-75-test_cell_test.dart-45-tests)
+  - [test_chain_test.dart](#file-76-test_chain_test.dart-4-tests)
+  - [test_rule_meta_test.dart](#file-77-test_rule_meta_test.dart-49-tests)
+  - [transaction_test.dart](#file-78-transaction_test.dart-55-tests)
+  - [tx_apply_test.dart](#file-79-tx_apply_test.dart-49-tests)
 - [Runtime Verification Status](#runtime-verification-status)
   - [Last `dart test`](#last-dart-test)
   - [Line Coverage (`lib/`)](#line-coverage-lib)
@@ -100,7 +104,7 @@
 
 ## Executive Summary
 
-The cell test suite contains **1426 unit tests** across **75 files** in `test/`. Counts are `test(` declarations.
+The cell test suite contains **1462 unit tests** across **79 files** in `test/`. Counts are `test(` declarations.
 
 The library under test is **85 source files** in `lib/`: **35** under `lib/src/` (core engine), **46** under `lib/replay/` (Causal Replay module), and **4** top-level barrel(s).
 
@@ -108,7 +112,7 @@ This file is **generated**. Edit the script flags or the stub sections at the bo
 
 ### Snapshot
 
-Last `dart test` is **green**: **1431 passed**, 0 failed (exit 0).
+Last `dart test` is **green**: **1467 passed**, 0 failed (exit 0).
 
 `lib/` line coverage is **93.5%** (3586 / 3836).
 
@@ -118,12 +122,12 @@ No `lib/` file is below 70% in this lcov.
 
 | Metric | Value |
 |--------|-------|
-| **Total Test Files** | 75 |
-| **Total Tests** | 1426 |
+| **Total Test Files** | 79 |
+| **Total Tests** | 1462 |
 | **Skipped** | 0 |
-| **Last full run** | 1431 passed, 0 failed, 0 skipped (exit 0) |
-| **Test Groups** | 276 (`group(` declarations) |
-| **Async-ish tests** | ~502 (heuristic) |
+| **Last full run** | 1467 passed, 0 failed, 0 skipped (exit 0) |
+| **Test Groups** | 283 (`group(` declarations) |
+| **Async-ish tests** | ~503 (heuristic) |
 | **Line coverage (`lib/`)** | **93.5%** (3586 / 3836) |
 
 ---
@@ -134,7 +138,7 @@ No `lib/` file is below 70% in this lcov.
 |---|------|------:|------:|------:|-------|
 | 1 | ai_guide_examples_test.dart | 46 | 3 | 1.9 KB | ai guide examples test |
 | 2 | ai_preflight_test.dart | 22 | 1 | 0.8 KB | ai preflight test |
-| 3 | api_chooser_up_to_date_test.dart | 27 | 1 | 1.0 KB | api chooser up to date test |
+| 3 | api_chooser_up_to_date_test.dart | 36 | 2 | 1.4 KB | api chooser up to date test |
 | 4 | apply_command_test.dart | 283 | 12 | 8.8 KB | apply command test; groups: Apply command model |
 | 5 | cell_policy_test.dart | 646 | 39 | 21.8 KB | cell policy test; groups: EphemeralPolicy, Construction, call / events, eventLimit, TTL, combined TTL and eventLimit… |
 | 6 | cell_test.dart | 1,264 | 78 | 45.0 KB | cell test; groups: Cell, Factory Constructors, Identity & Equality, Apply, Modifiable, Terminal & State… |
@@ -157,57 +161,61 @@ No `lib/` file is below 70% in this lcov.
 | 23 | canonical_json_test.dart | 144 | 13 | 4.7 KB | canonical json test; groups: canonicalJsonEncode, fingerprint, barrel surface |
 | 24 | context_roundtrip_test.dart | 190 | 8 | 6.4 KB | context roundtrip test; groups: PulseContextCodec round-trip, PulseContextCodec failures |
 | 25 | fastpulse_rejected_test.dart | 75 | 4 | 2.9 KB | fastpulse rejected test; groups: materialise boundary |
-| 26 | pulse_codec_test.dart | 245 | 20 | 7.7 KB | pulse codec test; groups: encodePulse — non-serializable fields, decodePulse — decode failures, encodePulse — round-trips, canonicality |
+| 26 | pulse_codec_test.dart | 256 | 21 | 8.1 KB | pulse codec test; groups: encodePulse — non-serializable fields, decodePulse — decode failures, encodePulse — round-trips, canonicality |
 | 27 | pulse_from_json_overrides_test.dart | 187 | 19 | 5.7 KB | pulse from json overrides test; groups: Pulse.fromJson — overrides |
 | 28 | pulse_from_json_test.dart | 130 | 9 | 4.1 KB | pulse from json test; groups: Pulse.fromJson — the factory without overrides |
-| 29 | pulse_roundtrip_test.dart | 206 | 7 | 6.6 KB | pulse roundtrip test; groups: PulseCodec round-trip |
-| 30 | pulse_sentinel_test.dart | 58 | 4 | 2.0 KB | pulse sentinel test; groups: override sentinels |
-| 31 | pulse_to_json_test.dart | 39 | 3 | 1.3 KB | pulse to json test; groups: Pulse.toJson extension |
-| 32 | snapshot_roundtrip_test.dart | 126 | 9 | 4.2 KB | snapshot roundtrip test; groups: CellSnapshot, CellGraphSnapshot, Cell.id |
-| 33 | cycle_checker_reseeded_test.dart | 76 | 1 | 2.5 KB | cycle checker reseeded test |
-| 34 | divergence_effect_mismatch_test.dart | 123 | 2 | 3.5 KB | divergence effect mismatch test |
-| 35 | divergence_missing_effect_test.dart | 86 | 1 | 2.5 KB | divergence missing effect test |
-| 36 | divergence_pure_receptor_test.dart | 85 | 2 | 2.7 KB | divergence pure receptor test |
-| 37 | pulse_codec_integration_test.dart | 106 | 5 | 3.6 KB | pulse codec integration test; groups: pulse codec in the replay engine |
-| 38 | pulses_500_replay_test.dart | 61 | 1 | 2.1 KB | pulses 500 replay test |
-| 39 | replay_identical_graph_test.dart | 97 | 3 | 3.0 KB | replay identical graph test |
-| 40 | fork_at_seq_test.dart | 88 | 2 | 3.1 KB | fork at seq test |
-| 41 | fork_isolation_test.dart | 65 | 1 | 2.0 KB | fork isolation test |
-| 42 | fork_verify_requires_original_test.dart | 157 | 3 | 4.5 KB | fork verify requires original test |
-| 43 | whatif_replace_pulse_test.dart | 113 | 2 | 3.8 KB | whatif replace pulse test |
-| 44 | effectful_testcell_replayed_test.dart | 92 | 2 | 3.1 KB | effectful testcell replayed test |
-| 45 | ephemeral_policy_tick_order_test.dart | 91 | 2 | 3.1 KB | ephemeral policy tick order test |
-| 46 | readonlyexternal_testcell_reexecuted_test.dart | 95 | 2 | 3.0 KB | readonlyexternal testcell reexecuted test |
-| 47 | version_boundary_without_translator_test.dart | 195 | 4 | 6.6 KB | version boundary without translator test |
-| 48 | version_dispatch_test.dart | 139 | 6 | 4.1 KB | version dispatch test |
-| 49 | graph_snapshot_restore_test.dart | 101 | 4 | 3.7 KB | graph snapshot restore test |
-| 50 | id_uniqueness_test.dart | 57 | 5 | 1.9 KB | id uniqueness test |
-| 51 | purity_classification_test.dart | 82 | 6 | 3.0 KB | purity classification test |
-| 52 | registration_test.dart | 40 | 4 | 1.2 KB | registration test |
-| 53 | unregistered_bind_rejected_test.dart | 61 | 4 | 2.2 KB | unregistered bind rejected test |
-| 54 | async_map_records_effects_test.dart | 94 | 1 | 3.2 KB | async map records effects test |
-| 55 | debounce_timer_order_test.dart | 132 | 2 | 4.1 KB | debounce timer order test |
-| 56 | from_stream_ordering_test.dart | 66 | 2 | 2.1 KB | from stream ordering test |
-| 57 | null_journal_rejects_effectful_test.dart | 96 | 5 | 2.9 KB | null journal rejects effectful test |
-| 58 | pure_receptor_no_journal_test.dart | 47 | 3 | 1.5 KB | pure receptor no journal test |
-| 59 | reordered_effects_diverge_test.dart | 170 | 7 | 4.9 KB | reordered effects diverge test |
-| 60 | append_and_verify_test.dart | 47 | 2 | 1.5 KB | append and verify test |
-| 61 | append_outside_apply_rejected_test.dart | 134 | 6 | 4.4 KB | append outside apply rejected test |
-| 62 | file_store_roundtrip_test.dart | 88 | 2 | 3.1 KB | file store roundtrip test |
-| 63 | state_delta_capture_test.dart | 122 | 5 | 4.1 KB | state delta capture test |
-| 64 | tamper_detection_test.dart | 163 | 3 | 4.7 KB | tamper detection test |
-| 65 | ledger_store_conformance.dart | 189 | 6 | 5.9 KB | ledger store conformance; groups: $suiteName conformance |
-| 66 | replay_contract_test.dart | 50 | 0 | 1.6 KB | replay contract test |
-| 67 | review_hardening_test.dart | 1,244 | 35 | 41.4 KB | review hardening test |
-| 68 | seam_test.dart | 46 | 2 | 1.7 KB | seam test |
-| 69 | synapses_test.dart | 1,136 | 75 | 37.3 KB | synapses test; groups: Synapses, disabled, enabled, Construction & broadcast, link / unlink, FilterRule… |
-| 70 | synthesis_cell_test.dart | 627 | 37 | 21.0 KB | synthesis cell test; groups: SynthesisCell, Construction, Aggregation, Source Management, Stop/Start, Edge Cases & Error Handling… |
-| 71 | test_cell_test.dart | 665 | 45 | 23.0 KB | cell test; groups: TestCell, allowAll, readOnly, Construction, Composition, Exceptions… |
-| 72 | test_chain_test.dart | 84 | 4 | 2.8 KB | chain test; groups: TestCell.chain preserves parent when strategy is null, TestRule.chain preserves user when strategy is set, TestRule.chain preserves parent when strategy is null |
-| 73 | test_rule_meta_test.dart | 366 | 49 | 12.2 KB | rule meta test; groups: DefaultValue, MaxLength, direct field limit, hostLength, composite field + container, host-only… |
-| 74 | transaction_test.dart | 1,227 | 55 | 36.6 KB | transaction test; groups: Cell.transaction, Basic Transaction, Isolation Levels, Lock Ordering, Validation, Custom Apply… |
-| 75 | tx_apply_test.dart | 1,140 | 49 | 35.7 KB | tx apply test; groups: Cell.txApply, Basic Operations, Compensation, Error Handling, Stop On First Failure, Savepoint… |
-| **Total** | | **24,700** | **1426** | **829.0 KB** | |
+| 29 | pulse_lenient_consequences_test.dart | 66 | 4 | 2.6 KB | pulse lenient consequences test; groups: consequences of lenient substitutions |
+| 30 | pulse_lenient_decode_test.dart | 193 | 13 | 5.8 KB | pulse lenient decode test; groups: lenient decode — structural corruption still throws, lenient decode — reference resolution, lenient round-tripping |
+| 31 | pulse_lenient_encode_test.dart | 142 | 11 | 4.8 KB | pulse lenient encode test; groups: lenient encode — substitution table, lenient encode — __skipped__ contract |
+| 32 | pulse_lenient_factory_test.dart | 68 | 5 | 2.3 KB | pulse lenient factory test; groups: Pulse.fromJson — lenient interaction |
+| 33 | pulse_roundtrip_test.dart | 206 | 7 | 6.6 KB | pulse roundtrip test; groups: PulseCodec round-trip |
+| 34 | pulse_sentinel_test.dart | 58 | 4 | 2.0 KB | pulse sentinel test; groups: override sentinels |
+| 35 | pulse_to_json_test.dart | 39 | 3 | 1.3 KB | pulse to json test; groups: Pulse.toJson extension |
+| 36 | snapshot_roundtrip_test.dart | 126 | 9 | 4.2 KB | snapshot roundtrip test; groups: CellSnapshot, CellGraphSnapshot, Cell.id |
+| 37 | cycle_checker_reseeded_test.dart | 76 | 1 | 2.5 KB | cycle checker reseeded test |
+| 38 | divergence_effect_mismatch_test.dart | 123 | 2 | 3.5 KB | divergence effect mismatch test |
+| 39 | divergence_missing_effect_test.dart | 86 | 1 | 2.5 KB | divergence missing effect test |
+| 40 | divergence_pure_receptor_test.dart | 85 | 2 | 2.7 KB | divergence pure receptor test |
+| 41 | pulse_codec_integration_test.dart | 153 | 6 | 5.2 KB | pulse codec integration test; groups: pulse codec in the replay engine |
+| 42 | pulses_500_replay_test.dart | 61 | 1 | 2.1 KB | pulses 500 replay test |
+| 43 | replay_identical_graph_test.dart | 97 | 3 | 3.0 KB | replay identical graph test |
+| 44 | fork_at_seq_test.dart | 88 | 2 | 3.1 KB | fork at seq test |
+| 45 | fork_isolation_test.dart | 65 | 1 | 2.0 KB | fork isolation test |
+| 46 | fork_verify_requires_original_test.dart | 157 | 3 | 4.5 KB | fork verify requires original test |
+| 47 | whatif_replace_pulse_test.dart | 113 | 2 | 3.8 KB | whatif replace pulse test |
+| 48 | effectful_testcell_replayed_test.dart | 92 | 2 | 3.1 KB | effectful testcell replayed test |
+| 49 | ephemeral_policy_tick_order_test.dart | 91 | 2 | 3.1 KB | ephemeral policy tick order test |
+| 50 | readonlyexternal_testcell_reexecuted_test.dart | 95 | 2 | 3.0 KB | readonlyexternal testcell reexecuted test |
+| 51 | version_boundary_without_translator_test.dart | 195 | 4 | 6.6 KB | version boundary without translator test |
+| 52 | version_dispatch_test.dart | 139 | 6 | 4.1 KB | version dispatch test |
+| 53 | graph_snapshot_restore_test.dart | 101 | 4 | 3.7 KB | graph snapshot restore test |
+| 54 | id_uniqueness_test.dart | 57 | 5 | 1.9 KB | id uniqueness test |
+| 55 | purity_classification_test.dart | 82 | 6 | 3.0 KB | purity classification test |
+| 56 | registration_test.dart | 40 | 4 | 1.2 KB | registration test |
+| 57 | unregistered_bind_rejected_test.dart | 61 | 4 | 2.2 KB | unregistered bind rejected test |
+| 58 | async_map_records_effects_test.dart | 94 | 1 | 3.2 KB | async map records effects test |
+| 59 | debounce_timer_order_test.dart | 132 | 2 | 4.1 KB | debounce timer order test |
+| 60 | from_stream_ordering_test.dart | 66 | 2 | 2.1 KB | from stream ordering test |
+| 61 | null_journal_rejects_effectful_test.dart | 96 | 5 | 2.9 KB | null journal rejects effectful test |
+| 62 | pure_receptor_no_journal_test.dart | 47 | 3 | 1.5 KB | pure receptor no journal test |
+| 63 | reordered_effects_diverge_test.dart | 170 | 7 | 4.9 KB | reordered effects diverge test |
+| 64 | append_and_verify_test.dart | 47 | 2 | 1.5 KB | append and verify test |
+| 65 | append_outside_apply_rejected_test.dart | 134 | 6 | 4.4 KB | append outside apply rejected test |
+| 66 | file_store_roundtrip_test.dart | 88 | 2 | 3.1 KB | file store roundtrip test |
+| 67 | state_delta_capture_test.dart | 122 | 5 | 4.1 KB | state delta capture test |
+| 68 | tamper_detection_test.dart | 163 | 3 | 4.7 KB | tamper detection test |
+| 69 | ledger_store_conformance.dart | 189 | 6 | 5.9 KB | ledger store conformance; groups: $suiteName conformance |
+| 70 | replay_contract_test.dart | 50 | 0 | 1.6 KB | replay contract test |
+| 71 | review_hardening_test.dart | 1,244 | 35 | 41.4 KB | review hardening test |
+| 72 | seam_test.dart | 46 | 2 | 1.7 KB | seam test |
+| 73 | synapses_test.dart | 1,136 | 75 | 37.3 KB | synapses test; groups: Synapses, disabled, enabled, Construction & broadcast, link / unlink, FilterRule… |
+| 74 | synthesis_cell_test.dart | 627 | 37 | 21.0 KB | synthesis cell test; groups: SynthesisCell, Construction, Aggregation, Source Management, Stop/Start, Edge Cases & Error Handling… |
+| 75 | test_cell_test.dart | 665 | 45 | 23.0 KB | cell test; groups: TestCell, allowAll, readOnly, Construction, Composition, Exceptions… |
+| 76 | test_chain_test.dart | 84 | 4 | 2.8 KB | chain test; groups: TestCell.chain preserves parent when strategy is null, TestRule.chain preserves user when strategy is set, TestRule.chain preserves parent when strategy is null |
+| 77 | test_rule_meta_test.dart | 366 | 49 | 12.2 KB | rule meta test; groups: DefaultValue, MaxLength, direct field limit, hostLength, composite field + container, host-only… |
+| 78 | transaction_test.dart | 1,227 | 55 | 36.6 KB | transaction test; groups: Cell.transaction, Basic Transaction, Isolation Levels, Lock Ordering, Validation, Custom Apply… |
+| 79 | tx_apply_test.dart | 1,140 | 49 | 35.7 KB | tx apply test; groups: Cell.txApply, Basic Operations, Compensation, Error Handling, Stop On First Failure, Savepoint… |
+| **Total** | | **25,236** | **1462** | **847.0 KB** | |
 
 ---
 
@@ -217,8 +225,8 @@ Both halves of the package are inventoried: `lib/src/` (the core engine) and `li
 
 | Area | Files | Lines | Size |
 |------|------:|------:|-----:|
-| `lib/src/` — core engine | 35 | 31,269 | 1223.2 KB |
-| `lib/replay/` — Causal Replay | 46 | 9,100 | 337.2 KB |
+| `lib/src/` — core engine | 35 | 31,295 | 1220.3 KB |
+| `lib/replay/` — Causal Replay | 46 | 9,282 | 343.5 KB |
 | top-level barrels | 4 | 431 | 28.6 KB |
 
 | File | Lines | Size |
@@ -231,7 +239,7 @@ Both halves of the package are inventoried: `lib/src/` (the core engine) and `li
 | `lib/replay/codec/cell_snapshot.dart` | 89 | 3.4 KB |
 | `lib/replay/codec/fingerprint.dart` | 41 | 1.5 KB |
 | `lib/replay/codec/graph_snapshot.dart` | 121 | 4.7 KB |
-| `lib/replay/codec/pulse_codec.dart` | 820 | 28.8 KB |
+| `lib/replay/codec/pulse_codec.dart` | 1,002 | 35.1 KB |
 | `lib/replay/codec/pulse_context_codec.dart` | 238 | 9.2 KB |
 | `lib/replay/engine/divergence.dart` | 80 | 3.0 KB |
 | `lib/replay/engine/reconstruct_pulse.dart` | 133 | 5.2 KB |
@@ -274,13 +282,13 @@ Both halves of the package are inventoried: `lib/src/` (the core engine) and `li
 | `lib/replay/visualise.dart` | 188 | 6.0 KB |
 | `lib/replay.dart` | 45 | 2.0 KB |
 | `lib/src/apply.dart` | 635 | 28.5 KB |
-| `lib/src/cell.dart` | 3,007 | 143.7 KB |
-| `lib/src/context.dart` | 1,918 | 75.2 KB |
+| `lib/src/cell.dart` | 3,007 | 140.8 KB |
+| `lib/src/context.dart` | 1,919 | 75.2 KB |
 | `lib/src/deputy.dart` | 175 | 7.4 KB |
 | `lib/src/internal/cell.dart` | 1,170 | 46.7 KB |
 | `lib/src/internal/cell_policy.dart` | 455 | 17.3 KB |
 | `lib/src/internal/commons.dart` | 1,338 | 50.3 KB |
-| `lib/src/internal/context.dart` | 461 | 14.1 KB |
+| `lib/src/internal/context.dart` | 460 | 14.1 KB |
 | `lib/src/internal/deputy.dart` | 166 | 6.4 KB |
 | `lib/src/internal/deputy_context.dart` | 1,696 | 64.3 KB |
 | `lib/src/internal/nucleus.dart` | 1,160 | 41.2 KB |
@@ -301,10 +309,10 @@ Both halves of the package are inventoried: `lib/src/` (the core engine) and `li
 | `lib/src/internal/test_cell.dart` | 157 | 5.5 KB |
 | `lib/src/internal/value.dart` | 171 | 6.7 KB |
 | `lib/src/nucleus.dart` | 516 | 23.8 KB |
-| `lib/src/pulse.dart` | 1,320 | 53.4 KB |
+| `lib/src/pulse.dart` | 1,346 | 54.5 KB |
 | `lib/src/receptor.dart` | 1,237 | 52.2 KB |
 | `lib/src/synapses.dart` | 420 | 15.7 KB |
-| `lib/src/test_cell.dart` | 1,041 | 41.8 KB |
+| `lib/src/test_cell.dart` | 1,041 | 40.7 KB |
 | `lib/src/test_rule.dart` | 602 | 25.3 KB |
 | `lib/src/test_rule_meta.dart` | 603 | 20.8 KB |
 | `lib/src/value.dart` | 955 | 38.9 KB |
@@ -337,15 +345,16 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 
 - all doc-comment and HowTo pins match resolved versions
 
-### File 3: api_chooser_up_to_date_test.dart (1 tests)
+### File 3: api_chooser_up_to_date_test.dart (2 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 1 |
+| *(all groups)* | 2 |
 
 **Tests**
 
 - lib/doc/api_chooser.dart is generated and up to date
+- skill references/api_chooser.md is generated and up to date
 
 ### File 4: apply_command_test.dart (12 tests)
 
@@ -1628,11 +1637,11 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - materialise on a plain pulse is identity (no work needed)
 - materialise cleans _StepPulse ancestors of an evolved pulse
 
-### File 26: pulse_codec_test.dart (20 tests)
+### File 26: pulse_codec_test.dart (21 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 20 |
+| *(all groups)* | 21 |
 | encodePulse — non-serializable fields | |
 | decodePulse — decode failures | |
 | encodePulse — round-trips | |
@@ -1657,7 +1666,8 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - a null payload round-trips
 - a DateTime payload encodes to millisecond ISO-8601
 - List and Map payloads round-trip
-- non-String types encode as null
+- non-String types throw in strict mode (lenient amendment)
+- PulseNotSerializable.toString() names the lenient escape hatch
 - logically-equal pulses produce identical bytes
 - re-encoding a decoded pulse is byte-identical
 
@@ -1709,7 +1719,83 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - unsupported version throws PulseDecodeError
 - malformed payload shape throws PulseDecodeError
 
-### File 29: pulse_roundtrip_test.dart (7 tests)
+### File 29: pulse_lenient_consequences_test.dart (4 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 4 |
+| consequences of lenient substitutions | |
+
+**Tests**
+
+- dropped policy makes the pulse immortal — and records it
+- the recovery path re-attaches a policy via the override
+- dropped callbacks remove side effects — and record them
+- lenient mode never suppresses structural corruption
+
+### File 30: pulse_lenient_decode_test.dart (13 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 13 |
+| lenient decode — structural corruption still throws | |
+| lenient decode — reference resolution | |
+| lenient round-tripping | |
+
+**Tests**
+
+- missing __pulse__
+- unsupported version
+- malformed parent
+- malformed children
+- malformed timestamp
+- a context codec mismatch substitutes system and records
+- an unresolved source stays null (unchanged from the base plan)
+- wire __skipped__ is preserved in user and aggregated
+- parent-chain skips produce qualified paths
+- onSkipped is not invoked in strict mode
+- lenient encode → strict decode does not throw
+- lenient encode → strict decode → strict re-encode round-trips
+- a leniently-decoded pulse with no overrides re-encodes strict
+
+### File 31: pulse_lenient_encode_test.dart (11 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 11 |
+| lenient encode — substitution table | |
+| lenient encode — __skipped__ contract | |
+
+**Tests**
+
+- onComplete → null, recorded
+- onError → null, recorded
+- onProgress → null, recorded
+- policy → null, recorded (the pulse becomes immortal)
+- non-JSON payload → null, recorded
+- non-String type → null, recorded (amendment)
+- strict mode still throws for every suppressed field
+- multiple skipped fields are sorted lexicographically
+- a fully-serialisable pulse is byte-identical to strict
+- parent-chain skips are recorded per level
+- Pulse.toJson(lenient: true) works through the extension
+
+### File 32: pulse_lenient_factory_test.dart (5 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 5 |
+| Pulse.fromJson — lenient interaction | |
+
+**Tests**
+
+- lenient decode of a lenient-encoded pulse works and reports
+- an override wins over the lenient fallback
+- a decoded pulse with an onComplete override refuses strict 
+- the same override re-encodes leniently and records again
+- a pulse decoded with lenient but no overrides re-encodes strict
+
+### File 33: pulse_roundtrip_test.dart (7 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1726,7 +1812,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - source is encoded by cell id
 - unset optional fields are omitted from the wire map
 
-### File 30: pulse_sentinel_test.dart (4 tests)
+### File 34: pulse_sentinel_test.dart (4 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1740,7 +1826,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - identity is the only way to use a sentinel — lookalikes override
 - the sentinels document their slots
 
-### File 31: pulse_to_json_test.dart (3 tests)
+### File 35: pulse_to_json_test.dart (3 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1753,7 +1839,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - round-trips through Pulse.fromJson
 - throws PulseNotSerializable for a pulse with callbacks
 
-### File 32: snapshot_roundtrip_test.dart (9 tests)
+### File 36: snapshot_roundtrip_test.dart (9 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1774,7 +1860,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - a deputy shares its principal id (the serialisation layer behaviour)
 - id is parallel to hashCode, not a replacement for it
 
-### File 33: cycle_checker_reseeded_test.dart (1 tests)
+### File 37: cycle_checker_reseeded_test.dart (1 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1784,7 +1870,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 
 - diamond graph replays without spurious cycle errors
 
-### File 34: divergence_effect_mismatch_test.dart (2 tests)
+### File 38: divergence_effect_mismatch_test.dart (2 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1795,7 +1881,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - modified effectful receptor diverges at the first effect
 - an extra effect (modified receptor) also diverges
 
-### File 35: divergence_missing_effect_test.dart (1 tests)
+### File 39: divergence_missing_effect_test.dart (1 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1805,7 +1891,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 
 - receptor that performs fewer effects diverges
 
-### File 36: divergence_pure_receptor_test.dart (2 tests)
+### File 40: divergence_pure_receptor_test.dart (2 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1816,11 +1902,11 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - modified pure receptor diverges at the correct seq
 - lenient replay collects the divergence report
 
-### File 37: pulse_codec_integration_test.dart (5 tests)
+### File 41: pulse_codec_integration_test.dart (6 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 5 |
+| *(all groups)* | 6 |
 | pulse codec in the replay engine | |
 
 **Tests**
@@ -1830,8 +1916,9 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - decode with a resolver yields the registered cell
 - decode with an unresolved source continues with source == null
 - an overridden payload feeds the replay path
+- record, lenient-encode, lenient-decode, replay keeps the state
 
-### File 38: pulses_500_replay_test.dart (1 tests)
+### File 42: pulses_500_replay_test.dart (1 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1841,7 +1928,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 
 - 500 pulses replay deterministically with effects
 
-### File 39: replay_identical_graph_test.dart (3 tests)
+### File 43: replay_identical_graph_test.dart (3 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1853,7 +1940,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - replaying into a ledgered graph is refused
 - maxEntries limits the replay to a prefix
 
-### File 40: fork_at_seq_test.dart (2 tests)
+### File 44: fork_at_seq_test.dart (2 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1864,7 +1951,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - fork at seq 99 records divergedAt=99 and seals the parent
 - non-isolated policies throw UnimplementedError
 
-### File 41: fork_isolation_test.dart (1 tests)
+### File 45: fork_isolation_test.dart (1 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1874,7 +1961,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 
 - fork does not mutate the parent graph or ledger
 
-### File 42: fork_verify_requires_original_test.dart (3 tests)
+### File 46: fork_verify_requires_original_test.dart (3 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1886,7 +1973,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - fork verify fails when the parent is tampered
 - forking from a corrupt parent is refused at fork time
 
-### File 43: whatif_replace_pulse_test.dart (2 tests)
+### File 47: whatif_replace_pulse_test.dart (2 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1897,7 +1984,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - replace pulse #150 payload, replay to 200, check alternative state
 - dropping a pulse leaves the fork without that entry
 
-### File 44: effectful_testcell_replayed_test.dart (2 tests)
+### File 48: effectful_testcell_replayed_test.dart (2 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1908,7 +1995,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - effectful TestCell decision is replayed, not re-called
 - a recorded false verdict is served as-is from the journal
 
-### File 45: ephemeral_policy_tick_order_test.dart (2 tests)
+### File 49: ephemeral_policy_tick_order_test.dart (2 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1919,7 +2006,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - policy ticks are journalled and validated in order
 - a tick-order mismatch diverges loudly
 
-### File 46: readonlyexternal_testcell_reexecuted_test.dart (2 tests)
+### File 50: readonlyexternal_testcell_reexecuted_test.dart (2 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1930,7 +2017,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - readOnlyExternal TestCell is re-executed with its journal
 - readOnlyExternal observations replay from the journal
 
-### File 47: version_boundary_without_translator_test.dart (4 tests)
+### File 51: version_boundary_without_translator_test.dart (4 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1943,7 +2030,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - a registry pair whose rule version differs is refused
 - unversioned ledger replays against an unversioned target
 
-### File 48: version_dispatch_test.dart (6 tests)
+### File 52: version_dispatch_test.dart (6 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1958,7 +2045,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - DeputyContext.version defaults to 1.0.0 and can be set
 - ContextTranslatorRegistry translates and fails loudly when absent
 
-### File 49: graph_snapshot_restore_test.dart (4 tests)
+### File 53: graph_snapshot_restore_test.dart (4 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1971,7 +2058,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - snapshot bytes are independent of registration order
 - 20-cell graph, snapshot, restore, identical state and ids
 
-### File 50: id_uniqueness_test.dart (5 tests)
+### File 54: id_uniqueness_test.dart (5 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1985,7 +2072,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - CellGraphRegistry.forceReset clears ids
 - a deputy resolves the registered name of its principal
 
-### File 51: purity_classification_test.dart (6 tests)
+### File 55: purity_classification_test.dart (6 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2000,7 +2087,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - a custom receptor and rule can declare their purity
 - purityOf on an unregistered name fails loudly
 
-### File 52: registration_test.dart (4 tests)
+### File 56: registration_test.dart (4 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2013,7 +2100,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - rejects empty name
 - rejects duplicate name
 
-### File 53: unregistered_bind_rejected_test.dart (4 tests)
+### File 57: unregistered_bind_rejected_test.dart (4 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2026,7 +2113,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - registering both ends passes
 - unrestricted mode does not check reachability
 
-### File 54: async_map_records_effects_test.dart (1 tests)
+### File 58: async_map_records_effects_test.dart (1 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2036,7 +2123,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 
 - asyncMap records exactly N effects and replays identically
 
-### File 55: debounce_timer_order_test.dart (2 tests)
+### File 59: debounce_timer_order_test.dart (2 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2047,7 +2134,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - debounce journals its timer and replays the fire
 - throttle journals its window and replays the same output
 
-### File 56: from_stream_ordering_test.dart (2 tests)
+### File 60: from_stream_ordering_test.dart (2 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2058,7 +2145,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - fromStream emits values in order and journals each
 - fromFuture journals its value
 
-### File 57: null_journal_rejects_effectful_test.dart (5 tests)
+### File 61: null_journal_rejects_effectful_test.dart (5 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2072,7 +2159,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - JournalScope pops the journal even when the body throws
 - an effectful mapper that uses the ambient journal gets the same 
 
-### File 58: pure_receptor_no_journal_test.dart (3 tests)
+### File 62: pure_receptor_no_journal_test.dart (3 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2084,7 +2171,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - derive is pure and needs no journal
 - the Effectful mixin produces Purity.effectful
 
-### File 59: reordered_effects_diverge_test.dart (7 tests)
+### File 63: reordered_effects_diverge_test.dart (7 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2100,7 +2187,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - ReplayJournal fails on timer duration mismatch
 - EffectRecord round-trips through its canonical JSON
 
-### File 60: append_and_verify_test.dart (2 tests)
+### File 64: append_and_verify_test.dart (2 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2111,7 +2198,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - 1000 updates, verify() OK
 - the chain hash covers at/effects/deltas: entries differ
 
-### File 61: append_outside_apply_rejected_test.dart (6 tests)
+### File 65: append_outside_apply_rejected_test.dart (6 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2126,7 +2213,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - a store built for another graph is rejected at open time
 - a hand-crafted appendInternal entry has an empty delta list — 
 
-### File 62: file_store_roundtrip_test.dart (2 tests)
+### File 66: file_store_roundtrip_test.dart (2 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2137,7 +2224,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - write to disk, reopen, verify
 - a tampered file line fails verify on reopen
 
-### File 63: state_delta_capture_test.dart (5 tests)
+### File 67: state_delta_capture_test.dart (5 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2151,7 +2238,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - non-JSON-encodable state fails loudly under a ledger scope
 - an idempotent write still records a delta (before == after)
 
-### File 64: tamper_detection_test.dart (3 tests)
+### File 68: tamper_detection_test.dart (3 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2163,7 +2250,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - tampering a prevHash breaks the chain at that seq
 - a sequence gap fails verify at the offending seq
 
-### File 65: ledger_store_conformance.dart (6 tests)
+### File 69: ledger_store_conformance.dart (6 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2179,7 +2266,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - close prevents further append
 - survives reopen (durable only)
 
-### File 66: replay_contract_test.dart (0 tests)
+### File 70: replay_contract_test.dart (0 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2188,7 +2275,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 **Tests**
 
 
-### File 67: review_hardening_test.dart (35 tests)
+### File 71: review_hardening_test.dart (35 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2232,7 +2319,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - snapshot fromJson rejects corrupt cell entries
 - overlapping graph.run appends serialise without racing
 
-### File 68: seam_test.dart (2 tests)
+### File 72: seam_test.dart (2 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2243,7 +2330,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - no testRule: TestCell on any Tissue constructor in example/
 - no testRule: TestTissue on a Cell factory in example/
 
-### File 69: synapses_test.dart (75 tests)
+### File 73: synapses_test.dart (75 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2339,7 +2426,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - host synapses broadcast a bound source emission
 - filter on the host synapses redacts before observers
 
-### File 70: synthesis_cell_test.dart (37 tests)
+### File 74: synthesis_cell_test.dart (37 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2394,7 +2481,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - synthesis cell returns string representation
 - synthesis cell shows sources in string representation
 
-### File 71: test_cell_test.dart (45 tests)
+### File 75: test_cell_test.dart (45 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2460,7 +2547,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - equality and hashCode follow the flyweight record
 - fromRecord reconstitutes a callable rule
 
-### File 72: test_chain_test.dart (4 tests)
+### File 76: test_chain_test.dart (4 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2476,7 +2563,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - strategy receives the configured user metadata
 - parent is evaluated
 
-### File 73: test_rule_meta_test.dart (49 tests)
+### File 77: test_rule_meta_test.dart (49 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2546,7 +2633,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - MaxLength + ValueRange short-circuits on the first failure
 - TestRule.chain forwards user to a custom strategy
 
-### File 74: transaction_test.dart (55 tests)
+### File 78: transaction_test.dart (55 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2623,7 +2710,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - TransactionConflictException toString
 - TransactionTimeoutException toString
 
-### File 75: tx_apply_test.dart (49 tests)
+### File 79: tx_apply_test.dart (49 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -2732,6 +2819,10 @@ dart test \
   test/pulse_codec_test.dart \
   test/pulse_from_json_overrides_test.dart \
   test/pulse_from_json_test.dart \
+  test/pulse_lenient_consequences_test.dart \
+  test/pulse_lenient_decode_test.dart \
+  test/pulse_lenient_encode_test.dart \
+  test/pulse_lenient_factory_test.dart \
   test/pulse_roundtrip_test.dart \
   test/pulse_sentinel_test.dart \
   test/pulse_to_json_test.dart \
@@ -2785,33 +2876,33 @@ dart test \
 
 | Passed | Failed | Skipped | Exit |
 |-------:|-------:|--------:|-----:|
-| 1431 | 0 | 0 | 0 |
+| 1467 | 0 | 0 | 0 |
 
 Status: **green**.
 
 <details><summary>tail of test log</summary>
 
 ```
-0:04 +1415: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
-00:04 +1416: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
-00:04 +1417: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
-00:04 +1418: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
-00:04 +1419: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
-00:04 +1420: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
-00:04 +1421: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
-00:04 +1422: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
-00:04 +1423: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
-00:04 +1424: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
-00:04 +1425: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
-00:04 +1426: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
-00:04 +1427: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
-00:04 +1428: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
-00:04 +1429: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
-00:04 +1430: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
-00:05 +1430: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
-00:06 +1430: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
-00:06 +1431: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
-00:06 +1431: All tests passed!
+0:04 +1451: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
+00:04 +1452: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
+00:04 +1453: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
+00:04 +1454: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
+00:04 +1455: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
+00:04 +1456: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
+00:04 +1457: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
+00:04 +1458: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
+00:04 +1459: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
+00:04 +1460: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
+00:04 +1461: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
+00:04 +1462: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
+00:04 +1463: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
+00:04 +1464: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
+00:04 +1465: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
+00:04 +1466: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
+00:05 +1466: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
+00:06 +1466: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
+00:06 +1467: test/replay/engine/pulses_500_replay_test.dart: 500 pulses replay deterministically with effects                                                                                          
+00:06 +1467: All tests passed!
 ```
 
 </details>
@@ -2876,7 +2967,7 @@ Status: **green**.
 test/
 ├── ai_guide_examples_test.dart  (3 tests, 1.9 KB, 46 lines)
 ├── ai_preflight_test.dart  (1 tests, 0.8 KB, 22 lines)
-├── api_chooser_up_to_date_test.dart  (1 tests, 1.0 KB, 27 lines)
+├── api_chooser_up_to_date_test.dart  (2 tests, 1.4 KB, 36 lines)
 ├── apply_command_test.dart  (12 tests, 8.8 KB, 283 lines)
 ├── cell_policy_test.dart  (39 tests, 21.8 KB, 646 lines)
 ├── cell_test.dart  (78 tests, 45.0 KB, 1,264 lines)
@@ -2899,9 +2990,13 @@ test/
 ├── replay/codec/canonical_json_test.dart  (13 tests, 4.7 KB, 144 lines)
 ├── replay/codec/context_roundtrip_test.dart  (8 tests, 6.4 KB, 190 lines)
 ├── replay/codec/fastpulse_rejected_test.dart  (4 tests, 2.9 KB, 75 lines)
-├── replay/codec/pulse_codec_test.dart  (20 tests, 7.7 KB, 245 lines)
+├── replay/codec/pulse_codec_test.dart  (21 tests, 8.1 KB, 256 lines)
 ├── replay/codec/pulse_from_json_overrides_test.dart  (19 tests, 5.7 KB, 187 lines)
 ├── replay/codec/pulse_from_json_test.dart  (9 tests, 4.1 KB, 130 lines)
+├── replay/codec/pulse_lenient_consequences_test.dart  (4 tests, 2.6 KB, 66 lines)
+├── replay/codec/pulse_lenient_decode_test.dart  (13 tests, 5.8 KB, 193 lines)
+├── replay/codec/pulse_lenient_encode_test.dart  (11 tests, 4.8 KB, 142 lines)
+├── replay/codec/pulse_lenient_factory_test.dart  (5 tests, 2.3 KB, 68 lines)
 ├── replay/codec/pulse_roundtrip_test.dart  (7 tests, 6.6 KB, 206 lines)
 ├── replay/codec/pulse_sentinel_test.dart  (4 tests, 2.0 KB, 58 lines)
 ├── replay/codec/pulse_to_json_test.dart  (3 tests, 1.3 KB, 39 lines)
@@ -2910,7 +3005,7 @@ test/
 ├── replay/engine/divergence_effect_mismatch_test.dart  (2 tests, 3.5 KB, 123 lines)
 ├── replay/engine/divergence_missing_effect_test.dart  (1 tests, 2.5 KB, 86 lines)
 ├── replay/engine/divergence_pure_receptor_test.dart  (2 tests, 2.7 KB, 85 lines)
-├── replay/engine/pulse_codec_integration_test.dart  (5 tests, 3.6 KB, 106 lines)
+├── replay/engine/pulse_codec_integration_test.dart  (6 tests, 5.2 KB, 153 lines)
 ├── replay/engine/pulses_500_replay_test.dart  (1 tests, 2.1 KB, 61 lines)
 ├── replay/engine/replay_identical_graph_test.dart  (3 tests, 3.0 KB, 97 lines)
 ├── replay/fork/fork_at_seq_test.dart  (2 tests, 3.1 KB, 88 lines)
@@ -2951,6 +3046,6 @@ test/
 ├── tx_apply_test.dart  (49 tests, 35.7 KB, 1,140 lines)
 ```
 
-**Total lines of test code:** 24,700
+**Total lines of test code:** 25,236
 
-*Generated 2026-11-19 by generate_test_verification.py*
+*Generated 2026-11-22 by generate_test_verification.py*

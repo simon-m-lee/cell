@@ -71,8 +71,8 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; clear() {
-  return Future&lt;void&gt;(() =&gt; _tissue.clear());
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; clear() async {
+  await _runTissueMutation(_tissue, _tissue.clear);
 }</code></pre>
 </section>
 

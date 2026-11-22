@@ -130,7 +130,7 @@ block entire categories of operations (e.g., <code>clear</code>).</p>
   <strong>DON'T</strong> put <code>testRule: TestCell</code> on any <code>TissueList</code> / <code>TissueMap</code> /
 <code>TissueSet</code> / <code>TissueQueue</code> / <code>TissueValue</code> constructor. Use <code>TestTissue</code>.
 This is grep-checked by the <code>constraint</code> group in <code>&lt;stem&gt;-test.dart</code>.
-<strong>Live signature:</strong> <code>TestTissue&lt;E, C extends Tissue&lt;E&gt;&gt;(FutureOr&lt;bool&gt; Function(dynamic object, {C? host, dynamic arguments, dynamic user}) rule, {TestTissue&lt;E, C&gt;? parent, dynamic user})</code> — pinned at <code>cell_tissue: 1.1.0</code>
+<strong>Live signature:</strong> <code>TestTissue&lt;E, C extends Tissue&lt;E&gt;&gt;(FutureOr&lt;bool&gt; Function(dynamic object, {C? host, dynamic arguments, dynamic user}) rule, {TestTissue&lt;E, C&gt;? parent, dynamic user})</code> — pinned at <code>cell_tissue: 1.2.0</code>
 <strong>Do NOT confuse with:</strong> <code>TestCell</code> (Cell nodes only). They are not subtypes; swapping them fails the acceptance grep.
 <strong>Guide:</strong> <code>HowTo-Mitose-Tissue.md</code> §3 "TestTissue — considering factors" (#tissue-testtissue)
 <strong>Example:</strong> <code>example/cell_tissue_example.dart</code>

@@ -339,7 +339,7 @@ abstract interface class CollectivePulse<P>
 /// **Layer:** Cell — this is the graph's message, not an operator (Flow), not a book (Tissue).
 /// **When to use:** read `pulse.payload`, `pulse.source`, `pulse.type` in observers; create one for manual injection (`Pulse(value, type: '...')`).
 /// **When NOT to use:** as a storage unit — state lives in `Cell.state` / Tissue books; pulses are immutable signals.
-/// **Live signature:** `Pulse<P>(P? payload, {dynamic type, Cell? source, int? priority, String? step})` — pinned at `cell: 2.0.0`
+/// **Live signature:** `Pulse<P>(P? payload, {dynamic type, Cell? source, int? priority, String? step})` — pinned at `cell: 2.1.0`
 /// **Do NOT confuse with:** `TissuePulse` (the collection-event variant in `cell_tissue`).
 /// **Guide:** `guide/HowTo-Pulse.md` (pulse anatomy)
 /// **Example:** `example/ingress_demo.dart`
@@ -517,7 +517,7 @@ abstract interface class Pulse<P>
       );
 
   /// Constructs a pulse from the canonical JSON produced by
-  /// [Pulse.toJson], with optional overrides for every constructor
+  /// `Pulse.toJson`, with optional overrides for every constructor
   /// parameter.
   ///
   /// The result is a **decoded pulse** — its `source` is resolved via
@@ -583,7 +583,7 @@ abstract interface class Pulse<P>
   /// ## Re-encodability
   ///
   /// A pulse with an overridden `onComplete`, `onError`, `onProgress`, or
-  /// `policy` cannot be re-encoded strictly. [Pulse.toJson] on the
+  /// `policy` cannot be re-encoded strictly. `Pulse.toJson` on the
   /// result throws the corresponding [PulseNotSerializable]; pass
   /// `lenient: true` to substitute and record instead. This is the
   /// honest answer: the caller chose to attach a non-serializable
@@ -594,7 +594,7 @@ abstract interface class Pulse<P>
   /// - [PulseDecodeError] if the JSON is malformed, the version is
   ///   unsupported, or an override is invalid for the JSON's shape.
   /// - [PulseNotSerializable] is **not** thrown by this factory; it is
-  ///   thrown by [Pulse.toJson].
+  ///   thrown by `Pulse.toJson`.
   factory Pulse.fromJson(
     Map<String, dynamic> json, {
     PulseResolver? resolver,

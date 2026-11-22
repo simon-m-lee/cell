@@ -12,8 +12,22 @@ on:
       - 'packages/cell_tissue/benchmark/**'
   push:
     branches: [master]
+    paths:
+      - '.github/workflows/benchmark.yml'
+      - 'packages/cell/lib/**'
+      - 'packages/cell/benchmark/**'
+      - 'packages/cell_flow/lib/**'
+      - 'packages/cell_flow/benchmark/**'
+      - 'packages/cell_tissue/lib/**'
+      - 'packages/cell_tissue/benchmark/**'
   schedule:
     - cron: '0 3 * * *' # nightly full run
+
+# Only one gate run per ref needs to be live: a newer push or the nightly
+# schedule supersedes an older, still-queued run instead of piling up.
+concurrency:
+  group: benchmark-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   pr-suite:
@@ -36,7 +50,8 @@ jobs:
           dart run benchmark/compare.dart \
             --baseline benchmark/baseline.json \
             --current current.json \
-            --max-regression 0.15
+            --max-regression 0.15 \
+            --budgets benchmark/regression-budgets.json
 
   pr-suite-tissue:
     runs-on: ubuntu-latest

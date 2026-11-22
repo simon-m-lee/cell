@@ -148,6 +148,14 @@ part 'src/tissue_receptor.dart';
 part 'src/test_tissue.dart';
 
 // -----------------------------------------------------------------------------
+// Serialization Codec
+// -----------------------------------------------------------------------------
+
+part 'src/tissue_codec/tissue_sentinels.dart';
+part 'src/tissue_codec/tissue_resolvers.dart';
+part 'src/tissue_codec/tissue_codec.dart';
+
+// -----------------------------------------------------------------------------
 // Collection Implementations
 // -----------------------------------------------------------------------------
 

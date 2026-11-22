@@ -65,13 +65,12 @@
     
 <section class="desc markdown">
   <p>Asynchronously removes all elements from the associated <a href="../../cell_tissue/TissueQueue-class.html">TissueQueue</a>
-that do <em>not</em> satisfy the given <code>test</code> predicate (i.e., it retains only elements
-for which <code>test</code> returns <code>true</code>).</p>
-<p>This method wraps the synchronous <code>_tissue.retainWhere(test)</code> call in a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>.</p>
+that do <em>not</em> satisfy the given <code>test</code> predicate (i.e., it retains only
+elements for which <code>test</code> returns <code>true</code>).</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>test</code>: A function that takes an element and returns <code>true</code> if the element
-should be <em>retained</em>.</li>
+<li><code>test</code>: A function that takes an element and returns <code>true</code> if the
+element should be <em>retained</em>.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
 <p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;void&gt;</a> that completes after the retainWhere operation on the
@@ -83,7 +82,7 @@ should be <em>retained</em>.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; retainWhere(bool Function(E element) test) async {
-  return Future&lt;void&gt;(() =&gt; _tissue.retainWhere(test));
+  await _runTissueMutation(_tissue, _tissue.retainWhere, [test]);
 }</code></pre>
 </section>
 
@@ -112,7 +111,7 @@ should be <em>retained</em>.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

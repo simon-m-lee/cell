@@ -128,7 +128,7 @@ practices on filtering and flow control.
 <p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
 <strong>When to use:</strong> skip <em>consecutive</em> equal payloads (heartbeats, no-change ticks) before downstream work.
 <strong>When NOT to use:</strong> a latch that an ACK must reset — <code>Cell.distinct</code> has no <code>reset()</code>, so use a custom <code>cell_flow</code> instruction; global dedupe is <code>cell_flow</code>'s <code>Distinct</code>.
-<strong>Live signature:</strong> <code>Cell.distinct(Cell source, {bool Function(dynamic previous, dynamic next)? equals})</code> — pinned at <code>cell: 2.0.0</code>
+<strong>Live signature:</strong> <code>Cell.distinct(Cell source, {bool Function(dynamic previous, dynamic next)? equals})</code> — pinned at <code>cell: 2.1.0</code>
 <strong>Do NOT confuse with:</strong> <code>Distinct</code> (Flow, global seen-set) and <code>DistinctUntilChanged</code> (Flow, consecutive only) — both in <code>cell_flow</code>.
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)
 <strong>Example:</strong> <code>example/distinct_demo.dart</code>

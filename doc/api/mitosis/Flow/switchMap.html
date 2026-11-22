@@ -136,7 +136,7 @@ searchInput.emit('flutter'); // Cancels previous, starts new
 <p><strong>Layer:</strong> Flow — latest-only flattener. Not a Cell factory, not a Tissue book.
 <strong>When to use:</strong> "latest reservation / flight / search only" — a new trigger cancels the previous inner sequence.
 <strong>When NOT to use:</strong> parallel CAD lookups (mergeMap) or ordered calls (concatMap).
-<strong>Live signature:</strong> <code>Flow.switchMap&lt;S, T&gt;(Cell source, {required FutureOr&lt;Object?&gt; Function(S value) project})</code> — pinned at <code>cell_flow: 1.1.0</code>
+<strong>Live signature:</strong> <code>Flow.switchMap&lt;S, T&gt;(Cell source, {required FutureOr&lt;Object?&gt; Function(S value) project})</code> — pinned at <code>cell_flow: 1.2.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell.switchMap</code> (Cell-layer variant whose mapper returns a <code>Cell</code>).
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)
 <strong>Example:</strong> <code>example/switch_map_dynamic_dependency_demo.dart</code>

@@ -119,7 +119,7 @@ button2.emit(2);
 <p><strong>Layer:</strong> Flow — multi-source fan-in. Not a Cell factory, not a Tissue book.
 <strong>When to use:</strong> interleave pulses from several sources into one gate ("merge clicks from two widgets").
 <strong>When NOT to use:</strong> value pairing — use <code>zipWith</code> / <code>combineLatestWith</code>; a Cell-variant Tick is usually assembled in the harness instead.
-<strong>Live signature:</strong> <code>Flow.mergeWith&lt;T&gt;(Cell source, {required List&lt;Cell&gt; others})</code> — pinned at <code>cell_flow: 1.1.0</code>
+<strong>Live signature:</strong> <code>Flow.mergeWith&lt;T&gt;(Cell source, {required List&lt;Cell&gt; others})</code> — pinned at <code>cell_flow: 1.2.0</code>
 <strong>Do NOT confuse with:</strong> <code>Flow.merge</code> (arming source is not forwarded).
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.5 "Combine" (#flow-combine)
 <strong>Example:</strong> <code>example/merge_stream_aggregation_demo.dart</code>

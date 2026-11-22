@@ -79,7 +79,8 @@ validation and signaling logic. Returns <code>true</code> if the element was add
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 bool add(E element) =&gt;
-    (dispatch(add, positionalArguments: [element])?.isNotEmpty) ?? false;</code></pre>
+    (dispatch(add, positionalArguments: [element], sync: true)?.isNotEmpty) ??
+    false;</code></pre>
 </section>
 
 
@@ -107,7 +108,7 @@ bool add(E element) =&gt;
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

@@ -170,15 +170,14 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
   /// ### Returns:
   /// A new [TissueListNucleus<E>] instance acting as a specialized behavioral
   /// layer over the [principal].
-  factory TissueListNucleus.evolve(TissueListNucleus<E> principal, {
-    Cell? bind,
-    Context? context,
-    TissueReceptor<E, TissueList<E>>? receptor,
-    TestTissue<E, TissueList<E>>? testRule,
-    Synapses? synapses,
-    EphemeralPolicy? ephemeralPolicy,
-    TissueListNucleus<E>? override
-  }) {
+  factory TissueListNucleus.evolve(TissueListNucleus<E> principal,
+      {Cell? bind,
+      Context? context,
+      TissueReceptor<E, TissueList<E>>? receptor,
+      TestTissue<E, TissueList<E>>? testRule,
+      Synapses? synapses,
+      EphemeralPolicy? ephemeralPolicy,
+      TissueListNucleus<E>? override}) {
     return _TissueListNucleus<E, TissueList<E>>.fromRecord((
       local: override != null
           ? (override as NucleusBase).record.local
@@ -404,7 +403,7 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
 /// **When NOT to use:**
 ///   {@macro ai-do-not-testcell-on-tissue}
 ///   {@macro ai-do-not-dart-list-as-system-of-record}
-/// **Live signature:** `TissueList<E>({bind, context, receptor, testRule, synapses, growable})` / `TissueList.of(iterable, {...})` / `TissueList.unmodifiable(bind, {...})` — pinned at `cell_tissue: 1.1.0`
+/// **Live signature:** `TissueList<E>({bind, context, receptor, testRule, synapses, growable})` / `TissueList.of(iterable, {...})` / `TissueList.unmodifiable(bind, {...})` — pinned at `cell_tissue: 1.2.0`
 /// **Do NOT confuse with:** `TissueQueue` (FIFO work, not indexable history) and `TissueSet` (unique membership, order not the story).
 /// **Guide:** `HowTo-Mitose-Tissue.md` §2.1 "TissueList — the audit book" (#tissue-list)
 /// **Example:** `example/cell_tissue_example.dart`
@@ -536,6 +535,79 @@ abstract interface class TissueList<E> implements Tissue<E>, List<E> {
   /// A concrete [TissueList<E>] instance.
   factory TissueList.fromNucleus(TissueListNucleus<E> properties,
       {Iterable<E>? elements}) = _TissueList<E, TissueList<E>>.fromNucleus;
+
+  /// Reconstructs a [TissueList] from the canonical JSON produced by
+  /// `encodeTissue` / [TissueListJson.toJson].
+  ///
+  /// ### Overrides
+  ///
+  /// | Override | Behaviour |
+  /// |---|---|
+  /// | `testRule` | [tissueNullTestRule] → [TestTissue.allowAll] (explicit widening); otherwise the rule to install. |
+  /// | `context` | `null` = use the JSON's context. |
+  /// | `bind` | [tissueNullBind] strips the bind; otherwise the upstream cell. |
+  /// | `container` | [tissueNullContainer] → the list default ([Container.growableTrue]); otherwise the strategy. |
+  /// | `elements` | Replaces the JSON's elements. |
+  /// | `user` | [tissueNullUser] strips metadata; otherwise the caller's record. |
+  ///
+  /// ### Lenient mode
+  ///
+  /// [lenient] and [lenientFallbackTestRule] mirror [decodeTissue]. An
+  /// override always wins and is never counted as skipped; an absent
+  /// override that the JSON cannot resolve follows the strict/lenient
+  /// contract of [decodeTissue].
+  factory TissueList.fromJson(
+    Map<String, dynamic> json, {
+    TissueCellResolver? cellResolver,
+    TissueGovernanceResolver? governanceResolver,
+    bool lenient = false,
+    TestTissue<dynamic, Tissue<dynamic>> lenientFallbackTestRule =
+        TestTissue.readOnly,
+    void Function(List<String> skipped)? onSkipped,
+    Object? testRule,
+    Context? context,
+    Object? bind,
+    Object? container,
+    Object? user,
+    List<E>? elements,
+  }) {
+    if (json['kind'] != 'list') {
+      throw TissueDecodeError(
+          'TissueList.fromJson received kind: ${json['kind']}');
+    }
+    final hasOverrides = testRule != null ||
+        context != null ||
+        bind != null ||
+        container != null ||
+        user != null ||
+        elements != null;
+    final base = decodeTissue(json,
+        cellResolver: cellResolver,
+        governanceResolver:
+            testRule != null ? (_) => TestTissue.allowAll : governanceResolver,
+        lenient: lenient,
+        lenientFallbackTestRule: lenientFallbackTestRule,
+        onSkipped: hasOverrides ? null : onSkipped);
+    final effectiveRule = _resolveRuleOverride(testRule, base.validate);
+    final effectiveContext = context ?? base.context;
+    final effectiveBind = _resolveBindOverride(bind, base._nucleus.bind);
+    final effectiveContainer =
+        _resolveContainerOverride(container, base._nucleus.containerType);
+    final effectiveUser = _resolveUserOverride(
+        user,
+        hasOverrides
+            ? _unwrapDecodedUser(base._nucleus.user)
+            : base._nucleus.user);
+    final effectiveElements = elements ?? List<E>.from(base);
+    final nucleus = TissueListNucleus.create<E, TissueList<E>>(
+        testRule: effectiveRule as dynamic,
+        context: effectiveContext,
+        bind: effectiveBind,
+        container: effectiveContainer,
+        synapses: _synapsesFromJson(json),
+        user: effectiveUser as dynamic);
+    return TissueList.fromNucleus(nucleus, elements: effectiveElements);
+  }
 
   /// Creates a read‑only, reactive projection (Deputy) of an existing [TissueList],
   /// enforcing a strict non‑mutation contract while remaining fully synchronised
@@ -1029,4 +1101,24 @@ abstract interface class UnmodifiableTissueList<E>
         unmodifiableElement: unmodifiableElement,
         elements: elements);
   }
+}
+
+/// JSON serialisation surface for [TissueList].
+///
+/// ### How it works
+/// `list.toJson()` delegates to [encodeTissue]; [lenient] and
+/// [lenientFallbackTestRule] mirror its defaults. Round-trip precision:
+/// element order is preserved, the growable strategy round-trips through the
+/// `growableTrue` / `growableFalse` container tags, and `Cell` elements
+/// round-trip as `{"__cell__": id}` references resolved on decode via
+/// [TissueCellResolver].
+extension TissueListJson<E> on TissueList<E> {
+  /// Encodes this list to its canonical JSON wire form.
+  Map<String, dynamic> toJson({
+    bool lenient = false,
+    TestTissue<dynamic, Tissue<dynamic>> lenientFallbackTestRule =
+        TestTissue.readOnly,
+  }) =>
+      encodeTissue(this,
+          lenient: lenient, lenientFallbackTestRule: lenientFallbackTestRule);
 }

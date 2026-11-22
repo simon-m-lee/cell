@@ -1,0 +1,43 @@
+# skills_lint.yaml — validates the published package skills and the
+# repository-internal .agents skills against the Agent Skills spec.
+#
+# Run locally (Dart >=3.12):
+#   dart install skills_lint
+#   sed -i 's|^/packages/\*\*|/packages/_none_/**|' .pubignore   # see below
+#   skills_lint
+#   git checkout -- .pubignore
+# The sed mirrors tool/release-publish.sh: the umbrella .pubignore hides
+# /packages/** from the umbrella archive, and pub-archive-includes-skill
+# checks the archive each member actually publishes. CI does the same via
+# .github/workflows/lint-skills.yml.
+skills_lint:
+  rules:
+    check-relative-paths: error
+    check-absolute-paths: error
+  directories:
+    - path: "packages/cell/skills"
+      rules:
+        pub-archive-includes-skill: error
+        published-skill-name: error
+        check-relative-paths:
+          severity: error
+          within-skill: true
+    - path: "packages/cell_flow/skills"
+      rules:
+        pub-archive-includes-skill: error
+        published-skill-name: error
+        check-relative-paths:
+          severity: error
+          within-skill: true
+    - path: "packages/cell_tissue/skills"
+      rules:
+        pub-archive-includes-skill: error
+        published-skill-name: error
+        check-relative-paths:
+          severity: error
+          within-skill: true
+    - path: ".agents/skills"
+      rules:
+        check-relative-paths:
+          severity: error
+          within-skill: true

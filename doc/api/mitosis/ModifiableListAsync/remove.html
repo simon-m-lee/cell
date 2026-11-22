@@ -73,8 +73,11 @@ and was successfully removed, and <code>false</code> otherwise.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;bool&gt; remove(Object? element) =&gt;
-    Future&lt;bool&gt;(() =&gt; _tissue.remove(element));</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;bool&gt; remove(Object? element) async {
+  final outcome =
+      await _runTissueMutation(_tissue, _tissue.remove, [element]);
+  return outcome is ApplyAccepted&lt;dynamic&gt;;
+}</code></pre>
 </section>
 
 

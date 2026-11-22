@@ -52,7 +52,7 @@
 <a href="#-project-status--cadence"><img src="https://img.shields.io/badge/status-3.0.0--stable-green.svg" alt="Status"></a>
 <a href="https://github.com/invertase/melos"><img src="https://img.shields.io/badge/maintained%20with-melos-f700ff.svg" alt="Melos"></a>
 <a href="#-contributing"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"></a></p>
-<p><strong>Mitosis</strong> is a reactive application framework for Dart that treats state, events, and their <strong>causal history</strong> as one coherent, observable graph. It is an umbrella monorepo built from three layers — <strong>Cell</strong>, <strong>Flow</strong>, and <strong>Tissue</strong> — with a growing ecosystem of companion packages (Flutter bindings, cognitive policy) — that scale from a single reactive value to a fully governed application body without ever dropping the forensic trail.</p>
+<p><strong>Mitosis</strong> is a reactive application framework for Dart that treats state, events, and their <strong>causal history</strong> as one coherent, observable graph. It is an umbrella monorepo built from three layers — <strong>Cell</strong>, <strong>Flow</strong>, and <strong>Tissue</strong> — with a growing ecosystem of companion packages (Flutter bindings and more) — that scale from a single reactive value to a fully governed application body without ever dropping the forensic trail.</p>
 <p>Mitosis is designed for systems where <em>why something happened</em> matters as much as <em>what happened</em>: financial and transaction-heavy software, security-sensitive services, audit-bound enterprise applications, real-time coordination, and increasingly, autonomous and multi-agent systems.</p>
 <blockquote>
 <p><strong>New — the Mitose pipeline.</strong> The <a href="guide/HowTo-Mitose.md"><code>guide/</code></a> directory ships an AI-executable orchestration script that practices <strong>Precision Software Engineering</strong>: a stated design requirement is carried into running behavior, recorded, explicit, bounded, checkable, traceable, and verifiable. It runs <strong>step-by-step</strong> with one human decision at each gate, or in <strong>autonomous mode</strong> (“Mitose autonomous”) where the user opts in once after the BRD exists and the agent runs the rest of the pipeline unattended with every decision tagged and reported. See <a href="#-precision-software-engineering">Precision Software Engineering</a> and <a href="#-the-mitose-pipeline">The Mitose Pipeline</a>.</p>
@@ -156,23 +156,22 @@
 <td><code>go_router</code> bridge: route state as a reactive cell (<code>CellRouterState</code>, <code>CellRouterStateMirror</code>, <code>CellRouterScope</code>, <code>useCellRouter</code>).</td>
 </tr>
 <tr>
+<td><a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_audit"><strong>cell_flutter_audit</strong></a></td>
+<td><code>0.1.0</code></td>
+<td>Audit trail UI for the <code>ApplyReceipt</code> ledger: <code>AuditTrailView</code>, <code>AuditTrailController</code>, <code>AuditTrailExporter</code>, <code>AuditEntryTile</code>.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_devtools"><strong>cell_flutter_devtools</strong></a></td>
+<td><code>0.1.0</code></td>
+<td>DevTools extension: the live <code>ApplyReceipt</code> ledger as a filterable timeline inside Flutter DevTools.</td>
+</tr>
+<tr>
 <td><a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_lints"><strong>cell_flutter_lints</strong></a></td>
 <td><code>0.1.0</code></td>
 <td>Custom lint rules guarding the <code>cell_flutter</code> anti-patterns.</td>
 </tr>
-<tr>
-<td><code>cell_mind</code></td>
-<td><code>1.1.0</code></td>
-<td>Workspace member (cognitive policy: context-aware decisions, decision log with replay, prompted policy). Not yet published to pub.dev.</td>
-</tr>
-<tr>
-<td><code>cell_organ</code></td>
-<td><code>1.0.0</code></td>
-<td>Workspace-private package (<code>publish_to: none</code>). Not part of the published set.</td>
-</tr>
 </tbody>
 </table>
-<p>The <code>cell_flutter/pipeline/</code> directory is repository tooling for running the Mitose pipeline on Flutter targets; it is <strong>not published</strong> and not part of the release set.</p>
 <blockquote>
 <p>🌱 <strong>Still dividing.</strong> Like the biological process it is named after, Mitosis keeps growing. These layers are the foundation — more layers will come online as the ecosystem matures.</p>
 </blockquote>
@@ -477,14 +476,20 @@ Use example/BRD/airport_baggage_handling-BRD.md as the BRD.
 │   ├── cell_flutter/          # Flutter bindings — widgets, hooks, testing surface
 │   │   ├── lib/               #   cell_flutter.dart, hooks.dart, testing.dart
 │   │   ├── example/           #   Async search + production_app dogfooding app
+│   │   │   │                   #   + migration/ (Riverpod / BLoC / Cell reference apps)
 │   │   ├── guide/             #   Widget/hooks/migration guides
 │   │   ├── benchmark/         #   ValueListenableBuilder / Riverpod / Bloc comparisons
-│   │   └── pipeline/          #   Repository tooling (Flutter Mitose pipeline) — not published
 │   ├── cell_flutter_persistence/  # Durable state adapters for cell_flutter
 │   ├── cell_flutter_router/       # go_router bridge for cell_flutter
+│   ├── cell_flutter_audit/        # Audit trail widgets over ApplyReceipts
+│   ├── cell_flutter_devtools/     # DevTools extension (ledger timeline)
+│   ├── cell_flutter_devtools_extension/  # Extension web app source (publish_to: none)
 │   ├── cell_flutter_lints/        # custom_lint rules for cell_flutter anti-patterns
-│   ├── cell_mind/             # Workspace member — cognitive policy (not on pub.dev)
+│   ├── mitose_flutter/         #   Repository-private (publish_to: none) — kept out of version control
+│   ├── cell_mind/             # Workspace member — repository-private (kept out of version control)
 │   └── cell_organ/            # Workspace-private (publish_to: none)
+├── demo/                      # Standalone Flutter web demos
+│   └── audit_trail/          #   Live "Audit Trail" demo — apply receipts, TestCell gate, txApply undo
 ├── example/                   # Umbrella demos — (Cell) instruction-side editions
 │   ├── card-auth-pipeline(Cell)-*   #   stock-operator FlowInstructionChain
 │   ├── grid-demand-response(Cell)-* #   custom GridDecisionInstruction
@@ -568,7 +573,7 @@ Use example/BRD/airport_baggage_handling-BRD.md as the BRD.
   cell_flutter: ^1.0.0          # Flutter apps
 </code></pre>
 <blockquote>
-<p>ℹ️ These are the stable versions on pub.dev — <code>mitosis</code> <code>3.0.0</code> together with <code>cell</code> <code>2.0.0</code>, <code>cell_flow</code> <code>1.1.0</code>, <code>cell_tissue</code> <code>1.1.0</code>, and the <code>cell_flutter</code> family (<code>cell_flutter</code> <code>1.0.0</code>; <code>cell_flutter_persistence</code>, <code>cell_flutter_router</code>, <code>cell_flutter_lints</code> <code>0.1.0</code>).</p>
+<p>ℹ️ These are the stable versions on pub.dev — <code>mitosis</code> <code>3.0.0</code> together with <code>cell</code> <code>2.0.0</code>, <code>cell_flow</code> <code>1.1.0</code>, <code>cell_tissue</code> <code>1.1.0</code>, and the <code>cell_flutter</code> family (<code>cell_flutter</code> <code>1.1.0</code>; <code>cell_flutter_persistence</code>, <code>cell_flutter_router</code>, <code>cell_flutter_lints</code>, <code>cell_flutter_audit</code>, <code>cell_flutter_devtools</code> <code>0.1.0</code>).</p>
 </blockquote>
 <p>The workspace setup below is only needed for contributors working on the framework itself.</p>
 <h3 id="workspace-setup">Workspace Setup</h3>
@@ -786,10 +791,10 @@ dart run example/stability_search_demo.dart
 </ul>
 <hr>
 <h2 id="-honest-caveats">🧾 Honest Caveats</h2>
-<p>The stable release line on pub.dev is <code>mitosis</code> <code>3.0.0</code> with <code>cell</code> <code>2.0.0</code>, <code>cell_flow</code> <code>1.1.0</code>, and <code>cell_tissue</code> <code>1.1.0</code>, plus the Flutter family (<code>cell_flutter</code> <code>1.0.0</code>; <code>cell_flutter_persistence</code>, <code>cell_flutter_router</code>, and <code>cell_flutter_lints</code> <code>0.1.0</code>). Some things to know before you bet production on it:</p>
+<p>The stable release line on pub.dev is <code>mitosis</code> <code>3.0.0</code> with <code>cell</code> <code>2.0.0</code>, <code>cell_flow</code> <code>1.1.0</code>, and <code>cell_tissue</code> <code>1.1.0</code>, plus the Flutter family (<code>cell_flutter</code> <code>1.1.0</code>; <code>cell_flutter_persistence</code>, <code>cell_flutter_router</code>, <code>cell_flutter_lints</code>, <code>cell_flutter_audit</code>, and <code>cell_flutter_devtools</code> <code>0.1.0</code>). Some things to know before you bet production on it:</p>
 <ul>
 <li><strong>The Mitose pipeline is agentic tooling, not a validated code-generation service</strong> — see <a href="#-the-mitose-pipeline">The Mitose Pipeline</a>. Output quality depends on the model (best to select a model which is built for agentic coding), the uploaded guide files, and the quality of the BRD. Treat every generated BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES as a first draft, and review it against the layer HowTos and live pub.dev APIs before relying on it.</li>
-<li><strong>New layers and packages may still appear.</strong> The umbrella keeps growing: the <code>cell_flutter</code> family shipped in the <code>2.0.0</code> line, and workspace members (<code>cell_mind</code>, …) carry their own pre-release or unpublished status. The umbrella version moves with the package set, not with the Mitose pipeline.</li>
+<li><strong>New layers and packages may still appear.</strong> The umbrella keeps growing: the <code>cell_flutter</code> family shipped in the <code>2.0.0</code> line, and repository-private members (<code>cell_mind</code>, …) carry their own pre-release or unpublished status. The umbrella version moves with the package set, not with the Mitose pipeline.</li>
 <li><strong><code>Context</code> metadata is not a compliance certification.</strong> <code>Context.describe(...)</code> stores classification, actor, and purpose text; it does not implement or certify GDPR, HIPAA, PCI-DSS, or any other regulation.</li>
 <li><strong>The framework is deliberately layered.</strong> For a couple of flags or a single form, plain Dart or a lightweight notifier may be the better tool. Mitosis earns its complexity at scale.</li>
 </ul>
@@ -819,11 +824,13 @@ dart run example/stability_search_demo.dart
 <ul>
 <li>🏠 <strong>Repository:</strong> <a href="https://github.com/simon-m-lee/cell">github.com/simon-m-lee/cell</a></li>
 <li>🐛 <strong>Issues:</strong> <a href="https://github.com/simon-m-lee/cell/issues">github.com/simon-m-lee/cell/issues</a></li>
-<li>📦 <strong>pub.dev:</strong> <a href="https://pub.dev/packages/cell">cell</a> · <a href="https://pub.dev/packages/cell_flow">cell_flow</a> · <a href="https://pub.dev/packages/cell_tissue">cell_tissue</a> · <a href="https://pub.dev/packages/cell_flutter">cell_flutter</a> · <a href="https://pub.dev/packages/cell_flutter_persistence">cell_flutter_persistence</a> · <a href="https://pub.dev/packages/cell_flutter_router">cell_flutter_router</a> · <a href="https://pub.dev/packages/cell_flutter_lints">cell_flutter_lints</a></li>
+<li>📦 <strong>pub.dev:</strong> <a href="https://pub.dev/packages/cell">cell</a> · <a href="https://pub.dev/packages/cell_flow">cell_flow</a> · <a href="https://pub.dev/packages/cell_tissue">cell_tissue</a> · <a href="https://pub.dev/packages/cell_flutter">cell_flutter</a> · <a href="https://pub.dev/packages/cell_flutter_persistence">cell_flutter_persistence</a> · <a href="https://pub.dev/packages/cell_flutter_router">cell_flutter_router</a> · <a href="https://pub.dev/packages/cell_flutter_audit">cell_flutter_audit</a> · <a href="https://pub.dev/packages/cell_flutter_devtools">cell_flutter_devtools</a> · <a href="https://pub.dev/packages/cell_flutter_lints">cell_flutter_lints</a></li>
 <li>📖 <strong>Core layer:</strong> <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell">packages/cell</a></li>
 <li>🔀 <strong>Orchestration layer:</strong> <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow">packages/cell_flow</a></li>
 <li>🧩 <strong>Application layer:</strong> <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue">packages/cell_tissue</a></li>
 <li>📱 <strong>Flutter bindings:</strong> <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter">packages/cell_flutter</a></li>
+<li>🛠 <strong>DevTools extension source:</strong> <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_flutter_devtools_extension">packages/cell_flutter_devtools_extension</a></li>
+<li>🎬 <strong>Live audit demo:</strong> <a href="https://github.com/simon-m-lee/cell/tree/master/demo/audit_trail">demo/audit_trail</a> · deployed at <a href="https://simon-m-lee.github.io/cell/audit-trail/">simon-m-lee.github.io/cell/audit-trail</a></li>
 </ul>
 <hr>
 <p><em>Mitosis — reactive state that remembers how it got there.</em></p>

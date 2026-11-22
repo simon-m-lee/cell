@@ -118,7 +118,7 @@ ticks.emit(4); // dropped
 <p><strong>Layer:</strong> Flow — count taker. Not a Cell factory, not a Tissue book.
 <strong>When to use:</strong> first N alerts only; cap a burst; prefetch a page.
 <strong>When NOT to use:</strong> "first N alerts" in a Cell-variant Demo is usually a book concern (Tissue), not a chain operator.
-<strong>Live signature:</strong> <code>Flow.take&lt;S&gt;(Cell source, {required int count})</code> — pinned at <code>cell_flow: 1.1.0</code>
+<strong>Live signature:</strong> <code>Flow.take&lt;S&gt;(Cell source, {required int count})</code> — pinned at <code>cell_flow: 1.2.0</code>
 <strong>Do NOT confuse with:</strong> <code>Flow.skip</code> (drops the first N; take keeps them).
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.3 "Filter / take / skip" (#flow-filter-take-skip)
 <strong>Example:</strong> <code>example/cell_flow_example.dart</code>
@@ -169,7 +169,7 @@ o.stop();
 <footer>
   <span class="no-break">
     cell_flow
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

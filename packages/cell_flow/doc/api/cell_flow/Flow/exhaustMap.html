@@ -126,7 +126,7 @@ clicks.emit(null); // Dropped (busy)
 <p><strong>Layer:</strong> Flow — exhaust flattener. Not a Cell factory, not a Tissue book.
 <strong>When to use:</strong> prevent double submit / double checkout / double ACK — triggers while an inner sequence is busy are dropped.
 <strong>When NOT to use:</strong> a busy-flag pattern hand-rolled in the instruction (known race in <code>ExhaustMapLatest</code>: set the busy flag <strong>before</strong> scheduling the inner work; prefer this operator for outbound pumps).
-<strong>Live signature:</strong> <code>Flow.exhaustMap&lt;S, T&gt;(Cell source, {required FutureOr&lt;Object?&gt; Function(S value) project})</code> — pinned at <code>cell_flow: 1.1.0</code>
+<strong>Live signature:</strong> <code>Flow.exhaustMap&lt;S, T&gt;(Cell source, {required FutureOr&lt;Object?&gt; Function(S value) project})</code> — pinned at <code>cell_flow: 1.2.0</code>
 <strong>Do NOT confuse with:</strong> <code>Flow.switchMap</code> (cancels previous; exhaust drops new) and <code>Flow.mergeMap</code> (overlaps all).
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.4 "Flatten (inner sequences)" (#flow-flatten)
 <strong>Example:</strong> <code>example/exhaust_map_submit_checkout_demo.dart</code>
@@ -177,7 +177,7 @@ o.stop();
 <footer>
   <span class="no-break">
     cell_flow
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

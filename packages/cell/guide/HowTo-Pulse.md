@@ -1129,8 +1129,8 @@ separate concern.
 
 ### 28.10 — When to use lenient mode
 
-Strict mode (the default) fails loudly: [encodePulse] throws
-[PulseNotSerializable] on the first field that cannot be honestly
+Strict mode (the default) fails loudly: `encodePulse` throws
+`PulseNotSerializable` on the first field that cannot be honestly
 reconstructed. That is the right discipline for a replay ledger.
 
 Lenient mode (`lenient: true` on `encodePulse`, `decodePulse`,
@@ -1144,6 +1144,7 @@ Lenient mode does not erase the omission — it records every substituted
 field in a sorted `__skipped__` array on the wire and surfaces the same
 list via the decode-side `onSkipped` callback.
 
+```text
 A command-line utility for Dart development.
 
 Usage: dart <command|dart-file> [arguments]
@@ -1183,6 +1184,7 @@ Tools
 
 Run "dart help <command>" for more information about a command.
 See https://dart.dev/tools/dart-tool for detailed documentation.
+```
 
 ### 28.11 — The substitution table
 

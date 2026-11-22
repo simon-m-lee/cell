@@ -152,16 +152,15 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
   /// ### Returns:
   /// A new [TissueQueueNucleus<E>] instance that acts as a specialised
   /// behavioral layer over the [principal].
-  factory TissueQueueNucleus.evolve(TissueQueueNucleus<E> principal, {
-    int? capacity,
-    Cell? bind,
-    Context? context,
-    TissueReceptor<E, TissueQueue<E>>? receptor,
-    TestTissue<E, TissueQueue<E>>? testRule,
-    Synapses? synapses,
-    EphemeralPolicy? ephemeralPolicy,
-    TissueQueueNucleus<E>? override
-  }) {
+  factory TissueQueueNucleus.evolve(TissueQueueNucleus<E> principal,
+      {int? capacity,
+      Cell? bind,
+      Context? context,
+      TissueReceptor<E, TissueQueue<E>>? receptor,
+      TestTissue<E, TissueQueue<E>>? testRule,
+      Synapses? synapses,
+      EphemeralPolicy? ephemeralPolicy,
+      TissueQueueNucleus<E>? override}) {
     return _TissueQueueNucleus<E, TissueQueue<E>>.fromRecord((
       local: override != null
           ? (override as NucleusBase).record.local
@@ -178,6 +177,7 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
       principal: principal,
     ));
   }
+
   /// A highly configurable static utility factory that produces a type‑safe
   /// [TissueQueueNucleus] configuration for a specific element type [E]
   /// and a specialised [TissueQueue] interface [C].
@@ -419,7 +419,7 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
 /// **When NOT to use:**
 ///   {@macro ai-do-not-testcell-on-tissue}
 ///   {@macro ai-do-not-drain-tissuequeue}
-/// **Live signature:** `TissueQueue<E>({bind, context, testRule, receptor, synapses, ...})` / `TissueQueue.of(iterable, {...})` / `TissueQueue.unmodifiable(bind, {...})` — pinned at `cell_tissue: 1.1.0`
+/// **Live signature:** `TissueQueue<E>({bind, context, testRule, receptor, synapses, ...})` / `TissueQueue.of(iterable, {...})` / `TissueQueue.unmodifiable(bind, {...})` — pinned at `cell_tissue: 1.2.0`
 /// **Do NOT confuse with:** `TissueList` (indexable history; use the queue for FIFO work).
 /// **Guide:** `HowTo-Mitose-Tissue.md` §2.4 "TissueQueue — outbound work" (#tissue-queue)
 /// **Example:** `example/cell_tissue_example.dart`
@@ -553,6 +553,86 @@ abstract interface class TissueQueue<E> implements Tissue<E>, Queue<E> {
   /// A concrete [TissueQueue<E>] instance.
   factory TissueQueue.fromNucleus(TissueQueueNucleus<E> nucleus,
       {Iterable<E>? elements}) = _TissueQueue<E, TissueQueue<E>>.fromNucleus;
+
+  /// Reconstructs a [TissueQueue] from the canonical JSON produced by
+  /// `encodeTissue` / [TissueQueueJson.toJson].
+  ///
+  /// ### Overrides
+  ///
+  /// | Override | Behaviour |
+  /// |---|---|
+  /// | `testRule` | [tissueNullTestRule] → [TestTissue.allowAll] (explicit widening); otherwise the rule to install. |
+  /// | `context` | `null` = use the JSON's context. |
+  /// | `bind` | [tissueNullBind] strips the bind; otherwise the upstream cell. |
+  /// | `container` | [tissueNullContainer] → the queue default ([Container.queue]); otherwise the strategy. |
+  /// | `capacity` | [tissueNullCapacity] → unlimited (`-1`); `0` → a queue that rejects every addition; otherwise the bound. |
+  /// | `elements` | Replaces the JSON's elements. |
+  /// | `user` | [tissueNullUser] strips metadata; otherwise the caller's record. |
+  ///
+  /// ### Lenient mode
+  ///
+  /// Mirrors [decodeTissue]; overrides always win and are never counted as
+  /// skipped.
+  factory TissueQueue.fromJson(
+    Map<String, dynamic> json, {
+    TissueCellResolver? cellResolver,
+    TissueGovernanceResolver? governanceResolver,
+    bool lenient = false,
+    TestTissue<dynamic, Tissue<dynamic>> lenientFallbackTestRule =
+        TestTissue.readOnly,
+    void Function(List<String> skipped)? onSkipped,
+    Object? testRule,
+    Context? context,
+    Object? bind,
+    Object? container,
+    Object? capacity,
+    Object? user,
+    List<E>? elements,
+  }) {
+    if (json['kind'] != 'queue') {
+      throw TissueDecodeError(
+          'TissueQueue.fromJson received kind: ${json['kind']}');
+    }
+    final hasOverrides = testRule != null ||
+        context != null ||
+        bind != null ||
+        container != null ||
+        capacity != null ||
+        user != null ||
+        elements != null;
+    final base = decodeTissue(json,
+        cellResolver: cellResolver,
+        governanceResolver:
+            testRule != null ? (_) => TestTissue.allowAll : governanceResolver,
+        lenient: lenient,
+        lenientFallbackTestRule: lenientFallbackTestRule,
+        onSkipped: hasOverrides ? null : onSkipped);
+    final effectiveRule = _resolveRuleOverride(testRule, base.validate);
+    final effectiveContext = context ?? base.context;
+    final effectiveBind = _resolveBindOverride(bind, base._nucleus.bind);
+    final effectiveContainer =
+        _resolveContainerOverride(container, base._nucleus.containerType);
+    final effectiveUser = _resolveUserOverride(
+        user,
+        hasOverrides
+            ? _unwrapDecodedUser(base._nucleus.user)
+            : base._nucleus.user);
+    final effectiveElements = elements ?? List<E>.from(base);
+    final effectiveCapacity = capacity == null
+        ? (base._nucleus as TissueQueueNucleus<dynamic>).capacity
+        : identical(capacity, tissueNullCapacity)
+            ? TestTissue.unlimitedLength
+            : capacity as int;
+    final nucleus = TissueQueueNucleus.create<E, TissueQueue<E>>(
+        capacity: effectiveCapacity,
+        testRule: effectiveRule as dynamic,
+        context: effectiveContext,
+        bind: effectiveBind,
+        container: effectiveContainer,
+        synapses: _synapsesFromJson(json),
+        user: effectiveUser as dynamic);
+    return TissueQueue.fromNucleus(nucleus, elements: effectiveElements);
+  }
 
   /// A high‑fidelity architectural factory for creating a **Deeply Immodifiable
   /// Reactive View** (Deputy) of an existing [TissueQueue].
@@ -1036,4 +1116,22 @@ abstract interface class UnmodifiableTissueQueue<E>
         unmodifiableElement: unmodifiableElement,
         elements: elements);
   }
+}
+
+/// JSON serialisation surface for [TissueQueue].
+///
+/// ### How it works
+/// `queue.toJson()` delegates to [encodeTissue]. Head-to-tail order is
+/// preserved and the capacity round-trips (`-1` is omitted from the wire,
+/// `0` is explicit). `Cell` elements round-trip as `{"__cell__": id}`
+/// references resolved on decode via [TissueCellResolver].
+extension TissueQueueJson<E> on TissueQueue<E> {
+  /// Encodes this queue to its canonical JSON wire form.
+  Map<String, dynamic> toJson({
+    bool lenient = false,
+    TestTissue<dynamic, Tissue<dynamic>> lenientFallbackTestRule =
+        TestTissue.readOnly,
+  }) =>
+      encodeTissue(this,
+          lenient: lenient, lenientFallbackTestRule: lenientFallbackTestRule);
 }

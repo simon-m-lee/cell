@@ -189,7 +189,7 @@ bool _defaultEquals(Object? a, Object? b) => a == b;
 /// **Layer:** Flow — consecutive dedupe operator. Not a Cell factory, not a Tissue book.
 /// **When to use:** drop back-to-back duplicates only (heartbeats, no-change ticks) — `1, 2, 1` still emits three times.
 /// **When NOT to use:** global dedupe — that is `Distinct`; and never when an ACK must reset the latch (no `reset()`).
-/// **Live signature:** `DistinctUntilChanged<S>({bool Function(S previous, S next)? equals, DistinctErrorHandler? onError, dynamic user})` — pinned at `cell_flow: 1.1.0`
+/// **Live signature:** `DistinctUntilChanged<S>({bool Function(S previous, S next)? equals, DistinctErrorHandler? onError, dynamic user})` — pinned at `cell_flow: 1.2.0`
 /// **Do NOT confuse with:** `Distinct` (global seen-set; this is consecutive-only).
 /// **Guide:** `HowTo-Mitose-Flow.md` §3.3 "Filter / take / skip" (#flow-filter-take-skip)
 /// **Example:** `example/distinct_noise_reduction_demo.dart`
@@ -457,7 +457,7 @@ class DistinctUntilKeyChanged<S, K>
 /// **When NOT to use:**
 ///   {@macro ai-do-not-stock-distinct-when-reset-needed}
 ///   With a custom `equals`, membership degrades to a linear scan over seen values (O(n²) worst case) until the code fix lands — prefer a keyed variant or a TissueSet-backed latch for hot paths.
-/// **Live signature:** `Distinct<S>({bool Function(S previous, S next)? equals, DistinctErrorHandler? onError, dynamic user})` — pinned at `cell_flow: 1.1.0`
+/// **Live signature:** `Distinct<S>({bool Function(S previous, S next)? equals, DistinctErrorHandler? onError, dynamic user})` — pinned at `cell_flow: 1.2.0`
 /// **Do NOT confuse with:** `DistinctUntilChanged` (consecutive-only, O(1) memory; this is global).
 /// **Guide:** `HowTo-Mitose-Flow.md` §3.3 "Filter / take / skip" (#flow-filter-take-skip)
 /// **Example:** `example/distinct_noise_reduction_demo.dart`

@@ -78,8 +78,13 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;V&gt; putIfAbsent(K key, V Function() ifAbsent) {
-  return Future&lt;V&gt;(() =&gt; _tissue.putIfAbsent(key, ifAbsent));
+  <pre class="language-dart"><code class="language-dart">Future&lt;V&gt; putIfAbsent(K key, V Function() ifAbsent) async {
+  final outcome =
+      await _runTissueMutation(_tissue, _tissue.putIfAbsent, [key, ifAbsent]);
+  if (outcome is ApplyRejected&lt;dynamic&gt;) {
+    throw UnsupportedError(&#39;Unmodifiable operation&#39;);
+  }
+  return (outcome as ApplyAccepted&lt;dynamic&gt;).result as V;
 }</code></pre>
 </section>
 
@@ -108,7 +113,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

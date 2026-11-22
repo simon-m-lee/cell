@@ -80,7 +80,9 @@ present and validation passed), <code>false</code> otherwise.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 bool add(K key, V value) =&gt;
-    (dispatch(add, positionalArguments: [key, value])?.isNotEmpty) ?? false;</code></pre>
+    (dispatch(add, positionalArguments: [key, value], sync: true)
+        ?.isNotEmpty) ??
+    false;</code></pre>
 </section>
 
 

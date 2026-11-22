@@ -53,14 +53,18 @@ import 'package:cell_tissue/cell_tissue.dart';
 </code></pre>
 <h2 id="ai-agents-start-here">AI agents start here</h2>
 <p>Read this before opening any other page.</p>
+<p>Install the official package skill and the agent gets the workflow rules,
+the BRD elevator matrix, and the generated API matrix automatically:</p>
+<pre class="language-bash"><code class="language-bash">dart run skills@ get cell
+</code></pre>
 <p><code>cell</code> is designed with AI coding agents in mind. Every top public symbol
 carries a machine-readable <code>### AI Agent Guide</code> block, and the surfaces below
 let an agent reliably pick the right factory and generate code that compiles
 against the live API.</p>
 <ol>
-<li><strong>Version pin:</strong> <code>cell 2.0.0</code>, <code>cell_flow 1.0.0</code>, <code>cell_tissue 1.0.0</code>.</li>
+<li><strong>Version pin:</strong> <code>cell 2.1.0</code>, <code>cell_flow 1.2.0</code>, <code>cell_tissue 1.2.0</code>.</li>
 <li><strong>Preflight:</strong> <code>dart run tool/ai_preflight.dart</code> — prints the resolved versions and any stale pins.</li>
-<li><strong>API chooser:</strong> <code>lib/doc/api_chooser.dart</code> (generated from the <code>### AI Agent Guide</code> doc blocks).</li>
+<li><strong>API chooser:</strong> <code>lib/doc/api_chooser.dart</code> (generated from the <code>### AI Agent Guide</code> doc blocks; the same matrix ships inside the package skill at <code>skills/cell-core/references/api_chooser.md</code>).</li>
 <li><strong>Layer guides:</strong>
 <ul>
 <li><code>guide/HowTo-Mitose-Cell.md</code> — Cell factory choices</li>
@@ -805,7 +809,7 @@ of <code>package:cell</code>.
 <footer>
   <span class="no-break">
     cell
-      2.0.0
+      2.1.0
   </span>
   
 </footer>

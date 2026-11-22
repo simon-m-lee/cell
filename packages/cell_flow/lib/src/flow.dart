@@ -55,7 +55,7 @@ part of '../cell_flow.dart';
 /// **Layer:** Flow — the static operator catalog. Not a Cell factory, not a Tissue book.
 /// **When to use:** walk §3 families of `HowTo-Mitose-Flow.md` against the BRD before writing a custom instruction; `Flow.*` covers feed adapters and adjacent journeys.
 /// **When NOT to use:** the **decision** gate of a Cell-variant Demo — that is `FlowInstructionBase` + `+` + `toHandle` (one Receptor, one lock).
-/// **Live signature:** `abstract class Flow` — static factories return `FlowHandle` — pinned at `cell_flow: 1.1.0`
+/// **Live signature:** `abstract class Flow` — static factories return `FlowHandle` — pinned at `cell_flow: 1.2.0`
 /// **Do NOT confuse with:** `Cell` (graph nodes; Flow is a namespace that only assembles blueprints).
 /// **Guide:** `HowTo-Mitose-Flow.md` §3 "Examine the catalog against the BRD" (#flow-catalog)
 /// **Example:** `example/cell_flow_example.dart`
@@ -129,7 +129,7 @@ abstract class Flow {
   /// **Layer:** Flow — create operator. Not a Cell factory, not a Tissue book.
   /// **When to use:** replay a fixed fixture list of values on the first trigger (test data, init values).
   /// **When NOT to use:** v1 industry Demos usually `tickIn.emit` from the harness instead of Create operators.
-  /// **Live signature:** `Flow.of<T>(Cell source, {required Iterable<T> values})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.of<T>(Cell source, {required Iterable<T> values})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Flow.fromIterable` (same semantics; takes an Iterable source).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.1 "Create" (#flow-create)
   /// **Example:** `example/cell_flow_example.dart`
@@ -408,7 +408,7 @@ abstract class Flow {
   /// **Layer:** Flow — create operator. Not a Cell factory, not a Tissue book.
   /// **When to use:** one AODB lookup / config load per arm trigger; emits the single future result.
   /// **When NOT to use:** continuous sources — that is `Flow.fromStream`.
-  /// **Live signature:** `Flow.fromFuture<S>(Cell source, {required Future<S> future, Duration? timeout, FutureErrorHandler? onError, bool emitErrorPulse = true})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.fromFuture<S>(Cell source, {required Future<S> future, Duration? timeout, FutureErrorHandler? onError, bool emitErrorPulse = true})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Flow.deferFuture` (new future per trigger) and `Cell.fromFuture` (no source cell).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.1 "Create" (#flow-create)
   /// **Example:** `example/from_future_forensic_pipeline_demo.dart`
@@ -569,7 +569,7 @@ abstract class Flow {
   /// **Layer:** Flow — create operator. Not a Cell factory, not a Tissue book.
   /// **When to use:** the belt PLC is already a Dart `Stream` — bridge it into the graph.
   /// **When NOT to use:** a single value (`Flow.fromFuture`) or imperative callbacks (`Cell.ingress`).
-  /// **Live signature:** `Flow.fromStream<S>(Cell source, {required Stream<S> stream, StreamErrorHandler? onError, bool emitErrorPulse = true})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.fromStream<S>(Cell source, {required Stream<S> stream, StreamErrorHandler? onError, bool emitErrorPulse = true})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Flow.deferStream` (new subscription per trigger) and `Cell.fromStream` (no source cell).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.1 "Create" (#flow-create)
   /// **Example:** `example/from_stream_realtime_data_demo.dart`
@@ -737,7 +737,7 @@ abstract class Flow {
   /// **Layer:** Flow — projection operator (Rx `map`). Not a Cell factory, not a Tissue book.
   /// **When to use:** project a payload on a stock chain; the facade over `MapValue`.
   /// **When NOT to use:** the rich-`*Decision` → seam-enum projection on a Cell-variant chain — use the `MapValue` class so it can join `+` chains.
-  /// **Live signature:** `Flow.map<S, T>(Cell source, {required T Function(S value) project, MapErrorHandler? onError})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.map<S, T>(Cell source, {required T Function(S value) project, MapErrorHandler? onError})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `MapValue` (the chain class) and `Map` (dart:core data structure).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.2 "Transform" (#flow-transform)
   /// **Example:** `example/cell_flow_example.dart`
@@ -1274,7 +1274,7 @@ abstract class Flow {
   /// **Layer:** Flow — projection operator. Not a Cell factory, not a Tissue book.
   /// **When to use:** extract one named field from a record/map payload.
   /// **When NOT to use:** the rich-`*Decision` → seam-enum projection — that is `MapValue`.
-  /// **Live signature:** `Flow.pluck<T>(Cell source, {required Object key, PluckErrorHandler? onError})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.pluck<T>(Cell source, {required Object key, PluckErrorHandler? onError})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Flow.pluckOr` (fallback when the field is missing).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.2 "Transform" (#flow-transform)
   /// **Example:** `example/cell_flow_example.dart`
@@ -1566,7 +1566,7 @@ abstract class Flow {
   /// **Layer:** Flow — accumulation operator. Not a Cell factory, not a Tissue book.
   /// **When to use:** running totals / cumulative state emitted per pulse.
   /// **When NOT to use:** a retained reserve — that is a `TissueValue` with an invariant in `cell_tissue`.
-  /// **Live signature:** `Flow.scan<S, A>(Cell source, {required A Function(A acc, S value) accumulate})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.scan<S, A>(Cell source, {required A Function(A acc, S value) accumulate})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Flow.reduce` (emits only the final accumulated value).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.2 "Transform" (#flow-transform)
   /// **Example:** `example/start_with_scan_ui_demo.dart`
@@ -1896,7 +1896,7 @@ abstract class Flow {
   /// **Layer:** Flow — latest-only async transform. Not a Cell factory, not a Tissue book.
   /// **When to use:** latest search / latest flight on stand — a new pulse cancels the previous in-flight result.
   /// **When NOT to use:** parallel lookups (`asyncMapConcurrent`) or ordered I/O (`asyncMap`).
-  /// **Live signature:** `Flow.asyncMapLatest<S, T>(Cell source, {required FutureOr<T> Function(S value) mapper, AsyncMapErrorHandler? onError})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.asyncMapLatest<S, T>(Cell source, {required FutureOr<T> Function(S value) mapper, AsyncMapErrorHandler? onError})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Flow.switchMap` (flattens an inner sequence; this maps one Future per pulse).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.4 "Flatten (inner sequences)" (#flow-flatten)
   /// **Example:** `example/async_map_parallel_search_demo.dart`
@@ -2674,7 +2674,7 @@ abstract class Flow {
   /// **Layer:** Flow — predicate operator (Rx `filter`). Not a Cell factory, not a Tissue book.
   /// **When to use:** drop `none` / keep only `atRisk` on a stock chain, or a single-predicate pass before `MapValue`.
   /// **When NOT to use:** clause-ordered policy with a resettable latch — that is a custom `FlowInstructionBase`.
-  /// **Live signature:** `Flow.filter<S>(Cell source, {required bool Function(S value) test})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.filter<S>(Cell source, {required bool Function(S value) test})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Filter` (the chain class; same semantics) and `Cell.valve` (Cell-layer gate).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.3 "Filter / take / skip" (#flow-filter-take-skip)
   /// **Example:** `example/filter_data_quality_demo.dart`
@@ -2749,7 +2749,7 @@ abstract class Flow {
   /// **Layer:** Flow — count taker. Not a Cell factory, not a Tissue book.
   /// **When to use:** first N alerts only; cap a burst; prefetch a page.
   /// **When NOT to use:** "first N alerts" in a Cell-variant Demo is usually a book concern (Tissue), not a chain operator.
-  /// **Live signature:** `Flow.take<S>(Cell source, {required int count})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.take<S>(Cell source, {required int count})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Flow.skip` (drops the first N; take keeps them).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.3 "Filter / take / skip" (#flow-filter-take-skip)
   /// **Example:** `example/cell_flow_example.dart`
@@ -2941,7 +2941,7 @@ abstract class Flow {
   /// **Layer:** Flow — count skipper. Not a Cell factory, not a Tissue book.
   /// **When to use:** ignore the first N pulses (seed / warm-up / header rows).
   /// **When NOT to use:** named policy filtering — that is `Flow.filter` or a custom instruction.
-  /// **Live signature:** `Flow.skip<S>(Cell source, {required int count})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.skip<S>(Cell source, {required int count})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Flow.take` (keeps the first N; skip drops them).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.3 "Filter / take / skip" (#flow-filter-take-skip)
   /// **Example:** `example/cell_flow_example.dart`
@@ -3250,7 +3250,7 @@ abstract class Flow {
   /// **Layer:** Flow — global dedupe operator. Not a Cell factory, not a Tissue book.
   /// **When to use:** "do not flood the log" on a 15 s feed — drop any payload seen before.
   /// **When NOT to use:** an ACK-resettable latch (stock `Distinct` has no `reset()` — use a custom instruction).
-  /// **Live signature:** `Flow.distinct<S>(Cell source)` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.distinct<S>(Cell source)` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Flow.skipRepeated` (consecutive-only) and `DistinctUntilChanged` (Flow class, consecutive).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.3 "Filter / take / skip" (#flow-filter-take-skip)
   /// **Example:** `example/distinct_noise_reduction_demo.dart`
@@ -3347,7 +3347,7 @@ abstract class Flow {
   /// **Layer:** Flow — sequential flattener. Not a Cell factory, not a Tissue book.
   /// **When to use:** order of issuer calls matters — each inner sequence finishes before the next starts (queue inners).
   /// **When NOT to use:** parallel I/O (mergeMap) or latest-only (switchMap).
-  /// **Live signature:** `Flow.concatMap<S, T>(Cell source, {required FutureOr<Object?> Function(S value) project})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.concatMap<S, T>(Cell source, {required FutureOr<Object?> Function(S value) project})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Flow.concat` (fixed inners after one trigger).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.4 "Flatten (inner sequences)" (#flow-flatten)
   /// **Example:** `example/cell_flow_example.dart`
@@ -3581,7 +3581,7 @@ abstract class Flow {
   /// **Layer:** Flow — concurrent flattener. Not a Cell factory, not a Tissue book.
   /// **When to use:** parallel CAD lookups / independent I/O per trigger; results in completion order.
   /// **When NOT to use:** order matters (concatMap) or only the latest matters (switchMap).
-  /// **Live signature:** `Flow.mergeMap<S, T>(Cell source, {required FutureOr<Object?> Function(S value) project})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.mergeMap<S, T>(Cell source, {required FutureOr<Object?> Function(S value) project})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Flow.switchMap` (cancels previous) and `Flow.concatMap` (queues inners).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.4 "Flatten (inner sequences)" (#flow-flatten)
   /// **Example:** `example/async_map_parallel_search_demo.dart`
@@ -3671,7 +3671,7 @@ abstract class Flow {
   /// **Layer:** Flow — latest-only flattener. Not a Cell factory, not a Tissue book.
   /// **When to use:** "latest reservation / flight / search only" — a new trigger cancels the previous inner sequence.
   /// **When NOT to use:** parallel CAD lookups (mergeMap) or ordered calls (concatMap).
-  /// **Live signature:** `Flow.switchMap<S, T>(Cell source, {required FutureOr<Object?> Function(S value) project})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.switchMap<S, T>(Cell source, {required FutureOr<Object?> Function(S value) project})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Cell.switchMap` (Cell-layer variant whose mapper returns a `Cell`).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.4 "Flatten (inner sequences)" (#flow-flatten)
   /// **Example:** `example/switch_map_dynamic_dependency_demo.dart`
@@ -3753,7 +3753,7 @@ abstract class Flow {
   /// **Layer:** Flow — exhaust flattener. Not a Cell factory, not a Tissue book.
   /// **When to use:** prevent double submit / double checkout / double ACK — triggers while an inner sequence is busy are dropped.
   /// **When NOT to use:** a busy-flag pattern hand-rolled in the instruction (known race in `ExhaustMapLatest`: set the busy flag **before** scheduling the inner work; prefer this operator for outbound pumps).
-  /// **Live signature:** `Flow.exhaustMap<S, T>(Cell source, {required FutureOr<Object?> Function(S value) project})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.exhaustMap<S, T>(Cell source, {required FutureOr<Object?> Function(S value) project})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Flow.switchMap` (cancels previous; exhaust drops new) and `Flow.mergeMap` (overlaps all).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.4 "Flatten (inner sequences)" (#flow-flatten)
   /// **Example:** `example/exhaust_map_submit_checkout_demo.dart`
@@ -3833,7 +3833,7 @@ abstract class Flow {
   /// **Layer:** Flow — multi-source fan-in. Not a Cell factory, not a Tissue book.
   /// **When to use:** interleave pulses from several sources into one gate ("merge clicks from two widgets").
   /// **When NOT to use:** value pairing — use `zipWith` / `combineLatestWith`; a Cell-variant Tick is usually assembled in the harness instead.
-  /// **Live signature:** `Flow.mergeWith<T>(Cell source, {required List<Cell> others})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.mergeWith<T>(Cell source, {required List<Cell> others})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Flow.merge` (arming source is not forwarded).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.5 "Combine" (#flow-combine)
   /// **Example:** `example/merge_stream_aggregation_demo.dart`
@@ -4226,7 +4226,7 @@ abstract class Flow {
   /// **Layer:** Flow — combine operator. Not a Cell factory, not a Tissue book.
   /// **When to use:** "one screen from occupancy + inbound + boarded" — emit whenever any source emits, with the latest of all.
   /// **When NOT to use:** index pairing (`zipWith`) or a Cell-variant Tick that the harness assembles in Dart (say so in Real desk).
-  /// **Live signature:** `Flow.combineLatestWith<S, R>(Cell source, {required List<Cell> others, required R Function(S sourceValue, List<Object?> latest) combine, CombineErrorHandler? onError})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.combineLatestWith<S, R>(Cell source, {required List<Cell> others, required R Function(S sourceValue, List<Object?> latest) combine, CombineErrorHandler? onError})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Flow.withLatestFrom` (source-driven; waits for others but emits only on source).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.5 "Combine" (#flow-combine)
   /// **Example:** `example/combine_latest_sync_demo.dart`
@@ -4383,7 +4383,7 @@ abstract class Flow {
   /// **Layer:** Flow — combine operator. Not a Cell factory, not a Tissue book.
   /// **When to use:** first feed that answers wins (two lookups, keep the faster).
   /// **When NOT to use:** deterministic pairing (`zipWith`) or all-sources screens (`combineLatestWith`).
-  /// **Live signature:** `Flow.race<T>(Cell source, {required List<Object?> competitors})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.race<T>(Cell source, {required List<Object?> competitors})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Flow.mergeWith` (interleaves all; race takes one winner).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.5 "Combine" (#flow-combine)
   /// **Example:** `example/retry_timeout_flaky_network_demo.dart`
@@ -4707,7 +4707,7 @@ abstract class Flow {
   /// **When to use:** belt chatter / 15 s snapshots — emit only after a period of silence on a feed, **before** `publishTick`.
   /// **When NOT to use:**
   ///   {@macro ai-do-not-put-time-op-as-policy}
-  /// **Live signature:** `Flow.debounce<S>(Cell source, {required Duration duration})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.debounce<S>(Cell source, {required Duration duration})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Flow.throttle` (leading/trailing rate limit) and `Flow.auditTime` (one-shot, does not reset on each pulse).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.6 "Time" (#flow-time)
   /// **Example:** `example/stability_search_demo.dart`
@@ -4792,7 +4792,7 @@ abstract class Flow {
   /// **When to use:** supervisor mash on ACK / constant-rate sampling — at most one pulse per duration (leading/trailing), on a feed **before** `publishTick`.
   /// **When NOT to use:**
   ///   {@macro ai-do-not-put-time-op-as-policy}
-  /// **Live signature:** `Flow.throttle<S>(Cell source, {required Duration duration, bool leading = true, bool trailing = false})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.throttle<S>(Cell source, {required Duration duration, bool leading = true, bool trailing = false})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Flow.debounce` (waits for silence; this is a fixed rate window).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.6 "Time" (#flow-time)
   /// **Example:** `example/throttle_rate_limiting_demo.dart`
@@ -5124,7 +5124,7 @@ abstract class Flow {
   /// **Layer:** Flow — time operator. Not a Cell factory, not a Tissue book.
   /// **When to use:** "raise if stopped > 60 s" style deadlines on an adjacent I/O cell — emits an error pulse if silence exceeds the duration.
   /// **When NOT to use:** ACK-within-N-minutes journeys in v1 (that is a tick-field / clock concern, not a chain operator); never as the policy gate.
-  /// **Live signature:** `Flow.timeout<S>(Cell source, {required Duration duration, TimeoutErrorHandler? onError, bool emitErrorPulse = true})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.timeout<S>(Cell source, {required Duration duration, TimeoutErrorHandler? onError, bool emitErrorPulse = true})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Flow.timeoutWithFallback` (emits a fallback value instead of an error pulse).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.6 "Time" (#flow-time)
   /// **Example:** `example/retry_timeout_flaky_network_demo.dart`
@@ -5792,7 +5792,7 @@ abstract class Flow {
   /// **Layer:** Flow — collect operator. Not a Cell factory, not a Tissue book.
   /// **When to use:** group bag alerts by belt (FR-08) — emit `Grouped(key, value)` per pulse.
   /// **When NOT to use:** the WalkThrough often chooses a `TissueMap` key instead; do not run both without saying which is the system of record.
-  /// **Live signature:** `Flow.groupBy<S, K>(Cell source, {required K Function(S value) keyOf, GroupErrorHandler? onError})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.groupBy<S, K>(Cell source, {required K Function(S value) keyOf, GroupErrorHandler? onError})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Flow.groupCollect` (collects each group into a list).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.7 "Collect / control" (#flow-collect-control)
   /// **Example:** `example/cell_flow_example.dart`
@@ -6454,7 +6454,7 @@ abstract class Flow {
   /// **Layer:** Flow — control operator. Not a Cell factory, not a Tissue book.
   /// **When to use:** flaky RTU / issuer — retry a `FutureOr` task up to `count` times on the **outbound pump Cell**.
   /// **When NOT to use:** inside `riskOf` (policy is pure); a harness `_driveAlert` retry-once is the usual v1 alternative.
-  /// **Live signature:** `Flow.retry<S, T>(Cell source, {required RetryTask<S, T> task, int count = 3, RetryErrorHandler? onError, bool emitErrorPulse = true})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.retry<S, T>(Cell source, {required RetryTask<S, T> task, int count = 3, RetryErrorHandler? onError, bool emitErrorPulse = true})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Flow.exhaustMap` (prevents overlap; retry re-attempts failures).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.7 "Collect / control" (#flow-collect-control)
   /// **Example:** `example/retry_timeout_flaky_network_demo.dart`
@@ -6540,7 +6540,7 @@ abstract class Flow {
   /// **When to use:** logging / metrics / analytics on a stock chain without rewriting the pulse.
   /// **When NOT to use:**
   ///   {@macro ai-do-not-tap-tissue-on-decision-chain}
-  /// **Live signature:** `Flow.tap<S>(Cell source, {required void Function(S value) onValue, TapErrorHandler? onError})` — pinned at `cell_flow: 1.1.0`
+  /// **Live signature:** `Flow.tap<S>(Cell source, {required void Function(S value) onValue, TapErrorHandler? onError})` — pinned at `cell_flow: 1.2.0`
   /// **Do NOT confuse with:** `Cell.observe` (the Cell-layer glue that writes books; tap lives in the chain).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.7 "Collect / control" (#flow-collect-control)
   /// **Example:** `example/tap_logging_analytics_demo.dart`

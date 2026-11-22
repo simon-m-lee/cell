@@ -139,7 +139,7 @@ complex information convergence.
 <p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
 <strong>When to use:</strong> "one screen / one status from many feeds" — aggregate current values whenever any source pulses.
 <strong>When NOT to use:</strong> a policy decision on the merged tick; and never use it <em>and</em> a custom instruction on the same tick without saying which decides.
-<strong>Live signature:</strong> <code>Cell.synthesis&lt;P extends Pulse&gt;(Iterable&lt;Cell&gt; sources, {required P? Function(Iterable&lt;Cell&gt; cells, Pulse emit) aggregator})</code> — pinned at <code>cell: 2.0.0</code>
+<strong>Live signature:</strong> <code>Cell.synthesis&lt;P extends Pulse&gt;(Iterable&lt;Cell&gt; sources, {required P? Function(Iterable&lt;Cell&gt; cells, Pulse emit) aggregator})</code> — pinned at <code>cell: 2.1.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell.derive</code> (single-source projection).
 <strong>Guide:</strong> <code>HowTo-Mitose-Cell.md</code> §2 "Cell.* factories this HowTo covers" (#cell-factories)
 <strong>Example:</strong> <code>example/synthesis_demo.dart</code>
@@ -200,7 +200,7 @@ o.stop();
 <footer>
   <span class="no-break">
     cell_flow
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

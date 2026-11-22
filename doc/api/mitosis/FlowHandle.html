@@ -99,7 +99,7 @@ priorities, and justification metadata.</p>
 ACK observer. One <code>toHandle(source: tickIn.cell)</code> per product, only in
 <code>installGates()</code>. ACK calls <code>instruction.reset()</code>.
 See <code>HowTo-Mitose-Flow.md</code> §1 and §4.
-<strong>Live signature:</strong> <code>typedef FlowHandle = ({Cell cell, void Function(dynamic) emit, Future&lt;void&gt; Function(dynamic) emitAsync, ...})</code> — pinned at <code>cell_flow: 1.1.0</code>
+<strong>Live signature:</strong> <code>typedef FlowHandle = ({Cell cell, void Function(dynamic) emit, Future&lt;void&gt; Function(dynamic) emitAsync, ...})</code> — pinned at <code>cell_flow: 1.2.0</code>
 <strong>Do NOT confuse with:</strong> <code>IngressHandle</code> (Cell-layer entry; no instruction behind it).
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §4 "When the BRD requires a custom FlowInstruction" (#flow-custom-instruction)
 <strong>Example:</strong> <code>example/cell_flow_example.dart</code>

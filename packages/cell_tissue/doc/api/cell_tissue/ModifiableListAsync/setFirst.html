@@ -80,7 +80,9 @@ and the resulting <a href="../../cell_tissue/Pulse-class.html">Pulse</a> has fin
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; setFirst(E value) =&gt; Future&lt;void&gt;(() =&gt; _tissue.setFirst(value));</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; setFirst(E value) async {
+  await _runTissueMutation(_tissue, _tissue.setFirst, [value]);
+}</code></pre>
 </section>
 
 
@@ -108,7 +110,7 @@ and the resulting <a href="../../cell_tissue/Pulse-class.html">Pulse</a> has fin
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

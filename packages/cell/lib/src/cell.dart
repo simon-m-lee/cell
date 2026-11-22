@@ -93,7 +93,7 @@ part of '../cell.dart';
 /// **When NOT to use:**
 ///   {@macro ai-do-not-create-cell-as-policy}
 ///   {@macro ai-do-not-invent-cell-factories}
-/// **Live signature:** `abstract interface class Cell` — pinned at `cell: 2.0.0`
+/// **Live signature:** `abstract interface class Cell` — pinned at `cell: 2.1.0`
 /// **Do NOT confuse with:** `ValueCell` (the concrete stateful type returned by `Cell.state`).
 /// **Guide:** `HowTo-Mitose-Cell.md` §2 "Cell.* factories this HowTo covers" (#cell-factories)
 /// **Example:** `example/cell_example.dart`
@@ -248,7 +248,7 @@ abstract interface class Cell {
   /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
   /// **When to use:** infrastructure nodes needing a TTL ([EphemeralPolicy]), explicit [Context], or a private lock.
   /// **When NOT to use:** ordinary application state — `Cell.state` / `Cell.ingress` cover it.
-  /// **Live signature:** `Cell.governed({ephemeralPolicy, context, bind, receptor, testRule, synapses, forceLock})` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell.governed({ephemeralPolicy, context, bind, receptor, testRule, synapses, forceLock})` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Cell` (the ungoverned default factory).
   /// **Guide:** `guide/HowTo-EphemeralPolicy.md` (governance)
   /// **Example:** `example/open_cell_demo.dart`
@@ -350,7 +350,7 @@ abstract interface class Cell {
   /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
   /// **When to use:** infrastructure only — hydrate a cell from a persisted / cloned [Nucleus] blueprint.
   /// **When NOT to use:** application state — use `Cell.state` / `Cell.ingress` / `Cell.derive` first.
-  /// **Live signature:** `Cell.fromNucleus(Nucleus nucleus)` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell.fromNucleus(Nucleus nucleus)` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Nucleus.evolve` (builds the blueprint; this activates it).
   /// **Guide:** `guide/HowTo-Nucleus.md` (nucleus blueprints)
   /// **Example:** `example/open_cell_demo.dart`
@@ -473,7 +473,7 @@ abstract interface class Cell {
   /// **When to use:** A BRD says "capture X" (an external fact enters the system) — identity, class, quantity, location, tick bus, ACK.
   /// **When NOT to use:**
   ///   {@macro ai-do-not-create-cell-as-policy}
-  /// **Live signature:** `Cell.ingress<I>({refine, ephemeralPolicy, source, context, receptor, testRule, synapses, forceLock})` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell.ingress<I>({refine, ephemeralPolicy, source, context, receptor, testRule, synapses, forceLock})` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Cell.state` (retained value, not stateless entry).
   /// **Guide:** `HowTo-Mitose-Cell.md` §3.1 "Cell.ingress — how the desk enters the graph" (#cell-ingress)
   /// **Example:** `example/ingress_demo.dart`
@@ -577,7 +577,7 @@ abstract interface class Cell {
   /// **When to use:** A BRD says "retain X" and the WalkThrough named **no** Tissue book; a setting read at any time (not a governed reserve).
   /// **When NOT to use:**
   ///   {@macro ai-do-not-create-cell-to-hold-a-collection}
-  /// **Live signature:** `Cell.state<V>({initial, evolve, testRule})` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell.state<V>({initial, evolve, testRule})` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Cell.ingress` (stateless entry) and `TissueValue` (governed reserve book in `cell_tissue`).
   /// **Guide:** `HowTo-Mitose-Cell.md` §2 "Cell.* factories this HowTo covers" (#cell-factories)
   /// **Example:** `example/state_demo.dart`
@@ -665,7 +665,7 @@ abstract interface class Cell {
   /// **When to use:** A pulse has already been *decided* and a book / side effect must move — the **only** Flow → Tissue glue in a Mitose Demo.
   /// **When NOT to use:**
   ///   {@macro ai-do-not-observe-to-decide}
-  /// **Live signature:** `Cell.observe<P extends Pulse>({required Cell source, required void Function(P) effect, bool initiallyStarted = true})` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell.observe<P extends Pulse>({required Cell source, required void Function(P) effect, bool initiallyStarted = true})` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Cell.ingress` (entry into the graph, not exit from it).
   /// **Guide:** `HowTo-Mitose-Cell.md` §3.2 "Cell.observe — the only Flow → Tissue glue" (#cell-observe)
   /// **Example:** `example/observe_demo.dart`
@@ -759,7 +759,7 @@ abstract interface class Cell {
   /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
   /// **When to use:** A BRD says "show X derived from Y" — pure projection, no policy branches.
   /// **When NOT to use:** policy clauses (that is a `cell_flow` instruction); retained storage (that is `Cell.state`).
-  /// **Live signature:** `Cell.derive<I extends Pulse, O extends Pulse>({required Cell source, required O? Function(I) project})` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell.derive<I extends Pulse, O extends Pulse>({required Cell source, required O? Function(I) project})` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Cell.synthesis` (fan-in from many sources, not 1-to-1).
   /// **Guide:** `HowTo-Mitose-Cell.md` §2 "Cell.* factories this HowTo covers" (#cell-factories)
   /// **Example:** `example/derive_demo.dart`
@@ -891,7 +891,7 @@ abstract interface class Cell {
   /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
   /// **When to use:** One bus with many pulse types routed by `Pulse.type` (pattern / prefix / multicast).
   /// **When NOT to use:** v1 product lanes — two `Cell.ingress` lanes are simpler; do not replace a policy instruction.
-  /// **Live signature:** `Cell.hub({spokes, governedSpokes, registrations, routing, multicast, fallback, distribution, relay, source})` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell.hub({spokes, governedSpokes, registrations, routing, multicast, fallback, distribution, relay, source})` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Cell.ingress` (single-path entry, no routing).
   /// **Guide:** `HowTo-Mitose-Cell.md` §2 "Cell.* factories this HowTo covers" (#cell-factories)
   /// **Example:** `example/hub_demo.dart`
@@ -993,7 +993,7 @@ abstract interface class Cell {
   /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
   /// **When to use:** A BRD says "no name on the extract" — redact PII before a log / UI cell, or omit the field at the source.
   /// **When NOT to use:** as a substitute for never writing PII into Tissue rows; sanitize the *view*, keep the book clean.
-  /// **Live signature:** `Cell.sanitized<P extends Pulse>(Cell source, {required P Function(P) redact, Sensitivity minSensitivity = Sensitivity.confidential})` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell.sanitized<P extends Pulse>(Cell source, {required P Function(P) redact, Sensitivity minSensitivity = Sensitivity.confidential})` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Cell.derive` (projection without the sensitivity gate).
   /// **Guide:** `HowTo-Mitose-Cell.md` §2 "Cell.* factories this HowTo covers" (#cell-factories)
   /// **Example:** `example/sanitized_demo.dart`
@@ -1152,7 +1152,7 @@ abstract interface class Cell {
   /// **When to use:** Coordinating multiple `ValueCell`s atomically (money, forms) **outside** a Mitose Demo.
   /// **When NOT to use:**
   ///   {@macro ai-do-not-use-cell-transaction-for-tissue}
-  /// **Live signature:** `Cell.transaction([TransactionOptions options = const TransactionOptions()])` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell.transaction([TransactionOptions options = const TransactionOptions()])` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Cell.txApply` (the Mitose commit; participants are Tissue books).
   /// **Guide:** `HowTo-Mitose-Cell.md` §3.3 "Cell.transaction — not the Mitose commit" (#cell-transaction)
   /// **Example:** `example/transaction_demo.dart`
@@ -1210,7 +1210,7 @@ abstract interface class Cell {
   /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
   /// **When to use:** The BRD says two retained facts move together or not at all, or an external act can fail after a local write — participants are **Tissue books**, with `apply` + `compensate`.
   /// **When NOT to use:** one book with no undo (an ordinary Tissue write from `Cell.observe`); never wrap `riskOf` (policy is pure).
-  /// **Live signature:** `Cell.txApply([TxApplyOptions options = const TxApplyOptions()])` → `ApplyTransactionScope` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell.txApply([TxApplyOptions options = const TxApplyOptions()])` → `ApplyTransactionScope` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Cell.transaction` (coordinates `ValueCell`, not Tissue).
   /// **Guide:** `HowTo-Mitose-Cell.md` §3.4 "Cell.txApply — the only atomic commit, on Tissue" (#cell-txapply)
   /// **Example:** `example/atomic_multi_update.dart`
@@ -1304,7 +1304,7 @@ abstract interface class Cell {
   /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
   /// **When to use:** Late-bind a device / module after boot, or manually manage link/unlink topology.
   /// **When NOT to use:** standard external facts — use `Cell.ingress`; rare in v1 Demos.
-  /// **Live signature:** `Cell.open({ephemeralPolicy, context, source, receptor, testRule, synapses, forceLock})` → `OpenCell` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell.open({ephemeralPolicy, context, source, receptor, testRule, synapses, forceLock})` → `OpenCell` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Cell.ingress` (fixed single-path entry).
   /// **Guide:** `HowTo-Mitose-Cell.md` §2 "Cell.* factories this HowTo covers" (#cell-factories)
   /// **Example:** `example/open_cell_demo.dart`
@@ -1407,7 +1407,7 @@ abstract interface class Cell {
   /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
   /// **When to use:** "one screen / one status from many feeds" — aggregate current values whenever any source pulses.
   /// **When NOT to use:** a policy decision on the merged tick; and never use it *and* a custom instruction on the same tick without saying which decides.
-  /// **Live signature:** `Cell.synthesis<P extends Pulse>(Iterable<Cell> sources, {required P? Function(Iterable<Cell> cells, Pulse emit) aggregator})` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell.synthesis<P extends Pulse>(Iterable<Cell> sources, {required P? Function(Iterable<Cell> cells, Pulse emit) aggregator})` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Cell.derive` (single-source projection).
   /// **Guide:** `HowTo-Mitose-Cell.md` §2 "Cell.* factories this HowTo covers" (#cell-factories)
   /// **Example:** `example/synthesis_demo.dart`
@@ -1496,7 +1496,7 @@ abstract interface class Cell {
   /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
   /// **When to use:** a pure predicate gate that passes or suppresses pulses before expensive downstream work.
   /// **When NOT to use:** named business policy (clause-ordered, latch, product filter) — that is a `cell_flow` instruction, not a Cell predicate.
-  /// **Live signature:** `Cell.valve<P extends Pulse>(Cell source, bool Function(P pulse) gate, {Synapses synapses = Synapses.enabled})` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell.valve<P extends Pulse>(Cell source, bool Function(P pulse) gate, {Synapses synapses = Synapses.enabled})` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Cell.distinct` (history-based; valve is stateless per pulse).
   /// **Guide:** `guide/HowTo-16_Essential_Operators.md` (valve)
   /// **Example:** `example/valve_demo.dart`
@@ -1572,7 +1572,7 @@ abstract interface class Cell {
   /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
   /// **When to use:** wait for silence on a feed (belt chatter, search input, 15 s snapshots) — feed shaping **before** `publishTick`.
   /// **When NOT to use:** as the policy gate; Time operators shape feeds, they never *decide*. A "wait for silence" decision is still a `cell_flow` instruction concern.
-  /// **Live signature:** `Cell.debounce(Cell source, Duration duration, {required EffectJournal journal, bool leading = false, EphemeralPolicy? ephemeralPolicy})` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell.debounce(Cell source, Duration duration, {required EffectJournal journal, bool leading = false, EphemeralPolicy? ephemeralPolicy})` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Cell.throttle` (frequency limit; leading defaults true).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.6 "Time" (#flow-time)
   /// **Example:** `example/stability_search_demo.dart`
@@ -1659,7 +1659,7 @@ abstract interface class Cell {
   /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
   /// **When to use:** limit a feed to at most one pulse per duration (leading immediate, trailing optional) — feed shaping **before** `publishTick`.
   /// **When NOT to use:** as the policy gate; the decision belongs to the `cell_flow` instruction, and Time operators shape feeds, not decisions.
-  /// **Live signature:** `Cell.throttle(Cell source, Duration duration, {required EffectJournal journal, bool leading = true, bool trailing = false})` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell.throttle(Cell source, Duration duration, {required EffectJournal journal, bool leading = true, bool trailing = false})` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Cell.debounce` (waits for silence; leading defaults false).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.6 "Time" (#flow-time)
   /// **Example:** `example/throttle_demo.dart`
@@ -1755,7 +1755,7 @@ abstract interface class Cell {
   /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
   /// **When to use:** skip *consecutive* equal payloads (heartbeats, no-change ticks) before downstream work.
   /// **When NOT to use:** a latch that an ACK must reset — `Cell.distinct` has no `reset()`, so use a custom `cell_flow` instruction; global dedupe is `cell_flow`'s `Distinct`.
-  /// **Live signature:** `Cell.distinct(Cell source, {bool Function(dynamic previous, dynamic next)? equals})` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell.distinct(Cell source, {bool Function(dynamic previous, dynamic next)? equals})` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Distinct` (Flow, global seen-set) and `DistinctUntilChanged` (Flow, consecutive only) — both in `cell_flow`.
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.3 "Filter / take / skip" (#flow-filter-take-skip)
   /// **Example:** `example/distinct_demo.dart`
@@ -1835,28 +1835,22 @@ abstract interface class Cell {
   /// **Summary**: Use [asyncMap] for a background job; use [switchMap] to
   /// pick a new live data source.
   ///
-  /// ### Example: Profile Loader
+  /// ### Example: Audited Async Profile Lookup
   /// ```dart
-  /// final userId = Cell.ingress<int>();
+  /// // 1. Create a journal to track the forensic trail
+  /// final profileJournal = ForensicJournal(name: 'ProfileLookup');
   ///
-  /// final profile = Cell.asyncMap<int, UserProfile>(
-  ///   userId.cell,
-  ///   (id) => api.fetchProfile(id),
-  ///   latestOnly: true, // Only care about the user most recently clicked
+  /// // 2. Define the async cell
+  /// final profileCell = userIdCell.asyncMap(
+  ///   (id) => api.fetchUser(id),
+  ///   journal: profileJournal,
   /// );
-  /// ```
   ///
-  /// ### Example (exhaust)
-  /// ```dart
-  /// final clicks = Cell.ingress<void>();
-  /// final saves = Cell.asyncMap<void, String>(
-  ///   clicks.cell,
-  ///   (_) async {
-  ///     await Future.delayed(const Duration(milliseconds: 200));
-  ///     return 'saved';
-  ///   },
-  ///   exhaust: true,
-  /// );
+  /// // 3. Observe the outcome
+  /// profileCell.observe((pulse) {
+  ///   print('New profile arrived: ${pulse.payload}');
+  ///   print('Causal Trace: ${pulse.trace}');
+  /// });
   /// ```
   ///
   /// ### Parameters:
@@ -1868,6 +1862,10 @@ abstract interface class Cell {
   /// * [latestOnly]: **Discard Policy.** If `true`, only the result of the
   ///   most recent input is emitted.
   /// * [exhaust] – exhaustMap-style (ignore upstream while busy)
+  /// * [journal]: **(Required)** The `ForensicJournal` used to record the
+  ///   asynchronous journey. Because async operations can complete out of
+  ///   order, the journal ensures the ledger can correctly correlate
+  ///   results with their original impulses.
   ///
   /// ### Returns:
   /// A [Cell] instance representing an **Asynchronous Transformation**. It
@@ -1877,6 +1875,7 @@ abstract interface class Cell {
   /// - **Example**: See `example/async_map_demo.dart` for a complete
   ///   walkthrough of managing parallel fetches, latest-only search updates,
   ///   and ordered sequential background tasks..
+  /// - `ForensicJournal`: The ledger component that tracks async lifecycles.
   /// * [Cell.switchMap]: To switch to a different source cell entirely.
   /// * [Cell.fromFuture]: To bridge a single, one-time async result.
   /// {@category asyncMap}
@@ -1885,7 +1884,7 @@ abstract interface class Cell {
   /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
   /// **When to use:** a background `Future` per pulse with concurrency control (`concurrency`, `latestOnly`, `exhaust`).
   /// **When NOT to use:** source selection (mapper returns a `Cell`) — that is `Cell.switchMap`; and never inside the policy decision itself.
-  /// **Live signature:** `Cell.asyncMap<S, T>(Cell source, Future<T> Function(S value, {required EffectJournal journal}) mapper, {required EffectJournal journal, int concurrency = 0, bool latestOnly = false, bool exhaust = false})` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell.asyncMap<S, T>(Cell source, Future<T> Function(S value, {required EffectJournal journal}) mapper, {required EffectJournal journal, int concurrency = 0, bool latestOnly = false, bool exhaust = false})` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Cell.switchMap` (dynamic source rebinding, mapper returns `Cell`).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.4 "Flatten (inner sequences)" (#flow-flatten)
   /// **Example:** `example/async_map_demo.dart`
@@ -1988,7 +1987,7 @@ abstract interface class Cell {
   /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
   /// **When to use:** bridge an existing Dart `Stream` (PLC belt, WebSocket, `Stream.periodic`) into the graph.
   /// **When NOT to use:** a single value — that is `Cell.fromFuture`; imperative callbacks — that is `Cell.ingress`.
-  /// **Live signature:** `Cell.fromStream<T>(Stream<T> stream, {required EffectJournal journal, bool cancelOnError = false, EphemeralPolicy? ephemeralPolicy})` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell.fromStream<T>(Stream<T> stream, {required EffectJournal journal, bool cancelOnError = false, EphemeralPolicy? ephemeralPolicy})` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Cell.fromFuture` (single value, not a sequence).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.1 "Create" (#flow-create)
   /// **Example:** `test/operator_from_stream_test.dart`
@@ -2073,7 +2072,7 @@ abstract interface class Cell {
   /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
   /// **When to use:** bridge a single `Future` result into the graph (one config load, one AODB lookup); emits at most once.
   /// **When NOT to use:** continuous sources — that is `Cell.fromStream`; imperative callbacks — that is `Cell.ingress`.
-  /// **Live signature:** `Cell.fromFuture<T>(Future<T> future, {required EffectJournal journal})` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell.fromFuture<T>(Future<T> future, {required EffectJournal journal})` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Cell.fromStream` (sequence, not a single value).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.1 "Create" (#flow-create)
   /// **Example:** `test/receptor_instruction_future_test.dart`
@@ -2171,7 +2170,7 @@ abstract interface class Cell {
   /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
   /// **When to use:** dynamic source selection — the mapper returns a `Cell` and the graph rebinds to it ("latest reservation / flight only").
   /// **When NOT to use:** background enrichment where the mapper returns a `Future` — that is `Cell.asyncMap`.
-  /// **Live signature:** `Cell.switchMap<S, T>(Cell source, Cell Function(S value) mapper, {ephemeralPolicy, context, testRule, synapses, forceLock})` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell.switchMap<S, T>(Cell source, Cell Function(S value) mapper, {ephemeralPolicy, context, testRule, synapses, forceLock})` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Cell.asyncMap` (Future per pulse, not source rebinding).
   /// **Guide:** `HowTo-Mitose-Flow.md` §3.4 "Flatten (inner sequences)" (#flow-flatten)
   /// **Example:** `example/instruction_pipeline_walkthrough.dart`
@@ -2282,7 +2281,7 @@ abstract interface class Cell {
   /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
   /// **When to use:** capability attenuation — read-only or narrowed-write views of a Cell for untrusted callers (UI, auditors).
   /// **When NOT to use:** to widen permissions (a deputy can only narrow); use `.unmodifiable` for the fixed read-only case.
-  /// **Live signature:** `FutureOr<Cell> deputy({DeputyContext context = DeputyContext.system, TestCell testRule = TestCell.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled})` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `FutureOr<Cell> deputy({DeputyContext context = DeputyContext.system, TestCell testRule = TestCell.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled})` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Cell.unmodifiable` (fixed read-only deputy).
   /// **Guide:** `guide/HowTo-DeputyContext.md` (deputies)
   /// **Example:** `example/cell_example.dart`
@@ -2736,7 +2735,7 @@ abstract interface class Cell {
   /// **Layer:** Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
   /// **When to use:** hand a UI / auditor a read-only view of a Cell; least-privilege egress.
   /// **When NOT to use:** as a copy — it is a live proxy sharing the principal's state.
-  /// **Live signature:** `Cell get unmodifiable` — pinned at `cell: 2.0.0`
+  /// **Live signature:** `Cell get unmodifiable` — pinned at `cell: 2.1.0`
   /// **Do NOT confuse with:** `Cell.deputy` (parameterized attenuation; `unmodifiable` is the fixed read-only case).
   /// **Guide:** `guide/HowTo-DeputyContext.md` (deputies)
   /// **Example:** `example/cell_example.dart`

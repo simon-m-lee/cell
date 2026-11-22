@@ -123,7 +123,7 @@ walkthrough of frequency-based rate limiting.
 <p><strong>Layer:</strong> Cell — this is a graph node. Not an operator (Flow), not a book (Tissue).
 <strong>When to use:</strong> limit a feed to at most one pulse per duration (leading immediate, trailing optional) — feed shaping <strong>before</strong> <code>publishTick</code>.
 <strong>When NOT to use:</strong> as the policy gate; the decision belongs to the <code>cell_flow</code> instruction, and Time operators shape feeds, not decisions.
-<strong>Live signature:</strong> <code>Cell.throttle(Cell source, Duration duration, {required EffectJournal journal, bool leading = true, bool trailing = false})</code> — pinned at <code>cell: 2.0.0</code>
+<strong>Live signature:</strong> <code>Cell.throttle(Cell source, Duration duration, {required EffectJournal journal, bool leading = true, bool trailing = false})</code> — pinned at <code>cell: 2.1.0</code>
 <strong>Do NOT confuse with:</strong> <code>Cell.debounce</code> (waits for silence; leading defaults false).
 <strong>Guide:</strong> <code>HowTo-Mitose-Flow.md</code> §3.6 "Time" (#flow-time)
 <strong>Example:</strong> <code>example/throttle_demo.dart</code>

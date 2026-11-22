@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Version numbers follow [SemVer](https://semver.org/). **Flow** is the
 release codename; it is not part of the SemVer string.
 
+## Flow (1.2.0) - Agent Skills
+
+- **Official package skill** (`skills/cell-flow-operators/`): an Agent
+  Skills `SKILL.md` for package consumers — operator-picking workflow,
+  hard rules (the instruction decides, time operators never decide, ACK
+  latches need a reset), and the BRD elevator matrix — installed with
+  `dart run skills@ get cell_flow`.
+- **Skill matrix**: `tool/generate_api_chooser.dart` now also emits the
+  decision matrix as `skills/cell-flow-operators/references/api_chooser.md`;
+  `test/api_chooser_up_to_date_test.dart` asserts both outputs fresh.
+- **Docs**: README opens with the package-skill install command; AI-guide
+  pins refreshed to `cell_flow` 1.2.0.
+
 ## Flow (1.1.0) - Cell 2.0.0 Dependency
 
 - **Dependency floor**: `cell: ^2.0.0` (was `^1.1.0`) — the Causal Replay

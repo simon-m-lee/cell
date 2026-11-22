@@ -822,8 +822,8 @@ abstract interface class Container {
   }
 
   // Final Value
-  static V _finalValueCreate<V>(V value) {
-    return value;
+  static ValueContainer<V> _finalValueCreate<V>([V? value]) {
+    return ValueContainer<V>(value);
   }
 
   static bool _finalValueAdd<V>(

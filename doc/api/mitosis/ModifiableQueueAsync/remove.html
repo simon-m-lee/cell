@@ -63,15 +63,16 @@
     </section>
     
 <section class="desc markdown">
-  <p>Asynchronously removes a single instance of <code>value</code> from the associated <a href="../../mitosis/TissueQueue-class.html">TissueQueue</a>.</p>
-<p>This method wraps the synchronous <code>_tissue.remove(value)</code> call in a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>.</p>
+  <p>Asynchronously removes a single instance of <code>value</code> from the
+associated <a href="../../mitosis/TissueQueue-class.html">TissueQueue</a>.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>value</code>: The element to remove. Can be <code>null</code> if the queue supports null elements.</li>
+<li><code>value</code>: The element to remove. Can be <code>null</code> if the queue
+supports null elements.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
-<p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;bool&gt;</a> that completes with <code>true</code> if <code>value</code> was found and removed
-  from the underlying queue, and <code>false</code> otherwise.</p>
+<p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;bool&gt;</a> that completes with <code>true</code> if <code>value</code> was found and
+  removed from the underlying queue, and <code>false</code> otherwise.</p>
 </section>
 
 
@@ -79,7 +80,8 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Future&lt;bool&gt; remove(Object? value) async {
-  return Future&lt;bool&gt;(() =&gt; _tissue.remove(value));
+  final outcome = await _runTissueMutation(_tissue, _tissue.remove, [value]);
+  return outcome is ApplyAccepted&lt;dynamic&gt;;
 }</code></pre>
 </section>
 

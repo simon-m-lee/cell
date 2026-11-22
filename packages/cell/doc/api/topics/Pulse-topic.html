@@ -89,7 +89,8 @@
 24. <a href="#24-procedure-i-filter-or-transform-a-pulse-in-a-receptor">Procedure I: Filter or Transform a Pulse in a Receptor</a>
 25. <a href="#25-procedure-j-persist-pulse-provenance">Procedure J: Persist Pulse Provenance</a>
 26. <a href="#26-verification-checklist-for-ai-agents">Verification Checklist for AI Agents</a>
-27. <a href="#27-references">References</a></p>
+27. <a href="#27-references">References</a>
+28. <a href="#28-serializing-a-pulse">Serializing a Pulse</a></p>
 <hr>
 <h1 id="part-i--human-guide">Part I — Human Guide</h1>
 <h2 id="1-what-a-pulse-is">1. What a Pulse Is</h2>
@@ -802,6 +803,395 @@ await persist(record);
 </tbody>
 </table>
 <hr>
+<h2 id="28-serializing-a-pulse">28. Serializing a Pulse</h2>
+<h3 id="281--the-two-idioms">28.1 — The two idioms</h3>
+<pre class="language-dart"><code class="language-dart">// Encode — extension on Pulse&lt;P&gt;.
+final json = pulse.toJson();
+
+// Decode — factory on the Pulse interface, with a resolver for
+// source cells and optional overrides for every constructor param.
+final decoded = Pulse.fromJson(
+  json,
+  resolver: (id) =&gt; graph.cellById(id),
+  onComplete: myCallback, // optional override
+);
+</code></pre>
+<p><code>toJson</code> is an <strong>extension</strong>, not an interface method — adding a
+method to <code>Pulse</code> would break every implementer. The extension gives
+the same ergonomics and stays additive. The underlying codec is the
+top-level pair <code>encodePulse</code> / <code>decodePulse</code>.</p>
+<h3 id="282--what-round-trips">28.2 — What round-trips</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Round-trips?</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>payload</code></td>
+<td>✅ JSON-encodable values</td>
+<td><code>int</code>, <code>String</code>, <code>bool</code>, <code>List</code>, <code>Map</code>, <code>null</code>; <code>DateTime</code> encodes to millisecond ISO-8601 (decodes as a <code>String</code>)</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>✅ <code>String</code> types</td>
+<td>non-<code>String</code> types encode as <code>null</code></td>
+</tr>
+<tr>
+<td><code>timestamp</code></td>
+<td>✅ millisecond precision, UTC</td>
+<td>sub-millisecond precision is lost</td>
+</tr>
+<tr>
+<td><code>source.id</code></td>
+<td>✅ if the resolver returns the cell</td>
+<td>the resolver is your contract</td>
+</tr>
+<tr>
+<td><code>priority</code></td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td><code>context</code></td>
+<td>✅ via the <code>PulseContext</code> codec</td>
+<td></td>
+</tr>
+<tr>
+<td><code>parent</code> / <code>trace</code> / <code>root</code></td>
+<td>✅ recursive</td>
+<td>the full causal chain, including evolved (appended-pulse) steps</td>
+</tr>
+<tr>
+<td><code>user</code></td>
+<td>✅ JSON-encodable</td>
+<td></td>
+</tr>
+<tr>
+<td><code>policy</code></td>
+<td>❌</td>
+<td>encode fails with <code>PulseNotSerializable('policy')</code></td>
+</tr>
+<tr>
+<td><code>onComplete</code> / <code>onError</code> / <code>onProgress</code></td>
+<td>❌</td>
+<td>encode fails, naming the callback</td>
+</tr>
+<tr>
+<td><code>scrutinize</code></td>
+<td>❌</td>
+<td>encode fails</td>
+</tr>
+<tr>
+<td><code>branches</code> / cycle checker</td>
+<td>❌</td>
+<td>per-wave runtime state; fresh on decode</td>
+</tr>
+<tr>
+<td>collective <code>children</code></td>
+<td>✅</td>
+<td><code>isComposite: true</code> + <code>children</code> array</td>
+</tr>
+</tbody>
+</table>
+<h3 id="283--the-non-serializable-fields-fail-loudly-dont-fake-it">28.3 — The non-serializable fields: fail loudly, don't fake it</h3>
+<p><code>encodePulse</code> / <code>toJson</code> throw <code>PulseNotSerializable(field, pulse)</code>
+for the first offending field anywhere in the pulse's causal chain:</p>
+<ul>
+<li><code>policy</code> — lifecycle governance carries closures.</li>
+<li><code>onComplete</code> / <code>onError</code> / <code>onProgress</code> — callbacks cannot be
+serialized; silently dropping one would change replay semantics.</li>
+<li><code>scrutinize</code> — an authorization challenge function.</li>
+<li><code>source</code> — a cell whose <code>Cell.id</code> is empty.</li>
+<li><code>payload</code> / <code>context</code> / <code>user</code> — a value that is not JSON-encodable.</li>
+</ul>
+<p><code>PulseDecodeError(message, cause)</code> is the counterpart: missing or
+unsupported <code>__pulse__</code> version discriminator, malformed timestamps /
+contexts / children, or an invalid override for the JSON's shape.</p>
+<h3 id="284--the-resolver-contract">28.4 — The resolver contract</h3>
+<pre class="language-dart"><code class="language-dart">typedef PulseResolver = Cell? Function(String id);
+</code></pre>
+<p>The codec is graph-agnostic: when the wire carries a <code>source</code>, it
+records the <code>Cell.id</code> (stable per the <code>Cell.id</code> contract) and the
+decoder asks <strong>your resolver</strong> for the live cell. A <code>null</code> resolution
+is not an error — the decoded pulse has <code>source == null</code>. Omit the
+resolver and the same happens, which is correct for a pulse whose
+originating cell has been collected.</p>
+<h3 id="285--the-extended-factorys-overrides">28.5 — The extended factory's overrides</h3>
+<p><code>Pulse.fromJson</code> accepts an override for every constructor parameter:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Absent override</th>
+<th>Override</th>
+<th>Sentinel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>policy</code></td>
+<td><code>null</code> (decoded pulses never have one)</td>
+<td>the given policy</td>
+<td><code>pulseNullPolicy</code></td>
+</tr>
+<tr>
+<td><code>context</code></td>
+<td>the JSON's context</td>
+<td>the given context</td>
+<td>— (<code>null</code> = use JSON)</td>
+</tr>
+<tr>
+<td><code>payload</code></td>
+<td>the JSON's payload</td>
+<td>the given payload</td>
+<td><code>pulseNullPayload</code></td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>the JSON's type</td>
+<td>the given type</td>
+<td><code>pulseNullType</code></td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td>the resolved source</td>
+<td>the given source</td>
+<td><code>pulseNullSource</code></td>
+</tr>
+<tr>
+<td><code>step</code></td>
+<td>the JSON's step</td>
+<td>the given step</td>
+<td><code>pulseNullStep</code></td>
+</tr>
+<tr>
+<td><code>priority</code></td>
+<td>the JSON's priority</td>
+<td>the given priority</td>
+<td>— (<code>null</code> = use JSON)</td>
+</tr>
+<tr>
+<td><code>onComplete</code> / <code>onError</code> / <code>onProgress</code></td>
+<td><code>null</code></td>
+<td>the given callback</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>A nullable parameter cannot distinguish "no override" from
+"explicitly override to null" — the five <code>const</code> sentinels
+disambiguate. Pass the sentinel <strong>itself</strong>; identity is the only way
+to use one. A user value that merely equals a sentinel by <code>==</code> is an
+override.</p>
+<p>The factory preserves the decoded pulse's <strong>parent chain by
+construction</strong> — a manual <code>Pulse(...)</code> reconstruction would silently
+drop the causal lineage.</p>
+<h3 id="286--collective-pulses">28.6 — Collective pulses</h3>
+<p>A JSON with <code>isComposite: true</code> cannot take a <code>payload</code> override
+(<code>PulseDecodeError</code>); children cannot be overridden. Build a different
+collective via <code>Pulse.batch</code>.</p>
+<h3 id="287--the-non-serializable-override-interaction">28.7 — The non-serializable-override interaction</h3>
+<p>Overriding <code>onComplete</code> / <code>onError</code> / <code>onProgress</code> / <code>policy</code> produces
+a pulse that cannot be re-encoded: <code>toJson</code> on the result throws the
+corresponding <code>PulseNotSerializable</code>. That is the honest answer — the
+caller chose to attach a non-serializable field.</p>
+<h3 id="288--symmetry-and-asymmetry">28.8 — Symmetry and asymmetry</h3>
+<ul>
+<li><code>Pulse.fromJson(pulse.toJson())</code> reproduces the pulse at codec
+precision (non-overridden fields).</li>
+<li><code>toJson</code> on a decoded pulse re-encodes <strong>canonically</strong>: a
+hand-crafted non-canonical JSON is normalized, not necessarily
+reproduced byte-identically.</li>
+<li>Two pulses with the same logical content produce the same canonical
+byte string (<code>canonicalJsonEncode</code>).</li>
+</ul>
+<h3 id="289--the-pulseephemeralpolicy-gap">28.9 — The <code>PulseEphemeralPolicy</code> gap</h3>
+<p>The codec never reconstructs a policy except by explicit override in
+<code>Pulse.fromJson</code> — a policy carries two closures and would need a
+closure-factory registry. Serializing <code>PulseEphemeralPolicy</code> is a
+separate concern.</p>
+<h3 id="2810--when-to-use-lenient-mode">28.10 — When to use lenient mode</h3>
+<p>Strict mode (the default) fails loudly: <code>encodePulse</code> throws
+<code>PulseNotSerializable</code> on the first field that cannot be honestly
+reconstructed. That is the right discipline for a replay ledger.</p>
+<p>Lenient mode (<code>lenient: true</code> on <code>encodePulse</code>, <code>decodePulse</code>,
+<code>Pulse.fromJson</code>, or <code>Pulse.toJson</code>) is the explicit opt-in for a
+caller who <strong>knows</strong> the pulse carries a non-serializable field, accepts
+its loss, and wants usable JSON now instead of an exception. Two
+legitimate cases: a <strong>diagnostic export</strong> and a <strong>best-effort
+migration</strong>. Nothing is suppressed by default.</p>
+<p>Lenient mode does not erase the omission — it records every substituted
+field in a sorted <code>__skipped__</code> array on the wire and surfaces the same
+list via the decode-side <code>onSkipped</code> callback.</p>
+<pre class="language-text"><code class="language-text">A command-line utility for Dart development.
+
+Usage: dart &lt;command|dart-file&gt; [arguments]
+
+Global options:
+-v, --verbose               Show additional command output.
+    --version               Print the Dart SDK version.
+    --enable-analytics      Enable analytics.
+    --disable-analytics     Disable analytics.
+    --suppress-analytics    Disallow analytics for this `dart *` run without changing the analytics configuration.
+-h, --help                  Print this usage information.
+
+Available commands:
+
+Global
+  install     Install or upgrade a Dart CLI tool for global use.
+  installed   List globally installed Dart CLI tools.
+  uninstall   Remove a globally installed Dart CLI tool.
+
+Project
+  build       Build a Dart application including code assets.
+  compile     Compile Dart to various formats.
+  create      Create a new Dart project.
+  pub         Work with packages.
+  run         Run a Dart program from a file or a local package.
+  test        Run tests for a project.
+
+Source code
+  analyze     Analyze Dart code in a directory.
+  doc         Generate API documentation for Dart projects.
+  fix         Apply automated fixes to Dart source code.
+  format      Idiomatically format Dart source code.
+
+Tools
+  devtools    Open DevTools (optionally connecting to an existing application).
+  info        Show diagnostic information about the installed tooling.
+
+Run "dart help &lt;command&gt;" for more information about a command.
+See https://dart.dev/tools/dart-tool for detailed documentation.
+</code></pre>
+<h3 id="2811--the-substitution-table">28.11 — The substitution table</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Strict</th>
+<th>Lenient substitution</th>
+<th>Consequence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>onComplete</code></td>
+<td>throw</td>
+<td><code>null</code></td>
+<td>The callback never fires on replay.</td>
+</tr>
+<tr>
+<td><code>onError</code></td>
+<td>throw</td>
+<td><code>null</code></td>
+<td>Error callback lost.</td>
+</tr>
+<tr>
+<td><code>onProgress</code></td>
+<td>throw</td>
+<td><code>null</code></td>
+<td>Progress callback lost.</td>
+</tr>
+<tr>
+<td><code>scrutinize</code></td>
+<td>throw</td>
+<td><code>null</code></td>
+<td>Authorization gate lost — see 28.14.</td>
+</tr>
+<tr>
+<td><code>policy</code></td>
+<td>throw</td>
+<td><code>null</code></td>
+<td>The pulse becomes <strong>immortal</strong> (no TTL).</td>
+</tr>
+<tr>
+<td><code>source</code> (empty <code>id</code>)</td>
+<td>throw</td>
+<td><code>null</code></td>
+<td>No origin; the resolver cannot rebuild the link.</td>
+</tr>
+<tr>
+<td><code>context</code> (codec failure)</td>
+<td>throw</td>
+<td><code>PulseContext.system</code></td>
+<td>Runs at system authority.</td>
+</tr>
+<tr>
+<td><code>payload</code> (non-JSON)</td>
+<td>throw</td>
+<td><code>null</code></td>
+<td>Payload lost; a signal without data.</td>
+</tr>
+<tr>
+<td><code>user</code> (non-JSON)</td>
+<td>throw</td>
+<td><code>null</code></td>
+<td>Custom metadata lost.</td>
+</tr>
+<tr>
+<td><code>type</code> (non-<code>String</code>)</td>
+<td>throw</td>
+<td><code>null</code></td>
+<td>The type discriminator is lost.</td>
+</tr>
+</tbody>
+</table>
+<p>Every row is recorded in <code>__skipped__</code>; nothing is silently dropped.</p>
+<h3 id="2812--the-__skipped__-contract">28.12 — The <code>__skipped__</code> contract</h3>
+<ul>
+<li><strong>Present iff a substitution occurred at that level.</strong> A strict
+encoding never has the field; a lenient encoding of a
+fully-serializable pulse is <strong>byte-identical</strong> to the strict encoding.</li>
+<li><strong>Sorted lexicographically</strong> (canonicality preserved).</li>
+<li><strong>Values use the <code>PulseNotSerializable.field</code> vocabulary</strong>
+(<code>'onComplete'</code>, <code>'policy'</code>, <code>'payload'</code>, ...), so callers
+pattern-match on the same strings on both sides of the round-trip.</li>
+<li><strong>Each level of the parent chain records its own <code>__skipped__</code>.</strong>
+The decoder's <code>onSkipped</code> aggregates with qualified paths
+(<code>'parent.onComplete'</code>).</li>
+<li>The decoded pulse's <code>user</code> carries the structured detail for
+post-hoc inspection: <code>user['__skipped__']['wire']</code> (what the encoder
+dropped) vs <code>user['__skipped__']['decode']</code> (what this decode
+couldn't resolve).</li>
+</ul>
+<h3 id="2813--what-lenient-does-not-suppress">28.13 — What lenient does NOT suppress</h3>
+<p>Lenient mode resolves <strong>reference gaps and non-serializable fields</strong> in
+a well-formed document. Structural corruption still throws in both
+modes: a missing or unsupported <code>__pulse__</code> version, a malformed
+<code>parent</code>, a malformed <code>children</code> array, an unparseable timestamp,
+and a malformed <code>payload</code> value. The line is the boundary between
+best-effort and guess.</p>
+<h3 id="2814--consequences-of-lenient-mode">28.14 — Consequences of lenient mode</h3>
+<ul>
+<li><strong>Dropped <code>policy</code> — the pulse becomes immortal.</strong> A
+<code>PulseEphemeralPolicy</code> is a TTL; without it the pulse lives until
+the process collects it. This is fail-open (a longer lifetime than
+intended). The recovery path is <code>Pulse.fromJson(json, policy: myPolicy)</code>.</li>
+<li><strong>Dropped <code>scrutinize</code> — the authorization gate is absent.</strong> The
+reconstructed pulse propagates unconditionally. <strong>Do not serialize a
+scrutinized pulse in lenient mode unless the reconstructed run will
+not propagate the pulse.</strong> If a gate is needed, construct a new pulse
+via <code>Pulse(...)</code> instead.</li>
+<li><strong>Dropped callbacks — the side effects are absent.</strong> For a replay
+consumer this is exactly right: a replay must not double-fire the
+original callbacks. For a diagnostic export the callbacks were never
+going to fire anyway.</li>
+</ul>
+<h3 id="2815--recovery-paths-and-naming">28.15 — Recovery paths and naming</h3>
+<ul>
+<li>Re-attach a policy or callback via <code>Pulse.fromJson</code>'s overrides
+(an override always wins and is never counted as skipped).</li>
+<li>Lenient mode is a <strong>per-operation flag</strong>, not a property of the
+decoded pulse. A pulse does not remember it was decoded leniently;
+the omission is re-detected on the next strict encode.</li>
+<li>If your prior API called this <code>ignoreException</code>, it is <code>lenient</code>
+here.</li>
+</ul>
+<hr>
 <p><em>If a guide and the source disagree, the source is current.</em></p>
 </section>
 
@@ -902,7 +1292,7 @@ await persist(record);
 <footer>
   <span class="no-break">
     cell
-      2.0.0
+      2.1.0
   </span>
   
 </footer>

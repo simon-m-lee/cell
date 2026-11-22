@@ -86,7 +86,7 @@ signaling logic.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 void operator []=(int index, E value) =&gt;
-    dispatch(setValueAt, positionalArguments: [index, value]);</code></pre>
+    dispatch(setValueAt, positionalArguments: [index, value], sync: true);</code></pre>
 </section>
 
 

@@ -72,8 +72,10 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; replaceRange(int start, int end, Iterable&lt;E&gt; newContents) =&gt;
-    Future&lt;void&gt;(() =&gt; _tissue.replaceRange(start, end, newContents));</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; replaceRange(int start, int end, Iterable&lt;E&gt; newContents) async {
+  await _runTissueMutation(
+      _tissue, _tissue.replaceRange, [start, end, newContents]);
+}</code></pre>
 </section>
 
 

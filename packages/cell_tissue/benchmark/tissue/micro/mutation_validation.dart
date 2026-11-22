@@ -1,11 +1,10 @@
 // Validation overhead: allowAll vs a custom per-element rule vs the async
 // facade round-trip with an async rule.
 //
-// Known limitation: the tissue mutation dispatch currently evaluates an
-// async rule's Future with `== true` on the synchronous path, so an async
-// rule rejects every mutation (see the suite README). This benchmark pins
-// the async-facade round-trip cost so the number moves when that dispatch
-// gains real FutureOr support. It deliberately extends
+// The mutation dispatch gained real FutureOr support (issue #4): the async
+// facade and the apply gateway await async rules, and the synchronous
+// mutation surface throws UnsupportedError for them. This benchmark pins
+// the async-facade round-trip cost. It deliberately extends
 // AsyncBenchmarkBase: a sync BenchmarkBase with an async run() measures
 // ~0 us, and benchmark_harness then multiplies the iteration count by
 // 1000 per pass — that queued millions of pending timers and made the
@@ -48,14 +47,18 @@ class AsyncRuleAdd extends AsyncBenchmarkBase {
 
   final list = TissueList<int>(
     testRule: TestTissue<int, TissueList<int>>(
-      (v, {host, arguments, user}) async => v >= 0,
+      // Guard non-int objects: the receptor re-validates emitted pulses
+      // through the same rule.
+      (v, {host, arguments, user}) async => v is! int || v >= 0,
     ),
   );
 
   @override
   Future<void> run() async {
+    // Async rules must be awaited through the `.async` facade: the
+    // synchronous surface throws UnsupportedError for them.
     await list.async.add(1);
-    list.remove(1);
+    await list.async.remove(1);
   }
 }
 

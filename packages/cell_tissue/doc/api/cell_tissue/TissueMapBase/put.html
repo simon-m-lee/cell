@@ -86,7 +86,8 @@ command for <a href="../../cell_tissue/TissueBase/apply.html">apply</a>/<a href=
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-void put(K key, V value) =&gt; dispatch(put, positionalArguments: [key, value]);</code></pre>
+void put(K key, V value) =&gt;
+    dispatch(put, positionalArguments: [key, value], sync: true);</code></pre>
 </section>
 
 
@@ -114,7 +115,7 @@ void put(K key, V value) =&gt; dispatch(put, positionalArguments: [key, value]);
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

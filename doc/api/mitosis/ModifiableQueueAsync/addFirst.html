@@ -63,27 +63,21 @@
     </section>
     
 <section class="desc markdown">
-  <p>Asynchronously adds the <code>value</code> to the beginning of the associated <a href="../../mitosis/TissueQueue-class.html">TissueQueue</a>.</p>
-<p>The provided code snippet for this method within the <code>ModifiableQueueAsync</code> class
-shows it throwing an <code>UnsupportedError</code>. This suggests that for the specific
-<code>TissueQueue</code> instance this <code>ModifiableQueueAsync</code> object is wrapping (or if this
-<code>ModifiableQueueAsync</code> is an unmodifiable variant like <code>_UnmodifiableModifiableQueueAsync</code>),
-the <code>addFirst</code> operation is not supported or not implemented for asynchronous execution.
-A typical modifiable implementation would wrap <code>_tissue.addFirst(value)</code>.</p>
+  <p>Asynchronously adds the <code>value</code> to the beginning of the associated
+<a href="../../mitosis/TissueQueue-class.html">TissueQueue</a>.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>value</code>: The element to add to the front of the queue.</li>
 </ul>
-<h3 id="returns">Returns:</h3>
-<p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;void&gt;</a> that completes after the operation is attempted.
-  If the operation is unsupported by the specific underlying queue or this async wrapper,</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; addFirst(E value) =&gt; Future&lt;void&gt;(() =&gt; _tissue.addFirst(value));</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; addFirst(E value) async {
+  await _runTissueMutation(_tissue, _tissue.addFirst, [value]);
+}</code></pre>
 </section>
 
 

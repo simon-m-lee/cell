@@ -63,23 +63,21 @@
     </section>
     
 <section class="desc markdown">
-  <p>Asynchronously adds the <code>value</code> to the end of the associated <a href="../../mitosis/TissueQueue-class.html">TissueQueue</a>.</p>
-<p>Similar to <code>addFirst</code>, the provided code snippet for this method within the
-<code>ModifiableQueueAsync</code> class shows it throwing an <code>UnsupportedError</code>.
-A typical modifiable implementation would wrap <code>_tissue.addLast(value)</code>.</p>
+  <p>Asynchronously adds the <code>value</code> to the end of the associated
+<a href="../../mitosis/TissueQueue-class.html">TissueQueue</a>.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>value</code>: The element to add to the end of the queue.</li>
 </ul>
-<h3 id="returns">Returns:</h3>
-<p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;void&gt;</a> that completes after the operation is attempted.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; addLast(E value) =&gt; Future&lt;void&gt;(() =&gt; _tissue.addLast(value));</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; addLast(E value) async {
+  await _runTissueMutation(_tissue, _tissue.addLast, [value]);
+}</code></pre>
 </section>
 
 

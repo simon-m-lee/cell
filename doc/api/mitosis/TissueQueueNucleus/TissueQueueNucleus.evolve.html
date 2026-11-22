@@ -120,16 +120,15 @@ behavioral layer over the <code>principal</code>.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory TissueQueueNucleus.evolve(TissueQueueNucleus&lt;E&gt; principal, {
-  int? capacity,
-  Cell? bind,
-  Context? context,
-  TissueReceptor&lt;E, TissueQueue&lt;E&gt;&gt;? receptor,
-  TestTissue&lt;E, TissueQueue&lt;E&gt;&gt;? testRule,
-  Synapses? synapses,
-  EphemeralPolicy? ephemeralPolicy,
-  TissueQueueNucleus&lt;E&gt;? override
-}) {
+  <pre class="language-dart"><code class="language-dart">factory TissueQueueNucleus.evolve(TissueQueueNucleus&lt;E&gt; principal,
+    {int? capacity,
+    Cell? bind,
+    Context? context,
+    TissueReceptor&lt;E, TissueQueue&lt;E&gt;&gt;? receptor,
+    TestTissue&lt;E, TissueQueue&lt;E&gt;&gt;? testRule,
+    Synapses? synapses,
+    EphemeralPolicy? ephemeralPolicy,
+    TissueQueueNucleus&lt;E&gt;? override}) {
   return _TissueQueueNucleus&lt;E, TissueQueue&lt;E&gt;&gt;.fromRecord((
     local: override != null
         ? (override as NucleusBase).record.local

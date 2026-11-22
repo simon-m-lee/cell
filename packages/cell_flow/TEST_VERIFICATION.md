@@ -1,9 +1,9 @@
 # cell_flow package - Test Verification Report
 
-**Generated:** 2026-11-11
-**Package:** cell_flow (v1.0.0)
+**Generated:** 2026-11-22
+**Package:** cell_flow (v1.2.0)
 **Test Files Analyzed:** 47
-**Total Tests:** 1091 (0 skipped)
+**Total Tests:** 1092 (0 skipped)
 
 ---
 
@@ -17,7 +17,7 @@
   - [ai_guide_examples_test.dart](#file-1-ai_guide_examples_test.dart-3-tests)
   - [ai_preflight_test.dart](#file-2-ai_preflight_test.dart-1-tests)
   - [ai_tissue_command_test.dart](#file-3-ai_tissue_command_test.dart-59-tests)
-  - [api_chooser_up_to_date_test.dart](#file-4-api_chooser_up_to_date_test.dart-1-tests)
+  - [api_chooser_up_to_date_test.dart](#file-4-api_chooser_up_to_date_test.dart-2-tests)
   - [async_expand_test.dart](#file-5-async_expand_test.dart-24-tests)
   - [async_fold_test.dart](#file-6-async_fold_test.dart-20-tests)
   - [async_map_test.dart](#file-7-async_map_test.dart-30-tests)
@@ -71,13 +71,13 @@
 
 ## Executive Summary
 
-The cell_flow test suite contains **1091 unit tests** across **47 files** in `test/`. Counts are `test(` declarations.
+The cell_flow test suite contains **1092 unit tests** across **47 files** in `test/`. Counts are `test(` declarations.
 
 This file is **generated**. Edit the script flags or the stub sections at the bottom; do not hand-count `test(`.
 
 ### Snapshot
 
-Last `dart test` is **green**: **1091 passed**, 0 failed (exit 0).
+Last `dart test` is **green**: **1092 passed**, 0 failed (exit 0).
 
 `lib/` line coverage is **96.3%** (5557 / 5768).
 
@@ -88,9 +88,9 @@ No `lib/` file is below 70% in this lcov.
 | Metric | Value |
 |--------|-------|
 | **Total Test Files** | 47 |
-| **Total Tests** | 1091 |
+| **Total Tests** | 1092 |
 | **Skipped** | 0 |
-| **Last full run** | 1091 passed, 0 failed, 0 skipped (exit 0) |
+| **Last full run** | 1092 passed, 0 failed, 0 skipped (exit 0) |
 | **Test Groups** | 452 (`group(` declarations) |
 | **Async-ish tests** | ~1016 (heuristic) |
 | **Line coverage (`lib/`)** | **96.3%** (5557 / 5768) |
@@ -104,7 +104,7 @@ No `lib/` file is below 70% in this lcov.
 | 1 | ai_guide_examples_test.dart | 43 | 3 | 1.7 KB | ai guide examples test |
 | 2 | ai_preflight_test.dart | 22 | 1 | 0.8 KB | ai preflight test |
 | 3 | ai_tissue_command_test.dart | 1,195 | 59 | 40.0 KB | ai tissue command test; groups: TissueVerb / verbByName, TissueCommand, Reject, systemPrompt, AiConfig, StubInterpreter… |
-| 4 | api_chooser_up_to_date_test.dart | 27 | 1 | 1.0 KB | api chooser up to date test |
+| 4 | api_chooser_up_to_date_test.dart | 36 | 2 | 1.4 KB | api chooser up to date test |
 | 5 | async_expand_test.dart | 365 | 24 | 11.7 KB | async expand test; groups: AsyncExpand, AsyncExpandConcurrent, AsyncExpandLatest, AsyncExpandExhaust, edges, performance… |
 | 6 | async_fold_test.dart | 360 | 20 | 11.3 KB | async fold test; groups: AsyncFold snapshot, AsyncFoldLatest snapshot, AsyncFoldExhaust snapshot, edges, performance, AsyncFold extra… |
 | 7 | async_map_test.dart | 487 | 30 | 15.1 KB | async map test; groups: AsyncMap, AsyncMapSequential, AsyncMapConcurrent, AsyncMapLatest, AsyncMapWithIndex, AsyncMapWithRetry… |
@@ -137,7 +137,7 @@ No `lib/` file is below 70% in this lcov.
 | 34 | routing_test.dart | 453 | 29 | 13.9 KB | routing test; groups: Iif, RouteWhen, RouteByKey, PartitionTag, Iif extra, RouteWhen extra… |
 | 35 | sample_test.dart | 263 | 16 | 8.4 KB | sample test; groups: Sample, SampleTime, Audit, AuditTime, edges, performance… |
 | 36 | scan_test.dart | 278 | 16 | 8.3 KB | scan test; groups: Scan, ScanSeeded, ScanIndexed, Scan extra, ScanSeeded extra, ScanIndexed extra… |
-| 37 | seam_test.dart | 89 | 2 | 2.7 KB | seam test |
+| 37 | seam_test.dart | 89 | 2 | 2.8 KB | seam test |
 | 38 | share_test.dart | 293 | 19 | 9.0 KB | share test; groups: Share, ShareLatest, ShareReplay, ShareReplayStart, Share extra, ShareLatest extra… |
 | 39 | skip_test.dart | 392 | 26 | 11.7 KB | skip test; groups: Skip, SkipWhile, SkipUntil, SkipUntilTime, SkipFirst, SkipLast… |
 | 40 | start_with_test.dart | 293 | 21 | 9.4 KB | start with test; groups: StartWith, StartWithValue, StartWithMany, StartWithFactory, StartWith extra, StartWithMany extra… |
@@ -148,7 +148,7 @@ No `lib/` file is below 70% in this lcov.
 | 45 | timeout_test.dart | 323 | 19 | 10.6 KB | timeout test; groups: Timeout, TimeoutWithError, TimeoutWithFallback, TimeoutFirst, TimeoutLast, Timeout extra… |
 | 46 | window_test.dart | 295 | 17 | 8.7 KB | window test; groups: WindowCount, WindowSize, WindowTime, WindowWhen, WindowCount extra, WindowTime extra… |
 | 47 | zip_test.dart | 249 | 14 | 7.1 KB | zip test; groups: ZipWith, Zip, ZipAll, edges, performance, ZipWith extra… |
-| **Total** | | **16,798** | **1091** | **525.9 KB** | |
+| **Total** | | **16,807** | **1092** | **526.5 KB** | |
 
 ---
 
@@ -258,15 +258,16 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - batch carries the AiTissueCommandBatch step
 - retry carries the AiTissueCommandWithRetry step
 
-### File 4: api_chooser_up_to_date_test.dart (1 tests)
+### File 4: api_chooser_up_to_date_test.dart (2 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 1 |
+| *(all groups)* | 2 |
 
 **Tests**
 
 - lib/doc/api_chooser.dart is generated and up to date
+- skill references/api_chooser.md is generated and up to date
 
 ### File 5: async_expand_test.dart (24 tests)
 
@@ -2187,33 +2188,107 @@ dart test \
 
 | Passed | Failed | Skipped | Exit |
 |-------:|-------:|--------:|-----:|
-| 1091 | 0 | 0 | 0 |
+| 1092 | 0 | 0 | 0 |
 
 Status: **green**.
 
 <details><summary>tail of test log</summary>
 
 ```
-0:14 +1082: test/zip_test.dart: ZipAll wrong types call onError                                                                                                                                       
-00:14 +1083: test/zip_test.dart: ZipAll wrong types call onError                                                                                                                                       
-00:14 +1083: test/zip_test.dart: edges an unmatched leftover is not emitted                                                                                                                            
-00:14 +1084: test/zip_test.dart: edges an unmatched leftover is not emitted                                                                                                                            
-00:14 +1084: test/zip_test.dart: performance ZipAll packs 200 items                                                                                                                                    
-00:14 +1085: test/zip_test.dart: performance ZipAll packs 200 items                                                                                                                                    
-00:14 +1085: test/zip_test.dart: ZipWith extra empty others zips the source alone                                                                                                                      
-00:14 +1086: test/zip_test.dart: ZipWith extra empty others zips the source alone                                                                                                                      
-00:14 +1086: test/zip_test.dart: ZipWith extra project throw calls onError                                                                                                                             
-00:14 +1087: test/zip_test.dart: ZipWith extra project throw calls onError                                                                                                                             
-00:14 +1087: test/zip_test.dart: Zip extra empty sources never emit                                                                                                                                    
-00:14 +1088: test/zip_test.dart: Zip extra empty sources never emit                                                                                                                                    
-00:14 +1088: test/zip_test.dart: ZipAll extra wrong types call onError                                                                                                                                 
-00:14 +1089: test/zip_test.dart: ZipAll extra wrong types call onError                                                                                                                                 
-00:14 +1089: test/zip_test.dart: ZipAll extra width 1 emits each value as a singleton row                                                                                                              
-00:14 +1090: test/zip_test.dart: ZipAll extra width 1 emits each value as a singleton row                                                                                                              
-00:14 +1090: test/zip_test.dart: composition ZipAll handle is bindable                                                                                                                                 
-00:14 +1091: test/zip_test.dart: composition ZipAll handle is bindable                                                                                                                                 
-00:15 +1091: test/zip_test.dart: composition ZipAll handle is bindable                                                                                                                                 
-00:15 +1091: All tests passed!
+bodies from_stream                                                                                                   
+00:08 +1089: test/instruction_demo_test.dart: instruction demo mains emit through bodies from_stream                                                                                                   
+â”€â”€ FromStream Operators Demo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+1. FromStream
+   [FromStream] 1
+   [FromStream] 2
+
+2. DeferStream
+   [DeferStream] a
+
+3. ConcatFromStream
+   [ConcatFromStream] 1
+   [ConcatFromStream] 2
+   [ConcatFromStream] 3
+
+4. SwitchFromStream
+   [SwitchFromStream] new
+
+5. MapToStream
+   [MapToStream] x-1
+   [MapToStream] x-2
+
+
+â”€â”€ finished â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+00:08 +1090: test/instruction_demo_test.dart: instruction demo mains emit through bodies from_stream                                                                                                   
+00:08 +1090: test/instruction_demo_test.dart: instruction demo mains emit through bodies race                                                                                                          
+00:08 +1090: test/instruction_demo_test.dart: instruction demo mains emit through bodies race                                                                                                          
+â”€â”€ Race Operators Demo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+1. Race - fastest future
+   [Race] fast
+
+2. RaceFirst - first value only
+   [RaceFirst] a
+
+3. RaceMap - payload picks the field
+   [RaceMap] cache
+
+4. RaceWith - source vs other
+   [RaceWith] side
+
+5. RaceUntil - timeout
+   [RaceUntil] TimeoutException
+
+
+â”€â”€ finished â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+00:09 +1091: test/instruction_demo_test.dart: instruction demo mains emit through bodies race                                                                                                          
+00:09 +1091: test/instruction_demo_test.dart: instruction demo mains emit through bodies from_future                                                                                                   
+00:09 +1091: test/instruction_demo_test.dart: instruction demo mains emit through bodies from_future                                                                                                   
+â”€â”€ FromFuture Operators Demo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+1. FromFuture - One-shot load
+   [FromFuture] Alice
+
+2. FromFuture.value
+   [Value] ready
+
+3. DeferFuture - Per-trigger lookup
+   [Defer] user-1
+   [Defer] user-2
+
+4. ConcatFromFuture vs MergeFromFuture
+   [Concat] slow
+   [Concat] fast
+   [Merge] fast
+   [Merge] slow
+
+5. SwitchFromFuture - Latest only
+   [Switch] new
+
+6. ExhaustFromFuture - Ignore while busy
+   [Exhaust] 1
+
+7. FromFutures / InOrder / ForkJoin / Race
+   [FromFutures] fast
+   [FromFutures] slow
+   [InOrder] slow
+   [InOrder] fast
+   [ForkJoin] [1, 2, 3]
+   [Race] fast
+
+8. Retry / Fallback / MapToFuture
+   [Retry] 8
+   [Fallback] -1
+   [Map] user-7
+
+
+â”€â”€ finished â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+00:10 +1092: test/instruction_demo_test.dart: instruction demo mains emit through bodies from_future                                                                                                   
+00:10 +1092: All tests passed!
 ```
 
 </details>
@@ -2286,7 +2361,7 @@ test/
 ├── ai_guide_examples_test.dart  (3 tests, 1.7 KB, 43 lines)
 ├── ai_preflight_test.dart  (1 tests, 0.8 KB, 22 lines)
 ├── ai_tissue_command_test.dart  (59 tests, 40.0 KB, 1,195 lines)
-├── api_chooser_up_to_date_test.dart  (1 tests, 1.0 KB, 27 lines)
+├── api_chooser_up_to_date_test.dart  (2 tests, 1.4 KB, 36 lines)
 ├── async_expand_test.dart  (24 tests, 11.7 KB, 365 lines)
 ├── async_fold_test.dart  (20 tests, 11.3 KB, 360 lines)
 ├── async_map_test.dart  (30 tests, 15.1 KB, 487 lines)
@@ -2319,7 +2394,7 @@ test/
 ├── routing_test.dart  (29 tests, 13.9 KB, 453 lines)
 ├── sample_test.dart  (16 tests, 8.4 KB, 263 lines)
 ├── scan_test.dart  (16 tests, 8.3 KB, 278 lines)
-├── seam_test.dart  (2 tests, 2.7 KB, 89 lines)
+├── seam_test.dart  (2 tests, 2.8 KB, 89 lines)
 ├── share_test.dart  (19 tests, 9.0 KB, 293 lines)
 ├── skip_test.dart  (26 tests, 11.7 KB, 392 lines)
 ├── start_with_test.dart  (21 tests, 9.4 KB, 293 lines)
@@ -2332,6 +2407,6 @@ test/
 ├── zip_test.dart  (14 tests, 7.1 KB, 249 lines)
 ```
 
-**Total lines of test code:** 16,798
+**Total lines of test code:** 16,807
 
-*Generated 2026-11-11 by generate_test_verification.py*
+*Generated 2026-11-22 by generate_test_verification.py*

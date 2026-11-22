@@ -144,6 +144,7 @@
         <li><a href="mitosis/TissueContainer-class.html">TissueContainer</a></li>
         <li><a href="mitosis/TissueEvent-class.html">TissueEvent</a></li>
         <li><a href="mitosis/TissueEventShell-class.html">TissueEventShell</a></li>
+        <li><a href="mitosis/TissueGovernanceRegistry-class.html">TissueGovernanceRegistry</a></li>
         <li><a href="mitosis/TissueList-class.html">TissueList</a></li>
         <li><a href="mitosis/TissueListBase-class.html">TissueListBase</a></li>
         <li><a href="mitosis/TissueListNucleus-class.html">TissueListNucleus</a></li>
@@ -262,12 +263,28 @@
 
 
       <li class="section-title"><a href="mitosis/#constants">Constants</a></li>
+        <li><a href="mitosis/pulseNullPayload-constant.html">pulseNullPayload</a></li>
+        <li><a href="mitosis/pulseNullPolicy-constant.html">pulseNullPolicy</a></li>
+        <li><a href="mitosis/pulseNullSource-constant.html">pulseNullSource</a></li>
+        <li><a href="mitosis/pulseNullStep-constant.html">pulseNullStep</a></li>
+        <li><a href="mitosis/pulseNullType-constant.html">pulseNullType</a></li>
+        <li><a href="mitosis/tissueNullBind-constant.html">tissueNullBind</a></li>
+        <li><a href="mitosis/tissueNullCapacity-constant.html">tissueNullCapacity</a></li>
+        <li><a href="mitosis/tissueNullContainer-constant.html">tissueNullContainer</a></li>
+        <li><a href="mitosis/tissueNullElements-constant.html">tissueNullElements</a></li>
+        <li><a href="mitosis/tissueNullTestRule-constant.html">tissueNullTestRule</a></li>
+        <li><a href="mitosis/tissueNullUser-constant.html">tissueNullUser</a></li>
+        <li><a href="mitosis/tissueNullValue-constant.html">tissueNullValue</a></li>
         <li><a href="mitosis/verbByName-constant.html">verbByName</a></li>
 
 
       <li class="section-title"><a href="mitosis/#functions">Functions</a></li>
         <li><a href="mitosis/canonicalJsonDecode.html">canonicalJsonDecode</a></li>
         <li><a href="mitosis/canonicalJsonEncode.html">canonicalJsonEncode</a></li>
+        <li><a href="mitosis/decodePulse.html">decodePulse</a></li>
+        <li><a href="mitosis/decodeTissue.html">decodeTissue</a></li>
+        <li><a href="mitosis/encodePulse.html">encodePulse</a></li>
+        <li><a href="mitosis/encodeTissue.html">encodeTissue</a></li>
         <li><a href="mitosis/fingerprint.html">fingerprint</a></li>
         <li><a href="mitosis/get.html">get</a></li>
         <li><a href="mitosis/groupBy.html">groupBy</a></li>
@@ -295,16 +312,23 @@
         <li><a href="mitosis/Mutation.html">Mutation</a></li>
         <li><a href="mitosis/NucleusSimplest.html">NucleusSimplest</a></li>
         <li><a href="mitosis/OpenCellBase.html">OpenCellBase</a></li>
+        <li><a href="mitosis/PulseResolver.html">PulseResolver</a></li>
         <li><a href="mitosis/SpokeRegistration.html">SpokeRegistration</a></li>
         <li><a href="mitosis/StateHandle.html">StateHandle</a></li>
         <li><a href="mitosis/SynthesisHandle.html">SynthesisHandle</a></li>
         <li><a href="mitosis/TestTissueBase.html">TestTissueBase</a></li>
+        <li><a href="mitosis/TissueCellResolver.html">TissueCellResolver</a></li>
+        <li><a href="mitosis/TissueGovernanceResolver.html">TissueGovernanceResolver</a></li>
         <li><a href="mitosis/TransactionScope.html">TransactionScope</a></li>
 
       <li class="section-title"><a href="mitosis/#exceptions">Exceptions</a></li>
         <li><a href="mitosis/ForkIntegrityException-class.html">ForkIntegrityException</a></li>
         <li><a href="mitosis/LedgerIntegrityException-class.html">LedgerIntegrityException</a></li>
+        <li><a href="mitosis/PulseDecodeError-class.html">PulseDecodeError</a></li>
+        <li><a href="mitosis/PulseNotSerializable-class.html">PulseNotSerializable</a></li>
         <li><a href="mitosis/ReplayDivergenceException-class.html">ReplayDivergenceException</a></li>
+        <li><a href="mitosis/TissueDecodeError-class.html">TissueDecodeError</a></li>
+        <li><a href="mitosis/TissueNotSerializable-class.html">TissueNotSerializable</a></li>
         <li><a href="mitosis/TransactionConflictException-class.html">TransactionConflictException</a></li>
         <li><a href="mitosis/TransactionTimeoutException-class.html">TransactionTimeoutException</a></li>
         <li><a href="mitosis/TransactionValidationException-class.html">TransactionValidationException</a></li>
@@ -324,6 +348,13 @@
         <li><a href="mitosis/LedgerVisualise.html">LedgerVisualise</a></li>
         <li><a href="mitosis/PulseExtension.html">PulseExtension</a></li>
         <li><a href="mitosis/PulseIterableExtension.html">PulseIterableExtension</a></li>
+        <li><a href="mitosis/PulseJson.html">PulseJson</a></li>
         <li><a href="mitosis/ReplayEngineFork.html">ReplayEngineFork</a></li>
         <li><a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/TekartikLockExtension.html">TekartikLockExtension</a></li>
+        <li><a href="mitosis/TissueListJson.html">TissueListJson</a></li>
+        <li><a href="mitosis/TissueMapJson.html">TissueMapJson</a></li>
+        <li><a href="mitosis/TissueQueueJson.html">TissueQueueJson</a></li>
+        <li><a href="mitosis/TissueSetJson.html">TissueSetJson</a></li>
+        <li><a href="mitosis/TissueSkippedReport.html">TissueSkippedReport</a></li>
+        <li><a href="mitosis/TissueValueJson.html">TissueValueJson</a></li>
 </ol>

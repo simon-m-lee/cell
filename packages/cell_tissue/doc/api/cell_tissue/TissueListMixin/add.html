@@ -83,7 +83,8 @@ remains unchanged.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-void add(E element) =&gt; dispatch(add, positionalArguments: [element]);</code></pre>
+void add(E element) =&gt;
+    dispatch(add, positionalArguments: [element], sync: true);</code></pre>
 </section>
 
 
@@ -111,7 +112,7 @@ void add(E element) =&gt; dispatch(add, positionalArguments: [element]);</code><
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

@@ -903,7 +903,6 @@ mixin TissueValueMixin<V, C extends TissueValue<V>>
     }
   }
 
-
   /// Sets the current value and returns `true` if successful.
   ///
   /// This is the recommended way to mutate a [TissueValue] imperatively.
@@ -920,7 +919,7 @@ mixin TissueValueMixin<V, C extends TissueValue<V>>
   @override
   bool set(V? value) {
     if (this is! Unmodifiable) {
-      return _set(value) != null;
+      return _set(value, sync: true) != null;
     }
     return false;
   }
@@ -935,46 +934,55 @@ mixin TissueValueMixin<V, C extends TissueValue<V>>
   /// - [v]: The new value.
   /// - [notification]: If `false`, the event is created but not dispatched.
   /// - [deputy]: The tissue that initiated the change (used for source tracking).
+  /// - [sync]: The synchronous mutation surface cannot await an asynchronous
+  ///   [TestTissue] rule; such a verdict throws instead of being dropped.
   ///
   /// ### Returns:
   /// The [Tissue.elementUpdated] if the value was changed, or `null` otherwise.
   @override
-  TissuePulse<ElementUpdatedRecord<V, TissueValue<V>>>? _set(V? v,
-      {bool notification = true, Tissue<V>? deputy}) {
+  FutureOr<TissuePulse<ElementUpdatedRecord<V, TissueValue<V>>>?> _set(V? v,
+      {bool notification = true, Tissue<V>? deputy, bool sync = false}) {
     if (this is Unmodifiable) {
       return null;
     }
-    TissuePulse<ElementUpdatedRecord<V, TissueValue<V>>>? event;
+    return _permit<TissuePulse<ElementUpdatedRecord<V, TissueValue<V>>>?>(
+      validate.action(set,
+          host: this,
+          arguments: (positionalArguments: [v], namedArguments: null)),
+      () => _permit<TissuePulse<ElementUpdatedRecord<V, TissueValue<V>>>?>(
+        validate.element(v, host: this, action: set),
+        () {
+          final before = value;
 
-    if (validate.action(set,
-            host: this,
-            arguments: (positionalArguments: [v], namedArguments: null)) ==
-        true) {
-      if (validate.element(v, host: this, action: set) == true) {
-        final before = value;
+          if (_nucleus.container.store.value != v) {
+            _nucleus.container.store.value = v;
 
-        if (_nucleus.container.store.value != v) {
-          _nucleus.container.store.value = v;
+            if (before is Cell) {
+              _nucleus.synapses.unlink(before, downstreamCell: this);
+            }
+            if (v is Cell) {
+              _nucleus.synapses.link(v, downstreamCell: this);
+            }
 
-          if (before is Cell) {
-            _nucleus.synapses.unlink(before, downstreamCell: this);
+            final event = _TissuePulse<ElementUpdatedRecord<V, TissueValue<V>>>(
+                source: deputy ?? this,
+                payload: (
+                  value: (deputy ?? this) as C,
+                  before: before,
+                  after: v
+                ),
+                type: Tissue.elementUpdated);
+            if (notification) {
+              _nucleus.receptor(event);
+            }
+            return event;
           }
-          if (v is Cell) {
-            _nucleus.synapses.link(v, downstreamCell: this);
-          }
-
-          event = _TissuePulse<ElementUpdatedRecord<V, TissueValue<V>>>(
-              source: deputy ?? this,
-              payload: (value: (deputy ?? this) as C, before: before, after: v),
-              type: Tissue.elementUpdated);
-          if (notification) {
-            _nucleus.receptor(event);
-          }
-        }
-      }
-    }
-
-    return event;
+          return null;
+        },
+        sync: sync,
+      ),
+      sync: sync,
+    );
   }
 
   /// The mutation dispatch engine for value tissues.
@@ -986,26 +994,35 @@ mixin TissueValueMixin<V, C extends TissueValue<V>>
     Function function, {
     List? positionalArguments,
     Map<Symbol, dynamic>? namedArguments,
+    bool sync = false,
   }) {
     // Aligned with the other tissue mixins: only whitelisted functions
     // execute. Unmodifiable views expose an empty whitelist, so unknown
     // functions are rejected instead of running unvetted.
     if (modifiable.contains(function)) {
       try {
-        if (validate.action(function, host: this, arguments: (
-              positionalArguments: positionalArguments,
-              namedArguments: namedArguments
-            )) ==
-            true) {
-          final notification = namedArguments?[#$notification] ?? true;
-          final deputy = namedArguments?[#deputy];
+        return _permit(
+          validate.action(function, host: this, arguments: (
+            positionalArguments: positionalArguments,
+            namedArguments: namedArguments
+          )),
+          () {
+            final notification = namedArguments?[#$notification] ?? true;
+            final deputy = namedArguments?[#deputy];
 
-          if (function == set) {
-            return Function.apply(_set, positionalArguments,
-                {#notification: notification, #deputy: deputy});
-          }
+            if (function == set) {
+              return Function.apply(_set, positionalArguments,
+                  {#notification: notification, #deputy: deputy, #sync: sync});
+            }
+            return null;
+          },
+          sync: sync,
+        );
+      } catch (e) {
+        if (e is StateError || e is _AsyncRuleOnSyncPath) {
+          rethrow;
         }
-      } catch (_) {}
+      }
     }
     return null;
   }
@@ -1158,12 +1175,10 @@ class ModifiableValueAsync<V> extends TissueModifiableAsync<V, TissueValue<V>> {
   ///   set and changed, and `false` otherwise (including if the tissue is
   ///   unmodifiable or the value was rejected by validation).
   Future<bool> set(V? value) async {
-    return Future<bool>(() {
-      if (this is! Unmodifiable) {
-        return _tissue._set(value) != null;
-      }
-      return false;
-    });
+    if (this is! Unmodifiable) {
+      return await _tissue._set(value) != null;
+    }
+    return false;
   }
 }
 

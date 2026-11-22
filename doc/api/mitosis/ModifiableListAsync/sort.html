@@ -75,8 +75,9 @@ a signal is sent through the <a href="../../mitosis/Synapses-class.html">Synapse
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; sort([int Function(E a, E b)? compare]) =&gt;
-    Future&lt;void&gt;(() =&gt; _tissue.sort(compare));</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; sort([int Function(E a, E b)? compare]) async {
+  await _runTissueMutation(_tissue, _tissue.sort, [compare]);
+}</code></pre>
 </section>
 
 

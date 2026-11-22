@@ -66,11 +66,10 @@
 <section class="desc markdown">
   <p>Asynchronously removes all elements from the associated <a href="../../cell_tissue/TissueQueue-class.html">TissueQueue</a>
 that satisfy the given <code>test</code> predicate.</p>
-<p>This method wraps the synchronous <code>_tissue.removeWhere(test)</code> call in a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>test</code>: A function that takes an element and returns <code>true</code> if the element
-should be removed.</li>
+<li><code>test</code>: A function that takes an element and returns <code>true</code> if the
+element should be removed.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
 <p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;void&gt;</a> that completes after the removeWhere operation on the
@@ -82,7 +81,7 @@ should be removed.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; removeWhere(bool Function(E element) test) async {
-  return Future&lt;void&gt;(() =&gt; _tissue.removeWhere(test));
+  await _runTissueMutation(_tissue, _tissue.removeWhere, [test]);
 }</code></pre>
 </section>
 
@@ -111,7 +110,7 @@ should be removed.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.1.0
+      1.2.0
   </span>
   
 </footer>

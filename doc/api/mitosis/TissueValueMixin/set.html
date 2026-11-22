@@ -87,7 +87,7 @@ if (counter.set(42)) {
   <pre class="language-dart"><code class="language-dart">@override
 bool set(V? value) {
   if (this is! Unmodifiable) {
-    return _set(value) != null;
+    return _set(value, sync: true) != null;
   }
   return false;
 }</code></pre>
