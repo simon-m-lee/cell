@@ -19,7 +19,7 @@ class AuditEntry {
   final ApplyReceipt receipt;
 
   /// The command's function name (e.g. `addTodo`), derived from
-  /// [ApplyReceipt.function].
+  /// `ApplyReceipt`.
   final String commandName;
 
   /// The receipt id truncated to its first 8 characters. The full id is

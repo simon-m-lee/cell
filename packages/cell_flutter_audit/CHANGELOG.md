@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1
+
+- Fix an unresolved dartdoc reference (`[ApplyReceipt.function]`) that
+  cost 10 points on the pub.dev static-analysis score; dartdoc now
+  reports 0 warnings and the package scores 160/160.
+
 ## 0.1.0
 
 Initial release — the audit trail UI for `cell_flutter`. **Published to
