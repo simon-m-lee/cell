@@ -1,7 +1,9 @@
 # Member-specific publish ignores.
 # NOTE: see tool/release-publish.sh — the root `/packages/**` rule must be
 # neutralised while publishing workspace members.
-build/
+# Root-anchored /build/ only: extension/devtools/build/ is the pre-compiled
+# extension web app and MUST ship in the published package.
+/build/
 coverage/
 .dart_tool/
 

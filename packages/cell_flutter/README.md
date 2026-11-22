@@ -22,7 +22,7 @@ import 'package:cell_flutter/testing.dart';       // test-only: pump/emit/assert
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.24%2B-blue.svg)](https://flutter.dev)
 [![License](https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg)](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flutter/LICENSE)
-[![Version](https://img.shields.io/badge/cell__flutter-1.0.2-blue.svg)](#status)
+[![Version](https://img.shields.io/badge/cell__flutter-1.1.0-blue.svg)](#status)
 [![Status](https://img.shields.io/badge/Status-Stable-green.svg)](#status)
 
 This is the Flutter binding for the Cell Framework (Mitosis). Sibling packages add the core graph, stream combinators, and collections; this package adds the widget layer.
@@ -35,9 +35,13 @@ Cell difference in under a minute: a state change that is **recorded**
 and **undone** through a recorded compensation executed inside a real
 `Cell.txApply` transaction — three buttons, one screen, no installation.
 
-<!-- GIF placeholder: record a 10-second loop (add → invalid → undo) of the
-     live demo at ~640×480 and keep it under 2 MB. -->
-[![Try it live](https://img.shields.io/badge/Try%20it%20live-Audit%20Trail%20demo-blue.svg)](https://simon-m-lee.github.io/cell/audit-trail/)
+<!-- Recorded against the live Pages deployment: a ~10-second loop
+     (Add +5 → invalid mutation → Undo), 800×600, under 70 KB. -->
+[![Audit trail demo](https://raw.githubusercontent.com/simon-m-lee/cell/master/packages/cell_flutter/doc/assets/audit_demo.gif)](https://simon-m-lee.github.io/cell/audit-trail/)
+
+**Live demo:** [https://simon-m-lee.github.io/cell/audit-trail/](https://simon-m-lee.github.io/cell/audit-trail/)
+
+Every state change is a record you can audit, a gate you can enforce, and a command you can undo.
 
 Source: [`demo/audit_trail/`](https://github.com/simon-m-lee/cell/tree/master/demo/audit_trail) — under 500 lines, comments included.
 
