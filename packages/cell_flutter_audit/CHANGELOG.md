@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2
+
+- Declare the `flutter: '>=3.24.0'` environment floor (matching
+  `cell_flutter`). Without it, pub.dev's analyzer evaluates the package
+  against the newest Flutter, where `package:flutter/material.dart` is
+  deprecated — three INFO findings cost 10 static-analysis points.
+
 ## 0.1.1
 
 - Fix an unresolved dartdoc reference (`[ApplyReceipt.function]`) that

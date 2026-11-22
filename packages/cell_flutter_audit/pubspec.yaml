@@ -1,9 +1,13 @@
 name: cell_flutter_audit
 description: "Audit trail widgets for cell_flutter: render ApplyReceipt ledgers as a filterable, exportable timeline."
-version: 0.1.1
+version: 0.1.2
 homepage: https://github.com/simon-m-lee/cell
 environment:
   sdk: '>=3.5.0 <4.0.0'
+  # Same floor as cell_flutter: Flutter 3.24 is the first stable release
+  # that ships Dart 3.5. Declaring it keeps the analyzer from applying
+  # post-3.47 deprecations (material_ui migration) to this package.
+  flutter: '>=3.24.0'
 
 dependencies:
   flutter:
