@@ -2,10 +2,9 @@
 
 ## 0.1.0
 
-Initial release — the audit trail UI for `cell_flutter` (release-ready;
-publish timing is a maintainer decision). The public API of
-`cell_flutter_audit.dart` and `io.dart` is stable and additive-only going
-forward.
+Initial release — the audit trail UI for `cell_flutter`. **Published to
+pub.dev 2026-11-22.** The public API of `cell_flutter_audit.dart` and
+`io.dart` is stable and additive-only going forward.
 
 ### Added
 

@@ -2,30 +2,32 @@
 
 ## Unreleased — Audit & DevTools ecosystem (→ 3.1.0)
 
-> **Package-set and adoption-artifact update, not yet published.** This
-> entry records the additions since `3.0.0`: two new Flutter-family
-> packages, their companion source package, the live adoption artifacts,
-> and the `cell_flutter` `1.1.0` line. Per the policy recorded in the
-> `3.0.0` entry, the umbrella version moves with the package set and the
-> umbrella-level docs — these are additive changes, so the bump is a
-> **MINOR (3.0.0 → 3.1.0)**, applied when the family is published.
+> **Package-set and adoption-artifact update — family published
+> 2026-11-22.** This entry records the additions since `3.0.0`: two new
+> Flutter-family packages, their companion source package, the live
+> adoption artifacts, and the `cell_flutter` `1.1.0` line. Per the
+> policy recorded in the `3.0.0` entry, the umbrella version moves with
+> the package set and the umbrella-level docs — these are additive
+> changes, so the umbrella bump is **MINOR (3.0.0 → 3.1.0)**, applied
+> when the umbrella itself is next published.
 
 - **`cell_flutter_audit` `0.1.0`** — the audit trail UI for the
   `ApplyReceipt` ledger: `AuditTrailView` (receipt timeline with
   rejection cards and collapsible payloads), `AuditTrailController`
   (filter / search / sort / pagination), `AuditEntryTile`,
   `AuditTrailTheme`, `AuditEntry` / `RejectionEvent`, and
-  `AuditTrailExporter` (JSON/CSV, file export in `io.dart`). In the
-  repository and not yet on pub.dev.
+  `AuditTrailExporter` (JSON/CSV, file export in `io.dart`). **On
+  pub.dev since 2026-11-22.**
 - **`cell_flutter_devtools` `0.1.0`** — the Flutter DevTools extension
   provider: `registerCellDevTools` (assert-guarded, tree-shaken from
   release builds) exposes `ext.cell.getLedger`, and the pre-compiled
   extension web app (timeline, filter bar, summary panel, 500ms live
   polling) ships in `extension/devtools/build/`. Its companion source
   package **`cell_flutter_devtools_extension`** (`publish_to: none`)
-  carries the UI and the cross-package wire-contract test. In the
-  repository and not yet on pub.dev.
-- **`cell_flutter` `1.1.0`** (unpublished) — the `devtools.dart` entry
+  carries the UI and the cross-package wire-contract test. **On pub.dev
+  since 2026-11-22.**
+- **`cell_flutter` `1.1.0`** (published 2026-11-22) — the
+  `devtools.dart` entry
   point (DevTools registry and overlay leave the app barrel in 2.0), the
   barrel-doc rewrite from the two code reviews, and the behavior fixes
   (`CellListView.keyed` value refresh, `CellErrorBoundary` dispose,

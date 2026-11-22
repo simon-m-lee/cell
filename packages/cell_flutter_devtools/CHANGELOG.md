@@ -2,10 +2,9 @@
 
 ## 0.1.0
 
-Initial release — the DevTools extension provider for the Cell framework
-(release-ready; publish timing is a maintainer decision). The public API
-of `cell_flutter_devtools.dart` is stable and additive-only going
-forward.
+Initial release — the DevTools extension provider for the Cell
+framework. **Published to pub.dev 2026-11-22.** The public API of
+`cell_flutter_devtools.dart` is stable and additive-only going forward.
 
 ### Added
 
