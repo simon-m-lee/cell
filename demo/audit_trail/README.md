@@ -95,3 +95,7 @@ runs on pushes to `master` that touch `demo/audit_trail/**` — a trivial
 commit here is enough to re-trigger it. The repository's only branch is
 `master` (not `main`). The repo must have **Settings → Pages → Source:
 GitHub Actions** saved for the deploy job to succeed.
+
+(Deploy trigger: environment branch policy cleared; empty commits do not
+match the path filter, so this real demo-path change re-triggers the
+workflow.)
