@@ -145,9 +145,7 @@ class CellNotifier<V> extends ValueNotifier<V?> {
 
   static V? _initialValue<V>(ValueCell<V> cell) {
     if (cell.isInvalidated) {
-      throw ArgumentError(
-        'CellNotifier: cannot observe an invalidated cell.',
-      );
+      throw ArgumentError('CellNotifier: cannot observe an invalidated cell.');
     }
     return cell.value;
   }

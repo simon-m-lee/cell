@@ -288,7 +288,7 @@ class CellAsyncBuilder<V> extends StatefulWidget {
   /// arrived, with either `hasData` or `hasError` set. See the class-level
   /// *Snapshot transitions* table.
   final Widget Function(BuildContext context, AsyncSnapshot<V> snapshot)
-      builder;
+  builder;
 
   /// Optional initial snapshot. Defaults to `AsyncSnapshot<V>.nothing()`.
   ///
@@ -320,7 +320,8 @@ class _CellAsyncBuilderState<V> extends State<CellAsyncBuilder<V>> {
   @override
   void initState() {
     super.initState();
-    _snapshot = widget.initialSnapshot ??
+    _snapshot =
+        widget.initialSnapshot ??
         snapshotForCell<V>(widget.cell) ??
         AsyncSnapshot<V>.nothing();
     _bind();
@@ -374,7 +375,8 @@ class _CellAsyncBuilderState<V> extends State<CellAsyncBuilder<V>> {
     super.didUpdateWidget(oldWidget);
     if (!identical(oldWidget.cell, widget.cell)) {
       _unbind();
-      _snapshot = widget.initialSnapshot ??
+      _snapshot =
+          widget.initialSnapshot ??
           snapshotForCell<V>(widget.cell) ??
           AsyncSnapshot<V>.nothing();
       _bind();

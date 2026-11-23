@@ -37,6 +37,9 @@ jobs:
             sed 's/^/::error::/' /tmp/fmt.log
             exit 1
           fi
+      - name: cell_flutter pub get
+        working-directory: packages/cell_flutter
+        run: flutter pub get
       - name: cell_flutter analyze
         working-directory: packages/cell_flutter
         run: |
@@ -56,6 +59,9 @@ jobs:
             exit 1
           fi
 
+      - name: cell_flutter_router pub get
+        working-directory: packages/cell_flutter_router
+        run: flutter pub get
       - name: cell_flutter_router analyze + doc
         working-directory: packages/cell_flutter_router
         run: |
@@ -69,6 +75,9 @@ jobs:
             exit 1
           fi
 
+      - name: cell_flutter_persistence pub get
+        working-directory: packages/cell_flutter_persistence
+        run: flutter pub get
       - name: cell_flutter_persistence analyze + doc
         working-directory: packages/cell_flutter_persistence
         run: |

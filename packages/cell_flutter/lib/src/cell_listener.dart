@@ -236,7 +236,8 @@ class _CellListenerState<V> extends State<CellListener<V>> {
   void _dispatch(Pulse<V> pulse) {
     if (_disposed || !mounted) return;
     final phase = SchedulerBinding.instance.schedulerPhase;
-    final defer = phase == SchedulerPhase.midFrameMicrotasks ||
+    final defer =
+        phase == SchedulerPhase.midFrameMicrotasks ||
         phase == SchedulerPhase.persistentCallbacks;
     if (defer) {
       _pending.add(pulse);
@@ -265,12 +266,14 @@ class _CellListenerState<V> extends State<CellListener<V>> {
     try {
       widget.onPulse(context, pulse);
     } catch (e, st) {
-      FlutterError.reportError(FlutterErrorDetails(
-        exception: e,
-        stack: st,
-        library: 'cell_flutter',
-        context: ErrorDescription('while invoking CellListener.onPulse'),
-      ));
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: e,
+          stack: st,
+          library: 'cell_flutter',
+          context: ErrorDescription('while invoking CellListener.onPulse'),
+        ),
+      );
     }
   }
 

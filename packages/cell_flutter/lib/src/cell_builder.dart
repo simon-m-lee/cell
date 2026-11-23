@@ -136,11 +136,7 @@ class CellBuilder<V> extends StatefulWidget {
   /// ### See Also:
   /// - [CellBuilder] class docs for the binding contract and anti-pattern
   ///   warnings.
-  const CellBuilder({
-    required this.cell,
-    required this.builder,
-    super.key,
-  });
+  const CellBuilder({required this.cell, required this.builder, super.key});
 
   /// The state source.
   ///
@@ -266,6 +262,5 @@ extension ValueCellBuilder<V> on ValueCell<V> {
   Widget builder(
     Widget Function(BuildContext context, V? value) builder, {
     Key? key,
-  }) =>
-      CellBuilder<V>(cell: this, builder: builder, key: key);
+  }) => CellBuilder<V>(cell: this, builder: builder, key: key);
 }

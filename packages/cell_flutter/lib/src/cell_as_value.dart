@@ -61,10 +61,7 @@ import 'pulse_delivery.dart';
 /// - `CellValueBuilder` — the widget-layer alternative that Flutter's own
 ///   state lifecycle manages.
 /// - `EgressHandle` — the underlying primitive `dispose` wraps.
-typedef MirroredCell<V> = ({
-  ValueCell<V> cell,
-  void Function() dispose,
-});
+typedef MirroredCell<V> = ({ValueCell<V> cell, void Function() dispose});
 
 /// An extension that mirrors any [Cell] into a fresh [ValueCell].
 ///

@@ -35,7 +35,7 @@ jobs:
         working-directory: packages/cell_memory
         run: |
           set -o pipefail
-          dart test --reporter expanded 2>&1 | tee /tmp/cell_memory_test.log
+          dart test --reporter expanded 2>&1 | sed 's/\[[0-9;]*[a-zA-Z]//g' | tee /tmp/cell_memory_test.log
           status=${PIPESTATUS[0]}
           if [ "$status" -ne 0 ]; then
             # Surface the failure blocks as check-run annotations so they

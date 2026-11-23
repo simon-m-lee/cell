@@ -106,8 +106,8 @@ class CellListView<T> extends StatelessWidget {
     this.controller,
     this.reverse = false,
     super.key,
-  })  : _itemKey = itemKey,
-        itemCount = null;
+  }) : _itemKey = itemKey,
+       itemCount = null;
 
   /// The cell producing `List<T>`.
   final Cell cell;
@@ -167,8 +167,8 @@ class CellListView<T> extends StatelessWidget {
           itemCount: itemCount == null
               ? list.length
               : itemCount! > list.length
-                  ? list.length
-                  : itemCount!,
+              ? list.length
+              : itemCount!,
           itemBuilder: (ctx, i) => itemBuilder(ctx, list[i], i),
         );
       },
