@@ -1,0 +1,35 @@
+name: cell_skin
+description: >-
+  The membrane between a Cell graph and remote consumers — MCP hosts, REST
+  clients, and Dart clients. The wire is a Pulse<WireMessage> stream; the
+  membrane is four Cells composed from framework primitives.
+version: 0.1.0
+homepage: https://github.com/simon-m-lee/cell
+repository: https://github.com/simon-m-lee/cell/tree/master/packages/cell_skin
+issue_tracker: https://github.com/simon-m-lee/cell/issues
+documentation: https://github.com/simon-m-lee/cell/tree/master/packages/cell_skin#readme
+topics:
+  - reactive
+  - mcp
+  - rpc
+  - audit
+  - mitosis
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+dependencies:
+  # Published floor: cell 2.1.0 — the Pulse serialization & reconstruction
+  # release. The skin projects the framework's existing primitives
+  # (Pulse, Cell.ingress, Cell.asyncMap, Cell.observe, Cell.apply,
+  # ApplyOutcome, Ledger, ReplayEngine) onto the wire; it never modifies
+  # the framework.
+  cell: ^2.1.0
+dev_dependencies:
+  lints: ^4.0.0
+  test: ^1.25.0
+
+# Local workspace resolution only. pub ignores dependency_overrides for
+# dependents, so published consumers always resolve `cell: ^2.1.0` from
+# pub.dev.
+dependency_overrides:
+  cell:
+    path: ../cell

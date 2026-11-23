@@ -1,0 +1,7 @@
+# https://dart.dev/guides/libraries/private-files
+# Created by `dart pub`
+.dart_tool/
+
+# dartdoc on some SDKs emits a stray zero-byte artifact next to the
+# "Demo" category topic page; the real page is Demo-topic.html.
+/doc/api/topics/Demo
