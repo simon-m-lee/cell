@@ -1,0 +1,38 @@
+name: echo_home
+description: >-
+  Echo Home — the live demo for cell_skin. A scripted AI agent uses the
+  real four-Cell membrane, the real TestCell gates, the real ledger, and
+  the real ReplayEngine to reduce a smart home's energy bill. Only the
+  agent's decisions are scripted.
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+  flutter: '>=3.24.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # The membrane and the wire vocabulary.
+  cell_skin:
+    path: ../
+  # The framework's own widget layer — the demo's panes bind to cells
+  # with CellBuilder / CellValueBuilder / CellListener / CellListView,
+  # and Developer Mode renders the DevTools registry.
+  cell_flutter:
+    path: ../../cell_flutter
+  # Re-exported by cell_skin; pinned here for direct Ledger/Replay use.
+  cell: ^2.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+dependency_overrides:
+  cell:
+    path: ../../cell
+
+flutter:
+  uses-material-design: true
