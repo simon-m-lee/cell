@@ -34,10 +34,7 @@ void main() {
     });
 
     test('registry before enable throws StateError', () {
-      expect(
-        () => CellFlutterDevTools.registry,
-        throwsStateError,
-      );
+      expect(() => CellFlutterDevTools.registry, throwsStateError);
     });
 
     test('registers and exposes an entry with value and type', () {
@@ -150,8 +147,9 @@ void main() {
       expect(find.text('Cell Inspector'), findsNothing);
     });
 
-    testWidgets('lists registered cells and expands pulse history',
-        (tester) async {
+    testWidgets('lists registered cells and expands pulse history', (
+      tester,
+    ) async {
       CellFlutterDevTools.enable();
       final counter = Cell.state<int>(initial: 3);
       CellFlutterDevTools.register('counter', counter.cell);
@@ -177,15 +175,18 @@ void main() {
       expect(find.textContaining('[data]'), findsOneWidget);
     });
 
-    testWidgets('wraps a whole MaterialApp (no Directionality above)',
-        (tester) async {
+    testWidgets('wraps a whole MaterialApp (no Directionality above)', (
+      tester,
+    ) async {
       CellFlutterDevTools.enable();
       final counter = Cell.state<int>(initial: 1);
       CellFlutterDevTools.register('counter', counter.cell);
 
-      await tester.pumpWidget(const CellInspectorOverlay(
-        child: MaterialApp(home: Scaffold(body: Text('hello'))),
-      ));
+      await tester.pumpWidget(
+        const CellInspectorOverlay(
+          child: MaterialApp(home: Scaffold(body: Text('hello'))),
+        ),
+      );
       await tester.tap(find.byType(FloatingActionButton));
       // The fallback entry refreshes on a post-frame markNeedsBuild, so
       // the panel appears on the second frame.

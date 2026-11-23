@@ -19,19 +19,21 @@ void main() {
     var builds = 0;
     var lastSlice = 1 + 2 + 3;
 
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: CellSelector<List<int>, int>(
-          cell: cell.cell,
-          select: (list) => (list ?? const []).fold(0, (a, b) => a + b),
-          builder: (context, slice) {
-            builds++;
-            lastSlice = slice;
-            return Text('sum:$slice');
-          },
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CellSelector<List<int>, int>(
+            cell: cell.cell,
+            select: (list) => (list ?? const []).fold(0, (a, b) => a + b),
+            builder: (context, slice) {
+              builds++;
+              lastSlice = slice;
+              return Text('sum:$slice');
+            },
+          ),
         ),
       ),
-    ));
+    );
 
     var baselineBuilds = builds;
 
@@ -46,8 +48,11 @@ void main() {
         final b = random.nextInt(100);
         cell.update([a, b, lastSlice - a - b]);
         await tester.pump();
-        expect(builds, baselineBuilds,
-            reason: 'selector rebuilt although the slice did not change');
+        expect(
+          builds,
+          baselineBuilds,
+          reason: 'selector rebuilt although the slice did not change',
+        );
         expect(find.text('sum:$lastSlice'), findsOneWidget);
 
         // Now change the sum: exactly one rebuild per slice change.
@@ -55,8 +60,11 @@ void main() {
         lastSlice += delta;
         cell.update([a + delta, b, lastSlice - a - b - delta]);
         await tester.pump();
-        expect(builds, baselineBuilds + 1,
-            reason: 'selector must rebuild exactly once per slice change');
+        expect(
+          builds,
+          baselineBuilds + 1,
+          reason: 'selector must rebuild exactly once per slice change',
+        );
         baselineBuilds += 1;
         expect(find.text('sum:$lastSlice'), findsOneWidget);
       },

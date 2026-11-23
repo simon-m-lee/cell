@@ -56,8 +56,8 @@ class CellFormField<T> extends FormField<T> {
     super.autovalidateMode,
     super.enabled = true,
     super.key,
-  })  : _cell = cell,
-        super(initialValue: cell.value);
+  }) : _cell = cell,
+       super(initialValue: cell.value);
 
   final ValueCell<T> _cell;
 

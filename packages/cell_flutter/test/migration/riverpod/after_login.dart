@@ -17,9 +17,9 @@ Widget buildLoginApp() {
   final valid = Cell.state<bool>(initial: false);
 
   void recalculate() => valid.update(
-        (email.cell.value ?? '').contains('@') &&
-            (password.cell.value ?? '').length >= 6,
-      );
+    (email.cell.value ?? '').contains('@') &&
+        (password.cell.value ?? '').length >= 6,
+  );
 
   return MaterialApp(
     home: Scaffold(

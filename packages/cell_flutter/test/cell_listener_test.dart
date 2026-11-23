@@ -81,13 +81,15 @@ void main() {
       final cell = Cell.state<int>(initial: 0);
       final received = <int>[];
 
-      await tester.pumpWidget(_wrap(
-        CellListener<int>(
-          cell: cell.cell,
-          onPulse: (_, pulse) => received.add(pulse.payload!),
-          child: const SizedBox.shrink(),
+      await tester.pumpWidget(
+        _wrap(
+          CellListener<int>(
+            cell: cell.cell,
+            onPulse: (_, pulse) => received.add(pulse.payload!),
+            child: const SizedBox.shrink(),
+          ),
         ),
-      ));
+      );
 
       // Emitting from an event handler (outside the frame) is synchronous.
       cell.update(42);
@@ -101,24 +103,32 @@ void main() {
       final received = <int>[];
       final phases = <SchedulerPhase>[];
 
-      await tester.pumpWidget(_wrap(_PulseHost(
-        cell: cell.cell,
-        onPulse: (_, pulse) {
-          phases.add(SchedulerBinding.instance.schedulerPhase);
-          received.add(pulse.payload!);
-        },
-        emitOnBuild: () {},
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          _PulseHost(
+            cell: cell.cell,
+            onPulse: (_, pulse) {
+              phases.add(SchedulerBinding.instance.schedulerPhase);
+              received.add(pulse.payload!);
+            },
+            emitOnBuild: () {},
+          ),
+        ),
+      );
 
       // Rebuild the same element; the host emits during build.
-      await tester.pumpWidget(_wrap(_PulseHost(
-        cell: cell.cell,
-        onPulse: (_, pulse) {
-          phases.add(SchedulerBinding.instance.schedulerPhase);
-          received.add(pulse.payload!);
-        },
-        emitOnBuild: () => cell.update(99),
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          _PulseHost(
+            cell: cell.cell,
+            onPulse: (_, pulse) {
+              phases.add(SchedulerBinding.instance.schedulerPhase);
+              received.add(pulse.payload!);
+            },
+            emitOnBuild: () => cell.update(99),
+          ),
+        ),
+      );
 
       expect(received, [99]);
       // Deferred: the handler ran in the post-frame callback, not during
@@ -131,27 +141,35 @@ void main() {
       final received = <int>[];
       final phases = <SchedulerPhase>[];
 
-      await tester.pumpWidget(_wrap(_PulseHost(
-        cell: cell.cell,
-        onPulse: (_, pulse) {
-          phases.add(SchedulerBinding.instance.schedulerPhase);
-          received.add(pulse.payload!);
-        },
-        emitOnBuild: () {},
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          _PulseHost(
+            cell: cell.cell,
+            onPulse: (_, pulse) {
+              phases.add(SchedulerBinding.instance.schedulerPhase);
+              received.add(pulse.payload!);
+            },
+            emitOnBuild: () {},
+          ),
+        ),
+      );
 
-      await tester.pumpWidget(_wrap(_PulseHost(
-        cell: cell.cell,
-        onPulse: (_, pulse) {
-          phases.add(SchedulerBinding.instance.schedulerPhase);
-          received.add(pulse.payload!);
-        },
-        emitOnBuild: () {
-          cell.update(1);
-          cell.update(2);
-          cell.update(3);
-        },
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          _PulseHost(
+            cell: cell.cell,
+            onPulse: (_, pulse) {
+              phases.add(SchedulerBinding.instance.schedulerPhase);
+              received.add(pulse.payload!);
+            },
+            emitOnBuild: () {
+              cell.update(1);
+              cell.update(2);
+              cell.update(3);
+            },
+          ),
+        ),
+      );
 
       expect(received, [1, 2, 3]);
       // One consolidated post-frame flush for all three pulses.
@@ -163,16 +181,18 @@ void main() {
       final received = <int>[];
       final phases = <SchedulerPhase>[];
 
-      await tester.pumpWidget(_wrap(
-        CellListener<int>(
-          cell: cell.cell,
-          onPulse: (_, pulse) {
-            phases.add(SchedulerBinding.instance.schedulerPhase);
-            received.add(pulse.payload!);
-          },
-          child: const SizedBox.shrink(),
+      await tester.pumpWidget(
+        _wrap(
+          CellListener<int>(
+            cell: cell.cell,
+            onPulse: (_, pulse) {
+              phases.add(SchedulerBinding.instance.schedulerPhase);
+              received.add(pulse.payload!);
+            },
+            child: const SizedBox.shrink(),
+          ),
         ),
-      ));
+      );
 
       // A microtask scheduled from a transient (animation) callback runs in
       // the midFrameMicrotasks phase.
@@ -190,19 +210,21 @@ void main() {
       final received = <int>[];
       var shouldThrow = true;
 
-      await tester.pumpWidget(_wrap(
-        CellListener<int>(
-          cell: cell.cell,
-          onPulse: (_, pulse) {
-            if (shouldThrow) {
-              shouldThrow = false;
-              throw StateError('boom');
-            }
-            received.add(pulse.payload!);
-          },
-          child: const SizedBox.shrink(),
+      await tester.pumpWidget(
+        _wrap(
+          CellListener<int>(
+            cell: cell.cell,
+            onPulse: (_, pulse) {
+              if (shouldThrow) {
+                shouldThrow = false;
+                throw StateError('boom');
+              }
+              received.add(pulse.payload!);
+            },
+            child: const SizedBox.shrink(),
+          ),
         ),
-      ));
+      );
 
       cell.update(1);
       await tester.pump();
@@ -218,17 +240,25 @@ void main() {
       final b = Cell.state<int>(initial: 2);
       final received = <int>[];
 
-      await tester.pumpWidget(_wrap(_PulseHost(
-        cell: a.cell,
-        onPulse: (_, p) => received.add(p.payload!),
-        emitOnBuild: () {},
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          _PulseHost(
+            cell: a.cell,
+            onPulse: (_, p) => received.add(p.payload!),
+            emitOnBuild: () {},
+          ),
+        ),
+      );
 
-      await tester.pumpWidget(_wrap(_PulseHost(
-        cell: b.cell,
-        onPulse: (_, p) => received.add(p.payload!),
-        emitOnBuild: () {},
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          _PulseHost(
+            cell: b.cell,
+            onPulse: (_, p) => received.add(p.payload!),
+            emitOnBuild: () {},
+          ),
+        ),
+      );
 
       a.update(10); // old cell — should not fire
       b.update(20); // new cell — should fire
@@ -242,21 +272,32 @@ void main() {
       final b = Cell.state<int>(initial: 2);
       final received = <int>[];
 
-      await tester.pumpWidget(_wrap(_PulseHost(
-        cell: a.cell,
-        onPulse: (_, p) => received.add(p.payload!),
-        emitOnBuild: () {},
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          _PulseHost(
+            cell: a.cell,
+            onPulse: (_, p) => received.add(p.payload!),
+            emitOnBuild: () {},
+          ),
+        ),
+      );
 
       // Emit from `a` during the same build that swaps the cell to `b`.
-      await tester.pumpWidget(_wrap(_PulseHost(
-        cell: b.cell,
-        onPulse: (_, p) => received.add(p.payload!),
-        emitOnBuild: () => a.update(10),
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          _PulseHost(
+            cell: b.cell,
+            onPulse: (_, p) => received.add(p.payload!),
+            emitOnBuild: () => a.update(10),
+          ),
+        ),
+      );
 
-      expect(received, isEmpty,
-          reason: 'pending pulse from old cell must not be delivered');
+      expect(
+        received,
+        isEmpty,
+        reason: 'pending pulse from old cell must not be delivered',
+      );
 
       // The new binding is live.
       b.update(20);
@@ -268,23 +309,27 @@ void main() {
       final cell = Cell.state<int>(initial: 0);
       var counter = 0;
 
-      await tester.pumpWidget(_wrap(
-        CellListener<int>(
-          cell: cell.cell,
-          onPulse: (context, pulse) => counter++,
-          child: const SizedBox.shrink(),
+      await tester.pumpWidget(
+        _wrap(
+          CellListener<int>(
+            cell: cell.cell,
+            onPulse: (context, pulse) => counter++,
+            child: const SizedBox.shrink(),
+          ),
         ),
-      ));
+      );
 
       // Rebuild with a fresh closure — this would rebind if the
       // implementation checked `oldWidget.onPulse != widget.onPulse`.
-      await tester.pumpWidget(_wrap(
-        CellListener<int>(
-          cell: cell.cell,
-          onPulse: (context, pulse) => counter++,
-          child: const SizedBox.shrink(),
+      await tester.pumpWidget(
+        _wrap(
+          CellListener<int>(
+            cell: cell.cell,
+            onPulse: (context, pulse) => counter++,
+            child: const SizedBox.shrink(),
+          ),
         ),
-      ));
+      );
 
       cell.update(1);
       await tester.pump();
@@ -295,13 +340,15 @@ void main() {
       final cell = Cell.state<int>(initial: 0);
       final received = <int>[];
 
-      await tester.pumpWidget(_wrap(
-        CellListener<int>(
-          cell: cell.cell,
-          onPulse: (_, p) => received.add(p.payload!),
-          child: const SizedBox.shrink(),
+      await tester.pumpWidget(
+        _wrap(
+          CellListener<int>(
+            cell: cell.cell,
+            onPulse: (_, p) => received.add(p.payload!),
+            child: const SizedBox.shrink(),
+          ),
         ),
-      ));
+      );
 
       await tester.pumpWidget(_wrap(const SizedBox.shrink()));
       cell.update(1);
@@ -314,38 +361,52 @@ void main() {
       final cell = Cell.state<int>(initial: 0);
       final received = <int>[];
 
-      await tester.pumpWidget(_wrap(_ToggleHost(
-        cell: cell.cell,
-        onPulse: (_, p) => received.add(p.payload!),
-        showListener: true,
-        emitOnBuild: () {},
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          _ToggleHost(
+            cell: cell.cell,
+            onPulse: (_, p) => received.add(p.payload!),
+            showListener: true,
+            emitOnBuild: () {},
+          ),
+        ),
+      );
 
       // Emit during the same build that removes the listener.
-      await tester.pumpWidget(_wrap(_ToggleHost(
-        cell: cell.cell,
-        onPulse: (_, p) => received.add(p.payload!),
-        showListener: false,
-        emitOnBuild: () => cell.update(1),
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          _ToggleHost(
+            cell: cell.cell,
+            onPulse: (_, p) => received.add(p.payload!),
+            showListener: false,
+            emitOnBuild: () => cell.update(1),
+          ),
+        ),
+      );
 
-      expect(received, isEmpty,
-          reason: 'pending pulse should be discarded on dispose');
+      expect(
+        received,
+        isEmpty,
+        reason: 'pending pulse should be discarded on dispose',
+      );
     });
 
-    testWidgets('100 rebuilds with the same cell do not churn egress',
-        (tester) async {
+    testWidgets('100 rebuilds with the same cell do not churn egress', (
+      tester,
+    ) async {
       final cell = Cell.state<int>(initial: 0);
       final received = <int>[];
 
       for (var i = 0; i < 100; i++) {
-        await tester.pumpWidget(_wrap(
-          CellListener<int>(
-            cell: cell.cell,
-            onPulse: (_, p) => received.add(p.payload!),
-            child: const SizedBox.shrink(),
+        await tester.pumpWidget(
+          _wrap(
+            CellListener<int>(
+              cell: cell.cell,
+              onPulse: (_, p) => received.add(p.payload!),
+              child: const SizedBox.shrink(),
+            ),
           ),
-        ));
+        );
       }
 
       cell.update(1);
@@ -358,40 +419,47 @@ void main() {
       final cell = Cell.state<String>(initial: '');
       Object? navigatorResult;
 
-      await tester.pumpWidget(MaterialApp(
-        navigatorKey: nav,
-        home: CellListener<String>(
-          cell: cell.cell,
-          onPulse: (ctx, _) {
-            navigatorResult = Navigator.of(ctx);
-          },
-          child: const Scaffold(body: SizedBox.shrink()),
+      await tester.pumpWidget(
+        MaterialApp(
+          navigatorKey: nav,
+          home: CellListener<String>(
+            cell: cell.cell,
+            onPulse: (ctx, _) {
+              navigatorResult = Navigator.of(ctx);
+            },
+            child: const Scaffold(body: SizedBox.shrink()),
+          ),
         ),
-      ));
+      );
 
       cell.update('push');
       await tester.pump();
 
       expect(navigatorResult, isNotNull);
-      expect(identical(navigatorResult, nav.currentState), isTrue,
-          reason: 'listener context should sit below Navigator');
+      expect(
+        identical(navigatorResult, nav.currentState),
+        isTrue,
+        reason: 'listener context should sit below Navigator',
+      );
     });
 
     testWidgets('async onPulse with mounted check', (tester) async {
       final cell = Cell.state<int>(initial: 0);
       int? finalValue;
 
-      await tester.pumpWidget(_wrap(
-        CellListener<int>(
-          cell: cell.cell,
-          onPulse: (ctx, p) async {
-            await Future<void>.delayed(const Duration(milliseconds: 10));
-            if (!ctx.mounted) return;
-            finalValue = p.payload;
-          },
-          child: const SizedBox.shrink(),
+      await tester.pumpWidget(
+        _wrap(
+          CellListener<int>(
+            cell: cell.cell,
+            onPulse: (ctx, p) async {
+              await Future<void>.delayed(const Duration(milliseconds: 10));
+              if (!ctx.mounted) return;
+              finalValue = p.payload;
+            },
+            child: const SizedBox.shrink(),
+          ),
         ),
-      ));
+      );
 
       cell.update(42);
       await tester.pump();
@@ -403,13 +471,15 @@ void main() {
       final src = Cell.ingress<String>();
       final received = <String>[];
 
-      await tester.pumpWidget(_wrap(
-        CellListener<String>(
-          cell: src.cell,
-          onPulse: (_, p) => received.add(p.payload ?? ''),
-          child: const SizedBox.shrink(),
+      await tester.pumpWidget(
+        _wrap(
+          CellListener<String>(
+            cell: src.cell,
+            onPulse: (_, p) => received.add(p.payload ?? ''),
+            child: const SizedBox.shrink(),
+          ),
         ),
-      ));
+      );
 
       src.emit('hello');
       await tester.pump();
@@ -420,29 +490,28 @@ void main() {
       final src = Cell.ingress<Object>();
       final received = <String>[];
 
-      await tester.pumpWidget(_wrap(
-        CellListener<Object>(
-          cell: src.cell,
-          onPulse: (_, pulse) {
-            // Documented pattern: branch on type before casting.
-            if (pulse.type == 'error') {
-              received.add('error: ${pulse.payload}');
-              return;
-            }
-            received.add('data: ${pulse.payload}');
-          },
-          child: const SizedBox.shrink(),
+      await tester.pumpWidget(
+        _wrap(
+          CellListener<Object>(
+            cell: src.cell,
+            onPulse: (_, pulse) {
+              // Documented pattern: branch on type before casting.
+              if (pulse.type == 'error') {
+                received.add('error: ${pulse.payload}');
+                return;
+              }
+              received.add('data: ${pulse.payload}');
+            },
+            child: const SizedBox.shrink(),
+          ),
         ),
-      ));
+      );
 
       src.emit(42);
       await src.ingest(Pulse<Object>(StateError('boom'), type: 'error'));
       await tester.pump();
 
-      expect(received, [
-        'data: 42',
-        'error: Bad state: boom',
-      ]);
+      expect(received, ['data: 42', 'error: Bad state: boom']);
     });
 
     testWidgets('rejects invalidated cell', (tester) async {
@@ -459,38 +528,45 @@ void main() {
       policy('use', cell: head);
       expect(head.isInvalidated, isTrue);
 
-      await tester.pumpWidget(_wrap(
-        CellListener<int>(
-          cell: head,
-          onPulse: (context, pulse) {},
-          child: const SizedBox.shrink(),
+      await tester.pumpWidget(
+        _wrap(
+          CellListener<int>(
+            cell: head,
+            onPulse: (context, pulse) {},
+            child: const SizedBox.shrink(),
+          ),
         ),
-      ));
+      );
 
       // _bind throws during initState; the error surfaces via the framework.
       expect(tester.takeException(), isA<ArgumentError>());
     });
 
-    testWidgets('multiple listeners over the same cell all fire',
-        (tester) async {
+    testWidgets('multiple listeners over the same cell all fire', (
+      tester,
+    ) async {
       final cell = Cell.state<int>(initial: 0);
       final a = <int>[];
       final b = <int>[];
 
-      await tester.pumpWidget(_wrap(
-        Column(children: [
-          CellListener<int>(
-            cell: cell.cell,
-            onPulse: (_, p) => a.add(p.payload!),
-            child: const SizedBox.shrink(),
+      await tester.pumpWidget(
+        _wrap(
+          Column(
+            children: [
+              CellListener<int>(
+                cell: cell.cell,
+                onPulse: (_, p) => a.add(p.payload!),
+                child: const SizedBox.shrink(),
+              ),
+              CellListener<int>(
+                cell: cell.cell,
+                onPulse: (_, p) => b.add(p.payload!),
+                child: const SizedBox.shrink(),
+              ),
+            ],
           ),
-          CellListener<int>(
-            cell: cell.cell,
-            onPulse: (_, p) => b.add(p.payload!),
-            child: const SizedBox.shrink(),
-          ),
-        ]),
-      ));
+        ),
+      );
 
       cell.update(1);
       cell.update(2);
@@ -508,13 +584,15 @@ void main() {
         return const SizedBox.shrink();
       }
 
-      await tester.pumpWidget(_wrap(
-        CellListener<int>(
-          cell: cell.cell,
-          onPulse: (context, pulse) {},
-          child: Builder(builder: (_) => child()),
+      await tester.pumpWidget(
+        _wrap(
+          CellListener<int>(
+            cell: cell.cell,
+            onPulse: (context, pulse) {},
+            child: Builder(builder: (_) => child()),
+          ),
         ),
-      ));
+      );
 
       expect(childBuilds, 1);
 
@@ -523,8 +601,11 @@ void main() {
       cell.update(2);
       await tester.pump();
 
-      expect(childBuilds, 1,
-          reason: 'CellListener passes the child through unchanged');
+      expect(
+        childBuilds,
+        1,
+        reason: 'CellListener passes the child through unchanged',
+      );
     });
   });
 }

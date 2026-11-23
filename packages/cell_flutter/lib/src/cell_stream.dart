@@ -201,9 +201,7 @@ void _addPulse<V>(
 ) {
   if (pulse.type == 'error') {
     if (emitErrors) {
-      controller.addError(
-        pulse.payload ?? StateError('Unknown error pulse'),
-      );
+      controller.addError(pulse.payload ?? StateError('Unknown error pulse'));
     }
     return;
   }

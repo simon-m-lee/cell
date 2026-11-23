@@ -15,17 +15,16 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// Builds a root bucket containing a child bucket for the scope id
 /// [scopeId], holding [values] as its restored key-value pairs.
-RestorationBucket _bucketWith(Map<String, Object?> values,
-    {String scopeId = 'cells'}) {
+RestorationBucket _bucketWith(
+  Map<String, Object?> values, {
+  String scopeId = 'cells',
+}) {
   return RestorationBucket.root(
     manager: TestWidgetsFlutterBinding.instance.restorationManager,
     rawData: <Object?, Object?>{
       'v': <Object?, Object?>{},
       'c': <Object?, Object?>{
-        scopeId: <Object?, Object?>{
-          'v': values,
-          'c': <Object?, Object?>{},
-        },
+        scopeId: <Object?, Object?>{'v': values, 'c': <Object?, Object?>{}},
       },
     },
   );
@@ -70,64 +69,63 @@ Widget _wrap(Widget child, {RestorationBucket? bucket, Key? key}) {
 }
 
 CellRestorationScopeState _scopeState(WidgetTester tester) {
-  final element = tester.element(
-    find.byElementPredicate(
-      (e) => e is StatefulElement && e.state is CellRestorationScopeState,
-    ),
-  ) as StatefulElement;
+  final element =
+      tester.element(
+            find.byElementPredicate(
+              (e) =>
+                  e is StatefulElement && e.state is CellRestorationScopeState,
+            ),
+          )
+          as StatefulElement;
   return element.state as CellRestorationScopeState;
 }
 
 void main() {
   group('RestorableCell', () {
     testWidgets('fresh install falls back to initial', (tester) async {
-      final cell = restorableState<int>(
-        restorationId: 'counter',
-        initial: 0,
-      );
+      final cell = restorableState<int>(restorationId: 'counter', initial: 0);
 
-      await tester.pumpWidget(_wrap(
-        _RegistrationHost(
-          cells: [cell],
-          builder: (_) => CellBuilder<int>(
-            cell: cell,
-            builder: (_, v) => Text('${v ?? 0}'),
+      await tester.pumpWidget(
+        _wrap(
+          _RegistrationHost(
+            cells: [cell],
+            builder: (_) => CellBuilder<int>(
+              cell: cell,
+              builder: (_, v) => Text('${v ?? 0}'),
+            ),
           ),
+          bucket: _bucketWith({}),
         ),
-        bucket: _bucketWith({}),
-      ));
+      );
 
       expect(cell.value, 0);
       expect(find.text('0'), findsOneWidget);
     });
 
-    testWidgets('persisted bucket restores the value (restored wins)',
-        (tester) async {
-      final cell = restorableState<int>(
-        restorationId: 'counter',
-        initial: 0,
-      );
+    testWidgets('persisted bucket restores the value (restored wins)', (
+      tester,
+    ) async {
+      final cell = restorableState<int>(restorationId: 'counter', initial: 0);
 
-      await tester.pumpWidget(_wrap(
-        _RegistrationHost(
-          cells: [cell],
-          builder: (_) => CellBuilder<int>(
-            cell: cell,
-            builder: (_, v) => Text('${v ?? 0}'),
+      await tester.pumpWidget(
+        _wrap(
+          _RegistrationHost(
+            cells: [cell],
+            builder: (_) => CellBuilder<int>(
+              cell: cell,
+              builder: (_, v) => Text('${v ?? 0}'),
+            ),
           ),
+          bucket: _bucketWith({'counter': 42}),
         ),
-        bucket: _bucketWith({'counter': 42}),
-      ));
+      );
 
       expect(cell.value, 42);
       expect(find.text('42'), findsOneWidget);
     });
 
     testWidgets('primitive types round-trip into the bucket', (tester) async {
-      final ints = restorableState<int>(
-        restorationId: 'int',
-        initial: 1,
-      );
+      final ints = restorableState<int>(restorationId: 'int', initial: 1);
       final doubles = restorableState<double>(
         restorationId: 'double',
         initial: 1.5,
@@ -145,12 +143,15 @@ void main() {
         initial: null,
       );
 
-      await tester.pumpWidget(_wrap(
-        _RegistrationHost(
+      await tester.pumpWidget(
+        _wrap(
+          _RegistrationHost(
             cells: [ints, doubles, strings, bools, nulls],
-            builder: (_) => const SizedBox.shrink()),
-        bucket: _bucketWith({}),
-      ));
+            builder: (_) => const SizedBox.shrink(),
+          ),
+          bucket: _bucketWith({}),
+        ),
+      );
 
       ints.value = 7;
       doubles.value = 2.5;
@@ -167,18 +168,23 @@ void main() {
       expect(bucket.contains('null'), isTrue);
     });
 
-    testWidgets('non-primitive value without codecs throws UnsupportedError',
-        (tester) async {
+    testWidgets('non-primitive value without codecs throws UnsupportedError', (
+      tester,
+    ) async {
       final cell = restorableState<List<int>>(
         restorationId: 'list',
         initial: const [1, 2],
       );
 
-      await tester.pumpWidget(_wrap(
-        _RegistrationHost(
-            cells: [cell], builder: (_) => const SizedBox.shrink()),
-        bucket: _bucketWith({}),
-      ));
+      await tester.pumpWidget(
+        _wrap(
+          _RegistrationHost(
+            cells: [cell],
+            builder: (_) => const SizedBox.shrink(),
+          ),
+          bucket: _bucketWith({}),
+        ),
+      );
 
       final error = tester.takeException();
       expect(error, isA<UnsupportedError>());
@@ -193,23 +199,25 @@ void main() {
         fromPrimitives: (data) => data as String?,
       );
 
-      await tester.pumpWidget(_wrap(
-        _RegistrationHost(
-            cells: [cell], builder: (_) => const SizedBox.shrink()),
-        bucket: _bucketWith({}),
-      ));
+      await tester.pumpWidget(
+        _wrap(
+          _RegistrationHost(
+            cells: [cell],
+            builder: (_) => const SizedBox.shrink(),
+          ),
+          bucket: _bucketWith({}),
+        ),
+      );
 
       cell.value = 'bob';
       await tester.pump();
       expect(_scopeState(tester).bucket!.read<Object?>('user'), 'bob');
     });
 
-    testWidgets('restored value equal to initial does not emit a pulse',
-        (tester) async {
-      final cell = restorableState<int>(
-        restorationId: 'counter',
-        initial: 5,
-      );
+    testWidgets('restored value equal to initial does not emit a pulse', (
+      tester,
+    ) async {
+      final cell = restorableState<int>(restorationId: 'counter', initial: 5);
       final pulses = <Pulse<Object?>>[];
       final egress = Cell.observe<Pulse<Object?>>(
         source: cell,
@@ -217,11 +225,15 @@ void main() {
       );
       addTearDown(egress.stop);
 
-      await tester.pumpWidget(_wrap(
-        _RegistrationHost(
-            cells: [cell], builder: (_) => const SizedBox.shrink()),
-        bucket: _bucketWith({'counter': 5}),
-      ));
+      await tester.pumpWidget(
+        _wrap(
+          _RegistrationHost(
+            cells: [cell],
+            builder: (_) => const SizedBox.shrink(),
+          ),
+          bucket: _bucketWith({'counter': 5}),
+        ),
+      );
 
       expect(cell.value, 5);
       expect(pulses, isEmpty);
@@ -231,29 +243,35 @@ void main() {
       final a = restorableState<int>(restorationId: 'dup', initial: 1);
       final b = restorableState<int>(restorationId: 'dup', initial: 2);
 
-      await tester.pumpWidget(_wrap(
-        _RegistrationHost(
-            cells: [a, b], builder: (_) => const SizedBox.shrink()),
-        bucket: _bucketWith({}),
-      ));
+      await tester.pumpWidget(
+        _wrap(
+          _RegistrationHost(
+            cells: [a, b],
+            builder: (_) => const SizedBox.shrink(),
+          ),
+          bucket: _bucketWith({}),
+        ),
+      );
 
       final error = tester.takeException();
       expect(error, isA<StateError>());
       expect(error.toString(), contains('already registered'));
     });
 
-    testWidgets('registering the same cell twice is idempotent',
-        (tester) async {
-      final cell = restorableState<int>(
-        restorationId: 'counter',
-        initial: 3,
-      );
+    testWidgets('registering the same cell twice is idempotent', (
+      tester,
+    ) async {
+      final cell = restorableState<int>(restorationId: 'counter', initial: 3);
 
-      await tester.pumpWidget(_wrap(
-        _RegistrationHost(
-            cells: [cell], builder: (_) => const SizedBox.shrink()),
-        bucket: _bucketWith({'counter': 9}),
-      ));
+      await tester.pumpWidget(
+        _wrap(
+          _RegistrationHost(
+            cells: [cell],
+            builder: (_) => const SizedBox.shrink(),
+          ),
+          bucket: _bucketWith({'counter': 9}),
+        ),
+      );
       _scopeState(tester).register(cell);
       await tester.pump();
 
@@ -261,18 +279,20 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('unregister removes the value, re-register works',
-        (tester) async {
-      final cell = restorableState<int>(
-        restorationId: 'counter',
-        initial: 1,
-      );
+    testWidgets('unregister removes the value, re-register works', (
+      tester,
+    ) async {
+      final cell = restorableState<int>(restorationId: 'counter', initial: 1);
 
-      await tester.pumpWidget(_wrap(
-        _RegistrationHost(
-            cells: [cell], builder: (_) => const SizedBox.shrink()),
-        bucket: _bucketWith({}),
-      ));
+      await tester.pumpWidget(
+        _wrap(
+          _RegistrationHost(
+            cells: [cell],
+            builder: (_) => const SizedBox.shrink(),
+          ),
+          bucket: _bucketWith({}),
+        ),
+      );
       cell.value = 7;
       await tester.pump();
       expect(_scopeState(tester).bucket!.contains('counter'), isTrue);
@@ -290,16 +310,17 @@ void main() {
     });
 
     testWidgets('scope disposal unregisters cleanly', (tester) async {
-      final cell = restorableState<int>(
-        restorationId: 'counter',
-        initial: 1,
-      );
+      final cell = restorableState<int>(restorationId: 'counter', initial: 1);
 
-      await tester.pumpWidget(_wrap(
-        _RegistrationHost(
-            cells: [cell], builder: (_) => const SizedBox.shrink()),
-        bucket: _bucketWith({}),
-      ));
+      await tester.pumpWidget(
+        _wrap(
+          _RegistrationHost(
+            cells: [cell],
+            builder: (_) => const SizedBox.shrink(),
+          ),
+          bucket: _bucketWith({}),
+        ),
+      );
       cell.value = 5;
       await tester.pump();
 
@@ -335,22 +356,24 @@ void main() {
         },
       );
 
-      await tester.pumpWidget(MaterialApp(
-        home: CellRestorationScope(
-          restorationScopeId: 'outer',
-          bucket: rootBucket,
-          child: _RegistrationHost(
-            cells: [outer],
-            builder: (_) => CellRestorationScope(
-              restorationScopeId: 'inner',
-              child: _RegistrationHost(
-                cells: [inner],
-                builder: (_) => const SizedBox.shrink(),
+      await tester.pumpWidget(
+        MaterialApp(
+          home: CellRestorationScope(
+            restorationScopeId: 'outer',
+            bucket: rootBucket,
+            child: _RegistrationHost(
+              cells: [outer],
+              builder: (_) => CellRestorationScope(
+                restorationScopeId: 'inner',
+                child: _RegistrationHost(
+                  cells: [inner],
+                  builder: (_) => const SizedBox.shrink(),
+                ),
               ),
             ),
           ),
         ),
-      ));
+      );
 
       expect(tester.takeException(), isNull);
       expect(outer.value, 11);
@@ -361,57 +384,67 @@ void main() {
       final a = restorableState<int>(restorationId: 'a', initial: 0);
       final b = restorableState<String>(restorationId: 'b', initial: '');
 
-      await tester.pumpWidget(_wrap(
-        _RegistrationHost(
-            cells: [a, b], builder: (_) => const SizedBox.shrink()),
-        bucket: _bucketWith({'a': 1, 'b': 'two'}),
-      ));
+      await tester.pumpWidget(
+        _wrap(
+          _RegistrationHost(
+            cells: [a, b],
+            builder: (_) => const SizedBox.shrink(),
+          ),
+          bucket: _bucketWith({'a': 1, 'b': 'two'}),
+        ),
+      );
 
       expect(a.value, 1);
       expect(b.value, 'two');
     });
 
     testWidgets('cleared data falls back to initial', (tester) async {
-      final cell = restorableState<int>(
-        restorationId: 'counter',
-        initial: 10,
-      );
+      final cell = restorableState<int>(restorationId: 'counter', initial: 10);
 
-      await tester.pumpWidget(_wrap(
-        _RegistrationHost(
-            cells: [cell], builder: (_) => const SizedBox.shrink()),
-        bucket: _bucketWith({}),
-      ));
+      await tester.pumpWidget(
+        _wrap(
+          _RegistrationHost(
+            cells: [cell],
+            builder: (_) => const SizedBox.shrink(),
+          ),
+          bucket: _bucketWith({}),
+        ),
+      );
 
       expect(cell.value, 10);
     });
 
-    testWidgets('wrong-typed restored primitive throws UnsupportedError',
-        (tester) async {
-      final cell = restorableState<int>(
-        restorationId: 'counter',
-        initial: 0,
-      );
+    testWidgets('wrong-typed restored primitive throws UnsupportedError', (
+      tester,
+    ) async {
+      final cell = restorableState<int>(restorationId: 'counter', initial: 0);
 
-      await tester.pumpWidget(_wrap(
-        _RegistrationHost(
-            cells: [cell], builder: (_) => const SizedBox.shrink()),
-        bucket: _bucketWith({'counter': 'not-an-int'}),
-      ));
+      await tester.pumpWidget(
+        _wrap(
+          _RegistrationHost(
+            cells: [cell],
+            builder: (_) => const SizedBox.shrink(),
+          ),
+          bucket: _bucketWith({'counter': 'not-an-int'}),
+        ),
+      );
 
       final error = tester.takeException();
       expect(error, isA<UnsupportedError>());
       expect(error.toString(), contains('cannot restore'));
     });
 
-    testWidgets(
-        'of() throws when no CellRestorationScope encloses the '
+    testWidgets('of() throws when no CellRestorationScope encloses the '
         'context', (tester) async {
       final cell = restorableState<int>(restorationId: 'counter', initial: 0);
-      await tester.pumpWidget(MaterialApp(
-        home: _RegistrationHost(
-            cells: [cell], builder: (_) => const SizedBox.shrink()),
-      ));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: _RegistrationHost(
+            cells: [cell],
+            builder: (_) => const SizedBox.shrink(),
+          ),
+        ),
+      );
 
       // The host calls CellRestorationScope.of(context) in initState.
       final error = tester.takeException();
@@ -419,39 +452,47 @@ void main() {
       expect(error.toString(), contains('no CellRestorationScope'));
     });
 
-    testWidgets('a changed restoration id re-restores registered cells',
-        (tester) async {
-      final cell = restorableState<int>(
-        restorationId: 'counter',
-        initial: 0,
-      );
+    testWidgets('a changed restoration id re-restores registered cells', (
+      tester,
+    ) async {
+      final cell = restorableState<int>(restorationId: 'counter', initial: 0);
 
       // First mount with a bucket under 'cellsA'; the same scope element
       // then receives a NEW restorationScopeId ('cellsB') without a
       // bucket, which routes through the mixin's restore path and
       // re-registers every known cell (restoreState runs again).
-      await tester.pumpWidget(_wrap(
-        _RegistrationHost(
-            cells: [cell], builder: (_) => const SizedBox.shrink()),
-        bucket: _bucketWith({}, scopeId: 'cellsA'),
-      ));
+      await tester.pumpWidget(
+        _wrap(
+          _RegistrationHost(
+            cells: [cell],
+            builder: (_) => const SizedBox.shrink(),
+          ),
+          bucket: _bucketWith({}, scopeId: 'cellsA'),
+        ),
+      );
       cell.value = 9;
       await tester.pump();
       expect(cell.value, 9);
       expect(
-          _scopeState(tester).registeredCells.containsKey('counter'), isTrue);
+        _scopeState(tester).registeredCells.containsKey('counter'),
+        isTrue,
+      );
 
-      await tester.pumpWidget(MaterialApp(
-        home: KeyedSubtree(
-          child: CellRestorationScope(
-            restorationScopeId: 'cellsB',
-            child: Scaffold(
-              body: _RegistrationHost(
-                  cells: [cell], builder: (_) => const SizedBox.shrink()),
+      await tester.pumpWidget(
+        MaterialApp(
+          home: KeyedSubtree(
+            child: CellRestorationScope(
+              restorationScopeId: 'cellsB',
+              child: Scaffold(
+                body: _RegistrationHost(
+                  cells: [cell],
+                  builder: (_) => const SizedBox.shrink(),
+                ),
+              ),
             ),
           ),
         ),
-      ));
+      );
       await tester.pump();
 
       // No data under the new id: the re-registration resets to initial.
@@ -459,23 +500,23 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('value writes after restoration propagate through the graph',
-        (tester) async {
-      final cell = restorableState<int>(
-        restorationId: 'counter',
-        initial: 0,
-      );
+    testWidgets('value writes after restoration propagate through the graph', (
+      tester,
+    ) async {
+      final cell = restorableState<int>(restorationId: 'counter', initial: 0);
 
-      await tester.pumpWidget(_wrap(
-        _RegistrationHost(
-          cells: [cell],
-          builder: (_) => CellBuilder<int>(
-            cell: cell,
-            builder: (_, v) => Text('${v ?? 0}'),
+      await tester.pumpWidget(
+        _wrap(
+          _RegistrationHost(
+            cells: [cell],
+            builder: (_) => CellBuilder<int>(
+              cell: cell,
+              builder: (_, v) => Text('${v ?? 0}'),
+            ),
           ),
+          bucket: _bucketWith({'counter': 3}),
         ),
-        bucket: _bucketWith({'counter': 3}),
-      ));
+      );
       expect(find.text('3'), findsOneWidget);
 
       cell.value = 4;
@@ -483,25 +524,25 @@ void main() {
       expect(find.text('4'), findsOneWidget);
     });
 
-    testWidgets('claims a bucket from the surrounding RestorationScope',
-        (tester) async {
-      final cell = restorableState<int>(
-        restorationId: 'counter',
-        initial: 2,
-      );
+    testWidgets('claims a bucket from the surrounding RestorationScope', (
+      tester,
+    ) async {
+      final cell = restorableState<int>(restorationId: 'counter', initial: 2);
 
-      await tester.pumpWidget(MaterialApp(
-        home: RootRestorationScope(
-          restorationId: 'root',
-          child: CellRestorationScope(
-            restorationScopeId: 'cells',
-            child: _RegistrationHost(
-              cells: [cell],
-              builder: (_) => const SizedBox.shrink(),
+      await tester.pumpWidget(
+        MaterialApp(
+          home: RootRestorationScope(
+            restorationId: 'root',
+            child: CellRestorationScope(
+              restorationScopeId: 'cells',
+              child: _RegistrationHost(
+                cells: [cell],
+                builder: (_) => const SizedBox.shrink(),
+              ),
             ),
           ),
         ),
-      ));
+      );
 
       final scopeState = _scopeState(tester);
       expect(scopeState.bucket, isNotNull);
@@ -513,28 +554,30 @@ void main() {
   });
 
   group('restoration integration', () {
-    testWidgets('CounterApp survives a process-kill simulation',
-        (tester) async {
+    testWidgets('CounterApp survives a process-kill simulation', (
+      tester,
+    ) async {
       // Step 1: fresh install, increment to 5.
-      final cell = restorableState<int>(
-        restorationId: 'counter',
-        initial: 0,
-      );
-      await tester.pumpWidget(_wrap(
-        _RegistrationHost(
-          cells: [cell],
-          builder: (_) => Column(children: [
-            CellBuilder<int>(cell: cell, builder: (_, v) => Text('$v')),
-            Builder(
-              builder: (ctx) => TextButton(
-                onPressed: () => cell.value = (cell.value ?? 0) + 1,
-                child: const Text('inc'),
-              ),
+      final cell = restorableState<int>(restorationId: 'counter', initial: 0);
+      await tester.pumpWidget(
+        _wrap(
+          _RegistrationHost(
+            cells: [cell],
+            builder: (_) => Column(
+              children: [
+                CellBuilder<int>(cell: cell, builder: (_, v) => Text('$v')),
+                Builder(
+                  builder: (ctx) => TextButton(
+                    onPressed: () => cell.value = (cell.value ?? 0) + 1,
+                    child: const Text('inc'),
+                  ),
+                ),
+              ],
             ),
-          ]),
+          ),
+          bucket: _bucketWith({}),
         ),
-        bucket: _bucketWith({}),
-      ));
+      );
       expect(find.text('0'), findsOneWidget);
 
       for (var i = 0; i < 5; i++) {
@@ -555,22 +598,26 @@ void main() {
         restorationId: 'counter',
         initial: 0,
       );
-      await tester.pumpWidget(_wrap(
-        _RegistrationHost(
-          cells: [revived],
-          builder: (_) => Column(children: [
-            CellBuilder<int>(cell: revived, builder: (_, v) => Text('$v')),
-            Builder(
-              builder: (ctx) => TextButton(
-                onPressed: () => revived.value = (revived.value ?? 0) + 1,
-                child: const Text('inc'),
-              ),
+      await tester.pumpWidget(
+        _wrap(
+          _RegistrationHost(
+            cells: [revived],
+            builder: (_) => Column(
+              children: [
+                CellBuilder<int>(cell: revived, builder: (_, v) => Text('$v')),
+                Builder(
+                  builder: (ctx) => TextButton(
+                    onPressed: () => revived.value = (revived.value ?? 0) + 1,
+                    child: const Text('inc'),
+                  ),
+                ),
+              ],
             ),
-          ]),
+          ),
+          bucket: _bucketWith({'counter': persisted as int}),
+          key: UniqueKey(),
         ),
-        bucket: _bucketWith({'counter': persisted as int}),
-        key: UniqueKey(),
-      ));
+      );
       expect(find.text('5'), findsOneWidget);
 
       await tester.tap(find.text('inc'));

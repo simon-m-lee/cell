@@ -14,16 +14,19 @@ void main() {
       final counter = Cell.state<int>(initial: 42);
       await tester.pumpWithCells(
         cells: {#counter: counter.cell},
-        child: Builder(builder: (ctx) {
-          final c = CellScope.valueOf<int>(ctx, #counter);
-          return Text('${c.value}');
-        }),
+        child: Builder(
+          builder: (ctx) {
+            final c = CellScope.valueOf<int>(ctx, #counter);
+            return Text('${c.value}');
+          },
+        ),
       );
       expect(find.text('42'), findsOneWidget);
     });
 
-    testWidgets('default wrapper provides MaterialApp + Scaffold',
-        (tester) async {
+    testWidgets('default wrapper provides MaterialApp + Scaffold', (
+      tester,
+    ) async {
       final counter = Cell.state<int>(initial: 0);
       await tester.pumpWithCells(
         cells: {#counter: counter.cell},
@@ -41,10 +44,7 @@ void main() {
       final counter = Cell.state<int>(initial: 0);
       await tester.pumpWithCells(
         cells: {#counter: counter.cell},
-        wrapper: (child) => MaterialApp(
-          navigatorKey: navKey,
-          home: child,
-        ),
+        wrapper: (child) => MaterialApp(navigatorKey: navKey, home: child),
         child: const Text('custom'),
       );
       expect(navKey.currentState, isNotNull);
@@ -56,11 +56,13 @@ void main() {
       final b = Cell.state<String>(initial: 'hello');
       await tester.pumpWithCells(
         cells: {#a: a.cell, #b: b.cell},
-        child: Builder(builder: (ctx) {
-          final av = CellScope.valueOf<int>(ctx, #a);
-          final bv = CellScope.valueOf<String>(ctx, #b);
-          return Text('${av.value},${bv.value}');
-        }),
+        child: Builder(
+          builder: (ctx) {
+            final av = CellScope.valueOf<int>(ctx, #a);
+            final bv = CellScope.valueOf<String>(ctx, #b);
+            return Text('${av.value},${bv.value}');
+          },
+        ),
       );
       expect(find.text('1,hello'), findsOneWidget);
     });
@@ -69,13 +71,15 @@ void main() {
       final a = Cell.state<int>(initial: 0);
       await tester.pumpWithCells(
         cells: {#a: a.cell},
-        child: Builder(builder: (ctx) {
-          expect(
-            () => CellScope.valueOf<int>(ctx, #missing),
-            throwsAssertionError,
-          );
-          return const SizedBox.shrink();
-        }),
+        child: Builder(
+          builder: (ctx) {
+            expect(
+              () => CellScope.valueOf<int>(ctx, #missing),
+              throwsAssertionError,
+            );
+            return const SizedBox.shrink();
+          },
+        ),
       );
     });
   });

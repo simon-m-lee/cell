@@ -15,10 +15,14 @@ void main() {
     testWidgets('nothing before first pulse', (tester) async {
       final cell = Cell.ingress<int>().cell;
       AsyncSnapshot<int>? captured;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        captured = useCellAsync<int>(cell);
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            captured = useCellAsync<int>(cell);
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       expect(captured!.connectionState, ConnectionState.none);
       expect(captured!.hasData, false);
     });
@@ -28,10 +32,14 @@ void main() {
       // current value on the first frame.
       final counter = Cell.state<int>(initial: 7);
       AsyncSnapshot<int>? captured;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        captured = useCellAsync<int>(counter.cell);
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            captured = useCellAsync<int>(counter.cell);
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       expect(captured!.connectionState, ConnectionState.active);
       expect(captured!.hasData, true);
       expect(captured!.data, 7);
@@ -49,10 +57,14 @@ void main() {
       }
 
       AsyncSnapshot<int>? captured;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        captured = useCellAsync<int>(source);
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            captured = useCellAsync<int>(source);
+            return const SizedBox.shrink();
+          },
+        ),
+      );
 
       expect(captured!.connectionState, ConnectionState.active);
       expect(captured!.hasData, true);
@@ -69,10 +81,14 @@ void main() {
       await tester.pump(const Duration(milliseconds: 50));
 
       AsyncSnapshot<int>? captured;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        captured = useCellAsync<int>(source);
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            captured = useCellAsync<int>(source);
+            return const SizedBox.shrink();
+          },
+        ),
+      );
 
       expect(captured!.connectionState, ConnectionState.active);
       expect(captured!.hasData, true);
@@ -94,10 +110,14 @@ void main() {
       }
 
       AsyncSnapshot<int>? captured;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        captured = useCellAsync<int>(mapped);
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            captured = useCellAsync<int>(mapped);
+            return const SizedBox.shrink();
+          },
+        ),
+      );
 
       expect(captured!.connectionState, ConnectionState.active);
       expect(captured!.hasData, true);
@@ -114,10 +134,14 @@ void main() {
       await tester.pump();
 
       AsyncSnapshot<String>? captured;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        captured = useCellAsync<String>(derived);
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            captured = useCellAsync<String>(derived);
+            return const SizedBox.shrink();
+          },
+        ),
+      );
 
       expect(captured!.connectionState, ConnectionState.active);
       expect(captured!.hasData, true);
@@ -127,10 +151,14 @@ void main() {
     testWidgets('active+data after pulse', (tester) async {
       final ingress = Cell.ingress<int>();
       AsyncSnapshot<int>? captured;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        captured = useCellAsync<int>(ingress.cell);
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            captured = useCellAsync<int>(ingress.cell);
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       ingress.emit(42);
       await tester.pump();
       expect(captured!.connectionState, ConnectionState.active);
@@ -140,10 +168,14 @@ void main() {
     testWidgets('active+error after error pulse', (tester) async {
       final ingress = Cell.ingress<Object>();
       AsyncSnapshot<int>? captured;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        captured = useCellAsync<int>(ingress.cell);
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            captured = useCellAsync<int>(ingress.cell);
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       await ingress.ingest(Pulse<Object>(StateError('boom'), type: 'error'));
       await tester.pump();
       expect(captured!.hasError, true);
@@ -153,10 +185,14 @@ void main() {
     testWidgets('nullable V accepts a null payload as data', (tester) async {
       final ingress = Cell.ingress<int?>();
       AsyncSnapshot<int?>? captured;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        captured = useCellAsync<int?>(ingress.cell);
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            captured = useCellAsync<int?>(ingress.cell);
+            return const SizedBox.shrink();
+          },
+        ),
+      );
 
       ingress.emit(null);
       await tester.pump();
@@ -169,10 +205,14 @@ void main() {
     testWidgets('type mismatch becomes an error snapshot', (tester) async {
       final ingress = Cell.ingress<Object>();
       AsyncSnapshot<int>? captured;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        captured = useCellAsync<int>(ingress.cell);
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            captured = useCellAsync<int>(ingress.cell);
+            return const SizedBox.shrink();
+          },
+        ),
+      );
 
       ingress.emit('not-an-int');
       await tester.pump();
@@ -184,16 +224,20 @@ void main() {
     testWidgets('initialSnapshot seeds', (tester) async {
       final cell = Cell.ingress<int>().cell;
       AsyncSnapshot<int>? captured;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        captured = useCellAsync<int>(
-          cell,
-          initialSnapshot: const AsyncSnapshot<int>.withData(
-            ConnectionState.active,
-            7,
-          ),
-        );
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            captured = useCellAsync<int>(
+              cell,
+              initialSnapshot: const AsyncSnapshot<int>.withData(
+                ConnectionState.active,
+                7,
+              ),
+            );
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       expect(captured!.data, 7);
     });
 
@@ -204,11 +248,15 @@ void main() {
       addTearDown(source.dispose);
       AsyncSnapshot<int>? captured;
 
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        useValueListenable(source); // rebuild when the source swaps
-        captured = useCellAsync<int>(source.value);
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            useValueListenable(source); // rebuild when the source swaps
+            captured = useCellAsync<int>(source.value);
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       expect(captured!.connectionState, ConnectionState.none);
 
       source.value = b.cell;
@@ -222,19 +270,24 @@ void main() {
       expect(captured!.data, 42, reason: 'old cell should not affect');
     });
 
-    testWidgets('snapshot persists across cell swap (documented divergence)',
-        (tester) async {
+    testWidgets('snapshot persists across cell swap (documented divergence)', (
+      tester,
+    ) async {
       final a = Cell.ingress<int>();
       final b = Cell.ingress<int>();
       final source = ValueNotifier<Cell>(a.cell);
       addTearDown(source.dispose);
       AsyncSnapshot<int>? captured;
 
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        useValueListenable(source); // rebuild when the source swaps
-        captured = useCellAsync<int>(source.value);
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            useValueListenable(source); // rebuild when the source swaps
+            captured = useCellAsync<int>(source.value);
+            return const SizedBox.shrink();
+          },
+        ),
+      );
 
       a.emit(1);
       await tester.pump();

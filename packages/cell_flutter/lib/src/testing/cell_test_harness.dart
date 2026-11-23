@@ -284,11 +284,7 @@ class CellTestHarness {
     if (_disposed) {
       throw StateError('CellTestHarness: pump called after dispose.');
     }
-    await tester.pumpWithCells(
-      cells: _cells,
-      child: child,
-      wrapper: wrapper,
-    );
+    await tester.pumpWithCells(cells: _cells, child: child, wrapper: wrapper);
   }
 
   /// Sets the value of the cell at [id] and pumps the tree to settle.

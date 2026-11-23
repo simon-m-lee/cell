@@ -51,7 +51,8 @@ Future<int> runFuzz({
     WidgetTester tester,
     Random random,
     int iteration,
-  ) iterate,
+  )
+  iterate,
   bool discardExceptions = false,
 }) async {
   var drained = 0;
@@ -66,8 +67,10 @@ Future<int> runFuzz({
         if (discardExceptions) {
           drained++;
         } else {
-          fail('Fuzz seed $seed, iteration $iteration: uncaught exception '
-              '$exception');
+          fail(
+            'Fuzz seed $seed, iteration $iteration: uncaught exception '
+            '$exception',
+          );
         }
       }
       await tester.pump(Duration(milliseconds: 1 + random.nextInt(50)));
@@ -76,8 +79,10 @@ Future<int> runFuzz({
         if (discardExceptions) {
           drained++;
         } else {
-          fail('Fuzz seed $seed, iteration $iteration: exception after pump '
-              '$pumpException');
+          fail(
+            'Fuzz seed $seed, iteration $iteration: exception after pump '
+            '$pumpException',
+          );
         }
       }
     }

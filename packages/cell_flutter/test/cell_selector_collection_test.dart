@@ -13,27 +13,31 @@ void main() {
   group('CellSelector collection warning', () {
     testWidgets('warns on collection without equals', (tester) async {
       final listCell = Cell.state<List<int>>(initial: [1, 2, 3]);
-      await tester.pumpWidget(MaterialApp(
-        home: CellSelector<List<int>, List<int>>(
-          cell: listCell.cell,
-          select: (v) => v ?? const [],
-          builder: (context, selected) => const SizedBox.shrink(),
+      await tester.pumpWidget(
+        MaterialApp(
+          home: CellSelector<List<int>, List<int>>(
+            cell: listCell.cell,
+            select: (v) => v ?? const [],
+            builder: (context, selected) => const SizedBox.shrink(),
+          ),
         ),
-      ));
+      );
       // The assert fires during build and is captured by the framework.
       expect(tester.takeException(), isA<AssertionError>());
     });
 
     testWidgets('does not warn with equals', (tester) async {
       final listCell = Cell.state<List<int>>(initial: [1, 2, 3]);
-      await tester.pumpWidget(MaterialApp(
-        home: CellSelector<List<int>, List<int>>(
-          cell: listCell.cell,
-          select: (v) => v ?? const [],
-          equals: listEquals,
-          builder: (context, selected) => const SizedBox.shrink(),
+      await tester.pumpWidget(
+        MaterialApp(
+          home: CellSelector<List<int>, List<int>>(
+            cell: listCell.cell,
+            select: (v) => v ?? const [],
+            equals: listEquals,
+            builder: (context, selected) => const SizedBox.shrink(),
+          ),
         ),
-      ));
+      );
       expect(tester.takeException(), isNull);
     });
   });

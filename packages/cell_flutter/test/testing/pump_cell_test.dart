@@ -21,10 +21,7 @@ void main() {
 
     testWidgets('rebuilds on cell update', (tester) async {
       final counter = Cell.state<int>(initial: 0);
-      await tester.pumpCell(
-        cell: counter.cell,
-        builder: (_, v) => Text('$v'),
-      );
+      await tester.pumpCell(cell: counter.cell, builder: (_, v) => Text('$v'));
       counter.update(5);
       await tester.pump();
       expect(find.text('5'), findsOneWidget);

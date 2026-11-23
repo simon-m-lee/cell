@@ -23,18 +23,14 @@ void main() {
   group('CellTextField', () {
     testWidgets('renders the cell current value', (tester) async {
       final counter = Cell.state<String>(initial: 'hello');
-      await tester.pumpWidget(_wrap(
-        CellTextField(cell: counter.cell),
-      ));
+      await tester.pumpWidget(_wrap(CellTextField(cell: counter.cell)));
 
       expect(find.widgetWithText(TextFormField, 'hello'), findsOneWidget);
     });
 
     testWidgets('typing updates the cell', (tester) async {
       final counter = Cell.state<String>(initial: '');
-      await tester.pumpWidget(_wrap(
-        CellTextField(cell: counter.cell),
-      ));
+      await tester.pumpWidget(_wrap(CellTextField(cell: counter.cell)));
 
       await tester.enterText(find.byType(TextFormField), 'typed');
       await tester.pump();
@@ -44,9 +40,7 @@ void main() {
 
     testWidgets('cell update re-renders the field', (tester) async {
       final counter = Cell.state<String>(initial: '');
-      await tester.pumpWidget(_wrap(
-        CellTextField(cell: counter.cell),
-      ));
+      await tester.pumpWidget(_wrap(CellTextField(cell: counter.cell)));
 
       counter.update('external');
       await tester.pump();
@@ -57,13 +51,15 @@ void main() {
     testWidgets('validator runs on Form.validate()', (tester) async {
       final formKey = GlobalKey<FormState>();
       final counter = Cell.state<String>(initial: '');
-      await tester.pumpWidget(_wrap(
-        CellTextField(
-          cell: counter.cell,
-          validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+      await tester.pumpWidget(
+        _wrap(
+          CellTextField(
+            cell: counter.cell,
+            validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+          ),
+          formKey: formKey,
         ),
-        formKey: formKey,
-      ));
+      );
 
       expect(formKey.currentState!.validate(), isFalse);
       await tester.pump();
@@ -76,9 +72,7 @@ void main() {
 
     testWidgets('focus is preserved across cell updates', (tester) async {
       final counter = Cell.state<String>(initial: 'ab');
-      await tester.pumpWidget(_wrap(
-        CellTextField(cell: counter.cell),
-      ));
+      await tester.pumpWidget(_wrap(CellTextField(cell: counter.cell)));
 
       final field = find.byType(TextFormField);
       await tester.showKeyboard(field);
@@ -97,12 +91,14 @@ void main() {
       final source = ValueNotifier<ValueCell<String>>(a.cell);
       addTearDown(source.dispose);
 
-      await tester.pumpWidget(_wrap(
-        ValueListenableBuilder<ValueCell<String>>(
-          valueListenable: source,
-          builder: (_, cell, child) => CellTextField(cell: cell),
+      await tester.pumpWidget(
+        _wrap(
+          ValueListenableBuilder<ValueCell<String>>(
+            valueListenable: source,
+            builder: (_, cell, child) => CellTextField(cell: cell),
+          ),
         ),
-      ));
+      );
       expect(find.widgetWithText(TextFormField, 'a'), findsOneWidget);
 
       source.value = b.cell;
@@ -117,9 +113,7 @@ void main() {
 
     testWidgets('disposal stops listeners', (tester) async {
       final counter = Cell.state<String>(initial: 'x');
-      await tester.pumpWidget(_wrap(
-        CellTextField(cell: counter.cell),
-      ));
+      await tester.pumpWidget(_wrap(CellTextField(cell: counter.cell)));
 
       await tester.pumpWidget(_wrap(const SizedBox.shrink()));
       counter.update('y');

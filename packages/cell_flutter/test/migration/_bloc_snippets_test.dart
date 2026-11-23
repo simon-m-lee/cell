@@ -17,14 +17,16 @@ void main() {
     testWidgets('Cubit → Cell.state + CellBuilder', (tester) async {
       final counter = Cell.state<int>(initial: 0);
 
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: CellBuilder<int>(
-            cell: counter.cell.unmodifiable,
-            builder: (_, count) => Text('${count ?? 0}'),
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CellBuilder<int>(
+              cell: counter.cell.unmodifiable,
+              builder: (_, count) => Text('${count ?? 0}'),
+            ),
           ),
         ),
-      ));
+      );
 
       void increment() => counter.update((counter.cell.value ?? 0) + 1);
       increment();
@@ -76,10 +78,12 @@ void main() {
     testWidgets('BlocProvider → CellScope', (tester) async {
       final todos = Cell.state<List<Todo>>(initial: const []);
 
-      await tester.pumpWidget(CellScope(
-        cells: {#todos: todos.cell},
-        child: const MaterialApp(home: Scaffold(body: SizedBox.shrink())),
-      ));
+      await tester.pumpWidget(
+        CellScope(
+          cells: {#todos: todos.cell},
+          child: const MaterialApp(home: Scaffold(body: SizedBox.shrink())),
+        ),
+      );
 
       final cell = CellScope.valueOf<List<Todo>>(
         tester.element(find.byType(Scaffold)),

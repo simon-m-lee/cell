@@ -206,13 +206,8 @@ extension CellExpectGolden on WidgetTester {
         child: widget,
       );
     } else {
-      await pumpWidget(
-        MaterialApp(home: Scaffold(body: widget)),
-      );
+      await pumpWidget(MaterialApp(home: Scaffold(body: widget)));
     }
-    await expectLater(
-      find.byType(MaterialApp),
-      matchesGoldenFile(path),
-    );
+    await expectLater(find.byType(MaterialApp), matchesGoldenFile(path));
   }
 }

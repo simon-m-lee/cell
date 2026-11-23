@@ -134,10 +134,12 @@ extension CellPumpCell on WidgetTester {
     required ValueCell<V> cell,
     required Widget Function(BuildContext context, V? value) builder,
   }) {
-    return pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: CellBuilder<V>(cell: cell, builder: builder),
+    return pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CellBuilder<V>(cell: cell, builder: builder),
+        ),
       ),
-    ));
+    );
   }
 }

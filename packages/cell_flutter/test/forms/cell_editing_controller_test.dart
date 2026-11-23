@@ -47,8 +47,11 @@ void main() {
 
       controller.selection = const TextSelection.collapsed(offset: 1);
       counter.update('abc'); // No text change.
-      expect(controller.selection.baseOffset, 1,
-          reason: 'an equal value must not reset the cursor');
+      expect(
+        controller.selection.baseOffset,
+        1,
+        reason: 'an equal value must not reset the cursor',
+      );
     });
 
     test('disposal stops the cell sync direction', () {
@@ -57,8 +60,11 @@ void main() {
       controller.dispose();
 
       counter.update('z');
-      expect(controller.text, 'x',
-          reason: 'cell write after dispose must not reach the controller');
+      expect(
+        controller.text,
+        'x',
+        reason: 'cell write after dispose must not reach the controller',
+      );
 
       // Flutter's own contract: writing a disposed TextEditingController
       // throws; the binding cannot (and should not) resurrect it.

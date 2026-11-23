@@ -20,23 +20,27 @@ void main() {
     final inner = Cell.state<int>(initial: 1);
     final outer = Cell.state<int>(initial: 2);
 
-    await tester.pumpWidget(MaterialApp(
-      home: CellScope(
-        cells: {#value: outer.cell},
-        child: CellScope(
-          cells: {#value: inner.cell},
-          child: Builder(builder: (context) {
-            // The documented pattern: look the cell up through the scope,
-            // then observe it with a CellBuilder.
-            final cell = CellScope.valueOf<int>(context, #value);
-            return CellBuilder<int>(
-              cell: cell,
-              builder: (_, v) => Text('${v ?? -1}'),
-            );
-          }),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: CellScope(
+          cells: {#value: outer.cell},
+          child: CellScope(
+            cells: {#value: inner.cell},
+            child: Builder(
+              builder: (context) {
+                // The documented pattern: look the cell up through the scope,
+                // then observe it with a CellBuilder.
+                final cell = CellScope.valueOf<int>(context, #value);
+                return CellBuilder<int>(
+                  cell: cell,
+                  builder: (_, v) => Text('${v ?? -1}'),
+                );
+              },
+            ),
+          ),
         ),
       ),
-    ));
+    );
 
     await runFuzz(
       tester: tester,
@@ -47,8 +51,11 @@ void main() {
         outer.update(iteration * 2);
         await tester.pump();
         await tester.pump();
-        expect(find.text('$iteration'), findsOneWidget,
-            reason: 'nearest scope must win');
+        expect(
+          find.text('$iteration'),
+          findsOneWidget,
+          reason: 'nearest scope must win',
+        );
       },
     );
 

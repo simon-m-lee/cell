@@ -58,9 +58,9 @@ void main() {
       Object? seenError;
 
       src.cell.asStream<Object>().listen(
-            (v) {},
-            onError: (Object e) => seenError = e,
-          );
+        (v) {},
+        onError: (Object e) => seenError = e,
+      );
 
       await src.ingest(Pulse<Object>(StateError('boom'), type: 'error'));
 
@@ -72,10 +72,9 @@ void main() {
       final received = <Object?>[];
       Object? seenError;
 
-      src.cell.asStream<Object>(emitErrors: false).listen(
-            received.add,
-            onError: (Object e) => seenError = e,
-          );
+      src.cell
+          .asStream<Object>(emitErrors: false)
+          .listen(received.add, onError: (Object e) => seenError = e);
 
       await src.ingest(Pulse<Object>(StateError('boom'), type: 'error'));
       src.emit(42);
@@ -120,9 +119,9 @@ void main() {
       Object? seenError;
 
       src.cell.asStream<int>().listen(
-            (_) {},
-            onError: (Object e) => seenError = e,
-          );
+        (_) {},
+        onError: (Object e) => seenError = e,
+      );
 
       src.emit('not-an-int');
 

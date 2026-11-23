@@ -43,8 +43,8 @@ class _HostState extends State<_Host> {
         snapshot.hasError
             ? 'error'
             : snapshot.hasData
-                ? 'data:${snapshot.data}'
-                : 'state:${snapshot.connectionState}',
+            ? 'data:${snapshot.data}'
+            : 'state:${snapshot.connectionState}',
       ),
     );
   }
@@ -55,15 +55,17 @@ void main() {
     testWidgets('nothing before first pulse', (tester) async {
       final src = Cell.ingress<int>();
 
-      await tester.pumpWidget(_wrap(
-        CellAsyncBuilder<int>(
-          cell: src.cell,
-          builder: (_, snapshot) => Text(
-            '${snapshot.connectionState} '
-            '${snapshot.hasData} ${snapshot.hasError}',
+      await tester.pumpWidget(
+        _wrap(
+          CellAsyncBuilder<int>(
+            cell: src.cell,
+            builder: (_, snapshot) => Text(
+              '${snapshot.connectionState} '
+              '${snapshot.hasData} ${snapshot.hasError}',
+            ),
           ),
         ),
-      ));
+      );
 
       expect(find.text('${ConnectionState.none} false false'), findsOneWidget);
     });
@@ -71,14 +73,15 @@ void main() {
     testWidgets('active + data after first data pulse', (tester) async {
       final src = Cell.ingress<int>();
 
-      await tester.pumpWidget(_wrap(
-        CellAsyncBuilder<int>(
-          cell: src.cell,
-          builder: (_, snapshot) => Text(
-            snapshot.hasData ? 'data:${snapshot.data}' : 'none',
+      await tester.pumpWidget(
+        _wrap(
+          CellAsyncBuilder<int>(
+            cell: src.cell,
+            builder: (_, snapshot) =>
+                Text(snapshot.hasData ? 'data:${snapshot.data}' : 'none'),
           ),
         ),
-      ));
+      );
 
       expect(find.text('none'), findsOneWidget);
 
@@ -91,14 +94,14 @@ void main() {
     testWidgets('active + error after error pulse', (tester) async {
       final src = Cell.ingress<Object>();
 
-      await tester.pumpWidget(_wrap(
-        CellAsyncBuilder<Object>(
-          cell: src.cell,
-          builder: (_, snapshot) => Text(
-            snapshot.hasError ? 'error' : 'ok',
+      await tester.pumpWidget(
+        _wrap(
+          CellAsyncBuilder<Object>(
+            cell: src.cell,
+            builder: (_, snapshot) => Text(snapshot.hasError ? 'error' : 'ok'),
           ),
         ),
-      ));
+      );
 
       await src.ingest(Pulse<Object>(StateError('boom'), type: 'error'));
       await tester.pump();
@@ -109,16 +112,18 @@ void main() {
     testWidgets('initialSnapshot seeds first frame', (tester) async {
       final src = Cell.ingress<int>();
 
-      await tester.pumpWidget(_wrap(
-        CellAsyncBuilder<int>(
-          cell: src.cell,
-          initialSnapshot: const AsyncSnapshot<int>.withData(
-            ConnectionState.active,
-            7,
+      await tester.pumpWidget(
+        _wrap(
+          CellAsyncBuilder<int>(
+            cell: src.cell,
+            initialSnapshot: const AsyncSnapshot<int>.withData(
+              ConnectionState.active,
+              7,
+            ),
+            builder: (_, snapshot) => Text('data:${snapshot.data}'),
           ),
-          builder: (_, snapshot) => Text('data:${snapshot.data}'),
         ),
-      ));
+      );
 
       expect(find.text('data:7'), findsOneWidget);
 
@@ -130,40 +135,45 @@ void main() {
     testWidgets('type mismatch becomes an error snapshot', (tester) async {
       final src = Cell.ingress<int>();
 
-      await tester.pumpWidget(_wrap(
-        CellAsyncBuilder<String>(
-          cell: src.cell,
-          builder: (_, snapshot) => Text(
-            snapshot.hasError ? 'error' : 'ok',
+      await tester.pumpWidget(
+        _wrap(
+          CellAsyncBuilder<String>(
+            cell: src.cell,
+            builder: (_, snapshot) => Text(snapshot.hasError ? 'error' : 'ok'),
           ),
         ),
-      ));
+      );
 
       src.emit(42);
       await tester.pump();
 
       expect(find.text('error'), findsOneWidget);
-      expect(tester.takeException(), isNull,
-          reason: 'mismatch is a snapshot error, not a thrown exception');
+      expect(
+        tester.takeException(),
+        isNull,
+        reason: 'mismatch is a snapshot error, not a thrown exception',
+      );
     });
 
     testWidgets('nullable V accepts a null payload as data', (tester) async {
       final src = Cell.ingress<int?>();
 
-      await tester.pumpWidget(_wrap(
-        CellAsyncBuilder<int?>(
-          cell: src.cell,
-          builder: (_, snapshot) => Text(
-            // Flutter defines `hasData` as `data != null`; for a nullable V,
-            // distinguish "received a null payload" via connectionState.
-            snapshot.connectionState == ConnectionState.none
-                ? 'none'
-                : snapshot.hasError
-                    ? 'error'
-                    : 'data:${snapshot.data}',
+      await tester.pumpWidget(
+        _wrap(
+          CellAsyncBuilder<int?>(
+            cell: src.cell,
+            builder: (_, snapshot) => Text(
+              // Flutter defines `hasData` as `data != null`; for a nullable V,
+              // distinguish "received a null payload" via connectionState.
+              snapshot.connectionState == ConnectionState.none
+                  ? 'none'
+                  : snapshot.hasError
+                  ? 'error'
+                  : 'data:${snapshot.data}',
+            ),
           ),
         ),
-      ));
+      );
 
       src.emit(1);
       await tester.pump();
@@ -174,18 +184,21 @@ void main() {
       expect(find.text('data:null'), findsOneWidget);
     });
 
-    testWidgets('error pulse with null payload uses a placeholder error',
-        (tester) async {
+    testWidgets('error pulse with null payload uses a placeholder error', (
+      tester,
+    ) async {
       final src = Cell.ingress<Object>();
 
-      await tester.pumpWidget(_wrap(
-        CellAsyncBuilder<Object>(
-          cell: src.cell,
-          builder: (_, snapshot) => Text(
-            snapshot.hasError ? '${snapshot.error.runtimeType}' : 'ok',
+      await tester.pumpWidget(
+        _wrap(
+          CellAsyncBuilder<Object>(
+            cell: src.cell,
+            builder: (_, snapshot) => Text(
+              snapshot.hasError ? '${snapshot.error.runtimeType}' : 'ok',
+            ),
           ),
         ),
-      ));
+      );
 
       await src.ingest(Pulse<Object>(null, type: 'error'));
       await tester.pump();
@@ -197,16 +210,18 @@ void main() {
       final a = Cell.ingress<int>();
       final b = Cell.ingress<int>();
 
-      await tester
-          .pumpWidget(_wrap(_Host(cell: a.cell, initialSnapshot: null)));
+      await tester.pumpWidget(
+        _wrap(_Host(cell: a.cell, initialSnapshot: null)),
+      );
       expect(find.text('state:${ConnectionState.none}'), findsOneWidget);
 
       a.emit(1);
       await tester.pump();
       expect(find.text('data:1'), findsOneWidget);
 
-      await tester
-          .pumpWidget(_wrap(_Host(cell: b.cell, initialSnapshot: null)));
+      await tester.pumpWidget(
+        _wrap(_Host(cell: b.cell, initialSnapshot: null)),
+      );
       expect(find.text('state:${ConnectionState.none}'), findsOneWidget);
 
       a.emit(10); // old cell — ignored
@@ -224,17 +239,20 @@ void main() {
       // happens before the first frame builds — the documented ordering
       // caveat (see `initialSnapshot`).
       final completer = Completer<int>();
-      final future =
-          Cell.fromFuture<int>(completer.future, journal: RecordingJournal());
+      final future = Cell.fromFuture<int>(
+        completer.future,
+        journal: RecordingJournal(),
+      );
 
-      await tester.pumpWidget(_wrap(
-        CellAsyncBuilder<int>(
-          cell: future,
-          builder: (_, snapshot) => Text(
-            snapshot.hasData ? 'data:${snapshot.data}' : 'waiting',
+      await tester.pumpWidget(
+        _wrap(
+          CellAsyncBuilder<int>(
+            cell: future,
+            builder: (_, snapshot) =>
+                Text(snapshot.hasData ? 'data:${snapshot.data}' : 'waiting'),
           ),
         ),
-      ));
+      );
 
       expect(find.text('waiting'), findsOneWidget);
 
@@ -247,17 +265,20 @@ void main() {
 
     testWidgets('renders fromFuture failure as error', (tester) async {
       final completer = Completer<Object>();
-      final future = Cell.fromFuture<Object>(completer.future,
-          journal: RecordingJournal());
+      final future = Cell.fromFuture<Object>(
+        completer.future,
+        journal: RecordingJournal(),
+      );
 
-      await tester.pumpWidget(_wrap(
-        CellAsyncBuilder<Object>(
-          cell: future,
-          builder: (_, snapshot) => Text(
-            snapshot.hasError ? 'error' : 'waiting',
+      await tester.pumpWidget(
+        _wrap(
+          CellAsyncBuilder<Object>(
+            cell: future,
+            builder: (_, snapshot) =>
+                Text(snapshot.hasError ? 'error' : 'waiting'),
           ),
         ),
-      ));
+      );
 
       expect(find.text('waiting'), findsOneWidget);
 
@@ -268,30 +289,32 @@ void main() {
       expect(find.text('error'), findsOneWidget);
     });
 
-    testWidgets('asyncMap mapper failure keeps the last successful value',
-        (tester) async {
+    testWidgets('asyncMap mapper failure keeps the last successful value', (
+      tester,
+    ) async {
       final src = Cell.ingress<int>();
-      final mapped = Cell.asyncMap<int, int>(
-        src.cell,
-        (v, {required EffectJournal journal}) async {
-          if (v == 2) throw StateError('mapper boom');
-          return v * 10;
-        },
-        journal: RecordingJournal(),
-      );
+      final mapped = Cell.asyncMap<int, int>(src.cell, (
+        v, {
+        required EffectJournal journal,
+      }) async {
+        if (v == 2) throw StateError('mapper boom');
+        return v * 10;
+      }, journal: RecordingJournal());
 
-      await tester.pumpWidget(_wrap(
-        CellAsyncBuilder<int>(
-          cell: mapped,
-          builder: (_, snapshot) => Text(
-            snapshot.hasError
-                ? 'error'
-                : snapshot.hasData
-                    ? 'data:${snapshot.data}'
-                    : 'waiting',
+      await tester.pumpWidget(
+        _wrap(
+          CellAsyncBuilder<int>(
+            cell: mapped,
+            builder: (_, snapshot) => Text(
+              snapshot.hasError
+                  ? 'error'
+                  : snapshot.hasData
+                  ? 'data:${snapshot.data}'
+                  : 'waiting',
+            ),
           ),
         ),
-      ));
+      );
 
       // asyncMap schedules mapper work via `Future(...)` (a zero-delay
       // timer); the test clock must elapse a positive duration.
@@ -312,8 +335,9 @@ void main() {
     testWidgets('dispose stops egress', (tester) async {
       final src = Cell.ingress<int>();
 
-      await tester
-          .pumpWidget(_wrap(_Host(cell: src.cell, initialSnapshot: null)));
+      await tester.pumpWidget(
+        _wrap(_Host(cell: src.cell, initialSnapshot: null)),
+      );
 
       await tester.pumpWidget(_wrap(const SizedBox.shrink()));
 
@@ -327,45 +351,60 @@ void main() {
     testWidgets('defers a pulse emitted during build', (tester) async {
       final src = Cell.ingress<int>();
 
-      await tester
-          .pumpWidget(_wrap(_Host(cell: src.cell, initialSnapshot: null)));
+      await tester.pumpWidget(
+        _wrap(_Host(cell: src.cell, initialSnapshot: null)),
+      );
       expect(find.text('state:${ConnectionState.none}'), findsOneWidget);
 
       // Rebuild the same element; the host emits mid-build. The pulse is
       // queued and applied in the post-frame flush, never via a setState
       // during the build itself.
-      await tester.pumpWidget(_wrap(_Host(
-        cell: src.cell,
-        initialSnapshot: null,
-        emitOnBuild: () => src.emit(99),
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          _Host(
+            cell: src.cell,
+            initialSnapshot: null,
+            emitOnBuild: () => src.emit(99),
+          ),
+        ),
+      );
       await tester.pump();
 
       expect(find.text('data:99'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('drops a pending deferred pulse when disposed before the flush',
-        (tester) async {
-      final src = Cell.ingress<int>();
+    testWidgets(
+      'drops a pending deferred pulse when disposed before the flush',
+      (tester) async {
+        final src = Cell.ingress<int>();
 
-      await tester.pumpWidget(_wrap(_EmitHost(
-        child: CellAsyncBuilder<int>(
-          cell: src.cell,
-          builder: (_, snapshot) => Text('${snapshot.data ?? 'none'}'),
-        ),
-      )));
+        await tester.pumpWidget(
+          _wrap(
+            _EmitHost(
+              child: CellAsyncBuilder<int>(
+                cell: src.cell,
+                builder: (_, snapshot) => Text('${snapshot.data ?? 'none'}'),
+              ),
+            ),
+          ),
+        );
 
-      // The host emits mid-build and unmounts the builder in the same
-      // frame. The post-frame flush runs after dispose and must drop the
-      // pending pulse silently.
-      await tester.pumpWidget(_wrap(_EmitHost(
-        emitOnBuild: () => src.emit(99),
-        child: const SizedBox.shrink(),
-      )));
+        // The host emits mid-build and unmounts the builder in the same
+        // frame. The post-frame flush runs after dispose and must drop the
+        // pending pulse silently.
+        await tester.pumpWidget(
+          _wrap(
+            _EmitHost(
+              emitOnBuild: () => src.emit(99),
+              child: const SizedBox.shrink(),
+            ),
+          ),
+        );
 
-      expect(tester.takeException(), isNull);
-    });
+        expect(tester.takeException(), isNull);
+      },
+    );
   });
 }
 

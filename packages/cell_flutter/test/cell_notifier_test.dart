@@ -94,10 +94,7 @@ void main() {
       final notifier = CellNotifier(counter.cell);
       addTearDown(notifier.dispose);
 
-      expect(
-        () => notifier.value = 99,
-        throwsA(isA<UnsupportedError>()),
-      );
+      expect(() => notifier.value = 99, throwsA(isA<UnsupportedError>()));
     });
 
     test('rejects invalidated cell', () {
@@ -120,10 +117,7 @@ void main() {
       final cell = ValueCell<int>(initial: 0, bind: head);
       expect(cell.isInvalidated, isTrue);
 
-      expect(
-        () => CellNotifier(cell),
-        throwsA(isA<ArgumentError>()),
-      );
+      expect(() => CellNotifier(cell), throwsA(isA<ArgumentError>()));
     });
 
     test('works with a read-only unmodifiable view', () {

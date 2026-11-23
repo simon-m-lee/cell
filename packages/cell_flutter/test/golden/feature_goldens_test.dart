@@ -18,108 +18,97 @@ Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
 
 void main() {
   group('feature goldens', () {
-    testWidgets(
-      'CellTextField empty',
-      (tester) async {
-        final cell = Cell.state<String>(initial: '');
-        await tester.pumpWidget(_wrap(
+    testWidgets('CellTextField empty', (tester) async {
+      final cell = Cell.state<String>(initial: '');
+      await tester.pumpWidget(
+        _wrap(
           CellTextField(
             cell: cell.cell,
             decoration: const InputDecoration(labelText: 'Email'),
           ),
-        ));
-        await expectLater(
-          find.byType(MaterialApp),
-          matchesGoldenFile('goldens/cell_text_field_empty.png'),
-        );
-      },
-      skip: !Platform.isWindows,
-    );
+        ),
+      );
+      await expectLater(
+        find.byType(MaterialApp),
+        matchesGoldenFile('goldens/cell_text_field_empty.png'),
+      );
+    }, skip: !Platform.isWindows);
 
-    testWidgets(
-      'CellTextField filled',
-      (tester) async {
-        final cell = Cell.state<String>(initial: 'user@example.com');
-        await tester.pumpWidget(_wrap(
+    testWidgets('CellTextField filled', (tester) async {
+      final cell = Cell.state<String>(initial: 'user@example.com');
+      await tester.pumpWidget(
+        _wrap(
           CellTextField(
             cell: cell.cell,
             decoration: const InputDecoration(labelText: 'Email'),
           ),
-        ));
-        await expectLater(
-          find.byType(MaterialApp),
-          matchesGoldenFile('goldens/cell_text_field_filled.png'),
-        );
-      },
-      skip: !Platform.isWindows,
-    );
+        ),
+      );
+      await expectLater(
+        find.byType(MaterialApp),
+        matchesGoldenFile('goldens/cell_text_field_filled.png'),
+      );
+    }, skip: !Platform.isWindows);
 
-    testWidgets(
-      'CellErrorBoundary fallback',
-      (tester) async {
-        final policy = EphemeralPolicy<Cell>(
-          eventLimit: 1,
-          onEvent: (object,
-                  {required cell, required policy, arguments, user}) =>
-              (events: policy.events + 1),
-          onInvalidate: (nucleus) => true,
-        );
-        final head = Cell.governed(
-          ephemeralPolicy: policy,
-          context: Context.system,
-        );
-        policy('use', cell: head);
-        final cell = ValueCell<int>(initial: 0, bind: head);
+    testWidgets('CellErrorBoundary fallback', (tester) async {
+      final policy = EphemeralPolicy<Cell>(
+        eventLimit: 1,
+        onEvent: (object, {required cell, required policy, arguments, user}) =>
+            (events: policy.events + 1),
+        onInvalidate: (nucleus) => true,
+      );
+      final head = Cell.governed(
+        ephemeralPolicy: policy,
+        context: Context.system,
+      );
+      policy('use', cell: head);
+      final cell = ValueCell<int>(initial: 0, bind: head);
 
-        await tester.pumpWidget(_wrap(
+      await tester.pumpWidget(
+        _wrap(
           CellErrorBoundary(
             onError: (error, stack) => const Text('Something broke'),
             child: CellBuilder<int>(cell: cell, builder: (_, v) => Text('$v')),
           ),
-        ));
-        await tester.pump();
-        await expectLater(
-          find.byType(MaterialApp),
-          matchesGoldenFile('goldens/cell_error_boundary_fallback.png'),
-        );
-      },
-      skip: !Platform.isWindows,
-    );
+        ),
+      );
+      await tester.pump();
+      await expectLater(
+        find.byType(MaterialApp),
+        matchesGoldenFile('goldens/cell_error_boundary_fallback.png'),
+      );
+    }, skip: !Platform.isWindows);
 
-    testWidgets(
-      'CellListView filled',
-      (tester) async {
-        final list = Cell.state<List<String>>(initial: ['alpha', 'beta']);
-        await tester.pumpWidget(_wrap(
+    testWidgets('CellListView filled', (tester) async {
+      final list = Cell.state<List<String>>(initial: ['alpha', 'beta']);
+      await tester.pumpWidget(
+        _wrap(
           CellListView<String>.builder(
             cell: list.cell,
             itemBuilder: (_, item, i) => ListTile(title: Text(item)),
           ),
-        ));
-        await expectLater(
-          find.byType(MaterialApp),
-          matchesGoldenFile('goldens/cell_list_view_filled.png'),
-        );
-      },
-      skip: !Platform.isWindows,
-    );
+        ),
+      );
+      await expectLater(
+        find.byType(MaterialApp),
+        matchesGoldenFile('goldens/cell_list_view_filled.png'),
+      );
+    }, skip: !Platform.isWindows);
 
-    testWidgets(
-      'CellListView empty',
-      (tester) async {
-        final list = Cell.state<List<String>>(initial: const []);
-        await tester.pumpWidget(_wrap(
+    testWidgets('CellListView empty', (tester) async {
+      final list = Cell.state<List<String>>(initial: const []);
+      await tester.pumpWidget(
+        _wrap(
           CellListView<String>.builder(
             cell: list.cell,
             itemBuilder: (_, item, i) => ListTile(title: Text(item)),
           ),
-        ));
-        await expectLater(
-          find.byType(MaterialApp),
-          matchesGoldenFile('goldens/cell_list_view_empty.png'),
-        );
-      },
-      skip: !Platform.isWindows,
-    );
+        ),
+      );
+      await expectLater(
+        find.byType(MaterialApp),
+        matchesGoldenFile('goldens/cell_list_view_empty.png'),
+      );
+    }, skip: !Platform.isWindows);
   });
 }

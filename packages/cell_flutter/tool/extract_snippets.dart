@@ -65,16 +65,19 @@ void main(List<String> args) {
   final toolDir = File.fromUri(Platform.script).parent;
   final root = toolDir.parent;
 
-  final guides = Directory('${root.path}${Platform.pathSeparator}guide')
-      .listSync()
-      .whereType<File>()
-      // Gate G4 covers the two migration guides; extending the contract
-      // to the HowTo guides is future work.
-      .where((f) =>
-          f.path.endsWith('.md') &&
-          f.uri.pathSegments.last.startsWith('MigratingFrom-'))
-      .toList()
-    ..sort((a, b) => a.path.compareTo(b.path));
+  final guides =
+      Directory('${root.path}${Platform.pathSeparator}guide')
+          .listSync()
+          .whereType<File>()
+          // Gate G4 covers the two migration guides; extending the contract
+          // to the HowTo guides is future work.
+          .where(
+            (f) =>
+                f.path.endsWith('.md') &&
+                f.uri.pathSegments.last.startsWith('MigratingFrom-'),
+          )
+          .toList()
+        ..sort((a, b) => a.path.compareTo(b.path));
 
   final blocks = <_Block>[];
   for (final guide in guides) {
@@ -173,25 +176,33 @@ void main(List<String> args) {
       ..write(text.substring(mainIndex + 1));
   }
 
-  final target = File('${root.path}${Platform.pathSeparator}test'
-      '${Platform.pathSeparator}migration'
-      '${Platform.pathSeparator}_extracted_test.dart');
+  final target = File(
+    '${root.path}${Platform.pathSeparator}test'
+    '${Platform.pathSeparator}migration'
+    '${Platform.pathSeparator}_extracted_test.dart',
+  );
   if (check) {
     if (!target.existsSync() || target.readAsStringSync() != out.toString()) {
-      stderr.writeln('CHECK FAILED: test/migration/_extracted_test.dart is '
-          'stale. Run: dart run tool/extract_snippets.dart');
+      stderr.writeln(
+        'CHECK FAILED: test/migration/_extracted_test.dart is '
+        'stale. Run: dart run tool/extract_snippets.dart',
+      );
       exitCode = 1;
       return;
     }
-    stdout.writeln('CHECK PASSED: extracted snippets are up to date '
-        '(${blocks.length} blocks, ${skipped.length} skipped).');
+    stdout.writeln(
+      'CHECK PASSED: extracted snippets are up to date '
+      '(${blocks.length} blocks, ${skipped.length} skipped).',
+    );
     return;
   }
 
   target.writeAsStringSync(out.toString());
-  stdout.writeln('Wrote ${target.path}: ${blocks.length} dart blocks '
-      '(${skipped.length} skipped, '
-      '${blocks.length - skipped.length} extracted).');
+  stdout.writeln(
+    'Wrote ${target.path}: ${blocks.length} dart blocks '
+    '(${skipped.length} skipped, '
+    '${blocks.length - skipped.length} extracted).',
+  );
   if (skipped.isNotEmpty) {
     stdout.writeln('Skipped (illustrative): ${skipped.join(', ')}');
   }

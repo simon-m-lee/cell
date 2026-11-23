@@ -31,12 +31,14 @@ void main() {
       await captureDebugPrint((logs) async {
         for (var i = 0; i < 5; i++) {
           final fresh = Cell.state<int>(initial: i);
-          await tester.pumpWidget(MaterialApp(
-            home: CellBuilder<int>(
-              cell: fresh.cell,
-              builder: (_, v) => Text('$v'),
+          await tester.pumpWidget(
+            MaterialApp(
+              home: CellBuilder<int>(
+                cell: fresh.cell,
+                builder: (_, v) => Text('$v'),
+              ),
             ),
-          ));
+          );
         }
         expect(
           logs.any((l) => l.contains('the cell identity changed')),
@@ -49,12 +51,14 @@ void main() {
       await captureDebugPrint((logs) async {
         final counter = Cell.state<int>(initial: 0);
         for (var i = 0; i < 5; i++) {
-          await tester.pumpWidget(MaterialApp(
-            home: CellBuilder<int>(
-              cell: counter.cell,
-              builder: (_, v) => Text('$v'),
+          await tester.pumpWidget(
+            MaterialApp(
+              home: CellBuilder<int>(
+                cell: counter.cell,
+                builder: (_, v) => Text('$v'),
+              ),
             ),
-          ));
+          );
         }
         expect(logs, isEmpty);
       });
@@ -64,12 +68,14 @@ void main() {
       await captureDebugPrint((logs) async {
         final a = Cell.state<int>(initial: 0);
         final b = Cell.state<int>(initial: 1);
-        Future<void> pump(ValueCell<int> cell) => tester.pumpWidget(MaterialApp(
-              home: CellBuilder<int>(
-                cell: cell,
-                builder: (context, value) => const SizedBox(),
-              ),
-            ));
+        Future<void> pump(ValueCell<int> cell) => tester.pumpWidget(
+          MaterialApp(
+            home: CellBuilder<int>(
+              cell: cell,
+              builder: (context, value) => const SizedBox(),
+            ),
+          ),
+        );
         await pump(a.cell);
         await pump(b.cell);
         await pump(b.cell);

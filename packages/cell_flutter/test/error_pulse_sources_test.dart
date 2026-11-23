@@ -58,8 +58,7 @@ void main() {
   });
 
   group('fromStream', () {
-    test(
-        'does not emit an error pulse on stream error '
+    test('does not emit an error pulse on stream error '
         '(cancelOnError: false)', () async {
       final cell = Cell.fromStream<int>(
         Stream<int>.error(StateError('boom')),
@@ -72,8 +71,7 @@ void main() {
       expect(Cell.latestPulse(cell), isNull);
     });
 
-    test(
-        'does not emit an error pulse on stream error '
+    test('does not emit an error pulse on stream error '
         '(cancelOnError: true)', () async {
       final cell = Cell.fromStream<int>(
         Stream<int>.error(StateError('boom')),
@@ -116,8 +114,7 @@ void main() {
       expect(Cell.latestPulse(mapped), isNull);
     });
 
-    test(
-        'does not emit an error pulse when the mapper returns '
+    test('does not emit an error pulse when the mapper returns '
         'Future.error', () async {
       final src = Cell.ingress<int>();
       final mapped = Cell.asyncMap<int, int>(
@@ -131,29 +128,30 @@ void main() {
       expect(Cell.latestPulse(mapped), isNull);
     });
 
-    test('retains the last mapped result emitted before a later failure',
-        () async {
-      final src = Cell.ingress<int>();
-      var fail = false;
-      final mapped = Cell.asyncMap<int, int>(
-        src.cell,
-        (value, {required journal}) async {
+    test(
+      'retains the last mapped result emitted before a later failure',
+      () async {
+        final src = Cell.ingress<int>();
+        var fail = false;
+        final mapped = Cell.asyncMap<int, int>(src.cell, (
+          value, {
+          required journal,
+        }) async {
           if (fail) throw StateError('boom');
           return value * 2;
-        },
-        journal: RecordingJournal(),
-      );
+        }, journal: RecordingJournal());
 
-      src.emit(21);
-      await pumpEventQueue();
-      expect(Cell.latestPulse(mapped)?.payload, 42);
+        src.emit(21);
+        await pumpEventQueue();
+        expect(Cell.latestPulse(mapped)?.payload, 42);
 
-      fail = true;
-      src.emit(22);
-      await pumpEventQueue();
-      // The failed mapper must not clobber the retained result.
-      expect(Cell.latestPulse(mapped)?.payload, 42);
-    });
+        fail = true;
+        src.emit(22);
+        await pumpEventQueue();
+        // The failed mapper must not clobber the retained result.
+        expect(Cell.latestPulse(mapped)?.payload, 42);
+      },
+    );
   });
 
   group('recordPulses', () {
@@ -203,8 +201,9 @@ void main() {
   });
 
   group('CellAsyncBuilder error seeding (C1 x C2)', () {
-    testWidgets('a completed failed fromFuture seeds an error snapshot',
-        (tester) async {
+    testWidgets('a completed failed fromFuture seeds an error snapshot', (
+      tester,
+    ) async {
       final cell = Cell.fromFuture<int>(
         Future<int>.error(StateError('boom')),
         journal: RecordingJournal(),
@@ -213,14 +212,15 @@ void main() {
         await tester.pump(const Duration(milliseconds: 1));
       }
 
-      await tester.pumpWidget(_wrap(
-        CellAsyncBuilder<int>(
-          cell: cell,
-          builder: (_, snapshot) => Text(
-            '${snapshot.hasData} ${snapshot.hasError}',
+      await tester.pumpWidget(
+        _wrap(
+          CellAsyncBuilder<int>(
+            cell: cell,
+            builder: (_, snapshot) =>
+                Text('${snapshot.hasData} ${snapshot.hasError}'),
           ),
         ),
-      ));
+      );
 
       // The retained error pulse seeds the first frame as hasError.
       expect(find.text('false true'), findsOneWidget);

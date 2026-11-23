@@ -16,9 +16,9 @@ class LoginState {
   final String password;
 
   LoginState copyWith({String? email, String? password}) => LoginState(
-        email: email ?? this.email,
-        password: password ?? this.password,
-      );
+    email: email ?? this.email,
+    password: password ?? this.password,
+  );
 
   bool get valid => email.contains('@') && password.length >= 6;
 }
@@ -41,7 +41,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   LoginBloc() : super(const LoginState()) {
     on<EmailChanged>((event, emit) => emit(state.copyWith(email: event.value)));
     on<PasswordChanged>(
-        (event, emit) => emit(state.copyWith(password: event.value)));
+      (event, emit) => emit(state.copyWith(password: event.value)),
+    );
   }
 }
 

@@ -45,11 +45,15 @@ void main() async {
         final result = await _checkUrl(target);
         if (result == _UrlResult.ok) continue;
         if (result == _UrlResult.transient) {
-          warnings.add('${file.uri.pathSegments.last}: $target '
-              '(network unreachable — warning only)');
+          warnings.add(
+            '${file.uri.pathSegments.last}: $target '
+            '(network unreachable — warning only)',
+          );
         } else {
-          failures.add('${file.uri.pathSegments.last}: $target '
-              '(URL did not respond)');
+          failures.add(
+            '${file.uri.pathSegments.last}: $target '
+            '(URL did not respond)',
+          );
         }
         continue;
       }
@@ -95,8 +99,10 @@ bool _looksLikeFile(String target) =>
     target.endsWith('.yaml');
 
 bool _exists(Directory root, String target) {
-  final f = File('${root.path}${Platform.pathSeparator}'
-      '${target.replaceAll('/', Platform.pathSeparator)}');
+  final f = File(
+    '${root.path}${Platform.pathSeparator}'
+    '${target.replaceAll('/', Platform.pathSeparator)}',
+  );
   return f.existsSync();
 }
 

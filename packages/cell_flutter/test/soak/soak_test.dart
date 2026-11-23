@@ -48,8 +48,7 @@ class _SoakJournal implements EffectJournal {
     required Object? input,
     required Future<T> Function() run,
     Object? Function(T)? serializeOutput,
-  }) =>
-      run();
+  }) => run();
 
   @override
   Future<void> timer({
@@ -73,8 +72,7 @@ class _SoakJournal implements EffectJournal {
     required String ruleLabel,
     required Object? input,
     required FutureOr<bool> Function() run,
-  }) async =>
-      await run();
+  }) async => await run();
 
   @override
   void policyTick({
@@ -99,12 +97,14 @@ void main() {
     // operators. This isolates the harness/engine's own RSS behavior.
     // -----------------------------------------------------------------
     final control = Cell.state<int>(initial: 0);
-    await tester.pumpWidget(MaterialApp(
-      home: CellBuilder<int>(
-        cell: control.cell,
-        builder: (_, v) => Text('$v'),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: CellBuilder<int>(
+          cell: control.cell,
+          builder: (_, v) => Text('$v'),
+        ),
       ),
-    ));
+    );
     var controlBaseline = -1;
     var controlFinal = -1;
     for (var i = 0; i < 10000; i++) {
@@ -114,32 +114,40 @@ void main() {
       if (i == 9999) controlFinal = _rssMb();
     }
     final controlGrowth = (controlFinal - controlBaseline) / controlBaseline;
-    samples.add('control: ${controlBaseline}MB -> ${controlFinal}MB '
-        '(${(controlGrowth * 100).toStringAsFixed(1)}%)');
+    samples.add(
+      'control: ${controlBaseline}MB -> ${controlFinal}MB '
+      '(${(controlGrowth * 100).toStringAsFixed(1)}%)',
+    );
 
     // -----------------------------------------------------------------
     // Soak phase: the replay-verified scenarios.
     // -----------------------------------------------------------------
     final state = Cell.state<int>(initial: 0);
     final debounced = Cell.debounce(
-        state.cell, const Duration(milliseconds: 10),
-        journal: _SoakJournal());
+      state.cell,
+      const Duration(milliseconds: 10),
+      journal: _SoakJournal(),
+    );
     final throttled = Cell.throttle(
-        state.cell, const Duration(milliseconds: 10),
-        journal: _SoakJournal());
+      state.cell,
+      const Duration(milliseconds: 10),
+      journal: _SoakJournal(),
+    );
     final debounceRecorder = debounced.recordPulses();
     final throttleRecorder = throttled.recordPulses();
     addTearDown(debounceRecorder.stop);
     addTearDown(throttleRecorder.stop);
 
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: CellBuilder<int>(
-          cell: state.cell,
-          builder: (_, v) => Text('$v'),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CellBuilder<int>(
+            cell: state.cell,
+            builder: (_, v) => Text('$v'),
+          ),
         ),
       ),
-    ));
+    );
 
     var baseline = -1;
     var finalRss = -1;
@@ -170,11 +178,15 @@ void main() {
       if (i % 500 == 0) {
         // Completion paths for the async sources.
         final completer = Completer<int>();
-        final futureCell =
-            Cell.fromFuture<int>(completer.future, journal: _SoakJournal());
+        final futureCell = Cell.fromFuture<int>(
+          completer.future,
+          journal: _SoakJournal(),
+        );
         final controller = StreamController<int>();
-        final streamCell =
-            Cell.fromStream<int>(controller.stream, journal: _SoakJournal());
+        final streamCell = Cell.fromStream<int>(
+          controller.stream,
+          journal: _SoakJournal(),
+        );
         final futureEgress = Cell.observe<Pulse<Object?>>(
           source: futureCell,
           effect: (_) {},
@@ -210,19 +222,27 @@ void main() {
     await drainTimers();
 
     // No timer accumulation.
-    expect(tester.binding.transientCallbackCount, 0,
-        reason: 'transient callbacks must not accumulate across 10k '
-            'iterations');
+    expect(
+      tester.binding.transientCallbackCount,
+      0,
+      reason:
+          'transient callbacks must not accumulate across 10k '
+          'iterations',
+    );
 
     // Framework-attributable RSS growth within ±5% of the control phase.
     final soakGrowth = (finalRss - baseline) / baseline;
     final attributable = soakGrowth - controlGrowth;
-    expect(attributable.abs(), lessThan(0.05),
-        reason: 'framework-attributable growth '
-            '${(attributable * 100).toStringAsFixed(1)}% '
-            '(control ${(controlGrowth * 100).toStringAsFixed(1)}%, '
-            'soak ${(soakGrowth * 100).toStringAsFixed(1)}%); '
-            'samples: $samples');
+    expect(
+      attributable.abs(),
+      lessThan(0.05),
+      reason:
+          'framework-attributable growth '
+          '${(attributable * 100).toStringAsFixed(1)}% '
+          '(control ${(controlGrowth * 100).toStringAsFixed(1)}%, '
+          'soak ${(soakGrowth * 100).toStringAsFixed(1)}%); '
+          'samples: $samples',
+    );
 
     // The debounce/throttle scenarios really ran.
     expect(debouncePulses, greaterThan(0));

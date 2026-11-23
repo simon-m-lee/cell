@@ -123,11 +123,7 @@ class CellScope extends InheritedWidget {
   ///
   /// Keys are `Symbol`s (`#auth`, `#theme`), not type parameters — see the
   /// class-level *Design Note* for why.
-  const CellScope({
-    required this.cells,
-    required super.child,
-    super.key,
-  });
+  const CellScope({required this.cells, required super.child, super.key});
 
   /// The registered cells: keys are `Symbol`s, values are `Cell`s.
   ///

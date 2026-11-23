@@ -26,10 +26,12 @@ class _Host extends HookWidget {
   @override
   Widget build(BuildContext context) {
     useCellListener<int>(cell: cell, onPulse: onPulse);
-    return Builder(builder: (ctx) {
-      emitOnBuild();
-      return const SizedBox.shrink();
-    });
+    return Builder(
+      builder: (ctx) {
+        emitOnBuild();
+        return const SizedBox.shrink();
+      },
+    );
   }
 }
 
@@ -38,13 +40,17 @@ void main() {
     testWidgets('sync dispatch from event handler', (tester) async {
       final cell = Cell.state<int>(initial: 0);
       final received = <int>[];
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        useCellListener<int>(
-          cell: cell.cell,
-          onPulse: (_, p) => received.add(p.payload!),
-        );
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            useCellListener<int>(
+              cell: cell.cell,
+              onPulse: (_, p) => received.add(p.payload!),
+            );
+            return const SizedBox.shrink();
+          },
+        ),
+      );
 
       cell.update(1);
       await tester.pump();
@@ -56,24 +62,28 @@ void main() {
       final received = <int>[];
       final phases = <SchedulerPhase>[];
 
-      await tester.pumpWidget(_Host(
-        cell: cell.cell,
-        onPulse: (_, p) {
-          phases.add(SchedulerBinding.instance.schedulerPhase);
-          received.add(p.payload!);
-        },
-        emitOnBuild: () {},
-      ));
+      await tester.pumpWidget(
+        _Host(
+          cell: cell.cell,
+          onPulse: (_, p) {
+            phases.add(SchedulerBinding.instance.schedulerPhase);
+            received.add(p.payload!);
+          },
+          emitOnBuild: () {},
+        ),
+      );
 
       // Rebuild with the same element; the host emits during build.
-      await tester.pumpWidget(_Host(
-        cell: cell.cell,
-        onPulse: (_, p) {
-          phases.add(SchedulerBinding.instance.schedulerPhase);
-          received.add(p.payload!);
-        },
-        emitOnBuild: () => cell.update(1),
-      ));
+      await tester.pumpWidget(
+        _Host(
+          cell: cell.cell,
+          onPulse: (_, p) {
+            phases.add(SchedulerBinding.instance.schedulerPhase);
+            received.add(p.payload!);
+          },
+          emitOnBuild: () => cell.update(1),
+        ),
+      );
 
       expect(received, [1]);
       expect(phases, [SchedulerPhase.postFrameCallbacks]);
@@ -86,13 +96,17 @@ void main() {
       FlutterError.onError = errors.add;
       addTearDown(() => FlutterError.onError = originalOnError);
 
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        useCellListener<int>(
-          cell: cell.cell,
-          onPulse: (context, pulse) => throw StateError('boom'),
-        );
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            useCellListener<int>(
+              cell: cell.cell,
+              onPulse: (context, pulse) => throw StateError('boom'),
+            );
+            return const SizedBox.shrink();
+          },
+        ),
+      );
 
       cell.update(1);
       await tester.pump();
@@ -102,16 +116,28 @@ void main() {
     testWidgets('fresh onPulse closure does not churn', (tester) async {
       final cell = Cell.state<int>(initial: 0);
       var counter = 0;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        useCellListener<int>(
-            cell: cell.cell, onPulse: (context, pulse) => counter++);
-        return const SizedBox.shrink();
-      }));
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        useCellListener<int>(
-            cell: cell.cell, onPulse: (context, pulse) => counter++);
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            useCellListener<int>(
+              cell: cell.cell,
+              onPulse: (context, pulse) => counter++,
+            );
+            return const SizedBox.shrink();
+          },
+        ),
+      );
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            useCellListener<int>(
+              cell: cell.cell,
+              onPulse: (context, pulse) => counter++,
+            );
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       cell.update(1);
       await tester.pump();
       expect(counter, 1);
@@ -123,14 +149,18 @@ void main() {
       final source = ValueNotifier<ValueCell<int>>(a.cell);
       addTearDown(source.dispose);
       final received = <int>[];
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        useValueListenable(source); // rebuild when the source swaps
-        useCellListener<int>(
-          cell: source.value,
-          onPulse: (_, p) => received.add(p.payload!),
-        );
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            useValueListenable(source); // rebuild when the source swaps
+            useCellListener<int>(
+              cell: source.value,
+              onPulse: (_, p) => received.add(p.payload!),
+            );
+            return const SizedBox.shrink();
+          },
+        ),
+      );
 
       source.value = b.cell;
       await tester.pump();
@@ -145,32 +175,43 @@ void main() {
       final b = Cell.state<int>(initial: 2);
       final received = <int>[];
 
-      await tester.pumpWidget(_Host(
-        cell: a.cell,
-        onPulse: (_, p) => received.add(p.payload!),
-        emitOnBuild: () {},
-      ));
+      await tester.pumpWidget(
+        _Host(
+          cell: a.cell,
+          onPulse: (_, p) => received.add(p.payload!),
+          emitOnBuild: () {},
+        ),
+      );
 
       // Emit from `a` during the same build that swaps the cell to `b`;
       // the pending pulse must be discarded when the hook rebinds.
-      await tester.pumpWidget(_Host(
-        cell: b.cell,
-        onPulse: (_, p) => received.add(p.payload!),
-        emitOnBuild: () => a.update(10),
-      ));
+      await tester.pumpWidget(
+        _Host(
+          cell: b.cell,
+          onPulse: (_, p) => received.add(p.payload!),
+          emitOnBuild: () => a.update(10),
+        ),
+      );
 
-      expect(received, isEmpty,
-          reason: 'pending pulse from old cell must not be delivered');
+      expect(
+        received,
+        isEmpty,
+        reason: 'pending pulse from old cell must not be delivered',
+      );
     });
 
     testWidgets('does not rebuild widget', (tester) async {
       final cell = Cell.state<int>(initial: 0);
       var buildCount = 0;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        useCellListener<int>(cell: cell.cell, onPulse: (context, pulse) {});
-        buildCount++;
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            useCellListener<int>(cell: cell.cell, onPulse: (context, pulse) {});
+            buildCount++;
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       expect(buildCount, 1);
       cell.update(1);
       await tester.pump();

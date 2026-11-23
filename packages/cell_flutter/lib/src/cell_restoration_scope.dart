@@ -249,6 +249,5 @@ class _CellRestorationScopeInherited extends InheritedWidget {
   // The callbacks are bound to the same State for its lifetime; the VM
   // does not attribute this arrow one-liner in coverage reports.
   @override
-  bool updateShouldNotify(_CellRestorationScopeInherited oldWidget) =>
-      false; // coverage:ignore-end
+  bool updateShouldNotify(_CellRestorationScopeInherited oldWidget) => false; // coverage:ignore-end
 }

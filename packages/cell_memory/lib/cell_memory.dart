@@ -43,3 +43,5 @@ export 'src/store.dart'
         MemoryStoreCas,
         MemoryStoreException;
 export 'src/stores/in_memory_store.dart' show InMemoryMemoryStore;
+
+// ci: memory workflow trigger marker (remove in a later cleanup).

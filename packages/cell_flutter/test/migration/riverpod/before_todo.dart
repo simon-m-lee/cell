@@ -22,9 +22,7 @@ final todoProvider = NotifierProvider<TodoNotifier, List<String>>(
 
 Widget buildTodoApp() {
   return const ProviderScope(
-    child: MaterialApp(
-      home: Scaffold(body: _TodoView()),
-    ),
+    child: MaterialApp(home: Scaffold(body: _TodoView())),
   );
 }
 

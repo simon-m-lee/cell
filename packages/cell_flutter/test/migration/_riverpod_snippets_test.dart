@@ -19,14 +19,16 @@ void main() {
     testWidgets('StateProvider → Cell.state', (tester) async {
       final counter = Cell.state<int>(initial: 0);
 
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: CellBuilder<int>(
-            cell: counter.cell.unmodifiable,
-            builder: (_, count) => Text('${count ?? 0}'),
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CellBuilder<int>(
+              cell: counter.cell.unmodifiable,
+              builder: (_, count) => Text('${count ?? 0}'),
+            ),
           ),
         ),
-      ));
+      );
 
       expect(find.text('0'), findsOneWidget);
       counter.update(5);
@@ -63,8 +65,9 @@ void main() {
       expect(recorder.payloads, [10]);
     });
 
-    testWidgets('derived Cell requires CellValueBuilder for display',
-        (tester) async {
+    testWidgets('derived Cell requires CellValueBuilder for display', (
+      tester,
+    ) async {
       final base = Cell.state<int>(initial: 1);
       final doubled = Cell.derive<Pulse<int>, Pulse<int>>(
         source: base.cell,
@@ -72,15 +75,17 @@ void main() {
       );
 
       // CellValueBuilder accepts any Cell; CellBuilder requires ValueCell.
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: CellValueBuilder<int>(
-            cell: doubled, // Cell, not ValueCell
-            initial: 2,
-            builder: (_, total) => Text('$total'),
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CellValueBuilder<int>(
+              cell: doubled, // Cell, not ValueCell
+              initial: 2,
+              builder: (_, total) => Text('$total'),
+            ),
           ),
         ),
-      ));
+      );
 
       expect(find.text('2'), findsOneWidget);
     });
@@ -92,7 +97,9 @@ void main() {
         [a.cell, b.cell],
         aggregator: (cells, _) => Pulse<int>(
           cells.fold<int>(
-              0, (acc, c) => acc + (((c as ValueCell<int>).value) ?? 0)),
+            0,
+            (acc, c) => acc + (((c as ValueCell<int>).value) ?? 0),
+          ),
         ),
       );
       final recorder = sum.recordPulses();
@@ -115,38 +122,48 @@ void main() {
       expect(errors, hasLength(1));
     });
 
-    test('StreamProvider → Cell.fromStream does NOT emit error pulse',
-        () async {
-      final ticks = Cell.fromStream<int>(
-        Stream<int>.error(StateError('boom')),
+    test(
+      'StreamProvider → Cell.fromStream does NOT emit error pulse',
+      () async {
+        final ticks = Cell.fromStream<int>(
+          Stream<int>.error(StateError('boom')),
+          journal: RecordingJournal(),
+        );
+        final recorder = ticks.recordPulses();
+        addTearDown(recorder.stop);
+        await Future<void>.delayed(Duration.zero);
+        final errors = recorder.pulses.where((p) => p.type == 'error');
+        expect(
+          errors,
+          isEmpty,
+          reason: 'fromStream does not emit error pulses today',
+        );
+      },
+    );
+
+    testWidgets('AsyncValue → AsyncSnapshot via CellAsyncBuilder', (
+      tester,
+    ) async {
+      final completer = Completer<String>();
+      final user = Cell.fromFuture<String>(
+        completer.future,
         journal: RecordingJournal(),
       );
-      final recorder = ticks.recordPulses();
-      addTearDown(recorder.stop);
-      await Future<void>.delayed(Duration.zero);
-      final errors = recorder.pulses.where((p) => p.type == 'error');
-      expect(errors, isEmpty,
-          reason: 'fromStream does not emit error pulses today');
-    });
 
-    testWidgets('AsyncValue → AsyncSnapshot via CellAsyncBuilder',
-        (tester) async {
-      final completer = Completer<String>();
-      final user = Cell.fromFuture<String>(completer.future,
-          journal: RecordingJournal());
-
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: CellAsyncBuilder<String>(
-            cell: user,
-            builder: (_, snapshot) => snapshot.hasError
-                ? ErrorView(snapshot.error!)
-                : snapshot.hasData
-                    ? Text('user: ${snapshot.data}')
-                    : const SizedBox.shrink(),
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CellAsyncBuilder<String>(
+              cell: user,
+              builder: (_, snapshot) => snapshot.hasError
+                  ? ErrorView(snapshot.error!)
+                  : snapshot.hasData
+                  ? Text('user: ${snapshot.data}')
+                  : const SizedBox.shrink(),
+            ),
           ),
         ),
-      ));
+      );
 
       expect(find.byType(ErrorView), findsNothing);
       completer.complete('ada');
@@ -156,25 +173,28 @@ void main() {
   });
 
   group('MigratingFrom-Riverpod.md — Section 6 (widgets)', () {
-    testWidgets('ref.listen → CellListener branches on error type',
-        (tester) async {
+    testWidgets('ref.listen → CellListener branches on error type', (
+      tester,
+    ) async {
       final auth = Cell.state<int?>(initial: null);
       Object? seenError;
 
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: CellListener<int?>(
-            cell: auth.cell,
-            onPulse: (context, pulse) {
-              if (pulse.type == 'error') {
-                seenError = pulse.payload;
-                return;
-              }
-            },
-            child: const SizedBox.shrink(),
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CellListener<int?>(
+              cell: auth.cell,
+              onPulse: (context, pulse) {
+                if (pulse.type == 'error') {
+                  seenError = pulse.payload;
+                  return;
+                }
+              },
+              child: const SizedBox.shrink(),
+            ),
           ),
         ),
-      ));
+      );
 
       auth.cell.value = 42;
       await tester.pump();
@@ -186,18 +206,22 @@ void main() {
     testWidgets('ProviderScope → CellScope', (tester) async {
       final auth = Cell.state<String?>(initial: null);
 
-      await tester.pumpWidget(CellScope(
-        cells: {#auth: auth.cell},
-        child: MaterialApp(
-          home: Scaffold(
-            body: Builder(builder: (context) {
-              // Deep in the tree:
-              final cell = CellScope.valueOf<String?>(context, #auth);
-              return Text('${cell.value}');
-            }),
+      await tester.pumpWidget(
+        CellScope(
+          cells: {#auth: auth.cell},
+          child: MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) {
+                  // Deep in the tree:
+                  final cell = CellScope.valueOf<String?>(context, #auth);
+                  return Text('${cell.value}');
+                },
+              ),
+            ),
           ),
         ),
-      ));
+      );
 
       expect(find.text('null'), findsOneWidget);
     });

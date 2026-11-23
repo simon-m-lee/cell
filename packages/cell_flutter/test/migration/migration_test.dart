@@ -32,9 +32,9 @@ import 'bloc/before_todo.dart' as b_before_todo;
 
 /// The visible text contents of the pumped tree, in order.
 List<String?> visibleTexts(WidgetTester tester) => [
-      for (final w in tester.allWidgets.whereType<Text>())
-        if (w.data != null) w.data,
-    ];
+  for (final w in tester.allWidgets.whereType<Text>())
+    if (w.data != null) w.data,
+];
 
 /// Pumps [app] and records the text sequence at each step of [drive].
 Future<List<List<String?>>> record(
@@ -54,26 +54,22 @@ Future<List<List<String?>>> record(
 void main() {
   group('Provider fixtures', () {
     testWidgets('counter renders identically before and after', (tester) async {
-      final before = await record(
-        tester,
-        p_before_counter.buildCounterApp(),
-        (t) async {
-          await t.tap(find.textContaining('count:'));
-          await t.pump();
-          await t.tap(find.textContaining('count:'));
-          await t.pump();
-        },
-      );
-      final after = await record(
-        tester,
-        p_after_counter.buildCounterApp(),
-        (t) async {
-          await t.tap(find.textContaining('count:'));
-          await t.pump();
-          await t.tap(find.textContaining('count:'));
-          await t.pump();
-        },
-      );
+      final before = await record(tester, p_before_counter.buildCounterApp(), (
+        t,
+      ) async {
+        await t.tap(find.textContaining('count:'));
+        await t.pump();
+        await t.tap(find.textContaining('count:'));
+        await t.pump();
+      });
+      final after = await record(tester, p_after_counter.buildCounterApp(), (
+        t,
+      ) async {
+        await t.tap(find.textContaining('count:'));
+        await t.pump();
+        await t.tap(find.textContaining('count:'));
+        await t.pump();
+      });
       expect(after, before);
     });
 
@@ -84,8 +80,11 @@ void main() {
         await t.pump();
       }
 
-      final before =
-          await record(tester, p_before_login.buildLoginApp(), drive);
+      final before = await record(
+        tester,
+        p_before_login.buildLoginApp(),
+        drive,
+      );
       final after = await record(tester, p_after_login.buildLoginApp(), drive);
       expect(after, before);
     });
@@ -106,22 +105,18 @@ void main() {
 
   group('Riverpod fixtures', () {
     testWidgets('counter renders identically before and after', (tester) async {
-      final before = await record(
-        tester,
-        r_before_counter.buildCounterApp(),
-        (t) async {
-          await t.tap(find.textContaining('count:'));
-          await t.pump();
-        },
-      );
-      final after = await record(
-        tester,
-        r_after_counter.buildCounterApp(),
-        (t) async {
-          await t.tap(find.textContaining('count:'));
-          await t.pump();
-        },
-      );
+      final before = await record(tester, r_before_counter.buildCounterApp(), (
+        t,
+      ) async {
+        await t.tap(find.textContaining('count:'));
+        await t.pump();
+      });
+      final after = await record(tester, r_after_counter.buildCounterApp(), (
+        t,
+      ) async {
+        await t.tap(find.textContaining('count:'));
+        await t.pump();
+      });
       expect(after, before);
     });
 
@@ -132,8 +127,11 @@ void main() {
         await t.pump();
       }
 
-      final before =
-          await record(tester, r_before_login.buildLoginApp(), drive);
+      final before = await record(
+        tester,
+        r_before_login.buildLoginApp(),
+        drive,
+      );
       final after = await record(tester, r_after_login.buildLoginApp(), drive);
       expect(after, before);
     });
@@ -154,22 +152,18 @@ void main() {
 
   group('Bloc fixtures', () {
     testWidgets('counter renders identically before and after', (tester) async {
-      final before = await record(
-        tester,
-        b_before_counter.buildCounterApp(),
-        (t) async {
-          await t.tap(find.textContaining('count:'));
-          await t.pump();
-        },
-      );
-      final after = await record(
-        tester,
-        b_after_counter.buildCounterApp(),
-        (t) async {
-          await t.tap(find.textContaining('count:'));
-          await t.pump();
-        },
-      );
+      final before = await record(tester, b_before_counter.buildCounterApp(), (
+        t,
+      ) async {
+        await t.tap(find.textContaining('count:'));
+        await t.pump();
+      });
+      final after = await record(tester, b_after_counter.buildCounterApp(), (
+        t,
+      ) async {
+        await t.tap(find.textContaining('count:'));
+        await t.pump();
+      });
       expect(after, before);
     });
 
@@ -180,8 +174,11 @@ void main() {
         await t.pump();
       }
 
-      final before =
-          await record(tester, b_before_login.buildLoginApp(), drive);
+      final before = await record(
+        tester,
+        b_before_login.buildLoginApp(),
+        drive,
+      );
       final after = await record(tester, b_after_login.buildLoginApp(), drive);
       expect(after, before);
     });

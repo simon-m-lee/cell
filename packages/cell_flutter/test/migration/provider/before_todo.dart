@@ -30,9 +30,8 @@ Widget buildTodoApp() {
               child: Consumer<TodoModel>(
                 builder: (context, m, child) => ListView.builder(
                   itemCount: m.items.length,
-                  itemBuilder: (context, i) => ListTile(
-                    title: Text(m.items[i]),
-                  ),
+                  itemBuilder: (context, i) =>
+                      ListTile(title: Text(m.items[i])),
                 ),
               ),
             ),

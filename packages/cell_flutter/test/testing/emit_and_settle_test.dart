@@ -12,10 +12,7 @@ void main() {
   group('emitAndSettle', () {
     testWidgets('updates cell and settles', (tester) async {
       final counter = Cell.state<int>(initial: 0);
-      await tester.pumpCell(
-        cell: counter.cell,
-        builder: (_, v) => Text('$v'),
-      );
+      await tester.pumpCell(cell: counter.cell, builder: (_, v) => Text('$v'));
       await tester.emitAndSettle(counter.cell, 5);
       expect(find.text('5'), findsOneWidget);
     });
@@ -23,14 +20,24 @@ void main() {
     testWidgets('settles nested rebuilds', (tester) async {
       final a = Cell.state<int>(initial: 0);
       final b = Cell.state<int>(initial: 0);
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: Column(children: [
-            CellBuilder<int>(cell: a.cell, builder: (_, v) => Text('A: $v')),
-            CellBuilder<int>(cell: b.cell, builder: (_, v) => Text('B: $v')),
-          ]),
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: [
+                CellBuilder<int>(
+                  cell: a.cell,
+                  builder: (_, v) => Text('A: $v'),
+                ),
+                CellBuilder<int>(
+                  cell: b.cell,
+                  builder: (_, v) => Text('B: $v'),
+                ),
+              ],
+            ),
+          ),
         ),
-      ));
+      );
       await tester.emitAndSettle(a.cell, 1);
       await tester.emitAndSettle(b.cell, 2);
       expect(find.text('A: 1'), findsOneWidget);
@@ -51,20 +58,14 @@ void main() {
   group('emitAndPump', () {
     testWidgets('pumps a single frame', (tester) async {
       final counter = Cell.state<int>(initial: 0);
-      await tester.pumpCell(
-        cell: counter.cell,
-        builder: (_, v) => Text('$v'),
-      );
+      await tester.pumpCell(cell: counter.cell, builder: (_, v) => Text('$v'));
       await tester.emitAndPump(counter.cell, 5);
       expect(find.text('5'), findsOneWidget);
     });
 
     testWidgets('pumps a duration', (tester) async {
       final counter = Cell.state<int>(initial: 0);
-      await tester.pumpCell(
-        cell: counter.cell,
-        builder: (_, v) => Text('$v'),
-      );
+      await tester.pumpCell(cell: counter.cell, builder: (_, v) => Text('$v'));
       await tester.emitAndPump(
         counter.cell,
         5,
@@ -77,14 +78,16 @@ void main() {
       // A widget that keeps rebuilding: pumpAndSettle would never settle,
       // but emitAndPump returns after one frame.
       final counter = Cell.state<int>(initial: 0);
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: CellBuilder<int>(
-            cell: counter.cell,
-            builder: (_, v) => const CircularProgressIndicator(),
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CellBuilder<int>(
+              cell: counter.cell,
+              builder: (_, v) => const CircularProgressIndicator(),
+            ),
           ),
         ),
-      ));
+      );
       await tester.emitAndPump(counter.cell, 5);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 

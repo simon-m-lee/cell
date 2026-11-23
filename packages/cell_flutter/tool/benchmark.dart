@@ -74,7 +74,8 @@ Future<void> main(List<String> args) async {
   final baselineFile = File('$packageRoot/$baselinePath');
   if (update) {
     baselineFile.writeAsStringSync(
-        '${const JsonEncoder.withIndent('  ').convert(measurements)}\n');
+      '${const JsonEncoder.withIndent('  ').convert(measurements)}\n',
+    );
     stdout.writeln('Wrote $packageRoot/$baselinePath');
     return;
   }
@@ -84,13 +85,15 @@ Future<void> main(List<String> args) async {
       : <String, dynamic>{};
   if (baseline.isEmpty) {
     stderr.writeln(
-        'No baseline at $packageRoot/$baselinePath; run with --update first.');
+      'No baseline at $packageRoot/$baselinePath; run with --update first.',
+    );
     exit(2);
   }
 
   var regressions = 0;
   stdout.writeln(
-      '${'scenario'.padRight(34)} p50(us)  baseline  delta   p99(us)  baseline  delta');
+    '${'scenario'.padRight(34)} p50(us)  baseline  delta   p99(us)  baseline  delta',
+  );
   for (final entry in baseline.entries) {
     final base = entry.value as Map<String, dynamic>;
     final current = measurements[entry.key];
@@ -111,19 +114,24 @@ Future<void> main(List<String> args) async {
         (p99 - baseP99) > absoluteSlackUs && p99Delta > maxRegression;
     if (p50Bad || p99Bad) regressions++;
     stdout.writeln(
-        '${entry.key.padRight(34)} ${p50.toString().padLeft(7)} ${baseP50.toString().padLeft(8)} '
-        '${_pct(p50Delta).padLeft(7)} ${p99.toString().padLeft(7)} '
-        '${baseP99.toString().padLeft(8)} ${_pct(p99Delta).padLeft(7)}'
-        '${(p50Bad || p99Bad) ? '  <-- REGRESSION' : ''}');
+      '${entry.key.padRight(34)} ${p50.toString().padLeft(7)} ${baseP50.toString().padLeft(8)} '
+      '${_pct(p50Delta).padLeft(7)} ${p99.toString().padLeft(7)} '
+      '${baseP99.toString().padLeft(8)} ${_pct(p99Delta).padLeft(7)}'
+      '${(p50Bad || p99Bad) ? '  <-- REGRESSION' : ''}',
+    );
   }
 
   if (regressions > 0) {
-    stderr.writeln('$regressions scenario(s) regressed beyond '
-        '${(maxRegression * 100).round()}%.');
+    stderr.writeln(
+      '$regressions scenario(s) regressed beyond '
+      '${(maxRegression * 100).round()}%.',
+    );
     exit(1);
   }
-  stdout.writeln('All ${baseline.length} baseline scenarios within '
-      '${(maxRegression * 100).round()}%.');
+  stdout.writeln(
+    'All ${baseline.length} baseline scenarios within '
+    '${(maxRegression * 100).round()}%.',
+  );
 }
 
 String _pct(num delta) {

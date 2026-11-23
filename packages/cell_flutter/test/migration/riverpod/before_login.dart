@@ -17,9 +17,9 @@ class LoginState {
   final String password;
 
   LoginState copyWith({String? email, String? password}) => LoginState(
-        email: email ?? this.email,
-        password: password ?? this.password,
-      );
+    email: email ?? this.email,
+    password: password ?? this.password,
+  );
 }
 
 class LoginNotifier extends Notifier<LoginState> {
@@ -41,9 +41,7 @@ final loginValidProvider = Provider<bool>((ref) {
 
 Widget buildLoginApp() {
   return const ProviderScope(
-    child: MaterialApp(
-      home: Scaffold(body: _LoginView()),
-    ),
+    child: MaterialApp(home: Scaffold(body: _LoginView())),
   );
 }
 

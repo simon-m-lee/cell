@@ -14,82 +14,105 @@ void main() {
     testWidgets('renders initial selected value', (tester) async {
       final counter = Cell.state<int>(initial: 42);
       String? captured;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        captured = useCell<int, String>(
-          cell: counter.cell,
-          select: (v) => 'value: $v',
-        );
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            captured = useCell<int, String>(
+              cell: counter.cell,
+              select: (v) => 'value: $v',
+            );
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       expect(captured, 'value: 42');
     });
 
-    testWidgets('debug asserts when select returns a collection without equals',
-        (tester) async {
-      final counter = Cell.state<int>(initial: 1);
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        useCell<int, List<int>>(
-          cell: counter.cell,
-          select: (v) => [v ?? 0],
+    testWidgets(
+      'debug asserts when select returns a collection without equals',
+      (tester) async {
+        final counter = Cell.state<int>(initial: 1);
+        await tester.pumpWidget(
+          HookBuilder(
+            builder: (_) {
+              useCell<int, List<int>>(
+                cell: counter.cell,
+                select: (v) => [v ?? 0],
+              );
+              return const SizedBox.shrink();
+            },
+          ),
         );
-        return const SizedBox.shrink();
-      }));
-      // The assert fires during build and is captured by the framework —
-      // the same contract CellSelector enforces.
-      expect(tester.takeException(), isA<AssertionError>());
-    });
+        // The assert fires during build and is captured by the framework —
+        // the same contract CellSelector enforces.
+        expect(tester.takeException(), isA<AssertionError>());
+      },
+    );
 
-    testWidgets('does not assert for a collection selection with equals',
-        (tester) async {
+    testWidgets('does not assert for a collection selection with equals', (
+      tester,
+    ) async {
       final counter = Cell.state<int>(initial: 1);
       List<int>? captured;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        captured = useCell<int, List<int>>(
-          cell: counter.cell,
-          select: (v) => [v ?? 0],
-          equals: listEquals,
-        );
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            captured = useCell<int, List<int>>(
+              cell: counter.cell,
+              select: (v) => [v ?? 0],
+              equals: listEquals,
+            );
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       expect(captured, [1]);
       expect(tester.takeException(), isNull);
     });
 
     testWidgets(
-        'debug asserts when a changed select returns a collection without equals',
-        (tester) async {
-      final counter = Cell.state<int>(initial: 1);
-      final selector = ValueNotifier<Object Function(int?)>((v) => v ?? 0);
-      addTearDown(selector.dispose);
+      'debug asserts when a changed select returns a collection without equals',
+      (tester) async {
+        final counter = Cell.state<int>(initial: 1);
+        final selector = ValueNotifier<Object Function(int?)>((v) => v ?? 0);
+        addTearDown(selector.dispose);
 
-      // First build: the selection is an int, so no assert fires.
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        useValueListenable(selector);
-        useCell<int, Object>(
-          cell: counter.cell,
-          select: selector.value,
+        // First build: the selection is an int, so no assert fires.
+        await tester.pumpWidget(
+          HookBuilder(
+            builder: (_) {
+              useValueListenable(selector);
+              useCell<int, Object>(cell: counter.cell, select: selector.value);
+              return const SizedBox.shrink();
+            },
+          ),
         );
-        return const SizedBox.shrink();
-      }));
-      expect(tester.takeException(), isNull);
+        expect(tester.takeException(), isNull);
 
-      // Swap the selector to return a collection with equals still null:
-      // the recompute effect fires the same debug assertion.
-      selector.value = (v) => [v ?? 0];
-      await tester.pump();
-      expect(tester.takeException(), isA<AssertionError>());
-    });
+        // Swap the selector to return a collection with equals still null:
+        // the recompute effect fires the same debug assertion.
+        selector.value = (v) => [v ?? 0];
+        await tester.pump();
+        expect(tester.takeException(), isA<AssertionError>());
+      },
+    );
 
     testWidgets('rebuilds when selected slice changes', (tester) async {
       final user = Cell.state<User>(initial: const User('alice', 30));
       final captured = <String>[];
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        captured.add(useCell<User, String>(
-          cell: user.cell,
-          select: (u) => u?.name ?? '',
-        ));
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            captured.add(
+              useCell<User, String>(
+                cell: user.cell,
+                select: (u) => u?.name ?? '',
+              ),
+            );
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       expect(captured, ['alice']);
 
       user.update(const User('bob', 30));
@@ -97,18 +120,23 @@ void main() {
       expect(captured, ['alice', 'bob']);
     });
 
-    testWidgets('does not rebuild when unselected slice changes',
-        (tester) async {
+    testWidgets('does not rebuild when unselected slice changes', (
+      tester,
+    ) async {
       final user = Cell.state<User>(initial: const User('alice', 30));
       var buildCount = 0;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        useCell<User, String>(
-          cell: user.cell,
-          select: (u) => u?.name ?? '',
-        );
-        buildCount++;
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            useCell<User, String>(
+              cell: user.cell,
+              select: (u) => u?.name ?? '',
+            );
+            buildCount++;
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       expect(buildCount, 1);
 
       user.update(const User('alice', 31)); // name unchanged
@@ -121,13 +149,21 @@ void main() {
       final captured = <String>[];
       var useName = true;
 
-      Future<void> pumpWith() => tester.pumpWidget(HookBuilder(builder: (_) {
-            captured.add(useCell<User, String>(
-              cell: user.cell,
-              select: useName ? (u) => u?.name ?? '' : (u) => '${u?.age ?? 0}',
-            ));
+      Future<void> pumpWith() => tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            captured.add(
+              useCell<User, String>(
+                cell: user.cell,
+                select: useName
+                    ? (u) => u?.name ?? ''
+                    : (u) => '${u?.age ?? 0}',
+              ),
+            );
             return const SizedBox.shrink();
-          }));
+          },
+        ),
+      );
 
       await pumpWith();
       expect(captured.last, 'alice');
@@ -141,15 +177,19 @@ void main() {
     testWidgets('custom equals for lists', (tester) async {
       final cell = Cell.state<List<int>>(initial: [1, 2, 3]);
       var buildCount = 0;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        useCell<List<int>, List<int>>(
-          cell: cell.cell,
-          select: (v) => v ?? const [],
-          equals: listEquals,
-        );
-        buildCount++;
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            useCell<List<int>, List<int>>(
+              cell: cell.cell,
+              select: (v) => v ?? const [],
+              equals: listEquals,
+            );
+            buildCount++;
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       expect(buildCount, 1);
 
       cell.update([1, 2, 3]); // equal content, new list
@@ -164,13 +204,17 @@ void main() {
     testWidgets('null handling', (tester) async {
       final cell = Cell.state<int?>(initial: null);
       String? captured;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        captured = useCell<int?, String>(
-          cell: cell.cell,
-          select: (v) => v == null ? 'none' : '$v',
-        );
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            captured = useCell<int?, String>(
+              cell: cell.cell,
+              select: (v) => v == null ? 'none' : '$v',
+            );
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       expect(captured, 'none');
 
       cell.update(5);
@@ -185,11 +229,18 @@ void main() {
       addTearDown(source.dispose);
       int? captured;
 
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        useValueListenable(source); // rebuild when the source swaps
-        captured = useCell<int, int>(cell: source.value, select: (v) => v ?? 0);
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            useValueListenable(source); // rebuild when the source swaps
+            captured = useCell<int, int>(
+              cell: source.value,
+              select: (v) => v ?? 0,
+            );
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       expect(captured, 1);
 
       source.value = b.cell;
@@ -205,87 +256,106 @@ void main() {
       expect(captured, 42);
     });
 
-    testWidgets(
-        'returns the new cell\'s slice on the first build after a '
+    testWidgets('returns the new cell\'s slice on the first build after a '
         'swap (no flash)', (tester) async {
       final cellA = Cell.state<String>(initial: 'A').cell;
       final cellB = Cell.state<String>(initial: 'B').cell;
       var currentCell = cellA;
       final rendered = <String>[];
 
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        final value =
-            useCell<String, String>(cell: currentCell, select: (v) => v ?? '');
-        rendered.add(value);
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            final value = useCell<String, String>(
+              cell: currentCell,
+              select: (v) => v ?? '',
+            );
+            rendered.add(value);
+            return const SizedBox.shrink();
+          },
+        ),
+      );
 
       // Change the cell and rebuild. The recompute effect re-runs
       // synchronously during the build that registers the new keys, so the
       // very first build with the new cell already returns its slice.
       currentCell = cellB;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        final value =
-            useCell<String, String>(cell: currentCell, select: (v) => v ?? '');
-        rendered.add(value);
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            final value = useCell<String, String>(
+              cell: currentCell,
+              select: (v) => v ?? '',
+            );
+            rendered.add(value);
+            return const SizedBox.shrink();
+          },
+        ),
+      );
 
       // Lock in the exact sequence: no stale 'A' build after the swap.
       expect(rendered, ['A', 'B']);
     });
 
-    testWidgets('keying the HookWidget resets the whole hook state',
-        (tester) async {
+    testWidgets('keying the HookWidget resets the whole hook state', (
+      tester,
+    ) async {
       final cellA = Cell.state<String>(initial: 'A').cell;
       final cellB = Cell.state<String>(initial: 'B').cell;
       var currentCell = cellA;
 
-      await tester.pumpWidget(MaterialApp(
-        home: HookBuilder(
-          key: ValueKey(currentCell),
-          builder: (_) {
-            final value = useCell<String, String>(
-              cell: currentCell,
-              select: (v) => v ?? '',
-            );
-            return Text(value);
-          },
+      await tester.pumpWidget(
+        MaterialApp(
+          home: HookBuilder(
+            key: ValueKey(currentCell),
+            builder: (_) {
+              final value = useCell<String, String>(
+                cell: currentCell,
+                select: (v) => v ?? '',
+              );
+              return Text(value);
+            },
+          ),
         ),
-      ));
+      );
 
       currentCell = cellB;
-      await tester.pumpWidget(MaterialApp(
-        home: HookBuilder(
-          key: ValueKey(currentCell),
-          builder: (_) {
-            final value = useCell<String, String>(
-              cell: currentCell,
-              select: (v) => v ?? '',
-            );
-            return Text(value);
-          },
+      await tester.pumpWidget(
+        MaterialApp(
+          home: HookBuilder(
+            key: ValueKey(currentCell),
+            builder: (_) {
+              final value = useCell<String, String>(
+                cell: currentCell,
+                select: (v) => v ?? '',
+              );
+              return Text(value);
+            },
+          ),
         ),
-      ));
+      );
 
       // The key change disposes and rebuilds the hook state.
       expect(find.text('B'), findsOneWidget);
       expect(find.text('A'), findsNothing);
     });
 
-    testWidgets(
-        'non-collection select without equals works without '
+    testWidgets('non-collection select without equals works without '
         'assertion', (tester) async {
       final source = Cell.state<List<String>>(initial: ['a', 'b']);
       int? captured;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        captured = useCell<List<String>, int>(
-          cell: source.cell,
-          select: (v) => v?.length ?? 0,
-          // equals intentionally omitted — an int slice is not a collection.
-        );
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            captured = useCell<List<String>, int>(
+              cell: source.cell,
+              select: (v) => v?.length ?? 0,
+              // equals intentionally omitted — an int slice is not a collection.
+            );
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       expect(captured, 2);
       expect(tester.takeException(), isNull);
     });
@@ -293,11 +363,15 @@ void main() {
     testWidgets('dispose stops subscription', (tester) async {
       final counter = Cell.state<int>(initial: 0);
       var rebuilds = 0;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        useCell<int, int>(cell: counter.cell, select: (v) => v ?? 0);
-        rebuilds++;
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            useCell<int, int>(cell: counter.cell, select: (v) => v ?? 0);
+            rebuilds++;
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       expect(rebuilds, 1);
 
       await tester.pumpWidget(const SizedBox.shrink());
@@ -306,18 +380,20 @@ void main() {
       expect(rebuilds, 1);
     });
 
-    testWidgets('fresh select closure does not churn subscription',
-        (tester) async {
+    testWidgets('fresh select closure does not churn subscription', (
+      tester,
+    ) async {
       final counter = Cell.state<int>(initial: 0);
       var rebuilds = 0;
-      Future<void> pumpOnce() => tester.pumpWidget(HookBuilder(builder: (_) {
-            useCell<int, int>(
-              cell: counter.cell,
-              select: (v) => (v ?? 0) * 1,
-            );
+      Future<void> pumpOnce() => tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            useCell<int, int>(cell: counter.cell, select: (v) => (v ?? 0) * 1);
             rebuilds++;
             return const SizedBox.shrink();
-          }));
+          },
+        ),
+      );
 
       for (var i = 0; i < 100; i++) {
         await pumpOnce();
@@ -333,12 +409,16 @@ void main() {
       final a = Cell.state<int>(initial: 1);
       final b = Cell.state<int>(initial: 2);
       final captured = <String>[];
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        final av = useCell<int, int>(cell: a.cell, select: (v) => v ?? 0);
-        final bv = useCell<int, int>(cell: b.cell, select: (v) => v ?? 0);
-        captured.add('$av,$bv');
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            final av = useCell<int, int>(cell: a.cell, select: (v) => v ?? 0);
+            final bv = useCell<int, int>(cell: b.cell, select: (v) => v ?? 0);
+            captured.add('$av,$bv');
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       expect(captured.last, '1,2');
 
       a.update(10);
@@ -355,10 +435,14 @@ void main() {
     testWidgets('rebuilds on every value change', (tester) async {
       final counter = Cell.state<int>(initial: 0);
       final captured = <int?>[];
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        captured.add(useCellValue(counter.cell));
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            captured.add(useCellValue(counter.cell));
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       expect(captured, [0]);
 
       counter.update(1);
@@ -371,10 +455,14 @@ void main() {
     testWidgets('returns a notifier bound to cell', (tester) async {
       final counter = Cell.state<int>(initial: 42);
       CellNotifier<int>? captured;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        captured = useCellNotifier(counter.cell);
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            captured = useCellNotifier(counter.cell);
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       expect(captured!.value, 42);
       expect(captured!.cell, same(counter.cell));
     });
@@ -382,10 +470,14 @@ void main() {
     testWidgets('dispose notifier on unmount', (tester) async {
       final counter = Cell.state<int>(initial: 0);
       CellNotifier<int>? captured;
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        captured = useCellNotifier(counter.cell);
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            captured = useCellNotifier(counter.cell);
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       final notifier = captured!;
 
       await tester.pumpWidget(const SizedBox.shrink());
@@ -404,11 +496,15 @@ void main() {
       addTearDown(source.dispose);
       CellNotifier<int>? captured;
 
-      await tester.pumpWidget(HookBuilder(builder: (_) {
-        useValueListenable(source); // rebuild when the source swaps
-        captured = useCellNotifier(source.value);
-        return const SizedBox.shrink();
-      }));
+      await tester.pumpWidget(
+        HookBuilder(
+          builder: (_) {
+            useValueListenable(source); // rebuild when the source swaps
+            captured = useCellNotifier(source.value);
+            return const SizedBox.shrink();
+          },
+        ),
+      );
       expect(captured!.cell, same(a.cell));
 
       source.value = b.cell;

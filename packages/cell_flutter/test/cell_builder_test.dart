@@ -14,24 +14,28 @@ void main() {
   group('CellBuilder', () {
     testWidgets('renders initial value', (tester) async {
       final counter = Cell.state<int>(initial: 42);
-      await tester.pumpWidget(_wrap(
-        CellBuilder<int>(
-          cell: counter.cell,
-          builder: (_, value) => Text('value: $value'),
+      await tester.pumpWidget(
+        _wrap(
+          CellBuilder<int>(
+            cell: counter.cell,
+            builder: (_, value) => Text('value: $value'),
+          ),
         ),
-      ));
+      );
 
       expect(find.text('value: 42'), findsOneWidget);
     });
 
     testWidgets('rebuilds on cell update', (tester) async {
       final counter = Cell.state<int>(initial: 0);
-      await tester.pumpWidget(_wrap(
-        CellBuilder<int>(
-          cell: counter.cell,
-          builder: (_, value) => Text('value: $value'),
+      await tester.pumpWidget(
+        _wrap(
+          CellBuilder<int>(
+            cell: counter.cell,
+            builder: (_, value) => Text('value: $value'),
+          ),
         ),
-      ));
+      );
 
       expect(find.text('value: 0'), findsOneWidget);
 
@@ -43,12 +47,14 @@ void main() {
 
     testWidgets('renders null initial value', (tester) async {
       final cell = Cell.state<int?>(initial: null);
-      await tester.pumpWidget(_wrap(
-        CellBuilder<int?>(
-          cell: cell.cell,
-          builder: (_, value) => Text('value: ${value ?? "none"}'),
+      await tester.pumpWidget(
+        _wrap(
+          CellBuilder<int?>(
+            cell: cell.cell,
+            builder: (_, value) => Text('value: ${value ?? "none"}'),
+          ),
         ),
-      ));
+      );
 
       expect(find.text('value: none'), findsOneWidget);
     });
@@ -57,20 +63,24 @@ void main() {
       final a = Cell.state<int>(initial: 1);
       final b = Cell.state<int>(initial: 2);
 
-      await tester.pumpWidget(_wrap(
-        CellBuilder<int>(
-          cell: a.cell,
-          builder: (_, value) => Text('value: $value'),
+      await tester.pumpWidget(
+        _wrap(
+          CellBuilder<int>(
+            cell: a.cell,
+            builder: (_, value) => Text('value: $value'),
+          ),
         ),
-      ));
+      );
       expect(find.text('value: 1'), findsOneWidget);
 
-      await tester.pumpWidget(_wrap(
-        CellBuilder<int>(
-          cell: b.cell,
-          builder: (_, value) => Text('value: $value'),
+      await tester.pumpWidget(
+        _wrap(
+          CellBuilder<int>(
+            cell: b.cell,
+            builder: (_, value) => Text('value: $value'),
+          ),
         ),
-      ));
+      );
       await tester.pump();
 
       expect(find.text('value: 2'), findsOneWidget);
@@ -86,24 +96,27 @@ void main() {
       expect(find.text('value: 20'), findsOneWidget);
     });
 
-    testWidgets('multiple builders over the same cell all rebuild',
-        (tester) async {
+    testWidgets('multiple builders over the same cell all rebuild', (
+      tester,
+    ) async {
       final counter = Cell.state<int>(initial: 0);
 
-      await tester.pumpWidget(_wrap(
-        Column(
-          children: [
-            CellBuilder<int>(
-              cell: counter.cell,
-              builder: (_, value) => Text('A: $value'),
-            ),
-            CellBuilder<int>(
-              cell: counter.cell,
-              builder: (_, value) => Text('B: $value'),
-            ),
-          ],
+      await tester.pumpWidget(
+        _wrap(
+          Column(
+            children: [
+              CellBuilder<int>(
+                cell: counter.cell,
+                builder: (_, value) => Text('A: $value'),
+              ),
+              CellBuilder<int>(
+                cell: counter.cell,
+                builder: (_, value) => Text('B: $value'),
+              ),
+            ],
+          ),
         ),
-      ));
+      );
 
       expect(find.text('A: 0'), findsOneWidget);
       expect(find.text('B: 0'), findsOneWidget);
@@ -115,17 +128,20 @@ void main() {
       expect(find.text('B: 7'), findsOneWidget);
     });
 
-    testWidgets('read-only view propagates reads and rejects mutation',
-        (tester) async {
+    testWidgets('read-only view propagates reads and rejects mutation', (
+      tester,
+    ) async {
       final counter = Cell.state<int>(initial: 0);
       final readOnly = counter.cell.unmodifiable;
 
-      await tester.pumpWidget(_wrap(
-        CellBuilder<int>(
-          cell: readOnly,
-          builder: (_, value) => Text('value: $value'),
+      await tester.pumpWidget(
+        _wrap(
+          CellBuilder<int>(
+            cell: readOnly,
+            builder: (_, value) => Text('value: $value'),
+          ),
         ),
-      ));
+      );
 
       // Deputies share state with the principal.
       counter.update(5);
@@ -144,25 +160,27 @@ void main() {
       // itself dirty during its own build, but a *sibling* builder that
       // receives the notification throws "setState() or markNeedsBuild()
       // called during build" — the framework error the binding warns about.
-      await tester.pumpWidget(_wrap(
-        Column(
-          children: [
-            CellBuilder<int>(
-              cell: counter.cell,
-              builder: (_, value) {
-                if (value == 1) {
-                  counter.update(2); // emit during build (one-shot)
-                }
-                return Text('A: $value');
-              },
-            ),
-            CellBuilder<int>(
-              cell: counter.cell,
-              builder: (_, value) => Text('B: $value'),
-            ),
-          ],
+      await tester.pumpWidget(
+        _wrap(
+          Column(
+            children: [
+              CellBuilder<int>(
+                cell: counter.cell,
+                builder: (_, value) {
+                  if (value == 1) {
+                    counter.update(2); // emit during build (one-shot)
+                  }
+                  return Text('A: $value');
+                },
+              ),
+              CellBuilder<int>(
+                cell: counter.cell,
+                builder: (_, value) => Text('B: $value'),
+              ),
+            ],
+          ),
         ),
-      ));
+      );
 
       expect(find.text('A: 0'), findsOneWidget);
       expect(find.text('B: 0'), findsOneWidget);
@@ -178,16 +196,19 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
     });
 
-    testWidgets('builder errors propagate to Flutter error widget',
-        (tester) async {
+    testWidgets('builder errors propagate to Flutter error widget', (
+      tester,
+    ) async {
       final counter = Cell.state<int>(initial: 0);
 
-      await tester.pumpWidget(_wrap(
-        CellBuilder<int>(
-          cell: counter.cell,
-          builder: (_, value) => throw StateError('boom'),
+      await tester.pumpWidget(
+        _wrap(
+          CellBuilder<int>(
+            cell: counter.cell,
+            builder: (_, value) => throw StateError('boom'),
+          ),
         ),
-      ));
+      );
 
       expect(tester.takeException(), isStateError);
     });
@@ -196,9 +217,9 @@ void main() {
   group('ValueCell.builder extension', () {
     testWidgets('works as shorthand', (tester) async {
       final counter = Cell.state<int>(initial: 5);
-      await tester.pumpWidget(_wrap(
-        counter.cell.builder((_, value) => Text('value: $value')),
-      ));
+      await tester.pumpWidget(
+        _wrap(counter.cell.builder((_, value) => Text('value: $value'))),
+      );
 
       expect(find.text('value: 5'), findsOneWidget);
     });

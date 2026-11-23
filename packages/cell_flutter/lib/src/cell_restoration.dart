@@ -82,15 +82,15 @@ class RestorableCell<V> extends ValueCell<V> {
     super.initial,
     V? Function(Object? data)? fromPrimitives,
     Object? Function(V? value)? toPrimitives,
-  })  : assert(
-          (fromPrimitives == null) == (toPrimitives == null),
-          'RestorableCell: pass both fromPrimitives and toPrimitives, '
-          'or neither (a one-sided custom codec falls back to the '
-          'primitive codec on the missing side).',
-        ),
-        _initial = initial,
-        _fromPrimitives = fromPrimitives,
-        _toPrimitives = toPrimitives;
+  }) : assert(
+         (fromPrimitives == null) == (toPrimitives == null),
+         'RestorableCell: pass both fromPrimitives and toPrimitives, '
+         'or neither (a one-sided custom codec falls back to the '
+         'primitive codec on the missing side).',
+       ),
+       _initial = initial,
+       _fromPrimitives = fromPrimitives,
+       _toPrimitives = toPrimitives;
 
   /// The unique restoration id under which the value is persisted.
   ///
@@ -180,13 +180,12 @@ extension CellRestoration on Cell {
     V? initial,
     V? Function(Object? data)? fromPrimitives,
     Object? Function(V? value)? toPrimitives,
-  }) =>
-      RestorableCell<V>(
-        restorationId: restorationId,
-        initial: initial,
-        fromPrimitives: fromPrimitives,
-        toPrimitives: toPrimitives,
-      );
+  }) => RestorableCell<V>(
+    restorationId: restorationId,
+    initial: initial,
+    fromPrimitives: fromPrimitives,
+    toPrimitives: toPrimitives,
+  );
 }
 
 /// The unqualified alias for [CellRestoration.restorableState].
@@ -205,13 +204,12 @@ RestorableCell<V> restorableState<V>({
   V? initial,
   V? Function(Object? data)? fromPrimitives,
   Object? Function(V? value)? toPrimitives,
-}) =>
-    CellRestoration.restorableState<V>(
-      restorationId: restorationId,
-      initial: initial,
-      fromPrimitives: fromPrimitives,
-      toPrimitives: toPrimitives,
-    );
+}) => CellRestoration.restorableState<V>(
+  restorationId: restorationId,
+  initial: initial,
+  fromPrimitives: fromPrimitives,
+  toPrimitives: toPrimitives,
+);
 
 /// The internal `RestorableProperty` that bridges a [RestorableCell] to
 /// Flutter's restoration protocol.

@@ -140,8 +140,10 @@ class _InspectorPanel extends StatelessWidget {
             child: Row(
               children: [
                 const Expanded(
-                  child: Text('Cell Inspector',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text(
+                    'Cell Inspector',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
                 const TextButton(
                   onPressed: CellFlutterDevTools.clear,
@@ -153,9 +155,7 @@ class _InspectorPanel extends StatelessWidget {
           ),
           const Divider(height: 1),
           Expanded(
-            child: _RegistryView(
-              registry: CellFlutterDevTools.registry,
-            ),
+            child: _RegistryView(registry: CellFlutterDevTools.registry),
           ),
         ],
       ),
@@ -180,8 +180,10 @@ class _RegistryView extends StatelessWidget {
           ..sort((a, b) => a.symbol.compareTo(b.symbol));
         if (entries.isEmpty) {
           return const Center(
-            child: Text('No cells registered.\n'
-                'Call CellFlutterDevTools.register("name", cell).'),
+            child: Text(
+              'No cells registered.\n'
+              'Call CellFlutterDevTools.register("name", cell).',
+            ),
           );
         }
         return ListView.builder(
@@ -228,15 +230,21 @@ class _EntryTileState extends State<_EntryTile> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Pulse history (newest first):',
-                      style: TextStyle(fontSize: 12)),
+                  const Text(
+                    'Pulse history (newest first):',
+                    style: TextStyle(fontSize: 12),
+                  ),
                   if (entry.pulses.isEmpty)
-                    const Text('— no pulses yet —',
-                        style: TextStyle(fontSize: 12))
+                    const Text(
+                      '— no pulses yet —',
+                      style: TextStyle(fontSize: 12),
+                    )
                   else
                     for (final pulse in entry.pulses)
-                      Text('[${pulse.type}] ${pulse.payload}',
-                          style: const TextStyle(fontSize: 12)),
+                      Text(
+                        '[${pulse.type}] ${pulse.payload}',
+                        style: const TextStyle(fontSize: 12),
+                      ),
                 ],
               ),
             ),

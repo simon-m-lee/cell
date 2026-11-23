@@ -21,21 +21,23 @@ void main() {
     final cell = Cell.state<int>(initial: 0);
     var received = 0;
 
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: CellListener<int>(
-          cell: cell.cell,
-          onPulse: (context, pulse) {
-            received++;
-            final random = Random(received * 7919);
-            if (random.nextBool()) {
-              throw StateError('fuzzed handler error $received');
-            }
-          },
-          child: const SizedBox.shrink(),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CellListener<int>(
+            cell: cell.cell,
+            onPulse: (context, pulse) {
+              received++;
+              final random = Random(received * 7919);
+              if (random.nextBool()) {
+                throw StateError('fuzzed handler error $received');
+              }
+            },
+            child: const SizedBox.shrink(),
+          ),
         ),
       ),
-    ));
+    );
 
     final drained = await runFuzz(
       tester: tester,
@@ -47,9 +49,15 @@ void main() {
       },
     );
 
-    expect(received, greaterThan(0),
-        reason: 'the listener must keep receiving after handler errors');
-    expect(drained, greaterThan(0),
-        reason: 'the fuzz should have produced handler errors');
+    expect(
+      received,
+      greaterThan(0),
+      reason: 'the listener must keep receiving after handler errors',
+    );
+    expect(
+      drained,
+      greaterThan(0),
+      reason: 'the fuzz should have produced handler errors',
+    );
   });
 }

@@ -24,16 +24,18 @@ void main() {
       final user = Cell.state<User>(initial: const User('ada', 30));
       var builds = 0;
 
-      await tester.pumpWidget(_wrap(
-        CellSelector<User, String>(
-          cell: user.cell,
-          select: (u) => u!.name,
-          builder: (_, name) {
-            builds++;
-            return Text(name);
-          },
+      await tester.pumpWidget(
+        _wrap(
+          CellSelector<User, String>(
+            cell: user.cell,
+            select: (u) => u!.name,
+            builder: (_, name) {
+              builds++;
+              return Text(name);
+            },
+          ),
         ),
-      ));
+      );
 
       expect(find.text('ada'), findsOneWidget);
       expect(builds, 1);
@@ -49,16 +51,18 @@ void main() {
       final user = Cell.state<User>(initial: const User('ada', 30));
       var builds = 0;
 
-      await tester.pumpWidget(_wrap(
-        CellSelector<User, String>(
-          cell: user.cell,
-          select: (u) => u!.name,
-          builder: (_, name) {
-            builds++;
-            return Text(name);
-          },
+      await tester.pumpWidget(
+        _wrap(
+          CellSelector<User, String>(
+            cell: user.cell,
+            select: (u) => u!.name,
+            builder: (_, name) {
+              builds++;
+              return Text(name);
+            },
+          ),
         ),
-      ));
+      );
       expect(builds, 1);
 
       // Same name, different age: the slice is equal, no rebuild.
@@ -68,27 +72,32 @@ void main() {
       expect(builds, 1);
     });
 
-    testWidgets('selector change with same cell recomputes immediately',
-        (tester) async {
+    testWidgets('selector change with same cell recomputes immediately', (
+      tester,
+    ) async {
       final user = Cell.state<User>(initial: const User('ada', 30));
 
-      await tester.pumpWidget(_wrap(
-        CellSelector<User, String>(
-          cell: user.cell,
-          select: (u) => u!.name,
-          builder: (_, slice) => Text('name:$slice'),
+      await tester.pumpWidget(
+        _wrap(
+          CellSelector<User, String>(
+            cell: user.cell,
+            select: (u) => u!.name,
+            builder: (_, slice) => Text('name:$slice'),
+          ),
         ),
-      ));
+      );
       expect(find.text('name:ada'), findsOneWidget);
 
       // Same cell, new selector: the slice must recompute without a pulse.
-      await tester.pumpWidget(_wrap(
-        CellSelector<User, String>(
-          cell: user.cell,
-          select: (u) => '${u!.age}',
-          builder: (_, slice) => Text('age:$slice'),
+      await tester.pumpWidget(
+        _wrap(
+          CellSelector<User, String>(
+            cell: user.cell,
+            select: (u) => '${u!.age}',
+            builder: (_, slice) => Text('age:$slice'),
+          ),
         ),
-      ));
+      );
 
       expect(find.text('age:30'), findsOneWidget);
     });
@@ -97,17 +106,19 @@ void main() {
       final user = Cell.state<User>(initial: const User('ada', 30, ['admin']));
       var builds = 0;
 
-      await tester.pumpWidget(_wrap(
-        CellSelector<User, List<String>>(
-          cell: user.cell,
-          select: (u) => u!.roles,
-          equals: listEquals,
-          builder: (_, roles) {
-            builds++;
-            return Text('${roles.length}');
-          },
+      await tester.pumpWidget(
+        _wrap(
+          CellSelector<User, List<String>>(
+            cell: user.cell,
+            select: (u) => u!.roles,
+            equals: listEquals,
+            builder: (_, roles) {
+              builds++;
+              return Text('${roles.length}');
+            },
+          ),
         ),
-      ));
+      );
       expect(builds, 1);
 
       // New list instance, same content: listEquals says equal → no rebuild.
@@ -125,22 +136,26 @@ void main() {
       final a = Cell.state<User>(initial: const User('ada', 30));
       final b = Cell.state<User>(initial: const User('grace', 31));
 
-      await tester.pumpWidget(_wrap(
-        CellSelector<User, String>(
-          cell: a.cell,
-          select: (u) => u!.name,
-          builder: (_, name) => Text(name),
+      await tester.pumpWidget(
+        _wrap(
+          CellSelector<User, String>(
+            cell: a.cell,
+            select: (u) => u!.name,
+            builder: (_, name) => Text(name),
+          ),
         ),
-      ));
+      );
       expect(find.text('ada'), findsOneWidget);
 
-      await tester.pumpWidget(_wrap(
-        CellSelector<User, String>(
-          cell: b.cell,
-          select: (u) => u!.name,
-          builder: (_, name) => Text(name),
+      await tester.pumpWidget(
+        _wrap(
+          CellSelector<User, String>(
+            cell: b.cell,
+            select: (u) => u!.name,
+            builder: (_, name) => Text(name),
+          ),
         ),
-      ));
+      );
       expect(find.text('grace'), findsOneWidget);
 
       a.update(const User('old', 1));
@@ -155,13 +170,15 @@ void main() {
     testWidgets('nullable V handled in select', (tester) async {
       final cell = Cell.state<int?>(initial: 5);
 
-      await tester.pumpWidget(_wrap(
-        CellSelector<int?, String>(
-          cell: cell.cell,
-          select: (v) => v == null ? 'none' : '$v',
-          builder: (_, s) => Text(s),
+      await tester.pumpWidget(
+        _wrap(
+          CellSelector<int?, String>(
+            cell: cell.cell,
+            select: (v) => v == null ? 'none' : '$v',
+            builder: (_, s) => Text(s),
+          ),
         ),
-      ));
+      );
       expect(find.text('5'), findsOneWidget);
 
       cell.update(null);
@@ -169,21 +186,24 @@ void main() {
       expect(find.text('none'), findsOneWidget);
     });
 
-    testWidgets('multiple emissions in one frame cause a single rebuild',
-        (tester) async {
+    testWidgets('multiple emissions in one frame cause a single rebuild', (
+      tester,
+    ) async {
       final user = Cell.state<User>(initial: const User('ada', 30));
       var builds = 0;
 
-      await tester.pumpWidget(_wrap(
-        CellSelector<User, String>(
-          cell: user.cell,
-          select: (u) => u!.name,
-          builder: (_, name) {
-            builds++;
-            return Text(name);
-          },
+      await tester.pumpWidget(
+        _wrap(
+          CellSelector<User, String>(
+            cell: user.cell,
+            select: (u) => u!.name,
+            builder: (_, name) {
+              builds++;
+              return Text(name);
+            },
+          ),
         ),
-      ));
+      );
       expect(builds, 1);
 
       user.update(const User('a', 1));
@@ -199,16 +219,18 @@ void main() {
       final user = Cell.state<User>(initial: const User('ada', 30));
       var selectCalls = 0;
 
-      await tester.pumpWidget(_wrap(
-        CellSelector<User, String>(
-          cell: user.cell,
-          select: (u) {
-            selectCalls++;
-            return u!.name;
-          },
-          builder: (_, name) => Text(name),
+      await tester.pumpWidget(
+        _wrap(
+          CellSelector<User, String>(
+            cell: user.cell,
+            select: (u) {
+              selectCalls++;
+              return u!.name;
+            },
+            builder: (_, name) => Text(name),
+          ),
         ),
-      ));
+      );
 
       // initState runs select once.
       expect(selectCalls, 1);
@@ -223,16 +245,18 @@ void main() {
       final user = Cell.state<User>(initial: const User('ada', 30));
       var builds = 0;
 
-      await tester.pumpWidget(_wrap(
-        CellSelector<User, String>(
-          cell: user.cell,
-          select: (u) => u!.name,
-          builder: (_, name) {
-            builds++;
-            return Text(name);
-          },
+      await tester.pumpWidget(
+        _wrap(
+          CellSelector<User, String>(
+            cell: user.cell,
+            select: (u) => u!.name,
+            builder: (_, name) {
+              builds++;
+              return Text(name);
+            },
+          ),
         ),
-      ));
+      );
       expect(builds, 1);
 
       await tester.pumpWidget(_wrap(const SizedBox.shrink()));
@@ -244,45 +268,57 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('select throwing is contained by the framework',
-        (tester) async {
+    testWidgets('select throwing is contained by the framework', (
+      tester,
+    ) async {
       final user = Cell.state<User>(initial: const User('ada', 30));
 
-      await tester.pumpWidget(_wrap(
-        CellSelector<User, String>(
-          cell: user.cell,
-          select: (_) => throw StateError('select boom'),
-          builder: (_, s) => Text(s),
+      await tester.pumpWidget(
+        _wrap(
+          CellSelector<User, String>(
+            cell: user.cell,
+            select: (_) => throw StateError('select boom'),
+            builder: (_, s) => Text(s),
+          ),
         ),
-      ));
+      );
 
       expect(tester.takeException(), isStateError);
     });
 
-    testWidgets('defers slice recompute for a pulse emitted during build',
-        (tester) async {
+    testWidgets('defers slice recompute for a pulse emitted during build', (
+      tester,
+    ) async {
       final counter = Cell.state<int>(initial: 1);
 
-      await tester.pumpWidget(_wrap(_EmitHost(
-        child: CellSelector<int, int>(
-          cell: counter.cell,
-          select: (v) => v ?? 0,
-          builder: (_, s) => Text('$s'),
+      await tester.pumpWidget(
+        _wrap(
+          _EmitHost(
+            child: CellSelector<int, int>(
+              cell: counter.cell,
+              select: (v) => v ?? 0,
+              builder: (_, s) => Text('$s'),
+            ),
+          ),
         ),
-      )));
+      );
       expect(find.text('1'), findsOneWidget);
 
       // Rebuild the same element; the host emits mid-build. The selector's
       // own setState is routed through runAfterBuild, so no framework
       // error fires and the slice lands on the next frame.
-      await tester.pumpWidget(_wrap(_EmitHost(
-        emitOnBuild: () => counter.update(9),
-        child: CellSelector<int, int>(
-          cell: counter.cell,
-          select: (v) => v ?? 0,
-          builder: (_, s) => Text('$s'),
+      await tester.pumpWidget(
+        _wrap(
+          _EmitHost(
+            emitOnBuild: () => counter.update(9),
+            child: CellSelector<int, int>(
+              cell: counter.cell,
+              select: (v) => v ?? 0,
+              builder: (_, s) => Text('$s'),
+            ),
+          ),
         ),
-      )));
+      );
       await tester.pump();
 
       expect(find.text('9'), findsOneWidget);

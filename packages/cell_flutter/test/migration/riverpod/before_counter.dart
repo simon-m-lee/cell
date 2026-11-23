@@ -24,9 +24,7 @@ final counterProvider = NotifierProvider<CounterNotifier, int>(
 Widget buildCounterApp() {
   return const ProviderScope(
     child: MaterialApp(
-      home: Scaffold(
-        body: Center(child: _CounterView()),
-      ),
+      home: Scaffold(body: Center(child: _CounterView())),
     ),
   );
 }

@@ -238,13 +238,15 @@ class _CellValueBuilderState<V> extends State<CellValueBuilder<V>> {
 
   void _reportError(Pulse<Object?> pulse, [String? contextLabel]) {
     if (!widget.emitErrors) return;
-    FlutterError.reportError(FlutterErrorDetails(
-      exception: pulse.payload ?? StateError('Unknown error pulse'),
-      library: 'cell_flutter',
-      context: ErrorDescription(
-        contextLabel ?? 'while observing Cell in CellValueBuilder',
+    FlutterError.reportError(
+      FlutterErrorDetails(
+        exception: pulse.payload ?? StateError('Unknown error pulse'),
+        library: 'cell_flutter',
+        context: ErrorDescription(
+          contextLabel ?? 'while observing Cell in CellValueBuilder',
+        ),
       ),
-    ));
+    );
   }
 
   void _apply(Pulse<Object?> pulse) {
@@ -258,14 +260,16 @@ class _CellValueBuilderState<V> extends State<CellValueBuilder<V>> {
     } else if (payload is V) {
       _value = payload;
     } else {
-      FlutterError.reportError(FlutterErrorDetails(
-        exception: StateError(
-          'CellValueBuilder<$V>: pulse payload is '
-          '${payload.runtimeType}, not $V.',
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: StateError(
+            'CellValueBuilder<$V>: pulse payload is '
+            '${payload.runtimeType}, not $V.',
+          ),
+          library: 'cell_flutter',
+          context: ErrorDescription('while observing Cell in CellValueBuilder'),
         ),
-        library: 'cell_flutter',
-        context: ErrorDescription('while observing Cell in CellValueBuilder'),
-      ));
+      );
     }
   }
 

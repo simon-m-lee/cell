@@ -30,15 +30,17 @@ void main() {
       journal: RecordingJournal(),
     );
 
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: CellAsyncBuilder<String>(
-          cell: results,
-          builder: (_, snapshot) =>
-              Text(snapshot.hasData ? '${snapshot.data}' : 'loading'),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CellAsyncBuilder<String>(
+            cell: results,
+            builder: (_, snapshot) =>
+                Text(snapshot.hasData ? '${snapshot.data}' : 'loading'),
+          ),
         ),
       ),
-    ));
+    );
 
     var last = 'a';
     await runFuzz(
@@ -55,17 +57,20 @@ void main() {
         // Drain the asyncMap timers and settle the widget.
         await tester.pump(const Duration(milliseconds: 100));
         await tester.pumpAndSettle();
-        expect(find.text('result for $last'), findsOneWidget,
-            reason: 'final snapshot must match the last pulse');
+        expect(
+          find.text('result for $last'),
+          findsOneWidget,
+          reason: 'final snapshot must match the last pulse',
+        );
       },
     );
   });
 
   testWidgets('CellAsyncBuilder fromFuture cell swaps', (tester) async {
     var builds = 0;
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(body: Text('waiting $builds')),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(home: Scaffold(body: Text('waiting $builds'))),
+    );
 
     await runFuzz(
       tester: tester,
@@ -73,26 +78,33 @@ void main() {
       perSeed: fuzzSecondsPerSeed(),
       iterate: (tester, random, iteration) async {
         final completer = Completer<int>();
-        final cell =
-            Cell.fromFuture<int>(completer.future, journal: RecordingJournal());
-        await tester.pumpWidget(MaterialApp(
-          home: Scaffold(
-            body: CellAsyncBuilder<int>(
-              cell: cell,
-              builder: (_, snapshot) {
-                builds++;
-                return Text(
-                  snapshot.hasData ? 'v${snapshot.data}' : 'loading',
-                );
-              },
+        final cell = Cell.fromFuture<int>(
+          completer.future,
+          journal: RecordingJournal(),
+        );
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: CellAsyncBuilder<int>(
+                cell: cell,
+                builder: (_, snapshot) {
+                  builds++;
+                  return Text(
+                    snapshot.hasData ? 'v${snapshot.data}' : 'loading',
+                  );
+                },
+              ),
             ),
           ),
-        ));
+        );
         completer.complete(iteration);
         await tester.pump(const Duration(milliseconds: 1));
         await tester.pumpAndSettle();
-        expect(find.text('v$iteration'), findsOneWidget,
-            reason: 'swapped fromFuture must render its value');
+        expect(
+          find.text('v$iteration'),
+          findsOneWidget,
+          reason: 'swapped fromFuture must render its value',
+        );
       },
     );
   });

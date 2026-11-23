@@ -136,14 +136,16 @@ void useCellListener<V>({
           try {
             onPulseRef.value(context, next);
           } catch (e, st) {
-            FlutterError.reportError(FlutterErrorDetails(
-              exception: e,
-              stack: st,
-              library: 'cell_flutter',
-              context: ErrorDescription(
-                'while invoking useCellListener.onPulse',
+            FlutterError.reportError(
+              FlutterErrorDetails(
+                exception: e,
+                stack: st,
+                library: 'cell_flutter',
+                context: ErrorDescription(
+                  'while invoking useCellListener.onPulse',
+                ),
               ),
-            ));
+            );
           }
         }
 

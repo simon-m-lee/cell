@@ -23,27 +23,31 @@ void main() {
   group('CellFormField', () {
     testWidgets('renders the cell current value', (tester) async {
       final counter = Cell.state<int>(initial: 3);
-      await tester.pumpWidget(_wrap(
-        CellFormField<int>(
-          cell: counter.cell,
-          builder: (state) => Text('value:${state.value}'),
+      await tester.pumpWidget(
+        _wrap(
+          CellFormField<int>(
+            cell: counter.cell,
+            builder: (state) => Text('value:${state.value}'),
+          ),
         ),
-      ));
+      );
 
       expect(find.text('value:3'), findsOneWidget);
     });
 
     testWidgets('didChange updates the cell', (tester) async {
       final counter = Cell.state<int>(initial: 1);
-      await tester.pumpWidget(_wrap(
-        CellFormField<int>(
-          cell: counter.cell,
-          builder: (state) => TextButton(
-            onPressed: () => state.didChange(9),
-            child: Text('value:${state.value}'),
+      await tester.pumpWidget(
+        _wrap(
+          CellFormField<int>(
+            cell: counter.cell,
+            builder: (state) => TextButton(
+              onPressed: () => state.didChange(9),
+              child: Text('value:${state.value}'),
+            ),
           ),
         ),
-      ));
+      );
 
       await tester.tap(find.byType(TextButton));
       await tester.pump();
@@ -52,12 +56,14 @@ void main() {
 
     testWidgets('cell update updates the field state', (tester) async {
       final counter = Cell.state<int>(initial: 1);
-      await tester.pumpWidget(_wrap(
-        CellFormField<int>(
-          cell: counter.cell,
-          builder: (state) => Text('value:${state.value}'),
+      await tester.pumpWidget(
+        _wrap(
+          CellFormField<int>(
+            cell: counter.cell,
+            builder: (state) => Text('value:${state.value}'),
+          ),
         ),
-      ));
+      );
 
       counter.update(42);
       await tester.pump();
@@ -67,16 +73,17 @@ void main() {
     testWidgets('Form.validate() calls the validator', (tester) async {
       final formKey = GlobalKey<FormState>();
       final counter = Cell.state<int?>(initial: null);
-      await tester.pumpWidget(_wrap(
-        CellFormField<int?>(
-          cell: counter.cell,
-          validator: (v) => v == null ? 'Required' : null,
-          builder: (state) => Text(
-            'value:${state.value} error:${state.errorText ?? 'none'}',
+      await tester.pumpWidget(
+        _wrap(
+          CellFormField<int?>(
+            cell: counter.cell,
+            validator: (v) => v == null ? 'Required' : null,
+            builder: (state) =>
+                Text('value:${state.value} error:${state.errorText ?? 'none'}'),
           ),
+          formKey: formKey,
         ),
-        formKey: formKey,
-      ));
+      );
 
       expect(formKey.currentState!.validate(), isFalse);
       await tester.pump();
@@ -90,23 +97,28 @@ void main() {
     testWidgets('custom T (DateTime) round-trips', (tester) async {
       final now = DateTime(2026, 11, 16);
       final cell = Cell.state<DateTime?>(initial: now);
-      await tester.pumpWidget(_wrap(
-        CellFormField<DateTime?>(
-          cell: cell.cell,
-          builder: (state) => TextButton(
-            onPressed: () => state.didChange(now.add(const Duration(days: 1))),
-            child: Text('date:${state.value}'),
+      await tester.pumpWidget(
+        _wrap(
+          CellFormField<DateTime?>(
+            cell: cell.cell,
+            builder: (state) => TextButton(
+              onPressed: () =>
+                  state.didChange(now.add(const Duration(days: 1))),
+              child: Text('date:${state.value}'),
+            ),
           ),
         ),
-      ));
+      );
 
       expect(find.text('date:$now'), findsOneWidget);
 
       await tester.tap(find.byType(TextButton));
       await tester.pump();
       expect(cell.cell.value, now.add(const Duration(days: 1)));
-      expect(find.text('date:${now.add(const Duration(days: 1))}'),
-          findsOneWidget);
+      expect(
+        find.text('date:${now.add(const Duration(days: 1))}'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('cell swap rebinds', (tester) async {
@@ -115,15 +127,17 @@ void main() {
       final source = ValueNotifier<ValueCell<int>>(a.cell);
       addTearDown(source.dispose);
 
-      await tester.pumpWidget(_wrap(
-        ValueListenableBuilder<ValueCell<int>>(
-          valueListenable: source,
-          builder: (_, cell, child) => CellFormField<int>(
-            cell: cell,
-            builder: (state) => Text('value:${state.value}'),
+      await tester.pumpWidget(
+        _wrap(
+          ValueListenableBuilder<ValueCell<int>>(
+            valueListenable: source,
+            builder: (_, cell, child) => CellFormField<int>(
+              cell: cell,
+              builder: (state) => Text('value:${state.value}'),
+            ),
           ),
         ),
-      ));
+      );
       expect(find.text('value:1'), findsOneWidget);
 
       source.value = b.cell;

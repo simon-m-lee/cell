@@ -26,17 +26,11 @@ void main() {
     });
 
     testWidgets('cell() throws on wrong type', (tester) async {
-      expect(
-        () => harness.cell<String>(#counter),
-        throwsA(isA<StateError>()),
-      );
+      expect(() => harness.cell<String>(#counter), throwsA(isA<StateError>()));
     });
 
     testWidgets('cell() for missing id throws', (tester) async {
-      expect(
-        () => harness.cell<int>(#missing),
-        throwsA(isA<StateError>()),
-      );
+      expect(() => harness.cell<int>(#missing), throwsA(isA<StateError>()));
     });
 
     testWidgets('valueCell() returns typed ValueCell', (tester) async {
@@ -51,24 +45,24 @@ void main() {
       );
     });
 
-    testWidgets('valueCell() throws for non-ValueCell registration',
-        (tester) async {
+    testWidgets('valueCell() throws for non-ValueCell registration', (
+      tester,
+    ) async {
       final src = Cell.ingress<int>();
       harness.add(#src, src.cell);
-      expect(
-        () => harness.valueCell<int>(#src),
-        throwsA(isA<StateError>()),
-      );
+      expect(() => harness.valueCell<int>(#src), throwsA(isA<StateError>()));
     });
 
     testWidgets('pump() registers all cells in CellScope', (tester) async {
       await harness.pump(
         tester: tester,
-        child: Builder(builder: (ctx) {
-          final c = CellScope.valueOf<int>(ctx, #counter);
-          final a = CellScope.valueOf<String?>(ctx, #auth);
-          return Text('${c.value},${a.value}');
-        }),
+        child: Builder(
+          builder: (ctx) {
+            final c = CellScope.valueOf<int>(ctx, #counter);
+            final a = CellScope.valueOf<String?>(ctx, #auth);
+            return Text('${c.value},${a.value}');
+          },
+        ),
       );
       expect(find.text('0,null'), findsOneWidget);
     });
@@ -129,18 +123,12 @@ void main() {
     });
 
     testWidgets('recordPulses() for missing id throws', (tester) async {
-      expect(
-        () => harness.recordPulses(#missing),
-        throwsA(isA<StateError>()),
-      );
+      expect(() => harness.recordPulses(#missing), throwsA(isA<StateError>()));
     });
 
     testWidgets('recordPulses() after dispose throws', (tester) async {
       harness.dispose();
-      expect(
-        () => harness.recordPulses(#counter),
-        throwsA(isA<StateError>()),
-      );
+      expect(() => harness.recordPulses(#counter), throwsA(isA<StateError>()));
     });
 
     testWidgets('cells getter returns the registered cells', (tester) async {

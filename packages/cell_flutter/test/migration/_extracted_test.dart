@@ -52,7 +52,7 @@ void main() {
       },
     );
 
-// Wire the ingress into the state cell (one-time, app init):
+    // Wire the ingress into the state cell (one-time, app init):
     Cell.observe<Pulse<Todo>>(
       source: todoEvents.cell,
       effect: (p) {
@@ -83,7 +83,7 @@ void main() {
 
   test('MigratingFrom-Bloc.md line 207', () {
     final stored = Cell.state<List<Todo>>(initial: const []);
-// saveToDisk(...) is your persistence layer.
+    // saveToDisk(...) is your persistence layer.
     Cell.observe<Pulse<List<Todo>>>(
       source: stored.cell,
       effect: (_) {
@@ -95,8 +95,8 @@ void main() {
   test('MigratingFrom-Riverpod.md line 62', () {
     final counter = Cell.state<int>(initial: 0);
 
-// Riverpod: ref.watch(counterProvider) inside a ConsumerWidget.
-// Mitosis: the builder is the widget body.
+    // Riverpod: ref.watch(counterProvider) inside a ConsumerWidget.
+    // Mitosis: the builder is the widget body.
     CellBuilder<int>(
       cell: counter.cell.unmodifiable,
       builder: (_, count) => Text('${count ?? 0}'),
@@ -118,8 +118,8 @@ void main() {
       project: (p) => Pulse<int>((p.payload ?? 0) * 2),
     );
 
-// Riverpod: ref.watch(sumProvider) inside ConsumerWidget
-// Mitosis: CellValueBuilder over the derived cell
+    // Riverpod: ref.watch(sumProvider) inside ConsumerWidget
+    // Mitosis: CellValueBuilder over the derived cell
     CellValueBuilder<int>(
       cell: doubled, // Cell, not ValueCell
       initial: 2,
@@ -134,30 +134,38 @@ void main() {
       [a.cell, b.cell],
       aggregator: (cells, _) => Pulse<int>(
         cells.fold<int>(
-            0, (acc, c) => acc + (((c as ValueCell<int>).value) ?? 0)),
+          0,
+          (acc, c) => acc + (((c as ValueCell<int>).value) ?? 0),
+        ),
       ),
     );
   });
 
   test('MigratingFrom-Riverpod.md line 147', () {
-// In your app these come from your API layer, e.g. api.fetchUser().
-    final user = Cell.fromFuture<String>(Future.value('ada'),
-        journal: RecordingJournal());
-    final ticks =
-        Cell.fromStream<int>(Stream.value(1), journal: RecordingJournal());
+    // In your app these come from your API layer, e.g. api.fetchUser().
+    final user = Cell.fromFuture<String>(
+      Future.value('ada'),
+      journal: RecordingJournal(),
+    );
+    final ticks = Cell.fromStream<int>(
+      Stream.value(1),
+      journal: RecordingJournal(),
+    );
   });
 
   test('MigratingFrom-Riverpod.md line 161', () {
-    final user = Cell.fromFuture<String>(Future.value('ada'),
-        journal: RecordingJournal());
+    final user = Cell.fromFuture<String>(
+      Future.value('ada'),
+      journal: RecordingJournal(),
+    );
 
     CellAsyncBuilder<String>(
       cell: user,
       builder: (_, snapshot) => snapshot.hasError
           ? Text('error: ${snapshot.error}')
           : snapshot.hasData
-              ? Text('user: ${snapshot.data}')
-              : const Text('loading...'),
+          ? Text('user: ${snapshot.data}')
+          : const Text('loading...'),
     );
   });
 
@@ -185,8 +193,8 @@ void main() {
       child: const MaterialApp(home: SizedBox.shrink()),
     );
 
-// Deep in the tree, from a BuildContext:
-// final authCell = CellScope.valueOf<String?>(context, #auth);
+    // Deep in the tree, from a BuildContext:
+    // final authCell = CellScope.valueOf<String?>(context, #auth);
   });
 
   testWidgets('counter renders', (tester) async {

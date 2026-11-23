@@ -38,27 +38,29 @@ Future<void> _settle(WidgetTester tester) async {
 
 void main() {
   group('CellValueBuilder seeds from retained pulses', () {
-    testWidgets('1. fromFuture subscribed after completion renders 42',
-        (tester) async {
+    testWidgets('1. fromFuture subscribed after completion renders 42', (
+      tester,
+    ) async {
       final source = Cell.fromFuture<int>(
         Future<int>.value(42),
         journal: RecordingJournal(),
       );
       await _settle(tester);
 
-      await tester.pumpWidget(_wrap(
-        CellValueBuilder<int>(
-          cell: source,
-          builder: (_, v) => Text(v?.toString() ?? 'loading'),
+      await tester.pumpWidget(
+        _wrap(
+          CellValueBuilder<int>(
+            cell: source,
+            builder: (_, v) => Text(v?.toString() ?? 'loading'),
+          ),
         ),
-      ));
+      );
 
       expect(find.text('42'), findsOneWidget);
       expect(find.text('loading'), findsNothing);
     });
 
-    testWidgets(
-        '2. fromFuture subscribed before completion shows initial '
+    testWidgets('2. fromFuture subscribed before completion shows initial '
         'then 42', (tester) async {
       final completer = Completer<int>();
       final source = Cell.fromFuture<int>(
@@ -66,12 +68,14 @@ void main() {
         journal: RecordingJournal(),
       );
 
-      await tester.pumpWidget(_wrap(
-        CellValueBuilder<int>(
-          cell: source,
-          builder: (_, v) => Text(v?.toString() ?? 'loading'),
+      await tester.pumpWidget(
+        _wrap(
+          CellValueBuilder<int>(
+            cell: source,
+            builder: (_, v) => Text(v?.toString() ?? 'loading'),
+          ),
         ),
-      ));
+      );
       expect(find.text('loading'), findsOneWidget);
 
       completer.complete(42);
@@ -79,8 +83,7 @@ void main() {
       expect(find.text('42'), findsOneWidget);
     });
 
-    testWidgets(
-        '3. derive subscribed after emission renders the derived '
+    testWidgets('3. derive subscribed after emission renders the derived '
         'value', (tester) async {
       final src = Cell.ingress<int>();
       final derived = Cell.derive<Pulse<int>, Pulse<String>>(
@@ -90,18 +93,19 @@ void main() {
       src.emit(7);
       await _settle(tester);
 
-      await tester.pumpWidget(_wrap(
-        CellValueBuilder<String>(
-          cell: derived,
-          builder: (_, v) => Text(v?.toString() ?? 'loading'),
+      await tester.pumpWidget(
+        _wrap(
+          CellValueBuilder<String>(
+            cell: derived,
+            builder: (_, v) => Text(v?.toString() ?? 'loading'),
+          ),
         ),
-      ));
+      );
 
       expect(find.text('v7'), findsOneWidget);
     });
 
-    testWidgets(
-        '4. asyncMap subscribed after emission renders the mapped '
+    testWidgets('4. asyncMap subscribed after emission renders the mapped '
         'value', (tester) async {
       final src = Cell.ingress<int>();
       final mapped = Cell.asyncMap<int, int>(
@@ -112,41 +116,45 @@ void main() {
       src.emit(21);
       await _settle(tester);
 
-      await tester.pumpWidget(_wrap(
-        CellValueBuilder<int>(
-          cell: mapped,
-          builder: (_, v) => Text(v?.toString() ?? 'loading'),
+      await tester.pumpWidget(
+        _wrap(
+          CellValueBuilder<int>(
+            cell: mapped,
+            builder: (_, v) => Text(v?.toString() ?? 'loading'),
+          ),
         ),
-      ));
+      );
 
       expect(find.text('42'), findsOneWidget);
     });
   });
 
   group('CellAsyncBuilder seeds from retained pulses', () {
-    testWidgets('5. fromFuture subscribed after completion has data 42',
-        (tester) async {
+    testWidgets('5. fromFuture subscribed after completion has data 42', (
+      tester,
+    ) async {
       final source = Cell.fromFuture<int>(
         Future<int>.value(42),
         journal: RecordingJournal(),
       );
       await _settle(tester);
 
-      await tester.pumpWidget(_wrap(
-        CellAsyncBuilder<int>(
-          cell: source,
-          builder: (_, snapshot) => Text(
-            '${snapshot.hasData} ${snapshot.hasError} '
-            '${snapshot.data}',
+      await tester.pumpWidget(
+        _wrap(
+          CellAsyncBuilder<int>(
+            cell: source,
+            builder: (_, snapshot) => Text(
+              '${snapshot.hasData} ${snapshot.hasError} '
+              '${snapshot.data}',
+            ),
           ),
         ),
-      ));
+      );
 
       expect(find.text('true false 42'), findsOneWidget);
     });
 
-    testWidgets(
-        '6. fromFuture subscribed before completion shows nothing '
+    testWidgets('6. fromFuture subscribed before completion shows nothing '
         'then data', (tester) async {
       final completer = Completer<int>();
       final source = Cell.fromFuture<int>(
@@ -154,14 +162,15 @@ void main() {
         journal: RecordingJournal(),
       );
 
-      await tester.pumpWidget(_wrap(
-        CellAsyncBuilder<int>(
-          cell: source,
-          builder: (_, snapshot) => Text(
-            '${snapshot.hasData} ${snapshot.hasError}',
+      await tester.pumpWidget(
+        _wrap(
+          CellAsyncBuilder<int>(
+            cell: source,
+            builder: (_, snapshot) =>
+                Text('${snapshot.hasData} ${snapshot.hasError}'),
           ),
         ),
-      ));
+      );
       expect(find.text('false false'), findsOneWidget);
 
       completer.complete(42);
@@ -169,8 +178,9 @@ void main() {
       expect(find.text('true false'), findsOneWidget);
     });
 
-    testWidgets('7. fromStream subscribed after one value has data',
-        (tester) async {
+    testWidgets('7. fromStream subscribed after one value has data', (
+      tester,
+    ) async {
       final controller = StreamController<int>();
       final source = Cell.fromStream<int>(
         controller.stream,
@@ -181,23 +191,26 @@ void main() {
       controller.add(1);
       await tester.pump(const Duration(milliseconds: 50));
 
-      await tester.pumpWidget(_wrap(
-        CellAsyncBuilder<int>(
-          cell: source,
-          builder: (_, snapshot) => Text(
-            '${snapshot.hasData} ${snapshot.hasError} '
-            '${snapshot.data}',
+      await tester.pumpWidget(
+        _wrap(
+          CellAsyncBuilder<int>(
+            cell: source,
+            builder: (_, snapshot) => Text(
+              '${snapshot.hasData} ${snapshot.hasError} '
+              '${snapshot.data}',
+            ),
           ),
         ),
-      ));
+      );
 
       expect(find.text('true false 1'), findsOneWidget);
       await controller.close();
       await tester.pump();
     });
 
-    testWidgets('8. asyncMap subscribed after one value has data',
-        (tester) async {
+    testWidgets('8. asyncMap subscribed after one value has data', (
+      tester,
+    ) async {
       final src = Cell.ingress<int>();
       final mapped = Cell.asyncMap<int, int>(
         src.cell,
@@ -207,36 +220,40 @@ void main() {
       src.emit(21);
       await _settle(tester);
 
-      await tester.pumpWidget(_wrap(
-        CellAsyncBuilder<int>(
-          cell: mapped,
-          builder: (_, snapshot) => Text(
-            '${snapshot.hasData} ${snapshot.hasError} '
-            '${snapshot.data}',
+      await tester.pumpWidget(
+        _wrap(
+          CellAsyncBuilder<int>(
+            cell: mapped,
+            builder: (_, snapshot) => Text(
+              '${snapshot.hasData} ${snapshot.hasError} '
+              '${snapshot.data}',
+            ),
           ),
         ),
-      ));
+      );
 
       expect(find.text('true false 42'), findsOneWidget);
     });
   });
 
   group('asValueCell seeds from retained pulses', () {
-    test('9. derive subscribed after emission mirrors the derived value',
-        () async {
-      final src = Cell.ingress<int>();
-      final derived = Cell.derive<Pulse<int>, Pulse<String>>(
-        source: src.cell,
-        project: (pulse) => Pulse<String>('v${pulse.payload}'),
-      );
-      src.emit(7);
-      await pumpEventQueue();
+    test(
+      '9. derive subscribed after emission mirrors the derived value',
+      () async {
+        final src = Cell.ingress<int>();
+        final derived = Cell.derive<Pulse<int>, Pulse<String>>(
+          source: src.cell,
+          project: (pulse) => Pulse<String>('v${pulse.payload}'),
+        );
+        src.emit(7);
+        await pumpEventQueue();
 
-      final mirror = derived.asValueCell<String>();
-      addTearDown(mirror.dispose);
+        final mirror = derived.asValueCell<String>();
+        addTearDown(mirror.dispose);
 
-      expect(mirror.cell.value, 'v7');
-    });
+        expect(mirror.cell.value, 'v7');
+      },
+    );
 
     test('10. fromFuture subscribed after completion mirrors 42', () async {
       final source = Cell.fromFuture<int>(
@@ -253,8 +270,7 @@ void main() {
   });
 
   group('asStream seeds from retained pulses', () {
-    test(
-        '11. derive subscribed after emission emits the derived value '
+    test('11. derive subscribed after emission emits the derived value '
         'first', () async {
       final src = Cell.ingress<int>();
       final derived = Cell.derive<Pulse<int>, Pulse<String>>(

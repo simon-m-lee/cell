@@ -32,18 +32,22 @@ void main() {
         CellScope.shadowWarned.clear();
         final outer = Cell.state<int>(initial: 0);
         final inner = Cell.state<int>(initial: 1);
-        await tester.pumpWidget(MaterialApp(
-          home: CellScope(
-            cells: {#counter: outer.cell},
-            child: CellScope(
-              cells: {#counter: inner.cell},
-              child: Builder(builder: (ctx) {
-                CellScope.of<int>(ctx, #counter);
-                return const SizedBox.shrink();
-              }),
+        await tester.pumpWidget(
+          MaterialApp(
+            home: CellScope(
+              cells: {#counter: outer.cell},
+              child: CellScope(
+                cells: {#counter: inner.cell},
+                child: Builder(
+                  builder: (ctx) {
+                    CellScope.of<int>(ctx, #counter);
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ),
             ),
           ),
-        ));
+        );
         expect(
           logs.any((l) => l.contains('is registered in a nested scope')),
           isTrue,
@@ -56,18 +60,22 @@ void main() {
         CellScope.shadowWarned.clear();
         final a = Cell.state<int>(initial: 0);
         final b = Cell.state<int>(initial: 1);
-        await tester.pumpWidget(MaterialApp(
-          home: CellScope(
-            cells: {#a: a.cell},
-            child: CellScope(
-              cells: {#b: b.cell},
-              child: Builder(builder: (ctx) {
-                CellScope.of<int>(ctx, #b);
-                return const SizedBox.shrink();
-              }),
+        await tester.pumpWidget(
+          MaterialApp(
+            home: CellScope(
+              cells: {#a: a.cell},
+              child: CellScope(
+                cells: {#b: b.cell},
+                child: Builder(
+                  builder: (ctx) {
+                    CellScope.of<int>(ctx, #b);
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ),
             ),
           ),
-        ));
+        );
         expect(logs, isEmpty);
       });
     });
@@ -77,20 +85,24 @@ void main() {
         CellScope.shadowWarned.clear();
         final outer = Cell.state<int>(initial: 0);
         final inner = Cell.state<int>(initial: 1);
-        await tester.pumpWidget(MaterialApp(
-          home: CellScope(
-            cells: {#counter: outer.cell},
-            child: CellScope(
-              cells: {#counter: inner.cell},
-              child: Builder(builder: (ctx) {
-                CellScope.of<int>(ctx, #counter);
-                CellScope.of<int>(ctx, #counter);
-                CellScope.of<int>(ctx, #counter);
-                return const SizedBox.shrink();
-              }),
+        await tester.pumpWidget(
+          MaterialApp(
+            home: CellScope(
+              cells: {#counter: outer.cell},
+              child: CellScope(
+                cells: {#counter: inner.cell},
+                child: Builder(
+                  builder: (ctx) {
+                    CellScope.of<int>(ctx, #counter);
+                    CellScope.of<int>(ctx, #counter);
+                    CellScope.of<int>(ctx, #counter);
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ),
             ),
           ),
-        ));
+        );
         final matches = logs.where((l) => l.contains('nested scope')).toList();
         expect(matches, hasLength(1));
       });

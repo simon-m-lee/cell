@@ -20,14 +20,16 @@ void main() {
     final cell = Cell.state<Object?>(initial: 0);
     var expected = '${cell.cell.value}';
 
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: CellBuilder<Object?>(
-          cell: cell.cell,
-          builder: (_, v) => Text('$v'),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CellBuilder<Object?>(
+            cell: cell.cell,
+            builder: (_, v) => Text('$v'),
+          ),
         ),
       ),
-    ));
+    );
 
     await runFuzz(
       tester: tester,
