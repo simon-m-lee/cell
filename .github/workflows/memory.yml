@@ -35,12 +35,13 @@ jobs:
         working-directory: packages/cell_memory
         run: |
           set -o pipefail
-          dart test 2>&1 | tee /tmp/cell_memory_test.log
+          dart test --reporter expanded 2>&1 | tee /tmp/cell_memory_test.log
           status=${PIPESTATUS[0]}
           if [ "$status" -ne 0 ]; then
-            # Surface the tail as check-run annotations so failures are
-            # diagnosable without repository admin log access.
-            tail -40 /tmp/cell_memory_test.log | sed 's/^/::error::/'
+            # Surface the failure blocks as check-run annotations so they
+            # are diagnosable without repository admin log access.
+            grep -n -B2 -A14 '\[E\]' /tmp/cell_memory_test.log | sed 's/^/::error::/' | head -80
+            tail -3 /tmp/cell_memory_test.log | sed 's/^/::error::/'
             exit "$status"
           fi
       - name: example restarts from its own file
@@ -80,7 +81,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'

@@ -29,11 +29,25 @@ jobs:
           channel: stable
           cache: true
 
-      - name: cell_flutter analyze + doc
+      - name: cell_flutter format gate
         working-directory: packages/cell_flutter
         run: |
-          dart format --output=none --set-exit-if-changed lib test tool
-          flutter analyze
+          dart format --output=none --set-exit-if-changed lib test tool 2>&1 | tee /tmp/fmt.log
+          if [ ${PIPESTATUS[0]} -ne 0 ]; then
+            sed 's/^/::error::/' /tmp/fmt.log
+            exit 1
+          fi
+      - name: cell_flutter analyze
+        working-directory: packages/cell_flutter
+        run: |
+          flutter analyze 2>&1 | tee /tmp/analyze.log
+          if [ ${PIPESTATUS[0]} -ne 0 ]; then
+            sed 's/^/::error::/' /tmp/analyze.log
+            exit 1
+          fi
+      - name: cell_flutter doc
+        working-directory: packages/cell_flutter
+        run: |
           dart doc --dry-run 2>&1 | tee /tmp/doc.log
           # The summary line says "Found 0 warnings and 0 errors." even on
           # success, so match nonzero counts or concrete issue lines only.
