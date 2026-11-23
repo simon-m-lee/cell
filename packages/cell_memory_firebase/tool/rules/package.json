@@ -1,0 +1,11 @@
+{
+  "name": "cell_memory_firebase-rules-tests",
+  "private": true,
+  "description": "Optional rules harness for cell_memory_firebase. Not a Dart dependency.",
+  "scripts": {
+    "test": "node rules.test.mjs"
+  },
+  "dependencies": {
+    "@firebase/rules-unit-testing": "^3.0.0"
+  }
+}

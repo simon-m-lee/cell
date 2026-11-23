@@ -1,0 +1,58 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid}/cell_memory/{memoryId} {
+      allow read: if signedIn(uid);
+      allow create: if signedIn(uid) && validCreate(memoryId);
+      allow update: if signedIn(uid) && validUpdate(memoryId);
+      allow delete: if signedIn(uid);
+
+      function signedIn(uid) {
+        return request.auth != null && request.auth.uid == uid;
+      }
+
+      function validCommon(memoryId) {
+        return request.resource.data.keys().hasOnly([
+            'id', 'kind', 'revision', 'generation', 'updatedAt', 'schema',
+            'payload', 'codec', 'sourceCellId'
+          ])
+          && request.resource.data.id == memoryId
+          && memoryId.matches('^[A-Za-z0-9._-]{1,128}$')
+          && memoryId != '.'
+          && memoryId != '..'
+          && request.resource.data.schema == 1
+          && request.resource.data.kind == 'value'
+          && request.resource.data.revision is int
+          && request.resource.data.revision > 0
+          && request.resource.data.generation is string
+          && request.resource.data.generation.matches('^[0-9a-f]{32}$')
+          && request.resource.data.updatedAt == request.time
+          && request.resource.data.payload is string
+          && optionalString('codec')
+          && optionalString('sourceCellId');
+      }
+
+      function optionalString(field) {
+        return !(field in request.resource.data.keys())
+            || request.resource.data[field] is string;
+      }
+
+      function validCreate(memoryId) {
+        return validCommon(memoryId)
+          && request.resource.data.revision == 1;
+      }
+
+      function validUpdate(memoryId) {
+        return validCommon(memoryId)
+          && request.resource.data.revision == resource.data.revision + 1
+          && request.resource.data.id == resource.data.id
+          && request.resource.data.schema == resource.data.schema
+          && request.resource.data.kind == resource.data.kind
+          && request.resource.data.generation == resource.data.generation
+          && request.resource.data.get('codec', null) == resource.data.get('codec', null)
+          && request.resource.data.get('sourceCellId', null)
+              == resource.data.get('sourceCellId', null);
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+# Path overrides so the monorepo builds the demo against the local
+# framework sources. The demo is never published, so this file is always
+# present.
+dependency_overrides:
+  cell:
+    path: ../../../cell
+  cell_flow:
+    path: ../../../cell_flow
+  cell_tissue:
+    path: ../../../cell_tissue
+  cell_skin:
+    path: ../../../cell_skin
+  cell_flutter:
+    path: ../../../cell_flutter
+  cell_memory:
+    path: ../../../cell_memory
+  cell_memory_firebase:
+    path: ../../../cell_memory_firebase

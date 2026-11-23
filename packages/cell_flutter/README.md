@@ -45,6 +45,8 @@ Every state change is a record you can audit, a gate you can enforce, and a comm
 
 Source: [`demo/audit_trail/`](https://github.com/simon-m-lee/cell/tree/master/demo/audit_trail) — under 500 lines, comments included.
 
+**Kiosk Twins** (the full-stack live demo): [`example/kiosk_twins/`](example/kiosk_twins/) — a two-kiosk coffee counter where `cell_flutter` binds the UI of the whole Mitosis stack (`Cell` + `Flow` + `Tissue` + `cell_skin`, with `cell_memory` / `cell_memory_firebase` as the boundary layer). Its README is a runbook: boot the kiosk, restart it to watch the books restore, race two kiosks over Firestore, and record the animated GIF.
+
 ---
 
 ## Overview

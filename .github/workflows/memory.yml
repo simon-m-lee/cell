@@ -1,0 +1,138 @@
+name: cell_memory
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/memory.yml'
+      - 'packages/cell_memory/**'
+      - 'packages/cell_memory_firebase/**'
+      - 'packages/cell/**'
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/memory.yml'
+      - 'packages/cell_memory/**'
+      - 'packages/cell_memory_firebase/**'
+      - 'packages/cell/**'
+
+jobs:
+  cell_memory:
+    name: cell_memory (dart analyze + test + example)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+      - name: pub get
+        working-directory: packages/cell_memory
+        run: dart pub get
+      - name: analyze
+        working-directory: packages/cell_memory
+        run: dart analyze
+      - name: test
+        working-directory: packages/cell_memory
+        run: dart test
+      - name: example restarts from its own file
+        working-directory: packages/cell_memory
+        run: |
+          WORK_DIR=$(mktemp -d)
+          cd "$WORK_DIR"
+          FIRST=$(dart run "$GITHUB_WORKSPACE/packages/cell_memory/example/file_counter.dart")
+          echo "$FIRST" | grep -q 'counter restored from 0, now 1'
+          SECOND=$(dart run "$GITHUB_WORKSPACE/packages/cell_memory/example/file_counter.dart")
+          echo "$SECOND" | grep -q 'counter restored from 1, now 2'
+          rm -rf "$WORK_DIR"
+
+  cell_memory_firebase_unit:
+    name: cell_memory_firebase (flutter analyze + unit tests)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: pub get
+        working-directory: packages/cell_memory_firebase
+        run: flutter pub get
+      - name: analyze
+        working-directory: packages/cell_memory_firebase
+        run: flutter analyze
+      - name: unit tests (no acceptance)
+        working-directory: packages/cell_memory_firebase
+        run: flutter test --exclude-tags acceptance
+
+  cell_memory_firebase_emulator:
+    name: cell_memory_firebase (rules + acceptance, required)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: install firebase-tools
+        run: npm install -g firebase-tools
+      - name: install rules harness dependencies
+        working-directory: packages/cell_memory_firebase/tool/rules
+        run: npm ci
+      - name: pub get
+        working-directory: packages/cell_memory_firebase
+        run: flutter pub get
+      - name: rules harness (required)
+        working-directory: packages/cell_memory_firebase
+        run: |
+          firebase emulators:exec --only firestore \
+            --project demo-cell-memory \
+            "node tool/rules/rules.test.mjs"
+      - name: two-client acceptance test (required, must not skip)
+        working-directory: packages/cell_memory_firebase
+        run: |
+          firebase emulators:exec --only firestore,auth \
+            --project demo-cell-memory \
+            "flutter test --tags acceptance --reporter json > /tmp/acceptance.json"
+          node -e "
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('/tmp/acceptance.json', 'utf8'));
+          const events = Array.isArray(report) ? report : [report];
+          const skipped = events.filter(e => e.type === 'testDone' && e.result === 'skipped').length;
+          const failed = events.filter(e => e.type === 'testDone' && e.result !== 'success' && e.result !== 'skipped').length;
+          const passed = events.filter(e => e.type === 'testDone' && e.result === 'success').length;
+          if (skipped > 0 || failed > 0 || passed === 0) {
+            console.error(\`acceptance: \${passed} passed, \${failed} failed, \${skipped} skipped\`);
+            process.exit(1);
+          }
+          console.log(\`acceptance: \${passed} passed, 0 skipped\`);
+          "
+
+  publish_dry_run:
+    name: cell_memory publish dry-run (resolves cell from pub.dev)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+      - name: dry-run from a copy with no path override
+        run: |
+          # A non-git copy, matching the release order: pub resolves `cell`
+          # from pub.dev, and no path override can hide in the spec.
+          WORK_DIR=$(mktemp -d)
+          cp -r packages/cell_memory "$WORK_DIR/package"
+          rm -rf "$WORK_DIR/package/.dart_tool" "$WORK_DIR/package/build" \
+                 "$WORK_DIR/package/doc/api"
+          rm -f "$WORK_DIR/package/pubspec_overrides.yaml"
+          cd "$WORK_DIR/package"
+          dart pub get
+          dart pub publish --dry-run
+          rm -rf "$WORK_DIR"

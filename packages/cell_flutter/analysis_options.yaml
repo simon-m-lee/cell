@@ -1,5 +1,9 @@
 include: package:flutter_lints/flutter.yaml
 analyzer:
+  exclude:
+    # The Kiosk Twins live demo mirrors packages/cell_memory_live_demo;
+    # it is its own Flutter app with its own pubspec and dependency set.
+    - example/kiosk_twins/**
   language:
     strict-casts: true
     strict-inference: true

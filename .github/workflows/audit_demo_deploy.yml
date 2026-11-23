@@ -14,7 +14,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: audit-demo-pages
+  group: demo-pages
   cancel-in-progress: true
 
 jobs:
@@ -25,16 +25,27 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - run: flutter pub get
+
+      - name: Build the Audit Trail demo
         working-directory: demo/audit_trail
-      - run: flutter test
-        working-directory: demo/audit_trail
-      - run: flutter build web --release --base-href /cell/audit-trail/ --pwa-strategy=none
-        working-directory: demo/audit_trail
-      - name: Stage the demo under /audit-trail/
+        run: |
+          flutter pub get
+          flutter test
+          flutter build web --release --base-href /cell/audit-trail/ --pwa-strategy=none
+
+      - name: Build the Kiosk Twins demo
+        working-directory: packages/cell_flutter/example/kiosk_twins
+        run: |
+          flutter pub get
+          flutter test
+          flutter build web --release --base-href /cell/kiosk-twins/ --pwa-strategy=none
+
+      - name: Stage both demos under one Pages site
         run: |
           mkdir -p _site
           cp -r demo/audit_trail/build/web _site/audit-trail
+          cp -r packages/cell_flutter/example/kiosk_twins/build/web _site/kiosk-twins
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

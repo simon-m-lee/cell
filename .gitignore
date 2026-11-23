@@ -34,3 +34,7 @@ packages/cell_ontogeny/
 
 # Private notes kept outside version control (root-level only)
 /research/
+node_modules/
+packages/cell_memory/doc/api/
+packages/cell_memory_live_demo/kiosk_state/
+packages/cell_flutter/example/kiosk_twins/kiosk_state/

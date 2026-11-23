@@ -1,0 +1,10 @@
+{
+  "indexes": [],
+  "fieldOverrides": [
+    {
+      "collectionGroup": "cell_memory",
+      "fieldPath": "payload",
+      "indexes": []
+    }
+  ]
+}

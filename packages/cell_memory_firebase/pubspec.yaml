@@ -1,0 +1,19 @@
+name: cell_memory_firebase
+description: Cloud Firestore MemoryStore for cell_memory. Flutter only.
+version: 1.0.0
+repository: https://github.com/simon-m-lee/cell
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+  flutter: '>=3.24.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  cell_memory: ^1.0.0
+  firebase_core: ^3.0.0
+  cloud_firestore: ^5.0.0
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  firebase_auth: ^5.0.0
+  cell: ^2.1.0
+  lints: ^5.0.0

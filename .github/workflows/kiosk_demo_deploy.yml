@@ -1,0 +1,61 @@
+name: Deploy Kiosk Twins Demo
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'packages/cell_flutter/example/kiosk_twins/**'
+      - 'packages/cell_memory_live_demo/**'
+      - '.github/workflows/kiosk_demo_deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: demo-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Build the Kiosk Twins demo
+        working-directory: packages/cell_flutter/example/kiosk_twins
+        run: |
+          flutter pub get
+          flutter test
+          flutter build web --release --base-href /cell/kiosk-twins/ --pwa-strategy=none
+
+      - name: Build the Audit Trail demo
+        working-directory: demo/audit_trail
+        run: |
+          flutter pub get
+          flutter test
+          flutter build web --release --base-href /cell/audit-trail/ --pwa-strategy=none
+
+      - name: Stage both demos under one Pages site
+        run: |
+          mkdir -p _site
+          cp -r packages/cell_flutter/example/kiosk_twins/build/web _site/kiosk-twins
+          cp -r demo/audit_trail/build/web _site/audit-trail
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

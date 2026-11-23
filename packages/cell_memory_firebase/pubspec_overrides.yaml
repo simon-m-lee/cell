@@ -1,0 +1,8 @@
+# Path overrides so the monorepo builds against the local framework
+# sources. `dart pub publish` does not pack this file, so the published
+# spec resolves `cell` and `cell_memory` from pub.dev.
+dependency_overrides:
+  cell_memory:
+    path: ../cell_memory
+  cell:
+    path: ../cell
