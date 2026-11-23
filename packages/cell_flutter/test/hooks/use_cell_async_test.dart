@@ -59,8 +59,7 @@ void main() {
       expect(captured!.data, 42);
     });
 
-    testWidgets('seeds from a fromStream after one value',
-        (tester) async {
+    testWidgets('seeds from a fromStream after one value', (tester) async {
       final controller = StreamController<int>();
       final source = Cell.fromStream<int>(
         controller.stream,
@@ -82,8 +81,7 @@ void main() {
       await tester.pump();
     });
 
-    testWidgets('seeds from an asyncMap after one value',
-        (tester) async {
+    testWidgets('seeds from an asyncMap after one value', (tester) async {
       final src = Cell.ingress<int>();
       final mapped = Cell.asyncMap<int, int>(
         src.cell,
@@ -106,8 +104,7 @@ void main() {
       expect(captured!.data, 42);
     });
 
-    testWidgets('seeds from a derive after one emission',
-        (tester) async {
+    testWidgets('seeds from a derive after one emission', (tester) async {
       final src = Cell.ingress<int>();
       final derived = Cell.derive<Pulse<int>, Pulse<String>>(
         source: src.cell,

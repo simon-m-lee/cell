@@ -251,8 +251,8 @@ void main() {
       ));
       await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
 
-      expect(identical(FlutterError.onError, FlutterError.presentError),
-          isTrue);
+      expect(
+          identical(FlutterError.onError, FlutterError.presentError), isTrue);
       expect(tester.takeException(), isNull);
     });
 

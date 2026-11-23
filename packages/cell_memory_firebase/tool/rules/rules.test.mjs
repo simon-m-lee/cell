@@ -48,6 +48,9 @@ const generationB = 'abcdef0123456789abcdef0123456789';
 
 const now = () => Timestamp.now();
 
+// Seeds revision 1 for the update-shaped cases.
+const seedRev1 = () => testEnv.authenticatedContext(uid).firestore().doc(path()).set(validDoc(1));
+
 const validDoc = (revision) => ({
   id: 'counter',
   kind: 'value',
@@ -61,28 +64,43 @@ const validDoc = (revision) => ({
 });
 
 const cases = [
-  ['unsigned get', () => testEnv.unauthenticatedContext().firestore().doc(path()).get(), 'deny'],
-  ['other uid get', () => testEnv.authenticatedContext(otherUid).firestore().doc(path()).get(), 'deny'],
-  ['other uid set', () => testEnv.authenticatedContext(otherUid).firestore().doc(path()).set(validDoc(1)), 'deny'],
-  ['owner create revision 1, string payload', () => testEnv.authenticatedContext(uid).firestore().doc(path()).set(validDoc(1)), 'allow'],
-  ['owner create revision 2', () => testEnv.authenticatedContext(uid).firestore().doc(path()).set(validDoc(2)), 'deny'],
-  ['owner update +1, same kind and codec', () => testEnv.authenticatedContext(uid).firestore().doc(path()).set(validDoc(2)), 'allow'],
-  ['owner update skip revision', () => testEnv.authenticatedContext(uid).firestore().doc(path()).set(validDoc(3)), 'deny'],
-  ['owner update changes kind', () => testEnv.authenticatedContext(uid).firestore().doc(path()).set({ ...validDoc(2), kind: 'snapshot' }), 'deny'],
-  ['owner update payload as list', () => testEnv.authenticatedContext(uid).firestore().doc(path()).set({ ...validDoc(2), payload: [1, 2] }), 'deny'],
-  ['owner update payload as map', () => testEnv.authenticatedContext(uid).firestore().doc(path()).set({ ...validDoc(2), payload: { a: 1 } }), 'deny'],
-  ['owner set of the same revision again', () => testEnv.authenticatedContext(uid).firestore().doc(path()).set(validDoc(2)), 'deny'],
-  ['owner create with an extra key', () => testEnv.authenticatedContext(uid).firestore().doc(path()).set({ ...validDoc(1), extra: true }), 'deny'],
-  ['owner create with schema 2', () => testEnv.authenticatedContext(uid).firestore().doc(path()).set({ ...validDoc(1), schema: 2 }), 'deny'],
-  ['owner create with a fixed updatedAt', () => testEnv.authenticatedContext(uid).firestore().doc(path()).set({ ...validDoc(1), updatedAt: now() }), 'deny'],
-  ['owner delete', () => testEnv.authenticatedContext(uid).firestore().doc(path()).delete(), 'allow'],
+  // Each case clears the database first: the rules verdicts depend on the
+  // document being absent (create) or on a seeded revision (update), and
+  // rules-unit-testing shares one project across cases.
+  ['unsigned get', null, () => testEnv.unauthenticatedContext().firestore().doc(path()).get(), 'deny'],
+  ['other uid get', null, () => testEnv.authenticatedContext(otherUid).firestore().doc(path()).get(), 'deny'],
+  ['other uid set', null, () => testEnv.authenticatedContext(otherUid).firestore().doc(path()).set(validDoc(1)), 'deny'],
+  ['owner create revision 1, string payload', null, () => testEnv.authenticatedContext(uid).firestore().doc(path()).set(validDoc(1)), 'allow'],
+  ['owner create revision 2', null, () => testEnv.authenticatedContext(uid).firestore().doc(path()).set(validDoc(2)), 'deny'],
+  ['owner update +1, same kind and codec', seedRev1, () => testEnv.authenticatedContext(uid).firestore().doc(path()).set(validDoc(2)), 'allow'],
+  ['owner update skip revision', seedRev1, () => testEnv.authenticatedContext(uid).firestore().doc(path()).set(validDoc(3)), 'deny'],
+  ['owner update changes kind', seedRev1, () => testEnv.authenticatedContext(uid).firestore().doc(path()).set({ ...validDoc(2), kind: 'snapshot' }), 'deny'],
+  ['owner update payload as list', seedRev1, () => testEnv.authenticatedContext(uid).firestore().doc(path()).set({ ...validDoc(2), payload: [1, 2] }), 'deny'],
+  ['owner update payload as map', seedRev1, () => testEnv.authenticatedContext(uid).firestore().doc(path()).set({ ...validDoc(2), payload: { a: 1 } }), 'deny'],
+  ['owner set of the same revision again', seedRev1, () => testEnv.authenticatedContext(uid).firestore().doc(path()).set(validDoc(1)), 'deny'],
+  ['owner create with an extra key', null, () => testEnv.authenticatedContext(uid).firestore().doc(path()).set({ ...validDoc(1), extra: true }), 'deny'],
+  ['owner create with schema 2', null, () => testEnv.authenticatedContext(uid).firestore().doc(path()).set({ ...validDoc(1), schema: 2 }), 'deny'],
+  ['owner create with a fixed updatedAt', null, () => testEnv.authenticatedContext(uid).firestore().doc(path()).set({ ...validDoc(1), updatedAt: now() }), 'deny'],
+  ['owner delete', seedRev1, () => testEnv.authenticatedContext(uid).firestore().doc(path()).delete(), 'allow'],
 ];
 
 let failed = 0;
-for (const [name, run, expected] of cases) {
+for (const [name, seed, run, expected] of cases) {
+  await testEnv.clearFirestore();
+  if (seed) await seed();
   try {
     if (expected === 'deny') {
       await assertFails(run());
+    } else if (expected === 'deny-any') {
+      // The emulator rejects some shapes before the rules ever run
+      // (e.g. the resource id '.'); any thrown error proves the denial.
+      let threw = false;
+      try {
+        await run();
+      } catch (error) {
+        threw = true;
+      }
+      if (!threw) throw new Error('Expected request to fail, but it succeeded.');
     } else {
       await assertSucceeds(run());
     }
@@ -96,10 +114,16 @@ for (const [name, run, expected] of cases) {
 // Generation and id-grammar group on a fresh document.
 await testEnv.clearFirestore();
 const generationCases = [
-  ['create without generation', () => testEnv.authenticatedContext(uid).firestore().doc(path()).set({ ...validDoc(1), generation: undefined }), 'deny'],
+  ['create without generation', () => {
+    // The key must be omitted, not set to undefined: the SDK rejects
+    // undefined field values before the rules ever run.
+    const doc = validDoc(1);
+    delete doc.generation;
+    return testEnv.authenticatedContext(uid).firestore().doc(path()).set(doc);
+  }, 'deny'],
   ['create with kind pulse', () => testEnv.authenticatedContext(uid).firestore().doc(path()).set({ ...validDoc(1), kind: 'pulse' }), 'deny'],
   ['create id "bad id"', () => testEnv.authenticatedContext(uid).firestore().doc(`users/${uid}/cell_memory/bad id`).set({ ...validDoc(1), id: 'bad id' }), 'deny'],
-  ['create id "."', () => testEnv.authenticatedContext(uid).firestore().doc(`users/${uid}/cell_memory/.`).set({ ...validDoc(1), id: '.' }), 'deny'],
+  ['create id "."', () => testEnv.authenticatedContext(uid).firestore().doc(`users/${uid}/cell_memory/.`).set({ ...validDoc(1), id: '.' }), 'deny-any'],
   ['create id of 129 characters', () => testEnv.authenticatedContext(uid).firestore().doc(`users/${uid}/cell_memory/${'x'.repeat(129)}`).set({ ...validDoc(1), id: 'x'.repeat(129) }), 'deny'],
   ['owner create revision 1 with generation', () => testEnv.authenticatedContext(uid).firestore().doc(path()).set(validDoc(1)), 'allow'],
   ['owner update +1, same generation', () => testEnv.authenticatedContext(uid).firestore().doc(path()).set(validDoc(2)), 'allow'],
@@ -113,6 +137,14 @@ for (const [name, run, expected] of generationCases) {
   try {
     if (expected === 'deny') {
       await assertFails(run());
+    } else if (expected === 'deny-any') {
+      let threw = false;
+      try {
+        await run();
+      } catch (error) {
+        threw = true;
+      }
+      if (!threw) throw new Error('Expected request to fail, but it succeeded.');
     } else {
       await assertSucceeds(run());
     }

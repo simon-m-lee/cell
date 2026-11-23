@@ -173,8 +173,15 @@ void main() {
             expectedRevision: 1),
         throwsA(isA<MemoryCorrupt>()),
       );
-      final cart = await store.read('Cart');
-      expect(cart?.payload, 1, reason: 'the first record is untouched');
+      // Fail-closed reads: with both names present, read refuses too —
+      // the case-insensitive interpretation of this directory is one
+      // file with two names, so returning a row would pick a side.
+      await expectLater(store.read('Cart'), throwsA(isA<MemoryCorrupt>()));
+      // The first record is untouched: the raw file still carries the
+      // Cart envelope the store wrote.
+      final raw = await File('${root.path}/Cart.json').readAsString();
+      expect(raw, contains('"id": "Cart"'));
+      expect(raw, contains('"payload": 1'));
       await expectLater(store.list(), throwsA(isA<MemoryCorrupt>()));
       expect(File('${root.path}/Cart.json').existsSync(), isTrue);
       expect(File('${root.path}/cart.json').existsSync(), isTrue,
