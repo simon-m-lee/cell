@@ -28,6 +28,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test/integration_test.dart';
 
 const String _projectId = 'demo-cell-memory';
 const String _uid = 'same-user';
@@ -35,6 +36,10 @@ const String _email = 'race@example.com';
 const String _password = 'race-password';
 
 void main() {
+  // The Firebase plugins need a real device runner (platform channels);
+  // the VM flutter test harness has none.
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
   test('two clients: a stale generation after remove-and-recreate is a '
       'MemoryConflict carrying the new generation', () async {
     if (Platform.environment['FIRESTORE_EMULATOR_HOST'] == null) {

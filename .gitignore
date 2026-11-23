@@ -38,3 +38,4 @@ node_modules/
 packages/cell_memory/doc/api/
 packages/cell_memory_live_demo/kiosk_state/
 packages/cell_flutter/example/kiosk_twins/kiosk_state/
+firestore-debug.log

@@ -35,7 +35,12 @@ jobs:
           dart format --output=none --set-exit-if-changed lib test tool
           flutter analyze
           dart doc --dry-run 2>&1 | tee /tmp/doc.log
-          ! grep -E 'warning|error' /tmp/doc.log
+          # The summary line says "Found 0 warnings and 0 errors." even on
+          # success, so match nonzero counts or concrete issue lines only.
+          if grep -E 'Found [1-9][0-9]* warnings|Found [1-9][0-9]* errors|warning:|error:' /tmp/doc.log; then
+            echo 'dart doc reported issues (see above)'
+            exit 1
+          fi
 
       - name: cell_flutter_router analyze + doc
         working-directory: packages/cell_flutter_router
@@ -43,7 +48,12 @@ jobs:
           dart format --output=none --set-exit-if-changed lib test
           flutter analyze
           dart doc --dry-run 2>&1 | tee /tmp/doc.log
-          ! grep -E 'warning|error' /tmp/doc.log
+          # The summary line says "Found 0 warnings and 0 errors." even on
+          # success, so match nonzero counts or concrete issue lines only.
+          if grep -E 'Found [1-9][0-9]* warnings|Found [1-9][0-9]* errors|warning:|error:' /tmp/doc.log; then
+            echo 'dart doc reported issues (see above)'
+            exit 1
+          fi
 
       - name: cell_flutter_persistence analyze + doc
         working-directory: packages/cell_flutter_persistence
@@ -51,7 +61,12 @@ jobs:
           dart format --output=none --set-exit-if-changed lib test
           flutter analyze
           dart doc --dry-run 2>&1 | tee /tmp/doc.log
-          ! grep -E 'warning|error' /tmp/doc.log
+          # The summary line says "Found 0 warnings and 0 errors." even on
+          # success, so match nonzero counts or concrete issue lines only.
+          if grep -E 'Found [1-9][0-9]* warnings|Found [1-9][0-9]* errors|warning:|error:' /tmp/doc.log; then
+            echo 'dart doc reported issues (see above)'
+            exit 1
+          fi
 
   test:
     runs-on: ubuntu-latest
