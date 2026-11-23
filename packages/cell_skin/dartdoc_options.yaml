@@ -1,0 +1,77 @@
+# Package root: packages/cell_skin/dartdoc_options.yaml
+# Paths are POSIX and relative to this file.
+#
+# After editing, regenerate:
+#   dart doc .
+# Then open doc/api/index.html (Topics + Libraries).
+#
+# Category keys MUST match {@category ...} text in Dart doc comments.
+
+dartdoc:
+  categories:
+    "Getting Started":
+      markdown: guide/HowTo-Start.md
+      displayName: Getting Started
+    "Membrane":
+      markdown: guide/HowTo-Membrane.md
+      displayName: "HowTo · Membrane"
+    "Bindings":
+      markdown: guide/HowTo-Bindings.md
+      displayName: "HowTo · Bindings"
+    "Whitelist":
+      markdown: guide/HowTo-Whitelist.md
+      displayName: "HowTo · Whitelist"
+    "Wire Messages":
+      markdown: guide/HowTo-WireMessages.md
+      displayName: "HowTo · Wire Messages"
+    "Egress":
+      markdown: guide/HowTo-Egress.md
+      displayName: "HowTo · Egress"
+    "Cursors":
+      markdown: guide/HowTo-Cursors.md
+      displayName: "HowTo · Cursors"
+    "Idempotency":
+      markdown: guide/HowTo-Idempotency.md
+      displayName: "HowTo · Idempotency"
+    "REST Adapter":
+      markdown: guide/HowTo-RestAdapter.md
+      displayName: "HowTo · REST Adapter"
+    "MCP Seam":
+      markdown: guide/HowTo-McpSeam.md
+      displayName: "HowTo · MCP Seam"
+    "Auth & Provenance":
+      markdown: guide/HowTo-Auth.md
+      displayName: "HowTo · Auth"
+    "Testing":
+      markdown: guide/HowTo-Testing.md
+      displayName: "HowTo · Testing"
+    "Features":
+      markdown: FEATURES-Skin.md
+      displayName: Features
+    "Architecture":
+      markdown: ARCHITECTURE-Skin.md
+      displayName: Architecture
+    "Demo":
+      markdown: DEMO_GUIDE.md
+      displayName: "Demo: Echo Home"
+    "Test Verification":
+      markdown: TEST_VERIFICATION.md
+      displayName: Test Verification
+
+  categoryOrder:
+    - "Getting Started"
+    - "Membrane"
+    - "Bindings"
+    - "Whitelist"
+    - "Wire Messages"
+    - "Egress"
+    - "Cursors"
+    - "Idempotency"
+    - "REST Adapter"
+    - "MCP Seam"
+    - "Auth & Provenance"
+    - "Testing"
+    - "Features"
+    - "Architecture"
+    - "Demo"
+    - "Test Verification"

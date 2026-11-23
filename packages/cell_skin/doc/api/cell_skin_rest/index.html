@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="cell_skin_rest library API docs, for the Dart programming language.">
+  <title>cell_skin_rest library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li class="self-crumb">cell_skin_rest.dart</li>
+  </ol>
+  <div class="self-name">cell_skin_rest</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar=""
+    data-below-sidebar="cell_skin_rest&#47;cell_skin_rest-library-sidebar.html">
+  
+    <div>
+      
+
+      <h1>
+        <span class="kind-library">cell_skin_rest</span>
+        library 
+ 
+    <span class="category features cp-12 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+
+      </h1>
+    </div>
+
+    
+<section class="desc markdown">
+  <p>The REST binding entry point.</p>
+<p><code>RestAdapter</code> imports <code>dart:io</code>, so it is exported from this
+library rather than from the main <code>cell_skin.dart</code> barrel — web and
+Flutter-web consumers of the wire, the membrane, or the in-process
+client must be able to compile without an <code>io</code> dependency.</p>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_skin/cell_skin.dart';
+import 'package:cell_skin/cell_skin_rest.dart';
+
+final adapter = await RestAdapter.bind(
+  membrane: membrane,
+  auth: const AllowAllSkinAuth(), // anonymous access is opt-in
+);
+</code></pre>
+</section>
+
+
+    <section class="summary offset-anchor" id="classes">
+      <h2>Classes</h2>
+      <dl>
+          <dt id="AllowAllSkinAuth">
+  <span class="name "><a href="../cell_skin/AllowAllSkinAuth-class.html">AllowAllSkinAuth</a></span> 
+
+</dt>
+<dd>
+  An auth implementation that accepts everyone — the explicit
+anonymous opt-in for a loopback-only demo or test adapter.
+</dd>
+
+          <dt id="ContextBridge">
+  <span class="name "><a href="../cell_skin/ContextBridge-class.html">ContextBridge</a></span> 
+    <span class="category howto-·-auth cp-10 linked" title="This is part of the HowTo · Auth topic."><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></span>
+
+</dt>
+<dd>
+  Translates a <a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a> into a framework <code>Context</code>.
+</dd>
+
+          <dt id="DescribeContextBridge">
+  <span class="name "><a href="../cell_skin/DescribeContextBridge-class.html">DescribeContextBridge</a></span> 
+
+</dt>
+<dd>
+  The default bridge: least privilege, provenance recorded in the
+description.
+</dd>
+
+          <dt id="RestAdapter">
+  <span class="name "><a href="../cell_skin_rest/RestAdapter-class.html">RestAdapter</a></span> 
+    <span class="category howto-·-rest-adapter cp-8 linked" title="This is part of the HowTo · REST Adapter topic."><a href="../topics/REST Adapter-topic.html">HowTo&nbsp;·&nbsp;REST&nbsp;Adapter</a></span>
+
+</dt>
+<dd>
+  The HTTP + SSE adapter over a <a href="../cell_skin/SkinMembrane-class.html">SkinMembrane</a>.
+</dd>
+
+          <dt id="SkinAuth">
+  <span class="name "><a href="../cell_skin/SkinAuth-class.html">SkinAuth</a></span> 
+    <span class="category howto-·-auth cp-10 linked" title="This is part of the HowTo · Auth topic."><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></span>
+
+</dt>
+<dd>
+  Authenticates transport credentials. Returns <code>null</code> to reject.
+</dd>
+
+          <dt id="SkinCredentials">
+  <span class="name "><a href="../cell_skin/SkinCredentials-class.html">SkinCredentials</a></span> 
+
+</dt>
+<dd>
+  Transport-level credentials.
+</dd>
+
+          <dt id="SkinPrincipal">
+  <span class="name "><a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a></span> 
+
+</dt>
+<dd>
+  The authenticated identity behind a request.
+</dd>
+
+          <dt id="SystemContextBridge">
+  <span class="name "><a href="../cell_skin/SystemContextBridge-class.html">SystemContextBridge</a></span> 
+
+</dt>
+<dd>
+  A bridge that always returns <code>Context.system</code>.
+</dd>
+
+      </dl>
+    </section>
+
+
+
+
+
+    <section class="summary offset-anchor" id="constants">
+      <h2>Constants</h2>
+      <dl class="properties">
+          <dt id="kDefaultMaxBodyBytes" class="constant">
+    <span class="name "><a href="../cell_skin_rest/kDefaultMaxBodyBytes-constant.html">kDefaultMaxBodyBytes</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The maximum request body size accepted by default (1 MiB).
+  
+
+</dd>
+
+      </dl>
+    </section>
+
+
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li class="self-crumb">cell_skin_rest.dart</li>
+</ol>
+
+    <h5><span class="package-name">cell_skin</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Test Verification-topic.html">Test&nbsp;Verification</a></li>
+        <li><a href="../topics/Membrane-topic.html">HowTo&nbsp;·&nbsp;Membrane</a></li>
+        <li><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></li>
+        <li><a href="../topics/Whitelist-topic.html">HowTo&nbsp;·&nbsp;Whitelist</a></li>
+        <li><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></li>
+        <li><a href="../topics/Egress-topic.html">HowTo&nbsp;·&nbsp;Egress</a></li>
+        <li><a href="../topics/Cursors-topic.html">HowTo&nbsp;·&nbsp;Cursors</a></li>
+        <li><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></li>
+        <li><a href="../topics/REST Adapter-topic.html">HowTo&nbsp;·&nbsp;REST&nbsp;Adapter</a></li>
+        <li><a href="../topics/MCP Seam-topic.html">HowTo&nbsp;·&nbsp;MCP&nbsp;Seam</a></li>
+        <li><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></li>
+        <li><a href="../topics/Testing-topic.html">HowTo&nbsp;·&nbsp;Testing</a></li>
+        <li><a href="../topics/Demo-topic.html">Demo:&nbsp;Echo&nbsp;Home</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_skin_api_chooser/">doc\api_chooser</a></li>
+      <li class="section-subtitle">Getting Started</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">HowTo · Testing</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Features</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+        <li class="section-subitem"><a href="../cell_skin_rest/">cell_skin_rest</a></li>
+      <li class="section-subtitle">Architecture</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Demo: Echo Home</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Test Verification</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <h5>cell_skin_rest library</h5>
+  </div><!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_skin
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

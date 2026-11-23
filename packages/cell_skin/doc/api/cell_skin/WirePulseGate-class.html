@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the WirePulseGate class from the cell_skin library, for the Dart programming language.">
+  <title>WirePulseGate class - cell_skin library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li><a href="../cell_skin/">cell_skin.dart</a></li>
+    <li class="self-crumb">WirePulseGate class</li>
+  </ol>
+  <div class="self-name">WirePulseGate</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_skin&#47;cell_skin-library-sidebar.html"
+    data-below-sidebar="cell_skin&#47;WirePulseGate-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">WirePulseGate</span> class 
+    <a href="https://dart.dev/language/class-modifiers#final" class="feature feature-final" title="This class can neither be extended, implemented, nor mixed in.">final</a>
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Rejects pulses whose payload is not a <a href="../cell_skin/WireMessage-class.html">WireMessage</a> (at either wrap
+level — <code>Cell.ingress&lt;Pulse&lt;WireMessage&gt;&gt;</code> wraps the wire pulse in
+the ingress's own pulse); allows every other channel.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li>TestCell<span class="signature">&lt;<wbr><span class="type-parameter">Cell</span>&gt;</span></li>
+      <li>WirePulseGate</li>
+    </ul>
+  </dd>
+
+        
+        
+
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="WirePulseGate.new" class="callable">
+          <span class="name"><a href="../cell_skin/WirePulseGate/WirePulseGate.html">WirePulseGate</a></span><span class="signature">()</span>
+        </dt>
+        <dd>
+          
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="../cell_skin/WirePulseGate/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="purity" class="property inherited">
+  <span class="name"><a href="../cell_skin/WirePulseGate/purity.html">purity</a></span>
+  <span class="signature">&#8594; Purity</span>
+  
+
+</dt>
+<dd class="inherited">
+  A rule's purity. Defaults to <code>Purity.pure</code>; rules that perform
+external I/O must override — a rule that reads external state (a
+clock, an environment variable, a read-only database) to
+<code>Purity.readOnlyExternal</code>, a rule that mutates external state (rare;
+mostly misuse) to <code>Purity.effectful</code> and be journalled.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="version" class="property inherited">
+  <span class="name"><a href="../cell_skin/WirePulseGate/version.html">version</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A rule's version. Defaults to <code>'0.0.0'</code>; subclasses should override
+with a stable string. See <code>Receptor.version</code>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="action" class="callable inherited">
+  <span class="name"><a href="../cell_skin/WirePulseGate/action.html">action</a></span><span class="signature">(<wbr><span class="parameter" id="action-param-action"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">action</span>, {</span><span class="parameter" id="action-param-host"><span>required</span> <span class="type-annotation">Cell</span> <span class="parameter-name">host</span>, </span><span class="parameter" id="action-param-arguments"><span class="type-annotation">Arguments?</span> <span class="parameter-name">arguments</span>, </span><span class="parameter" id="action-param-command"><span class="type-annotation">ApplyCommand?</span> <span class="parameter-name">command</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Validates the execution of a functional <code>action</code> and its associated <code>arguments</code>
+on the <code>host</code> cell, supporting <strong>Hybrid Convergence</strong> (Sync/Async).
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="call" class="callable">
+  <span class="name"><a href="../cell_skin/WirePulseGate/call.html">call</a></span><span class="signature">(<wbr><span class="parameter" id="call-param-object"><span class="type-annotation">dynamic</span> <span class="parameter-name">object</span>, {</span><span class="parameter" id="call-param-host"><span>covariant</span> <span class="type-annotation">Cell?</span> <span class="parameter-name">host</span>, </span><span class="parameter" id="call-param-arguments"><span class="type-annotation">dynamic</span> <span class="parameter-name">arguments</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  The primary entry point for the <strong>Integrity Gate</strong>, executing the
+validation pipeline for a specific <code>object</code> or state mutation.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="link" class="callable inherited">
+  <span class="name"><a href="../cell_skin/WirePulseGate/link.html">link</a></span><span class="signature">(<wbr><span class="parameter" id="link-param-link"><span>covariant</span> <span class="type-annotation">Cell</span> <span class="parameter-name">link</span>, {</span><span class="parameter" id="link-param-host"><span>required</span> <span class="type-annotation">Cell</span> <span class="parameter-name">host</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Validates the establishment of a reactive <code>link</code> from a candidate <code>Cell</code>
+to the <code>host</code> cell, supporting <strong>Hybrid Convergence</strong> (Sync/Async).
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="pulse" class="callable inherited">
+  <span class="name"><a href="../cell_skin/WirePulseGate/pulse.html">pulse</a></span><span class="signature">(<wbr><span class="parameter" id="pulse-param-pulse"><span>covariant</span> <span class="type-annotation">Pulse</span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="pulse-param-host"><span>required</span> <span class="type-annotation">Cell</span> <span class="parameter-name">host</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Validates an incoming <code>pulse</code> intended for processing by the <code>host</code> cell,
+supporting <strong>Hybrid Convergence</strong> (Sync/Async).
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator +" class="callable inherited">
+  <span class="name"><a href="../cell_skin/WirePulseGate/operator_plus.html">operator +</a></span><span class="signature">(<wbr><span class="parameter" id="+-param-other"><span>covariant</span> <span class="type-annotation">TestRule<span class="signature">&lt;<wbr><span class="type-parameter">Cell</span>&gt;</span></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; TestCell<span class="signature">&lt;<wbr><span class="type-parameter">Cell</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Composes this <strong>Integrity Gate</strong> (<code>TestCell</code>) with another validation rule
+using the <strong>Compositional Algebra</strong> of the framework.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="../cell_skin/WirePulseGate/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li><a href="../cell_skin/">cell_skin</a></li>
+    <li class="self-crumb">WirePulseGate class</li>
+</ol>
+
+    <h5>cell_skin library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_skin
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

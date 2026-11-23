@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="HowTo · Wire Messages topic docs, for the Dart programming language.">
+  <title>HowTo · Wire Messages topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li class="self-crumb">HowTo · Wire Messages topic</li>
+  </ol>
+  <div class="self-name">HowTo · Wire Messages</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">HowTo · Wire Messages</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="howto-wiremessages">HowTo-WireMessages</h1>
+<p><code>WireMessage</code> is the whole wire vocabulary — a sealed hierarchy with
+one variant per intent. Every transport is a <code>Pulse&lt;WireMessage&gt;</code>
+whose <code>type</code> (see <code>SkinPulseTypes</code>) discriminates the variant.</p>
+<h2 id="the-variants">The variants</h2>
+<table>
+<thead>
+<tr>
+<th align="left">Variant</th>
+<th align="left">Intent</th>
+<th align="left">Correlation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><code>WireRequest</code></td>
+<td align="left">A command at <code>(cellId, function)</code>.</td>
+<td align="left"><code>correlationId</code> is server-assigned; <code>clientCorrelationId</code> is echo-only.</td>
+</tr>
+<tr>
+<td align="left"><code>WireResponse</code></td>
+<td align="left">The target's real <code>ApplyOutcome</code> (or a <code>pendingReceipt</code> marker).</td>
+<td align="left">Echoes the request's ids.</td>
+</tr>
+<tr>
+<td align="left"><code>WireStateChange</code></td>
+<td align="left">A state observation (<code>cellId</code>, payload, optional receipt).</td>
+<td align="left"><strong>None</strong> — egress is not a reply.</td>
+</tr>
+<tr>
+<td align="left"><code>WireError</code></td>
+<td align="left">A pre-apply rejection: <code>unknown_tool</code>, <code>bad_arguments</code>, <code>cursor_required</code>, <code>conflict</code>, <code>transport_error</code>.</td>
+<td align="left">Echoes the request's ids.</td>
+</tr>
+<tr>
+<td align="left"><code>WireNotification</code></td>
+<td align="left">Fire-and-forget.</td>
+<td align="left">None.</td>
+</tr>
+<tr>
+<td align="left"><code>WireManifestRequest</code> / <code>WireManifestResponse</code></td>
+<td align="left">Tool catalogue.</td>
+<td align="left">None.</td>
+</tr>
+<tr>
+<td align="left"><code>WireLedgerEntry</code></td>
+<td align="left">One audit entry (<code>LedgerEntry.toJson</code>).</td>
+<td align="left">None.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="argument-envelope">Argument envelope</h2>
+<p><code>WireRequest</code> carries arguments as JSON-decoded maps:</p>
+<ul>
+<li><strong>positional</strong> — an index-keyed map with contiguous keys <code>'0'..'n-1'</code>
+(never JSON insertion order). The REST adapter also accepts a plain
+JSON array.</li>
+<li><strong>named</strong> — keys must be Dart identifiers (<code>[a-zA-Z_$][a-zA-Z0-9_$]*</code>).</li>
+</ul>
+<p>Malformed envelopes — gaps, duplicates, bad names — are rejected with
+<code>WireError{code: 'bad_arguments'}</code> <strong>before</strong> <code>target.apply</code> runs.</p>
+<h2 id="building-and-decoding">Building and decoding</h2>
+<pre class="language-dart"><code class="language-dart">final request = WireRequest(
+  cellId: 'home.living.thermostat',
+  function: 'setTarget',
+  positional: {'0': 21},
+  correlationId: 'srv-1',
+  clientCorrelationId: 'client-1',
+);
+
+final json = request.toJson();
+final decoded = WireMessage.fromJson(json) as WireRequest;
+</code></pre>
+<p><code>WireMessage.fromJson</code> throws <code>FormatException</code> on unknown kinds and
+malformed fields — never a raw <code>TypeError</code>.</p>
+<h2 id="response-semantics">Response semantics</h2>
+<pre class="language-dart"><code class="language-dart">final response = WireResponse(
+  correlationId: 'srv-1',
+  outcome: ApplyAccepted&lt;Object?&gt;(true, receipt),
+);
+
+final decoded = WireMessage.fromJson(response.toJson()) as WireResponse;
+decoded.outcome;     // null — a live ApplyOutcome needs the live cell
+decoded.outcomeJson; // WireOutcome(kind: 'accepted', result: true)
+</code></pre>
+<p>A decoded response carries the wire form under <code>outcomeJson</code>; the
+constructor asserts <code>pendingReceipt || outcome != null || outcomeJson != null</code>.</p>
+<h2 id="errors-have-no-receipts">Errors have no receipts</h2>
+<p><code>WireError</code> exists because an error produced <em>before</em> the target's
+<code>apply</code> has no receipt and must not masquerade as a <code>WireResponse</code>.
+Domain denials are different: <code>ApplyRejected</code> travels inside a
+<code>WireResponse</code> with the domain's real receipt.</p>
+<h2 id="sanitisation">Sanitisation</h2>
+<p><code>WireOutcome</code> / <code>wireReceiptJson</code> sanitise everything before encoding:
+unencodable results, reasons, and arguments become labelled
+placeholders with <code>resultOmitted</code> / <code>reasonOmitted</code> /
+<code>argumentsOmitted</code> flags. The wire is always JSON-encodable — a
+non-JSON result is reported honestly, never as a post-apply 500.</p>
+<h2 id="see-also">See also</h2>
+<ul>
+<li><code>HowTo-Egress.md</code> — the state-change variant in depth.</li>
+<li><code>HowTo-Idempotency.md</code> — correlation and retries.</li>
+<li><code>FEATURES-Skin.md</code> §3.</li>
+</ul>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="WireError">
+  <span class="name "><a href="../cell_skin/WireError-class.html">WireError</a></span> 
+    <span class="category howto-·-wire-messages cp-4 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
+
+</dt>
+<dd>
+  An error that has no receipt: exposure-gate misses, transport
+failures, and cursor conflicts.
+</dd>
+
+      <dt id="WireMessage">
+  <span class="name "><a href="../cell_skin/WireMessage-class.html">WireMessage</a></span> 
+    <span class="category howto-·-wire-messages cp-4 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
+    <span class="category features cp-12 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+
+</dt>
+<dd>
+  One wire event. Every transport — MCP, REST, SSE, stdio — is a
+<code>Pulse&lt;WireMessage&gt;</code> whose <code>type</code> discriminates the variant.
+</dd>
+
+      <dt id="WireRequest">
+  <span class="name "><a href="../cell_skin/WireRequest-class.html">WireRequest</a></span> 
+    <span class="category howto-·-wire-messages cp-4 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
+    <span class="category howto-·-idempotency cp-7 linked" title="This is part of the HowTo · Idempotency topic."><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></span>
+
+</dt>
+<dd>
+  An inbound call: invoke <a href="../cell_skin/WireRequest/function.html">function</a> on the cell named <a href="../cell_skin/WireRequest/cellId.html">cellId</a>.
+</dd>
+
+      <dt id="WireResponse">
+  <span class="name "><a href="../cell_skin/WireResponse-class.html">WireResponse</a></span> 
+    <span class="category howto-·-wire-messages cp-4 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
+
+</dt>
+<dd>
+  An outbound result: the target's real <code>ApplyOutcome</code>, or — when the
+ledger entry has not landed yet — a pending marker with the last
+known receipt JSON.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li class="self-crumb">HowTo · Wire Messages topic</li>
+</ol>
+
+  <h5><span class="package-name">cell_skin</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Test Verification-topic.html">Test&nbsp;Verification</a></li>
+        <li><a href="../topics/Membrane-topic.html">HowTo&nbsp;·&nbsp;Membrane</a></li>
+        <li><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></li>
+        <li><a href="../topics/Whitelist-topic.html">HowTo&nbsp;·&nbsp;Whitelist</a></li>
+        <li><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></li>
+        <li><a href="../topics/Egress-topic.html">HowTo&nbsp;·&nbsp;Egress</a></li>
+        <li><a href="../topics/Cursors-topic.html">HowTo&nbsp;·&nbsp;Cursors</a></li>
+        <li><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></li>
+        <li><a href="../topics/REST Adapter-topic.html">HowTo&nbsp;·&nbsp;REST&nbsp;Adapter</a></li>
+        <li><a href="../topics/MCP Seam-topic.html">HowTo&nbsp;·&nbsp;MCP&nbsp;Seam</a></li>
+        <li><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></li>
+        <li><a href="../topics/Testing-topic.html">HowTo&nbsp;·&nbsp;Testing</a></li>
+        <li><a href="../topics/Demo-topic.html">Demo:&nbsp;Echo&nbsp;Home</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_skin_api_chooser/">doc\api_chooser</a></li>
+      <li class="section-subtitle">Getting Started</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">HowTo · Testing</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Features</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+        <li class="section-subitem"><a href="../cell_skin_rest/">cell_skin_rest</a></li>
+      <li class="section-subtitle">Architecture</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Demo: Echo Home</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Test Verification</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>HowTo · Wire Messages topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Wire Messages-topic.html#classes">Classes</a></li>
+      <li><a href="../cell_skin/WireError-class.html">WireError</a></li>
+      <li><a href="../cell_skin/WireMessage-class.html">WireMessage</a></li>
+      <li><a href="../cell_skin/WireRequest-class.html">WireRequest</a></li>
+      <li><a href="../cell_skin/WireResponse-class.html">WireResponse</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_skin
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

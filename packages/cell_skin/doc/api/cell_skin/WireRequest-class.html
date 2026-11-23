@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the WireRequest class from the cell_skin library, for the Dart programming language.">
+  <title>WireRequest class - cell_skin library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li><a href="../cell_skin/">cell_skin.dart</a></li>
+    <li class="self-crumb">WireRequest class</li>
+  </ol>
+  <div class="self-name">WireRequest</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_skin&#47;cell_skin-library-sidebar.html"
+    data-below-sidebar="cell_skin&#47;WireRequest-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">WireRequest</span> class 
+    <a href="https://dart.dev/language/class-modifiers#final" class="feature feature-final" title="This class can neither be extended, implemented, nor mixed in.">final</a>
+ 
+    <span class="category howto-·-wire-messages cp-4 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
+    <span class="category howto-·-idempotency cp-7 linked" title="This is part of the HowTo · Idempotency topic."><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></span>
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>An inbound call: invoke <a href="../cell_skin/WireRequest/function.html">function</a> on the cell named <a href="../cell_skin/WireRequest/cellId.html">cellId</a>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>Every command that crosses the skin — REST <code>POST /skin/apply</code>,
+an MCP tool call, or a Dart client's <code>apply</code>.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>The router serialises requests (<code>concurrency: 1</code>), validates the
+argument envelope and declared schema, and calls <code>target.apply</code>.
+<a href="../cell_skin/WireRequest/correlationId.html">correlationId</a> is <strong>server-assigned</strong>; <a href="../cell_skin/WireRequest/clientCorrelationId.html">clientCorrelationId</a> is
+the caller's echo-only id.</p>
+<h3 id="non-obvious">Non-obvious</h3>
+<p>Positional arguments are an index-keyed map (<code>'0'..'n-1'</code>,
+contiguous) so JSON object ordering can never matter; transports
+may accept a plain JSON array and index it.</p>
+<h3 id="see-also">See also</h3>
+<p><a href="../cell_skin/SkinBinding-class.html">SkinBinding</a>, <a href="../cell_skin/SkinMembrane/request.html">SkinMembrane.request</a>.</p>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — this is a command envelope, not a graph node.
+<strong>When to use:</strong> sending a command at a bound <code>(cellId, function)</code> over any transport.
+<strong>When NOT to use:</strong> fire-and-forget signals — use <a href="../cell_skin/WireNotification-class.html">WireNotification</a>; state observations — use <a href="../cell_skin/WireStateChange-class.html">WireStateChange</a>.
+<strong>Live signature:</strong> <code>const WireRequest({required String cellId, required String function, Map&lt;String, Object?&gt;? positional, Map&lt;String, Object?&gt;? named, required String correlationId, String? clientCorrelationId, int? lastSeenSeq})</code> — pinned at <code>cell_skin: 0.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>ApplyCommand</code> (the framework's own command record, built from this by the binding).
+<strong>Guide:</strong> <code>ARCHITECTURE-Skin.md</code> §3 (wire taxonomy) and §6 (correlation).
+<strong>Example:</strong> <code>example/lib/mock/mock_agent.dart</code> (every scripted beat is one request).
+<strong>Cross-layer:</strong> the target cell's own <code>TestCell</code> gate may reject the command after exposure accepts it.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final request = WireRequest(
+  cellId: 'home.living.thermostat',
+  function: 'setTarget',
+  positional: {'0': 21},
+  correlationId: 'srv-1',
+  clientCorrelationId: 'client-1',
+);
+</code></pre>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="../cell_skin/WireMessage-class.html">WireMessage</a></li>
+      <li>WireRequest</li>
+    </ul>
+  </dd>
+
+        
+        
+
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="WireRequest.new" class="callable">
+          <span class="name"><a href="../cell_skin/WireRequest/WireRequest.html">WireRequest</a></span><span class="signature">({<span class="parameter" id="-param-cellId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">cellId</span>, </span><span class="parameter" id="-param-function"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">function</span>, </span><span class="parameter" id="-param-positional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">positional</span>, </span><span class="parameter" id="-param-named"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">named</span>, </span><span class="parameter" id="-param-correlationId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">correlationId</span>, </span><span class="parameter" id="-param-clientCorrelationId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">clientCorrelationId</span>, </span><span class="parameter" id="-param-lastSeenSeq"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">lastSeenSeq</span></span>})</span>
+        </dt>
+        <dd>
+          
+            <div class="constructor-modifier features">const</div>
+        </dd>
+        <dt id="WireRequest.fromJson" class="callable">
+          <span class="name"><a href="../cell_skin/WireRequest/WireRequest.fromJson.html">WireRequest.fromJson</a></span><span class="signature">(<span class="parameter" id="fromJson-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">json</span></span>)</span>
+        </dt>
+        <dd>
+          Decodes a <a href="../cell_skin/WireRequest-class.html">WireRequest</a> encoded by <a href="../cell_skin/WireRequest/toJson.html">toJson</a>.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="cellId" class="property">
+  <span class="name"><a href="../cell_skin/WireRequest/cellId.html">cellId</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  The registered graph name of the target cell.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="clientCorrelationId" class="property">
+  <span class="name"><a href="../cell_skin/WireRequest/clientCorrelationId.html">clientCorrelationId</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd>
+  The client-chosen correlation id, echoed back verbatim — matching
+is <strong>never</strong> performed on this field.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="correlationId" class="property">
+  <span class="name"><a href="../cell_skin/WireRequest/correlationId.html">correlationId</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  The server-assigned correlation id. <a href="../cell_skin/SkinMembrane/request.html">SkinMembrane.request</a> matches
+responses on this id; transports generate it themselves and carry
+the client-chosen id in <a href="../cell_skin/WireRequest/clientCorrelationId.html">clientCorrelationId</a>, so a client can
+never hijack another client's pending response.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="function" class="property">
+  <span class="name"><a href="../cell_skin/WireRequest/function.html">function</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  The exposed function name inside <a href="../cell_skin/WireRequest/cellId.html">cellId</a>'s binding set.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="kind" class="property">
+  <span class="name"><a href="../cell_skin/WireRequest/kind.html">kind</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  The stable discriminator used by <a href="../cell_skin/WireMessage/WireMessage.fromJson.html">WireMessage.fromJson</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="lastSeenSeq" class="property">
+  <span class="name"><a href="../cell_skin/WireRequest/lastSeenSeq.html">lastSeenSeq</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span>
+  
+
+</dt>
+<dd>
+  Stateless-cursor field: the caller's last seen ledger sequence.
+Required (non-null) for bindings that advertise <code>strictCursor</code>.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="named" class="property">
+  <span class="name"><a href="../cell_skin/WireRequest/named.html">named</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span>
+  
+
+</dt>
+<dd>
+  JSON-decoded named arguments, or <code>null</code> when none were sent.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="positional" class="property">
+  <span class="name"><a href="../cell_skin/WireRequest/positional.html">positional</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span>
+  
+
+</dt>
+<dd>
+  JSON-decoded positional arguments, or <code>null</code> when none were sent.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toJson" class="callable">
+  <span class="name"><a href="../cell_skin/WireRequest/toJson.html">toJson</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  JSON-serialisable wire form. Payloads stay JSON-safe; the pulse's
+metadata travels on the pulse, not inside this map.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li><a href="../cell_skin/">cell_skin</a></li>
+    <li class="self-crumb">WireRequest class</li>
+</ol>
+
+    <h5>cell_skin library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_skin
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the open method from the SkinMembrane class, for the Dart programming language.">
+  <title>open method - SkinMembrane class - cell_skin library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_skin</a></li>
+    <li><a href="../../cell_skin/">cell_skin.dart</a></li>
+    <li><a href="../../cell_skin/SkinMembrane-class.html">SkinMembrane</a></li>
+    <li class="self-crumb">open static method</li>
+  </ol>
+  <div class="self-name">open</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_skin&#47;SkinMembrane-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">open</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_skin/SkinMembrane-class.html">SkinMembrane</a></span>&gt;</span></span>
+<span class="name ">open</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="open-param-graph"><span>required</span> <span class="type-annotation">CellGraph</span> <span class="parameter-name">graph</span>, </span></li>
+<li><span class="parameter" id="open-param-bindings"><span>required</span> <span class="type-annotation"><a href="../../cell_skin/SkinBindingTable-class.html">SkinBindingTable</a></span> <span class="parameter-name">bindings</span>, </span></li>
+<li><span class="parameter" id="open-param-whitelist"><span class="type-annotation"><a href="../../cell_skin/SkinWhitelist-class.html">SkinWhitelist</a>?</span> <span class="parameter-name">whitelist</span>, </span></li>
+<li><span class="parameter" id="open-param-ledger"><span class="type-annotation">Ledger?</span> <span class="parameter-name">ledger</span>, </span></li>
+<li><span class="parameter" id="open-param-journal"><span>required</span> <span class="type-annotation">EffectJournal</span> <span class="parameter-name">journal</span>, </span></li>
+<li><span class="parameter" id="open-param-send"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">send</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-pulse"><span class="type-annotation">Pulse<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_skin/WireMessage-class.html">WireMessage</a></span>&gt;</span></span> <span class="parameter-name">pulse</span></span></li>
+</ol>), </span></li>
+<li><span class="parameter" id="open-param-inboundContext"><span class="type-annotation">Context</span> <span class="parameter-name">inboundContext</span> = <span class="default-value">_defaultInboundContext</span>, </span></li>
+<li><span class="parameter" id="open-param-descriptions"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">descriptions</span>, </span></li>
+<li><span class="parameter" id="open-param-onPolicyWarning"><span class="type-annotation">void</span> <span class="parameter-name">onPolicyWarning</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-message"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">message</span></span></li>
+</ol>)?, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Assembles the four cells over <code>graph</code>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>Opening the one membrane every transport shares — REST, MCP, and
+Dart clients all sit behind this pipeline.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>The inbound ingress, the <code>concurrency: 1</code> router, the egress
+observations (or the ledger-tail egress), the synthesis mux, and
+the outbound observer are composed here; the binding table is then
+sealed and the graph/ledger remain owned by the caller.</p>
+<ul>
+<li><code>bindings</code> — the exposure registry (required); sealed here, so
+later registrations throw.</li>
+<li><code>whitelist</code> — the optional declarative exposure policy; egress
+cells are only built for cells with at least one whitelisted
+function.</li>
+<li><code>ledger</code> — the graph's bound ledger; enables cursor checks,
+receipt joins and the <code>skin.ledger.entry</code> stream.</li>
+<li><code>journal</code> — the effect journal for the framework's effectful
+operators (<code>Cell.asyncMap</code>, <code>Cell.fromStream</code>).</li>
+<li><code>send</code> — the transport's outbound writer; also feeds
+<a href="../../cell_skin/SkinMembrane/responses.html">responses</a>.</li>
+<li><code>inboundContext</code> — provenance for inbound pulses. The default
+is <strong>least privilege</strong> (<code>skin:untrusted</code>); <code>Context.system</code> is
+an explicit opt-in.</li>
+<li><code>descriptions</code> — human-readable cell descriptions for the
+manifest.</li>
+<li><code>onPolicyWarning</code> — receives startup validation warnings (e.g.
+whitelist entries that mention no registered binding — a
+likely typo).</li>
+</ul>
+<h3 id="non-obvious">Non-obvious</h3>
+<p>The binding table is sealed before this returns; the manifest and
+egress set are frozen for the membrane's whole life. The caller
+keeps owning the graph and ledger — <a href="../../cell_skin/SkinMembrane/close.html">SkinMembrane.close</a> never
+closes them.</p>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — this assembles the membrane; it does not build graph nodes.
+<strong>When to use:</strong> a requirement says "expose the graph over REST/MCP", "let remote callers apply commands", or "stream ledger entries to clients".
+<strong>When NOT to use:</strong> pure graph work (use <code>package:cell</code>), decisions (use <code>cell_flow</code>), books (use <code>cell_tissue</code>).
+<strong>Live signature:</strong> <code>static Future&lt;SkinMembrane&gt; open({required CellGraph graph, required SkinBindingTable bindings, SkinWhitelist? whitelist, Ledger? ledger, required EffectJournal journal, required void Function(Pulse&lt;WireMessage&gt;) send, Context inboundContext, Map&lt;String, String&gt;? descriptions, void Function(String)? onPolicyWarning})</code> — pinned at <code>cell_skin: 0.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>SkinBindingTable.register</code> (declares exposure) or <code>RestAdapter.bind</code> (opens a socket on top of the membrane).
+<strong>Guide:</strong> <code>ARCHITECTURE-Skin.md</code> §2 (the four cells).
+<strong>Example:</strong> <code>example/lib/mock/mock_home.dart</code> (builds the Echo Home membrane).
+<strong>Cross-layer:</strong> every binding's target must be the graph's registered cell — the domain's <code>TestCell</code> gates stay the second gate.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final thermostat = Cell.state&lt;int&gt;(initial: 20);
+final graph = (CellGraph.builder(graphId: 'home')
+      ..register('thermostat', thermostat.cell))
+    .build();
+final bindings = SkinBindingTable()
+  ..register(SkinBinding(
+    cellId: 'thermostat',
+    functionName: 'setTarget',
+    target: thermostat.cell,
+    function: (int target) =&gt; thermostat.update(target),
+  ));
+final membrane = await SkinMembrane.open(
+  graph: graph,
+  bindings: bindings,
+  journal: RecordingJournal(),
+  send: (_) {},
+);
+</code></pre>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static Future&lt;SkinMembrane&gt; open({
+  required CellGraph graph,
+  required SkinBindingTable bindings,
+  SkinWhitelist? whitelist,
+  Ledger? ledger,
+  required EffectJournal journal,
+  required void Function(Pulse&lt;WireMessage&gt; pulse) send,
+  Context inboundContext = _defaultInboundContext,
+  Map&lt;String, String&gt;? descriptions,
+  void Function(String message)? onPolicyWarning,
+}) async {
+  if (whitelist != null) {
+    _warnUnmatchedWhitelist(bindings, whitelist, onPolicyWarning);
+  }
+
+  final muxInput = Cell.ingress&lt;Pulse&lt;WireMessage&gt;&gt;(
+    context: inboundContext,
+    testRule: WirePulseGate(),
+  );
+
+  final inbound = buildInboundCell(context: inboundContext);
+
+  final dispatcher = SkinRouter(
+    graph: graph,
+    bindings: bindings,
+    whitelist: whitelist,
+    ledger: ledger,
+    descriptions: descriptions,
+  );
+  final routerCell = dispatcher.cell(inbound.cell, journal: journal);
+
+  final exposedCellIds = _exposedCellIds(bindings, whitelist);
+
+  &#47;&#47; The binding&#39;s target and the graph&#39;s registered cell must be the
+  &#47;&#47; same object — otherwise the router and the egress observers
+  &#47;&#47; would watch different cells.
+  for (final binding in bindings.all) {
+    final registered = graph[binding.cellId]?.cell;
+    if (registered == null) {
+      throw StateError(&#39;SkinMembrane.open: binding &quot;${binding.cellId}.&#39;
+          &#39;${binding.functionName}&quot; targets an unregistered cell&#39;);
+    }
+    if (!identical(registered, binding.target)) {
+      throw StateError(&#39;SkinMembrane.open: binding &quot;${binding.cellId}.&#39;
+          &#39;${binding.functionName}&quot; target is not the graph\&#39;s &#39;
+          &#39;registered cell&#39;);
+    }
+  }
+
+  &#47;&#47; Unledgered egress: observe the exposed targets directly; every
+  &#47;&#47; pulse is pendingReceipt (no receipt exists to attach). With a
+  &#47;&#47; ledger, the tail below drives egress instead — the entry&#39;s own
+  &#47;&#47; receipt pairs with the entry&#39;s own payload.
+  final egress = ledger == null
+      ? buildEgressCells(
+          cellIds: exposedCellIds,
+          resolveTarget: (cellId) =&gt; graph[cellId]?.cell,
+          onEgressPulse: (cellId, pulse) =&gt; muxInput.emit(pulse),
+        )
+      : &lt;String, EgressHandle&lt;Pulse&gt;&gt;{};
+
+  &#47;&#47; The egress set and the manifest are now frozen — the table must
+  &#47;&#47; not change under the membrane.
+  bindings.seal();
+
+  final sources = &lt;Cell&gt;[routerCell, muxInput.cell];
+  StreamSubscription&lt;LedgerEntry&gt;? ledgerSubscription;
+  if (ledger != null) {
+    &#47;&#47; An ingress fed by the ledger tail: `Cell.fromStream` journals
+    &#47;&#47; each payload as an I&#47;O effect, and the canonical encoder
+    &#47;&#47; refuses non-JSON wire messages. A plain ingress keeps the
+    &#47;&#47; ledger stream out of the journal entirely. The same tail
+    &#47;&#47; drives egress: the entry&#39;s own receipt pairs with the entry&#39;s
+    &#47;&#47; own pulse payload — never a borrowed one.
+    final ledgerIngress =
+        Cell.ingress&lt;WireMessage&gt;(testRule: WirePulseGate());
+    ledgerSubscription = ledger.tail.listen((entry) {
+      ledgerIngress.emit(WireLedgerEntry(entry: entry));
+      if (exposedCellIds.contains(entry.receiptCellId)) {
+        muxInput.emit(Pulse&lt;WireStateChange&gt;(
+          wireStateChangeForEntry(entry),
+          type: &#39;${SkinPulseTypes.egressPrefix}${entry.receiptCellId}&#39;,
+        ));
+      }
+    });
+    sources.add(ledgerIngress.cell);
+  }
+  final mux = buildMuxCell(sources: sources);
+
+  final events = StreamController&lt;Pulse&lt;WireMessage&gt;&gt;.broadcast();
+  final outbound = buildOutboundCell(
+      mux: mux,
+      send: (pulse) {
+        final normalized = _normalizePulseType(pulse);
+        if (!events.isClosed) events.add(normalized);
+        send(normalized);
+      });
+
+  return SkinMembrane._(
+    graph: graph,
+    bindings: bindings,
+    whitelist: whitelist,
+    ledger: ledger,
+    inbound: inbound,
+    router: routerCell,
+    dispatcher: dispatcher,
+    egress: egress,
+    mux: mux,
+    outbound: outbound,
+    responses: events.stream,
+    events: events,
+    ledgerSubscription: ledgerSubscription,
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_skin</a></li>
+    <li><a href="../../cell_skin/">cell_skin</a></li>
+    <li><a href="../../cell_skin/SkinMembrane-class.html">SkinMembrane</a></li>
+    <li class="self-crumb">open static method</li>
+</ol>
+
+    <h5>SkinMembrane class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_skin
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

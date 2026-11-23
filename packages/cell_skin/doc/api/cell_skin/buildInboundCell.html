@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the buildInboundCell function from the cell_skin library, for the Dart programming language.">
+  <title>buildInboundCell function - cell_skin library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li><a href="../cell_skin/">cell_skin.dart</a></li>
+    <li class="self-crumb">buildInboundCell function</li>
+  </ol>
+  <div class="self-name">buildInboundCell</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_skin&#47;cell_skin-library-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-function">buildInboundCell</span> function 
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+<span class="returntype">IngressHandle<span class="signature">&lt;<wbr><span class="type-parameter">Pulse<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_skin/WireMessage-class.html">WireMessage</a></span>&gt;</span></span>&gt;</span></span>
+<span class="name ">buildInboundCell</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="buildInboundCell-param-source"><span class="type-annotation">Cell?</span> <span class="parameter-name">source</span>, </span></li>
+<li><span class="parameter" id="buildInboundCell-param-context"><span class="type-annotation">Context</span> <span class="parameter-name">context</span> = <span class="default-value">_defaultContext</span>, </span></li>
+<li><span class="parameter" id="buildInboundCell-param-testRule"><span class="type-annotation">TestCell<span class="signature">&lt;<wbr><span class="type-parameter">Cell</span>&gt;</span>?</span> <span class="parameter-name">testRule</span>, </span></li>
+</ol>})
+
+        
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Builds the inbound transport cell from the framework's own
+<code>Cell.ingress</code>.</p>
+<p><code>context</code> stamps every inbound pulse's provenance — the security
+layer's <a href="../cell_skin/ContextBridge-class.html">ContextBridge</a> result is the intended value. The default
+is <strong>least privilege</strong>: a described untrusted context, never
+<code>Context.system</code>. System authority is an explicit opt-in.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">IngressHandle&lt;Pulse&lt;WireMessage&gt;&gt; buildInboundCell({
+  Cell? source,
+  Context context = _defaultContext,
+  TestCell? testRule,
+}) =&gt;
+    Cell.ingress&lt;Pulse&lt;WireMessage&gt;&gt;(
+      source: source,
+      context: context,
+      testRule: testRule ?? WirePulseGate(),
+    );</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li><a href="../cell_skin/">cell_skin</a></li>
+    <li class="self-crumb">buildInboundCell function</li>
+</ol>
+
+    <h5>cell_skin library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_skin
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

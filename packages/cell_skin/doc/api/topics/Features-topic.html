@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Features topic docs, for the Dart programming language.">
+  <title>Features topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li class="self-crumb">Features topic</li>
+  </ol>
+  <div class="self-name">Features</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Features</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="cell_skin--feature-catalog">cell_skin — Feature Catalog</h1>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#1-what-cell_skin-is">What cell_skin Is</a></li>
+<li><a href="#2-status-and-boundaries">Status and Boundaries</a></li>
+<li><a href="#3-wire-vocabulary">Wire Vocabulary</a></li>
+<li><a href="#4-binding-table-and-whitelist">Binding Table and Whitelist</a></li>
+<li><a href="#5-the-four-cell-membrane">The Four-Cell Membrane</a></li>
+<li><a href="#6-receipt-provenance-and-egress">Receipt Provenance and Egress</a></li>
+<li><a href="#7-stateless-cursors">Stateless Cursors</a></li>
+<li><a href="#8-idempotency-and-correlation">Idempotency and Correlation</a></li>
+<li><a href="#9-manifest-and-schemas">Manifest and Schemas</a></li>
+<li><a href="#10-rest-adapter">REST Adapter</a></li>
+<li><a href="#11-mcp-seam">MCP Seam</a></li>
+<li><a href="#12-clients">Clients</a></li>
+<li><a href="#13-security-spi">Security SPI</a></li>
+<li><a href="#14-consistency-and-lifecycle">Consistency and Lifecycle</a></li>
+</ol>
+<h2 id="1-what-cell_skin-is">1. What cell_skin Is</h2>
+<p>A transport membrane over a <a href="https://pub.dev/packages/cell">Cell</a> graph:
+a sealed wire vocabulary, a four-cell pipeline, a binding table, a
+closed-by-default REST adapter, an MCP seam, and two Dart clients. The
+graph keeps its own gates, ledger, and replay; the skin only translates
+and enforces exposure.</p>
+<h2 id="2-status-and-boundaries">2. Status and Boundaries</h2>
+<table>
+<thead>
+<tr>
+<th align="left"></th>
+<th align="left"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><strong>In scope</strong></td>
+<td align="left">Commands over REST/MCP/Dart; state observation; audit streaming; exposure policy; remote identity.</td>
+</tr>
+<tr>
+<td align="left"><strong>Out of scope</strong></td>
+<td align="left">The decision layer (<code>cell_flow</code>), the books (<code>cell_tissue</code>), an MCP transport (the <code>McpAdapter</code> is a seam for SDKs like <code>dart_mcp</code>), and inventing receipts the graph never produced.</td>
+</tr>
+<tr>
+<td align="left"><strong>Version</strong></td>
+<td align="left">0.1.0 — pre-1.0; the wire vocabulary may evolve before 1.0.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-wire-vocabulary">3. Wire Vocabulary</h2>
+<p>One sealed hierarchy, one intent per variant:</p>
+<ul>
+<li><strong><code>WireRequest</code></strong> — a command. <code>correlationId</code> is server-assigned;
+<code>clientCorrelationId</code> is the caller's echo-only id. Positional
+arguments accept a JSON array or an index-keyed object; named
+arguments are validated identifiers.</li>
+<li><strong><code>WireResponse</code></strong> — the target's real <code>ApplyOutcome</code>, or
+<code>pendingReceipt</code> for an accepted pulse whose entry has not landed.
+Decoded responses carry <code>outcomeJson</code> (<code>WireOutcome</code>) so the result
+survives JSON.</li>
+<li><strong><code>WireStateChange</code></strong> — a state observation with an optional receipt.
+No correlation id: egress is not a reply.</li>
+<li><strong><code>WireError</code></strong> — pre-apply rejections with stable codes:
+<code>unknown_tool</code>, <code>bad_arguments</code>, <code>cursor_required</code>, <code>conflict</code>,
+<code>transport_error</code>, plus transport-level codes.</li>
+<li><strong><code>WireNotification</code></strong> — fire-and-forget; <code>request()</code> on one throws
+<code>ArgumentError</code>.</li>
+<li><strong><code>WireManifestRequest</code>/<code>WireManifestResponse</code></strong> — tool catalogue.</li>
+<li><strong><code>WireLedgerEntry</code></strong> — one audit entry via <code>LedgerEntry.toJson</code>.</li>
+</ul>
+<p>Sanitising codecs (<code>WireOutcome</code>, <code>wireReceiptJson</code>, <code>JsonSchema</code>)
+guarantee the wire is always JSON-encodable: unencodable results,
+reasons, and arguments become labelled placeholders with
+<code>resultOmitted</code>/<code>reasonOmitted</code>/<code>argumentsOmitted</code> flags. <code>fromJson</code>
+throws <code>FormatException</code> on malformed input, never a raw <code>TypeError</code>.</p>
+<h2 id="4-binding-table-and-whitelist">4. Binding Table and Whitelist</h2>
+<ul>
+<li><strong><code>SkinBinding</code></strong> binds <code>(cellId, functionName)</code> to a graph cell and
+its closure — with an optional description, declared argument schema,
+strict cursor, and compensation (which receives the same wire
+arguments as the command).</li>
+<li><strong><code>SkinBindingTable</code></strong> rejects duplicate registrations and <strong>seals at
+<code>SkinMembrane.open</code></strong> — the manifest, egress set, and wire can never
+diverge.</li>
+<li><strong><code>SkinWhitelist</code></strong> is the declarative exposure policy. It covers
+applies, egress, <code>/skin/observe/:cellId</code>, and <code>/skin/ledger</code>.
+Entries with no matching binding produce startup policy warnings.</li>
+<li>A binding's target must be <code>identical</code> to the graph's registered
+cell — anything else throws at <code>open()</code>.</li>
+</ul>
+<h2 id="5-the-four-cell-membrane">5. The Four-Cell Membrane</h2>
+<p><code>SkinMembrane.open</code> assembles <code>Cell.ingress</code> → <code>Cell.asyncMap</code>
+(<code>concurrency: 1</code>) → <code>target.apply</code> → egress → mux → outbound over a
+graph, an optional ledger, and a transport writer. The API surface:</p>
+<ul>
+<li><code>membrane.request(message, {type, context, timeout})</code> — emits one
+wire message and awaits its correlated <code>WireResponse</code>/<code>WireError</code>
+(or a <code>WireManifestResponse</code>).</li>
+<li><code>membrane.responses</code> — the broadcast of everything that survives the
+mux (responses, state changes, ledger entries).</li>
+<li><code>membrane.manifest</code> — the live tool catalogue.</li>
+<li><code>membrane.isExposed(cellId)</code> — binding + whitelist policy combined.</li>
+<li><code>membrane.close()</code> — idempotent; stops everything and fails pending
+requests with <code>SkinError('closed')</code>.</li>
+</ul>
+<p>Inbound pulses are governed (<code>Pulse.governed</code>) with per-request
+<code>PulseContext</code>; the default inbound context is least privilege
+(<code>Context.describe('skin:untrusted')</code>).</p>
+<h2 id="6-receipt-provenance-and-egress">6. Receipt Provenance and Egress</h2>
+<ul>
+<li>The router packages <code>WireRequest</code> into <code>ApplyCommand</code> and hands it to
+<code>target.apply</code> — never its own apply — so every receipt stays
+attributable to the domain cell.</li>
+<li><strong>Ledgered membranes</strong> drive egress from <code>Ledger.tail</code>: the entry's
+own receipt pairs with the entry's own pulse payload (from the
+entry's canonical stored JSON).</li>
+<li><strong>Unledgered membranes</strong> observe targets with <code>pendingReceipt: true</code>
+always — a receipt is never fabricated, never borrowed from an
+earlier change.</li>
+</ul>
+<h2 id="7-stateless-cursors">7. Stateless Cursors</h2>
+<p>Opt-in <code>strictCursor</code> bindings require <code>lastSeenSeq == ledger.head</code>
+<strong>exactly</strong>:</p>
+<table>
+<thead>
+<tr>
+<th align="left">Condition</th>
+<th align="left">Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">cursor missing</td>
+<td align="left"><code>cursor_required</code> (428 on REST)</td>
+</tr>
+<tr>
+<td align="left">cursor behind head</td>
+<td align="left"><code>conflict</code> (409) — stale caller state</td>
+</tr>
+<tr>
+<td align="left">cursor ahead of head</td>
+<td align="left"><code>conflict</code> (409) — cannot have seen current state</td>
+</tr>
+<tr>
+<td align="left">cursor == head</td>
+<td align="left">proceeds</td>
+</tr>
+</tbody>
+</table>
+<p>The cursor is the global ledger head by design (stateless server); the
+check-then-apply window is documented and intra-skin races are removed
+by the router's <code>concurrency: 1</code>.</p>
+<h2 id="8-idempotency-and-correlation">8. Idempotency and Correlation</h2>
+<ul>
+<li>Server-assigned <code>correlationId</code>; the caller's <code>clientCorrelationId</code>
+is echoed, never matched by other waiters.</li>
+<li>The router's bounded store is keyed by
+<code>clientCorrelationId ?? correlationId</code>. A duplicate key replays the
+<strong>stored outcome re-wrapped with the current request's ids</strong> — so a
+retry after a timeout returns the original result without
+double-applying.</li>
+<li><code>RemoteCellClient</code> ids include a monotonically increasing counter;
+<code>SkinClient</code> ids likewise.</li>
+</ul>
+<h2 id="9-manifest-and-schemas">9. Manifest and Schemas</h2>
+<p><code>SkinManifest.describe</code> builds the tool catalogue from the binding
+table and optional whitelist:</p>
+<ul>
+<li>Per-function descriptions (<code>function.description</code> → cell
+description), with cell ids and function names.</li>
+<li><strong>Argument schemas</strong>: explicit binding hint → observed current cell
+value (<code>schemaForValue</code>) → permissive. Observation widens correctly:
+type-only inference (no single-value <code>enum</code>/<code>minimum == maximum</code>),
+<code>required</code> is the intersection across objects, absent bounds mean
+unconstrained, <code>int</code> ∪ <code>double</code> → <code>number</code>, and array items merge
+every element's schema.</li>
+<li><code>JsonSchema</code> JSON round-trips are lenient on the way in (array
+<code>type</code>, schema-object <code>additionalProperties</code>) and never let stored
+extras re-spread over modelled keys.</li>
+</ul>
+<h2 id="10-rest-adapter">10. REST Adapter</h2>
+<p><code>RestAdapter</code> lives in <code>cell_skin_rest.dart</code> (the main barrel stays
+<code>dart:io</code>-free). <code>bind()</code> is <strong>closed by default</strong> — <code>auth</code> is
+required; anonymous access is the explicit <code>AllowAllSkinAuth</code>.</p>
+<table>
+<thead>
+<tr>
+<th align="left">Route</th>
+<th align="left">Behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><code>GET /health</code></td>
+<td align="left">Liveness before auth.</td>
+</tr>
+<tr>
+<td align="left"><code>POST /skin/apply</code></td>
+<td align="left">Command → sanitised outcome; error map: <code>unknown_tool</code> 404, <code>conflict</code> 409, <code>bad_arguments</code> 422, <code>cursor_required</code> 428, timeout 504 <code>outcome_unknown</code>.</td>
+</tr>
+<tr>
+<td align="left"><code>GET /skin/manifest</code></td>
+<td align="left">Tool catalogue.</td>
+</tr>
+<tr>
+<td align="left"><code>GET /skin/observe/:cellId</code></td>
+<td align="left">SSE state changes; 404 for unexposed cells.</td>
+</tr>
+<tr>
+<td align="left"><code>GET /skin/ledger?since=N</code></td>
+<td align="left">SSE audit: backlog replay from the store, then the live tail, <code>id:</code> events, exposure filtering.</td>
+</tr>
+<tr>
+<td align="left"><code>POST /skin/verify</code></td>
+<td align="left">Structured verification; tamper failure → <code>{ok: false, message}</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Transport hardening: <code>Host</code> loopback check, <code>Origin</code> rejection unless
+listed, method enforcement per route, JSON-only capped bodies, 401 with
+<code>WWW-Authenticate</code>, case-insensitive <code>Bearer</code>, per-request provenance
+from the <code>ContextBridge</code>. SSE runs over a detached raw socket with
+flush, keep-alive pings, silent-disconnect detection
+(<code>activeSubscriptions</code> returns to zero), and slow-client drop.</p>
+<h2 id="11-mcp-seam">11. MCP Seam</h2>
+<p><code>McpAdapter.mcpToolSpecs(manifest)</code> → neutral <code>McpToolSpec</code> /
+<code>McpResourceSpec</code> values: tool names <code>&lt;cellId&gt;.&lt;functionName&gt;</code> with
+dot-free, collision-checked parts, per-function descriptions, and
+schemas ready for any MCP SDK. <code>cell_skin</code> deliberately does not speak
+the MCP transport itself.</p>
+<h2 id="12-clients">12. Clients</h2>
+<ul>
+<li><strong><code>SkinClient</code></strong> — in-process: <code>apply(...)</code> (returns the outcome or
+<code>null</code> for <code>pendingReceipt</code>), <code>observe(...)</code> filtered to
+<code>WireStateChange</code>, <code>manifest()</code>, <code>ledgerEntries()</code>.</li>
+<li><strong><code>RemoteCellClient</code></strong> — a cell-shaped facade over a remote membrane
+(counter-based correlation ids, private constructor + factory).</li>
+<li><strong><code>SkinError</code></strong> — one error type for the whole package.</li>
+</ul>
+<h2 id="13-security-spi">13. Security SPI</h2>
+<ul>
+<li><strong><code>SkinAuth</code></strong> — <code>authenticate(SkinCredentials)</code> →
+<code>SkinPrincipal?</code>; credentials carry the token plus transport
+metadata (peer, host, user agent).</li>
+<li><strong><code>AllowAllSkinAuth</code></strong> — the explicit anonymous opt-in.</li>
+<li><strong><code>ContextBridge</code></strong> — remote identity → framework <code>Context</code>;
+<code>DescribeContextBridge</code> (default), <code>SystemContextBridge</code> (the loud
+opt-in to system authority).</li>
+<li>Per-request <code>PulseContext(baseContext: bridge.resolve(principal), actor: 'skin:&lt;id&gt;', reason: ...)</code> — the domain's <code>TestCell</code> gates see
+the remote actor.</li>
+</ul>
+<h2 id="14-consistency-and-lifecycle">14. Consistency and Lifecycle</h2>
+<ul>
+<li>Bindings seal at <code>open()</code>; egress/manifest/wire cannot diverge.</li>
+<li>Binding targets must be the graph's registered cells.</li>
+<li><code>close()</code> is idempotent and total: no further pulses, no leaked
+observers, pending requests fail fast with <code>SkinError('closed')</code>.</li>
+<li><code>WireMessage.fromJson</code> throws <code>FormatException</code> on malformed input.</li>
+</ul>
+<p>See <a href="ARCHITECTURE-Skin.md">ARCHITECTURE-Skin.md</a> for the design rationale,
+<a href="TEST_VERIFICATION.md">TEST_VERIFICATION.md</a> for the generated test
+report, and <a href="DEMO_GUIDE.md">DEMO_GUIDE.md</a> for the Echo Home demo.</p>
+</section>
+
+
+  <section class="summary offset-anchor" id="libraries">
+    <h2>Libraries</h2>
+    <dl>
+      <dt id="cell_skin">
+  <span class="name"><a href="../cell_skin/">cell_skin</a></span> 
+    <span class="category getting-started cp-0 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
+    <span class="category howto-·-testing cp-11 linked" title="This is part of the HowTo · Testing topic."><a href="../topics/Testing-topic.html">HowTo&nbsp;·&nbsp;Testing</a></span>
+    <span class="category features cp-12 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category architecture cp-13 linked" title="This is part of the Architecture topic."><a href="../topics/Architecture-topic.html">Architecture</a></span>
+    <span class="category demo:-echo-home cp-14 linked" title="This is part of the Demo: Echo Home topic."><a href="../topics/Demo-topic.html">Demo:&nbsp;Echo&nbsp;Home</a></span>
+    <span class="category test-verification cp-15 linked" title="This is part of the Test Verification topic."><a href="../topics/Test Verification-topic.html">Test&nbsp;Verification</a></span>
+
+</dt>
+<dd><strong>cell_skin</strong> — the membrane between a Cell graph and the outside
+world. MCP-native, audit-ready, replay-verifiable.
+</dd>
+
+      <dt id="cell_skin_rest">
+  <span class="name"><a href="../cell_skin_rest/">cell_skin_rest</a></span> 
+    <span class="category features cp-12 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+
+</dt>
+<dd>The REST binding entry point.
+</dd>
+
+    </dl>
+  </section>
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="WireMessage">
+  <span class="name "><a href="../cell_skin/WireMessage-class.html">WireMessage</a></span> 
+    <span class="category howto-·-wire-messages cp-4 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
+    <span class="category features cp-12 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+
+</dt>
+<dd>
+  One wire event. Every transport — MCP, REST, SSE, stdio — is a
+<code>Pulse&lt;WireMessage&gt;</code> whose <code>type</code> discriminates the variant.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li class="self-crumb">Features topic</li>
+</ol>
+
+  <h5><span class="package-name">cell_skin</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Test Verification-topic.html">Test&nbsp;Verification</a></li>
+        <li><a href="../topics/Membrane-topic.html">HowTo&nbsp;·&nbsp;Membrane</a></li>
+        <li><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></li>
+        <li><a href="../topics/Whitelist-topic.html">HowTo&nbsp;·&nbsp;Whitelist</a></li>
+        <li><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></li>
+        <li><a href="../topics/Egress-topic.html">HowTo&nbsp;·&nbsp;Egress</a></li>
+        <li><a href="../topics/Cursors-topic.html">HowTo&nbsp;·&nbsp;Cursors</a></li>
+        <li><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></li>
+        <li><a href="../topics/REST Adapter-topic.html">HowTo&nbsp;·&nbsp;REST&nbsp;Adapter</a></li>
+        <li><a href="../topics/MCP Seam-topic.html">HowTo&nbsp;·&nbsp;MCP&nbsp;Seam</a></li>
+        <li><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></li>
+        <li><a href="../topics/Testing-topic.html">HowTo&nbsp;·&nbsp;Testing</a></li>
+        <li><a href="../topics/Demo-topic.html">Demo:&nbsp;Echo&nbsp;Home</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_skin_api_chooser/">doc\api_chooser</a></li>
+      <li class="section-subtitle">Getting Started</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">HowTo · Testing</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Features</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+        <li class="section-subitem"><a href="../cell_skin_rest/">cell_skin_rest</a></li>
+      <li class="section-subtitle">Architecture</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Demo: Echo Home</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Test Verification</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Features topic</h5>
+  <ol>
+    <li class="section-title"><a href="../topics/Features-topic.html#libraries">Libraries</a></li>
+      <li><a href="../cell_skin/">cell_skin</a></li>
+      <li><a href="../cell_skin_rest/">cell_skin_rest</a></li>
+
+    <li class="section-title"><a href="../topics/Features-topic.html#classes">Classes</a></li>
+      <li><a href="../cell_skin/WireMessage-class.html">WireMessage</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_skin
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

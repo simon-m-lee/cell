@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="HowTo · Bindings topic docs, for the Dart programming language.">
+  <title>HowTo · Bindings topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li class="self-crumb">HowTo · Bindings topic</li>
+  </ol>
+  <div class="self-name">HowTo · Bindings</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">HowTo · Bindings</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="howto-bindings">HowTo-Bindings</h1>
+<p>A <code>SkinBinding</code> is one exposed function on one target cell: the
+<code>(cellId, functionName)</code> pair a <code>WireRequest</code> may address. The
+<code>SkinBindingTable</code> is the whole exposure registry.</p>
+<h2 id="when-to-use">When to use</h2>
+<ul>
+<li>Declaring what may cross the skin — the table is the only exposure
+mechanism; an unbound function simply does not exist on the wire.</li>
+<li>Giving tools descriptions and argument schemas for MCP <code>tools/list</code>
+and REST discovery.</li>
+</ul>
+<h2 id="when-not-to-use">When not to use</h2>
+<ul>
+<li>Declaring graph behaviour. Gates belong to the cell's <code>TestCell</code>;
+the binding only routes the command.</li>
+</ul>
+<h2 id="basic-usage">Basic usage</h2>
+<pre class="language-dart"><code class="language-dart">final bindings = SkinBindingTable()
+  ..register(SkinBinding(
+    cellId: 'home.living.thermostat',
+    functionName: 'setTarget',
+    target: thermostat.cell,
+    function: (int target) =&gt; thermostat.update(target),
+  ));
+</code></pre>
+<h2 id="target-identity">Target identity</h2>
+<p>At <code>SkinMembrane.open</code>, every binding's <code>target</code> must be <code>identical</code> to
+the graph's registered cell:</p>
+<pre class="language-dart"><code class="language-dart">final graph = (CellGraph.builder(graphId: 'home')
+      ..register('home.living.thermostat', thermostat.cell))
+    .build();
+// ✓ binding.target is graph['home.living.thermostat']
+// ✗ a different StateHandle's cell throws StateError at open()
+</code></pre>
+<h2 id="descriptions">Descriptions</h2>
+<pre class="language-dart"><code class="language-dart">SkinBinding(
+  cellId: 'home.living.thermostat',
+  functionName: 'setTarget',
+  description: 'Sets the target temperature in degrees Celsius.',
+  target: thermostat.cell,
+  function: (int target) =&gt; thermostat.update(target),
+)
+</code></pre>
+<p>The manifest uses <code>function.description</code>, falling back to the cell's
+description — so two tools on one cell stay distinguishable in
+<code>tools/list</code>.</p>
+<h2 id="argument-schemas">Argument schemas</h2>
+<p>An explicit hint wins; observation of the live cell value fills in the
+rest; the permissive <code>{}</code> schema is the last resort:</p>
+<pre class="language-dart"><code class="language-dart">SkinBinding(
+  cellId: 'home.living.thermostat',
+  functionName: 'setTarget',
+  argumentSchema: const JsonSchema(type: 'object', properties: {
+    '0': JsonSchema(type: 'integer'),
+  }, required: ['0']),
+  target: thermostat.cell,
+  function: (int target) =&gt; thermostat.update(target),
+)
+</code></pre>
+<p>Malformed envelopes and schema violations are rejected <strong>before</strong>
+<code>target.apply</code> runs, as <code>WireError{code: 'bad_arguments'}</code> — no receipt,
+no ledger entry. See <code>HowTo-WireMessages.md</code> for the argument envelope
+rules.</p>
+<h2 id="compensation">Compensation</h2>
+<p>The compensation closure receives the <strong>same wire arguments</strong> as the
+command, so it knows what to undo:</p>
+<pre class="language-dart"><code class="language-dart">SkinBinding(
+  cellId: 'home.living.thermostat',
+  functionName: 'setTarget',
+  target: thermostat.cell,
+  function: (int target) =&gt; thermostat.update(target),
+  compensation: (int target) =&gt;
+      thermostat.update((thermostat.cell.value ?? 20) - 1),
+)
+</code></pre>
+<h2 id="sealing-and-duplicates">Sealing and duplicates</h2>
+<ul>
+<li>Duplicate <code>(cellId, functionName)</code> registrations throw <code>StateError</code>.</li>
+<li><code>SkinMembrane.open</code> <strong>seals</strong> the table: any later registration
+throws, and the manifest/egress set can never diverge from what was
+registered.</li>
+</ul>
+<pre class="language-dart"><code class="language-dart">final bindings = SkinBindingTable()
+  ..register(...);
+
+final membrane = await SkinMembrane.open(
+  graph: graph,
+  bindings: bindings,
+  journal: RecordingJournal(),
+  send: (_) {},
+);
+
+bindings.register(...); // throws StateError — the table is sealed
+</code></pre>
+<h2 id="see-also">See also</h2>
+<ul>
+<li><code>HowTo-Whitelist.md</code> — policy over the table.</li>
+<li><code>HowTo-Cursors.md</code> — <code>strictCursor</code> bindings.</li>
+<li><code>HowTo-WireMessages.md</code> — the request envelope and error codes.</li>
+<li><code>ARCHITECTURE-Skin.md</code> §2 and §5.</li>
+</ul>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="SkinBinding">
+  <span class="name "><a href="../cell_skin/SkinBinding-class.html">SkinBinding</a></span> 
+    <span class="category howto-·-bindings cp-2 linked" title="This is part of the HowTo · Bindings topic."><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></span>
+    <span class="category howto-·-cursors cp-6 linked" title="This is part of the HowTo · Cursors topic."><a href="../topics/Cursors-topic.html">HowTo&nbsp;·&nbsp;Cursors</a></span>
+
+</dt>
+<dd>
+  One exposed function on one target cell.
+</dd>
+
+      <dt id="SkinBindingTable">
+  <span class="name "><a href="../cell_skin/SkinBindingTable-class.html">SkinBindingTable</a></span> 
+    <span class="category howto-·-bindings cp-2 linked" title="This is part of the HowTo · Bindings topic."><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></span>
+
+</dt>
+<dd>
+  The <code>(cellId, functionName)</code> → closure lookup table.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li class="self-crumb">HowTo · Bindings topic</li>
+</ol>
+
+  <h5><span class="package-name">cell_skin</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Test Verification-topic.html">Test&nbsp;Verification</a></li>
+        <li><a href="../topics/Membrane-topic.html">HowTo&nbsp;·&nbsp;Membrane</a></li>
+        <li><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></li>
+        <li><a href="../topics/Whitelist-topic.html">HowTo&nbsp;·&nbsp;Whitelist</a></li>
+        <li><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></li>
+        <li><a href="../topics/Egress-topic.html">HowTo&nbsp;·&nbsp;Egress</a></li>
+        <li><a href="../topics/Cursors-topic.html">HowTo&nbsp;·&nbsp;Cursors</a></li>
+        <li><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></li>
+        <li><a href="../topics/REST Adapter-topic.html">HowTo&nbsp;·&nbsp;REST&nbsp;Adapter</a></li>
+        <li><a href="../topics/MCP Seam-topic.html">HowTo&nbsp;·&nbsp;MCP&nbsp;Seam</a></li>
+        <li><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></li>
+        <li><a href="../topics/Testing-topic.html">HowTo&nbsp;·&nbsp;Testing</a></li>
+        <li><a href="../topics/Demo-topic.html">Demo:&nbsp;Echo&nbsp;Home</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_skin_api_chooser/">doc\api_chooser</a></li>
+      <li class="section-subtitle">Getting Started</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">HowTo · Testing</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Features</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+        <li class="section-subitem"><a href="../cell_skin_rest/">cell_skin_rest</a></li>
+      <li class="section-subtitle">Architecture</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Demo: Echo Home</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Test Verification</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>HowTo · Bindings topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Bindings-topic.html#classes">Classes</a></li>
+      <li><a href="../cell_skin/SkinBinding-class.html">SkinBinding</a></li>
+      <li><a href="../cell_skin/SkinBindingTable-class.html">SkinBindingTable</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_skin
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

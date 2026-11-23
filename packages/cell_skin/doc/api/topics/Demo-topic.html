@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Demo: Echo Home topic docs, for the Dart programming language.">
+  <title>Demo: Echo Home topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li class="self-crumb">Demo: Echo Home topic</li>
+  </ol>
+  <div class="self-name">Demo: Echo Home</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Demo: Echo Home</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="cell_skin-demo-guide--echo-home">cell_skin Demo Guide — Echo Home</h1>
+<h2 id="from-a-cell-graph-to-a-scripted-smart-home-over-the-wire">From a Cell Graph to a Scripted Smart Home Over the Wire</h2>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#introduction">Introduction</a>
+<ul>
+<li><a href="#what-youll-learn">What You'll Learn</a></li>
+</ul>
+</li>
+<li><a href="#run-it">Run It</a>
+<ul>
+<li><a href="#desktop-full-demo-rest-included">Desktop (full demo, REST included)</a></li>
+<li><a href="#web-same-demo-rest-adapter-off">Web (same demo, REST adapter off)</a></li>
+</ul>
+</li>
+<li><a href="#the-stage">The Stage</a></li>
+<li><a href="#the-scripted-scenario">The Scripted Scenario</a></li>
+<li><a href="#the-panes">The Panes</a>
+<ul>
+<li><a href="#home-pane">Home Pane</a></li>
+<li><a href="#agent-pane">Agent Pane</a></li>
+<li><a href="#ledger-pane">Ledger Pane</a></li>
+<li><a href="#graph-pane">Graph Pane</a></li>
+<li><a href="#replay-overlay">Replay Overlay</a></li>
+<li><a href="#developer-mode">Developer Mode</a></li>
+</ul>
+</li>
+<li><a href="#architecture-of-the-demo">Architecture of the Demo</a>
+<ul>
+<li><a href="#ui-state-is-cells-too">UI state is cells too</a></li>
+<li><a href="#cell_flutter-bindings">cell_flutter bindings</a></li>
+<li><a href="#rest-conditionally">REST, conditionally</a></li>
+</ul>
+</li>
+<li><a href="#what-each-beat-teaches">What Each Beat Teaches</a></li>
+<li><a href="#extending-the-demo">Extending the Demo</a></li>
+</ul>
+<h2 id="introduction">Introduction</h2>
+<p>Echo Home is a Flutter smart-home app in which a scripted agent drives a
+real <code>cell_skin</code> membrane over a real <code>Cell</code> graph — including a real
+<code>TestCell</code> gate that denies the agent, a real <code>Cell.txApply</code> batch, and
+the real <code>ReplayEngine</code> replaying the whole session into a fresh graph
+with <strong>zero divergences</strong>. Nothing is faked behind a mock transport: the
+demo uses the same <code>SkinClient</code>, <code>SkinMembrane</code>, and wire messages as the
+REST server.</p>
+<h3 id="what-youll-learn">What You'll Learn</h3>
+<ol>
+<li>How a <code>SkinBindingTable</code> exposes a graph to the wire — and how the
+<code>SkinWhitelist</code> limits that exposure.</li>
+<li>How the router's <code>concurrency: 1</code> serialises commands, how receipts
+stay attributable to the domain cells, and how egress <code>WireStateChange</code>
+pulses carry the ledger entry's own receipt.</li>
+<li>How the domain's <code>TestCell</code> gate (the front door) rejects an apply —
+the membrane forwards the real <code>ApplyRejected</code>, it does not invent a
+success.</li>
+<li>How the ledger records every mutation (and <em>not</em> denials), streams
+<code>skin.ledger.entry</code>, and how <code>ReplayEngine</code> verifies the whole
+history.</li>
+<li>How <code>cell_flutter</code> (<code>CellBuilder</code>, <code>CellValueBuilder</code>, <code>CellListener</code>,
+<code>CellListView</code> — including the new <code>reverse</code> orientation for live
+feeds, and the DevTools registry) binds UI to cells without
+<code>setState</code>.</li>
+</ol>
+<h2 id="run-it">Run It</h2>
+<h3 id="desktop-full-demo-rest-included">Desktop (full demo, REST included)</h3>
+<pre class="language-bash"><code class="language-bash">cd packages/cell_skin/example
+flutter pub get
+flutter run -d windows   # or -d macos / -d linux
+</code></pre>
+<p>On desktop the demo also binds the real <code>RestAdapter</code> on a loopback port
+with <code>AllowAllSkinAuth</code>, so the status strip shows
+<code>REST: /skin/manifest</code> and you can curl it:</p>
+<pre class="language-bash"><code class="language-bash">curl http://127.0.0.1:&lt;port&gt;/skin/manifest
+curl -X POST http://127.0.0.1:&lt;port&gt;/skin/apply \
+  -H 'Content-Type: application/json' \
+  -d '{"cellId":"home.living.thermostat","function":"setTarget","positional":[21]}'
+</code></pre>
+<h3 id="web-same-demo-rest-adapter-off">Web (same demo, REST adapter off)</h3>
+<pre class="language-bash"><code class="language-bash">cd packages/cell_skin/example
+flutter run -d chrome
+</code></pre>
+<p>The REST adapter needs <code>dart:io</code>, so the demo uses a conditional-import
+facade (<code>lib/mock/rest_binding.dart</code> / <code>rest_stub.dart</code> / <code>rest_io.dart</code>):
+desktop binds the real adapter, web gets a <code>null</code> facade and the status
+strip honestly says <code>REST: unavailable on web</code>. The whole membrane demo —
+agent, gates, ledger, replay — is identical on both platforms.</p>
+<h2 id="the-stage">The Stage</h2>
+<table>
+<thead>
+<tr>
+<th align="left">Cell</th>
+<th align="left">Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><code>home.living.thermostat</code></td>
+<td align="left">Holds the target temperature; <code>setTarget</code> is exposed.</td>
+</tr>
+<tr>
+<td align="left"><code>home.front.door</code></td>
+<td align="left">A real <code>TestCell</code> with a lock gate: locked while the agent has no key. Its <code>lock</code> binding is exposed — and <strong>denied</strong> by the domain gate.</td>
+</tr>
+<tr>
+<td align="left"><code>home.living.light</code></td>
+<td align="left"><code>optimize</code> runs a <code>Cell.txApply</code> batch (brightness + energy), producing several state changes from one command.</td>
+</tr>
+<tr>
+<td align="left"><code>home.energy</code></td>
+<td align="left">A mocked price feed (<code>StreamController</code> + <code>Timer</code>, closable for tests) driving the bill calculation.</td>
+</tr>
+</tbody>
+</table>
+<p>The membrane binds them through a <code>SkinBindingTable</code> + <code>SkinWhitelist</code>,
+opens over a real ledger, and serves the scripted agent through
+<code>SkinClient</code>.</p>
+<h2 id="the-scripted-scenario">The Scripted Scenario</h2>
+<p>The agent runs four beats with typing pauses, each pulse answering the
+membrane for real:</p>
+<ol>
+<li><strong>Discover</strong> — fetch <code>/skin/manifest</code> through the client and list the
+tools on the transcript.</li>
+<li><strong>Accepted apply</strong> — <code>setTarget(19)</code> on the thermostat. The router
+serialises it, the target applies, the ledger records the state
+change, and egress emits <code>skin.egress.home.living.thermostat</code> with the
+entry's own receipt.</li>
+<li><strong>Denied apply</strong> — <code>lock</code> on the front door. The domain's <code>TestCell</code>
+gate returns <code>ApplyRejected</code>; the agent's transcript shows the real
+denial and the ledger writes <strong>no entry</strong> (the ledger records
+mutations, not denials).</li>
+<li><strong>Batched apply</strong> — <code>optimize</code> on the light runs one wire command
+wrapping a <code>Cell.txApply</code> batch, producing several state changes from
+one command.</li>
+<li><strong>Replay</strong> — <code>ReplayEngine.replay</code> verifies the ledger, rebuilds the
+same graph fresh, and reports <strong>0 divergences</strong> in the overlay.</li>
+</ol>
+<h2 id="the-panes">The Panes</h2>
+<h3 id="home-pane">Home Pane</h3>
+<p>Door state, thermostat, energy price, and bill — all bound with
+<code>CellBuilder</code>/<code>CellValueBuilder</code>. The door's open pulse triggers a
+<code>CellListener</code> one-shot side effect (the "beat"), showing side effects
+that never rebuild the widget tree.</p>
+<h3 id="agent-pane">Agent Pane</h3>
+<p>The transcript is a newest-first list bound with
+<code>CellListView.builder(reverse: true)</code>; the typing indicator is a
+<code>CellBuilder</code> on a boolean cell. Every line the agent prints is the
+membrane's real reply (outcome kind, receipt, or rejection).</p>
+<h3 id="ledger-pane">Ledger Pane</h3>
+<p>The audit trail, newest-first, keyed by <code>seq</code> via
+<code>CellListView.keyed</code>. Each row is one <code>WireLedgerEntry</code>; the header notes
+that denials write no entry. Watching rows land while the agent acts is
+the demo of ledger-driven egress: each row is the same entry that drives
+<code>skin.egress.&lt;cellId&gt;</code>.</p>
+<h3 id="graph-pane">Graph Pane</h3>
+<p>Developer Mode only: a live graph drawn from
+<code>CellFlutterDevTools.registry</code> (<code>ListenableBuilder</code> over the registry),
+so you can see the four membrane cells (inbound, router, mux, outbound)
+and their pulses while the scenario runs.</p>
+<h3 id="replay-overlay">Replay Overlay</h3>
+<p>Triggered after the scenario: <code>ReplayEngine.replay</code> with
+<code>ReplayOptions(failOnDivergence: false)</code> shows progress and the final
+divergence count — <code>0</code> when everything is healthy.</p>
+<h3 id="developer-mode">Developer Mode</h3>
+<p>The status strip toggles Developer Mode; it registers the membrane cells
+and domain cells in <code>CellFlutterDevTools.registry</code> and enables the
+in-app inspector (<code>CellInspectorOverlay</code>) and graph pane. It is opt-in so
+the standard screen stays clean for recordings.</p>
+<h2 id="architecture-of-the-demo">Architecture of the Demo</h2>
+<h3 id="ui-state-is-cells-too">UI state is cells too</h3>
+<p>Every piece of UI state — transcript, typing flag, ledger rows, paused,
+speed, replay progress — lives in unregistered <code>Cell.state</code> handles in
+<code>lib/state/demo_state.dart</code>. They are deliberately <strong>not</strong> registered in
+the domain graph or DevTools registry, so they never appear in the
+ledger, the replay, or the domain graph — only domain cells do.</p>
+<h3 id="cell_flutter-bindings">cell_flutter bindings</h3>
+<p>No <code>setState</code> anywhere: <code>CellBuilder</code> for reading cells in the tree,
+<code>CellValueBuilder</code> for any cell (seeded via a retained pulse),
+<code>CellListener</code> for side effects, and <code>CellListView</code> for cell-backed
+lists. The newest-first panes use <code>CellListView(reverse: true)</code> (added
+in cell_flutter 1.2.0 for live feeds).</p>
+<h3 id="rest-conditionally">REST, conditionally</h3>
+<p><code>RestAdapter</code> moved to <code>package:cell_skin/cell_skin_rest.dart</code> so the
+main barrel stays web-safe; the demo's conditional-import facade mirrors
+that split (<code>rest_binding.dart</code> → <code>rest_io.dart</code> on desktop,
+<code>rest_stub.dart</code> on web).</p>
+<h2 id="what-each-beat-teaches">What Each Beat Teaches</h2>
+<table>
+<thead>
+<tr>
+<th align="left">Beat</th>
+<th align="left">Mechanism on display</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">Discover</td>
+<td align="left">Binding table → manifest; descriptions and schemas cross the wire.</td>
+</tr>
+<tr>
+<td align="left">Accepted apply</td>
+<td align="left">Router <code>concurrency: 1</code>; <code>target.apply</code>; receipt attribution; ledger-driven egress with its own receipt.</td>
+</tr>
+<tr>
+<td align="left">Denied apply</td>
+<td align="left">The domain <code>TestCell</code> gate is the second gate; <code>ApplyRejected</code> travels as the wire outcome; no ledger entry.</td>
+</tr>
+<tr>
+<td align="left">Batched apply</td>
+<td align="left">One wire command → <code>Cell.txApply</code> → several state changes, each with its own ledger entry.</td>
+</tr>
+<tr>
+<td align="left">Replay</td>
+<td align="left">The same graph id + ledger → fresh graph → <code>ReplayEngine</code> divergence check.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="extending-the-demo">Extending the Demo</h2>
+<ul>
+<li><strong>Add a cell</strong> — register it in <code>MockHome.buildGraph</code>, add a binding
+in the table, and (optionally) whitelist it. The manifest, egress, and
+ledger streams pick it up at the next run.</li>
+<li><strong>Add an agent beat</strong> — append a step in
+<code>lib/mock/mock_agent.dart</code>; the transcript, ledger, and replay absorb
+it automatically.</li>
+<li><strong>Add a gate</strong> — attach a <code>TestCell</code> to a cell and deny something; the
+ledger correctly records nothing for the denial.</li>
+<li><strong>Record a GIF</strong> — set the <code>DEMO_RECORDING</code> marker to enable the
+15fps/300-frame <code>DemoTimeline</code> markers, capture the window, and stitch
+frames manually (production is manual, per the demo plan §6).</li>
+</ul>
+<p>See <a href="../ARCHITECTURE-Skin.md">ARCHITECTURE-Skin.md</a> for the membrane design,
+<a href="../FEATURES-Skin.md">FEATURES-Skin.md</a> for the feature catalog, and
+<a href="../TEST_VERIFICATION.md">TEST_VERIFICATION.md</a> for the generated test
+report.</p>
+</section>
+
+
+  <section class="summary offset-anchor" id="libraries">
+    <h2>Libraries</h2>
+    <dl>
+      <dt id="cell_skin">
+  <span class="name"><a href="../cell_skin/">cell_skin</a></span> 
+    <span class="category getting-started cp-0 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
+    <span class="category howto-·-testing cp-11 linked" title="This is part of the HowTo · Testing topic."><a href="../topics/Testing-topic.html">HowTo&nbsp;·&nbsp;Testing</a></span>
+    <span class="category features cp-12 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category architecture cp-13 linked" title="This is part of the Architecture topic."><a href="../topics/Architecture-topic.html">Architecture</a></span>
+    <span class="category demo:-echo-home cp-14 linked" title="This is part of the Demo: Echo Home topic."><a href="../topics/Demo-topic.html">Demo:&nbsp;Echo&nbsp;Home</a></span>
+    <span class="category test-verification cp-15 linked" title="This is part of the Test Verification topic."><a href="../topics/Test Verification-topic.html">Test&nbsp;Verification</a></span>
+
+</dt>
+<dd><strong>cell_skin</strong> — the membrane between a Cell graph and the outside
+world. MCP-native, audit-ready, replay-verifiable.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li class="self-crumb">Demo: Echo Home topic</li>
+</ol>
+
+  <h5><span class="package-name">cell_skin</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Test Verification-topic.html">Test&nbsp;Verification</a></li>
+        <li><a href="../topics/Membrane-topic.html">HowTo&nbsp;·&nbsp;Membrane</a></li>
+        <li><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></li>
+        <li><a href="../topics/Whitelist-topic.html">HowTo&nbsp;·&nbsp;Whitelist</a></li>
+        <li><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></li>
+        <li><a href="../topics/Egress-topic.html">HowTo&nbsp;·&nbsp;Egress</a></li>
+        <li><a href="../topics/Cursors-topic.html">HowTo&nbsp;·&nbsp;Cursors</a></li>
+        <li><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></li>
+        <li><a href="../topics/REST Adapter-topic.html">HowTo&nbsp;·&nbsp;REST&nbsp;Adapter</a></li>
+        <li><a href="../topics/MCP Seam-topic.html">HowTo&nbsp;·&nbsp;MCP&nbsp;Seam</a></li>
+        <li><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></li>
+        <li><a href="../topics/Testing-topic.html">HowTo&nbsp;·&nbsp;Testing</a></li>
+        <li><a href="../topics/Demo-topic.html">Demo:&nbsp;Echo&nbsp;Home</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_skin_api_chooser/">doc\api_chooser</a></li>
+      <li class="section-subtitle">Getting Started</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">HowTo · Testing</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Features</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+        <li class="section-subitem"><a href="../cell_skin_rest/">cell_skin_rest</a></li>
+      <li class="section-subtitle">Architecture</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Demo: Echo Home</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Test Verification</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Demo: Echo Home topic</h5>
+  <ol>
+    <li class="section-title"><a href="../topics/Demo-topic.html#libraries">Libraries</a></li>
+      <li><a href="../cell_skin/">cell_skin</a></li>
+
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_skin
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

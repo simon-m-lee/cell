@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the mergeSchemas function from the cell_skin library, for the Dart programming language.">
+  <title>mergeSchemas function - cell_skin library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li><a href="../cell_skin/">cell_skin.dart</a></li>
+    <li class="self-crumb">mergeSchemas function</li>
+  </ol>
+  <div class="self-name">mergeSchemas</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_skin&#47;cell_skin-library-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-function">mergeSchemas</span> function 
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+<span class="returntype"><a href="../cell_skin/JsonSchema-class.html">JsonSchema</a></span>
+<span class="name ">mergeSchemas</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="mergeSchemas-param-a"><span class="type-annotation"><a href="../cell_skin/JsonSchema-class.html">JsonSchema</a></span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="mergeSchemas-param-b"><span class="type-annotation"><a href="../cell_skin/JsonSchema-class.html">JsonSchema</a></span> <span class="parameter-name">b</span></span></li>
+</ol>)
+
+        
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Merges observed schemas by widening: the union of two shapes is the
+looser of the two at every keyword. An absent constraint means
+<em>unconstrained</em> — it never inherits the other side's constraint.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">JsonSchema mergeSchemas(JsonSchema a, JsonSchema b) {
+  &#47;&#47; An unconstrained type absorbs everything.
+  if (a.type == null || b.type == null) {
+    return JsonSchema(description: a.description ?? b.description);
+  }
+  final type = switch ((a.type!, b.type!)) {
+    (&#39;integer&#39;, &#39;number&#39;) || (&#39;number&#39;, &#39;integer&#39;) =&gt; &#39;number&#39;,
+    (final x, final y) when x == y =&gt; x,
+    _ =&gt; null,
+  };
+  if (type == null) {
+    return JsonSchema(description: a.description ?? b.description);
+  }
+  final properties = &lt;String, JsonSchema&gt;{};
+  if (a.properties != null) properties.addAll(a.properties!);
+  if (b.properties != null) {
+    b.properties!.forEach((key, schema) {
+      properties[key] = properties.containsKey(key)
+          ? mergeSchemas(properties[key]!, schema)
+          : schema;
+    });
+  }
+  &#47;&#47; The union requires the *intersection* of required keys: a key is
+  &#47;&#47; only required when both observations require it.
+  final required = &lt;String&gt;{
+    if (a.required != null &amp;&amp; b.required != null)
+      ...a.required!.where(b.required!.contains),
+  };
+  return JsonSchema(
+    type: type,
+    description: a.description ?? b.description,
+    properties: properties.isEmpty ? null : properties,
+    required: required.isEmpty ? null : (required.toList()..sort()),
+    items: a.items == null || b.items == null
+        ? null
+        : mergeSchemas(a.items!, b.items!),
+    &#47;&#47; Widening: the union&#39;s minimum is the smaller bound and its
+    &#47;&#47; maximum the larger — but an absent bound is unconstrained.
+    minimum: a.minimum == null || b.minimum == null
+        ? null
+        : (a.minimum! &lt; b.minimum! ? a.minimum : b.minimum),
+    maximum: a.maximum == null || b.maximum == null
+        ? null
+        : (a.maximum! &gt; b.maximum! ? a.maximum : b.maximum),
+    enumValues: a.enumValues == null || b.enumValues == null
+        ? null
+        : {...a.enumValues!, ...b.enumValues!}.toList(),
+    additionalProperties:
+        a.additionalProperties == null || b.additionalProperties == null
+            ? null
+            : (a.additionalProperties! || b.additionalProperties!),
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li><a href="../cell_skin/">cell_skin</a></li>
+    <li class="self-crumb">mergeSchemas function</li>
+</ol>
+
+    <h5>cell_skin library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_skin
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

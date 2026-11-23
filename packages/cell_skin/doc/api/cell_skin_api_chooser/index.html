@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="cell_skin_api_chooser library API docs, for the Dart programming language.">
+  <title>cell_skin_api_chooser library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li class="self-crumb">doc\api_chooser.dart</li>
+  </ol>
+  <div class="self-name">cell_skin_api_chooser</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar=""
+    data-below-sidebar="cell_skin_api_chooser&#47;cell_skin_api_chooser-library-sidebar.html">
+  
+    <div>
+      
+
+      <h1>
+        <span class="kind-library">doc\api_chooser</span>
+        library 
+ 
+
+      </h1>
+    </div>
+
+    
+<section class="desc markdown">
+  <h2 id="api-chooser--cell_skin">API Chooser — <code>cell_skin</code></h2>
+<p><strong>Layer:</strong> Skin — the membrane between a Cell graph and remote consumers
+(MCP hosts, REST clients, Dart clients). Does <strong>not</strong> own: graph nodes
+(cell), the decision (cell_flow), the books (cell_tissue).</p>
+<p><strong>Read this file when:</strong> a BRD sentence says "expose the graph over REST",
+"stream ledger entries", "bind a tool for MCP", "authenticate remote
+callers", or "observe cell state over the wire".</p>
+<p>The full decision procedure lives in the layer docs; this matrix
+is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</p>
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>When to use</th>
+<th>When NOT to use</th>
+<th>Live signature</th>
+<th>Guide</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SkinBinding</code></td>
+<td>** a requirement says "expose X on cell Y", "tools/list should show Z", or "this command must be serialisable".</td>
+<td>** declaring graph behaviour — gates belong to the cell's <code>TestCell</code>, not the binding.</td>
+<td>** <code>const SkinBinding({required String cellId, required String functionName, required Cell target, required Function function, String? description, JsonSchema? argumentSchema, bool strictCursor = false, Function? compensation})</code> — pinned at <code>cell_skin: 0.1.0</code></td>
+<td>** <code>FEATURES-Skin.md</code> §4 (binding table and whitelist).</td>
+<td>** <code>example/lib/mock/mock_home.dart</code> (every Echo Home tool is one binding).</td>
+</tr>
+<tr>
+<td><code>SkinClient</code></td>
+<td>** a script, test, or agent drives the membrane from Dart; the demo pattern is this client, never a fake.</td>
+<td>** cross-process calls — use <code>RestAdapter</code>; cell-shaped remote views — use <a href="../cell_skin/RemoteCellClient-class.html">RemoteCellClient</a>.</td>
+<td>** <code>SkinClient({required SkinMembrane membrane})</code> with <code>Future&lt;ApplyOutcome&lt;Object?&gt;?&gt; apply(String cellId, String function, {List&lt;Object?&gt;? positional, Map&lt;String, Object?&gt;? named, int? lastSeenSeq, PulseContext? context})</code> — pinned at <code>cell_skin: 0.1.0</code></td>
+<td>** <code>FEATURES-Skin.md</code> §12 (clients).</td>
+<td>** <code>example/lib/mock/mock_agent.dart</code> (every scripted beat).</td>
+</tr>
+<tr>
+<td><code>WireRequest</code></td>
+<td>** sending a command at a bound <code>(cellId, function)</code> over any transport.</td>
+<td>** fire-and-forget signals — use <a href="../cell_skin/WireNotification-class.html">WireNotification</a>; state observations — use <a href="../cell_skin/WireStateChange-class.html">WireStateChange</a>.</td>
+<td>** <code>const WireRequest({required String cellId, required String function, Map&lt;String, Object?&gt;? positional, Map&lt;String, Object?&gt;? named, required String correlationId, String? clientCorrelationId, int? lastSeenSeq})</code> — pinned at <code>cell_skin: 0.1.0</code></td>
+<td>** <code>ARCHITECTURE-Skin.md</code> §3 (wire taxonomy) and §6 (correlation).</td>
+<td>** <code>example/lib/mock/mock_agent.dart</code> (every scripted beat is one request).</td>
+</tr>
+<tr>
+<td><code>WireStateChange</code></td>
+<td>** streaming target state changes to observers (SSE, MCP notifications, Dart clients).</td>
+<td>** completing a request — it has no correlation id; replies are <a href="../cell_skin/WireResponse-class.html">WireResponse</a> or <a href="../cell_skin/WireError-class.html">WireError</a>.</td>
+<td>** <code>const WireStateChange({required String cellId, Object? payload, WireReceipt? receipt, bool pendingReceipt = false})</code> — pinned at <code>cell_skin: 0.1.0</code></td>
+<td>** <code>ARCHITECTURE-Skin.md</code> §4 (receipt provenance).</td>
+<td>** <code>example/lib/widgets/home_pane.dart</code> (the thermostat readout observes this variant).</td>
+</tr>
+<tr>
+<td><code>authenticate</code></td>
+<td>** a requirement says "authenticate REST callers", "per-principal context", or "bearer tokens".</td>
+<td>** authorisation decisions — return the principal and let the graph's gates decide.</td>
+<td>** <code>abstract interface class SkinAuth { Future&lt;SkinPrincipal?&gt; authenticate(SkinCredentials credentials); }</code> — pinned at <code>cell_skin: 0.1.0</code></td>
+<td>** <code>FEATURES-Skin.md</code> §13 (security SPI).</td>
+<td>** <code>example/lib/mock/rest_io.dart</code> (the demo opts into <code>AllowAllSkinAuth</code>).</td>
+</tr>
+<tr>
+<td><code>bind</code></td>
+<td>** a requirement says "REST endpoint for the graph", "SSE stream of changes", "audit log over HTTP", or "curl-able manifest".</td>
+<td>** in-process calls (use <code>SkinClient</code>); speaking MCP (use the <code>McpAdapter</code> seam with an MCP SDK).</td>
+<td>** <code>static Future&lt;RestAdapter&gt; bind({required SkinMembrane membrane, required SkinAuth auth, ContextBridge contextBridge = const DescribeContextBridge(), Object? address, int port = 0, Set&lt;String&gt;? allowedHosts, Set&lt;String&gt;? allowedOrigins, int maxBodyBytes = 1048576, Duration requestTimeout = Duration(seconds: 30), Duration keepAliveInterval = Duration(seconds: 15)})</code> — pinned at <code>cell_skin: 0.1.0</code></td>
+<td>** <code>FEATURES-Skin.md</code> §10 (REST adapter).</td>
+<td>** <code>example/lib/mock/rest_io.dart</code> (the demo's real adapter binding).</td>
+</tr>
+<tr>
+<td><code>open</code></td>
+<td>** a requirement says "expose the graph over REST/MCP", "let remote callers apply commands", or "stream ledger entries to clients".</td>
+<td>** pure graph work (use <code>package:cell</code>), decisions (use <code>cell_flow</code>), books (use <code>cell_tissue</code>).</td>
+<td>** <code>static Future&lt;SkinMembrane&gt; open({required CellGraph graph, required SkinBindingTable bindings, SkinWhitelist? whitelist, Ledger? ledger, required EffectJournal journal, required void Function(Pulse&lt;WireMessage&gt;) send, Context inboundContext, Map&lt;String, String&gt;? descriptions, void Function(String)? onPolicyWarning})</code> — pinned at <code>cell_skin: 0.1.0</code></td>
+<td>** <code>ARCHITECTURE-Skin.md</code> §2 (the four cells).</td>
+<td>** <code>example/lib/mock/mock_home.dart</code> (builds the Echo Home membrane).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="how-this-matrix-stays-fresh">How this matrix stays fresh</h2>
+<ul>
+<li><code>dart run tool/generate_api_chooser.dart</code> — regenerates this file.</li>
+<li><code>test/api_chooser_up_to_date_test.dart</code> — fails CI if stale.</li>
+</ul>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li class="self-crumb">doc\api_chooser.dart</li>
+</ol>
+
+    <h5><span class="package-name">cell_skin</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Test Verification-topic.html">Test&nbsp;Verification</a></li>
+        <li><a href="../topics/Membrane-topic.html">HowTo&nbsp;·&nbsp;Membrane</a></li>
+        <li><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></li>
+        <li><a href="../topics/Whitelist-topic.html">HowTo&nbsp;·&nbsp;Whitelist</a></li>
+        <li><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></li>
+        <li><a href="../topics/Egress-topic.html">HowTo&nbsp;·&nbsp;Egress</a></li>
+        <li><a href="../topics/Cursors-topic.html">HowTo&nbsp;·&nbsp;Cursors</a></li>
+        <li><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></li>
+        <li><a href="../topics/REST Adapter-topic.html">HowTo&nbsp;·&nbsp;REST&nbsp;Adapter</a></li>
+        <li><a href="../topics/MCP Seam-topic.html">HowTo&nbsp;·&nbsp;MCP&nbsp;Seam</a></li>
+        <li><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></li>
+        <li><a href="../topics/Testing-topic.html">HowTo&nbsp;·&nbsp;Testing</a></li>
+        <li><a href="../topics/Demo-topic.html">Demo:&nbsp;Echo&nbsp;Home</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_skin_api_chooser/">doc\api_chooser</a></li>
+      <li class="section-subtitle">Getting Started</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">HowTo · Testing</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Features</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+        <li class="section-subitem"><a href="../cell_skin_rest/">cell_skin_rest</a></li>
+      <li class="section-subtitle">Architecture</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Demo: Echo Home</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Test Verification</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <h5>cell_skin_api_chooser library</h5>
+  </div><!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_skin
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

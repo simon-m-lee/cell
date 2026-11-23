@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the bind method from the RestAdapter class, for the Dart programming language.">
+  <title>bind method - RestAdapter class - cell_skin_rest library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_skin</a></li>
+    <li><a href="../../cell_skin_rest/">cell_skin_rest.dart</a></li>
+    <li><a href="../../cell_skin_rest/RestAdapter-class.html">RestAdapter</a></li>
+    <li class="self-crumb">bind static method</li>
+  </ol>
+  <div class="self-name">bind</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_skin_rest&#47;RestAdapter-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">bind</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_skin_rest/RestAdapter-class.html">RestAdapter</a></span>&gt;</span></span>
+<span class="name ">bind</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="bind-param-membrane"><span>required</span> <span class="type-annotation"><a href="../../cell_skin/SkinMembrane-class.html">SkinMembrane</a></span> <span class="parameter-name">membrane</span>, </span></li>
+<li><span class="parameter" id="bind-param-auth"><span>required</span> <span class="type-annotation"><a href="../../cell_skin/SkinAuth-class.html">SkinAuth</a></span> <span class="parameter-name">auth</span>, </span></li>
+<li><span class="parameter" id="bind-param-contextBridge"><span class="type-annotation"><a href="../../cell_skin/ContextBridge-class.html">ContextBridge</a></span> <span class="parameter-name">contextBridge</span> = <span class="default-value">const DescribeContextBridge()</span>, </span></li>
+<li><span class="parameter" id="bind-param-address"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">address</span>, </span></li>
+<li><span class="parameter" id="bind-param-port"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">port</span> = <span class="default-value">0</span>, </span></li>
+<li><span class="parameter" id="bind-param-allowedHosts"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">allowedHosts</span>, </span></li>
+<li><span class="parameter" id="bind-param-allowedOrigins"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">allowedOrigins</span>, </span></li>
+<li><span class="parameter" id="bind-param-maxBodyBytes"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">maxBodyBytes</span> = <span class="default-value">kDefaultMaxBodyBytes</span>, </span></li>
+<li><span class="parameter" id="bind-param-requestTimeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">requestTimeout</span> = <span class="default-value">const Duration(seconds: 30)</span>, </span></li>
+<li><span class="parameter" id="bind-param-keepAliveInterval"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">keepAliveInterval</span> = <span class="default-value">const Duration(seconds: 15)</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Binds the REST adapter on <code>address</code>:<code>port</code> (port <code>0</code> = ephemeral).</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>Exposing the membrane over HTTP: commands, manifest, SSE
+observe/ledger, verify, health. Import it from
+<code>package:cell_skin/cell_skin_rest.dart</code> (the main barrel stays
+<code>dart:io</code>-free).</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>The adapter is <strong>closed by default</strong>: <code>auth</code> is required, methods
+are enforced per route, POST bodies must be JSON and bounded,
+<code>Host</code>/<code>Origin</code> are validated, and per-request <code>PulseContext</code>
+provenance flows from the <code>contextBridge</code>. Timeouts surface 504
+<code>outcome_unknown</code>; a same-id retry replays the stored outcome.</p>
+<h3 id="non-obvious">Non-obvious</h3>
+<p>SSE runs over a detached raw socket — <code>HttpResponse.done</code> does not
+complete on a silent client disconnect, <code>Socket.done</code> does, and
+the keep-alive ping bounds the detection window.</p>
+<ul>
+<li><code>auth</code> — <strong>required</strong>. Pass <code>const AllowAllSkinAuth()</code> to make
+anonymous access an explicit opt-in.</li>
+<li><code>contextBridge</code> — translates the authenticated principal into
+the framework <code>Context</code> stamped on every inbound pulse
+(<code>DescribeContextBridge</code> by default; <code>SystemContextBridge</code> is
+the loud opt-in to system authority).</li>
+<li><code>allowedHosts</code> — accepted <code>Host</code> header values; defaults to the
+loopback names.</li>
+<li><code>allowedOrigins</code> — accepted browser <code>Origin</code> header values.
+Empty by default: a browser request carrying an <code>Origin</code> header
+is rejected unless its origin is listed here.</li>
+<li><code>maxBodyBytes</code> — request body cap (default 1 MiB).</li>
+<li><code>requestTimeout</code> — the membrane request timeout surfaced as 504
+<code>outcome_unknown</code> (default 30s).</li>
+<li><code>keepAliveInterval</code> — SSE ping cadence (default 15s). A silent
+client disconnect is detected by the next failed ping, which
+releases the subscription.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<p><a href="../../cell_skin/SkinAuth-class.html">SkinAuth</a>, <a href="../../cell_skin/ContextBridge-class.html">ContextBridge</a>, <code>ARCHITECTURE-Skin.md</code> §7.</p>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — the HTTP transport on top of the membrane, not a second dispatch path.
+<strong>When to use:</strong> a requirement says "REST endpoint for the graph", "SSE stream of changes", "audit log over HTTP", or "curl-able manifest".
+<strong>When NOT to use:</strong> in-process calls (use <code>SkinClient</code>); speaking MCP (use the <code>McpAdapter</code> seam with an MCP SDK).
+<strong>Live signature:</strong> <code>static Future&lt;RestAdapter&gt; bind({required SkinMembrane membrane, required SkinAuth auth, ContextBridge contextBridge = const DescribeContextBridge(), Object? address, int port = 0, Set&lt;String&gt;? allowedHosts, Set&lt;String&gt;? allowedOrigins, int maxBodyBytes = 1048576, Duration requestTimeout = Duration(seconds: 30), Duration keepAliveInterval = Duration(seconds: 15)})</code> — pinned at <code>cell_skin: 0.1.0</code>
+<strong>Do NOT confuse with:</strong> <code>SkinMembrane.open</code> (the membrane) or <code>SkinAuth</code> (the credential check the adapter calls).
+<strong>Guide:</strong> <code>FEATURES-Skin.md</code> §10 (REST adapter).
+<strong>Example:</strong> <code>example/lib/mock/rest_io.dart</code> (the demo's real adapter binding).
+<strong>Cross-layer:</strong> every request is stamped with <code>PulseContext(baseContext: bridge.resolve(principal), actor: 'skin:&lt;id&gt;')</code> — the domain's gates see the remote actor.
+<strong>Minimal compilable example</strong></p>
+<pre class="language-dart"><code class="language-dart">final adapter = await RestAdapter.bind(
+  membrane: membrane,
+  auth: const AllowAllSkinAuth(),
+);
+</code></pre>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static Future&lt;RestAdapter&gt; bind({
+  required SkinMembrane membrane,
+  required SkinAuth auth,
+  ContextBridge contextBridge = const DescribeContextBridge(),
+  Object? address,
+  int port = 0,
+  Set&lt;String&gt;? allowedHosts,
+  Set&lt;String&gt;? allowedOrigins,
+  int maxBodyBytes = kDefaultMaxBodyBytes,
+  Duration requestTimeout = const Duration(seconds: 30),
+  Duration keepAliveInterval = const Duration(seconds: 15),
+}) async {
+  final server =
+      await HttpServer.bind(address ?? InternetAddress.loopbackIPv4, port);
+  return RestAdapter._(
+    membrane,
+    server,
+    auth,
+    contextBridge: contextBridge,
+    allowedHosts: allowedHosts ??
+        {
+          &#39;localhost&#39;,
+          &#39;127.0.0.1&#39;,
+          &#39;::1&#39;,
+          &#39;localhost:${server.port}&#39;,
+          &#39;127.0.0.1:${server.port}&#39;,
+          &#39;[::1]:${server.port}&#39;,
+        },
+    allowedOrigins: allowedOrigins ?? const {},
+    maxBodyBytes: maxBodyBytes,
+    requestTimeout: requestTimeout,
+    keepAliveInterval: keepAliveInterval,
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_skin</a></li>
+    <li><a href="../../cell_skin_rest/">cell_skin_rest</a></li>
+    <li><a href="../../cell_skin_rest/RestAdapter-class.html">RestAdapter</a></li>
+    <li class="self-crumb">bind static method</li>
+</ol>
+
+    <h5>RestAdapter class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_skin
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

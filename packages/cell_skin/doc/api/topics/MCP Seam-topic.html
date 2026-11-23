@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="HowTo · MCP Seam topic docs, for the Dart programming language.">
+  <title>HowTo · MCP Seam topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li class="self-crumb">HowTo · MCP Seam topic</li>
+  </ol>
+  <div class="self-name">HowTo · MCP Seam</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">HowTo · MCP Seam</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="howto-mcpseam">HowTo-McpSeam</h1>
+<p>cell_skin deliberately does <strong>not</strong> speak the MCP transport. It ships
+an honest seam: <code>mcpToolSpecs(manifest)</code> translates the tool catalogue
+into neutral, transport-agnostic specs, and <code>McpAdapter</code> is the
+lifecycle contract your SDK adapter implements.</p>
+<h2 id="when-to-use">When to use</h2>
+<ul>
+<li>Wiring the skin's tools into an MCP SDK (<code>dart_mcp</code>, <code>mcp_dart</code>, or
+a custom host).</li>
+<li>Keeping <code>tools/list</code> output in sync with the binding table for free.</li>
+</ul>
+<h2 id="when-not-to-use">When not to use</h2>
+<ul>
+<li>Expecting <code>cell_skin</code> to serve MCP over stdio/SSE itself — it does
+not; that is the SDK adapter's job.</li>
+</ul>
+<h2 id="tool-specs">Tool specs</h2>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_skin/cell_skin.dart';
+
+final specs = mcpToolSpecs(membrane.manifest);
+for (final spec in specs) {
+  print('${spec.name}: ${spec.description}');
+}
+</code></pre>
+<p>Each <code>McpToolSpec</code> maps 1:1 onto an SDK's tool descriptor:</p>
+<pre class="language-dart"><code class="language-dart">final tool = Tool(
+  name: spec.name,              // '&lt;cellId&gt;.&lt;functionName&gt;'
+  description: spec.description, // function.description ?? cell description
+  inputSchema: spec.inputSchema.toJson(), // explicit hint → observed → {}
+);
+</code></pre>
+<h2 id="naming-guarantees">Naming guarantees</h2>
+<p>Tool names are <code>&lt;cellId&gt;.&lt;functionName&gt;</code> with hard validation:</p>
+<ul>
+<li>Cell ids and function names must be <strong>dot-free</strong> — the separator
+cannot be ambiguous.</li>
+<li>The combined names are checked for collisions
+(<code>a.b</code> + <code>c</code> vs <code>a</code> + <code>b.c</code> cannot silently alias).</li>
+</ul>
+<p>Violations throw <code>StateError</code> at translation time — a collision can
+never reach an MCP host.</p>
+<h2 id="the-adapter-lifecycle">The adapter lifecycle</h2>
+<pre class="language-dart"><code class="language-dart">final class MyMcpServer implements McpAdapter {
+  @override
+  Future&lt;void&gt; start() async {
+    // register tools from mcpToolSpecs(membrane.manifest),
+    // subscribe membrane.responses for notifications, start transport
+  }
+
+  @override
+  Future&lt;void&gt; close() async {
+    // stop transport, release subscriptions
+  }
+}
+</code></pre>
+<p>Inbound MCP tool calls become <code>WireRequest</code>s (one per
+<code>&lt;cellId&gt;.&lt;functionName&gt;</code>); outbound state changes and ledger entries
+become MCP notifications. Egress <code>WireStateChange</code> pulses are the
+natural notification payload — observations, never replies.</p>
+<h2 id="see-also">See also</h2>
+<ul>
+<li><code>HowTo-Bindings.md</code> — descriptions and schemas that feed the specs.</li>
+<li><code>HowTo-WireMessages.md</code> — the messages an SDK adapter maps.</li>
+<li><code>FEATURES-Skin.md</code> §11.</li>
+</ul>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="McpAdapter">
+  <span class="name "><a href="../cell_skin/McpAdapter-class.html">McpAdapter</a></span> 
+    <span class="category howto-·-mcp-seam cp-9 linked" title="This is part of the HowTo · MCP Seam topic."><a href="../topics/MCP Seam-topic.html">HowTo&nbsp;·&nbsp;MCP&nbsp;Seam</a></span>
+
+</dt>
+<dd>
+  The adapter lifecycle contract every MCP SDK adapter implements.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+  <section class="summary offset-anchor" id="functions">
+    <h2>Functions</h2>
+    <dl class="callables">
+      <dt id="mcpToolSpecs" class="callable">
+  <span class="name"><a href="../cell_skin/mcpToolSpecs.html">mcpToolSpecs</a></span><span class="signature">(<wbr><span class="parameter" id="mcpToolSpecs-param-manifest"><span class="type-annotation"><a href="../cell_skin/SkinManifest-class.html">SkinManifest</a></span> <span class="parameter-name">manifest</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_skin/McpToolSpec-class.html">McpToolSpec</a></span>&gt;</span></span>
+  </span>
+  
+    <span class="category howto-·-mcp-seam cp-9 linked" title="This is part of the HowTo · MCP Seam topic."><a href="../topics/MCP Seam-topic.html">HowTo&nbsp;·&nbsp;MCP&nbsp;Seam</a></span>
+
+</dt>
+<dd>
+  Translates a <a href="../cell_skin/SkinManifest-class.html">SkinManifest</a> into neutral tool specs for MCP
+<code>tools/list</code>.
+  
+
+</dd>
+
+    </dl>
+  </section>
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li class="self-crumb">HowTo · MCP Seam topic</li>
+</ol>
+
+  <h5><span class="package-name">cell_skin</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Test Verification-topic.html">Test&nbsp;Verification</a></li>
+        <li><a href="../topics/Membrane-topic.html">HowTo&nbsp;·&nbsp;Membrane</a></li>
+        <li><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></li>
+        <li><a href="../topics/Whitelist-topic.html">HowTo&nbsp;·&nbsp;Whitelist</a></li>
+        <li><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></li>
+        <li><a href="../topics/Egress-topic.html">HowTo&nbsp;·&nbsp;Egress</a></li>
+        <li><a href="../topics/Cursors-topic.html">HowTo&nbsp;·&nbsp;Cursors</a></li>
+        <li><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></li>
+        <li><a href="../topics/REST Adapter-topic.html">HowTo&nbsp;·&nbsp;REST&nbsp;Adapter</a></li>
+        <li><a href="../topics/MCP Seam-topic.html">HowTo&nbsp;·&nbsp;MCP&nbsp;Seam</a></li>
+        <li><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></li>
+        <li><a href="../topics/Testing-topic.html">HowTo&nbsp;·&nbsp;Testing</a></li>
+        <li><a href="../topics/Demo-topic.html">Demo:&nbsp;Echo&nbsp;Home</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_skin_api_chooser/">doc\api_chooser</a></li>
+      <li class="section-subtitle">Getting Started</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">HowTo · Testing</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Features</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+        <li class="section-subitem"><a href="../cell_skin_rest/">cell_skin_rest</a></li>
+      <li class="section-subtitle">Architecture</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Demo: Echo Home</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Test Verification</li>
+        <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>HowTo · MCP Seam topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/MCP Seam-topic.html#classes">Classes</a></li>
+      <li><a href="../cell_skin/McpAdapter-class.html">McpAdapter</a></li>
+
+
+
+
+
+
+    <li class="section-title"><a href="../topics/MCP Seam-topic.html#functions">Functions</a></li>
+      <li><a href="../cell_skin/mcpToolSpecs.html">mcpToolSpecs</a></li>
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_skin
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
