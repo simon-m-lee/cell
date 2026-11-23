@@ -56,6 +56,14 @@ import 'cell_value_builder.dart';
 /// position survives mutations in both variants (subject to Flutter's
 /// usual `ScrollController` rules).
 ///
+/// ### Reverse lists (live feeds)
+/// [reverse] mirrors `ListView.builder`'s flag: with `true`, the list is
+/// pinned to the bottom and index 0 renders at the visual bottom. This is
+/// the live-feed orientation — a chat transcript, an audit log, or a
+/// telemetry stream where the newest item should always be visible.
+/// Callers typically keep their list ordered newest-first and let the
+/// reversed view surface the head of the list at the bottom edge.
+///
 /// ### Known limitation (keyed variant)
 /// The keyed variant builds a widget configuration per item up front
 /// (O(n) memory) and diffs in O(n) time per list change. This is the
@@ -83,6 +91,7 @@ class CellListView<T> extends StatelessWidget {
     this.scrollDirection = Axis.vertical,
     this.padding,
     this.controller,
+    this.reverse = false,
     this.itemCount,
     super.key,
   }) : _itemKey = null;
@@ -95,6 +104,7 @@ class CellListView<T> extends StatelessWidget {
     this.scrollDirection = Axis.vertical,
     this.padding,
     this.controller,
+    this.reverse = false,
     super.key,
   })  : _itemKey = itemKey,
         itemCount = null;
@@ -118,6 +128,12 @@ class CellListView<T> extends StatelessWidget {
   /// Forwarded to the underlying [ListView.builder].
   final ScrollController? controller;
 
+  /// Forwarded to the underlying [ListView.builder]. With `true`, the
+  /// list pins to the bottom — index 0 renders at the visual bottom.
+  /// Use for live feeds (chat transcripts, audit logs) whose newest
+  /// item should stay visible.
+  final bool reverse;
+
   /// Overrides the item count; defaults to the list length. A caller
   /// count larger than the current list is clamped to the list length —
   /// the builder never indexes past the list.
@@ -138,12 +154,14 @@ class CellListView<T> extends StatelessWidget {
             scrollDirection: scrollDirection,
             padding: padding,
             controller: controller,
+            reverse: reverse,
           );
         }
         return ListView.builder(
           scrollDirection: scrollDirection,
           padding: padding,
           controller: controller,
+          reverse: reverse,
           // Clamp: a caller-supplied itemCount larger than the current
           // list must not index off the end inside build.
           itemCount: itemCount == null
@@ -168,6 +186,7 @@ class _KeyedItemsView<T> extends StatefulWidget {
     required this.scrollDirection,
     required this.padding,
     required this.controller,
+    required this.reverse,
   });
 
   final List<T> items;
@@ -176,6 +195,7 @@ class _KeyedItemsView<T> extends StatefulWidget {
   final Axis scrollDirection;
   final EdgeInsets? padding;
   final ScrollController? controller;
+  final bool reverse;
 
   @override
   State<_KeyedItemsView<T>> createState() => _KeyedItemsViewState<T>();
@@ -218,6 +238,7 @@ class _KeyedItemsViewState<T> extends State<_KeyedItemsView<T>> {
       scrollDirection: widget.scrollDirection,
       padding: widget.padding,
       controller: widget.controller,
+      reverse: widget.reverse,
       itemCount: widgets.length,
       // Keyed reorders must move elements (and their state) instead of
       // replacing them; the O(n) scan is the documented diff cost.

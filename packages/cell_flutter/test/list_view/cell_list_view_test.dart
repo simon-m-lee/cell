@@ -281,7 +281,8 @@ void main() {
   });
 
   group('CellListView review fixes', () {
-    testWidgets('keyed rebuilds a row when the value changes under a '
+    testWidgets(
+        'keyed rebuilds a row when the value changes under a '
         'stable key', (tester) async {
       final list = Cell.state<List<String>>(initial: ['a-old', 'b']);
       await tester.pumpWidget(_wrap(
@@ -313,6 +314,80 @@ void main() {
 
       expect(find.text('item:1'), findsOneWidget);
       expect(find.text('item:2'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('CellListView.reverse', () {
+    testWidgets('builder pins index 0 to the bottom for live feeds',
+        (tester) async {
+      final list = Cell.state<List<String>>(
+        initial: ['newest', 'older', 'oldest'],
+      );
+      await tester.pumpWidget(_wrap(
+        CellListView<String>.builder(
+          cell: list.cell,
+          reverse: true,
+          itemBuilder: (_, item, i) => SizedBox(
+            height: 60,
+            child: Text('feed:$item'),
+          ),
+        ),
+      ));
+
+      // Reversed layout: the first item renders at the visual bottom.
+      final firstY = tester.getTopLeft(find.text('feed:newest')).dy;
+      final secondY = tester.getTopLeft(find.text('feed:older')).dy;
+      expect(firstY, greaterThan(secondY),
+          reason: 'reverse pins the first item below the second');
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('keyed pins index 0 to the bottom for live feeds',
+        (tester) async {
+      final list = Cell.state<List<String>>(
+        initial: ['newest', 'older', 'oldest'],
+      );
+      await tester.pumpWidget(_wrap(
+        CellListView<String>.keyed(
+          cell: list.cell,
+          itemKey: (item) => item,
+          reverse: true,
+          itemBuilder: (_, item, i) => SizedBox(
+            height: 60,
+            child: Text('feed:$item'),
+          ),
+        ),
+      ));
+
+      final firstY = tester.getTopLeft(find.text('feed:newest')).dy;
+      final secondY = tester.getTopLeft(find.text('feed:older')).dy;
+      expect(firstY, greaterThan(secondY),
+          reason: 'reverse pins the first item below the second');
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('a live feed stays pinned to the newest item', (tester) async {
+      final list = Cell.state<List<String>>(initial: ['a', 'b', 'c']);
+      await tester.pumpWidget(_wrap(
+        SizedBox(
+          height: 120,
+          child: CellListView<String>.builder(
+            cell: list.cell,
+            reverse: true,
+            itemBuilder: (_, item, i) => SizedBox(
+              height: 60,
+              child: Text('feed:$item'),
+            ),
+          ),
+        ),
+      ));
+
+      // Append a new item to the head of the list; the reversed view
+      // must show it at the pinned bottom edge.
+      list.update(['d', 'a', 'b', 'c']);
+      await tester.pump();
+      expect(find.text('feed:d'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   });

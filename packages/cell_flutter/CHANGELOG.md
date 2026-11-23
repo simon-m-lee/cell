@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- **`CellListView.reverse`** — both the `.builder` and `.keyed` variants
+  now accept `reverse`, mirroring `ListView.builder`'s flag. With
+  `true`, index 0 renders at the visual bottom and the list stays
+  pinned to the newest item — the orientation live feeds need (chat
+  transcripts, audit logs, telemetry streams). Added for the
+  `cell_skin` Echo Home live demo.
+
 ## 1.1.0
 
 Documentation and packaging accuracy pass (additive API — no breaking
