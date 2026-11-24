@@ -34,8 +34,8 @@ jobs:
       - name: test
         working-directory: packages/cell_memory
         run: |
-          set -o pipefail
-          dart test --reporter expanded 2>&1 | sed 's/\x1b\[[0-9;]*[a-zA-Z]//g' | tee /tmp/cell_memory_test.log
+          set +e
+          dart test --reporter expanded 2>&1 | tee /tmp/cell_memory_test.log
           status=${PIPESTATUS[0]}
           if [ "$status" -ne 0 ]; then
             # Surface the failure blocks as check-run annotations so they
@@ -117,8 +117,12 @@ jobs:
           firebase emulators:exec --only firestore,auth \
             --project demo-cell-memory \
             "flutter drive --driver=test_driver/integration_test.dart \
-              --target=integration_test/two_client_test.dart -d chrome"
-          status=$?
+              --target=integration_test/two_client_test.dart -d chrome" \
+            2>&1 | tee /tmp/acceptance.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            tail -60 /tmp/acceptance.log | sed 's/^/::error::/'
+          fi
           kill "$CHROMEDRIVER_PID" 2>/dev/null || true
           exit "$status"
 
