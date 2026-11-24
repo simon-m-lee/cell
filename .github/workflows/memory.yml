@@ -104,7 +104,11 @@ jobs:
             --project demo-cell-memory \
             "node tool/rules/rules.test.mjs"
       - name: install chromedriver
-        run: npm install -g chromedriver
+        run: |
+          # Match the runner's Chrome major: a mismatched chromedriver
+          # fails the session with SessionNotCreatedException.
+          CHROME_MAJOR=$(google-chrome --version | sed -E 's/.* ([0-9]+)\..*/\1/')
+          npm install -g "chromedriver@${CHROME_MAJOR}" || npm install -g chromedriver
       - name: two-client acceptance test (required, must not skip)
         working-directory: packages/cell_memory_firebase
         run: |
