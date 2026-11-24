@@ -122,7 +122,8 @@ jobs:
             2>&1 | tee /tmp/acceptance.log
           status=${PIPESTATUS[0]}
           if [ "$status" -ne 0 ]; then
-            tail -150 /tmp/acceptance.log | sed 's/^/::error::/'
+            grep -n -E 'Error|Exception|SessionNotCreated|FAILED|failed' /tmp/acceptance.log | sed 's/^/::error::/' | tail -30
+            tail -10 /tmp/acceptance.log | sed 's/^/::error::/'
           fi
           kill "$CHROMEDRIVER_PID" 2>/dev/null || true
           exit "$status"

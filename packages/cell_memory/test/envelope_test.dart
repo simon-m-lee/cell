@@ -130,17 +130,22 @@ void main() {
 
     test('two maps that differ only by key order have the same canonical '
         'payload and the same toJson bytes', () {
+      // Pin updatedAt: the toJson bytes include it, and Linux clocks
+      // resolve far below a millisecond, so two defaults would differ.
+      final now = DateTime.now();
       final a = MemoryEnvelope(
         generation: testGeneration,
         id: 'a',
         revision: 1,
         payload: {'b': 1, 'a': 2},
+        updatedAt: now,
       );
       final b = MemoryEnvelope(
         generation: testGeneration,
         id: 'a',
         revision: 1,
         payload: {'a': 2, 'b': 1},
+        updatedAt: now,
       );
       expect(JsonPayloadKey.canonical(a.payload), JsonPayloadKey.canonical(b.payload));
       expect(jsonEncode(a.toJson()), jsonEncode(b.toJson()));
