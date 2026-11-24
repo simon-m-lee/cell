@@ -43,10 +43,52 @@ void main() {
   test('two clients: a stale generation after remove-and-recreate is a '
       'MemoryConflict carrying the new generation', () async {
     if (Platform.environment['FIRESTORE_EMULATOR_HOST'] == null) {
-      markTestSkipped(
-          'FIRESTORE_EMULATOR_HOST is unset; run under firebase '
+      // This file only runs on a device under 
+      // (the plain 00:00 +0: loading D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart
+00:00 +0: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: read of a missing document returns null and creates nothing
+00:00 +1: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: create: expectedRevision 0 writes revision 1 with a JSON-string payload
+00:00 +2: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: round-trip: read returns the envelope with the payload decoded
+00:00 +3: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: CAS: expecting 4 installs 5; a second writer still expecting 4 gets MemoryConflict and the document stays the winner
+00:00 +4: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: idempotent retry: this writer payload at expectedRevision + 1 returns success and does not set again
+00:00 +5: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: lost race: a different payload at expectedRevision + 1 throws MemoryConflict and never sets
+00:00 +6: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: an envelope numbered wrong throws MemoryCorrupt and never sets
+00:00 +7: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: permission denied surfaces as MemoryIoException and is not retried as contention
+00:00 +8: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: remove deletes the document; a second remove succeeds
+00:00 +9: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: list returns ids under this uid only
+00:00 +10: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: closed: read after close throws StateError; double close throws
+00:00 +11: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: uid validation rejects empty ids and slashes
+00:00 +12: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: memory id validation rejects hostile ids before any request
+00:00 +13: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: the same envelope fixture round-trips through the file store and the firestore store
+00:00 +14: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: a newer-schema document at the expected revision is corrupt, not overwritten
+00:00 +15: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: an unencodable payload fails before any transaction
+00:00 +16: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: an oversized document fails with a clear error before any transaction
+00:00 +17: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: an oversized document fails with a clear error before any transaction
+00:00 +18: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: an oversized document fails with a clear error before any transaction
+00:00 +19: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: an oversized document fails with a clear error before any transaction
+00:00 +20: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/mapping_test.dart: encodeDocument the document contains the generation
+00:00 +21: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: list fails closed on an id the grammar rejects and deletes nothing
+00:00 +22: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: list fails closed on an id the grammar rejects and deletes nothing
+00:00 +23: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/mapping_test.dart: decodeDocument round-trips every JSON shape
+00:00 +24: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/mapping_test.dart: decodeDocument round-trips every JSON shape
+00:00 +25: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/mapping_test.dart: decodeDocument round-trips every JSON shape
+00:00 +26: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: close drains an in-flight write started before it
+00:00 +27: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/mapping_test.dart: decodeDocument the string "[1, 2]" decodes as a string, not a list
+00:00 +28: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/mapping_test.dart: decodeDocument a missing payload throws MemoryCorrupt
+00:00 +29: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/mapping_test.dart: decodeDocument a missing payload throws MemoryCorrupt
+00:00 +30: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: the equal-revision shape with a different payload is a conflict
+00:00 +31: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/mapping_test.dart: decodeDocument a missing generation throws MemoryCorrupt
+00:00 +32: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: reads and lists use the configured source (server by default)
+00:00 +33: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: reads and lists use the configured source (server by default)
+00:00 +34: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/mapping_test.dart: decodeDocument a schema other than 1 throws MemoryCorrupt
+00:00 +35: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: permission-denied on read and list surfaces as MemoryIoException
+00:00 +36: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/mapping_test.dart: decodeDocument an id that does not match the path throws MemoryCorrupt
+00:00 +37: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: an update with a different generation at the right revision is MemoryConflict; the winner and its generation survive
+00:00 +38: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/mapping_test.dart: decodeDocument unknown keys throw MemoryCorrupt, matching the file envelope
+00:00 +39: D:/Users/Simon/Workspaces/cell/packages/cell_memory_firebase/test/firebase_store_test.dart: the stale generation after remove-and-recreate is a conflict, not an ABA win
+00:00 +40: All tests passed! harness never picks up
+      // integration_test/), so an unset host is a broken run, not a skip.
+      fail('FIRESTORE_EMULATOR_HOST is unset; run under firebase '
           'emulators:exec with --only firestore,auth');
-      return;
     }
 
     final options = FirebaseOptions(
