@@ -1,0 +1,23 @@
+{
+  "wire": "1",
+  "kind": "response",
+  "correlationId": "srv-1",
+  "clientCorrelationId": "client-1",
+  "outcome": {
+    "kind": "accepted",
+    "result": 21,
+    "receipt": {
+      "id": "r-1",
+      "cell": "home.living.thermostat",
+      "function": "setTarget",
+      "timestamp": "2026-01-01T00:00:00.000Z",
+      "vetted": true,
+      "ledgerSeq": 1
+    }
+  },
+  "pendingReceipt": false,
+  "ledgerSeqs": [
+    0,
+    1
+  ]
+}

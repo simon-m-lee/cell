@@ -61,6 +61,31 @@
 
       </section>
       
+<section class="desc markdown">
+  <p>The specific name of the notification event or method.///
+In the framework's biological metaphor, this identifies the type of
+<strong>Transient Impulse</strong> being sent (e.g., <code>ping</code>). It tells the receiver
+how to interpret the temporary signal crossing the <strong>Skin Membrane</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Protocol Signaling</strong>: Use this to define the intent of the notification,
+such as a heartbeat or a non-somatic alert.</li>
+<li><strong>Event Routing</strong>: Used by external listeners to filter for specific
+types of volatile signals.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>The string stored here is used as the primary identifier for the
+notification. Unlike a <a href="../../cell_skin/WireRequest/function.html">WireRequest.function</a>, this does not map to
+a persistent <strong>Integrity Gate</strong> in the core graph.</p>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Omission</strong>: This method name is never recorded in the
+<strong>Forensic Ledger</strong>. It represents a "fire-and-forget" signal that
+leaves no audit trail.</li>
+<li><strong>Strictly External</strong>: This value is handled entirely within the
+<strong>Skin</strong> layer and never triggers a <strong>Somatic State Transition</strong>.</li>
+</ul>
+</section>
 
       
 <section class="summary source-code" id="source">

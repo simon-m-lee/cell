@@ -62,8 +62,42 @@
       </section>
       
 <section class="desc markdown">
-  <p>The new state value, when JSON-serialisable (otherwise omitted —
-the ledger entry carries the authoritative payload).</p>
+  <p>The new state value of the cell, provided as a JSON-serializable object.  ///
+In the framework's biological metaphor, this is the <strong>Phenotype</strong>. It
+represents the observable traits of the cell immediately following a
+<strong>Somatic State Transition</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>UI Updates</strong>: Use this to reflect the latest state of a cell in a
+dashboard or view.</li>
+<li><strong>External Logic</strong>: Used by AI agents or external systems to react to
+data changes without querying the <strong>Forensic Ledger</strong>.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Capture</strong>: When a cell value changes, the framework attempts to
+serialize the new value.</li>
+<li><strong>Broadcasting</strong>: This value is wrapped as the payload of a
+<strong>Nervous Impulse</strong> (<a href="../../cell_skin/WireStateChange-class.html">WireStateChange</a>) and pushed through the
+<strong>Skin Membrane</strong>.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Omission on Failure</strong>: If a value cannot be encoded into JSON, this
+field is omitted (set to <code>null</code>). In such cases, the observer should
+refer to the <a href="../../cell_skin/WireStateChange/receipt.html">receipt</a> or the ledger entry for the authoritative data.</li>
+<li><strong>Volatile State</strong>: When <a href="../../cell_skin/WireStateChange/pendingReceipt.html">pendingReceipt</a> is <code>true</code>, this payload
+represents an unconfirmed "live" state that has not yet been physically
+committed to the permanent ledger.</li>
+<li><strong>Forensic Separation</strong>: While this field is convenient for live
+reactivity, the <a href="../../cell_skin/WireStateChange/receipt.html">receipt</a> remains the only legal proof of the
+underlying state change.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireStateChange/cellId.html">WireStateChange.cellId</a>: The somatic address where this phenotype exists.</li>
+<li><a href="../../cell_skin/WireStateChange/receipt.html">WireStateChange.receipt</a>: The forensic evidence confirming this value.</li>
+</ul>
 </section>
 
       

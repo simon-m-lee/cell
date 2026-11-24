@@ -55,8 +55,42 @@
 
     
 <section class="desc markdown">
-  <p>The dispatch brain behind the router cell. Testable without a live
-cell, then materialised with <a href="../cell_skin/SkinRouter/cell.html">SkinRouter.cell</a>.</p>
+  <p>The dispatch brain responsible for governing the journey of signals from the membrane to the somatic graph.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/SkinRouter-class.html">SkinRouter</a> acts as the <strong>Synaptic Junction</strong>.
+It intercepts every <strong>Nervous Signal</strong> (<a href="../cell_skin/WireMessage-class.html">WireMessage</a>) arriving at the <strong>Skin Membrane</strong>
+and orchestrates its <strong>Command Journey</strong> toward a specific target cell.</p>
+<h3 id="receipt-provenance">Receipt Provenance</h3>
+<p>A core responsibility of the router is maintaining <strong>Forensic Integrity</strong>. It invokes
+<code>target.apply</code> rather than its own, ensuring that the resulting <strong>Forensic Receipt</strong>
+correctly attributes the <strong>Somatic State Transition</strong> to the domain cell and
+its specific "DNA" (receptor logic), rather than the transport adapter.</p>
+<h3 id="integrity-gates">Integrity Gates</h3>
+<p>Before a signal is allowed to mutate the graph, the router enforces several
+sequential gates:</p>
+<ol>
+<li><strong>Exposure Gate</strong>: Checks the <a href="../cell_skin/SkinBindingTable-class.html">SkinBindingTable</a> to ensure the pore is open.</li>
+<li><strong>Idempotency Gate</strong>: Uses <strong>Impulse Memory</strong> to prevent duplicate transitions
+from the same <strong>Causal Link</strong>.</li>
+<li><strong>Schema Gate</strong>: Validates the <strong>Skin Payload</strong> against the <strong>Somatic Blueprint</strong>.</li>
+<li><strong>Cursor Gate</strong>: Enforces <strong>Causal Linkage</strong> by verifying the signal's
+<code>lastSeenSeq</code> against the <strong>Forensic Ledger</strong>.</li>
+</ol>
+<h3 id="materialization">Materialization</h3>
+<p>The router is typically materialized as a <code>Cell.asyncMap</code>. It enforces a
+<strong>Concurrency Limit of 1</strong> to ensure that all transitions are anchored in
+the ledger in a deterministic, serial order, preserving the system's chronological
+"Source of Truth."</p>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/SkinMembrane-class.html">SkinMembrane</a>: The physical boundary layer containing this router.</li>
+<li><a href="../cell_skin/WireRequest-class.html">WireRequest</a>: The primary nervous signal handled by the router.</li>
+<li><a href="../cell_skin/SkinBinding-class.html">SkinBinding</a>: The definition of the pore the signal targets.</li>
+</ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — this is the central logic for signal routing.
+<strong>Governance:</strong> This class is the final arbiter before a pulse reaches a domain cell.
+<strong>Traceability:</strong> Failures here result in <strong>Membrane Rejections</strong> (<a href="../cell_skin/WireError-class.html">WireError</a>);
+successes result in <strong>Forensic Receipts</strong>.</p>
 </section>
 
 
@@ -86,7 +120,7 @@ cell, then materialised with <a href="../cell_skin/SkinRouter/cell.html">SkinRou
 
 </dt>
 <dd>
-  The binding table (the exposure registry).
+  The authoritative registry of physically exposed pores.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -98,8 +132,7 @@ cell, then materialised with <a href="../cell_skin/SkinRouter/cell.html">SkinRou
 
 </dt>
 <dd>
-  The receipt join for egress pulses.
-Human-readable cell descriptions for the manifest.
+  The technical map used to provide human-readable context in the manifest.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -111,7 +144,7 @@ Human-readable cell descriptions for the manifest.
 
 </dt>
 <dd>
-  The registered graph the router serves.
+  The reactive organ representing the entire somatic body.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -135,7 +168,7 @@ Human-readable cell descriptions for the manifest.
 
 </dt>
 <dd>
-  The graph's ledger, when one is bound (cursor checks).
+  The system's permanent history, used for cursor-based integrity checks.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -147,7 +180,7 @@ Human-readable cell descriptions for the manifest.
 
 </dt>
 <dd>
-  Optional observer for every dispatched outcome (tests, adapters).
+  An optional hook triggered every time a <strong>Command Journey</strong> completes.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -171,7 +204,7 @@ Human-readable cell descriptions for the manifest.
 
 </dt>
 <dd>
-  The optional declarative exposure policy.
+  The optional declarative filter for the membrane.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -219,7 +252,7 @@ Human-readable cell descriptions for the manifest.
 
 </dt>
 <dd>
-  Routes one inbound wire pulse. Returns <code>null</code> to suppress.
+  Processes a single <strong>Nervous Signal</strong> arriving from the environment.
   
 
 </dd>

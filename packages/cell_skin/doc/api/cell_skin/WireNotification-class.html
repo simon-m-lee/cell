@@ -55,7 +55,44 @@
 
     
 <section class="desc markdown">
-  <p>A fire-and-forget wire event (MCP notification, SSE ping, …).</p>
+  <p>A fire-and-forget signal used for environmental pings and lightweight updates.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/WireNotification-class.html">WireNotification</a> is a
+<strong>Transient Impulse</strong>. Unlike a <a href="../cell_skin/WireResponse-class.html">WireResponse</a>, it does not conclude a
+<strong>Command Journey</strong>, and unlike a <a href="../cell_skin/WireStateChange-class.html">WireStateChange</a>, it does not represent
+a permanent <strong>Somatic State Transition</strong>. It is a temporary signal that
+leaves no trace in the <strong>Forensic Ledger</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Pings &amp; Heartbeats</strong>: Use this to check if the <strong>Skin Membrane</strong> is alive.</li>
+<li><strong>Lightweight Alerts</strong>: Use this for non-critical information that
+doesn't require forensic integrity (e.g., "AI agent is thinking...").</li>
+<li><strong>Protocol Signaling</strong>: Used for MCP notifications or SSE metadata that
+falls outside the somatic graph.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li><strong>Stateless</strong>: Notifications never carry a <code>correlationId</code> or a sequence
+number. They are emitted and forgotten.</li>
+<li><strong>Volatile</strong>: Because they are not ledgered, notifications are lost if
+the recipient is not listening at the exact moment the impulse occurs.</li>
+</ul>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Holes</strong>: Notifications are intentionally excluded from the
+<strong>Forensic Ledger</strong>. Never use them to transmit data that requires
+auditability or causal traceability.</li>
+<li><strong>Membrane Only</strong>: These signals exist only at the <strong>Skin</strong> layer. They
+never reach the core reactive graph or trigger internal cell updates.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/WireMessage-class.html">WireMessage</a>: The base class for all signals crossing the membrane.</li>
+<li><a href="../cell_skin/WireStateChange-class.html">WireStateChange</a>: For observations that represent actual state changes.</li>
+</ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — this is a volatile signal.
+<strong>Constraint:</strong> Do not use for important data; notifications are not ledgered.
+<strong>Comparison:</strong> Use <a href="../cell_skin/WireResponse-class.html">WireResponse</a> for results and <a href="../cell_skin/WireStateChange-class.html">WireStateChange</a> for values.</p>
 </section>
 
 
@@ -90,14 +127,14 @@
           <span class="name"><a href="../cell_skin/WireNotification/WireNotification.html">WireNotification</a></span><span class="signature">({<span class="parameter" id="-param-method"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">method</span>, </span><span class="parameter" id="-param-params"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">params</span> = <span class="default-value">const {}</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates a new <a href="../cell_skin/WireNotification-class.html">WireNotification</a> envelope.
             <div class="constructor-modifier features">const</div>
         </dd>
         <dt id="WireNotification.fromJson" class="callable">
           <span class="name"><a href="../cell_skin/WireNotification/WireNotification.fromJson.html">WireNotification.fromJson</a></span><span class="signature">(<span class="parameter" id="fromJson-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">json</span></span>)</span>
         </dt>
         <dd>
-          Decodes a <a href="../cell_skin/WireNotification-class.html">WireNotification</a> encoded by <a href="../cell_skin/WireNotification/toJson.html">toJson</a>.
+          Decodes a raw JSON map into a <a href="../cell_skin/WireNotification-class.html">WireNotification</a> impulse.
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
@@ -127,7 +164,7 @@
 
 </dt>
 <dd>
-  The stable discriminator used by <a href="../cell_skin/WireMessage/WireMessage.fromJson.html">WireMessage.fromJson</a>.
+  The stable identifier used to distinguish this message type on the wire.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -139,7 +176,10 @@
 
 </dt>
 <dd>
-  
+  The specific name of the notification event or method.///
+In the framework's biological metaphor, this identifies the type of
+<strong>Transient Impulse</strong> being sent (e.g., <code>ping</code>). It tells the receiver
+how to interpret the temporary signal crossing the <strong>Skin Membrane</strong>.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -151,7 +191,7 @@
 
 </dt>
 <dd>
-  
+  The data payload associated with the notification.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -198,8 +238,7 @@
 
 </dt>
 <dd>
-  JSON-serialisable wire form. Payloads stay JSON-safe; the pulse's
-metadata travels on the pulse, not inside this map.
+  Converts the notification into a JSON-safe map for transport.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

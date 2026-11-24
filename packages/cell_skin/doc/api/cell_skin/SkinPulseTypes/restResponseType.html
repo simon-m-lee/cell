@@ -63,7 +63,46 @@
     </section>
     
 <section class="desc markdown">
-  <p><code>rest.apply.response.{accepted,rejected,staged}</code> for <code>outcome</code>.</p>
+  <p>Translates an internal <code>ApplyOutcome</code> into a specific <strong>Signal Label</strong> for REST responses.</p>
+<p>In the framework's biological metaphor, this function creates the
+<strong>Forensic Stamp</strong> for a web response. It takes the official receipt
+from the cell and converts it into a vocabulary that standard REST
+clients can understand.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>REST API Responses</strong>: Use this when sending the result of a
+command (POST/PUT) back to a web client.</li>
+<li><strong>Transport Mapping</strong>: Use this to ensure the external HTTP signal
+matches the internal state recorded in the <strong>Forensic Ledger</strong>.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>It takes the <code>outcome</code> (the Forensic Receipt) and attaches a specific
+suffix to the <code>rest.apply.response.</code> prefix based on the result:</p>
+<ul>
+<li><code>accepted</code>: The command was successful and committed.</li>
+<li><code>rejected</code>: The command was blocked by a safety rule (Integrity Gate).</li>
+<li><code>staged</code>: The command is held in a transaction and not yet final.</li>
+</ul>
+<h3 id="parameters">Parameters</h3>
+<ul>
+<li><strong>outcome</strong>: The <code>ApplyOutcome</code> returned by the cell's <code>apply</code> method.</li>
+</ul>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Pattern Matching</strong>: This uses a Dart 3 <code>switch</code> expression to ensure
+every outcome type is handled. If the core framework adds a new type
+of outcome, the compiler will require this method to be updated.</li>
+<li><strong>Authoritative Identity</strong>: The resulting string is used as the
+<code>type</code> for the outgoing <code>Pulse</code>. This allows the receiver to trace
+the <strong>Command Journey</strong> back to its internal result.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final outcome = await myCell.apply(myCommand);
+final signalType = SkinPulseTypes.restResponseType(outcome);
+
+// Returns: "rest.apply.response.rejected"
+print(signalType);
+</code></pre>
 </section>
 
 

@@ -62,8 +62,10 @@
     </section>
     
 <section class="desc markdown">
-  <p>State-change pulses for this cell (<code>skin.egress.&lt;cellId&gt;</code> carrying
-<a href="../../cell_skin/WireStateChange-class.html">WireStateChange</a>).</p>
+  <p>Subscribes to the remote cell's <strong>External Echo</strong>.</p>
+<p>Returns a stream of <a href="../../cell_skin/WireStateChange-class.html">WireStateChange</a> or <a href="../../cell_skin/WireNotification-class.html">WireNotification</a> signals
+emitted by the remote cell as it undergoes transitions in its
+local somatic graph.</p>
 </section>
 
 

@@ -1,0 +1,8 @@
+{
+  "wire": "1",
+  "kind": "notification",
+  "method": "notify",
+  "params": {
+    "a": 1
+  }
+}

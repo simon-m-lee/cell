@@ -41,6 +41,11 @@ void main() {
     expect(await f.ledger.lastSeq, 0);
     final entries = await f.ledger.entriesSince(0).toList();
     expect(entries.single.receipt.ledgerSeq, 0);
+    // One receipt: the row's receipt id is the apply receipt's id, and
+    // the live receipt's ledgerSeq is deliberately still null (the
+    // store's copy is the one the framework back-fills).
+    expect(entries.single.receipt.id, receipt.id);
+    expect(receipt.ledgerSeq, isNull);
 
     await f.membrane.close();
     await f.ledger.close();

@@ -55,8 +55,50 @@
 
     
 <section class="desc markdown">
-  <p>The JSON read model of an <code>ApplyOutcome</code>: what the remote side can
-know without the live graph.</p>
+  <p>The wire-safe JSON read model of a cell's application result.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/WireOutcome-class.html">WireOutcome</a> is the <strong>Skin Form</strong>
+of the <strong>Forensic Receipt</strong>. While the internal framework uses
+<code>ApplyOutcome</code> to handle live objects and functions, this class represents
+the sanitized version that is safe to transmit across the <strong>Skin Membrane</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Remote Inspection</strong>: Use this on the client side (AI agent, web app)
+to verify the result of a <strong>Command Journey</strong>.</li>
+<li><strong>Serialization Boundary</strong>: The primary structure used when converting
+a <strong>Somatic State Transition</strong> result into a JSON payload.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Sanitization</strong>: During encoding, the system checks if the result or
+reason can be encoded as JSON.</li>
+<li><strong>Omission Guard</strong>: If a value is not serializable, it is replaced with
+a placeholder to prevent a transport failure (a "Forensic Hole"), and
+the corresponding <code>omitted</code> flag is set to <code>true</code>.</li>
+<li><strong>Forensic Integrity</strong>: The <a href="../cell_skin/WireOutcome/receipt.html">receipt</a> field carries the technical
+metadata (sequence, timestamp) required to anchor the result in the
+<strong>Forensic Ledger</strong>.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Read-Only</strong>: This is a "honest" JSON model. It does not attempt to
+reconstruct live Dart functions or cell references, as those cannot
+physically survive the trip across the wire.</li>
+<li><strong>Authoritative Outcome</strong>: The <a href="../cell_skin/WireOutcome/kind.html">kind</a> property acts as the <strong>Signal Tag</strong>,
+telling the receiver if the transition was <code>accepted</code>, <code>rejected</code>
+(by an <strong>Integrity Gate</strong>), or <code>staged</code>.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><code>ApplyOutcome</code>: The live, internal version of this result.</li>
+<li><a href="../cell_skin/WireReceipt-class.html">WireReceipt</a>: The detailed forensic metadata attached to this outcome.</li>
+<li><a href="../cell_skin/wireOutcomeJson.html">wireOutcomeJson</a>: The utility that performs the sanitization and encoding.</li>
+</ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — this is the result of your tool call.
+<strong>Integrity:</strong> Check <code>resultOmitted</code> or <code>reasonOmitted</code> if a value looks
+like a placeholder string.
+<strong>Validation:</strong> If <code>kind</code> is <code>rejected</code>, the transition did not occur in
+the <strong>Forensic Ledger</strong>.</p>
 </section>
 
 
@@ -69,14 +111,14 @@ know without the live graph.</p>
           <span class="name"><a href="../cell_skin/WireOutcome/WireOutcome.html">WireOutcome</a></span><span class="signature">({<span class="parameter" id="-param-kind"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">kind</span>, </span><span class="parameter" id="-param-result"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">result</span>, </span><span class="parameter" id="-param-reason"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">reason</span>, </span><span class="parameter" id="-param-receipt"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">receipt</span>, </span><span class="parameter" id="-param-resultOmitted"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">resultOmitted</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-reasonOmitted"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reasonOmitted</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-argumentsOmitted"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">argumentsOmitted</span> = <span class="default-value">false</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates a new <a href="../cell_skin/WireOutcome-class.html">WireOutcome</a> envelope.
             <div class="constructor-modifier features">const</div>
         </dd>
         <dt id="WireOutcome.fromJson" class="callable">
           <span class="name"><a href="../cell_skin/WireOutcome/WireOutcome.fromJson.html">WireOutcome.fromJson</a></span><span class="signature">(<span class="parameter" id="fromJson-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">json</span></span>)</span>
         </dt>
         <dd>
-          
+          Decodes the <strong>Skin Form</strong> back into a <a href="../cell_skin/WireOutcome-class.html">WireOutcome</a> model.
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
@@ -94,7 +136,7 @@ know without the live graph.</p>
 
 </dt>
 <dd>
-  Whether a receipt argument was replaced by a placeholder.
+  Whether one or more arguments in the receipt were replaced by placeholders.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -118,7 +160,7 @@ know without the live graph.</p>
 
 </dt>
 <dd>
-  <code>accepted</code>, <code>rejected</code>, or <code>staged</code>.
+  The specific status of the transition.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -130,7 +172,7 @@ know without the live graph.</p>
 
 </dt>
 <dd>
-  The rejection reason, when the outcome was rejected.
+  The explanation for why a transition was denied.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -142,7 +184,7 @@ know without the live graph.</p>
 
 </dt>
 <dd>
-  Whether <a href="../cell_skin/WireOutcome/reason.html">reason</a> was replaced by a placeholder during encoding.
+  Whether the rejection reason was replaced by a placeholder during encoding.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -154,7 +196,7 @@ know without the live graph.</p>
 
 </dt>
 <dd>
-  The receipt JSON (<code>wire_receipt.dart</code> shape).
+  The technical metadata for the transition.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -166,7 +208,7 @@ know without the live graph.</p>
 
 </dt>
 <dd>
-  The result payload of an accepted outcome, when JSON-serialisable.
+  The resulting value produced by the cell.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -178,7 +220,7 @@ know without the live graph.</p>
 
 </dt>
 <dd>
-  Whether <a href="../cell_skin/WireOutcome/result.html">result</a> was replaced by a placeholder during encoding.
+  Whether the result was too complex for JSON and was replaced by a placeholder.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -225,7 +267,7 @@ know without the live graph.</p>
 
 </dt>
 <dd>
-  
+  Converts the outcome into its <strong>Skin Form</strong> for transport.
   
 
 </dd>

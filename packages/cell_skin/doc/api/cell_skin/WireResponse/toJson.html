@@ -67,8 +67,47 @@
     </section>
     
 <section class="desc markdown">
-  <p>JSON-serialisable wire form. Payloads stay JSON-safe; the pulse's
-metadata travels on the pulse, not inside this map.</p>
+  <p>Converts the response into a JSON-safe map for transport.</p>
+<p>In the framework's biological metaphor, this method creates the
+<strong>Skin Form</strong> of the response. It applies the final <strong>Forensic Stamp</strong>
+to the envelope, proving that a <strong>Command Journey</strong> has successfully
+returned to the <strong>Skin Membrane</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Egress</strong>: Use this when a server, MCP host, or bridge needs to
+serialize a result to send it over the wire to a client.</li>
+<li><strong>Persistence</strong>: Used to store a snapshot of a response in a
+transport-level log.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Labeling</strong>: It includes the <a href="../../cell_skin/WireResponse/kind.html">kind</a> ('response') so the
+receiver knows how to decode the envelope.</li>
+<li><strong>Causal Mapping</strong>: It embeds the <a href="../../cell_skin/WireResponse/correlationId.html">correlationId</a> to ensure the
+<strong>Forensic Receipt</strong> can be matched to the original request.</li>
+<li><strong>Outcome Encoding</strong>: It converts the internal <code>ApplyOutcome</code> into
+a simplified JSON structure via <code>wireOutcomeJson</code>.</li>
+<li><strong>Status Flagging</strong>: It marks whether the result is a finalized
+ledger entry or a <a href="../../cell_skin/WireResponse/pendingReceipt.html">pendingReceipt</a>.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Serialization Guard</strong>: If a live <a href="../../cell_skin/WireResponse/outcome.html">outcome</a> object exists, it is
+transformed into a wire-safe format. If the object was already
+decoded from JSON, <a href="../../cell_skin/WireResponse/outcomeJson.html">outcomeJson</a> is used instead to avoid
+double-encoding.</li>
+<li><strong>Echo Preservation</strong>: The <a href="../../cell_skin/WireResponse/clientCorrelationId.html">clientCorrelationId</a> (the <strong>External Echo</strong>)
+is included exactly as it was received in the request, ensuring the
+caller can recognize their own signal.</li>
+<li><strong>Authoritative Identity</strong>: The resulting map is the only version of
+the response that is legal to transmit across the system membrane.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireResponse/WireResponse.fromJson.html">WireResponse.fromJson</a>: The reverse process for decoding signals.</li>
+<li><a href="../../cell_skin/wireOutcomeJson.html">wireOutcomeJson</a>: The utility that prepares the forensic result
+for the wire.</li>
+</ul>
 </section>
 
 

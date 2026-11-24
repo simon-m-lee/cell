@@ -63,7 +63,43 @@
     </section>
     
 <section class="desc markdown">
-  <p>Resource specs for every exposed cell.</p>
+  <p>Translates a <a href="../cell_skin/SkinManifest-class.html">SkinManifest</a> into neutral resource specs for AI observation.</p>
+<p>In the framework's biological metaphor, this function performs <strong>Somatic
+Map Assembly</strong>. It converts the <strong>Somatic Index</strong> (the manifest) into a
+catalog of <strong>Somatic Map Segments</strong> (<a href="../cell_skin/McpResourceSpec-class.html">McpResourceSpec</a>) that an external
+AI agent can use to locate and inspect the state of the graph.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Discovery</strong>: The primary logic used by an <a href="../cell_skin/McpAdapter-class.html">McpAdapter</a> to fulfill a
+<strong>Discovery Impulse</strong> (e.g., an MCP <code>resources/list</code> request), telling
+the agent where it can find observational data.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Index Resolution</strong>: It iterates through every cell recorded in the
+manifest's "DNA."</li>
+<li><strong>Address Generation</strong>: It constructs a stable <strong>Somatic Address</strong>
+(URI) for each cell, typically using the <code>cell://graph/&lt;cellId&gt;</code> scheme.</li>
+<li><strong>Segment Creation</strong>: It bundles the cell ID and URI into a
+<a href="../cell_skin/McpResourceSpec-class.html">McpResourceSpec</a> for transport across the <strong>Skin Membrane</strong>.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Passive Observation</strong>: Unlike tool specs, which trigger <strong>Command
+Journeys</strong>, the resources generated here are strictly for observation.
+Reading these URIs does not trigger a <strong>Somatic State Transition</strong> and
+leaves no entry in the <strong>Forensic Ledger</strong>.</li>
+<li><strong>Granularity</strong>: This function currently generates one resource per
+cell. It does not yet map internal cell sub-paths or specific
+historical ledger ranges unless they are explicitly defined as
+exposed cells in the manifest.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/McpResourceSpec-class.html">McpResourceSpec</a>: The descriptor being generated.</li>
+<li><a href="../cell_skin/SkinManifest-class.html">SkinManifest</a>: The somatic index being translated.</li>
+<li><a href="../cell_skin/mcpToolSpecs.html">mcpToolSpecs</a>: The counterpart for mapping interactable functions.</li>
+</ul>
 </section>
 
 
@@ -71,9 +107,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">List&lt;McpResourceSpec&gt; mcpResourceSpecs(SkinManifest manifest) =&gt; [
-      for (final cell in manifest.cells)
-        McpResourceSpec(name: cell.cellId, uri: &#39;cell:&#47;&#47;graph&#47;${cell.cellId}&#39;),
-    ];</code></pre>
+  for (final cell in manifest.cells)
+    McpResourceSpec(name: cell.cellId, uri: &#39;cell:&#47;&#47;graph&#47;${cell.cellId}&#39;),
+];</code></pre>
 </section>
 
 

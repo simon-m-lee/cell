@@ -10,6 +10,7 @@
 library;
 
 import 'package:cell/cell.dart';
+import 'package:cell_skin/cell_skin.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:echo_home/models/agent_event.dart';
@@ -42,10 +43,13 @@ void main() {
     final entries = await home.ledger.entriesSince(0).toList();
     expect(entries, hasLength(3)); // setTarget + the tx pair
     expect(entries[0].receipt.cell.id, 'home.living.thermostat');
+    // The stored receipt carries the row's own sequence.
+    expect(entries[0].receipt.ledgerSeq, entries[0].seq);
 
     // 3. Batching — one wire call, two entries, both or neither.
     expect(entries[1].receipt.cell.id, 'home.living.light');
     expect(entries[2].receipt.cell.id, 'home.living.light.color');
+    expect(entries[2].receipt.ledgerSeq, entries[2].seq);
     expect(home.light.cell.value, 0.5);
     expect(home.lightColor.cell.value, '#FDB813');
 
@@ -82,6 +86,22 @@ void main() {
     final unlocked = await home.graph
         .run(() => home.client.apply('home.front.door', 'unlock'));
     expect(unlocked, isA<ApplyAccepted<Object?>>());
+
+    await home.close();
+  });
+
+  test('the Echo Home manifest round-trips through mcpToolSpecs', () async {
+    final home = MockHome();
+    await home.build();
+
+    final specs = mcpToolSpecs(home.membrane.manifest);
+    expect(specs, isNotEmpty);
+    for (final spec in specs) {
+      final call = resolveMcpToolCall(home.membrane.manifest, spec.name);
+      expect(call, isNotNull, reason: spec.name);
+      expect(call!.cellId, spec.cellId);
+      expect(call.functionName, spec.functionName);
+    }
 
     await home.close();
   });

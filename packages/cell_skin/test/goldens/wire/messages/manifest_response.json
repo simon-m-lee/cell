@@ -1,0 +1,20 @@
+{
+  "wire": "1",
+  "kind": "manifestResponse",
+  "manifest": {
+    "cells": [
+      {
+        "cellId": "a",
+        "description": "a cell",
+        "functions": [
+          {
+            "name": "set",
+            "argumentSchema": {},
+            "strictCursor": false
+          }
+        ]
+      }
+    ]
+  },
+  "correlationId": "m-1"
+}

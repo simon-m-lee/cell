@@ -62,10 +62,42 @@
       </section>
       
 <section class="desc markdown">
-  <p>The server-assigned correlation id. <a href="../../cell_skin/SkinMembrane/request.html">SkinMembrane.request</a> matches
-responses on this id; transports generate it themselves and carry
-the client-chosen id in <a href="../../cell_skin/WireRequest/clientCorrelationId.html">clientCorrelationId</a>, so a client can
-never hijack another client's pending response.</p>
+  <p>The unique ID used to track a specific request through the system.</p>
+<p>In the framework's biological metaphor, this is the <strong>Causal Link</strong>.
+It acts as a unique tag on the <strong>Nervous Signal</strong> so that when a
+<strong>Forensic Receipt</strong> (the response) is generated, the system knows
+exactly which request it belongs to.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Response Matching</strong>: Always required for requests so the
+<a href="../../cell_skin/SkinMembrane-class.html">SkinMembrane</a> can deliver the result back to the correct caller.</li>
+<li><strong>Security</strong>: Used by transport layers to ensure that one client
+cannot "hijack" or see the response meant for another client.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Tagging</strong>: When a message hits the <strong>Skin Membrane</strong>, the
+transport layer assigns this ID.</li>
+<li><strong>Audit Tracking</strong>: This ID travels with the signal throughout its
+entire <strong>Command Journey</strong>.</li>
+<li><strong>Ledger Pairing</strong>: The <code>Forensic Ledger</code> uses this ID to pair the
+initial request with the final <code>ApplyOutcome</code>.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Authoritative Identity</strong>: This ID is assigned by the server or
+transport layer, not the client. Even if a client provides their
+own ID (<a href="../../cell_skin/WireRequest/clientCorrelationId.html">clientCorrelationId</a>), this <code>correlationId</code> remains the
+"Source of Truth" for internal tracking.</li>
+<li><strong>Persistence</strong>: This ID is physically written into the
+<strong>Forensic Ledger</strong>, allowing you to trace a state change back
+to the specific network request that caused it.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireRequest/clientCorrelationId.html">WireRequest.clientCorrelationId</a>: The ID chosen by the caller.</li>
+<li><a href="../../cell_skin/WireResponse/correlationId.html">WireResponse.correlationId</a>: The matching ID in the response.</li>
+</ul>
 </section>
 
       

@@ -59,10 +59,43 @@
     </section>
     
 <section class="desc markdown">
-  <p>Decodes a <a href="../../cell_skin/WireResponse-class.html">WireResponse</a> encoded by <a href="../../cell_skin/WireResponse/toJson.html">toJson</a>.</p>
-<p>A decoded response carries the JSON outcome under <a href="../../cell_skin/WireResponse/outcomeJson.html">outcomeJson</a> —
-a live <code>ApplyOutcome</code> cannot be reconstructed without the live
-target cell. <a href="../../cell_skin/WireResponse/outcome.html">outcome</a> is therefore <code>null</code> after decoding.</p>
+  <p>Decodes a raw JSON map into a <a href="../../cell_skin/WireResponse-class.html">WireResponse</a> envelope.</p>
+<p>In the framework's biological metaphor, this factory acts as the
+<strong>Signal Decoder</strong> at the <strong>Skin Membrane</strong>. It takes the raw
+<strong>Forensic Stamp</strong> received from the wire and translates it into a
+format the local system can read.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Egress Processing</strong>: Use this when a client (AI agent, web app, or
+Dart client) receives a result from a remote cell.</li>
+<li><strong>Testing</strong>: Use this to verify that a serialized response matches
+the expected forensic output.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Causal Mapping</strong>: It extracts the <a href="../../cell_skin/WireResponse/correlationId.html">correlationId</a> to ensure the
+receipt can be matched to the original impulse.</li>
+<li><strong>Outcome Translation</strong>: It converts the JSON payload into a
+<a href="../../cell_skin/WireOutcome-class.html">WireOutcome</a>.</li>
+<li><strong>Live Guard</strong>: Because a live <code>ApplyOutcome</code> cannot survive the
+trip across the wire, the <a href="../../cell_skin/WireResponse/outcome.html">outcome</a> property is left <code>null</code>.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Holes</strong>: If the incoming JSON lacks a result and is not
+marked as <a href="../../cell_skin/WireResponse/pendingReceipt.html">pendingReceipt</a>, this factory will produce an object
+that fails the internal <strong>Integrity Guard</strong> assertion.</li>
+<li><strong>Somatic Snapshots</strong>: If the response was sent while a ledger write
+was in flight, <a href="../../cell_skin/WireResponse/receiptJson.html">receiptJson</a> is captured to provide the last
+known state of the cell's "DNA".</li>
+<li><strong>Type Safety</strong>: It strictly casts positional and named argument
+maps to ensure the <strong>Command Journey</strong> data remains stable.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireResponse/toJson.html">WireResponse.toJson</a>: The reverse process for sending receipts.</li>
+<li><a href="../../cell_skin/WireOutcome/WireOutcome.fromJson.html">WireOutcome.fromJson</a>: How the result data itself is decoded.</li>
+</ul>
 </section>
 
 

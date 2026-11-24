@@ -55,10 +55,47 @@
 
     
 <section class="desc markdown">
-  <p>Thrown for a malformed wire argument envelope (positional keys that
-are not a contiguous <code>0..n-1</code> range, or invalid named argument
-identifiers). The router maps it to a <code>bad_arguments</code> <a href="../cell_skin/WireError-class.html">WireError</a>
-before the target's apply ever runs.</p>
+  <p>An exception thrown when a <strong>Nervous Signal</strong> contains a malformed <strong>Skin Payload</strong>.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/BadArgumentsException-class.html">BadArgumentsException</a> represents a
+<strong>Membrane Rejection</strong> triggered by structural inconsistencies in the
+incoming data. It occurs at the <strong>Skin Membrane</strong> before a
+<strong>Command Journey</strong> can be initiated.</p>
+<p>Because this exception is caught during the transformation of the
+<a href="../cell_skin/WireRequest-class.html">WireRequest</a> into an <code>ApplyCommand</code>, no <strong>Somatic State Transition</strong>
+is attempted, and no <strong>Forensic Receipt</strong> is generated in the
+<strong>Forensic Ledger</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Structural Violations</strong>: Automatically thrown by <a href="../cell_skin/SkinBinding-class.html">SkinBinding</a> when
+positional argument keys are not a contiguous <code>0..n-1</code> range.</li>
+<li><strong>Identifier Violations</strong>: Thrown when named argument keys fail basic
+Dart identifier validation (e.g., containing dots or invalid characters).</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Ingress</strong>: A <a href="../cell_skin/WireRequest-class.html">WireRequest</a> arrives at the membrane.</li>
+<li><strong>Payload Analysis</strong>: The <a href="../cell_skin/SkinBinding-class.html">SkinBinding</a> attempts to decode the
+positional and named arguments into their internal somatic forms.</li>
+<li><strong>Gate Failure</strong>: If the keys are malformed or non-contiguous, this
+exception is raised.</li>
+<li><strong>Rejection</strong>: The <a href="../cell_skin/SkinRouter-class.html">SkinRouter</a> catches the exception and returns
+a <code>bad_arguments</code> <a href="../cell_skin/WireError-class.html">WireError</a> to the caller.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Omission</strong>: This failure is a membrane-level event. Since
+the pulse never reached the target cell's <code>apply</code> logic, it leaves a
+"Forensic Hole" where the caller sees a failure but the ledger
+remains silent.</li>
+<li><strong>Pre-Gate Validation</strong>: This check happens <em>before</em> any
+<a href="../cell_skin/JsonSchema-class.html">JsonSchema</a> validation or cell-specific <strong>Integrity Gate</strong> logic.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/WireError-class.html">WireError</a>: The envelope returned when this exception occurs.</li>
+<li><a href="../cell_skin/SkinBinding/toApplyCommand.html">SkinBinding.toApplyCommand</a>: The method responsible for triggering
+this validation.</li>
+</ul>
 </section>
 
 

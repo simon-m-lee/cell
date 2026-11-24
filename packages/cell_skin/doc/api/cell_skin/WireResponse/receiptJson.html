@@ -62,8 +62,43 @@
       </section>
       
 <section class="desc markdown">
-  <p>Best-effort last-known receipt JSON while <a href="../../cell_skin/WireResponse/pendingReceipt.html">pendingReceipt</a> is
-<code>true</code>; <code>null</code> when no receipt has been seen for this cell at all.</p>
+  <p>A snapshot of the last known state of the ledger receipt for this cell.</p>
+<p>In the framework's biological metaphor, this is the <strong>Somatic Snapshot</strong>.
+It provides a "best-effort" look at the cell's physical standing while the
+official <strong>Forensic Receipt</strong> is still being written to the ledger.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Pending Feedback</strong>: Use this when <a href="../../cell_skin/WireResponse/pendingReceipt.html">pendingReceipt</a> is <code>true</code> to
+provide the caller with immediate, albeit unconfirmed, state data.</li>
+<li><strong>Synchronization</strong>: Helpful for clients to determine if they need to
+re-fetch the full state after a <strong>Command Journey</strong> completes.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Capture</strong>: If a receipt is available (even if it belongs to a
+previous change or is currently being staged), it is serialized
+into this map.</li>
+<li><strong>Verification</strong>: Once the ledger write is final, the authoritative
+<a href="../../cell_skin/WireLedgerEntry-class.html">WireLedgerEntry</a> will contain the verified version of this data.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Nullability</strong>: This field is <code>null</code> if no receipt has ever been
+seen for the target cell (e.g., a brand new cell that has never
+been physically committed).</li>
+<li><strong>Unconfirmed Data</strong>: When <a href="../../cell_skin/WireResponse/pendingReceipt.html">pendingReceipt</a> is <code>true</code>, the data here
+is not yet legally part of the <strong>Forensic Ledger</strong>. It should be
+treated as a "guess" until the ledger sequence is assigned.</li>
+<li><strong>Stale State</strong>: In rare race conditions, this could reflect a
+state slightly older than the current impulse if the somatic
+anchoring hasn't updated yet.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireResponse/pendingReceipt.html">WireResponse.pendingReceipt</a>: The flag indicating if this snapshot
+is still unconfirmed.</li>
+<li><a href="../../cell_skin/WireReceipt-class.html">WireReceipt</a>: The internal structure represented by this JSON map.</li>
+</ul>
 </section>
 
       

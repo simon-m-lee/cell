@@ -51,29 +51,52 @@
 <h1><span class="kind-class">WireRequest</span> class 
     <a href="https://dart.dev/language/class-modifiers#final" class="feature feature-final" title="This class can neither be extended, implemented, nor mixed in.">final</a>
  
-    <span class="category howto-·-wire-messages cp-4 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
-    <span class="category howto-·-idempotency cp-7 linked" title="This is part of the HowTo · Idempotency topic."><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></span>
+    <span class="category howto-·-wire-messages cp-3 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
+    <span class="category howto-·-idempotency cp-6 linked" title="This is part of the HowTo · Idempotency topic."><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></span>
 </h1></div>
 
     
 <section class="desc markdown">
-  <p>An inbound call: invoke <a href="../cell_skin/WireRequest/function.html">function</a> on the cell named <a href="../cell_skin/WireRequest/cellId.html">cellId</a>.</p>
+  <p>An envelope for an incoming command sent from the outside world into the system.///
+In the framework's biological metaphor, <a href="../cell_skin/WireRequest-class.html">WireRequest</a> is a <strong>Nervous Signal</strong>
+that has just touched the <strong>Skin Membrane</strong>. It carries the instructions
+needed to start a <code>Command Journey</code> inside the reactive graph.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
-<li>Every command that crosses the skin — REST <code>POST /skin/apply</code>,
-an MCP tool call, or a Dart client's <code>apply</code>.</li>
+<li><strong>External Commands</strong>: Use this when a tool (like MCP), a web client (REST),
+or a remote server wants to trigger an action in a cell.</li>
+<li><strong>Skin Adapters</strong>: Use this as the standard data format for any transport
+layer you build.</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
-<p>The router serialises requests (<code>concurrency: 1</code>), validates the
-argument envelope and declared schema, and calls <code>target.apply</code>.
-<a href="../cell_skin/WireRequest/correlationId.html">correlationId</a> is <strong>server-assigned</strong>; <a href="../cell_skin/WireRequest/clientCorrelationId.html">clientCorrelationId</a> is
-the caller's echo-only id.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<p>Positional arguments are an index-keyed map (<code>'0'..'n-1'</code>,
-contiguous) so JSON object ordering can never matter; transports
-may accept a plain JSON array and index it.</p>
-<h3 id="see-also">See also</h3>
-<p><a href="../cell_skin/SkinBinding-class.html">SkinBinding</a>, <a href="../cell_skin/SkinMembrane/request.html">SkinMembrane.request</a>.</p>
+<ol>
+<li><strong>Ingress</strong>: The request arrives at the system membrane with a <a href="../cell_skin/WireRequest/cellId.html">cellId</a>
+and a <a href="../cell_skin/WireRequest/function.html">function</a> name.</li>
+<li><strong>Correlation</strong>: The system assigns a <a href="../cell_skin/WireRequest/correlationId.html">correlationId</a> to track the
+signal's journey through the <strong>Forensic Ledger</strong>.</li>
+<li><strong>Conversion</strong>: The system turns this envelope into an internal command
+record and sends it to the target cell's <strong>Integrity Gate</strong>.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>JSON Argument Stability</strong>: Positional arguments are stored as a map
+of index strings (e.g., <code>{"0": value}</code>) rather than a list. This ensures
+that JSON parsers do not accidentally reorder your data.</li>
+<li><strong>Strict Correlation</strong>: The <a href="../cell_skin/WireRequest/correlationId.html">correlationId</a> is the "Source of Truth"
+for the ledger. Even if a client provides their own ID, the server-assigned
+ID is what determines the official <strong>Forensic Receipt</strong>.</li>
+<li><strong>Stateless Cursors</strong>: The <a href="../cell_skin/WireRequest/lastSeenSeq.html">lastSeenSeq</a> allows a client to say "I only
+want to run this if my view of the data is up to date."</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final request = WireRequest(
+  cellId: 'home.thermostat',
+  function: 'setTemperature',
+  positional: {'0': 22},
+  correlationId: 'srv-tx-777',
+  clientCorrelationId: 'my-local-req-1',
+);
+</code></pre>
 <h3 id="ai-agent-guide">AI Agent Guide</h3>
 <p><strong>Layer:</strong> Skin — this is a command envelope, not a graph node.
 <strong>When to use:</strong> sending a command at a bound <code>(cellId, function)</code> over any transport.
@@ -92,6 +115,13 @@ may accept a plain JSON array and index it.</p>
   clientCorrelationId: 'client-1',
 );
 </code></pre>
+<p>See also:</p>
+<ul>
+<li><a href="../cell_skin/WireMessage-class.html">WireMessage</a>: The base class for all signals crossing the membrane.</li>
+<li><a href="../cell_skin/WireResponse-class.html">WireResponse</a>: The envelope for the result of this request.</li>
+<li><a href="guide/HowTo-Cell.apply.md">guide/HowTo-Cell.apply.md</a>: For the
+complete "Command Journey" context.</li>
+</ul>
 </section>
 
 
@@ -126,14 +156,14 @@ may accept a plain JSON array and index it.</p>
           <span class="name"><a href="../cell_skin/WireRequest/WireRequest.html">WireRequest</a></span><span class="signature">({<span class="parameter" id="-param-cellId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">cellId</span>, </span><span class="parameter" id="-param-function"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">function</span>, </span><span class="parameter" id="-param-positional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">positional</span>, </span><span class="parameter" id="-param-named"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">named</span>, </span><span class="parameter" id="-param-correlationId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">correlationId</span>, </span><span class="parameter" id="-param-clientCorrelationId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">clientCorrelationId</span>, </span><span class="parameter" id="-param-lastSeenSeq"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">lastSeenSeq</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates a new <a href="../cell_skin/WireRequest-class.html">WireRequest</a> envelope to carry a signal into the system.
             <div class="constructor-modifier features">const</div>
         </dd>
         <dt id="WireRequest.fromJson" class="callable">
           <span class="name"><a href="../cell_skin/WireRequest/WireRequest.fromJson.html">WireRequest.fromJson</a></span><span class="signature">(<span class="parameter" id="fromJson-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">json</span></span>)</span>
         </dt>
         <dd>
-          Decodes a <a href="../cell_skin/WireRequest-class.html">WireRequest</a> encoded by <a href="../cell_skin/WireRequest/toJson.html">toJson</a>.
+          Decodes a raw JSON map into a <a href="../cell_skin/WireRequest-class.html">WireRequest</a> envelope.
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
@@ -151,7 +181,7 @@ may accept a plain JSON array and index it.</p>
 
 </dt>
 <dd>
-  The registered graph name of the target cell.
+  The unique name of the cell that this request is trying to reach.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -163,8 +193,7 @@ may accept a plain JSON array and index it.</p>
 
 </dt>
 <dd>
-  The client-chosen correlation id, echoed back verbatim — matching
-is <strong>never</strong> performed on this field.
+  An optional ID provided by the caller to identify the response on their end.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -176,10 +205,7 @@ is <strong>never</strong> performed on this field.
 
 </dt>
 <dd>
-  The server-assigned correlation id. <a href="../cell_skin/SkinMembrane/request.html">SkinMembrane.request</a> matches
-responses on this id; transports generate it themselves and carry
-the client-chosen id in <a href="../cell_skin/WireRequest/clientCorrelationId.html">clientCorrelationId</a>, so a client can
-never hijack another client's pending response.
+  The unique ID used to track a specific request through the system.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -191,7 +217,7 @@ never hijack another client's pending response.
 
 </dt>
 <dd>
-  The exposed function name inside <a href="../cell_skin/WireRequest/cellId.html">cellId</a>'s binding set.
+  The name of the action or update to perform on the target cell.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -215,7 +241,7 @@ never hijack another client's pending response.
 
 </dt>
 <dd>
-  The stable discriminator used by <a href="../cell_skin/WireMessage/WireMessage.fromJson.html">WireMessage.fromJson</a>.
+  The stable identifier used to distinguish this message type on the wire.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -227,8 +253,7 @@ never hijack another client's pending response.
 
 </dt>
 <dd>
-  Stateless-cursor field: the caller's last seen ledger sequence.
-Required (non-null) for bindings that advertise <code>strictCursor</code>.
+  The sequence number of the last entry the caller saw in the <strong>Forensic Ledger</strong>.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -240,7 +265,7 @@ Required (non-null) for bindings that advertise <code>strictCursor</code>.
 
 </dt>
 <dd>
-  JSON-decoded named arguments, or <code>null</code> when none were sent.
+  The data passed by name, allowing for tagged arguments.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -252,7 +277,7 @@ Required (non-null) for bindings that advertise <code>strictCursor</code>.
 
 </dt>
 <dd>
-  JSON-decoded positional arguments, or <code>null</code> when none were sent.
+  The data passed by position, stored as a string-keyed map for JSON safety.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -299,8 +324,7 @@ Required (non-null) for bindings that advertise <code>strictCursor</code>.
 
 </dt>
 <dd>
-  JSON-serialisable wire form. Payloads stay JSON-safe; the pulse's
-metadata travels on the pulse, not inside this map.
+  Converts the message into a JSON-safe map.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

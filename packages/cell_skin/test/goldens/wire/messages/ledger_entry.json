@@ -1,0 +1,24 @@
+{
+  "wire": "1",
+  "kind": "ledgerEntry",
+  "entry": {
+    "seq": 0,
+    "prevHash": "g",
+    "hash": "h",
+    "pulseDigest": "p",
+    "receipt": {
+      "id": "r",
+      "cell": "a",
+      "function": "f",
+      "arguments": {
+        "positional": null,
+        "named": null
+      },
+      "timestamp": "2026-11-22T00:00:00.000Z",
+      "vetted": true
+    },
+    "effects": [],
+    "deltas": [],
+    "at": "2026-11-22T00:00:00.000Z"
+  }
+}

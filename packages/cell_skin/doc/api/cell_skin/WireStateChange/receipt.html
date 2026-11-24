@@ -62,9 +62,44 @@
       </section>
       
 <section class="desc markdown">
-  <p>The last known receipt for <a href="../../cell_skin/WireStateChange/cellId.html">cellId</a>, when the ledger has recorded
-one. It may belong to an <em>earlier</em> change while <a href="../../cell_skin/WireStateChange/pendingReceipt.html">pendingReceipt</a>
-is <code>true</code>; it is never fabricated.</p>
+  <p>The forensic evidence for the state change, if available.</p>
+<p>In the framework's biological metaphor, this is the <strong>Forensic Receipt</strong>.
+It provides the official proof from the <strong>Forensic Ledger</strong> that a
+<strong>Somatic State Transition</strong> has been physically recorded in the
+system's "DNA."</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Verification</strong>: Use this to confirm the sequence number, timestamp,
+and authoritative signature of the cell's physical state.</li>
+<li><strong>Audit Trails</strong>: Essential for AI agents or external systems that
+need to maintain a perfect, chronological record of the system's evolution.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Capture</strong>: When a change is committed to the permanent ledger, a
+receipt is generated.</li>
+<li><strong>Broadcasting</strong>: This receipt is attached to the <a href="../../cell_skin/WireStateChange-class.html">WireStateChange</a>
+<strong>Nervous Impulse</strong> to serve as proof for all observers.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Pending States</strong>: If <a href="../../cell_skin/WireStateChange/pendingReceipt.html">pendingReceipt</a> is <code>true</code>, this receipt usually
+represents the <em>previous</em> known transition. It is included to provide
+the last known authoritative context while the new impulse is still
+being ledgered.</li>
+<li><strong>Never Fabricated</strong>: The system never creates "fake" receipts. If
+the ledger has never recorded a change for this cell (e.g., in a
+volatile system), this field will be <code>null</code>.</li>
+<li><strong>Sequence Authority</strong>: The sequence number inside this receipt is
+the only legal way to determine the global order of events across
+the entire somatic graph.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireStateChange/pendingReceipt.html">WireStateChange.pendingReceipt</a>: The flag indicating if the current
+impulse is still waiting for its own receipt.</li>
+<li><a href="../../cell_skin/WireReceipt-class.html">WireReceipt</a>: The detailed structure of the forensic evidence.</li>
+</ul>
 </section>
 
       

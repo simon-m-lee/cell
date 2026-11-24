@@ -72,42 +72,84 @@
     </section>
     
 <section class="desc markdown">
-  <p>Binds the REST adapter on <code>address</code>:<code>port</code> (port <code>0</code> = ephemeral).</p>
+  <p>Binds the REST adapter to a physical network address and port.///
+In the framework's biological metaphor, this method <strong>sensitizes the pore</strong>.
+It opens a specific communication channel at the <strong>Skin Membrane</strong>, allowing
+the system to receive discovery impulses, command signals, and forensic
+audit streams via HTTP and SSE.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
-<li>Exposing the membrane over HTTP: commands, manifest, SSE
-observe/ledger, verify, health. Import it from
-<code>package:cell_skin/cell_skin_rest.dart</code> (the main barrel stays
-<code>dart:io</code>-free).</li>
+<li><strong>Production Egress</strong>: The standard way to expose a somatic graph to
+the web, mobile apps, or curl-based administrative tools.</li>
+<li><strong>Testing</strong>: Used to spin up ephemeral pores for integration testing
+of the membrane's <strong>Integrity Gates</strong>.</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
-<p>The adapter is <strong>closed by default</strong>: <code>auth</code> is required, methods
-are enforced per route, POST bodies must be JSON and bounded,
-<code>Host</code>/<code>Origin</code> are validated, and per-request <code>PulseContext</code>
-provenance flows from the <code>contextBridge</code>. Timeouts surface 504
-<code>outcome_unknown</code>; a same-id retry replays the stored outcome.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<p>SSE runs over a detached raw socket — <code>HttpResponse.done</code> does not
-complete on a silent client disconnect, <code>Socket.done</code> does, and
-the keep-alive ping bounds the detection window.</p>
+<ol>
+<li><strong>Socket Anchoring</strong>: Binds an <code>HttpServer</code> to the provided <code>address</code> and <code>port</code>.</li>
+<li><strong>Gate Configuration</strong>: Initializes the <strong>Identity Gatekeeper</strong> (<code>auth</code>)
+and the <strong>Membrane Translator</strong> (<code>contextBridge</code>).</li>
+<li><strong>Saturation Limits</strong>: Applies the <code>_maxBodyBytes</code> cap to all incoming
+<strong>Skin Payloads</strong> to prevent resource exhaustion.</li>
+<li><strong>CORS &amp; Host Validation</strong>: Configures the <strong>Membrane Filter</strong> using
+<code>allowedHosts</code> and <code>allowedOrigins</code> to prevent unauthorized stimulation.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
 <ul>
-<li><code>auth</code> — <strong>required</strong>. Pass <code>const AllowAllSkinAuth()</code> to make
-anonymous access an explicit opt-in.</li>
-<li><code>contextBridge</code> — translates the authenticated principal into
+<li><strong>Closed by Default</strong>: <code>auth</code> is mandatory. To explicitly allow anonymous
+signals, you must pass <code>const AllowAllSkinAuth()</code>.</li>
+<li><strong>Forensic Timing</strong>: The <code>requestTimeout</code> defines the window for a
+<strong>Command Journey</strong>. If exceeded, the pore returns a 504 error, but
+the state change may still complete internally (an "Observation Lag").</li>
+<li><strong>SSE Liveness</strong>: Disconnects are detected via the <code>keepAliveInterval</code>.
+A failed ping cleans up the subscription to prevent "Forensic Leaks"
+of memory in the adapter.</li>
+</ul>
+<h3 id="parameters">Parameters</h3>
+<ul>
+<li>
+<p><code>membrane</code> — The reactive organ to be exposed.</p>
+</li>
+<li>
+<p><code>auth</code> — <strong>required</strong>. Pass <code>const AllowAllSkinAuth()</code> to make
+anonymous access an explicit opt-in.</p>
+</li>
+<li>
+<p><code>contextBridge</code> — translates the authenticated principal into
 the framework <code>Context</code> stamped on every inbound pulse
 (<code>DescribeContextBridge</code> by default; <code>SystemContextBridge</code> is
-the loud opt-in to system authority).</li>
-<li><code>allowedHosts</code> — accepted <code>Host</code> header values; defaults to the
-loopback names.</li>
-<li><code>allowedOrigins</code> — accepted browser <code>Origin</code> header values.
+the loud opt-in to system authority).</p>
+</li>
+<li>
+<p><code>address</code> — The physical IP to bind (defaults to loopback).</p>
+</li>
+<li>
+<p><code>port</code> — The network port (use <code>0</code> for an ephemeral port).</p>
+</li>
+<li>
+<p><code>maxBodyBytes</code> — The saturation cap for impulses (default 1 MiB).</p>
+</li>
+<li>
+<p><code>allowedHosts</code> — accepted <code>Host</code> header values; defaults to the
+loopback names.</p>
+</li>
+<li>
+<p><code>allowedOrigins</code> — accepted browser <code>Origin</code> header values.
 Empty by default: a browser request carrying an <code>Origin</code> header
-is rejected unless its origin is listed here.</li>
-<li><code>maxBodyBytes</code> — request body cap (default 1 MiB).</li>
-<li><code>requestTimeout</code> — the membrane request timeout surfaced as 504
-<code>outcome_unknown</code> (default 30s).</li>
-<li><code>keepAliveInterval</code> — SSE ping cadence (default 15s). A silent
+is rejected unless its origin is listed here.</p>
+</li>
+<li>
+<p><code>maxBodyBytes</code> — request body cap (default 1 MiB).</p>
+</li>
+<li>
+<p><code>requestTimeout</code> — the membrane request timeout surfaced as 504
+<code>outcome_unknown</code> (default 30s).</p>
+</li>
+<li>
+<p><code>keepAliveInterval</code> — SSE ping cadence (default 15s). A silent
 client disconnect is detected by the next failed ping, which
-releases the subscription.</li>
+releases the subscription.</p>
+</li>
 </ul>
 <h3 id="see-also">See also</h3>
 <p><a href="../../cell_skin/SkinAuth-class.html">SkinAuth</a>, <a href="../../cell_skin/ContextBridge-class.html">ContextBridge</a>, <code>ARCHITECTURE-Skin.md</code> §7.</p>
@@ -132,7 +174,38 @@ releases the subscription.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Future&lt;RestAdapter&gt; bind({
+  <pre class="language-dart"><code class="language-dart">&#47;&#47;&#47; * [allowedHosts] — accepted `Host` header values; defaults to the
+&#47;&#47;&#47;   loopback names.
+&#47;&#47;&#47; * [allowedOrigins] — accepted browser `Origin` header values.
+&#47;&#47;&#47;   Empty by default: a browser request carrying an `Origin` header
+&#47;&#47;&#47;   is rejected unless its origin is listed here.
+&#47;&#47;&#47; * [maxBodyBytes] — request body cap (default 1 MiB).
+&#47;&#47;&#47; * [requestTimeout] — the membrane request timeout surfaced as 504
+&#47;&#47;&#47;   `outcome_unknown` (default 30s).
+&#47;&#47;&#47; * [keepAliveInterval] — SSE ping cadence (default 15s). A silent
+&#47;&#47;&#47;   client disconnect is detected by the next failed ping, which
+&#47;&#47;&#47;   releases the subscription.
+&#47;&#47;&#47;
+&#47;&#47;&#47; ### See also
+&#47;&#47;&#47; [SkinAuth], [ContextBridge], `ARCHITECTURE-Skin.md` §7.
+&#47;&#47;&#47;
+&#47;&#47;&#47; ### AI Agent Guide
+&#47;&#47;&#47; **Layer:** Skin — the HTTP transport on top of the membrane, not a second dispatch path.
+&#47;&#47;&#47; **When to use:** a requirement says &quot;REST endpoint for the graph&quot;, &quot;SSE stream of changes&quot;, &quot;audit log over HTTP&quot;, or &quot;curl-able manifest&quot;.
+&#47;&#47;&#47; **When NOT to use:** in-process calls (use `SkinClient`); speaking MCP (use the `McpAdapter` seam with an MCP SDK).
+&#47;&#47;&#47; **Live signature:** `static Future&lt;RestAdapter&gt; bind({required SkinMembrane membrane, required SkinAuth auth, ContextBridge contextBridge = const DescribeContextBridge(), Object? address, int port = 0, Set&lt;String&gt;? allowedHosts, Set&lt;String&gt;? allowedOrigins, int maxBodyBytes = 1048576, Duration requestTimeout = Duration(seconds: 30), Duration keepAliveInterval = Duration(seconds: 15)})` — pinned at `cell_skin: 0.1.0`
+&#47;&#47;&#47; **Do NOT confuse with:** `SkinMembrane.open` (the membrane) or `SkinAuth` (the credential check the adapter calls).
+&#47;&#47;&#47; **Guide:** `FEATURES-Skin.md` §10 (REST adapter).
+&#47;&#47;&#47; **Example:** `example&#47;lib&#47;mock&#47;rest_io.dart` (the demo&#39;s real adapter binding).
+&#47;&#47;&#47; **Cross-layer:** every request is stamped with `PulseContext(baseContext: bridge.resolve(principal), actor: &#39;skin:&lt;id&gt;&#39;)` — the domain&#39;s gates see the remote actor.
+&#47;&#47;&#47; **Minimal compilable example**
+&#47;&#47;&#47; ```dart
+&#47;&#47;&#47; final adapter = await RestAdapter.bind(
+&#47;&#47;&#47;   membrane: membrane,
+&#47;&#47;&#47;   auth: const AllowAllSkinAuth(),
+&#47;&#47;&#47; );
+&#47;&#47;&#47; ```
+static Future&lt;RestAdapter&gt; bind({
   required SkinMembrane membrane,
   required SkinAuth auth,
   ContextBridge contextBridge = const DescribeContextBridge(),

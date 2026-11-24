@@ -63,7 +63,15 @@
     </section>
     
 <section class="desc markdown">
-  <p>The canonical ledger JSON form — identical to <code>LedgerEntry.toJson</code>.</p>
+  <p>Converts a forensic record into its wire-safe <strong>Skin Form</strong>.</p>
+<p>In the framework's biological metaphor, this function stamps a
+<strong>Forensic Ledger Row</strong> for egress. It ensures that the sequence,
+timestamp, and causal metadata of a <strong>Somatic State Transition</strong> are
+preserved in a JSON-safe format.</p>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><code>LedgerEntry.toJson</code>: The underlying canonical serialization.</li>
+</ul>
 </section>
 
 

@@ -58,20 +58,23 @@
 </ol>)
     </section>
     
+<section class="desc markdown">
+  <p>Decodes the <strong>Skin Form</strong> back into a <a href="../../cell_skin/WireOutcome-class.html">WireOutcome</a> model.</p>
+</section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">factory WireOutcome.fromJson(Map&lt;String, Object?&gt; json) =&gt; WireOutcome(
-      kind: json[&#39;kind&#39;] as String,
-      result: json[&#39;result&#39;],
-      reason: json[&#39;reason&#39;],
-      receipt: (json[&#39;receipt&#39;] as Map).cast&lt;String, Object?&gt;(),
-      resultOmitted: json[&#39;resultOmitted&#39;] as bool? ?? false,
-      reasonOmitted: json[&#39;reasonOmitted&#39;] as bool? ?? false,
-      argumentsOmitted: json[&#39;argumentsOmitted&#39;] as bool? ?? false,
-    );</code></pre>
+  kind: json[&#39;kind&#39;] as String,
+  result: json[&#39;result&#39;],
+  reason: json[&#39;reason&#39;],
+  receipt: (json[&#39;receipt&#39;] as Map).cast&lt;String, Object?&gt;(),
+  resultOmitted: json[&#39;resultOmitted&#39;] as bool? ?? false,
+  reasonOmitted: json[&#39;reasonOmitted&#39;] as bool? ?? false,
+  argumentsOmitted: json[&#39;argumentsOmitted&#39;] as bool? ?? false,
+);</code></pre>
 </section>
 
 

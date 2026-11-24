@@ -55,10 +55,49 @@
 
     
 <section class="desc markdown">
-  <p>A transport-neutral MCP tool definition, translated from a
-<a href="../cell_skin/SkinFunctionDescriptor-class.html">SkinFunctionDescriptor</a>. An SDK adapter maps these 1:1 onto
-<code>dart_mcp</code>'s <code>Tool</code>, <code>mcp_dart</code>'s tool descriptors, or any other
-SDK's equivalent.</p>
+  <p>A transport-neutral definition of an interactable somatic function, formatted for AI consumption.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/McpToolSpec-class.html">McpToolSpec</a> is a <strong>Synaptic Tool Descriptor</strong>.
+It represents a specific segment of the system's "DNA" (<a href="../cell_skin/SkinFunctionDescriptor-class.html">SkinFunctionDescriptor</a>)
+that has been physically exposed at the <strong>Skin Membrane</strong> for external AI stimulation.</p>
+<p>This class acts as the bridge between the framework's internal <a href="../cell_skin/JsonSchema-class.html">JsonSchema</a>
+and the tool definitions required by Model Context Protocol (MCP) clients.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Discovery</strong>: Generated during a <strong>Discovery Impulse</strong> to populate
+the <code>tools/list</code> response for an AI agent.</li>
+<li><strong>Schema Mapping</strong>: Used by the <a href="../cell_skin/McpAdapter-class.html">McpAdapter</a> to ensure that external
+tool calls are validated against the correct <strong>Somatic Blueprint</strong>.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Extraction</strong>: The system reads a <a href="../cell_skin/SkinFunctionDescriptor-class.html">SkinFunctionDescriptor</a> from the
+<strong>Somatic Index</strong> (manifest).</li>
+<li><strong>Translation</strong>: The descriptor is converted into this neutral spec,
+mapping the cell and function names into a single <strong>Synaptic Label</strong>.</li>
+<li><strong>Broadcasting</strong>: The <a href="../cell_skin/McpAdapter-class.html">McpAdapter</a> serializes this spec into the
+specific format required by the AI agent's transport (e.g., JSON-RPC).</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Atomicity</strong>: A tool spec represents exactly one <code>apply</code> target. It
+cannot bridge multiple cells; each cell/function pair is a distinct
+synaptic point.</li>
+<li><strong>Determinism</strong>: The <a href="../cell_skin/McpToolSpec/name.html">name</a> is strictly formatted as <code>&lt;cellId&gt;.&lt;functionName&gt;</code>
+to ensure the resulting <strong>Command Journey</strong> can be accurately routed
+back to the correct somatic address.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/McpAdapter-class.html">McpAdapter</a>: The bridge that broadcasts these specs.</li>
+<li><a href="../cell_skin/SkinFunctionDescriptor-class.html">SkinFunctionDescriptor</a>: The internal metadata this spec represents.</li>
+<li><a href="../cell_skin/JsonSchema-class.html">JsonSchema</a>: The blueprint defining valid inputs for this tool.</li>
+</ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — this is your primary tool definition.
+<strong>Causality:</strong> Invoking a tool defined by this spec initiates a
+<strong>Command Journey</strong> that will be recorded in the <strong>Forensic Ledger</strong>.
+<strong>Constraint:</strong> The <code>inputSchema</code> is authoritative; pulses that do not
+match this DNA will be rejected at the membrane.</p>
 </section>
 
 
@@ -71,7 +110,7 @@ SDK's equivalent.</p>
           <span class="name"><a href="../cell_skin/McpToolSpec/McpToolSpec.html">McpToolSpec</a></span><span class="signature">({<span class="parameter" id="-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="-param-description"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">description</span>, </span><span class="parameter" id="-param-inputSchema"><span class="type-annotation"><a href="../cell_skin/JsonSchema-class.html">JsonSchema</a></span> <span class="parameter-name">inputSchema</span> = <span class="default-value">JsonSchema.permissive</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates a new <a href="../cell_skin/McpToolSpec-class.html">McpToolSpec</a> to describe an exposed somatic function.
             <div class="constructor-modifier features">const</div>
         </dd>
     </dl>
@@ -89,7 +128,7 @@ SDK's equivalent.</p>
 
 </dt>
 <dd>
-  
+  A human and AI-readable description of the tool's somatic purpose.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -113,7 +152,7 @@ SDK's equivalent.</p>
 
 </dt>
 <dd>
-  
+  The technical blueprint defining the valid arguments for the tool.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -125,7 +164,7 @@ SDK's equivalent.</p>
 
 </dt>
 <dd>
-  <code>&lt;cellId&gt;.&lt;functionName&gt;</code>.
+  The unique identifier for the tool, formatted as <code>&lt;cellId&gt;.&lt;functionName&gt;</code>.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -172,7 +211,7 @@ SDK's equivalent.</p>
 
 </dt>
 <dd>
-  
+  Converts the spec into its <strong>Skin Form</strong> (JSON) for transport.
   
 
 </dd>

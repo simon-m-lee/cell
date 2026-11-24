@@ -64,7 +64,10 @@
     </section>
     
 <section class="desc markdown">
-  <p>Records one observed call.</p>
+  <p>Records the traits of a single <strong>Command Journey</strong> to update the DNA.</p>
+<p>This method performs <strong>Trait Induction</strong> on the provided <code>positional</code>
+and <code>named</code> nutrients, merging the results into the observer's
+permanent memory.</p>
 </section>
 
 
@@ -85,7 +88,7 @@
   named?.forEach((key, value) {
     final schema = schemaForValue(value);
     _named[key] =
-        _named.containsKey(key) ? mergeSchemas(_named[key]!, schema) : schema;
+    _named.containsKey(key) ? mergeSchemas(_named[key]!, schema) : schema;
   });
 }</code></pre>
 </section>

@@ -61,6 +61,46 @@
 
       </section>
       
+<section class="desc markdown">
+  <p>The catalog of exposed tools and cells available for interaction.</p>
+<p>In the framework's biological metaphor, this is the <strong>Somatic Index</strong>.
+It serves as the physical map of the system's "DNA," detailing the
+structure and location of every cell and tool physically exposed at the
+<strong>Skin Membrane</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Tool Discovery</strong>: Used by AI agents to understand which <strong>Nervous
+Signals</strong> (requests) the system is capable of processing.</li>
+<li><strong>Schema Validation</strong>: Provides the JSON schemas required to correctly
+format arguments for a <strong>Command Journey</strong>.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Response</strong>: When a <strong>Discovery Impulse</strong> (<a href="../../cell_skin/WireManifestRequest-class.html">WireManifestRequest</a>)
+is received, the system generates this index.</li>
+<li><strong>Structure Mapping</strong>: It enumerates all cells and tools that have
+passed through an <strong>Integrity Gate</strong> for public exposure.</li>
+<li><strong>Payload Delivery</strong>: The manifest is serialized into the <strong>Skin Form</strong>
+and delivered to the client.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Omission</strong>: The data within this manifest is observational.
+It does not represent a <strong>Somatic State Transition</strong> and is therefore
+never recorded in the <strong>Forensic Ledger</strong>.</li>
+<li><strong>Strict Exposure</strong>: If a cell or tool is missing from this index, it
+is effectively invisible to the outside world, regardless of its
+existence in the core somatic graph.</li>
+<li><strong>Snapshot Nature</strong>: This manifest represents a point-in-time view of
+the system's capabilities. If the system's "DNA" changes (e.g., dynamic
+tool registration), a new <strong>Discovery Impulse</strong> must be sent.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/SkinManifest-class.html">SkinManifest</a>: The internal data structure being carried.</li>
+<li><a href="../../cell_skin/WireManifestRequest-class.html">WireManifestRequest</a>: The impulse that requested this index.</li>
+</ul>
+</section>
 
       
 <section class="summary source-code" id="source">

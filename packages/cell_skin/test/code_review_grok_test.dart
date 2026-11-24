@@ -4,9 +4,6 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-/// Regression tests for the findings of
-/// `research/_Pending Plans/Skin/code-review(Grok).md` that were not
-/// already covered by the Claude-review pass.
 library;
 
 import 'dart:async';

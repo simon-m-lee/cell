@@ -62,8 +62,10 @@
     </section>
     
 <section class="desc markdown">
-  <p>JSON-serialisable wire form. Payloads stay JSON-safe; the pulse's
-metadata travels on the pulse, not inside this map.</p>
+  <p>Converts the message into a JSON-safe map.</p>
+<p>This produces the <strong>Skin Form</strong> of the message. It ensures the
+payload is safe to travel over the wire while keeping internal
+metadata on the pulse.</p>
 </section>
 
 

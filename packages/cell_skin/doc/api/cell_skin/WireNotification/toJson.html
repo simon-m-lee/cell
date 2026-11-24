@@ -67,8 +67,42 @@
     </section>
     
 <section class="desc markdown">
-  <p>JSON-serialisable wire form. Payloads stay JSON-safe; the pulse's
-metadata travels on the pulse, not inside this map.</p>
+  <p>Converts the notification into a JSON-safe map for transport.</p>
+<p>In the framework's biological metaphor, this method creates the
+<strong>Skin Form</strong> of the impulse. It prepares the <strong>Transient Impulse</strong>
+to cross the <strong>Skin Membrane</strong> so it can be broadcast to the environment.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Egress</strong>: Use this when a server, MCP host, or SSE bridge needs to
+serialize a fire-and-forget signal for external subscribers.</li>
+<li><strong>Persistence</strong>: Used to store a snapshot of a notification in
+transport-level logs, though it will never appear in the core ledger.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Labeling</strong>: It includes the <a href="../../cell_skin/WireNotification/kind.html">kind</a> ('notification') so the
+receiver knows this is a volatile signal, not a response or state change.</li>
+<li><strong>Intent Mapping</strong>: It embeds the <a href="../../cell_skin/WireNotification/method.html">method</a> name to identify the
+type of impulse (e.g., a heartbeat).</li>
+<li><strong>Nutrient Bundling</strong>: It attaches the <a href="../../cell_skin/WireNotification/params.html">params</a> map containing the
+temporary data associated with the event.</li>
+</ol>
+<h3 id="non-obvious-behavior">Non-obvious behavior</h3>
+<ul>
+<li><strong>Forensic Omission</strong>: The resulting map is intentionally excluded
+from the <strong>Forensic Ledger</strong>. It does not contain a correlation ID
+or a sequence number, as it represents "environmental noise."</li>
+<li><strong>Membrane Only</strong>: This transformation is strictly for the <strong>Skin</strong>
+layer. The data here never triggers a <strong>Somatic State Transition</strong>
+in the core reactive graph.</li>
+<li><strong>Stability</strong>: Like all wire messages, the output is a standard
+string-keyed map, ensuring compatibility with MCP and REST bridges.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireNotification/WireNotification.fromJson.html">WireNotification.fromJson</a>: The reverse process for decoding impulses.</li>
+<li><a href="../../cell_skin/WireMessage/kind.html">WireMessage.kind</a>: The base definition for the signal label.</li>
+</ul>
 </section>
 
 

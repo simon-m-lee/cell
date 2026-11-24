@@ -55,7 +55,41 @@
 
     
 <section class="desc markdown">
-  <p>Asks the membrane for its tool catalogue.</p>
+  <p>A discovery signal sent to the system to request a list of available tools and cells.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/WireManifestRequest-class.html">WireManifestRequest</a> is a
+<strong>Discovery Impulse</strong>. It is a <strong>Nervous Signal</strong> that scans the
+<strong>Skin Membrane</strong> to find out what functionality is physically exposed
+to the outside world.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Capability Discovery</strong>: Use this when a client (like an AI agent or
+a dashboard) first connects and needs to know which tools/cells it
+is allowed to interact with.</li>
+<li><strong>Initialization</strong>: The first step in establishing a connection via
+protocols like MCP or SSE.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Ingress</strong>: The impulse hits the membrane.</li>
+<li><strong>Catalog Lookup</strong>: The system gathers the metadata for all exposed
+cells and tools.</li>
+<li><strong>Manifest Return</strong>: The system responds with a <a href="../cell_skin/WireManifestResponse-class.html">WireManifestResponse</a>
+containing the <strong>Somatic Index</strong> (the manifest).</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Omission</strong>: This request is a "read-only" discovery operation.
+It is not recorded in the <strong>Forensic Ledger</strong> and does not trigger a
+<strong>Somatic State Transition</strong>.</li>
+<li><strong>Stateless</strong>: Unlike a <a href="../cell_skin/WireRequest-class.html">WireRequest</a>, this signal does not require
+a correlation ID or sequence markers because it is a generic
+query for the system's current "DNA" structure.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/WireManifestResponse-class.html">WireManifestResponse</a>: The envelope carrying the actual catalog.</li>
+<li><a href="../cell_skin/SkinManifest-class.html">SkinManifest</a>: The internal record being requested.</li>
+</ul>
 </section>
 
 
@@ -90,7 +124,7 @@
           <span class="name"><a href="../cell_skin/WireManifestRequest/WireManifestRequest.html">WireManifestRequest</a></span><span class="signature">()</span>
         </dt>
         <dd>
-          
+          Creates a new <a href="../cell_skin/WireManifestRequest-class.html">WireManifestRequest</a> envelope.
             <div class="constructor-modifier features">const</div>
         </dd>
     </dl>
@@ -120,7 +154,7 @@
 
 </dt>
 <dd>
-  The stable discriminator used by <a href="../cell_skin/WireMessage/WireMessage.fromJson.html">WireMessage.fromJson</a>.
+  The stable identifier used to distinguish this message type on the wire.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -167,8 +201,7 @@
 
 </dt>
 <dd>
-  JSON-serialisable wire form. Payloads stay JSON-safe; the pulse's
-metadata travels on the pulse, not inside this map.
+  Converts the request into a JSON-safe map for transport.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

@@ -67,8 +67,37 @@
     </section>
     
 <section class="desc markdown">
-  <p>JSON-serialisable wire form. Payloads stay JSON-safe; the pulse's
-metadata travels on the pulse, not inside this map.</p>
+  <p>Converts the request into a JSON-safe map for transport.</p>
+<p>In the framework's biological metaphor, this method creates the
+<strong>Skin Form</strong> of the discovery signal. It prepares the
+<strong>Discovery Impulse</strong> to cross the <strong>Skin Membrane</strong> so it can
+initiate a scan of the system's exposed capabilities.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Egress</strong>: Use this when a client-side bridge needs to serialize
+a discovery probe to send it to a remote cell system.</li>
+<li><strong>Testing</strong>: Used to verify that the discovery signal is correctly
+labeled for the transport layer.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>This method produces a minimal map containing only the <a href="../../cell_skin/WireManifestRequest/kind.html">kind</a>
+('manifestRequest'). Because discovery is a global, stateless
+operation, no somatic addresses or correlation IDs are required
+in the payload.</p>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Omission</strong>: The resulting JSON is never stored in the
+<strong>Forensic Ledger</strong>. It represents a transient query about the
+system's current "DNA" that does not alter state.</li>
+<li><strong>Zero Nutrients</strong>: Unlike a <code>notification</code> or a <code>request</code>, this
+signal carries no parameters. It is a pure impulse that triggers
+a full manifest generation on the receiver side.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireManifestRequest/kind.html">WireManifestRequest.kind</a>: The label used to identify this impulse.</li>
+<li><a href="../../cell_skin/WireManifestResponse/toJson.html">WireManifestResponse.toJson</a>: The method that serializes the resulting catalog.</li>
+</ul>
 </section>
 
 

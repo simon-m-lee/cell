@@ -55,7 +55,44 @@
 
     
 <section class="desc markdown">
-  <p>A ledger entry streamed over the wire (<code>skin.ledger.entry</code>).</p>
+  <p>A wrapper for an authoritative audit record from the system's permanent history.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/WireLedgerEntry-class.html">WireLedgerEntry</a> is a
+<strong>Forensic Ledger Row</strong>. It represents a finalized <strong>Somatic State Transition</strong>
+that has been physically written into the system's "DNA." Unlike a
+<a href="../cell_skin/WireStateChange-class.html">WireStateChange</a>, which can be volatile or pending, this signal is the
+legal proof of a committed event.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Audit Streaming</strong>: Use this to push a real-time feed of the
+<strong>Forensic Ledger</strong> to an external auditor or a long-term storage service.</li>
+<li><strong>Causal Synchronization</strong>: Essential for clients that need to reconstruct
+the exact, sequence-perfect history of the somatic graph.</li>
+<li><strong>Legal Traceability</strong>: The primary message type for identifying who
+triggered a change and exactly when it was physically anchored.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Persistence</strong>: A change occurs and is accepted by an <strong>Integrity Gate</strong>.</li>
+<li><strong>Anchoring</strong>: The <strong>Forensic Ledger</strong> assigns a global sequence
+number and timestamp.</li>
+<li><strong>Egress</strong>: The system emits this envelope through the
+<strong>Skin Membrane</strong> as an authoritative confirmation of the transition.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Authoritative Only</strong>: This signal is never "pending." If it exists
+on the wire, it means the <strong>Command Journey</strong> has been successfully
+anchored in the ledger.</li>
+<li><strong>Global Ordering</strong>: The sequence numbers within these entries are
+the only valid way to determine the absolute order of events across
+all cells in the body.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><code>LedgerEntry</code>: The internal forensic record being carried.</li>
+<li><a href="../cell_skin/WireStateChange-class.html">WireStateChange</a>: For live observations that may still be pending.</li>
+<li><a href="../cell_skin/WireResponse-class.html">WireResponse</a>: For the immediate result of a specific command.</li>
+</ul>
 </section>
 
 
@@ -115,7 +152,7 @@
 
 </dt>
 <dd>
-  
+  The technical forensic record containing the audit data.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -139,7 +176,7 @@
 
 </dt>
 <dd>
-  The stable discriminator used by <a href="../cell_skin/WireMessage/WireMessage.fromJson.html">WireMessage.fromJson</a>.
+  The stable name of the message type used for decoding.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -186,8 +223,7 @@
 
 </dt>
 <dd>
-  JSON-serialisable wire form. Payloads stay JSON-safe; the pulse's
-metadata travels on the pulse, not inside this map.
+  Converts the message into a JSON-safe map.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

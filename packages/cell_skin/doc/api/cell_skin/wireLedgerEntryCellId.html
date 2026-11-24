@@ -63,8 +63,11 @@
     </section>
     
 <section class="desc markdown">
-  <p>The recorded cell id of <code>entry</code> — the value captured when the entry
-was appended, immune to later registry resets.</p>
+  <p>Extracts the permanent <strong>Somatic Address</strong> captured within the forensic record.</p>
+<p>This returns the <code>cellId</code> as it existed at the exact moment the
+<strong>Somatic State Transition</strong> was physically anchored. Unlike looking
+up a cell in a live registry, this value is immune to later renames or
+registry resets, providing absolute forensic integrity for the audit trail.</p>
 </section>
 
 

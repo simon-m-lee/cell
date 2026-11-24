@@ -57,6 +57,39 @@
       <span class="name ">WireManifestRequest</span>(<wbr>)
     </section>
     
+<section class="desc markdown">
+  <p>Creates a new <a href="../../cell_skin/WireManifestRequest-class.html">WireManifestRequest</a> envelope.</p>
+<p>In the framework's biological metaphor, this constructor assembles a
+<strong>Discovery Impulse</strong>. It represents the initial signal sent to the
+<strong>Skin Membrane</strong> to query the system's capabilities and current "DNA"
+structure.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Initialization</strong>: Use this when a client (like an AI agent or a
+remote dashboard) first connects and needs to discover which cells
+and tools are physically exposed.</li>
+<li><strong>Dynamic Re-discovery</strong>: Useful if a client needs to refresh its
+local index of available tools after a system-wide update.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>This constructor creates a stateless signal. Because discovery is a
+read-only scan of the membrane's surface, it does not require
+correlation IDs, sequence markers, or arguments.</p>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Omission</strong>: Signals created with this constructor never
+enter the <strong>Forensic Ledger</strong>. They are purely observational and
+do not trigger a <strong>Somatic State Transition</strong>.</li>
+<li><strong>Singleton-like Behavior</strong>: Since this request carries no state
+or parameters, all instances are functionally identical and safe
+ to use as <code>const</code>.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireManifestResponse-class.html">WireManifestResponse</a>: The envelope that returns the requested catalog.</li>
+<li><a href="../../cell_skin/SkinManifest-class.html">SkinManifest</a>: The internal record of the system's exposed surface.</li>
+</ul>
+</section>
 
 
     

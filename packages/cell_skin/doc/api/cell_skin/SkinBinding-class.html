@@ -51,27 +51,47 @@
 <h1><span class="kind-class">SkinBinding</span> class 
     <a href="https://dart.dev/language/class-modifiers#final" class="feature feature-final" title="This class can neither be extended, implemented, nor mixed in.">final</a>
  
-    <span class="category howto-·-bindings cp-2 linked" title="This is part of the HowTo · Bindings topic."><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></span>
-    <span class="category howto-·-cursors cp-6 linked" title="This is part of the HowTo · Cursors topic."><a href="../topics/Cursors-topic.html">HowTo&nbsp;·&nbsp;Cursors</a></span>
+    <span class="category howto-·-bindings cp-1 linked" title="This is part of the HowTo · Bindings topic."><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></span>
+    <span class="category howto-·-cursors cp-5 linked" title="This is part of the HowTo · Cursors topic."><a href="../topics/Cursors-topic.html">HowTo&nbsp;·&nbsp;Cursors</a></span>
 </h1></div>
 
     
 <section class="desc markdown">
-  <p>One exposed function on one target cell.</p>
+  <p>An exception thrown when a <strong>Nervous Signal</strong> contains a malformed <strong>Skin Payload</strong>.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/BadArgumentsException-class.html">BadArgumentsException</a> represents a
+<strong>Membrane Rejection</strong> triggered by structural inconsistencies in the
+incoming data. It occurs at the <strong>Skin Membrane</strong> before a
+<strong>Command Journey</strong> can be initiated.</p>
+<p>Because this exception is caught during the transformation of the
+<a href="../cell_skin/WireRequest-class.html">WireRequest</a> into an <code>ApplyCommand</code>, no <strong>Somatic State Transition</strong>
+is attempted, and no <strong>Forensic Receipt</strong> is generated in the
+<strong>Forensic Ledger</strong>.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
-<li>Declaring what may cross the skin: every <a href="../cell_skin/WireRequest-class.html">WireRequest</a> targets a
-registered <code>(cellId, functionName)</code> pair, never a raw method.</li>
+<li><strong>Structural Violations</strong>: Automatically thrown by <a href="../cell_skin/SkinBinding-class.html">SkinBinding</a> when
+positional argument keys are not a contiguous <code>0..n-1</code> range.</li>
+<li><strong>Identifier Violations</strong>: Thrown when named argument keys fail basic
+Dart identifier validation (e.g., containing dots or invalid characters).</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
-<p>The binding holds the live target cell and the closure the router
-runs; <a href="../cell_skin/SkinBinding/toApplyCommand.html">SkinBinding.toApplyCommand</a> validates the wire argument
-envelope and declared <a href="../cell_skin/SkinBinding/argumentSchema.html">argumentSchema</a> before <code>target.apply</code> — a
-<code>bad_arguments</code> <a href="../cell_skin/WireError-class.html">WireError</a> is produced without a receipt.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<p>The compensation closure receives the <strong>same wire arguments</strong> as the
-command, so it knows what to undo; <code>strictCursor</code> bindings require
-<code>lastSeenSeq == ledger.head</code> exactly.</p>
+<ol>
+<li><strong>Signal Ingress</strong>: A <a href="../cell_skin/WireRequest-class.html">WireRequest</a> arrives at the membrane.</li>
+<li><strong>Payload Analysis</strong>: The <a href="../cell_skin/SkinBinding-class.html">SkinBinding</a> attempts to decode the
+positional and named arguments into their internal somatic forms.</li>
+<li><strong>Gate Failure</strong>: If the keys are malformed or non-contiguous, this
+exception is raised.</li>
+<li><strong>Rejection</strong>: The <a href="../cell_skin/SkinRouter-class.html">SkinRouter</a> catches the exception and returns
+a <code>bad_arguments</code> <a href="../cell_skin/WireError-class.html">WireError</a> to the caller.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Omission</strong>: This failure is a membrane-level event. Since
+the pulse never reached the target cell's <code>apply</code> logic, it leaves a
+"Forensic Hole" where the caller sees a failure but the ledger
+remains silent.</li>
+<li><strong>Pre-Gate Validation</strong>: This check happens <em>before</em> any
+<a href="../cell_skin/JsonSchema-class.html">JsonSchema</a> validation or cell-specific <strong>Integrity Gate</strong> logic.</li>
+</ul>
 <h3 id="see-also">See also</h3>
 <p><a href="../cell_skin/SkinBindingTable-class.html">SkinBindingTable</a> (the registry), <a href="../cell_skin/SkinWhitelist-class.html">SkinWhitelist</a> (the policy),
 <a href="../cell_skin/SkinRouter-class.html">SkinRouter</a>.</p>

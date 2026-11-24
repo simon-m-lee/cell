@@ -59,7 +59,47 @@
     </section>
     
 <section class="desc markdown">
-  <p>Decodes a <a href="../../cell_skin/WireRequest-class.html">WireRequest</a> encoded by <a href="../../cell_skin/WireRequest/toJson.html">toJson</a>.</p>
+  <p>Decodes a raw JSON map into a <a href="../../cell_skin/WireRequest-class.html">WireRequest</a> envelope.</p>
+<p>In the framework's biological metaphor, this factory acts as the
+<strong>Signal Decoder</strong> at the <strong>Skin Membrane</strong>. It takes raw data
+from the outside world and translates it into a structured
+<strong>Nervous Signal</strong> that the system can understand.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Transport Adapters</strong>: Use this when your web server (REST),
+AI tool (MCP), or network listener receives a JSON message
+intended to trigger a cell action.</li>
+<li><strong>Data Ingress</strong>: The primary entry point for turning external
+strings and numbers into a formal request.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Field Extraction</strong>: It looks for keys like <code>cellId</code> and <code>function</code>.</li>
+<li><strong>Type Casting</strong>: It converts raw JSON types into the specific
+types required by the <a href="../../cell_skin/WireRequest-class.html">WireRequest</a> (e.g., ensuring IDs are strings).</li>
+<li><strong>Argument Mapping</strong>: It safely casts the <code>positional</code> and <code>named</code>
+argument maps to ensure they are ready for the <strong>Integrity Gate</strong>.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>JSON Stability</strong>: If positional arguments arrive as a list, they
+must be converted to a map (e.g., <code>{"0": value}</code>) before calling
+this factory. This ensures the order of the <strong>Command Journey</strong>
+is never lost by accident.</li>
+<li><strong>Null Safety</strong>: Optional fields like <a href="../../cell_skin/WireRequest/clientCorrelationId.html">clientCorrelationId</a> and
+<a href="../../cell_skin/WireRequest/lastSeenSeq.html">lastSeenSeq</a> are handled safely. If they are missing in the JSON,
+they will be <code>null</code> in the resulting object.</li>
+</ul>
+<h3 id="forensic-integrity">Forensic Integrity</h3>
+<p>This factory is the first line of defense. By strictly validating
+the JSON structure here, the system prevents "malformed signals"
+from ever reaching the <strong>Forensic Ledger</strong>.</p>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireRequest/toJson.html">WireRequest.toJson</a>: The reverse process of turning a request into JSON.</li>
+<li><a href="../../cell_skin/WireMessage/WireMessage.fromJson.html">WireMessage.fromJson</a>: The top-level factory that decides which kind
+of message to decode.</li>
+</ul>
 </section>
 
 

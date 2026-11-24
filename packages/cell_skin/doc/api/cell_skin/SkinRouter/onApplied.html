@@ -62,14 +62,15 @@
       </section>
       
 <section class="desc markdown">
-  <p>Optional observer for every dispatched outcome (tests, adapters).</p>
+  <p>An optional hook triggered every time a <strong>Command Journey</strong> completes.</p>
+<p>Used primarily for <strong>Forensic Monitoring</strong> and transport-layer adaptations.</p>
 </section>
 
       
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">final void Function(WireRequest request, ApplyOutcome&lt;Object?&gt; outcome)?
-    onApplied;</code></pre>
+onApplied;</code></pre>
 </section>
 
 

@@ -59,6 +59,45 @@
 </ol>})
     </section>
     
+<section class="desc markdown">
+  <p>Creates a new <a href="../../cell_skin/WireNotification-class.html">WireNotification</a> envelope.</p>
+<p>In the framework's biological metaphor, this constructor assembles a
+<strong>Transient Impulse</strong>. It prepares a volatile signal that is intended
+to cross the <strong>Skin Membrane</strong> without triggering a <strong>Somatic State
+Transition</strong> or entering the <strong>Forensic Ledger</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Heartbeats</strong>: Use this to simulate or send "keep-alive" signals
+between the system and an external client.</li>
+<li><strong>Testing</strong>: Use this to verify that the <strong>Skin Membrane</strong> correctly
+handles and routes non-somatic, fire-and-forget impulses.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>The constructor bundles a <code>method</code> name (the intent) and optional
+<code>params</code> (the nutrients) into a stable record. Because these impulses
+are transient, no correlation IDs or sequence numbers are required.</p>
+<h3 id="parameters">Parameters</h3>
+<ul>
+<li><strong>method</strong>: The identifier for the impulse (e.g., <code>'ping'</code>,
+<code>'progress'</code>).</li>
+<li><strong>params</strong>: The <strong>Transient Nutrients</strong> (data) carried by the signal.
+Defaults to an empty map if no data is provided.</li>
+</ul>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Zero Trace</strong>: Objects created with this constructor are never
+ledgered. Once they are delivered to a listener at the membrane,
+they are effectively forgotten by the system.</li>
+<li><strong>Immutability</strong>: Like all wire messages, once the notification
+is constructed, its contents cannot be changed, ensuring the
+impulse remains stable during transport.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireNotification/method.html">WireNotification.method</a>: The type of impulse being created.</li>
+<li><a href="../../cell_skin/WireNotification/params.html">WireNotification.params</a>: The data payload of the impulse.</li>
+</ul>
+</section>
 
 
     

@@ -59,7 +59,42 @@
     </section>
     
 <section class="desc markdown">
-  <p>Decodes a <a href="../../cell_skin/WireNotification-class.html">WireNotification</a> encoded by <a href="../../cell_skin/WireNotification/toJson.html">toJson</a>.</p>
+  <p>Decodes a raw JSON map into a <a href="../../cell_skin/WireNotification-class.html">WireNotification</a> impulse.</p>
+<p>In the framework's biological metaphor, this factory acts as the
+<strong>Signal Decoder</strong> at the <strong>Skin Membrane</strong>. It translates the
+<strong>Skin Form</strong> of a volatile event back into a structured
+<strong>Transient Impulse</strong> that the local system can process.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Egress Processing</strong>: Use this when a client (AI agent, web app, or
+remote listener) receives a fire-and-forget notification from the
+system over a network bridge (SSE, MCP, etc.).</li>
+<li><strong>Lightweight Monitoring</strong>: The primary entry point for ingesting
+non-somatic updates like heartbeats or progress alerts.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Intent Resolution</strong>: It extracts the <code>method</code> string to identify
+the type of impulse (e.g., <code>'ping'</code>).</li>
+<li><strong>Nutrient Mapping</strong>: It pulls the <code>params</code> map representing the
+temporary data associated with the notification.</li>
+<li><strong>Safety Casting</strong>: It ensures that the parameters are safely cast
+to a string-keyed map, defaulting to an empty map if the field is missing.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Omission</strong>: Unlike <a href="../../cell_skin/WireRequest/WireRequest.fromJson.html">WireRequest.fromJson</a>, this factory
+does not look for a <code>correlationId</code> or a <code>lastSeenSeq</code>. Notifications
+are environmental noise and are not tracked by the <strong>Forensic Ledger</strong>.</li>
+<li><strong>Zero Persistence</strong>: The resulting object is transient. Once it passes
+through the decoder and is handled by a listener, it leaves no audit
+trail in the somatic graph.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireNotification/toJson.html">WireNotification.toJson</a>: The reverse process for broadcasting signals.</li>
+<li><a href="../../cell_skin/WireMessage/WireMessage.fromJson.html">WireMessage.fromJson</a>: The top-level membrane decoder.</li>
+</ul>
 </section>
 
 

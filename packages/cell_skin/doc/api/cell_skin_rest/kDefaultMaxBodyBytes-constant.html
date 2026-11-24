@@ -61,7 +61,37 @@
         </section>
         
 <section class="desc markdown">
-  <p>The maximum request body size accepted by default (1 MiB).</p>
+  <p>The default somatic saturation limit for an incoming impulse at a membrane pore.</p>
+<p>In the framework's biological metaphor, this constant defines the maximum
+volume of <strong>Somatic Nutrients</strong> (payload bytes) that a <strong>Skin Membrane</strong>
+pore can ingest before the <strong>Integrity Gate</strong> triggers a <strong>Membrane Rejection</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Pore Configuration</strong>: Used as the default cap in <a href="../cell_skin_rest/RestAdapter/bind.html">RestAdapter.bind</a>
+to protect the somatic graph from being overwhelmed by oversized
+<strong>Nervous Signals</strong>.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Ingress</strong>: A request hits the <a href="../cell_skin_rest/RestAdapter-class.html">RestAdapter</a>.</li>
+<li><strong>Saturation Check</strong>: As the <strong>Skin Payload</strong> is read, the adapter
+tracks the total bytes.</li>
+<li><strong>Gate Trigger</strong>: If the volume exceeds this threshold, the impulse
+is discarded, and a <code>body_too_large</code> <a href="../cell_skin/WireError-class.html">WireError</a> is returned.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Omission</strong>: Rejections caused by this limit occur before
+a <strong>Command Journey</strong> begins, meaning no <strong>Forensic Receipt</strong> is
+generated in the ledger.</li>
+<li><strong>Default Value</strong>: Set to 1 MiB (1,048,576 bytes), balancing standard
+command payloads against system resource preservation.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin_rest/RestAdapter/bind.html">RestAdapter.bind</a>: Where this limit is applied.</li>
+<li><a href="../cell_skin/WireError-class.html">WireError</a>: The rejection signal sent when this limit is breached.</li>
+</ul>
 </section>
 
         

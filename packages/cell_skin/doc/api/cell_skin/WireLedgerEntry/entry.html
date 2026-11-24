@@ -61,6 +61,47 @@
 
       </section>
       
+<section class="desc markdown">
+  <p>The technical forensic record containing the audit data.</p>
+<p>In the framework's biological metaphor, this is the <strong>Forensic Record</strong>.
+It serves as a permanent segment of the system's "DNA," containing the
+sequence number, timestamp, and the <strong>Causal Link</strong> (correlation ID)
+that anchors a <strong>Somatic State Transition</strong> to the ledger.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>History Reconstruction</strong>: Use this to build a sequence-perfect
+chronology of the system's state for auditing or time-travel debugging.</li>
+<li><strong>Verification</strong>: Use this to prove that a specific <strong>Command Journey</strong>
+was physically committed and to identify its global order relative to
+other impulses.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Anchoring</strong>: After a cell passes an <strong>Integrity Gate</strong>, the
+<strong>Forensic Ledger</strong> assigns this record a unique global sequence number.</li>
+<li><strong>Serialization</strong>: The ledgered data is converted into this record
+structure, preserving the metadata required for forensic analysis.</li>
+<li><strong>Egress</strong>: The record is wrapped in a <a href="../../cell_skin/WireLedgerEntry-class.html">WireLedgerEntry</a> and
+pushed through the <strong>Skin Membrane</strong>.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Authoritative Truth</strong>: This is the only legal proof of a state change.
+Unlike the <code>payload</code> in a <a href="../../cell_skin/WireStateChange-class.html">WireStateChange</a>, the data here is
+guaranteed to be anchored in permanent storage.</li>
+<li><strong>Information Loss</strong>: As this is the <strong>Skin Form</strong> of the record,
+it does not contain live Dart object references. It contains only
+the values as they were physically encoded in the ledger.</li>
+<li><strong>Causal Linkage</strong>: The <code>correlationId</code> inside this entry allows
+auditors to map the resulting state change back to the original
+<strong>Nervous Signal</strong> (<a href="../../cell_skin/WireRequest-class.html">WireRequest</a>) that triggered it.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><code>LedgerEntry</code>: The internal forensic structure being carried.</li>
+<li><a href="../../cell_skin/WireLedgerEntry/kind.html">WireLedgerEntry.kind</a>: The label identifying this as a ledger signal.</li>
+</ul>
+</section>
 
       
 <section class="summary source-code" id="source">

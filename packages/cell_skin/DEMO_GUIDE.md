@@ -212,7 +212,8 @@ that split (`rest_binding.dart` → `rest_io.dart` on desktop,
   ledger correctly records nothing for the denial.
 * **Record a GIF** — set the `DEMO_RECORDING` marker to enable the
   15fps/300-frame `DemoTimeline` markers, capture the window, and stitch
-  frames manually (production is manual, per the demo plan §6).
+  the frames. The full capture/stitch/embed procedure lives in
+  [guide/HowTo-Recording.md](guide/HowTo-Recording.md).
 
 See [ARCHITECTURE-Skin.md](../ARCHITECTURE-Skin.md) for the membrane design,
 [FEATURES-Skin.md](../FEATURES-Skin.md) for the feature catalog, and

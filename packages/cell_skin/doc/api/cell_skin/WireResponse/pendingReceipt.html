@@ -62,9 +62,45 @@
       </section>
       
 <section class="desc markdown">
-  <p>When <code>true</code>, <a href="../../cell_skin/WireResponse/outcome.html">outcome</a> is <code>null</code> and <a href="../../cell_skin/WireResponse/receiptJson.html">receiptJson</a> carries the last
-known receipt (or is absent). The definitive receipt arrives via
-the ledger stream (<code>skin.ledger.entry</code>).</p>
+  <p>Whether the permanent record for this change is still being written to the ledger.</p>
+<p>In the framework’s biological metaphor, this indicates a <strong>Signal in Transit</strong>.
+It means the <strong>Nervous Signal</strong> was accepted by the cell, but the
+<strong>Somatic State Transition</strong> has not yet finished landing in the
+<strong>Forensic Ledger</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Optimistic UI</strong>: Use this to show a "pending" or "sending" state in
+your application while waiting for the final authoritative proof.</li>
+<li><strong>Forensic Integrity</strong>: Check this to determine if the provided
+<a href="../../cell_skin/WireResponse/outcome.html">outcome</a> is final or if a later confirmation is expected.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Acceptance</strong>: The cell processes the command and returns an
+immediate result.</li>
+<li><strong>Ledger Staging</strong>: If the ledger write is asynchronous, the system
+sets this field to <code>true</code>.</li>
+<li><strong>Finalization</strong>: Once the write is complete, a separate
+<a href="../../cell_skin/WireLedgerEntry-class.html">WireLedgerEntry</a> is typically sent to confirm the permanent sequence.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Holes</strong>: If this is <code>true</code>, the outcome provided is a "best
+guess" based on the current impulse. The final, authoritative proof
+only exists once it is assigned a sequence number in the ledger.</li>
+<li><strong>Authoritative Conflict</strong>: If a network error occurs while this is
+<code>true</code>, the client must treat the state as "uncertain" until the
+<strong>Forensic Ledger</strong> can be resynchronized.</li>
+<li><strong>Default State</strong>: In a standard authoritative response, this is
+<code>false</code>, meaning the change is already physically committed.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireResponse/receiptJson.html">WireResponse.receiptJson</a>: A snapshot of the state while the receipt
+is pending.</li>
+<li><a href="../../cell_skin/WireLedgerEntry-class.html">WireLedgerEntry</a>: The envelope that carries the final, non-pending
+confirmation.</li>
+</ul>
 </section>
 
       

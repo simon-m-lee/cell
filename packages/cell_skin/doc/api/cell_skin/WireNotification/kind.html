@@ -72,7 +72,38 @@
     </section>
     
 <section class="desc markdown">
-  <p>The stable discriminator used by <a href="../../cell_skin/WireMessage/WireMessage.fromJson.html">WireMessage.fromJson</a>.</p>
+  <p>The stable identifier used to distinguish this message type on the wire.</p>
+<p>In the framework's biological metaphor, this is the <strong>Signal Label</strong>.
+It tells the <strong>Skin Membrane</strong> that this envelope contains a
+<strong>Transient Impulse</strong> (a notification) rather than a request,
+response, or state change.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Polymorphic Decoding</strong>: The <a href="../../cell_skin/WireMessage/WireMessage.fromJson.html">WireMessage.fromJson</a> factory uses
+this value to decide to create a <a href="../../cell_skin/WireNotification-class.html">WireNotification</a> instance.</li>
+<li><strong>Event Filtering</strong>: External tools or bridges (like MCP hosts)
+use this field to quickly identify and route fire-and-forget signals.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>This getter always returns the string <code>'notification'</code>. When <a href="../../cell_skin/WireNotification/toJson.html">toJson</a>
+is called, this label is stamped into the JSON payload, ensuring the
+receiver knows how to open the envelope without checking for
+correlation IDs or somatic addresses.</p>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Omission</strong>: A signal labeled as <code>notification</code> is
+intentionally ignored by the <strong>Forensic Ledger</strong>. It represents
+environmental noise or transient metadata that does not contribute
+to the system's "DNA."</li>
+<li><strong>Strict Value</strong>: This value is fixed. The signaling protocol
+relies on this specific string to distinguish volatile impulses
+from authoritative state transitions.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireMessage/kind.html">WireMessage.kind</a>: The base definition for all message labels.</li>
+<li><a href="../../cell_skin/WireNotification/method.html">WireNotification.method</a>: The specific intent behind this label.</li>
+</ul>
 </section>
 
     

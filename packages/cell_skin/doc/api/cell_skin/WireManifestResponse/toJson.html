@@ -67,8 +67,42 @@
     </section>
     
 <section class="desc markdown">
-  <p>JSON-serialisable wire form. Payloads stay JSON-safe; the pulse's
-metadata travels on the pulse, not inside this map.</p>
+  <p>Converts the manifest response into a JSON-safe map for transport.</p>
+<p>In the framework's biological metaphor, this method creates the
+<strong>Skin Form</strong> of the <strong>Somatic Index</strong>. It prepares the catalog of
+available tools and cells to cross the <strong>Skin Membrane</strong> so a
+discovery client can understand the system's "DNA."</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Egress</strong>: Use this when the system needs to serialize the result
+of a <strong>Discovery Impulse</strong> (<a href="../../cell_skin/WireManifestRequest-class.html">WireManifestRequest</a>) to send it
+to a remote client or AI agent.</li>
+<li><strong>Handshake Finalization</strong>: Used during the initial connection
+phase to provide the caller with a technical map of the surface.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Labeling</strong>: It includes the <a href="../../cell_skin/WireManifestResponse/kind.html">kind</a> ('manifestResponse')
+so the receiver knows this is a capability index.</li>
+<li><strong>Somatic Serialization</strong>: It calls <code>toJson()</code> on the <a href="../../cell_skin/WireManifestResponse/manifest.html">manifest</a>,
+transforming the internal cell/tool definitions into a
+wire-safe format.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Omission</strong>: The resulting JSON is strictly observational.
+Because discovery does not trigger a <strong>Somatic State Transition</strong>,
+this payload is never recorded in the <strong>Forensic Ledger</strong>.</li>
+<li><strong>Statelessness</strong>: Unlike a standard <code>WireResponse.toJson</code>, this
+map does not contain a <code>correlationId</code>. It is a global snapshot
+of the membrane's surface at a specific point in time.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireManifestResponse/kind.html">WireManifestResponse.kind</a>: The label used to identify this index.</li>
+<li><a href="../../cell_skin/SkinManifest/toJson.html">SkinManifest.toJson</a>: The method that serializes the actual
+cell and tool metadata.</li>
+</ul>
 </section>
 
 

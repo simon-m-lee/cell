@@ -55,8 +55,43 @@
 
     
 <section class="desc markdown">
-  <p>The read model of <a href="../cell_skin/wireReceiptJson.html">wireReceiptJson</a>: what the remote side can know
-without the live graph.</p>
+  <p>The read model of a cell's physical state transition, stripped of live
+references for transport.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/WireReceipt-class.html">WireReceipt</a> is the <strong>Skin Form</strong>
+of the <strong>Forensic Receipt</strong>. While the internal <code>ApplyReceipt</code> carries live
+cell objects and Dart functions, this class represents the sanitized,
+JSON-safe proof that a <strong>Somatic State Transition</strong> has been recorded.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Audit Inspection</strong>: Use this on the client side to verify the exact
+sequence, timing, and authority of a past change.</li>
+<li><strong>State Reconstruction</strong>: Essential for "Time Travel" or replaying
+the <strong>Forensic Ledger</strong> in a remote environment.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Sanitization</strong>: During encoding, live <code>Function</code> objects are
+replaced with <a href="../cell_skin/WireReceipt/functionLabel.html">functionLabel</a> to prevent closure internal leakage.</li>
+<li><strong>Integrity Guarding</strong>: Arguments are checked for JSON safety. If an
+argument cannot be encoded, it is replaced with a <code>&lt;unencodable: type&gt;</code>
+marker to prevent a "Forensic Hole" (a transport failure).</li>
+<li><strong>Causal Mapping</strong>: It bundles the <a href="../cell_skin/WireReceipt/pulseDigest.html">pulseDigest</a> and <a href="../cell_skin/WireReceipt/ledgerSeq.html">ledgerSeq</a> to
+provide a verifiable link back to the <strong>Command Journey</strong>.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Honest Labeling</strong>: The <a href="../cell_skin/WireReceipt/functionLabel.html">functionLabel</a> prefers the name provided by the
+wire binding. If missing, it falls back to a string representation of
+the closure, which is useful for debugging but not for execution.</li>
+<li><strong>Historical Snapshot</strong>: This receipt is a static record. It does not
+change if the cell's "DNA" (receptor or rule version) is updated later.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><code>ApplyReceipt</code>: The live, internal record being modeled here.</li>
+<li><a href="../cell_skin/WireOutcome-class.html">WireOutcome</a>: The structure that carries this receipt as proof of result.</li>
+<li><a href="../cell_skin/wireReceiptJson.html">wireReceiptJson</a>: The encoder that produces this structure.</li>
+</ul>
 </section>
 
 

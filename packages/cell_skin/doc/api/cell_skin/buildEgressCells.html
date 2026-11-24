@@ -68,9 +68,57 @@
     </section>
     
 <section class="desc markdown">
-  <p>Builds the unledgered egress observers: one <code>Cell.observe</code> per
-exposed target. Every pulse is <code>pendingReceipt</code> — without a ledger
-there is no receipt to attach.</p>
+  <p>Sets up observers to send signals out of the system for cells that do not
+use a forensic ledger.</p>
+<p>In the framework's biological metaphor, this function builds the
+<strong>Exiting Signal Path</strong>. It watches specific cells and packages their
+changes into "Wire Signals" so they can be sent to other parts of
+the network.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Outbound Communication</strong>: Use this when you need to notify external
+systems about state changes.</li>
+<li><strong>Simple Membranes</strong>: Use this for "Unledgered Membranes"—systems
+that need to send data out but don't need a permanent history log.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Target Lookup</strong>: It loops through a list of IDs and finds the
+matching cell in the system.</li>
+<li><strong>Observation</strong>: It starts a <code>Cell.observe</code> to listen for any
+new <code>Pulse</code> (Nervous Signal) from that cell.</li>
+<li><strong>Wrapping</strong>: When a change happens, it wraps the data into a
+<a href="../cell_skin/WireStateChange-class.html">WireStateChange</a> message.</li>
+<li><strong>Forwarding</strong>: It triggers the <code>onEgressPulse</code> callback to
+actually send the data out.</li>
+</ol>
+<h3 id="parameters">Parameters</h3>
+<ul>
+<li><strong>cellIds</strong>: A list of unique names for the cells you want to watch.</li>
+<li><strong>resolveTarget</strong>: A function that finds the actual <code>Cell</code> object
+based on its name.</li>
+<li><strong>onEgressPulse</strong>: The final gateway function that handles the
+message once it is ready to exit the system.</li>
+</ul>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Pending Receipts</strong>: Because these cells do not have a forensic ledger,
+every message is marked as <code>pendingReceipt: true</code>. This tells the
+receiver that there is no official "Forensic ID" for this specific
+change yet.</li>
+<li><strong>Causal Preservation</strong>: The exiting signal keeps the original
+<a href="https://api.flutter.dev/flutter/dart-js/context.html">context</a> of the change, so you can still tell what triggered the
+action even after it leaves the cell.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final handles = buildEgressCells(
+  cellIds: ['user_profile', 'settings'],
+  resolveTarget: (id) =&gt; myRegistry.find(id),
+  onEgressPulse: (id, pulse) {
+    networkAdapter.send(pulse.payload.toJson());
+  },
+);
+</code></pre>
 </section>
 
 

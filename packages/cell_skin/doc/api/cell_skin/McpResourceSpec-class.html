@@ -55,8 +55,47 @@
 
     
 <section class="desc markdown">
-  <p>A transport-neutral MCP resource definition for the graph topology
-(<code>cell://graph/&lt;cellId&gt;</code>) and the ledger stream.</p>
+  <p>A transport-neutral definition of an observational somatic resource.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/McpResourceSpec-class.html">McpResourceSpec</a> is a
+<strong>Somatic Map Segment</strong>. It describes a read-only observational point
+physically exposed at the <strong>Skin Membrane</strong>, such as the topology of
+a specific cell or a live stream of the <strong>Forensic Ledger</strong>.</p>
+<p>Unlike <a href="../cell_skin/McpToolSpec-class.html">McpToolSpec</a>, which represents an entry point for a <strong>Command Journey</strong>,
+a resource spec represents a passive probe into the system's current
+state or history.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Discovery</strong>: Generated during a <strong>Discovery Impulse</strong> to populate
+the <code>resources/list</code> response for an AI agent.</li>
+<li><strong>State Inspection</strong>: Used by agents to locate the <strong>Somatic Address</strong>
+of a cell's data without triggering a mutation.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Index Resolution</strong>: The system identifies a cell or ledger stream
+marked for public observation.</li>
+<li><strong>Address Mapping</strong>: It constructs a URI (typically <code>cell://graph/&lt;id&gt;</code>)
+representing the physical location of the data.</li>
+<li><strong>Broadcasting</strong>: The <a href="../cell_skin/McpAdapter-class.html">McpAdapter</a> serializes this spec to inform
+the AI agent where it can "listen" to the somatic pulse.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>ReadOnly</strong>: Resources are strictly observational. They never
+trigger a <strong>Somatic State Transition</strong>.</li>
+<li><strong>URI Stability</strong>: The <code>uri</code> is the authoritative <strong>Somatic Address</strong>.
+Agents should treat this URI as a stable pointer to the cell's
+phenotype or history.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/McpAdapter-class.html">McpAdapter</a>: The bridge that broadcasts these resources.</li>
+<li><a href="../cell_skin/McpToolSpec-class.html">McpToolSpec</a>: For interactable functions that change state.</li>
+</ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — this provides your observational context.
+<strong>Traceability:</strong> Reading a resource is not ledgered as a state change.
+<strong>Protocol:</strong> Use the provided <code>uri</code> to fetch the current state of a cell.</p>
 </section>
 
 
@@ -69,7 +108,7 @@
           <span class="name"><a href="../cell_skin/McpResourceSpec/McpResourceSpec.html">McpResourceSpec</a></span><span class="signature">({<span class="parameter" id="-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="-param-uri"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">uri</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates a new <a href="../cell_skin/McpResourceSpec-class.html">McpResourceSpec</a> to describe an observational point.
             <div class="constructor-modifier features">const</div>
         </dd>
     </dl>
@@ -99,7 +138,7 @@
 
 </dt>
 <dd>
-  
+  The human-readable name of the somatic resource.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -123,7 +162,7 @@
 
 </dt>
 <dd>
-  
+  The authoritative URI for the resource.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>

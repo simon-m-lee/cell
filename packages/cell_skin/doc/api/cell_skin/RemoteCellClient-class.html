@@ -55,7 +55,51 @@
 
     
 <section class="desc markdown">
-  <p>A cell-shaped handle to one remote cell, backed by a transport.</p>
+  <p>A local handle representing a distant somatic entity behind a remote membrane.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/RemoteCellClient-class.html">RemoteCellClient</a> is a
+<strong>Synaptic Projection</strong>. It acts as an <strong>Axon</strong> extending from the local
+environment to a cell physically located behind a remote <strong>Skin Membrane</strong>.</p>
+<p>It provides a cell-like interface for triggering <strong>Somatic State Transitions</strong>
+on a target that exists in a separate somatic cluster, abstracting away
+the underlying transport (REST, MCP, or in-process bridge).</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Cross-Cluster Interaction</strong>: Use this to mutate or observe cells
+hosted on a different server, AI agent, or process.</li>
+<li><strong>Orchestration</strong>: Ideal for building distributed somatic systems where
+one "brain" needs to stimulate "muscles" in a remote limb.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Packaging</strong>: Local calls are converted into <strong>Nervous Signals</strong>
+(<a href="../cell_skin/WireRequest-class.html">WireRequest</a>) containing the <strong>Skin Payload</strong>.</li>
+<li><strong>Axonal Transport</strong>: The signal travels across the <a href="../cell_skin/RemoteCellClient/transport.html">transport</a> seam.</li>
+<li><strong>Forensic Resolution</strong>: The client awaits a <strong>Forensic Receipt</strong>
+(<a href="../cell_skin/WireResponse-class.html">WireResponse</a>) to confirm the transition was anchored in the
+remote <strong>Forensic Ledger</strong>.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Causal Linkage</strong>: The client automatically propagates <code>lastSeenSeq</code>
+markers. This ensures that the <strong>Command Journey</strong> maintains
+forensic integrity even across network boundaries.</li>
+<li><strong>Idempotency</strong>: Every impulse is stamped with a unique <strong>Causal Link</strong>
+(correlation ID) to prevent duplicate transitions if the transport
+layer retries the signal.</li>
+<li><strong>Observation</strong>: Calling <a href="../cell_skin/RemoteCellClient/observe.html">observe</a> creates a subscription to the
+remote cell's <strong>External Echo</strong>, allowing the local system to react
+to distant state changes.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/SkinClient-class.html">SkinClient</a>: The coordinator usually responsible for spawning these handles.</li>
+<li><a href="../cell_skin/WireRequest-class.html">WireRequest</a>: The envelope used to stimulate the remote cell.</li>
+<li><a href="../cell_skin/RemoteCellClient/RemoteCellClient.inProcess.html">RemoteCellClient.inProcess</a>: For simulating remote axons within the same memory space.</li>
+</ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin Client — this is your axon to a remote tool.
+<strong>Traceability:</strong> Always provide <code>lastSeenSeq</code> to maintain causal integrity.
+<strong>Constraint:</strong> A <a href="../cell_skin/RemoteCellClient-class.html">RemoteCellClient</a> is fixed to a single <a href="../cell_skin/RemoteCellClient/cellId.html">cellId</a>.</p>
 </section>
 
 
@@ -68,7 +112,7 @@
           <span class="name"><a href="../cell_skin/RemoteCellClient/RemoteCellClient.inProcess.html">RemoteCellClient.inProcess</a></span><span class="signature">(<span class="parameter" id="inProcess-param-client"><span class="type-annotation"><a href="../cell_skin/SkinClient-class.html">SkinClient</a></span> <span class="parameter-name">client</span>, </span><span class="parameter" id="inProcess-param-cellId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">cellId</span></span>)</span>
         </dt>
         <dd>
-          Creates the in-process variant over <code>client</code>.
+          Creates an <strong>In-Process Axon</strong> connected to a local <a href="../cell_skin/SkinClient-class.html">SkinClient</a>.
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
@@ -86,7 +130,7 @@
 
 </dt>
 <dd>
-  The remote graph name.
+  The unique <strong>Somatic Address</strong> of the remote cell.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -110,7 +154,7 @@
 
 </dt>
 <dd>
-  Egress stream accessor for <a href="../cell_skin/RemoteCellClient/observe.html">observe</a>.
+  The mechanism for listening to the remote cell's <strong>External Echo</strong>.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -134,9 +178,7 @@
 
 </dt>
 <dd>
-  The transport: submits a wire message and awaits the correlated
-reply. <code>SkinClient</code> implements this in-process; a future
-<code>DartMcpAdapter</code>-backed client implements it over JSON-RPC.
+  The physical seam used to transmit signals across the membrane.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -158,9 +200,7 @@ reply. <code>SkinClient</code> implements this in-process; a future
 
 </dt>
 <dd>
-  Invokes <code>function</code> on the remote target and returns the target's
-real outcome. Throws <a href="../cell_skin/SkinError-class.html">SkinError</a> for exposure/cursor/argument
-rejections; returns <code>null</code> for a <code>pendingReceipt</code> response.
+  Stimulates the remote cell to perform a <strong>Somatic State Transition</strong>.
   
 
 </dd>
@@ -186,8 +226,7 @@ rejections; returns <code>null</code> for a <code>pendingReceipt</code> response
 
 </dt>
 <dd>
-  State-change pulses for this cell (<code>skin.egress.&lt;cellId&gt;</code> carrying
-<a href="../cell_skin/WireStateChange-class.html">WireStateChange</a>).
+  Subscribes to the remote cell's <strong>External Echo</strong>.
   
 
 </dd>

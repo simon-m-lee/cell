@@ -63,10 +63,45 @@
     </section>
     
 <section class="desc markdown">
-  <p>Derives a best-effort <a href="../cell_skin/JsonSchema-class.html">JsonSchema</a> for a single observed value.</p>
-<p>A single observation widens to its <em>type only</em> — no <code>enum</code>, no
-<code>minimum == maximum</code> — so the schema never rejects the next
-legitimate observation of the same type.</p>
+  <p>Derives a best-effort <a href="../cell_skin/JsonSchema-class.html">JsonSchema</a> by observing a single somatic value.
+/// In the framework's biological metaphor, this is <strong>Trait Induction</strong>. It
+takes a specific <strong>Somatic Nutrient</strong> (a value) that has successfully
+crossed an <strong>Integrity Gate</strong> and derives the <strong>Somatic Blueprint</strong> (DNA)
+required to represent it.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Automatic Discovery</strong>: Used by the system to learn the shape of valid
+signals by watching the <strong>Forensic Ledger</strong>.</li>
+<li><strong>Manifest Generation</strong>: Helps populate the <strong>Somatic Index</strong> with
+schemas when no explicit developer hints are provided.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Trait Analysis</strong>: The function inspects the runtime type of the
+provided value.</li>
+<li><strong>Blueprint Mapping</strong>: It maps Dart types to their wire-safe equivalents
+(e.g., <code>int</code> becomes <code>integer</code>, <code>List</code> becomes <code>array</code>).</li>
+<li><strong>Recursive Induction</strong>: For complex <strong>Skin Payloads</strong> (Maps and Lists),
+it recursively derives blueprints for all internal elements.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Widen by Type Only</strong>: To avoid "Forensic Holes" where a valid future
+signal is rejected, this function only induces the <em>type</em>. It does
+not automatically set <code>enum</code>, <code>minimum</code>, or <code>maximum</code> constraints based
+on a single observation.</li>
+<li><strong>Required Traits</strong>: When inducing an object (Map), any key with a
+non-null value is marked as <code>required</code> in the resulting blueprint.</li>
+<li><strong>Permissive Nutrients</strong>: If the value is <code>null</code> or an unknown type,
+it returns a <a href="../cell_skin/JsonSchema/permissive-constant.html">JsonSchema.permissive</a> blueprint, allowing the
+internal <strong>Integrity Gate</strong> to remain the sole arbiter of validity.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/JsonSchema-class.html">JsonSchema</a>: The blueprint being produced.</li>
+<li><a href="../cell_skin/mergeSchemas.html">mergeSchemas</a>: How multiple induced blueprints are combined into a
+wider system DNA.</li>
+</ul>
 </section>
 
 

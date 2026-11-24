@@ -55,12 +55,49 @@
 
     
 <section class="desc markdown">
-  <p>An auth implementation that accepts everyone — the explicit
-anonymous opt-in for a loopback-only demo or test adapter.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<p>This is <strong>not</strong> a default: <code>RestAdapter.bind</code> requires an explicit
-<code>auth:</code> argument, and passing this class is the deliberate choice
-to accept anonymous callers.</p>
+  <p>A permissive gatekeeper that accepts all incoming signals without verification.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/AllowAllSkinAuth-class.html">AllowAllSkinAuth</a> is the
+<strong>Universal Receptor</strong>. It allows any <strong>Nervous Signal</strong> (request) to cross
+the <strong>Skin Membrane</strong> by assigning it the <strong>Neutral Signature</strong>
+(<a href="../cell_skin/SkinPrincipal/SkinPrincipal.anonymous.html">SkinPrincipal.anonymous</a>).</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Testing &amp; Demos</strong>: The standard choice for loopback tests or local
+demonstrations where identity verification is not required.</li>
+<li><strong>Public Exposure</strong>: Use this for systems intended to be entirely
+open to the environment, where authorization is handled solely by
+the downstream <strong>Integrity Gates</strong> based on the target cell.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Ingress</strong>: A request arrives at the membrane.</li>
+<li><strong>Blind Acceptance</strong>: This gatekeeper ignores all <strong>Environmental Markers</strong>
+(tokens, metadata) within the <a href="../cell_skin/SkinCredentials-class.html">SkinCredentials</a>.</li>
+<li><strong>Anonymous Resolution</strong>: It returns <a href="../cell_skin/SkinPrincipal/SkinPrincipal.anonymous.html">SkinPrincipal.anonymous</a>,
+ensuring the journey can proceed to the <a href="../cell_skin/ContextBridge-class.html">ContextBridge</a>.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Deliberate Opt-in</strong>: This is never the default. Adapters like <code>RestAdapter</code>
+require an explicit <code>auth</code> parameter; passing this class is a conscious
+decision to disable identity-based rejection at the membrane.</li>
+<li><strong>Forensic Impact</strong>: Every <strong>Somatic State Transition</strong> triggered through
+this gate will be recorded in the <strong>Forensic Ledger</strong> under the
+ID <code>'anonymous'</code>. This makes individual actor attribution impossible.</li>
+<li><strong>Integrity Gates Still Apply</strong>: Authenticating a signal as anonymous
+does not grant it power. If a target cell requires a <code>SystemContext</code>
+or a specific role, the pulse will still be rejected by the cell's
+internal <strong>Integrity Gate</strong>.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/SkinPrincipal/SkinPrincipal.anonymous.html">SkinPrincipal.anonymous</a>: The identity DNA produced by this class.</li>
+<li><a href="../cell_skin/SkinAuth-class.html">SkinAuth</a>: The base interface for identity gatekeepers.</li>
+</ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — this is a "pass-through" identity check.
+<strong>Status:</strong> All signals are marked anonymous.
+<strong>Security:</strong> Use only in non-production or intentionally public environments.</p>
 </section>
 
 
@@ -93,7 +130,7 @@ to accept anonymous callers.</p>
           <span class="name"><a href="../cell_skin/AllowAllSkinAuth/AllowAllSkinAuth.html">AllowAllSkinAuth</a></span><span class="signature">()</span>
         </dt>
         <dd>
-          
+          Creates a new <a href="../cell_skin/AllowAllSkinAuth-class.html">AllowAllSkinAuth</a> gatekeeper.
             <div class="constructor-modifier features">const</div>
         </dd>
     </dl>
@@ -145,7 +182,7 @@ to accept anonymous callers.</p>
 
 </dt>
 <dd>
-  
+  Resolves every impulse to a <strong>Neutral Signature</strong>.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

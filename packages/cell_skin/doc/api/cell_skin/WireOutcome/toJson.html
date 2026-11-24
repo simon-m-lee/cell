@@ -61,20 +61,23 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Converts the outcome into its <strong>Skin Form</strong> for transport.</p>
+</section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Map&lt;String, Object?&gt; toJson() =&gt; {
-      &#39;kind&#39;: kind,
-      if (result != null) &#39;result&#39;: result,
-      if (reason != null) &#39;reason&#39;: reason,
-      &#39;receipt&#39;: receipt,
-      if (resultOmitted) &#39;resultOmitted&#39;: true,
-      if (reasonOmitted) &#39;reasonOmitted&#39;: true,
-      if (argumentsOmitted) &#39;argumentsOmitted&#39;: true,
-    };</code></pre>
+  &#39;kind&#39;: kind,
+  if (result != null) &#39;result&#39;: result,
+  if (reason != null) &#39;reason&#39;: reason,
+  &#39;receipt&#39;: receipt,
+  if (resultOmitted) &#39;resultOmitted&#39;: true,
+  if (reasonOmitted) &#39;reasonOmitted&#39;: true,
+  if (argumentsOmitted) &#39;argumentsOmitted&#39;: true,
+};</code></pre>
 </section>
 
 

@@ -31,6 +31,21 @@ void main() {
     expect(decoded.lastSeenSeq, 3);
   });
 
+  test('a WireRequest deadline is queue metadata and drops on the wire', () {
+    final request = WireRequest(
+      cellId: 'home.living.thermostat',
+      function: 'setTarget',
+      correlationId: 'c-1',
+      deadline: DateTime(2026, 1, 1),
+    );
+    final json = request.toJson();
+    expect(json.containsKey('deadline'), isFalse);
+    final decoded = WireMessage.fromJson(
+            jsonDecode(jsonEncode(json)) as Map<String, dynamic>)
+        as WireRequest;
+    expect(decoded.deadline, isNull);
+  });
+
   test('WireNotification and WireError round-trip', () {
     final notification =
         WireNotification(method: 'initialized', params: {'a': 1});
@@ -105,5 +120,34 @@ void main() {
     expect(SkinPulseTypes.resultType(outcome), 'mcp.tools.result.accepted');
     expect(SkinPulseTypes.restResponseType(outcome),
         'rest.apply.response.accepted');
+  });
+
+  test('WireResponse round-trips ledgerSeqs', () {
+    final response = WireResponse(
+      correlationId: 'c-1',
+      outcomeJson: const WireOutcome(
+        kind: 'accepted',
+        result: true,
+        receipt: {'id': 'r'},
+      ),
+      ledgerSeqs: [0, 1],
+    );
+    final decoded = WireMessage.fromJson(
+            jsonDecode(jsonEncode(response.toJson())) as Map<String, dynamic>)
+        as WireResponse;
+    expect(decoded.ledgerSeqs, [0, 1]);
+  });
+
+  test('a Pulse result encodes as its payload', () async {
+    final handle = Cell.state<int>(initial: 1);
+    final command = (
+      function: () => Pulse<int>(19),
+      arguments: (positionalArguments: null, namedArguments: null),
+      compensation: null,
+    );
+    final outcome = await handle.cell.apply<Object?>(command);
+    final json = wireOutcomeJson(outcome);
+    expect(json['result'], 19);
+    expect(json.containsKey('resultOmitted'), isFalse);
   });
 }

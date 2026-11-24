@@ -64,8 +64,12 @@
     </section>
     
 <section class="desc markdown">
-  <p>The binding for <code>(cellId, functionName)</code>, or <code>null</code> when the
-function was never exposed.</p>
+  <p>Finds the <a href="../../cell_skin/SkinBinding-class.html">SkinBinding</a> at the specified somatic coordinates.</p>
+<p>In the framework's biological metaphor, this is a <strong>Synaptic Lookup</strong>.
+It is the primary mechanism for the <a href="../../cell_skin/SkinRouter-class.html">SkinRouter</a> to determine
+if a <strong>Nervous Signal</strong> should be allowed to cross the membrane
+or be rejected as an unknown impulse.</p>
+<p>Returns <code>null</code> if the function was never physically exposed.</p>
 </section>
 
 

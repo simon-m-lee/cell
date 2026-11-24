@@ -31,6 +31,13 @@ final outcome = await f.run(() => f.client.apply(...));
 await f.settle(); // let the router and ledger tail drain
 ```
 
+`f.run` (the graph's `graph.run`) is the right wrapper for **in-process
+multi-apply tests**: several applies share one ledger scope, and the
+router will not open a second one. **REST ledger tests must not wrap the
+HTTP handler in `f.run`** — that would pass for the wrong reason. With a
+bound ledger the router opens the scope around each target apply itself,
+which is exactly what those tests assert (`test/ledger_scope_test.dart`).
+
 Remember: the binding table **seals at open** — custom bindings must
 be registered through `extraBindings`, never after `build()` returns.
 

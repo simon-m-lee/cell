@@ -1,5 +1,15 @@
 # cell_skin
 
+```bash
+dart run skills@ get cell_skin
+```
+
+The skill carries the workflow, the hard rules, the BRD elevator
+matrix, and the generated decision matrix — the same matrix in two
+formats: `lib/doc/api_chooser.dart` and
+`skills/cell-skin/references/api_chooser.md`. The pin is
+`cell_skin 1.0.0`.
+
 The membrane between a Cell graph and the outside world — MCP-native,
 audit-ready, replay-verifiable.
 
@@ -12,6 +22,14 @@ each doing one thing.
 Cell.ingress → Cell.asyncMap → target.apply → Cell.observe → Cell.observe
 (inbound)      (router)          (the plug)     (egress)        (outbound)
 ```
+
+![Echo Home — the live demo](doc/demo/echo_home.gif)
+
+**Echo Home — the live demo.** A scripted agent drives the real
+four-cell membrane, the real `TestCell` gates (the door lock is
+genuinely refused), the real hash-chained ledger, and a real
+zero-divergence replay. Walkthrough: [DEMO_GUIDE.md](DEMO_GUIDE.md);
+source: [example/](example/).
 
 Every remote call lands in `Cell.apply` on the real target cell. Every
 receipt that crosses the wire is the target's own receipt — the router
@@ -26,7 +44,7 @@ the same four Cells serve MCP and REST without a second wire format.
 | A `Pulse<WireMessage>` codec + taxonomy | A JSON-RPC implementation (that is `dart_mcp`'s job) |
 | Four Cells composed from `Cell.ingress` / `Cell.asyncMap` / `Cell.observe` | A new Cell subclass |
 | A binding table from `(cellId, fnName)` to live Dart closures | Reflection over Dart functions |
-| Two gates: exposure (router Cell) + domain (target's `TestCell.action`) | A unified authorization language |
+| Three gates: exposure (router Cell), the optional `SkinAuthorizer` hook, + domain (target's `TestCell.action`) | A unified authorization language |
 | A receipt-preserving courier | A parallel apply path |
 | A REST binding sharing the same Cells as MCP | A second architecture |
 
@@ -52,11 +70,11 @@ Future<void> main() async {
   );
 
   final bindings = SkinBindingTable()
-    ..register(SkinBinding(
+    ..register(SkinBinding.state(
       cellId: 'home.living.thermostat',
       functionName: 'setTarget',
       target: thermostat.cell,
-      function: (int target) => thermostat.update(target),
+      nextValue: (int target) => target,
       argumentSchema: const JsonSchema(
         type: 'object',
         properties: {
@@ -75,9 +93,13 @@ Future<void> main() async {
   );
 
   final client = SkinClient(membrane: membrane);
-  final outcome = await graph.run(
-      () => client.apply('home.living.thermostat', 'setTarget', positional: [19]));
-  // outcome is the target's real ApplyOutcome<Object?>.
+  final outcome =
+      await client.apply('home.living.thermostat', 'setTarget', positional: [19]);
+  // outcome is the target's real ApplyOutcome<Object?>. With a bound
+  // ledger the router opened the graph's ledger scope around this apply —
+  // `graph.run` is not required for remote applies. Wrap several
+  // in-process applies in `graph.run(...)` when they must share one
+  // scope; the router will not open a second one.
 }
 ```
 
@@ -221,7 +243,8 @@ graph with **zero divergences**. The generated inventory lives in
   [Idempotency](guide/HowTo-Idempotency.md),
   [RestAdapter](guide/HowTo-RestAdapter.md),
   [McpSeam](guide/HowTo-McpSeam.md), [Auth](guide/HowTo-Auth.md),
-  [Testing](guide/HowTo-Testing.md).
+  [Testing](guide/HowTo-Testing.md),
+  [Recording](guide/HowTo-Recording.md).
 - API docs — `dart doc .` generates `doc/api` (Topics + Libraries).
   Every HowTo guide, plus Features / Architecture / Demo / Test
   Verification, is a Topics category with annotated API elements.

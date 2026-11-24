@@ -16,11 +16,11 @@ void main() {
   test('a stale lastSeenSeq conflicts before the target apply runs', () async {
     final f = await SkinFixture.build(
       extraBindings: (targets) => [
-        SkinBinding(
+        SkinBinding.state(
           cellId: 'home.living.thermostat',
           functionName: 'setTargetStrict',
           target: targets.thermostat.cell,
-          function: (int target) => targets.thermostat.update(target),
+          nextValue: (int target) => target,
           strictCursor: true,
         ),
       ],

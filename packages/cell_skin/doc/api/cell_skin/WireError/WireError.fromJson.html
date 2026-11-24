@@ -59,7 +59,11 @@
     </section>
     
 <section class="desc markdown">
-  <p>Decodes a <a href="../../cell_skin/WireError-class.html">WireError</a> encoded by <a href="../../cell_skin/WireError/toJson.html">toJson</a>.</p>
+  <p>Decodes a raw JSON map into a <a href="../../cell_skin/WireError-class.html">WireError</a>.</p>
+<p>In the framework's biological metaphor, this factory acts as a
+<strong>Signal Decoder</strong> at the <strong>Skin Membrane</strong>. It translates the
+<strong>Skin Form</strong> of a rejection back into a structured error that
+the client can use to react to a failed request.</p>
 </section>
 
 
@@ -67,11 +71,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">factory WireError.fromJson(Map&lt;String, Object?&gt; json) =&gt; WireError(
-      correlationId: json[&#39;correlationId&#39;] as String,
-      clientCorrelationId: json[&#39;clientCorrelationId&#39;] as String?,
-      code: json[&#39;code&#39;] as String,
-      message: json[&#39;message&#39;] as String,
-    );</code></pre>
+  correlationId: json[&#39;correlationId&#39;] as String,
+  clientCorrelationId: json[&#39;clientCorrelationId&#39;] as String?,
+  code: json[&#39;code&#39;] as String,
+  message: json[&#39;message&#39;] as String,
+);</code></pre>
 </section>
 
 

@@ -51,29 +51,52 @@
 <h1><span class="kind-class">SkinBindingTable</span> class 
     <a href="https://dart.dev/language/class-modifiers#final" class="feature feature-final" title="This class can neither be extended, implemented, nor mixed in.">final</a>
  
-    <span class="category howto-·-bindings cp-2 linked" title="This is part of the HowTo · Bindings topic."><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></span>
+    <span class="category howto-·-bindings cp-1 linked" title="This is part of the HowTo · Bindings topic."><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></span>
 </h1></div>
 
     
 <section class="desc markdown">
-  <p>The <code>(cellId, functionName)</code> → closure lookup table.</p>
-<p>The table can be <a href="../cell_skin/SkinBindingTable/seal.html">seal</a>ed: a sealed table rejects further
-registrations, so a membrane that froze its egress cells at <code>open()</code>
-can never diverge from the manifest.</p>
+  <p>The authoritative registry for every exposed function on the membrane surface.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/SkinBindingTable-class.html">SkinBindingTable</a> is the
+<strong>Somatic Registry</strong>. It acts as the technical map of the <strong>Skin Membrane</strong>,
+storing every <strong>Membrane Pore</strong> (<a href="../cell_skin/SkinBinding-class.html">SkinBinding</a>) that has been declared
+as physically open to the environment.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
-<li>Registering every exposed tool before <a href="../cell_skin/SkinMembrane/open.html">SkinMembrane.open</a> — the
-table is the whole exposure registry.</li>
+<li><strong>System Initialization</strong>: Use this to register every cell and tool
+intended for external exposure before calling <a href="../cell_skin/SkinMembrane/open.html">SkinMembrane.open</a>.</li>
+<li><strong>Routing</strong>: Used by the <a href="../cell_skin/SkinRouter-class.html">SkinRouter</a> to resolve incoming <strong>Nervous Signals</strong>
+to their target somatic addresses.</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
-<p><code>register</code> rejects duplicates and, once sealed, any further
-registration; <a href="../cell_skin/SkinBindingTable/lookup.html">SkinBindingTable.lookup</a> is the router's exposure
-gate.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<p>The membrane seals the table at <code>open()</code>: everything registered
-later throws — design registration order deliberately.</p>
+<ol>
+<li><strong>Exposure Declaration</strong>: Developers <a href="../cell_skin/SkinBindingTable/register.html">register</a> individual bindings.</li>
+<li><strong>DNA Freezing</strong>: The table is typically <a href="../cell_skin/SkinBindingTable/seal.html">seal</a>ed when the membrane opens.</li>
+<li><strong>Synaptic Lookup</strong>: The router uses <a href="../cell_skin/SkinBindingTable/lookup.html">lookup</a> to check if a request
+targets a legitimate pore.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Sealing Protocol</strong>: The membrane seals the table at <code>open()</code>. Any
+attempt to <a href="../cell_skin/SkinBindingTable/register.html">register</a> a new binding after the system is live will
+throw a <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a>, preventing "Forensic Ambiguity."</li>
+<li><strong>Deduplication</strong>: The table strictly enforces unique <code>(cellId, functionName)</code>
+pairs. If two cells attempt to occupy the same synaptic point,
+registration fails immediately.</li>
+<li><strong>Determinism</strong>: The order of <a href="../cell_skin/SkinBindingTable/exposedCellIds.html">exposedCellIds</a> and <a href="../cell_skin/SkinBindingTable/all.html">all</a> reflects the
+physical registration order, ensuring the <strong>Somatic Index</strong> (manifest)
+remains stable across discovery impulses.</li>
+</ul>
 <h3 id="see-also">See also</h3>
-<p><a href="../cell_skin/SkinBinding-class.html">SkinBinding</a>, <a href="../cell_skin/SkinWhitelist-class.html">SkinWhitelist</a>, <a href="../cell_skin/SkinMembrane/open.html">SkinMembrane.open</a>.</p>
+<ul>
+<li><a href="../cell_skin/SkinBinding-class.html">SkinBinding</a>: The descriptor for a single pore.</li>
+<li><a href="../cell_skin/SkinMembrane-class.html">SkinMembrane</a>: The organ that uses this table to govern its boundary.</li>
+<li><a href="../cell_skin/SkinManifest-class.html">SkinManifest</a>: The external view of this registry.</li>
+</ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — this is the master list of what is exposed.
+<strong>Traceability:</strong> Once sealed, the system's "DNA" cannot be mutated.
+<strong>Constraint:</strong> Register all tools <em>before</em> opening the membrane.</p>
 </section>
 
 
@@ -103,7 +126,7 @@ later throws — design registration order deliberately.</p>
 
 </dt>
 <dd>
-  Every binding, flattened.
+  A flattened list of every <a href="../cell_skin/SkinBinding-class.html">SkinBinding</a> registered in the table.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -115,7 +138,7 @@ later throws — design registration order deliberately.</p>
 
 </dt>
 <dd>
-  All exposed cell ids, in first-registration order.
+  The list of all cell IDs currently exposed at the membrane.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -139,7 +162,7 @@ later throws — design registration order deliberately.</p>
 
 </dt>
 <dd>
-  Whether <a href="../cell_skin/SkinBindingTable/seal.html">seal</a> has been called.
+  Freezes the <strong>Somatic Registry</strong>.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -151,7 +174,7 @@ later throws — design registration order deliberately.</p>
 
 </dt>
 <dd>
-  The number of registered bindings.
+  The total number of exposed synaptic points (functions) in the registry.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -185,7 +208,7 @@ later throws — design registration order deliberately.</p>
 
 </dt>
 <dd>
-  All bindings for <code>cellId</code>, in first-registration order.
+  Returns every <a href="../cell_skin/SkinBinding-class.html">SkinBinding</a> associated with a specific <code>cellId</code>.
   
 
 </dd>
@@ -198,7 +221,7 @@ later throws — design registration order deliberately.</p>
 
 </dt>
 <dd>
-  Whether any function is exposed for <code>cellId</code>.
+  Whether the cell at <code>cellId</code> has any physical exposure at the membrane.
   
 
 </dd>
@@ -211,8 +234,7 @@ later throws — design registration order deliberately.</p>
 
 </dt>
 <dd>
-  The binding for <code>(cellId, functionName)</code>, or <code>null</code> when the
-function was never exposed.
+  Finds the <a href="../cell_skin/SkinBinding-class.html">SkinBinding</a> at the specified somatic coordinates.
   
 
 </dd>
@@ -238,7 +260,7 @@ function was never exposed.
 
 </dt>
 <dd>
-  Registers <code>binding</code>.
+  Registers a <code>binding</code> at the <strong>Skin Membrane</strong>.
   
 
 </dd>
@@ -251,7 +273,7 @@ function was never exposed.
 
 </dt>
 <dd>
-  Freezes the table. Registrations after this throw <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a>.
+  Freezes the <strong>Somatic Registry</strong>.
   
 
 </dd>

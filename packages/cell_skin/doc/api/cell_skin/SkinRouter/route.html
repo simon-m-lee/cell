@@ -64,7 +64,14 @@
     </section>
     
 <section class="desc markdown">
-  <p>Routes one inbound wire pulse. Returns <code>null</code> to suppress.</p>
+  <p>Processes a single <strong>Nervous Signal</strong> arriving from the environment.</p>
+<p>This method acts as the <strong>Signal Dispatcher</strong>. It identifies the type
+of impulse—be it a <strong>Discovery Impulse</strong> (<a href="../../cell_skin/WireManifestRequest-class.html">WireManifestRequest</a>) or a
+<strong>Command Journey</strong> (<a href="../../cell_skin/WireRequest-class.html">WireRequest</a>)—and initiates the appropriate
+somatic response.</p>
+<p>Returns a <code>Pulse&lt;WireMessage&gt;</code> representing the <strong>External Echo</strong>,
+or <code>null</code> if the signal is a volatile notification that requires
+no somatic feedback.</p>
 </section>
 
 

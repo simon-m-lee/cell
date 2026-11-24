@@ -55,25 +55,51 @@
 
     
 <section class="desc markdown">
-  <p>A small JSON Schema subset sufficient for MCP <code>tools/list</code> and REST
-clients. Unknown keywords are preserved in <a href="../cell_skin/JsonSchema/extra.html">extra</a>.</p>
+  <p>The technical blueprint describing the shape and constraints of a somatic signal.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/JsonSchema-class.html">JsonSchema</a> is the <strong>Somatic Blueprint</strong>.
+It defines the "DNA" structure required for a <strong>Nervous Signal</strong> (request)
+to successfully pass through a cell's <strong>Integrity Gate</strong>.</p>
+<p>These blueprints are carried within the <strong>Somatic Index</strong> (the manifest) to
+help external agents (like AI tools) understand how to format a
+<strong>Command Journey</strong> that the system will accept.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
-<li>Declaring a binding's <code>argumentSchema</code> hint, or describing the
-observed value shape in the manifest.</li>
+<li><strong>Discovery</strong>: Provided in a <a href="../cell_skin/WireManifestResponse-class.html">WireManifestResponse</a> so clients know
+the valid inputs for exposed cells and tools.</li>
+<li><strong>Validation</strong>: Used at the <strong>Skin Membrane</strong> to pre-screen
+<strong>Skin Payloads</strong> before they are converted into internal pulses.</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
-<p><a href="../cell_skin/schemaForValue.html">schemaForValue</a> derives a <strong>widening</strong> schema from a live value:
-type-only inference (no single-value <code>enum</code> or
-<code>minimum == maximum</code>), <code>required</code> as the intersection across
-objects, absent bounds as unconstrained, and array items merged
-across every element.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<p><a href="../cell_skin/JsonSchema/JsonSchema.fromJson.html">JsonSchema.fromJson</a> is lenient (array <code>type</code>, schema-object
-<code>additionalProperties</code>) and strips known keys from <a href="../cell_skin/JsonSchema/extra.html">extra</a> so a raw
-input map can never re-spread over modelled fields.</p>
+<ol>
+<li><strong>Observation</strong>: The system monitors the <strong>Forensic Ledger</strong> and uses
+<a href="../cell_skin/schemaForValue.html">schemaForValue</a> to record the shapes of data that have successfully
+triggered transitions.</li>
+<li><strong>Widening</strong>: As different types of data are accepted, the blueprint
+"widens" to accommodate the new valid shapes.</li>
+<li><strong>Manual Hardening</strong>: Developers can provide explicit blueprints to
+enforce strict <strong>Integrity Gates</strong> (e.g., specific <code>enum</code> values or
+numeric ranges).</li>
+</ol>
+<h3 id="non-obvious-behavior">Non-obvious behavior</h3>
+<ul>
+<li><strong>Permissive Fallback</strong>: If a cell's receptor is an opaque predicate
+(a Dart closure), the blueprint falls back to <a href="../cell_skin/JsonSchema/permissive-constant.html">permissive</a> (<code>{}</code>). In
+this case, the <strong>Integrity Gate</strong> remains authoritative, but the
+membrane cannot describe the requirements to the outside world.</li>
+<li><strong>Forensic Integrity</strong>: While the blueprint guides the agent, the
+actual state transition is only granted if the live cell
+accepts the pulse during the <strong>Command Journey</strong>.</li>
+</ul>
 <h3 id="see-also">See also</h3>
-<p><a href="../cell_skin/mergeSchemas.html">mergeSchemas</a>, <a href="../cell_skin/SkinBinding/argumentSchema.html">SkinBinding.argumentSchema</a>.</p>
+<ul>
+<li><a href="../cell_skin/WireManifestResponse-class.html">WireManifestResponse</a>: The signal that carries these blueprints.</li>
+<li><a href="../cell_skin/schemaForValue.html">schemaForValue</a>: The utility that derives blueprints from observed state.</li>
+</ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — this is your guide for tool calls.
+<strong>Constraint:</strong> Always match your arguments to the <code>properties</code> defined here.
+<strong>Validation:</strong> Rejection by the system usually means your signal violated
+the somatic structure defined in this blueprint.</p>
 </section>
 
 
@@ -114,7 +140,7 @@ entry wins) and <code>additionalProperties</code> may be a schema object
 
 </dt>
 <dd>
-  
+  Whether the membrane allows extra, non-modelled data to pass through.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -126,7 +152,7 @@ entry wins) and <code>additionalProperties</code> may be a schema object
 
 </dt>
 <dd>
-  
+  Human-readable context describing the somatic purpose of this field.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -138,7 +164,7 @@ entry wins) and <code>additionalProperties</code> may be a schema object
 
 </dt>
 <dd>
-  
+  The allowed somatic vocabulary for this signal.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -150,7 +176,7 @@ entry wins) and <code>additionalProperties</code> may be a schema object
 
 </dt>
 <dd>
-  
+  Non-modelled technical metadata preserved from the original signal.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -174,7 +200,7 @@ entry wins) and <code>additionalProperties</code> may be a schema object
 
 </dt>
 <dd>
-  
+  The blueprint for elements within a signal sequence (array).
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -186,7 +212,7 @@ entry wins) and <code>additionalProperties</code> may be a schema object
 
 </dt>
 <dd>
-  
+  The upper somatic threshold for numeric signals.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -198,7 +224,7 @@ entry wins) and <code>additionalProperties</code> may be a schema object
 
 </dt>
 <dd>
-  
+  The lower somatic threshold for numeric signals.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -210,7 +236,7 @@ entry wins) and <code>additionalProperties</code> may be a schema object
 
 </dt>
 <dd>
-  
+  The internal structure of a complex <strong>Skin Payload</strong>.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -222,7 +248,8 @@ entry wins) and <code>additionalProperties</code> may be a schema object
 
 </dt>
 <dd>
-  
+  The list of mandatory <strong>Somatic Nutrients</strong> (arguments) that must be
+present for the signal to be valid.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -246,7 +273,7 @@ entry wins) and <code>additionalProperties</code> may be a schema object
 
 </dt>
 <dd>
-  
+  The physical category of the signal (e.g., 'object', 'string', 'integer').
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -336,7 +363,7 @@ entry wins) and <code>additionalProperties</code> may be a schema object
 
 </dt>
 <dd>
-  The permissive schema: accepts anything.
+  The permissive blueprint: accepts any <strong>Nervous Signal</strong>.
   
 
 </dd>

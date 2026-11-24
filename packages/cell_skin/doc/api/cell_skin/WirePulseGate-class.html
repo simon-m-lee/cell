@@ -55,9 +55,56 @@
 
     
 <section class="desc markdown">
-  <p>Rejects pulses whose payload is not a <a href="../cell_skin/WireMessage-class.html">WireMessage</a> (at either wrap
-level — <code>Cell.ingress&lt;Pulse&lt;WireMessage&gt;&gt;</code> wraps the wire pulse in
-the ingress's own pulse); allows every other channel.</p>
+  <p>An integrity gate that ensures only valid wire signals enter the somatic graph.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/WirePulseGate-class.html">WirePulseGate</a> acts as the
+<strong>Ingress Membrane Filter</strong>. It sits at the absolute edge of the
+<strong>Skin Membrane</strong> to verify that an incoming impulse is a recognized
+<strong>Nervous Signal</strong> (a <a href="../cell_skin/WireMessage-class.html">WireMessage</a>) before it is allowed to begin a
+<strong>Command Journey</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Ingress Validation</strong>: Automatically used by the framework's
+inbound transport cell to prevent malformed or non-somatic data from
+polluting the reactive graph.</li>
+<li><strong>Structural Integrity</strong>: Ensures that every pulse entering via a
+physical adapter (REST, MCP, SSE) carries a payload that can be
+sanitized and recorded.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Ingress</strong>: A pulse arrives at the membrane's ingress pore.</li>
+<li><strong>Payload Inspection</strong>: The gate inspects the <code>object.payload</code>.</li>
+<li><strong>Verification</strong>:
+<ul>
+<li>If the payload is a <a href="../cell_skin/WireMessage-class.html">WireMessage</a>, the signal is vetted.</li>
+<li>If the payload is another <code>Pulse</code> (wrapped ingress), it recursively
+checks for an internal <a href="../cell_skin/WireMessage-class.html">WireMessage</a>.</li>
+</ul>
+</li>
+<li><strong>Rejection</strong>: If no <a href="../cell_skin/WireMessage-class.html">WireMessage</a> is found, the gate triggers a
+<strong>Membrane Rejection</strong>, discarding the impulse.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Pre-Forensic Gate</strong>: Because this check happens at the entry point
+of the <code>Cell.ingress</code>, a rejection here occurs before the signal is
+assigned a sequence number. This results in a <strong>Forensic Hole</strong> if
+not explicitly logged by the transport adapter.</li>
+<li><strong>Channel Permissiveness</strong>: This gate specifically filters the
+<em>pulse</em> channel. It allows other internal signals (like link or
+action updates) to pass through, as those are governed by the
+underlying <code>ingress</code> cell's native logic.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/WireMessage-class.html">WireMessage</a>: The base contract for all signals crossing the membrane.</li>
+<li><a href="../cell_skin/buildInboundCell.html">buildInboundCell</a>: The factory that installs this gate at the pore.</li>
+</ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — this is the first structural gate at the boundary.
+<strong>Traceability:</strong> No ledger entry is created if this gate rejects a signal.
+<strong>Constraint:</strong> The payload must be a <a href="../cell_skin/WireMessage-class.html">WireMessage</a> (e.g., <code>request</code>,
+<code>notification</code>, <code>manifestRequest</code>).</p>
 </section>
 
 

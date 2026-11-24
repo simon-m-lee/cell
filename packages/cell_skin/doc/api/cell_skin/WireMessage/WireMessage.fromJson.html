@@ -59,9 +59,18 @@
     </section>
     
 <section class="desc markdown">
-  <p>Decodes a <a href="../../cell_skin/WireMessage-class.html">WireMessage</a> produced by <a href="../../cell_skin/WireMessage/toJson.html">toJson</a>.</p>
-<p>Throws <a href="https://api.flutter.dev/flutter/dart-core/FormatException-class.html">FormatException</a> on an unknown or malformed <code>kind</code>, or on
-any malformed field — never a raw <a href="https://api.flutter.dev/flutter/dart-core/TypeError-class.html">TypeError</a>.</p>
+  <p>Decodes a raw JSON map into the correct <a href="../../cell_skin/WireMessage-class.html">WireMessage</a> type.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Kind Detection</strong>: It looks at the <code>kind</code> field in the JSON.</li>
+<li><strong>Type Mapping</strong>: It uses a <code>switch</code> expression to call the specific
+factory (like <a href="../../cell_skin/WireRequest/WireRequest.fromJson.html">WireRequest.fromJson</a>).</li>
+<li><strong>Safety Gate</strong>: If the <code>kind</code> is unknown or the data is broken,
+it throws a <a href="https://api.flutter.dev/flutter/dart-core/FormatException-class.html">FormatException</a> instead of a raw system error.</li>
+</ol>
+<h3 id="forensic-integrity">Forensic Integrity</h3>
+<p>This factory ensures that every message entering the system is
+properly identified before it begins its <strong>Command Journey</strong>.</p>
 </section>
 
 

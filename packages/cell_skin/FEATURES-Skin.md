@@ -31,7 +31,115 @@ and enforces exposure.
 | :--- | :--- |
 | **In scope** | Commands over REST/MCP/Dart; state observation; audit streaming; exposure policy; remote identity. |
 | **Out of scope** | The decision layer (`cell_flow`), the books (`cell_tissue`), an MCP transport (the `McpAdapter` is a seam for SDKs like `dart_mcp`), and inventing receipts the graph never produced. |
-| **Version** | 0.1.0 — pre-1.0; the wire vocabulary may evolve before 1.0. |
+| **Version** | 1.0.0-rc.1 — the wire is frozen, and the Dart surface below is frozen for the rc. |
+
+| Surface | Stability |
+| :--- | :--- |
+| Wire messages, error table, SSE cursors, MCP escape, fingerprint | `stable` |
+| `SkinMembrane`, `SkinBinding`, `SkinClient`, `RestAdapter`, `SkinAuthorizer`, `SkinWhitelist` | `stable` |
+| `IdempotencyStore`, `MemoryIdempotencyStore` | `stable` |
+| `FileIdempotencyStore` | `stable` — it is an `IdempotencyStore` |
+| `FileIdempotencyStore` line format | `experimental` — lines may gain fields |
+| `McpAdapter` and the rest of that library | `experimental` — a seam, not a transport |
+| `/ready`, `maxQueued`, `onRequestLog`, `SkinRequestSample` | `stable` |
+
+The line format is not a symbol. The class goes in the stable list. The
+experimental list is every public symbol whose declaring library is
+`mcp_adapter.dart`. One name per line, sorted; every exported name from
+the three barrels is in exactly one list.
+
+<!-- public-api:stable -->
+```text
+AllowAllSkinAuth
+BadArgumentsException
+ContextBridge
+DescribeContextBridge
+FileIdempotencyStore
+IdempotencyClaim
+IdempotencyOwned
+IdempotencyRecord
+IdempotencyReplay
+IdempotencyStore
+IdempotencyWait
+JsonSchema
+MemoryIdempotencyStore
+RemoteCellClient
+RestAdapter
+SchemaObserver
+SkinAuth
+SkinAuthorizer
+SkinBinding
+SkinBindingTable
+SkinCall
+SkinCellDescriptor
+SkinClient
+SkinCredentials
+SkinError
+SkinFunctionDescriptor
+SkinManifest
+SkinMembrane
+SkinPrincipal
+SkinPulseTypes
+SkinPulses
+SkinRequestLog
+SkinRequestSample
+SkinRouter
+SkinUnlisted
+SkinWhitelist
+SystemContextBridge
+WireError
+WireLedgerEntry
+WireManifestRequest
+WireManifestResponse
+WireMessage
+WireNotification
+WireOutcome
+WirePulseGate
+WireReceipt
+WireRequest
+WireResponse
+WireStateChange
+buildEgressCells
+buildInboundCell
+buildMuxCell
+buildOutboundCell
+idempotencyFingerprint
+idempotencyStoreKey
+kDefaultMaxBodyBytes
+mergeSchemas
+nextCorrelationId
+principalFrom
+requireSkinWireVersion
+requiredForMissingObject
+schemaForValue
+skinErrorStatus
+skinPrincipalSnapshot
+skinPulseContext
+skinWireVersion
+validateBindingArguments
+validateJsonSchema
+wireLedgerEntryCellId
+wireLedgerEntryFromJson
+wireLedgerEntryJson
+wireOutcomeFromJson
+wireOutcomeJson
+wireOutcomeKind
+wireReceiptJson
+wireStateChangeForEntry
+withWire
+```
+<!-- public-api:experimental -->
+```text
+McpAdapter
+McpResourceSpec
+McpToolCall
+McpToolSpec
+mcpEscapedToolName
+mcpResourceSpecs
+mcpToolSpecs
+mcpUnknownToolResult
+resolveMcpToolCall
+```
 
 ## 3. Wire Vocabulary
 
@@ -49,7 +157,9 @@ One sealed hierarchy, one intent per variant:
   No correlation id: egress is not a reply.
 * **`WireError`** — pre-apply rejections with stable codes:
   `unknown_tool`, `bad_arguments`, `cursor_required`, `conflict`,
-  `transport_error`, plus transport-level codes.
+  `idempotency_conflict`, `forbidden`, `queue_timeout`,
+  `outcome_unknown`, `queue_full`, `verify_failed`,
+  `host_not_allowed`, `origin_not_allowed`, `transport_error`.
 * **`WireNotification`** — fire-and-forget; `request()` on one throws
   `ArgumentError`.
 * **`WireManifestRequest`/`WireManifestResponse`** — tool catalogue.
@@ -148,7 +258,9 @@ table and optional whitelist:
   type-only inference (no single-value `enum`/`minimum == maximum`),
   `required` is the intersection across objects, absent bounds mean
   unconstrained, `int` ∪ `double` → `number`, and array items merge
-  every element's schema.
+  every element's schema. An **explicit** schema is a gate (`required`,
+  `enum`, closed objects, typed `null`, `positionalNames`); an observed
+  schema is a hint for `tools/list`, never enforced.
 * `JsonSchema` JSON round-trips are lenient on the way in (array
   `type`, schema-object `additionalProperties`) and never let stored
   extras re-spread over modelled keys.
@@ -166,7 +278,7 @@ required; anonymous access is the explicit `AllowAllSkinAuth`.
 | `GET /skin/manifest` | Tool catalogue. |
 | `GET /skin/observe/:cellId` | SSE state changes; 404 for unexposed cells. |
 | `GET /skin/ledger?since=N` | SSE audit: backlog replay from the store, then the live tail, `id:` events, exposure filtering. |
-| `POST /skin/verify` | Structured verification; tamper failure → `{ok: false, message}`. |
+| `POST /skin/verify` | Structured verification; tamper failure → `{ok: false, code: "verify_failed"}` — the exception goes to `onServerError`, never into the body. |
 
 Transport hardening: `Host` loopback check, `Origin` rejection unless
 listed, method enforcement per route, JSON-only capped bodies, 401 with
@@ -177,11 +289,13 @@ flush, keep-alive pings, silent-disconnect detection
 
 ## 11. MCP Seam
 
-`McpAdapter.mcpToolSpecs(manifest)` → neutral `McpToolSpec` /
-`McpResourceSpec` values: tool names `<cellId>.<functionName>` with
-dot-free, collision-checked parts, per-function descriptions, and
-schemas ready for any MCP SDK. `cell_skin` deliberately does not speak
-the MCP transport itself.
+`mcpToolSpecs(manifest)` → neutral `McpToolSpec` /
+`McpResourceSpec` values: `name` is the escaped MCP wire name (unsafe
+characters become `_`, at most 64 characters, registered once),
+`dottedName` is the raw `<cellId>.<functionName>`,
+`resolveMcpToolCall` accepts both forms, collisions throw at catalogue
+build, and an unknown name returns the `unknown_tool` tool result.
+`cell_skin` deliberately does not speak the MCP transport itself.
 
 ## 12. Clients
 
@@ -202,8 +316,11 @@ the MCP transport itself.
   `DescribeContextBridge` (default), `SystemContextBridge` (the loud
   opt-in to system authority).
 * Per-request `PulseContext(baseContext: bridge.resolve(principal),
-  actor: 'skin:<id>', reason: ...)` — the domain's `TestCell` gates see
-  the remote actor.
+  actor: 'skin:<id>', reason: ..., others: {'skin.principal': {...}})`.
+  The router installs a `SkinCall` zone around the apply — the domain's
+  `TestCell` gates read `SkinCall.current`, not the wire pulse — and
+  stamped pulse-returning applies (`SkinBinding.state`,
+  `SkinPulses.payload`) store the actor on the ledger row.
 
 ## 14. Consistency and Lifecycle
 

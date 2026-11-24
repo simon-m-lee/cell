@@ -54,26 +54,57 @@
         <span class="kind-library">cell_skin_rest</span>
         library 
  
-    <span class="category features cp-12 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category features cp-9 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
 
       </h1>
     </div>
 
     
 <section class="desc markdown">
-  <p>The REST binding entry point.</p>
-<p><code>RestAdapter</code> imports <code>dart:io</code>, so it is exported from this
-library rather than from the main <code>cell_skin.dart</code> barrel — web and
-Flutter-web consumers of the wire, the membrane, or the in-process
-client must be able to compile without an <code>io</code> dependency.</p>
+  <p>The RESTful transport binding for the somatic boundary.</p>
+<p>In the framework's biological metaphor, <strong>cell_skin_rest</strong> acts as a
+<strong>Restful Membrane Pore</strong>. It provides the physical infrastructure
+required to bridge standard HTTP/HTTPS protocols with the internal
+<strong>Skin Membrane</strong>.</p>
+<h3 id="environmental-constraints">Environmental Constraints</h3>
+<p>This library depends on <code>dart:io</code>. Because it binds to physical network
+sockets, it is separated from the core <code>cell_skin</code> barrel. This ensures
+that web-based cells or Flutter-web somatic entities can compile
+without inheriting an incompatible <code>io</code> dependency.</p>
+<h3 id="the-restful-journey">The RESTful Journey</h3>
+<p>When a request arrives at this pore:</p>
+<ol>
+<li><strong>Signal Ingress</strong>: The <a href="../cell_skin_rest/RestAdapter-class.html">RestAdapter</a> intercepts the HTTP request as
+a raw <strong>Skin Payload</strong>.</li>
+<li><strong>Identity Analysis</strong>: The <a href="../cell_skin/SkinAuth-class.html">SkinAuth</a> gatekeeper extracts <strong>Environmental
+Markers</strong> (headers, bearer tokens) to identify the caller.</li>
+<li><strong>Pulse Conversion</strong>: The request is translated into a <strong>Nervous Signal</strong>
+and dispatched into the somatic graph for a <strong>Command Journey</strong>.</li>
+<li><strong>Forensic Egress</strong>: The result of the <strong>Somatic State Transition</strong>
+is sanitized into its <strong>Skin Form</strong> and returned as a standard
+REST response.</li>
+</ol>
+<h3 id="usage">Usage</h3>
 <pre class="language-dart"><code class="language-dart">import 'package:cell_skin/cell_skin.dart';
 import 'package:cell_skin/cell_skin_rest.dart';
 
+// Physically bind the membrane to the network
 final adapter = await RestAdapter.bind(
   membrane: membrane,
-  auth: const AllowAllSkinAuth(), // anonymous access is opt-in
+  auth: const AllowAllSkinAuth(), // Define the identity gatekeeper
 );
 </code></pre>
+<h3 id="forensic-integrity">Forensic Integrity</h3>
+<p>This adapter ensures that protocol-level failures (e.g., 404s or 401s)
+are correctly mapped to <strong>Membrane Rejections</strong> (<a href="../cell_skin/WireError-class.html">WireError</a>), ensuring
+that the <strong>Forensic Ledger</strong> remains the absolute source of truth for
+successful state changes.</p>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin_rest/RestAdapter-class.html">RestAdapter</a>: The physical server implementation.</li>
+<li><a href="../cell_skin/SkinMembrane-class.html">SkinMembrane</a>: The boundary layer this library exposes.</li>
+<li><a href="../cell_skin/SkinAuth-class.html">SkinAuth</a>: The mechanism used to verify identity at this pore.</li>
+</ul>
 </section>
 
 
@@ -85,17 +116,16 @@ final adapter = await RestAdapter.bind(
 
 </dt>
 <dd>
-  An auth implementation that accepts everyone — the explicit
-anonymous opt-in for a loopback-only demo or test adapter.
+  A permissive gatekeeper that accepts all incoming signals without verification.
 </dd>
 
           <dt id="ContextBridge">
   <span class="name "><a href="../cell_skin/ContextBridge-class.html">ContextBridge</a></span> 
-    <span class="category howto-·-auth cp-10 linked" title="This is part of the HowTo · Auth topic."><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></span>
 
 </dt>
 <dd>
-  Translates a <a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a> into a framework <code>Context</code>.
+  The translation layer that converts external identities into internal
+framework provenance.
 </dd>
 
           <dt id="DescribeContextBridge">
@@ -103,26 +133,24 @@ anonymous opt-in for a loopback-only demo or test adapter.
 
 </dt>
 <dd>
-  The default bridge: least privilege, provenance recorded in the
-description.
+  The default translator that stamps signals with a descriptive identity.
 </dd>
 
           <dt id="RestAdapter">
   <span class="name "><a href="../cell_skin_rest/RestAdapter-class.html">RestAdapter</a></span> 
-    <span class="category howto-·-rest-adapter cp-8 linked" title="This is part of the HowTo · REST Adapter topic."><a href="../topics/REST Adapter-topic.html">HowTo&nbsp;·&nbsp;REST&nbsp;Adapter</a></span>
 
 </dt>
 <dd>
-  The HTTP + SSE adapter over a <a href="../cell_skin/SkinMembrane-class.html">SkinMembrane</a>.
+  The physical realization of a RESTful and SSE pore at the boundary layer.
 </dd>
 
           <dt id="SkinAuth">
   <span class="name "><a href="../cell_skin/SkinAuth-class.html">SkinAuth</a></span> 
-    <span class="category howto-·-auth cp-10 linked" title="This is part of the HowTo · Auth topic."><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></span>
+    <span class="category howto-·-auth cp-7 linked" title="This is part of the HowTo · Auth topic."><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></span>
 
 </dt>
 <dd>
-  Authenticates transport credentials. Returns <code>null</code> to reject.
+  The gatekeeper responsible for identifying external actors at the membrane.
 </dd>
 
           <dt id="SkinCredentials">
@@ -130,7 +158,7 @@ description.
 
 </dt>
 <dd>
-  Transport-level credentials.
+  The raw data extracted from the transport layer before identity is resolved.
 </dd>
 
           <dt id="SkinPrincipal">
@@ -138,7 +166,7 @@ description.
 
 </dt>
 <dd>
-  The authenticated identity behind a request.
+  The resolved identity DNA of an external actor at the membrane.
 </dd>
 
           <dt id="SystemContextBridge">
@@ -146,7 +174,7 @@ description.
 
 </dt>
 <dd>
-  A bridge that always returns <code>Context.system</code>.
+  A bridge that elevates every incoming signal to full system authority.
 </dd>
 
       </dl>
@@ -166,7 +194,7 @@ description.
 
 </dt>
 <dd>
-  The maximum request body size accepted by default (1 MiB).
+  The default somatic saturation limit for an incoming impulse at a membrane pore.
   
 
 </dd>
@@ -197,15 +225,12 @@ description.
         <li><a href="../topics/Features-topic.html">Features</a></li>
         <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
         <li><a href="../topics/Test Verification-topic.html">Test&nbsp;Verification</a></li>
-        <li><a href="../topics/Membrane-topic.html">HowTo&nbsp;·&nbsp;Membrane</a></li>
         <li><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></li>
         <li><a href="../topics/Whitelist-topic.html">HowTo&nbsp;·&nbsp;Whitelist</a></li>
         <li><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></li>
         <li><a href="../topics/Egress-topic.html">HowTo&nbsp;·&nbsp;Egress</a></li>
         <li><a href="../topics/Cursors-topic.html">HowTo&nbsp;·&nbsp;Cursors</a></li>
         <li><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></li>
-        <li><a href="../topics/REST Adapter-topic.html">HowTo&nbsp;·&nbsp;REST&nbsp;Adapter</a></li>
-        <li><a href="../topics/MCP Seam-topic.html">HowTo&nbsp;·&nbsp;MCP&nbsp;Seam</a></li>
         <li><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></li>
         <li><a href="../topics/Testing-topic.html">HowTo&nbsp;·&nbsp;Testing</a></li>
         <li><a href="../topics/Demo-topic.html">Demo:&nbsp;Echo&nbsp;Home</a></li>
@@ -224,6 +249,8 @@ description.
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
       <li class="section-subtitle">Test Verification</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Networking</li>
+        <li class="section-subitem"><a href="../cell_skin_rest/">cell_skin_rest</a></li>
 </ol>
 
   </div>

@@ -63,13 +63,51 @@
     </section>
     
 <section class="desc markdown">
-  <p>Builds the mux: a <code>Cell.synthesis</code> over <code>sources</code> that passes the
-wire pulse through and suppresses everything else.</p>
-<p>Two wrap levels exist by design: the router's <code>asyncMap</code> output
-carries <code>Pulse&lt;WireMessage&gt;</code> <em>payloads</em>, and the egress fan-in
-ingress double-wraps; the ledger tail (single wrap) is handled by
-the same check. The mux emits the wire pulse itself, so the
-outbound terminal cell always sees <code>Pulse&lt;WireMessage&gt;</code>.</p>
+  <p>Builds the somatic convergence point for all outbound wire signals.</p>
+<p>In the framework's biological metaphor, the mux cell is the
+<strong>Egress Funnel</strong>. It acts as a final fan-in primitive that collects
+<strong>Nervous Signals</strong> from various internal somatic sources—such as
+the router, the egress fan-in, and the <strong>Forensic Ledger</strong> tail—and
+prepares them to cross the <strong>Skin Membrane</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Membrane Orchestration</strong>: Automatically used by the <a href="../cell_skin/SkinMembrane-class.html">SkinMembrane</a>
+to unify multiple internal signal streams into a single outbound
+channel.</li>
+<li><strong>Outbound Filtering</strong>: Essential for ensuring that only sanitized
+<a href="../cell_skin/WireMessage-class.html">WireMessage</a> envelopes reach the terminal <a href="../cell_skin/buildOutboundCell.html">buildOutboundCell</a>.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Collection</strong>: It performs a <code>Cell.synthesis</code> over all
+provided <code>sources</code>.</li>
+<li><strong>Integrity Scrubbing</strong>: The aggregator inspects every incoming
+pulse. If the payload is not a <a href="../cell_skin/WireMessage-class.html">WireMessage</a> (or a pulse wrapping
+one), it is suppressed.</li>
+<li><strong>Unwrapping</strong>: If a signal arrives double-wrapped (e.g., from
+an async mapping in a cell), the mux strips the outer layer to
+ensure the outbound stream is a consistent <code>Pulse&lt;WireMessage&gt;</code>.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Transparency</strong>: The mux does not create new state; it
+merely facilitates the exit of existing <strong>Nervous Signals</strong>. It
+ensures that the <strong>Command Journey</strong> results and state updates
+remain chronologically coherent during egress.</li>
+<li><strong>Wrap Handling</strong>: By design, it handles both <code>WireMessage</code> payloads
+(from the ledger tail) and <code>Pulse&lt;WireMessage&gt;</code> payloads (from
+the router's <code>asyncMap</code>), preventing internal somatic structure
+from leaking through the <strong>Skin Membrane</strong>.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/buildOutboundCell.html">buildOutboundCell</a>: The terminal observation cell that follows this mux.</li>
+<li><a href="../cell_skin/WireMessage-class.html">WireMessage</a>: The envelope required for all surviving pulses.</li>
+</ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — this is the final aggregation point before egress.
+<strong>Status:</strong> Passive filtering and unwrapping.
+<strong>Constraint:</strong> Only <code>WireMessage</code> types survive this funnel.</p>
 </section>
 
 

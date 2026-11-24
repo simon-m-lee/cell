@@ -58,6 +58,40 @@
 </ol>})
     </section>
     
+<section class="desc markdown">
+  <p>Creates a new <a href="../../cell_skin/WireManifestResponse-class.html">WireManifestResponse</a> envelope.</p>
+<p>In the framework's biological metaphor, this constructor assembles the
+<strong>Somatic Index</strong>. It packages the system's "DNA" (available tools and cells)
+into a <strong>Skin Form</strong> so it can be transmitted back through the
+<strong>Skin Membrane</strong> in response to a <strong>Discovery Impulse</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Discovery Completion</strong>: Use this when the system has finished
+scanning its internal graph and is ready to tell a client (like an
+AI agent) what functionality is exposed.</li>
+<li><strong>Handshake Finalization</strong>: The final step in a connection sequence
+where the client needs the somatic map to begin sending commands.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>This constructor wraps a <a href="../../cell_skin/SkinManifest-class.html">SkinManifest</a>, which contains the technical
+schemas and addresses of the system's surface. Unlike a standard
+<a href="../../cell_skin/WireResponse-class.html">WireResponse</a>, this does not conclude a specific <strong>Command Journey</strong>
+and therefore does not require a correlation ID.</p>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Omission</strong>: The envelope created here is purely
+observational. It is not recorded in the <strong>Forensic Ledger</strong> because
+providing the index does not trigger a <strong>Somatic State Transition</strong>.</li>
+<li><strong>Global Snapshot</strong>: The manifest provided should represent the
+entirety of the physically exposed surface at the moment the
+<strong>Discovery Impulse</strong> was processed.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireManifestRequest-class.html">WireManifestRequest</a>: The discovery signal that triggers this response.</li>
+<li><a href="../../cell_skin/SkinManifest-class.html">SkinManifest</a>: The actual catalog of cells and tools being carried.</li>
+</ul>
+</section>
 
 
     

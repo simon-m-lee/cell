@@ -52,27 +52,52 @@
     <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
     <a href="https://dart.dev/language/class-modifiers#interface" class="feature feature-interface" title="This class can only be implemented (not extended or mixed in).">interface</a>
  
-    <span class="category howto-·-auth cp-10 linked" title="This is part of the HowTo · Auth topic."><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></span>
 </h1></div>
 
     
 <section class="desc markdown">
-  <p>Translates a <a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a> into a framework <code>Context</code>.</p>
+  <p>The translation layer that converts external identities into internal
+framework provenance.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/ContextBridge-class.html">ContextBridge</a> acts as the
+<strong>Membrane Translator</strong>. It ensures that every <strong>Nervous Signal</strong> (request)
+arriving at the <strong>Skin Membrane</strong> is stamped with a verified identity
+before it begins its <strong>Command Journey</strong>.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
-<li>Wiring remote identity into the graph's provenance: the adapter
-stamps <code>PulseContext(baseContext: bridge.resolve(principal))</code> on
-every inbound request.</li>
+<li><strong>Identity Mapping</strong>: Use this to define how credentials extracted
+from the wire (like JWTs or API keys) map to the framework's
+internal security model.</li>
+<li><strong>Provenance Enforcement</strong>: Required to ensure that every
+<strong>Somatic State Transition</strong> triggered by a remote actor is
+correctly attributed in the <strong>Forensic Ledger</strong>.</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
-<p><a href="../cell_skin/ContextBridge/resolve.html">resolve</a> maps a principal to the least-privilege context your
-policy demands; the membrane's default inbound context is
-<code>skin:untrusted</code>, never <code>Context.system</code>.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<p><code>Context.system</code> is only reachable through the explicit
-<code>SystemContextBridge</code> opt-in — there is no silent system authority.</p>
+<ol>
+<li><strong>Signal Ingress</strong>: A <a href="../cell_skin/WireRequest-class.html">WireRequest</a> hits the membrane carrying
+a <a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a>.</li>
+<li><strong>Translation</strong>: The bridge's <a href="../cell_skin/ContextBridge/resolve.html">resolve</a> method is called to
+convert that principal into a framework <code>Context</code>.</li>
+<li><strong>Stamping</strong>: The resulting context is attached to the pulse,
+becoming the authoritative "who" for the entire journey.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Integrity Gate Prerequisite</strong>: Most <strong>Integrity Gates</strong> within
+cells rely on the output of this bridge to decide whether to
+accept or reject a transition.</li>
+<li><strong>Forensic Traceability</strong>: If this bridge is misconfigured, the
+<strong>Forensic Ledger</strong> will record the wrong provenance, creating
+a "Forensic Hole" in your audit trail.</li>
+<li><strong>Least Privilege</strong>: By default, the membrane treats incoming
+signals as untrusted. The bridge is the only way to elevate
+privilege for a specific journey.</li>
+</ul>
 <h3 id="see-also">See also</h3>
-<p><a href="../cell_skin/SkinAuth-class.html">SkinAuth</a>, <a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a>, <code>ARCHITECTURE-Skin.md</code> §5.</p>
+<ul>
+<li><a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a>: The external identity being translated.</li>
+<li><code>Context</code>: The internal provenance record.</li>
+<li><a href="../cell_skin/SkinAuth-class.html">SkinAuth</a>: The mechanism that provides the principal to this bridge.</li>
+</ul>
 </section>
 
 
@@ -157,7 +182,7 @@ policy demands; the membrane's default inbound context is
 
 </dt>
 <dd>
-  The context for <code>principal</code>.
+  Maps a verified <code>principal</code> to a framework <code>Context</code>.
   
 
 </dd>

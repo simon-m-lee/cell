@@ -70,8 +70,12 @@ await membrane.request(
 );
 ```
 
-The pulse travels through `Pulse.governed`, so the domain's `TestCell`
-gates can see the actor. The membrane's default inbound context is
+The pulse travels through `Pulse.governed`. The router installs a
+`SkinCall` zone around the target apply, so the domain's `TestCell`
+reads the caller through `SkinCall.current` — the request context is
+not visible inside `TestCell.action`. The recorded pulse carries the
+actor when the binding returns a stamped pulse (`SkinBinding.state` or
+`SkinPulses.payload`). The membrane's default inbound context is
 least privilege (`skin:untrusted`) — never `Context.system`.
 
 ## responses — the broadcast

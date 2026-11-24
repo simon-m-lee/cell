@@ -62,17 +62,16 @@
       </section>
       
 <section class="desc markdown">
-  <p>The receipt join for egress pulses.
-Every pulse that survives the mux, as a broadcast stream (router
-responses, egress observations, ledger entries, errors).</p>
+  <p>The unified stream of every signal that survives the egress funnel.</p>
+<p>Provides an observational view of all <strong>Forensic Ledger Rows</strong>,
+<strong>External Echoes</strong> (responses), and <strong>Transient Impulses</strong>
+(notifications) leaving the system.</p>
 </section>
 
       
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">&#47;&#47;&#47; Every pulse that survives the mux, as a broadcast stream (router
-&#47;&#47;&#47; responses, egress observations, ledger entries, errors).
-final Stream&lt;Pulse&lt;WireMessage&gt;&gt; responses;</code></pre>
+  <pre class="language-dart"><code class="language-dart">final Stream&lt;Pulse&lt;WireMessage&gt;&gt; responses;</code></pre>
 </section>
 
 

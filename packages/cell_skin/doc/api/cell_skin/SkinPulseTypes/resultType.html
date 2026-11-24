@@ -63,7 +63,47 @@
     </section>
     
 <section class="desc markdown">
-  <p><code>mcp.tools.result.{accepted,rejected,staged}</code> for <code>outcome</code>.</p>
+  <p>Translates an internal <code>ApplyOutcome</code> into a specific <strong>Signal Label</strong> for MCP tools.</p>
+<p>In the framework's biological metaphor, this function creates the
+<strong>Forensic Stamp</strong> for a tool result. It takes the official receipt
+from the cell and converts it into a vocabulary that external MCP
+(Model Context Protocol) clients can understand.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>MCP Tool Responses</strong>: Use this when you are sending the result
+of a tool call back to an AI agent or an MCP host.</li>
+<li><strong>Result Routing</strong>: Use this to ensure the external signal matches
+the internal state recorded in the <strong>Forensic Ledger</strong>.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>It takes the <code>outcome</code> (the Forensic Receipt) and attaches a specific
+suffix to the <code>mcp.tools.result.</code> prefix based on what happened:</p>
+<ul>
+<li><code>accepted</code>: The command was successful.</li>
+<li><code>rejected</code>: The command was blocked by an Integrity Gate.</li>
+<li><code>staged</code>: The command is waiting in a transaction ledger.</li>
+</ul>
+<h3 id="parameters">Parameters</h3>
+<ul>
+<li><strong>outcome</strong>: The <code>ApplyOutcome</code> returned by the cell's <code>apply</code> method.</li>
+</ul>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Exhaustive Mapping</strong>: This uses a Dart <code>switch</code> expression to
+ensure that <em>every</em> possible outcome type is handled. If a new outcome
+type is added to the core framework, the compiler will require
+this labeler to be updated.</li>
+<li><strong>Authoritative Identity</strong>: The resulting string is used as the
+<code>type</code> for the outgoing <code>Pulse</code>, allowing the receiver to trace
+the "Command Journey" back to its internal result.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final outcome = await myCell.apply(myCommand);
+final signalType = SkinPulseTypes.resultType(outcome);
+
+// Returns: "mcp.tools.result.accepted"
+print(signalType);
+</code></pre>
 </section>
 
 

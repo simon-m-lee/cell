@@ -55,21 +55,23 @@
         library 
  
     <span class="category getting-started cp-0 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
-    <span class="category howto-·-testing cp-11 linked" title="This is part of the HowTo · Testing topic."><a href="../topics/Testing-topic.html">HowTo&nbsp;·&nbsp;Testing</a></span>
-    <span class="category features cp-12 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
-    <span class="category architecture cp-13 linked" title="This is part of the Architecture topic."><a href="../topics/Architecture-topic.html">Architecture</a></span>
-    <span class="category demo:-echo-home cp-14 linked" title="This is part of the Demo: Echo Home topic."><a href="../topics/Demo-topic.html">Demo:&nbsp;Echo&nbsp;Home</a></span>
-    <span class="category test-verification cp-15 linked" title="This is part of the Test Verification topic."><a href="../topics/Test Verification-topic.html">Test&nbsp;Verification</a></span>
+    <span class="category howto-·-testing cp-8 linked" title="This is part of the HowTo · Testing topic."><a href="../topics/Testing-topic.html">HowTo&nbsp;·&nbsp;Testing</a></span>
+    <span class="category features cp-9 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category architecture cp-10 linked" title="This is part of the Architecture topic."><a href="../topics/Architecture-topic.html">Architecture</a></span>
+    <span class="category demo:-echo-home cp-11 linked" title="This is part of the Demo: Echo Home topic."><a href="../topics/Demo-topic.html">Demo:&nbsp;Echo&nbsp;Home</a></span>
+    <span class="category test-verification cp-12 linked" title="This is part of the Test Verification topic."><a href="../topics/Test Verification-topic.html">Test&nbsp;Verification</a></span>
 
       </h1>
     </div>
 
     
 <section class="desc markdown">
-  <p><strong>cell_skin</strong> — the membrane between a Cell graph and the outside
-world. MCP-native, audit-ready, replay-verifiable.</p>
-<p>The wire is a <code>Pulse&lt;WireMessage&gt;</code> stream; the membrane is four
-Cells composed from framework primitives:</p>
+  <p>The physical boundary layer between the internal somatic graph and the external environment.
+MCP-native, audit-ready, replay-verifiable.</p>
+<p>In the framework's biological metaphor, <strong>cell_skin</strong> is the <strong>Skin Membrane</strong>.
+It acts as a specialized organ responsible for translating <strong>Nervous Signals</strong>
+(external requests) into <strong>Somatic State Transitions</strong> (internal logic) while
+ensuring absolute <strong>Forensic Integrity</strong>.</p>
 <pre class="language-text"><code class="language-text">Cell.ingress → Cell.asyncMap → target.apply → Cell.observe → Cell.observe
 (inbound)      (router)          (the plug)     (egress)        (outbound)
 </code></pre>
@@ -98,6 +100,42 @@ final client = SkinClient(membrane: membrane);
 final outcome = await client.apply('thermostat', 'setTarget',
     positional: [19]);
 </code></pre>
+<h3 id="the-command-journey">The Command Journey</h3>
+<p>Every impulse arriving at the membrane follows a strictly governed path:</p>
+<ol>
+<li><strong>Ingress (<code>InboundCell</code>)</strong>: The signal enters the membrane as a raw <strong>Skin Payload</strong>.</li>
+<li><strong>Integrity Gate (<a href="../cell_skin/SkinAuth-class.html">SkinAuth</a> &amp; <a href="../cell_skin/ContextBridge-class.html">ContextBridge</a>)</strong>: The signal's identity DNA
+is verified and translated into internal authority.</li>
+<li><strong>Routing (<code>RouterCell</code>)</strong>: The <strong>Nervous Signal</strong> is dispatched to the correct
+cell address within the somatic graph.</li>
+<li><strong>Application</strong>: The target cell processes the pulse. If accepted, it creates
+a <strong>Forensic Receipt</strong> anchored in the <strong>Forensic Ledger</strong>.</li>
+<li><strong>Egress (<code>EgressCell</code> &amp; <code>MuxCell</code>)</strong>: The result is sanitized into its <strong>Skin Form</strong>
+and broadcast back through the membrane to the environment.</li>
+</ol>
+<h3 id="forensic-integrity">Forensic Integrity</h3>
+<p>This package is designed for high-stakes environments where every change must
+be auditable. By leveraging the <strong>Forensic Ledger</strong>, <code>cell_skin</code> ensures that:</p>
+<ul>
+<li>Every successful transition is replay-verifiable.</li>
+<li>Failures at the membrane (rejections) are reported as <strong>Membrane Rejections</strong>
+(<a href="../cell_skin/WireError-class.html">WireError</a>) to prevent "Forensic Holes."</li>
+<li>The system's "DNA" (capabilities) is discoverable via the <strong>Somatic Index</strong>
+(<a href="../cell_skin/SkinManifest-class.html">SkinManifest</a>).</li>
+</ul>
+<h3 id="ai-native-governance">AI-Native Governance</h3>
+<p><code>cell_skin</code> is native to the Model Context Protocol (MCP). It uses <a href="../cell_skin/JsonSchema-class.html">JsonSchema</a>
+to describe its exposed surface, allowing AI agents to interact with somatic
+cells with high precision and safety.</p>
+<h3 id="components">Components</h3>
+<ul>
+<li><strong>Adapters</strong>: Connect the membrane to physical transports (MCP, SSE, REST).</li>
+<li><strong>Security</strong>: Defines the gatekeepers (<a href="../cell_skin/SkinAuth-class.html">SkinAuth</a>) and translators (<a href="../cell_skin/ContextBridge-class.html">ContextBridge</a>)
+that govern signal entry.</li>
+<li><strong>Bindings</strong>: Maps internal Dart functions to external <strong>Signal Labels</strong>.</li>
+<li><strong>Client</strong>: Provides a high-level API (<a href="../cell_skin/SkinClient-class.html">SkinClient</a>) for external systems to
+trigger journeys.</li>
+</ul>
 </section>
 
 
@@ -109,17 +147,16 @@ final outcome = await client.apply('thermostat', 'setTarget',
 
 </dt>
 <dd>
-  An auth implementation that accepts everyone — the explicit
-anonymous opt-in for a loopback-only demo or test adapter.
+  A permissive gatekeeper that accepts all incoming signals without verification.
 </dd>
 
           <dt id="ContextBridge">
   <span class="name "><a href="../cell_skin/ContextBridge-class.html">ContextBridge</a></span> 
-    <span class="category howto-·-auth cp-10 linked" title="This is part of the HowTo · Auth topic."><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></span>
 
 </dt>
 <dd>
-  Translates a <a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a> into a framework <code>Context</code>.
+  The translation layer that converts external identities into internal
+framework provenance.
 </dd>
 
           <dt id="DescribeContextBridge">
@@ -127,8 +164,7 @@ anonymous opt-in for a loopback-only demo or test adapter.
 
 </dt>
 <dd>
-  The default bridge: least privilege, provenance recorded in the
-description.
+  The default translator that stamps signals with a descriptive identity.
 </dd>
 
           <dt id="JsonSchema">
@@ -136,17 +172,15 @@ description.
 
 </dt>
 <dd>
-  A small JSON Schema subset sufficient for MCP <code>tools/list</code> and REST
-clients. Unknown keywords are preserved in <a href="../cell_skin/JsonSchema/extra.html">extra</a>.
+  The technical blueprint describing the shape and constraints of a somatic signal.
 </dd>
 
           <dt id="McpAdapter">
   <span class="name "><a href="../cell_skin/McpAdapter-class.html">McpAdapter</a></span> 
-    <span class="category howto-·-mcp-seam cp-9 linked" title="This is part of the HowTo · MCP Seam topic."><a href="../topics/MCP Seam-topic.html">HowTo&nbsp;·&nbsp;MCP&nbsp;Seam</a></span>
 
 </dt>
 <dd>
-  The adapter lifecycle contract every MCP SDK adapter implements.
+  The lifecycle contract for bridging the somatic graph to an AI agent via the Model Context Protocol.
 </dd>
 
           <dt id="McpResourceSpec">
@@ -154,8 +188,7 @@ clients. Unknown keywords are preserved in <a href="../cell_skin/JsonSchema/extr
 
 </dt>
 <dd>
-  A transport-neutral MCP resource definition for the graph topology
-(<code>cell://graph/&lt;cellId&gt;</code>) and the ledger stream.
+  A transport-neutral definition of an observational somatic resource.
 </dd>
 
           <dt id="McpToolSpec">
@@ -163,10 +196,7 @@ clients. Unknown keywords are preserved in <a href="../cell_skin/JsonSchema/extr
 
 </dt>
 <dd>
-  A transport-neutral MCP tool definition, translated from a
-<a href="../cell_skin/SkinFunctionDescriptor-class.html">SkinFunctionDescriptor</a>. An SDK adapter maps these 1:1 onto
-<code>dart_mcp</code>'s <code>Tool</code>, <code>mcp_dart</code>'s tool descriptors, or any other
-SDK's equivalent.
+  A transport-neutral definition of an interactable somatic function, formatted for AI consumption.
 </dd>
 
           <dt id="RemoteCellClient">
@@ -174,7 +204,7 @@ SDK's equivalent.
 
 </dt>
 <dd>
-  A cell-shaped handle to one remote cell, backed by a transport.
+  A local handle representing a distant somatic entity behind a remote membrane.
 </dd>
 
           <dt id="SchemaObserver">
@@ -182,35 +212,35 @@ SDK's equivalent.
 
 </dt>
 <dd>
-  Accumulates observed argument shapes per named argument into schemas.
+  The collector responsible for learning the system's DNA by watching signals.
 </dd>
 
           <dt id="SkinAuth">
   <span class="name "><a href="../cell_skin/SkinAuth-class.html">SkinAuth</a></span> 
-    <span class="category howto-·-auth cp-10 linked" title="This is part of the HowTo · Auth topic."><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></span>
+    <span class="category howto-·-auth cp-7 linked" title="This is part of the HowTo · Auth topic."><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></span>
 
 </dt>
 <dd>
-  Authenticates transport credentials. Returns <code>null</code> to reject.
+  The gatekeeper responsible for identifying external actors at the membrane.
 </dd>
 
           <dt id="SkinBinding">
   <span class="name "><a href="../cell_skin/SkinBinding-class.html">SkinBinding</a></span> 
-    <span class="category howto-·-bindings cp-2 linked" title="This is part of the HowTo · Bindings topic."><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></span>
-    <span class="category howto-·-cursors cp-6 linked" title="This is part of the HowTo · Cursors topic."><a href="../topics/Cursors-topic.html">HowTo&nbsp;·&nbsp;Cursors</a></span>
+    <span class="category howto-·-bindings cp-1 linked" title="This is part of the HowTo · Bindings topic."><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></span>
+    <span class="category howto-·-cursors cp-5 linked" title="This is part of the HowTo · Cursors topic."><a href="../topics/Cursors-topic.html">HowTo&nbsp;·&nbsp;Cursors</a></span>
 
 </dt>
 <dd>
-  One exposed function on one target cell.
+  An exception thrown when a <strong>Nervous Signal</strong> contains a malformed <strong>Skin Payload</strong>.
 </dd>
 
           <dt id="SkinBindingTable">
   <span class="name "><a href="../cell_skin/SkinBindingTable-class.html">SkinBindingTable</a></span> 
-    <span class="category howto-·-bindings cp-2 linked" title="This is part of the HowTo · Bindings topic."><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></span>
+    <span class="category howto-·-bindings cp-1 linked" title="This is part of the HowTo · Bindings topic."><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></span>
 
 </dt>
 <dd>
-  The <code>(cellId, functionName)</code> → closure lookup table.
+  The authoritative registry for every exposed function on the membrane surface.
 </dd>
 
           <dt id="SkinCellDescriptor">
@@ -226,7 +256,7 @@ SDK's equivalent.
 
 </dt>
 <dd>
-  The in-process client over a <a href="../cell_skin/SkinMembrane-class.html">SkinMembrane</a>.
+  The authoritative in-process coordinator for stimulating the somatic graph.
 </dd>
 
           <dt id="SkinCredentials">
@@ -234,7 +264,7 @@ SDK's equivalent.
 
 </dt>
 <dd>
-  Transport-level credentials.
+  The raw data extracted from the transport layer before identity is resolved.
 </dd>
 
           <dt id="SkinFunctionDescriptor">
@@ -255,11 +285,10 @@ SDK's equivalent.
 
           <dt id="SkinMembrane">
   <span class="name "><a href="../cell_skin/SkinMembrane-class.html">SkinMembrane</a></span> 
-    <span class="category howto-·-membrane cp-1 linked" title="This is part of the HowTo · Membrane topic."><a href="../topics/Membrane-topic.html">HowTo&nbsp;·&nbsp;Membrane</a></span>
 
 </dt>
 <dd>
-  The four-Cell membrane between a <code>CellGraph</code> and the wire.
+  The master orchestrator of the boundary layer, managing the flow between the somatic graph and the environment.
 </dd>
 
           <dt id="SkinPrincipal">
@@ -267,7 +296,7 @@ SDK's equivalent.
 
 </dt>
 <dd>
-  The authenticated identity behind a request.
+  The resolved identity DNA of an external actor at the membrane.
 </dd>
 
           <dt id="SkinPulseTypes">
@@ -275,9 +304,7 @@ SDK's equivalent.
 
 </dt>
 <dd>
-  Pulse-type naming convention for the wire. Values follow the plan's
-taxonomy; no new type system is introduced — these are <code>Pulse.type</code>
-strings.
+  A static taxonomy of names for signals crossing the system membrane.
 </dd>
 
           <dt id="SkinRouter">
@@ -285,13 +312,12 @@ strings.
 
 </dt>
 <dd>
-  The dispatch brain behind the router cell. Testable without a live
-cell, then materialised with <a href="../cell_skin/SkinRouter/cell.html">SkinRouter.cell</a>.
+  The dispatch brain responsible for governing the journey of signals from the membrane to the somatic graph.
 </dd>
 
           <dt id="SkinWhitelist">
   <span class="name "><a href="../cell_skin/SkinWhitelist-class.html">SkinWhitelist</a></span> 
-    <span class="category howto-·-whitelist cp-3 linked" title="This is part of the HowTo · Whitelist topic."><a href="../topics/Whitelist-topic.html">HowTo&nbsp;·&nbsp;Whitelist</a></span>
+    <span class="category howto-·-whitelist cp-2 linked" title="This is part of the HowTo · Whitelist topic."><a href="../topics/Whitelist-topic.html">HowTo&nbsp;·&nbsp;Whitelist</a></span>
 
 </dt>
 <dd>
@@ -303,17 +329,16 @@ cell, then materialised with <a href="../cell_skin/SkinRouter/cell.html">SkinRou
 
 </dt>
 <dd>
-  A bridge that always returns <code>Context.system</code>.
+  A bridge that elevates every incoming signal to full system authority.
 </dd>
 
           <dt id="WireError">
   <span class="name "><a href="../cell_skin/WireError-class.html">WireError</a></span> 
-    <span class="category howto-·-wire-messages cp-4 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
+    <span class="category howto-·-wire-messages cp-3 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
 
 </dt>
 <dd>
-  An error that has no receipt: exposure-gate misses, transport
-failures, and cursor conflicts.
+  A failure signal indicating that a request was rejected before reaching the core graph.
 </dd>
 
           <dt id="WireLedgerEntry">
@@ -321,7 +346,7 @@ failures, and cursor conflicts.
 
 </dt>
 <dd>
-  A ledger entry streamed over the wire (<code>skin.ledger.entry</code>).
+  A wrapper for an authoritative audit record from the system's permanent history.
 </dd>
 
           <dt id="WireManifestRequest">
@@ -329,7 +354,7 @@ failures, and cursor conflicts.
 
 </dt>
 <dd>
-  Asks the membrane for its tool catalogue.
+  A discovery signal sent to the system to request a list of available tools and cells.
 </dd>
 
           <dt id="WireManifestResponse">
@@ -337,18 +362,17 @@ failures, and cursor conflicts.
 
 </dt>
 <dd>
-  Carries the <a href="../cell_skin/SkinManifest-class.html">SkinManifest</a> back to a discovery client.
+  The envelope carrying the system's somatic catalog back to a discovery client.
 </dd>
 
           <dt id="WireMessage">
   <span class="name "><a href="../cell_skin/WireMessage-class.html">WireMessage</a></span> 
-    <span class="category howto-·-wire-messages cp-4 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
-    <span class="category features cp-12 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category howto-·-wire-messages cp-3 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
+    <span class="category features cp-9 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
 
 </dt>
 <dd>
-  One wire event. Every transport — MCP, REST, SSE, stdio — is a
-<code>Pulse&lt;WireMessage&gt;</code> whose <code>type</code> discriminates the variant.
+  The universal envelope for every signal crossing the system's membrane.
 </dd>
 
           <dt id="WireNotification">
@@ -356,7 +380,7 @@ failures, and cursor conflicts.
 
 </dt>
 <dd>
-  A fire-and-forget wire event (MCP notification, SSE ping, …).
+  A fire-and-forget signal used for environmental pings and lightweight updates.
 </dd>
 
           <dt id="WireOutcome">
@@ -364,8 +388,7 @@ failures, and cursor conflicts.
 
 </dt>
 <dd>
-  The JSON read model of an <code>ApplyOutcome</code>: what the remote side can
-know without the live graph.
+  The wire-safe JSON read model of a cell's application result.
 </dd>
 
           <dt id="WirePulseGate">
@@ -373,9 +396,7 @@ know without the live graph.
 
 </dt>
 <dd>
-  Rejects pulses whose payload is not a <a href="../cell_skin/WireMessage-class.html">WireMessage</a> (at either wrap
-level — <code>Cell.ingress&lt;Pulse&lt;WireMessage&gt;&gt;</code> wraps the wire pulse in
-the ingress's own pulse); allows every other channel.
+  An integrity gate that ensures only valid wire signals enter the somatic graph.
 </dd>
 
           <dt id="WireReceipt">
@@ -383,38 +404,38 @@ the ingress's own pulse); allows every other channel.
 
 </dt>
 <dd>
-  The read model of <a href="../cell_skin/wireReceiptJson.html">wireReceiptJson</a>: what the remote side can know
-without the live graph.
+  The read model of a cell's physical state transition, stripped of live
+references for transport.
 </dd>
 
           <dt id="WireRequest">
   <span class="name "><a href="../cell_skin/WireRequest-class.html">WireRequest</a></span> 
-    <span class="category howto-·-wire-messages cp-4 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
-    <span class="category howto-·-idempotency cp-7 linked" title="This is part of the HowTo · Idempotency topic."><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></span>
+    <span class="category howto-·-wire-messages cp-3 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
+    <span class="category howto-·-idempotency cp-6 linked" title="This is part of the HowTo · Idempotency topic."><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></span>
 
 </dt>
 <dd>
-  An inbound call: invoke <a href="../cell_skin/WireRequest/function.html">function</a> on the cell named <a href="../cell_skin/WireRequest/cellId.html">cellId</a>.
+  An envelope for an incoming command sent from the outside world into the system.///
+In the framework's biological metaphor, <a href="../cell_skin/WireRequest-class.html">WireRequest</a> is a <strong>Nervous Signal</strong>
+that has just touched the <strong>Skin Membrane</strong>. It carries the instructions
+needed to start a <code>Command Journey</code> inside the reactive graph.
 </dd>
 
           <dt id="WireResponse">
   <span class="name "><a href="../cell_skin/WireResponse-class.html">WireResponse</a></span> 
-    <span class="category howto-·-wire-messages cp-4 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
 
 </dt>
 <dd>
-  An outbound result: the target's real <code>ApplyOutcome</code>, or — when the
-ledger entry has not landed yet — a pending marker with the last
-known receipt JSON.
+  An envelope for an outbound result: the official response to a request.
 </dd>
 
           <dt id="WireStateChange">
   <span class="name "><a href="../cell_skin/WireStateChange-class.html">WireStateChange</a></span> 
-    <span class="category howto-·-egress cp-5 linked" title="This is part of the HowTo · Egress topic."><a href="../topics/Egress-topic.html">HowTo&nbsp;·&nbsp;Egress</a></span>
+    <span class="category howto-·-egress cp-4 linked" title="This is part of the HowTo · Egress topic."><a href="../topics/Egress-topic.html">HowTo&nbsp;·&nbsp;Egress</a></span>
 
 </dt>
 <dd>
-  An outbound state observation: a target cell's value changed.
+  An outbound observation signal indicating that a cell's physical state has changed.
 </dd>
 
       </dl>
@@ -437,9 +458,8 @@ known receipt JSON.
 
 </dt>
 <dd>
-  Builds the unledgered egress observers: one <code>Cell.observe</code> per
-exposed target. Every pulse is <code>pendingReceipt</code> — without a ledger
-there is no receipt to attach.
+  Sets up observers to send signals out of the system for cells that do not
+use a forensic ledger.
   
 
 </dd>
@@ -466,8 +486,7 @@ there is no receipt to attach.
 
 </dt>
 <dd>
-  Builds the mux: a <code>Cell.synthesis</code> over <code>sources</code> that passes the
-wire pulse through and suppresses everything else.
+  Builds the somatic convergence point for all outbound wire signals.
   
 
 </dd>
@@ -480,8 +499,7 @@ wire pulse through and suppresses everything else.
 
 </dt>
 <dd>
-  Builds the outbound terminal cell: a <code>Cell.observe</code> on <code>mux</code> whose
-effect is <code>send</code>.
+  Builds the terminal egress point of the membrane, connecting the internal graph to the physical transport.
   
 
 </dd>
@@ -494,7 +512,7 @@ effect is <code>send</code>.
 
 </dt>
 <dd>
-  Resource specs for every exposed cell.
+  Translates a <a href="../cell_skin/SkinManifest-class.html">SkinManifest</a> into neutral resource specs for AI observation.
   
 
 </dd>
@@ -504,12 +522,10 @@ effect is <code>send</code>.
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_skin/McpToolSpec-class.html">McpToolSpec</a></span>&gt;</span></span>
   </span>
   
-    <span class="category howto-·-mcp-seam cp-9 linked" title="This is part of the HowTo · MCP Seam topic."><a href="../topics/MCP Seam-topic.html">HowTo&nbsp;·&nbsp;MCP&nbsp;Seam</a></span>
 
 </dt>
 <dd>
-  Translates a <a href="../cell_skin/SkinManifest-class.html">SkinManifest</a> into neutral tool specs for MCP
-<code>tools/list</code>.
+  Translates a <a href="../cell_skin/SkinManifest-class.html">SkinManifest</a> into neutral tool specs for AI discovery.
   
 
 </dd>
@@ -522,9 +538,7 @@ effect is <code>send</code>.
 
 </dt>
 <dd>
-  Merges observed schemas by widening: the union of two shapes is the
-looser of the two at every keyword. An absent constraint means
-<em>unconstrained</em> — it never inherits the other side's constraint.
+  Merges two somatic blueprints into a single, wider DNA structure.
   
 
 </dd>
@@ -537,7 +551,11 @@ looser of the two at every keyword. An absent constraint means
 
 </dt>
 <dd>
-  Derives a best-effort <a href="../cell_skin/JsonSchema-class.html">JsonSchema</a> for a single observed value.
+  Derives a best-effort <a href="../cell_skin/JsonSchema-class.html">JsonSchema</a> by observing a single somatic value.
+/// In the framework's biological metaphor, this is <strong>Trait Induction</strong>. It
+takes a specific <strong>Somatic Nutrient</strong> (a value) that has successfully
+crossed an <strong>Integrity Gate</strong> and derives the <strong>Somatic Blueprint</strong> (DNA)
+required to represent it.
   
 
 </dd>
@@ -550,8 +568,7 @@ looser of the two at every keyword. An absent constraint means
 
 </dt>
 <dd>
-  The recorded cell id of <code>entry</code> — the value captured when the entry
-was appended, immune to later registry resets.
+  Extracts the permanent <strong>Somatic Address</strong> captured within the forensic record.
   
 
 </dd>
@@ -564,7 +581,7 @@ was appended, immune to later registry resets.
 
 </dt>
 <dd>
-  Decodes a ledger entry from its canonical JSON form.
+  Decodes a <strong>Skin Form</strong> JSON map back into a forensic record.
   
 
 </dd>
@@ -577,7 +594,7 @@ was appended, immune to later registry resets.
 
 </dt>
 <dd>
-  The canonical ledger JSON form — identical to <code>LedgerEntry.toJson</code>.
+  Converts a forensic record into its wire-safe <strong>Skin Form</strong>.
   
 
 </dd>
@@ -643,10 +660,7 @@ value JSON cannot encode (see <a href="../cell_skin/WireOutcome/resultOmitted.ht
 
 </dt>
 <dd>
-  Wraps one ledger entry as the authoritative <code>skin.egress.&lt;cellId&gt;</code>
-state change: the entry's own receipt pairs with the entry's own
-pulse payload. The receipt comes from the entry's canonical stored
-JSON — the same encoding the audit trail itself uses.
+  Converts a <code>LedgerEntry</code> into an authoritative <a href="../cell_skin/WireStateChange-class.html">WireStateChange</a> signal.
   
 
 </dd>
@@ -663,10 +677,7 @@ JSON — the same encoding the audit trail itself uses.
 
 </dt>
 <dd>
-  Thrown for a malformed wire argument envelope (positional keys that
-are not a contiguous <code>0..n-1</code> range, or invalid named argument
-identifiers). The router maps it to a <code>bad_arguments</code> <a href="../cell_skin/WireError-class.html">WireError</a>
-before the target's apply ever runs.
+  An exception thrown when a <strong>Nervous Signal</strong> contains a malformed <strong>Skin Payload</strong>.
 </dd>
 
           <dt id="SkinError">
@@ -699,15 +710,12 @@ before the target's apply ever runs.
         <li><a href="../topics/Features-topic.html">Features</a></li>
         <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
         <li><a href="../topics/Test Verification-topic.html">Test&nbsp;Verification</a></li>
-        <li><a href="../topics/Membrane-topic.html">HowTo&nbsp;·&nbsp;Membrane</a></li>
         <li><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></li>
         <li><a href="../topics/Whitelist-topic.html">HowTo&nbsp;·&nbsp;Whitelist</a></li>
         <li><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></li>
         <li><a href="../topics/Egress-topic.html">HowTo&nbsp;·&nbsp;Egress</a></li>
         <li><a href="../topics/Cursors-topic.html">HowTo&nbsp;·&nbsp;Cursors</a></li>
         <li><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></li>
-        <li><a href="../topics/REST Adapter-topic.html">HowTo&nbsp;·&nbsp;REST&nbsp;Adapter</a></li>
-        <li><a href="../topics/MCP Seam-topic.html">HowTo&nbsp;·&nbsp;MCP&nbsp;Seam</a></li>
         <li><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></li>
         <li><a href="../topics/Testing-topic.html">HowTo&nbsp;·&nbsp;Testing</a></li>
         <li><a href="../topics/Demo-topic.html">Demo:&nbsp;Echo&nbsp;Home</a></li>
@@ -726,6 +734,8 @@ before the target's apply ever runs.
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
       <li class="section-subtitle">Test Verification</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Networking</li>
+        <li class="section-subitem"><a href="../cell_skin_rest/">cell_skin_rest</a></li>
 </ol>
 
   </div>

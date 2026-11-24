@@ -63,9 +63,12 @@
     </section>
     
 <section class="desc markdown">
-  <p>Registers <code>binding</code>.</p>
-<p>Throws <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a> for a duplicate <code>(cellId, functionName)</code> and
-for registrations after <a href="../../cell_skin/SkinBindingTable/seal.html">seal</a>.</p>
+  <p>Registers a <code>binding</code> at the <strong>Skin Membrane</strong>.</p>
+<p>In the framework's biological metaphor, this performs an
+<strong>Exposure Declaration</strong>. It adds a new pore to the system's
+available vocabulary.</p>
+<p>Throws <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a> if a duplicate <code>(cellId, functionName)</code> is
+detected or if the table is already <a href="../../cell_skin/SkinBindingTable/isSealed.html">isSealed</a>.</p>
 </section>
 
 

@@ -62,7 +62,43 @@
       </section>
       
 <section class="desc markdown">
-  <p>JSON-decoded named arguments, or <code>null</code> when none were sent.</p>
+  <p>The data passed by name, allowing for tagged arguments.</p>
+<p>In the framework's biological metaphor, these are the <strong>Labeled Nutrients</strong>
+of the <strong>Nervous Signal</strong>. Unlike numbered arguments, these provide
+data using specific tags that the target function recognizes.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Tagged Arguments</strong>: Use this when the function you are calling
+expects data with specific names (e.g., <code>updateProfile(name: 'Simon')</code>).</li>
+<li><strong>Optional Data</strong>: Often used for optional settings or flags where
+the order of the data does not matter.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Tagging</strong>: The client provides a map where each key is a
+string matching a parameter name in the cell's function.</li>
+<li><strong>Integrity Check</strong>: The system verifies these tags against the
+cell's <strong>Integrity Gate</strong> to ensure they are valid.</li>
+<li><strong>Execution</strong>: The framework passes these values as named arguments
+when the <strong>Command Journey</strong> begins.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Visibility</strong>: Every named argument is recorded in the
+<strong>Forensic Ledger</strong>. This allows auditors to see exactly which
+labeled signals caused a <strong>Somatic State Transition</strong>.</li>
+<li><strong>Safety</strong>: If you provide a name that the cell does not recognize,
+the request will be rejected at the membrane before it can change
+any internal state.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// For a function like setStatus({required bool active})
+named: {'active': true}
+</code></pre>
+<p>See also:</p>
+<ul>
+<li><a href="../../cell_skin/WireRequest/positional.html">WireRequest.positional</a>: For data passed by specific number/order.</li>
+</ul>
 </section>
 
       

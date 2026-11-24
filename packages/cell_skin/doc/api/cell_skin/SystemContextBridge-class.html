@@ -55,7 +55,47 @@
 
     
 <section class="desc markdown">
-  <p>A bridge that always returns <code>Context.system</code>.</p>
+  <p>A bridge that elevates every incoming signal to full system authority.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/SystemContextBridge-class.html">SystemContextBridge</a> is the
+<strong>Somatic Override</strong>. It ignores the specific traits of the external
+<a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a> and stamps the resulting <strong>Command Journey</strong> with
+the system's own "DNA" (<code>Context.system</code>).</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Trusted Automation</strong>: Use this for internal scripts, administrative
+tools, or trusted proxies where the <strong>Skin Membrane</strong> should not
+impose identity-based restrictions.</li>
+<li><strong>System-to-System Bridges</strong>: Ideal for linking two different cell
+clusters where the bridge itself is considered a part of the
+authorized nervous system.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Ingress</strong>: A <a href="../cell_skin/WireRequest-class.html">WireRequest</a> arrives.</li>
+<li><strong>Total Elevation</strong>: The bridge ignores the credentials provided
+by <a href="../cell_skin/SkinAuth-class.html">SkinAuth</a> and immediately resolves to <code>Context.system</code>.</li>
+<li><strong>Unrestricted Journey</strong>: The pulse travels through the graph with
+the highest possible authority, bypassing <strong>Integrity Gates</strong> that
+are configured to only block non-system actors.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Visibility</strong>: While this grants total power, the
+<strong>Forensic Ledger</strong> will record every resulting <strong>Somatic State Transition</strong>
+as being performed by the "system." This makes it harder to audit
+which specific human or remote agent triggered the change.</li>
+<li><strong>Security Risk</strong>: This bridge effectively disables provenance-based
+security for the connection. It should only be used over
+physically secured or highly trusted transport layers.</li>
+<li><strong>Authority Persistence</strong>: Any cell mutations triggered via this
+bridge are treated as authoritative and will not be challenged by
+standard permission rules.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><code>Context.system</code>: The internal high-authority provenance being granted.</li>
+<li><a href="../cell_skin/DescribeContextBridge-class.html">DescribeContextBridge</a>: A safer alternative that preserves external identity.</li>
+</ul>
 </section>
 
 
@@ -88,7 +128,7 @@
           <span class="name"><a href="../cell_skin/SystemContextBridge/SystemContextBridge.html">SystemContextBridge</a></span><span class="signature">()</span>
         </dt>
         <dd>
-          
+          Creates a new <a href="../cell_skin/SystemContextBridge-class.html">SystemContextBridge</a> to grant system-level authority.
             <div class="constructor-modifier features">const</div>
         </dd>
     </dl>
@@ -153,7 +193,7 @@
 
 </dt>
 <dd>
-  The context for <code>principal</code>.
+  Resolves any <code>principal</code> to the authoritative <code>Context.system</code>.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

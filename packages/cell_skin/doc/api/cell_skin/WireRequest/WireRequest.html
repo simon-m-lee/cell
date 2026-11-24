@@ -64,6 +64,37 @@
 </ol>})
     </section>
     
+<section class="desc markdown">
+  <p>Creates a new <a href="../../cell_skin/WireRequest-class.html">WireRequest</a> envelope to carry a signal into the system.</p>
+<p>In the framework's biological metaphor, this constructor assembles the
+<strong>Nervous Signal</strong> envelope. It prepares the data needed to cross the
+<strong>Skin Membrane</strong> and begin a <strong>Command Journey</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Transport Adapters</strong>: Use this when writing code for MCP tools, REST
+endpoints, or custom network listeners to wrap incoming data.</li>
+<li><strong>Testing</strong>: Use this to simulate external requests during integration
+tests of the governance layer.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>The constructor simply bundles the somatic address (<code>cellId</code>), the
+instruction (<code>function</code>), and the causal metadata into a stable,
+immutable record. This record is then vetted by the membrane before
+being converted into a framework command.</p>
+<h3 id="parameters">Parameters</h3>
+<ul>
+<li><strong>cellId</strong>: The name of the cell this signal is trying to reach.</li>
+<li><strong>function</strong>: The name of the update or action to perform.</li>
+<li><strong>positional</strong>: Optional data passed by order (e.g., first argument, second argument).</li>
+<li><strong>named</strong>: Optional data passed using specific labels.</li>
+<li><strong>correlationId</strong>: The unique ID used by the system to track this signal
+in the <strong>Forensic Ledger</strong>.</li>
+<li><strong>clientCorrelationId</strong>: An optional label provided by the caller to help
+them identify the response.</li>
+<li><strong>lastSeenSeq</strong>: An optional marker to ensure the caller has the
+latest data before they try to change the state.</li>
+</ul>
+</section>
 
 
     

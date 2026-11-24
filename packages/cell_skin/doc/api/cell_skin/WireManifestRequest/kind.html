@@ -72,7 +72,35 @@
     </section>
     
 <section class="desc markdown">
-  <p>The stable discriminator used by <a href="../../cell_skin/WireMessage/WireMessage.fromJson.html">WireMessage.fromJson</a>.</p>
+  <p>The stable identifier used to distinguish this message type on the wire.</p>
+<p>In the framework's biological metaphor, this is the <strong>Signal Label</strong>.
+It tells the <strong>Skin Membrane</strong> exactly what kind of <strong>Discovery Impulse</strong>
+is inside the envelope so the system can initiate a somatic scan rather
+than a state transition.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Polymorphic Decoding</strong>: The <a href="../../cell_skin/WireMessage/WireMessage.fromJson.html">WireMessage.fromJson</a> factory uses
+this value to recognize that a discovery process is being requested.</li>
+<li><strong>Network Routing</strong>: Used by transport bridges (like MCP or SSE) to
+route this impulse to the manifest provider.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>This getter always returns the string <code>'manifestRequest'</code>. When <a href="../../cell_skin/WireManifestRequest/toJson.html">toJson</a>
+is called, this label is stamped into the JSON payload.</p>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Omission</strong>: Unlike a <code>request</code> or <code>response</code>, a signal
+labeled as a <code>manifestRequest</code> is ignored by the <strong>Forensic Ledger</strong>.
+It is a read-only probe of the membrane's surface.</li>
+<li><strong>Strict Value</strong>: This value is fixed. The signaling protocol
+relies on this specific string to distinguish discovery impulses from
+authoritative commands.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireMessage/kind.html">WireMessage.kind</a>: The base definition for all message labels.</li>
+<li><a href="../../cell_skin/WireManifestResponse/kind.html">WireManifestResponse.kind</a>: The label for the resulting somatic index.</li>
+</ul>
 </section>
 
     

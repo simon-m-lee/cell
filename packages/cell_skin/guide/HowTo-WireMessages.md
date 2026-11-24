@@ -13,7 +13,7 @@ whose `type` (see `SkinPulseTypes`) discriminates the variant.
 | `WireStateChange` | A state observation (`cellId`, payload, optional receipt). | **None** — egress is not a reply. |
 | `WireError` | A pre-apply rejection: `unknown_tool`, `bad_arguments`, `cursor_required`, `conflict`, `transport_error`. | Echoes the request's ids. |
 | `WireNotification` | Fire-and-forget. | None. |
-| `WireManifestRequest` / `WireManifestResponse` | Tool catalogue. | None. |
+| `WireManifestRequest` / `WireManifestResponse` | Tool catalogue. | Optional; omitted when null. |
 | `WireLedgerEntry` | One audit entry (`LedgerEntry.toJson`). | None. |
 
 ## Argument envelope

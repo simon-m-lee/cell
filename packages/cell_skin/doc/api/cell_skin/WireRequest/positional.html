@@ -62,7 +62,42 @@
       </section>
       
 <section class="desc markdown">
-  <p>JSON-decoded positional arguments, or <code>null</code> when none were sent.</p>
+  <p>The data passed by position, stored as a string-keyed map for JSON safety.</p>
+<p>In the framework's biological metaphor, these are the <strong>Numbered Nutrients</strong>
+of the <strong>Nervous Signal</strong>. They provide the raw data required by the
+target function in a specific order.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Ordered Arguments</strong>: Use this when the function you are calling
+expects arguments in a specific sequence (e.g., <code>(name, age)</code>).</li>
+<li><strong>Standard Tooling</strong>: Used by most MCP and REST bridges to pass
+primary data values.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Index Mapping</strong>: Arguments are stored using their index as a
+string key (e.g., <code>{"0": "Simon", "1": 30}</code>).</li>
+<li><strong>Unpacking</strong>: When the signal enters the cell, the framework
+converts this map back into a list to execute the internal logic.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>JSON Stability</strong>: We use a map <code>{"0": ...}</code> instead of a standard
+JSON list <code>[...]</code> because some network parsers and AI models
+accidentally reorder list items. Using string keys ensures the
+<strong>Command Journey</strong> stays accurate.</li>
+<li><strong>Forensic Recording</strong>: These values are recorded in the
+<strong>Forensic Ledger</strong>, allowing an auditor to see the exact data
+that triggered a <strong>Somatic State Transition</strong>.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// For a function like updateTemperature(double value)
+positional: {'0': 22.5}
+</code></pre>
+<p>See also:</p>
+<ul>
+<li><a href="../../cell_skin/WireRequest/named.html">WireRequest.named</a>: For data passed using specific labels.</li>
+</ul>
 </section>
 
       

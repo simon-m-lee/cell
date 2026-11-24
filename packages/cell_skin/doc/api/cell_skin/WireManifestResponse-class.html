@@ -55,7 +55,41 @@
 
     
 <section class="desc markdown">
-  <p>Carries the <a href="../cell_skin/SkinManifest-class.html">SkinManifest</a> back to a discovery client.</p>
+  <p>The envelope carrying the system's somatic catalog back to a discovery client.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/WireManifestResponse-class.html">WireManifestResponse</a> is the
+<strong>Somatic Index</strong>. It is the authoritative reply to a <strong>Discovery Impulse</strong>
+(<a href="../cell_skin/WireManifestRequest-class.html">WireManifestRequest</a>), providing a map of the cells and tools physically
+exposed at the <strong>Skin Membrane</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Capability Resolution</strong>: Used by the system to inform a client (like
+an AI agent) what functionality is available for interaction.</li>
+<li><strong>Handshake Completion</strong>: The final step of the discovery phase in
+protocols like MCP or SSE.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Discovery Processing</strong>: The system identifies all exposed tools and
+cells within the somatic graph.</li>
+<li><strong>Index Assembly</strong>: A <a href="../cell_skin/SkinManifest-class.html">SkinManifest</a> is generated, detailing the
+"DNA" (schemas and IDs) of the exposed surface.</li>
+<li><strong>Impulse Return</strong>: The manifest is wrapped in this envelope and
+pushed back through the membrane to the caller.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Omission</strong>: Because this is a read-only discovery result,
+it is not recorded in the <strong>Forensic Ledger</strong>. It describes the
+system's potential for state change, rather than a change itself.</li>
+<li><strong>Stateless Envelope</strong>: Unlike a standard <a href="../cell_skin/WireResponse-class.html">WireResponse</a>, this
+does not require a <code>correlationId</code> because it is a global snapshot of
+the membrane's current capabilities.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/WireManifestRequest-class.html">WireManifestRequest</a>: The impulse that triggers this response.</li>
+<li><a href="../cell_skin/SkinManifest-class.html">SkinManifest</a>: The actual catalog data being carried.</li>
+</ul>
 </section>
 
 
@@ -90,14 +124,14 @@
           <span class="name"><a href="../cell_skin/WireManifestResponse/WireManifestResponse.html">WireManifestResponse</a></span><span class="signature">({<span class="parameter" id="-param-manifest"><span>required</span> <span class="type-annotation"><a href="../cell_skin/SkinManifest-class.html">SkinManifest</a></span> <span class="parameter-name">manifest</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates a new <a href="../cell_skin/WireManifestResponse-class.html">WireManifestResponse</a> envelope.
             <div class="constructor-modifier features">const</div>
         </dd>
         <dt id="WireManifestResponse.fromJson" class="callable">
           <span class="name"><a href="../cell_skin/WireManifestResponse/WireManifestResponse.fromJson.html">WireManifestResponse.fromJson</a></span><span class="signature">(<span class="parameter" id="fromJson-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">json</span></span>)</span>
         </dt>
         <dd>
-          Decodes a <a href="../cell_skin/WireManifestResponse-class.html">WireManifestResponse</a> encoded by <a href="../cell_skin/WireManifestResponse/toJson.html">toJson</a>.
+          Decodes a raw JSON map into a <a href="../cell_skin/WireManifestResponse-class.html">WireManifestResponse</a>.
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
@@ -127,7 +161,7 @@
 
 </dt>
 <dd>
-  The stable discriminator used by <a href="../cell_skin/WireMessage/WireMessage.fromJson.html">WireMessage.fromJson</a>.
+  The stable identifier used to distinguish this message type on the wire.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -139,7 +173,7 @@
 
 </dt>
 <dd>
-  
+  The catalog of exposed tools and cells available for interaction.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -186,8 +220,7 @@
 
 </dt>
 <dd>
-  JSON-serialisable wire form. Payloads stay JSON-safe; the pulse's
-metadata travels on the pulse, not inside this map.
+  Converts the manifest response into a JSON-safe map for transport.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

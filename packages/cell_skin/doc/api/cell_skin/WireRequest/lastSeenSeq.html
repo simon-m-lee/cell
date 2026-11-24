@@ -62,8 +62,42 @@
       </section>
       
 <section class="desc markdown">
-  <p>Stateless-cursor field: the caller's last seen ledger sequence.
-Required (non-null) for bindings that advertise <code>strictCursor</code>.</p>
+  <p>The sequence number of the last entry the caller saw in the <strong>Forensic Ledger</strong>.</p>
+<p>In the framework's biological metaphor, this is the <strong>Forensic Sync Marker</strong>.
+It acts as a somatic cursor, telling the system exactly which version of the
+cell's "DNA" the caller was looking at when they sent the signal.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Strict Synchronization</strong>: Use this when your application requires a
+"Strict Cursor" to prevent updates based on old data.</li>
+<li><strong>Data Integrity</strong>: Required for specific cell bindings to ensure that
+the caller is in sync with the latest <strong>Somatic State Transition</strong>.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Sequence Check</strong>: When the <a href="../../cell_skin/WireRequest-class.html">WireRequest</a> hits the membrane, the
+system compares this number to the current ledger sequence.</li>
+<li><strong>Integrity Gate</strong>: If the numbers do not match (meaning the caller is
+out of sync), the <strong>Integrity Gate</strong> blocks the command.</li>
+<li><strong>Rejection</strong>: The system returns a <a href="../../cell_skin/WireError-class.html">WireError</a> so the caller knows
+they must refresh their state before trying again.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Stale Update Prevention</strong>: This field is the primary defense against
+"Race Conditions." It ensures a request doesn't accidentally overwrite
+changes that happened while the signal was traveling over the wire.</li>
+<li><strong>Stateless Nature</strong>: Even if the transport layer (like REST) is
+stateless, this marker provides a stateful guarantee for the
+<strong>Command Journey</strong>.</li>
+<li><strong>Forensic Traceability</strong>: The ledger records this sequence to prove
+that the caller was correctly synchronized at the time of the action.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireLedgerEntry-class.html">WireLedgerEntry</a>: The envelope that carries these sequence numbers.</li>
+<li><code>ApplyOutcome</code>: How the system reports if a cursor check failed.</li>
+</ul>
 </section>
 
       

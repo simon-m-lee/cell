@@ -50,7 +50,6 @@
       <div>
 <h1><span class="kind-function">mcpToolSpecs</span> function 
  
-    <span class="category howto-·-mcp-seam cp-9 linked" title="This is part of the HowTo · MCP Seam topic."><a href="../topics/MCP Seam-topic.html">HowTo&nbsp;·&nbsp;MCP&nbsp;Seam</a></span>
 </h1></div>
 
     <section class="multi-line-signature">
@@ -64,11 +63,42 @@
     </section>
     
 <section class="desc markdown">
-  <p>Translates a <a href="../cell_skin/SkinManifest-class.html">SkinManifest</a> into neutral tool specs for MCP
-<code>tools/list</code>.</p>
-<p>The name is <code>&lt;cellId&gt;.&lt;functionName&gt;</code>. Both parts are validated to
-be dot-free and the combined names are checked for collisions, so a
-spec name always round-trips back to exactly one binding.</p>
+  <p>Translates a <a href="../cell_skin/SkinManifest-class.html">SkinManifest</a> into neutral tool specs for AI discovery.</p>
+<p>In the framework's biological metaphor, this function performs <strong>Synaptic Mapping</strong>.
+It converts the <strong>Somatic Index</strong> (the manifest) into a catalog of <strong>Synaptic Tool
+Descriptors</strong> (<a href="../cell_skin/McpToolSpec-class.html">McpToolSpec</a>) that an external AI agent can stimuate via
+a <strong>Discovery Impulse</strong> (e.g., an MCP <code>tools/list</code> request).</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Discovery</strong>: The primary logic used by an <a href="../cell_skin/McpAdapter-class.html">McpAdapter</a> to tell an AI
+agent which cells and functions are physically exposed at the
+<strong>Skin Membrane</strong>.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Index Iteration</strong>: It walks through every cell and function recorded
+in the manifest's "DNA."</li>
+<li><strong>Label Construction</strong>: It generates a unique <strong>Synaptic Label</strong>
+for each pair using the <code>&lt;cellId&gt;.&lt;functionName&gt;</code> format.</li>
+<li><strong>Integrity Check</strong>: It enforces that IDs are dot-free and unique,
+ensuring that any incoming <strong>Nervous Signal</strong> can be deterministically
+routed back to the correct somatic address.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Integrity</strong>: If a collision is detected or if an ID contains
+a dot, this function throws a <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a>. This prevents "Forensic
+Ambiguity," where a tool call might be routed to the wrong cell,
+corrupting the <strong>Forensic Ledger</strong>.</li>
+<li><strong>Description Inheritance</strong>: If a specific function lacks a description,
+it inherits the description of its parent cell to provide the AI agent
+with maximum <strong>Somatic Context</strong>.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/McpToolSpec-class.html">McpToolSpec</a>: The descriptor being generated.</li>
+<li><a href="../cell_skin/SkinManifest-class.html">SkinManifest</a>: The somatic index being translated.</li>
+</ul>
 </section>
 
 
@@ -90,8 +120,8 @@ spec name always round-trips back to exactly one binding.</p>
     if (!seen.add(spec.name)) {
       throw StateError(
           &#39;mcpToolSpecs: ambiguous tool name &quot;${spec.name}&quot; — cell ids &#39;
-          &#39;and function names must be dot-free and their combinations &#39;
-          &#39;unique&#39;);
+              &#39;and function names must be dot-free and their combinations &#39;
+              &#39;unique&#39;);
     }
   }
   return specs;

@@ -1,0 +1,14 @@
+{
+  "apply_round_trip": {
+    "ceilingMicros": 4055,
+    "allowance": 1.0
+  },
+  "schema_rejection": {
+    "ceilingMicros": 1055,
+    "allowance": 1.0
+  },
+  "ledger_sse_32": {
+    "ceilingMicros": 10043729,
+    "allowance": 1.0
+  }
+}

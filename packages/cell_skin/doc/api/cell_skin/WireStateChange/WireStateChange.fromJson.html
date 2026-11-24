@@ -59,7 +59,48 @@
     </section>
     
 <section class="desc markdown">
-  <p>Decodes a <a href="../../cell_skin/WireStateChange-class.html">WireStateChange</a> encoded by <a href="../../cell_skin/WireStateChange/toJson.html">toJson</a>.</p>
+  <p>Decodes a raw JSON map into a <a href="../../cell_skin/WireStateChange-class.html">WireStateChange</a> observation.</p>
+<p>In the framework's biological metaphor, this factory acts as the
+<strong>Signal Decoder</strong> at the <strong>Skin Membrane</strong>. It translates the
+<strong>Skin Form</strong> of a somatic event back into a structured
+<strong>Nervous Impulse</strong> that the local system can process.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Egress Processing</strong>: Use this when a client (AI agent, web app, or
+remote listener) receives a state broadcast from a cell over a
+network bridge (SSE, MCP, etc.).</li>
+<li><strong>Synchronization</strong>: The primary entry point for external observers
+to ingest updates and keep their local "Phenotype" in sync with
+the living graph.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Address Resolution</strong>: It extracts the <code>cellId</code> to identify the
+<strong>Somatic Address</strong> where the change occurred.</li>
+<li><strong>Phenotype Mapping</strong>: It pulls the <code>payload</code> representing the
+new observable state of the cell.</li>
+<li><strong>Forensic Verification</strong>: It attempts to decode the <code>receipt</code>
+to attach authoritative proof from the <strong>Forensic Ledger</strong>.</li>
+<li><strong>Authoritative Check</strong>: It determines the stability of the
+signal via the <code>pendingReceipt</code> flag.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Volatile Default</strong>: If <code>pendingReceipt</code> is missing from the JSON,
+it defaults to <code>true</code>. This follows the principle that a signal
+is "unconfirmed" until the <strong>Forensic Ledger</strong> explicitly clears it.</li>
+<li><strong>Null Phenotypes</strong>: If the <code>payload</code> is missing, it implies the
+state was not serializable. The decoder still creates the object,
+but the observer should rely on the <a href="../../cell_skin/WireStateChange/receipt.html">receipt</a> for sequence data.</li>
+<li><strong>Recursive Decoding</strong>: It utilizes <a href="../../cell_skin/WireReceipt/WireReceipt.fromJson.html">WireReceipt.fromJson</a> to
+maintain the integrity of the audit trail during the decoding process.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireStateChange/toJson.html">WireStateChange.toJson</a>: The reverse process for broadcasting signals.</li>
+<li><a href="../../cell_skin/WireMessage/WireMessage.fromJson.html">WireMessage.fromJson</a>: The top-level membrane decoder.</li>
+<li><a href="../../cell_skin/WireReceipt/WireReceipt.fromJson.html">WireReceipt.fromJson</a>: The decoder for the attached forensic proof.</li>
+</ul>
 </section>
 
 

@@ -63,10 +63,61 @@
     </section>
     
 <section class="desc markdown">
-  <p>Wraps one ledger entry as the authoritative <code>skin.egress.&lt;cellId&gt;</code>
-state change: the entry's own receipt pairs with the entry's own
-pulse payload. The receipt comes from the entry's canonical stored
-JSON — the same encoding the audit trail itself uses.</p>
+  <p>Converts a <code>LedgerEntry</code> into an authoritative <a href="../cell_skin/WireStateChange-class.html">WireStateChange</a> signal.</p>
+<p>In the framework's biological metaphor, this is a <strong>Forensic Export</strong>.
+It takes a confirmed record from the <strong>Forensic Ledger</strong> and packages it
+as an official message to be sent outside the cell membrane.</p>
+<p>Unlike "Unledgered" signals, this message carries its official
+<strong>Forensic Receipt</strong>, proving that the change was successfully
+committed to the system's DNA.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Ledgered Communication</strong>: Use this when your system uses a
+<code>Ledger</code> and you need to notify external systems of a confirmed
+somatic change.</li>
+<li><strong>Audit Syncing</strong>: Use this to provide other systems with an
+identical copy of your internal audit trail.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Receipt Extraction</strong>: It pulls the official <a href="../cell_skin/WireReceipt-class.html">WireReceipt</a> directly
+from the ledger entry's stored JSON.</li>
+<li><strong>Payload Retrieval</strong>: It extracts the <code>Pulse</code> data that caused
+the change.</li>
+<li><strong>Authoritative Pairing</strong>: It combines the receipt and data into a
+<a href="../cell_skin/WireStateChange-class.html">WireStateChange</a> where <code>pendingReceipt</code> is set to <code>false</code>.</li>
+</ol>
+<h3 id="parameters">Parameters</h3>
+<ul>
+<li><strong>entry</strong>: The official <code>LedgerEntry</code> record representing a
+completed <strong>Somatic State Transition</strong>.</li>
+</ul>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Authoritative Link</strong>: Because the receipt and the data come from
+the same ledger entry, they are guaranteed to be perfectly paired.
+The receiver can trust this is a finalized "Source of Truth."</li>
+<li><strong>Encoding Consistency</strong>: This function uses the same canonical
+JSON format as the audit trail itself, ensuring the data looks the
+same in the ledger as it does on the wire.</li>
+<li><strong>Causal Completeness</strong>: Unlike temporary signals, this export
+represents a journey that is already finished and recorded.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// Listening to the tail of the Forensic Ledger
+myLedger.stream.listen((entry) {
+  final officialSignal = wireStateChangeForEntry(entry);
+
+  // Send the confirmed change to a remote server
+  dispatcher.send(officialSignal);
+});
+</code></pre>
+<p>See also:</p>
+<ul>
+<li><code>LedgerEntry</code>: The stored record of a nervous signal.</li>
+<li><a href="../cell_skin/WireStateChange-class.html">WireStateChange</a>: The container used for signals exiting the system.</li>
+<li><a href="../cell_skin/buildEgressCells.html">buildEgressCells</a>: For sending signals from systems without a ledger.</li>
+</ul>
 </section>
 
 

@@ -52,27 +52,53 @@
     <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
     <a href="https://dart.dev/language/class-modifiers#interface" class="feature feature-interface" title="This class can only be implemented (not extended or mixed in).">interface</a>
  
-    <span class="category howto-·-auth cp-10 linked" title="This is part of the HowTo · Auth topic."><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></span>
+    <span class="category howto-·-auth cp-7 linked" title="This is part of the HowTo · Auth topic."><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></span>
 </h1></div>
 
     
 <section class="desc markdown">
-  <p>Authenticates transport credentials. Returns <code>null</code> to reject.</p>
+  <p>The gatekeeper responsible for identifying external actors at the membrane.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/SkinAuth-class.html">SkinAuth</a> is the <strong>Identity Gatekeeper</strong>.
+It sits at the entry point of the <strong>Skin Membrane</strong> and analyzes the
+<strong>Environmental Markers</strong> (<a href="../cell_skin/SkinCredentials-class.html">SkinCredentials</a>) attached to an incoming
+<strong>Nervous Signal</strong>.</p>
+<p>Its sole responsibility is to resolve the caller's "Who"—transforming raw
+transport markers into the <strong>Resolved Identity DNA</strong> (<a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a>)
+required to begin a <strong>Command Journey</strong>.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
-<li>Implementing the adapter's credential check — <code>RestAdapter.bind</code>
-requires a <a href="../cell_skin/SkinAuth-class.html">SkinAuth</a>; there is no unauthenticated default.</li>
+<li><strong>Identity Resolution</strong>: Implement this to define how your system
+verifies tokens, API keys, or peer identities.</li>
+<li><strong>Adapter Configuration</strong>: Required when binding a <code>RestAdapter</code> or
+<code>McpAdapter</code>, as the membrane requires an explicit gatekeeper to
+establish provenance.</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
-<p><a href="../cell_skin/SkinAuth/authenticate.html">authenticate</a> receives <a href="../cell_skin/SkinCredentials-class.html">SkinCredentials</a> (token plus transport
-metadata such as peer, host, and user agent) and returns a
-<a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a> whose id, roles, and claims flow into the
-per-request <code>PulseContext</code> through the <a href="../cell_skin/ContextBridge-class.html">ContextBridge</a>.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<p>A <code>null</code> result means 401 with <code>WWW-Authenticate</code>; the principal is
-never discarded — it becomes the request's provenance.</p>
+<ol>
+<li><strong>Signal Arrival</strong>: A request hits the physical transport layer.</li>
+<li><strong>Verification</strong>: The <a href="../cell_skin/SkinAuth/authenticate.html">authenticate</a> method inspects the credentials.</li>
+<li><strong>Identity Resolution</strong>: If valid, it returns a <a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a>. If
+invalid, it returns <code>null</code>, triggering an immediate <strong>Membrane Rejection</strong>.</li>
+<li><strong>Provenance Flow</strong>: The resulting principal is passed to the
+<a href="../cell_skin/ContextBridge-class.html">ContextBridge</a> to be translated into internal somatic authority.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Authentication != Authorization</strong>: This interface only identifies the
+actor. The decision to allow or reject a specific <strong>Somatic State Transition</strong>
+is handled deeper in the graph by a cell's <strong>Integrity Gate</strong>.</li>
+<li><strong>Forensic Impact</strong>: The identity resolved here is what eventually
+appears in the <strong>Forensic Ledger</strong>. A failure here prevents a
+<strong>Forensic Receipt</strong> from ever being generated.</li>
+<li><strong>Async Nature</strong>: Verification often requires external lookups (e.g.,
+a database or OIDC provider), so the process is asynchronous.</li>
+</ul>
 <h3 id="see-also">See also</h3>
-<p><a href="../cell_skin/SkinCredentials-class.html">SkinCredentials</a>, <a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a>, <a href="../cell_skin/ContextBridge-class.html">ContextBridge</a>.</p>
+<ul>
+<li><a href="../cell_skin/SkinCredentials-class.html">SkinCredentials</a>: The raw markers provided to this gatekeeper.</li>
+<li><a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a>: The identity DNA produced by this gatekeeper.</li>
+<li><a href="../cell_skin/ContextBridge-class.html">ContextBridge</a>: The next step in the journey, translating identity to authority.</li>
+</ul>
 <h3 id="ai-agent-guide">AI Agent Guide</h3>
 <p><strong>Layer:</strong> Skin — the credential check, not the authorisation policy (the domain's <code>TestCell</code> decides).
 <strong>When to use:</strong> a requirement says "authenticate REST callers", "per-principal context", or "bearer tokens".
@@ -161,7 +187,7 @@ never discarded — it becomes the request's provenance.</p>
 
 </dt>
 <dd>
-  
+  Analyzes <strong>Environmental Markers</strong> to resolve a <strong>Resolved Identity DNA</strong>.
   
 
 </dd>

@@ -62,7 +62,38 @@
       </section>
       
 <section class="desc markdown">
-  <p>The exposed function name inside <a href="../../cell_skin/WireRequest/cellId.html">cellId</a>'s binding set.</p>
+  <p>The name of the action or update to perform on the target cell.</p>
+<p>In the framework's biological metaphor, this is the <strong>Instruction Type</strong>
+of the <strong>Nervous Signal</strong>. It specifies which logic should be triggered
+once the signal passes through the <strong>Skin Membrane</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Command Identification</strong>: Always include this in a <a href="../../cell_skin/WireRequest-class.html">WireRequest</a>
+so the system knows which specific behavior to run.</li>
+<li><strong>Interface Binding</strong>: Used to match an external request to an
+internal function defined in the cell's binding set.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Validation</strong>: The system checks if the target cell has an
+<strong>Integrity Gate</strong> or function that matches this name.</li>
+<li><strong>Execution</strong>: If a match is found, the data in the request is
+unpacked and the cell begins its <strong>Command Journey</strong>.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Strict Exposure</strong>: Only functions explicitly "exposed" or bound
+to the cell can be called. If you provide a name that isn't
+registered, the request will be rejected at the membrane.</li>
+<li><strong>Forensic Logging</strong>: This name is recorded in the <strong>Forensic Ledger</strong>.
+This allows you to see exactly which intent caused a
+<strong>Somatic State Transition</strong> in the history log.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireRequest/cellId.html">WireRequest.cellId</a>: The address where this function is located.</li>
+<li><a href="../../cell_skin/WireRequest/positional.html">WireRequest.positional</a>: The data passed to this function.</li>
+</ul>
 </section>
 
       

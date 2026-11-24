@@ -6,6 +6,8 @@ hash-chained ledger, and the **real** `ReplayEngine` to reduce
 tomorrow's energy bill. Only the agent's decisions are scripted.
 
 > Full walkthrough: [DEMO_GUIDE.md](../DEMO_GUIDE.md).
+> Comprehensive guide: [ARCHITECTURE.md](ARCHITECTURE.md) — the design
+> and assembly story of every layer.
 
 ```bash
 flutter pub get
@@ -65,18 +67,22 @@ through the framework's own `cell_flutter` widget layer.
 
 ## Recording mode
 
-The GIF on the package README is produced from this exact app:
+The GIF on the package README is produced from this exact app, without
+any screen recorder:
 
 ```bash
-flutter run -d macos --dart-define=DEMO_RECORDING=true --profile
+flutter test tool/gif/capture_gif.dart --dart-define=DEMO_RECORDING=true
 ```
 
-Recording mode drives a 15fps frame marker (`Frame N/300 · <beat>`)
-in the status strip; `screencapture`/`ffmpeg` capture the screen, and
-the post-processing pipeline in `Plan-Cell_Skin-Demo.md` §6 turns it
-into a 640px GIF. The drift test (`test/timeline_test.dart`) pins the
-300-frame storyboard so a change to the scripted timeline fails CI
-until the GIF is re-recorded.
+The capture tool boots the real scenario inside the flutter_test
+rasterizer, advances the real timeline and the UI animation clock in
+lockstep, triggers the real "Verify & Replay" overlay at the end, and
+encodes `../doc/demo/echo_home.gif` (640×400, looping) — the file the
+package README embeds. Recording mode drives the 15fps frame marker
+(`Frame N/300 · <beat>`) in the status strip. The drift test
+(`test/timeline_test.dart`) pins the 300-frame storyboard so a change
+to the scripted timeline fails CI until the GIF is re-recorded. Full
+procedure: [guide/HowTo-Recording.md](../guide/HowTo-Recording.md).
 
 ## Tests
 

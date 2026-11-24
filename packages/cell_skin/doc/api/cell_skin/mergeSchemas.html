@@ -64,9 +64,54 @@
     </section>
     
 <section class="desc markdown">
-  <p>Merges observed schemas by widening: the union of two shapes is the
-looser of the two at every keyword. An absent constraint means
-<em>unconstrained</em> — it never inherits the other side's constraint.</p>
+  <p>Merges two somatic blueprints into a single, wider DNA structure.</p>
+<p>In the framework's biological metaphor, this is <strong>Somatic Merging</strong>. When
+the system observes multiple successful <strong>Nervous Signals</strong> (pulses) over
+time, it combines their requirements to form a unified <strong>Somatic Blueprint</strong>
+that represents the total known capacity of the cell.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Schema Evolution</strong>: Used by the <strong>Somatic Index</strong> (manifest) to
+update its technical description of a cell as new, valid argument
+shapes are observed in the <strong>Forensic Ledger</strong>.</li>
+<li><strong>Blueprint Synthesis</strong>: Helpful when combining developer-provided
+hints with observed data shapes to create a hardened <strong>Integrity Gate</strong>.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Widening Logic</strong>: The merge always prefers the "loosest" constraint.
+For example, if one blueprint allows an <code>integer</code> and another allows
+a <code>number</code>, the result is a <code>number</code>.</li>
+<li><strong>Recursive Integration</strong>: For complex <strong>Skin Payloads</strong> (objects),
+it recursively merges the blueprints for every property.</li>
+<li><strong>Requirement Intersection</strong>: A field is only marked as <code>required</code>
+in the resulting blueprint if it was mandatory in <strong>both</strong> source
+blueprints. This prevents "Forensic Holes" where a valid signal is
+blocked by an overly strict requirement.</li>
+<li><strong>Constraint Union</strong>: For <code>enum</code> values, the result is the union of
+both vocabularies. For numeric bounds, the result is the widest
+possible range (the minimum of the minimums and the maximum of
+the maximums).</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Absorption</strong>: If either blueprint is <a href="../cell_skin/JsonSchema/permissive-constant.html">JsonSchema.permissive</a> (untyped),
+the resulting blueprint effectively becomes permissive for that
+segment, as an unconstrained DNA strand can absorb any shape.</li>
+<li><strong>Conflict Resolution</strong>: If the two blueprints describe fundamentally
+incompatible types (e.g., a <code>string</code> and a <code>boolean</code>), the merge
+widens to a null-typed schema, signaling that the membrane
+cannot reliably predict the shape.</li>
+<li><strong>Sorting</strong>: Required keys and enum values are sorted during the
+merge to ensure the resulting <strong>Skin Form</strong> is deterministic and
+stable for caching.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/JsonSchema-class.html">JsonSchema</a>: The blueprint structure being merged.</li>
+<li><a href="../cell_skin/schemaForValue.html">schemaForValue</a>: The function that generates the initial blueprints
+for merging.</li>
+</ul>
 </section>
 
 

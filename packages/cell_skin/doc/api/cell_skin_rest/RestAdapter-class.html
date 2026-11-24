@@ -51,12 +51,40 @@
 <h1><span class="kind-class">RestAdapter</span> class 
     <a href="https://dart.dev/language/class-modifiers#final" class="feature feature-final" title="This class can neither be extended, implemented, nor mixed in.">final</a>
  
-    <span class="category howto-·-rest-adapter cp-8 linked" title="This is part of the HowTo · REST Adapter topic."><a href="../topics/REST Adapter-topic.html">HowTo&nbsp;·&nbsp;REST&nbsp;Adapter</a></span>
 </h1></div>
 
     
 <section class="desc markdown">
-  <p>The HTTP + SSE adapter over a <a href="../cell_skin/SkinMembrane-class.html">SkinMembrane</a>.</p>
+  <p>The physical realization of a RESTful and SSE pore at the boundary layer.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin_rest/RestAdapter-class.html">RestAdapter</a> is a <strong>Membrane Pore</strong>.
+It binds the system to the external environment via HTTP, providing a
+physical seam for <strong>Nervous Signals</strong> to enter the somatic graph and for
+<strong>Forensic Ledger Rows</strong> to be broadcast back out.</p>
+<h3 id="security-posture">Security Posture</h3>
+<p>The pore is <strong>closed by default</strong>. Every incoming impulse is treated as
+an unverified <strong>Skin Payload</strong> until it passes through the following
+<strong>Integrity Gates</strong>:</p>
+<ol>
+<li><strong>Saturation Gate</strong>: Enforced by <code>_maxBodyBytes</code> to prevent exhaustion.</li>
+<li><strong>Identity Gatekeeper</strong>: Handled by <code>_auth</code> to resolve credentials.</li>
+<li><strong>Membrane Translator</strong>: Handled by <code>_contextBridge</code> to stamp the
+resulting pulse with somatic authority.</li>
+</ol>
+<h3 id="forensic-integrity">Forensic Integrity</h3>
+<p>This adapter ensures that every successfully processed command results in
+a <strong>Forensic Receipt</strong>. Failures that occur before the command reaches
+a cell are reported as <strong>Membrane Rejections</strong> (<a href="../cell_skin/WireError-class.html">WireError</a>), ensuring
+there are no "Forensic Holes" in the system's external audit trail.</p>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/SkinMembrane-class.html">SkinMembrane</a>: The core reactive organ this adapter exposes.</li>
+<li><a href="../cell_skin/SkinAuth-class.html">SkinAuth</a>: The mechanism used to identify external actors.</li>
+<li><a href="../cell_skin/ContextBridge-class.html">ContextBridge</a>: The translator that turns identity into authority.</li>
+</ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — this is the HTTP transport pore.
+<strong>Discovery:</strong> Use the <code>/skin/manifest</code> endpoint to fetch the <strong>Somatic Index</strong>.
+<strong>Interaction:</strong> Use <code>/skin/apply</code> to initiate a <strong>Command Journey</strong>.</p>
 </section>
 
 
@@ -100,7 +128,7 @@ operations).
 
 </dt>
 <dd>
-  
+  The reactive organ orchestrating the somatic graph.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -213,7 +241,11 @@ operations).
 
 </dt>
 <dd>
-  Binds the REST adapter on <code>address</code>:<code>port</code> (port <code>0</code> = ephemeral).
+  Binds the REST adapter to a physical network address and port.///
+In the framework's biological metaphor, this method <strong>sensitizes the pore</strong>.
+It opens a specific communication channel at the <strong>Skin Membrane</strong>, allowing
+the system to receive discovery impulses, command signals, and forensic
+audit streams via HTTP and SSE.
   
 
 </dd>

@@ -2,6 +2,13 @@
 # Created by `dart pub`
 .dart_tool/
 
+# Local coverage output; regenerate with
+# `dart test --coverage coverage`.
+coverage/
+
+# Library lockfile: consumers resolve from pub.dev constraints.
+pubspec.lock
+
 # dartdoc on some SDKs emits a stray zero-byte artifact next to the
 # "Demo" category topic page; the real page is Demo-topic.html.
 /doc/api/topics/Demo

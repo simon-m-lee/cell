@@ -51,32 +51,47 @@
 <h1><span class="kind-class">WireStateChange</span> class 
     <a href="https://dart.dev/language/class-modifiers#final" class="feature feature-final" title="This class can neither be extended, implemented, nor mixed in.">final</a>
  
-    <span class="category howto-·-egress cp-5 linked" title="This is part of the HowTo · Egress topic."><a href="../topics/Egress-topic.html">HowTo&nbsp;·&nbsp;Egress</a></span>
+    <span class="category howto-·-egress cp-4 linked" title="This is part of the HowTo · Egress topic."><a href="../topics/Egress-topic.html">HowTo&nbsp;·&nbsp;Egress</a></span>
 </h1></div>
 
     
 <section class="desc markdown">
-  <p>An outbound state observation: a target cell's value changed.</p>
-<p>Egress is <strong>not a reply</strong> — it carries no correlation id and can
-never complete a pending <code>request()</code>.</p>
+  <p>An outbound observation signal indicating that a cell's physical state has changed.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/WireStateChange-class.html">WireStateChange</a> is a
+<strong>Somatic Observation</strong>. Unlike a <a href="../cell_skin/WireResponse-class.html">WireResponse</a>, which is a direct reply to
+a command, this is an unsolicited <strong>Nervous Impulse</strong> broadcast to the
+environment (observers) whenever a <strong>Somatic State Transition</strong> occurs.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
-<li>Pushing state changes to observers: SSE <code>/skin/observe/:cellId</code>,
-MCP notifications, and <code>SkinClient.observe</code>.</li>
+<li><strong>State Streaming</strong>: Use this to push updates to external observers via
+SSE (<code>/skin/observe/:cellId</code>), MCP notifications, or <code>SkinClient.observe</code>.</li>
+<li><strong>UI Reactivity</strong>: Use this to keep external dashboards or AI agents
+synchronized with the live graph.</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
-<p>With a bound ledger, egress is driven by <code>Ledger.tail</code>: the entry's
-own receipt pairs with the entry's own pulse payload (taken from the
-entry's canonical stored JSON). Without a ledger, target
-observations are always <a href="../cell_skin/WireStateChange/pendingReceipt.html">pendingReceipt</a> — a receipt is never
-fabricated and never borrowed from an earlier change.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<p><code>pendingReceipt</code> on a ledgered change is always <code>false</code>; on an
-unledgered change it is always <code>true</code>. There is no in-between state
-where a guess is presented as authoritative.</p>
+<ul>
+<li><strong>Ledger-Driven</strong>: When a <strong>Forensic Ledger</strong> is bound, this signal is
+triggered by the ledger's tail. The <a href="../cell_skin/WireStateChange/receipt.html">receipt</a> is the authoritative proof
+of the change.</li>
+<li><strong>Volatile Changes</strong>: If no ledger is bound, the signal is sent
+immediately, but <a href="../cell_skin/WireStateChange/pendingReceipt.html">pendingReceipt</a> is always <code>true</code> because there is no
+permanent "DNA" record of the event.</li>
+</ul>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>No Correlation</strong>: This signal never carries a <code>correlationId</code>. It is
+an observation of the system's state, not a reply to a specific
+<strong>Command Journey</strong>.</li>
+<li><strong>Authoritative Proof</strong>: If <a href="../cell_skin/WireStateChange/pendingReceipt.html">pendingReceipt</a> is <code>false</code>, the change is
+guaranteed to be written in the <strong>Forensic Ledger</strong>. If <code>true</code>, it is a
+"live" observation that has not yet landed in the permanent record.</li>
+</ul>
 <h3 id="see-also">See also</h3>
-<p><a href="../cell_skin/wireStateChangeForEntry.html">wireStateChangeForEntry</a>, <a href="../cell_skin/SkinMembrane/responses.html">SkinMembrane.responses</a>,
-<a href="../cell_skin/WireLedgerEntry-class.html">WireLedgerEntry</a>.</p>
+<ul>
+<li><a href="../cell_skin/WireResponse-class.html">WireResponse</a>: A signal sent as a direct reply to a request.</li>
+<li><a href="../cell_skin/WireLedgerEntry-class.html">WireLedgerEntry</a>: The complete audit row for a ledgered change.</li>
+<li><a href="../cell_skin/WireReceipt-class.html">WireReceipt</a>: The forensic evidence of the state transition.</li>
+</ul>
 <h3 id="ai-agent-guide">AI Agent Guide</h3>
 <p><strong>Layer:</strong> Skin — this is an observation, not a command reply.
 <strong>When to use:</strong> streaming target state changes to observers (SSE, MCP notifications, Dart clients).
@@ -127,14 +142,14 @@ where a guess is presented as authoritative.</p>
           <span class="name"><a href="../cell_skin/WireStateChange/WireStateChange.html">WireStateChange</a></span><span class="signature">({<span class="parameter" id="-param-cellId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">cellId</span>, </span><span class="parameter" id="-param-payload"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">payload</span>, </span><span class="parameter" id="-param-receipt"><span class="type-annotation"><a href="../cell_skin/WireReceipt-class.html">WireReceipt</a>?</span> <span class="parameter-name">receipt</span>, </span><span class="parameter" id="-param-pendingReceipt"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">pendingReceipt</span> = <span class="default-value">true</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates a new <a href="../cell_skin/WireStateChange-class.html">WireStateChange</a> observation envelope.
             <div class="constructor-modifier features">const</div>
         </dd>
         <dt id="WireStateChange.fromJson" class="callable">
           <span class="name"><a href="../cell_skin/WireStateChange/WireStateChange.fromJson.html">WireStateChange.fromJson</a></span><span class="signature">(<span class="parameter" id="fromJson-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">json</span></span>)</span>
         </dt>
         <dd>
-          Decodes a <a href="../cell_skin/WireStateChange-class.html">WireStateChange</a> encoded by <a href="../cell_skin/WireStateChange/toJson.html">toJson</a>.
+          Decodes a raw JSON map into a <a href="../cell_skin/WireStateChange-class.html">WireStateChange</a> observation.
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
@@ -152,7 +167,7 @@ where a guess is presented as authoritative.</p>
 
 </dt>
 <dd>
-  The registered graph name of the cell that changed.
+  The unique name of the cell that has changed.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -176,7 +191,7 @@ where a guess is presented as authoritative.</p>
 
 </dt>
 <dd>
-  The stable discriminator used by <a href="../cell_skin/WireMessage/WireMessage.fromJson.html">WireMessage.fromJson</a>.
+  The stable identifier used to distinguish this message type on the wire.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -188,8 +203,10 @@ where a guess is presented as authoritative.</p>
 
 </dt>
 <dd>
-  The new state value, when JSON-serialisable (otherwise omitted —
-the ledger entry carries the authoritative payload).
+  The new state value of the cell, provided as a JSON-serializable object.  ///
+In the framework's biological metaphor, this is the <strong>Phenotype</strong>. It
+represents the observable traits of the cell immediately following a
+<strong>Somatic State Transition</strong>.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -201,7 +218,7 @@ the ledger entry carries the authoritative payload).
 
 </dt>
 <dd>
-  Whether the ledger entry for this change has not landed yet.
+  Whether the permanent record for this change is still being written to the ledger.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -213,9 +230,7 @@ the ledger entry carries the authoritative payload).
 
 </dt>
 <dd>
-  The last known receipt for <a href="../cell_skin/WireStateChange/cellId.html">cellId</a>, when the ledger has recorded
-one. It may belong to an <em>earlier</em> change while <a href="../cell_skin/WireStateChange/pendingReceipt.html">pendingReceipt</a>
-is <code>true</code>; it is never fabricated.
+  The forensic evidence for the state change, if available.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -262,8 +277,7 @@ is <code>true</code>; it is never fabricated.
 
 </dt>
 <dd>
-  JSON-serialisable wire form. Payloads stay JSON-safe; the pulse's
-metadata travels on the pulse, not inside this map.
+  Converts the observation into a JSON-safe map for transport.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

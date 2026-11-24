@@ -114,11 +114,23 @@ final class SkinFixture {
   ///
   /// [extraBindings] builds custom bindings **before** the membrane
   /// opens — a membrane seals its binding table at `open()`.
+  ///
+  /// [idempotency] and [clock] override the membrane's retry store and
+  /// its time source (used by the idempotency and queue suites).
+  /// [ledgerStore] overrides the backing ledger store (used by the SSE
+  /// suite to gate `entriesSince`). [maxQueueWait] overrides the queue
+  /// budget.
   static Future<SkinFixture> build({
     String graphId = 'fixture-home',
     SkinWhitelist? whitelist,
     List<SkinBinding> Function(SkinFixtureTargets targets)? extraBindings,
     void Function(String message)? onPolicyWarning,
+    IdempotencyStore? idempotency,
+    DateTime Function() clock = DateTime.now,
+    LedgerStore? ledgerStore,
+    Duration maxQueueWait = const Duration(seconds: 30),
+    SkinAuthorizer? authorizer,
+    int? maxQueued,
   }) async {
     CellGraphRegistry.forceReset();
 
@@ -131,11 +143,8 @@ final class SkinFixture {
     final lightColor = Cell.state<String>(initial: '#FFFFFF');
 
     late final StateHandle<bool> door;
-    late final bool Function() lockDoor;
-    final doorGate = DoorGate(lockDoor = () {
-      door.update(true);
-      return true;
-    });
+    late final Pulse<bool> Function() lockDoor;
+    final doorGate = DoorGate(lockDoor = () => SkinPulses.payload(true));
     door = Cell.state<bool>(initial: false, testRule: doorGate);
 
     final graph = (CellGraph.builder(graphId: graphId)
@@ -146,17 +155,18 @@ final class SkinFixture {
           ..register('home.front.door', door.cell))
         .build();
     final ledger = await graph.bindLedger(
-      store: InMemoryLedgerStore(
-        genesisHash: Ledger.genesisHashOf(graph.id),
-      ),
+      store: ledgerStore ??
+          InMemoryLedgerStore(
+            genesisHash: Ledger.genesisHashOf(graph.id),
+          ),
     );
 
     final bindings = SkinBindingTable()
-      ..register(SkinBinding(
+      ..register(SkinBinding.state(
         cellId: 'home.living.thermostat',
         functionName: 'setTarget',
         target: thermostat.cell,
-        function: (int target) => thermostat.update(target),
+        nextValue: (int target) => target,
         argumentSchema: const JsonSchema(
           type: 'object',
           properties: {
@@ -164,6 +174,7 @@ final class SkinFixture {
           },
           required: ['target'],
         ),
+        positionalNames: ['target'],
       ))
       ..register(SkinBinding(
         cellId: 'home.front.door',
@@ -171,21 +182,17 @@ final class SkinFixture {
         target: door.cell,
         function: lockDoor,
       ))
-      ..register(SkinBinding(
+      ..register(SkinBinding.state(
         cellId: 'home.front.door',
         functionName: 'unlock',
         target: door.cell,
-        function: () {
-          door.update(false);
-          return true;
-        },
+        nextValue: () => false,
       ))
-      ..register(SkinBinding(
+      ..register(SkinBinding.state(
         cellId: 'home.living.light',
         functionName: 'dim',
         target: light.cell,
-        function: (double brightness) =>
-            light.update(brightness.clamp(0.0, 1.0)),
+        nextValue: (double brightness) => brightness.clamp(0.0, 1.0),
         argumentSchema: const JsonSchema(
           type: 'object',
           properties: {
@@ -193,12 +200,21 @@ final class SkinFixture {
           },
           required: ['brightness'],
         ),
+        positionalNames: ['brightness'],
       ))
-      ..register(SkinBinding(
-        cellId: 'home.living.light',
+      ..register(SkinBinding.state(
+        cellId: 'home.living.light.color',
         functionName: 'setColor',
-        target: light.cell,
-        function: (String hex) => lightColor.update(hex),
+        target: lightColor.cell,
+        nextValue: (String hex) => hex,
+        argumentSchema: const JsonSchema(
+          type: 'object',
+          properties: {
+            'hex': JsonSchema(type: 'string'),
+          },
+          required: ['hex'],
+        ),
+        positionalNames: ['hex'],
       ));
     final extra = extraBindings?.call(SkinFixtureTargets(
       thermostat: thermostat,
@@ -219,6 +235,11 @@ final class SkinFixture {
       journal: RecordingJournal(),
       send: sent.add,
       onPolicyWarning: onPolicyWarning,
+      idempotency: idempotency,
+      clock: clock,
+      maxQueueWait: maxQueueWait,
+      authorizer: authorizer,
+      maxQueued: maxQueued,
     );
 
     return SkinFixture._(

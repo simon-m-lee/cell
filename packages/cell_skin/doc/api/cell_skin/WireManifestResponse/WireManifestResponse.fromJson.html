@@ -59,7 +59,42 @@
     </section>
     
 <section class="desc markdown">
-  <p>Decodes a <a href="../../cell_skin/WireManifestResponse-class.html">WireManifestResponse</a> encoded by <a href="../../cell_skin/WireManifestResponse/toJson.html">toJson</a>.</p>
+  <p>Decodes a raw JSON map into a <a href="../../cell_skin/WireManifestResponse-class.html">WireManifestResponse</a>.</p>
+<p>In the framework's biological metaphor, this factory acts as a
+<strong>Signal Decoder</strong> at the <strong>Skin Membrane</strong>. It translates the
+<strong>Skin Form</strong> of the system's catalog back into a structured
+<strong>Somatic Index</strong> that the client can use to navigate the graph.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Egress Processing</strong>: Use this when a client (like an AI agent or
+a remote dashboard) receives a discovery response and needs to
+reconstruct the available toolset.</li>
+<li><strong>Initialization</strong>: The final step for a client to understand the
+"DNA" of the system it just connected to.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Index Extraction</strong>: It identifies the <code>manifest</code> key in the
+payload.</li>
+<li><strong>Recursive Decoding</strong>: It delegates the reconstruction of the
+technical schemas and addresses to <a href="../../cell_skin/SkinManifest/SkinManifest.fromJson.html">SkinManifest.fromJson</a>.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Omission</strong>: Unlike <a href="../../cell_skin/WireResponse/WireResponse.fromJson.html">WireResponse.fromJson</a>, this factory
+does not look for correlation IDs or forensic receipts. The
+resulting object is a stateless snapshot of the system's potential,
+not a record of a state change.</li>
+<li><strong>Strict Mapping</strong>: The factory expects the <code>manifest</code> field to be
+present and valid; if the <strong>Skin Form</strong> is corrupted, the decoding
+process will fail, protecting the client from malformed discovery data.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireManifestResponse/toJson.html">WireManifestResponse.toJson</a>: The reverse process for preparing
+the index for the wire.</li>
+<li><a href="../../cell_skin/SkinManifest/SkinManifest.fromJson.html">SkinManifest.fromJson</a>: The decoder for the actual catalog content.</li>
+</ul>
 </section>
 
 

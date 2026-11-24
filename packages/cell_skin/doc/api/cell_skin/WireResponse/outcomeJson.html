@@ -62,8 +62,45 @@
       </section>
       
 <section class="desc markdown">
-  <p>The wire outcome JSON for a decoded response; <code>null</code> for live
-responses and for pending ones.</p>
+  <p>The wire-safe JSON version of the cell's result.</p>
+<p>In the framework’s biological metaphor, this is the <strong>Skin Form</strong> of the
+<strong>Forensic Receipt</strong>. While the <a href="../../cell_skin/WireResponse/outcome.html">outcome</a> property holds a live object
+inside the system, this property holds a simplified version that is safe
+to send over the network (the "Wire").</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Network Responses</strong>: Use this when you are writing a client (like a
+web app or an AI tool) that receives a response over a network.</li>
+<li><strong>Data Inspection</strong>: Use this to read the results of a <strong>Command Journey</strong>
+without needing access to the original live cell objects.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Serialization</strong>: When a response leaves the system, the framework
+converts the live result into a plain JSON map.</li>
+<li><strong>Decoding</strong>: When <a href="../../cell_skin/WireResponse/WireResponse.fromJson.html">WireResponse.fromJson</a> is called, it places the
+result data here.</li>
+<li><strong>Result Access</strong>: You can then check this object to see if the
+original <strong>Nervous Signal</strong> was accepted or rejected.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Mutually Exclusive</strong>: If this field is filled, the live <a href="../../cell_skin/WireResponse/outcome.html">outcome</a>
+field will be <code>null</code>. You only use <a href="../../cell_skin/WireResponse/outcomeJson.html">outcomeJson</a> for responses that
+have traveled across the <strong>Skin Membrane</strong>.</li>
+<li><strong>Information Loss</strong>: Because this is a simplified copy, it does not
+contain the actual Dart functions or live references that were part of
+the original <strong>Somatic State Transition</strong>.</li>
+<li><strong>Pending States</strong>: If <a href="../../cell_skin/WireResponse/pendingReceipt.html">pendingReceipt</a> is <code>true</code>, this field is
+usually <code>null</code> because the final result hasn't been written to the
+<strong>Forensic Ledger</strong> yet.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireOutcome-class.html">WireOutcome</a>: The data structure used for JSON results.</li>
+<li><a href="../../cell_skin/WireResponse/outcome.html">WireResponse.outcome</a>: The live version of this result.</li>
+<li><a href="../../cell_skin/WireResponse/WireResponse.fromJson.html">WireResponse.fromJson</a>: The factory that populates this field.</li>
+</ul>
 </section>
 
       

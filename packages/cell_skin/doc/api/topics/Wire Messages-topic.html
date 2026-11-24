@@ -158,44 +158,34 @@ non-JSON result is reported honestly, never as a post-apply 500.</p>
     <dl>
       <dt id="WireError">
   <span class="name "><a href="../cell_skin/WireError-class.html">WireError</a></span> 
-    <span class="category howto-·-wire-messages cp-4 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
+    <span class="category howto-·-wire-messages cp-3 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
 
 </dt>
 <dd>
-  An error that has no receipt: exposure-gate misses, transport
-failures, and cursor conflicts.
+  A failure signal indicating that a request was rejected before reaching the core graph.
 </dd>
 
       <dt id="WireMessage">
   <span class="name "><a href="../cell_skin/WireMessage-class.html">WireMessage</a></span> 
-    <span class="category howto-·-wire-messages cp-4 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
-    <span class="category features cp-12 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category howto-·-wire-messages cp-3 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
+    <span class="category features cp-9 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
 
 </dt>
 <dd>
-  One wire event. Every transport — MCP, REST, SSE, stdio — is a
-<code>Pulse&lt;WireMessage&gt;</code> whose <code>type</code> discriminates the variant.
+  The universal envelope for every signal crossing the system's membrane.
 </dd>
 
       <dt id="WireRequest">
   <span class="name "><a href="../cell_skin/WireRequest-class.html">WireRequest</a></span> 
-    <span class="category howto-·-wire-messages cp-4 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
-    <span class="category howto-·-idempotency cp-7 linked" title="This is part of the HowTo · Idempotency topic."><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></span>
+    <span class="category howto-·-wire-messages cp-3 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
+    <span class="category howto-·-idempotency cp-6 linked" title="This is part of the HowTo · Idempotency topic."><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></span>
 
 </dt>
 <dd>
-  An inbound call: invoke <a href="../cell_skin/WireRequest/function.html">function</a> on the cell named <a href="../cell_skin/WireRequest/cellId.html">cellId</a>.
-</dd>
-
-      <dt id="WireResponse">
-  <span class="name "><a href="../cell_skin/WireResponse-class.html">WireResponse</a></span> 
-    <span class="category howto-·-wire-messages cp-4 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
-
-</dt>
-<dd>
-  An outbound result: the target's real <code>ApplyOutcome</code>, or — when the
-ledger entry has not landed yet — a pending marker with the last
-known receipt JSON.
+  An envelope for an incoming command sent from the outside world into the system.///
+In the framework's biological metaphor, <a href="../cell_skin/WireRequest-class.html">WireRequest</a> is a <strong>Nervous Signal</strong>
+that has just touched the <strong>Skin Membrane</strong>. It carries the instructions
+needed to start a <code>Command Journey</code> inside the reactive graph.
 </dd>
 
     </dl>
@@ -228,15 +218,12 @@ known receipt JSON.
         <li><a href="../topics/Features-topic.html">Features</a></li>
         <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
         <li><a href="../topics/Test Verification-topic.html">Test&nbsp;Verification</a></li>
-        <li><a href="../topics/Membrane-topic.html">HowTo&nbsp;·&nbsp;Membrane</a></li>
         <li><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></li>
         <li><a href="../topics/Whitelist-topic.html">HowTo&nbsp;·&nbsp;Whitelist</a></li>
         <li><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></li>
         <li><a href="../topics/Egress-topic.html">HowTo&nbsp;·&nbsp;Egress</a></li>
         <li><a href="../topics/Cursors-topic.html">HowTo&nbsp;·&nbsp;Cursors</a></li>
         <li><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></li>
-        <li><a href="../topics/REST Adapter-topic.html">HowTo&nbsp;·&nbsp;REST&nbsp;Adapter</a></li>
-        <li><a href="../topics/MCP Seam-topic.html">HowTo&nbsp;·&nbsp;MCP&nbsp;Seam</a></li>
         <li><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></li>
         <li><a href="../topics/Testing-topic.html">HowTo&nbsp;·&nbsp;Testing</a></li>
         <li><a href="../topics/Demo-topic.html">Demo:&nbsp;Echo&nbsp;Home</a></li>
@@ -255,6 +242,8 @@ known receipt JSON.
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
       <li class="section-subtitle">Test Verification</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Networking</li>
+        <li class="section-subitem"><a href="../cell_skin_rest/">cell_skin_rest</a></li>
 </ol>
 
 </div>
@@ -266,7 +255,6 @@ known receipt JSON.
       <li><a href="../cell_skin/WireError-class.html">WireError</a></li>
       <li><a href="../cell_skin/WireMessage-class.html">WireMessage</a></li>
       <li><a href="../cell_skin/WireRequest-class.html">WireRequest</a></li>
-      <li><a href="../cell_skin/WireResponse-class.html">WireResponse</a></li>
 
 
 

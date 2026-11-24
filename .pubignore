@@ -6,6 +6,14 @@
 melos.yaml
 pubspec.lock
 /packages/**
+
+# Sub-packages publish independently: their contents stay visible to
+# `dart pub publish` when run from packages/<name>.
+!/packages/
+!/packages/cell/
+!/packages/cell/**
+!/packages/cell_skin/
+!/packages/cell_skin/**
 /demo/**
 /skills_lint.yaml
 

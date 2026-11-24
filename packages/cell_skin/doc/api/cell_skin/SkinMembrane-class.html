@@ -51,31 +51,45 @@
 <h1><span class="kind-class">SkinMembrane</span> class 
     <a href="https://dart.dev/language/class-modifiers#final" class="feature feature-final" title="This class can neither be extended, implemented, nor mixed in.">final</a>
  
-    <span class="category howto-·-membrane cp-1 linked" title="This is part of the HowTo · Membrane topic."><a href="../topics/Membrane-topic.html">HowTo&nbsp;·&nbsp;Membrane</a></span>
 </h1></div>
 
     
 <section class="desc markdown">
-  <p>The four-Cell membrane between a <code>CellGraph</code> and the wire.</p>
-<h3 id="when-to-use">When to use</h3>
-<ul>
-<li>Every transport: REST, MCP, and Dart clients share this one
-assembled pipeline — never build a second dispatch path.</li>
-</ul>
-<h3 id="how-it-works">How it works</h3>
-<p><a href="../cell_skin/SkinMembrane/open.html">SkinMembrane.open</a> composes <code>Cell.ingress</code> → <code>Cell.asyncMap</code>
-(<code>concurrency: 1</code>) → <code>target.apply</code> → egress → mux → outbound over
-the graph, an optional ledger, and a transport writer. <a href="../cell_skin/SkinMembrane/request.html">request</a>
-awaits the correlated <a href="../cell_skin/WireResponse-class.html">WireResponse</a>/<a href="../cell_skin/WireError-class.html">WireError</a>; <a href="../cell_skin/SkinMembrane/responses.html">responses</a>
-broadcasts everything that survives the mux.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<p>The binding table seals at <a href="../cell_skin/SkinMembrane/open.html">SkinMembrane.open</a>: the egress set and
-the manifest can never diverge afterwards. Egress is
-<a href="../cell_skin/WireStateChange-class.html">WireStateChange</a>, never a reply; a pending <code>request()</code> is only ever
-completed by its own correlated response/error.</p>
+  <p>The master orchestrator of the boundary layer, managing the flow between the somatic graph and the environment.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/SkinMembrane-class.html">SkinMembrane</a> is the <strong>Somatic Membrane</strong> organ.
+It acts as the singular, authoritative pipeline that governs how <strong>Nervous Signals</strong>
+(<a href="../cell_skin/WireMessage-class.html">WireMessage</a>) enter the system and how <strong>Forensic Receipts</strong> and state observations
+are expelled to the outside world.</p>
+<h3 id="the-four-cell-pipeline">The Four-Cell Pipeline</h3>
+<p>The membrane is composed of four specialized functional units:</p>
+<ol>
+<li><strong>Inbound (<a href="../cell_skin/SkinMembrane/inbound.html">inbound</a>)</strong>: The entry pore where raw <strong>Skin Payloads</strong> arrive.</li>
+<li><strong>Router (<a href="../cell_skin/SkinMembrane/router.html">router</a>)</strong>: The <strong>Synaptic Junction</strong> that performs binding lookups,
+cursor validation, and triggers the <code>target.apply</code> logic.</li>
+<li><strong>Mux (<a href="../cell_skin/SkinMembrane/mux.html">mux</a>)</strong>: The <strong>Egress Funnel</strong> that aggregates responses, ledger entries,
+and volatile state changes.</li>
+<li><strong>Outbound (<a href="../cell_skin/SkinMembrane/outbound.html">outbound</a>)</strong>: The terminal pore that writes the finalized
+<strong>Nervous Signals</strong> to the transport layer.</li>
+</ol>
+<h3 id="forensic-integrity">Forensic Integrity</h3>
+<p>The membrane ensures that every successfully processed command results in an
+authoritative <strong>Somatic State Transition</strong> recorded in the <strong>Forensic Ledger</strong>.
+By centralizing all transport (REST, MCP, SSE) through this single pipeline,
+it prevents "Forensic Ambiguity" and ensures that provenance is always preserved.</p>
+<h3 id="lifecycle-and-sealing">Lifecycle and Sealing</h3>
+<p>When a membrane is initialized via <a href="../cell_skin/SkinMembrane/open.html">open</a>, it seals the <a href="../cell_skin/SkinBindingTable-class.html">SkinBindingTable</a>. This
+ensures the system's "DNA" (its exposed surface) remains immutable throughout
+the connection, providing a stable <strong>Somatic Index</strong> for discovery.</p>
 <h3 id="see-also">See also</h3>
-<p><a href="../cell_skin/SkinRouter-class.html">SkinRouter</a> (the dispatch brain), <a href="../cell_skin/SkinBindingTable-class.html">SkinBindingTable</a>, <a href="../cell_skin/SkinClient-class.html">SkinClient</a>,
-and <code>ARCHITECTURE-Skin.md</code> §2.</p>
+<ul>
+<li><a href="../cell_skin/SkinRouter-class.html">SkinRouter</a>: The dispatch brain governing the journey.</li>
+<li><a href="../cell_skin/SkinBindingTable-class.html">SkinBindingTable</a>: The registry of physically exposed pores.</li>
+<li><a href="../cell_skin/WireMessage-class.html">WireMessage</a>: The base envelope for all signals crossing this membrane.</li>
+</ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — this is the top-level orchestrator of the boundary.
+<strong>Governance:</strong> All external interaction must pass through this membrane.
+<strong>Traceability:</strong> Use <a href="../cell_skin/SkinMembrane/responses.html">responses</a> to observe the audit trail of the somatic body.</p>
 </section>
 
 
@@ -94,8 +108,7 @@ and <code>ARCHITECTURE-Skin.md</code> §2.</p>
 
 </dt>
 <dd>
-  The exposure registry. Sealed at <a href="../cell_skin/SkinMembrane/open.html">SkinMembrane.open</a> — the egress
-cells and the manifest can never diverge.
+  The authoritative registry of physically exposed pores.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -107,7 +120,7 @@ cells and the manifest can never diverge.
 
 </dt>
 <dd>
-  The dispatch brain behind <a href="../cell_skin/SkinMembrane/router.html">router</a>.
+  The dispatch brain behind the <a href="../cell_skin/SkinMembrane/router.html">router</a> cell.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -119,7 +132,7 @@ cells and the manifest can never diverge.
 
 </dt>
 <dd>
-  Cell 3 — egress: one <code>Cell.observe</code> per exposed target.
+  The collection of observation points for exposed cells.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -131,7 +144,7 @@ cells and the manifest can never diverge.
 
 </dt>
 <dd>
-  The graph being skinned.
+  The reactive organ representing the entire somatic body.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -155,7 +168,7 @@ cells and the manifest can never diverge.
 
 </dt>
 <dd>
-  Cell 1 — inbound: transport pulses enter here.
+  The entry pore for incoming wire signals.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -167,7 +180,7 @@ cells and the manifest can never diverge.
 
 </dt>
 <dd>
-  The graph's ledger, when one is bound.
+  The system's permanent history, if one is bound.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -191,7 +204,7 @@ cells and the manifest can never diverge.
 
 </dt>
 <dd>
-  The fan-in primitive.
+  The convergence point for all outbound signals.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -203,7 +216,7 @@ cells and the manifest can never diverge.
 
 </dt>
 <dd>
-  Cell 4 — outbound: the terminal cell writing to the transport.
+  The terminal cell writing to the transport layer.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -215,9 +228,7 @@ cells and the manifest can never diverge.
 
 </dt>
 <dd>
-  The receipt join for egress pulses.
-Every pulse that survives the mux, as a broadcast stream (router
-responses, egress observations, ledger entries, errors).
+  The unified stream of every signal that survives the egress funnel.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -229,7 +240,7 @@ responses, egress observations, ledger entries, errors).
 
 </dt>
 <dd>
-  Cell 2 — router: binding lookup, cursor check, <code>target.apply</code>.
+  The cell responsible for dispatching signals to the graph.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -253,7 +264,7 @@ responses, egress observations, ledger entries, errors).
 
 </dt>
 <dd>
-  The declarative exposure policy, when configured.
+  The optional declarative filter for the membrane.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>

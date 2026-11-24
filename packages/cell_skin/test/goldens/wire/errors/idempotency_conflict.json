@@ -1,0 +1,5 @@
+{
+  "code": "idempotency_conflict",
+  "http": 409,
+  "receipt": false
+}

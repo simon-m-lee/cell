@@ -65,8 +65,51 @@
     </section>
     
 <section class="desc markdown">
-  <p>Builds the outbound terminal cell: a <code>Cell.observe</code> on <code>mux</code> whose
-effect is <code>send</code>.</p>
+  <p>Builds the terminal egress point of the membrane, connecting the internal graph to the physical transport.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/buildOutboundCell.html">buildOutboundCell</a> creates the
+<strong>Terminal Egress Pore</strong>. It represents the absolute boundary of the
+<strong>Skin Membrane</strong>, where a <strong>Nervous Signal</strong> (a <a href="../cell_skin/WireMessage-class.html">WireMessage</a>) is
+physically expelled from the somatic body to become an <strong>External Echo</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Transport Binding</strong>: The final step in orchestrating a <a href="../cell_skin/SkinMembrane-class.html">SkinMembrane</a>.
+It bridges the unified <code>mux</code> stream to a specific transport effect
+(e.g., writing to a WebSocket, SSE stream, or MCP transport).</li>
+<li><strong>Pore Realization</strong>: Used by adapters to turn an internal somatic
+event into a physical network packet.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Observation</strong>: It creates a <code>Cell.observe</code> on the <code>mux</code> cell.</li>
+<li><strong>Effect Trigger</strong>: For every pulse that passes through the <strong>Egress Funnel</strong>,
+the <code>send</code> function is executed.</li>
+<li><strong>Physical Egress</strong>: The <code>send</code> function translates the <strong>Skin Form</strong>
+of the message into the transport-specific protocol (e.g., JSON-RPC over stdio).</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Pass-through</strong>: This cell does not alter the signal or
+generate new forensic data. It is the final observer of the
+<strong>Command Journey's</strong> result.</li>
+<li><strong>Lifecycle Governance</strong>: The returned <code>EgressHandle</code> is the authoritative
+control for this pore. If the handle is not cancelled when the external
+connection is severed, it creates a "Forensic Leak" (a memory leak) as
+the observation remains active.</li>
+<li><strong>Ordered Delivery</strong>: It ensures that state changes and ledger entries
+are pushed to the environment in the exact sequence they were anchored
+in the <strong>Forensic Ledger</strong>.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/buildMuxCell.html">buildMuxCell</a>: The fan-in funnel that feeds this terminal pore.</li>
+<li><code>EgressHandle</code>: The mechanism used to manage the pore's lifecycle.</li>
+<li><a href="../cell_skin/WireMessage-class.html">WireMessage</a>: The envelope being transmitted.</li>
+</ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — this is the physical exit point.
+<strong>Status:</strong> Terminal observation.
+<strong>Constraint:</strong> The <code>send</code> effect must be exception-free; errors here
+can crash the egress pipeline of the entire membrane.</p>
 </section>
 
 

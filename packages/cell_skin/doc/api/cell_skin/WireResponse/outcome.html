@@ -62,10 +62,38 @@
       </section>
       
 <section class="desc markdown">
-  <p>The target's own outcome. <code>null</code> only when <a href="../../cell_skin/WireResponse/pendingReceipt.html">pendingReceipt</a> is
-<code>true</code> (live) or when the response was decoded from JSON (a live
-<code>ApplyOutcome</code> cannot be reconstructed without the live target
-cell — <a href="../../cell_skin/WireResponse/outcomeJson.html">outcomeJson</a> carries the wire form instead).</p>
+  <p>The live internal result produced by the target cell.</p>
+<p>In the framework's biological metaphor, this is the <strong>Live Forensic
+Receipt</strong>. It represents the finalized state of the <strong>Nervous Signal</strong>
+immediately after it completes its <strong>Command Journey</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Internal Processing</strong>: Use this when you are working with a response
+locally within the Dart process to check if an action succeeded.</li>
+<li><strong>Direct Access</strong>: Use this to access the typed result and metadata
+of an <code>ApplyOutcome</code> before it is converted to JSON.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>This field captures the exact <code>ApplyOutcome</code> returned by the cell's
+<code>apply</code> method. It identifies whether the transition was <strong>Accepted</strong>,
+<strong>Rejected</strong> (by an <strong>Integrity Gate</strong>), or <strong>Staged</strong> (in a transaction).</p>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Serialization Boundary</strong>: This property is only available in "live"
+responses. Because an <code>ApplyOutcome</code> can contain functions and complex
+logic, it cannot survive a trip across the wire.</li>
+<li><strong>Decoded Nullability</strong>: If this <a href="../../cell_skin/WireResponse-class.html">WireResponse</a> was created from JSON
+(using <a href="../../cell_skin/WireResponse/WireResponse.fromJson.html">WireResponse.fromJson</a>), this field will be <code>null</code>. In that
+case, you must use <a href="../../cell_skin/WireResponse/outcomeJson.html">outcomeJson</a> to see the data.</li>
+<li><strong>Pending States</strong>: If <a href="../../cell_skin/WireResponse/pendingReceipt.html">pendingReceipt</a> is <code>true</code>, this outcome
+represents the current status before the <strong>Forensic Ledger</strong> has
+permanently finished writing the record.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><code>ApplyOutcome</code>: The internal framework result being carried.</li>
+<li><a href="../../cell_skin/WireResponse/outcomeJson.html">WireResponse.outcomeJson</a>: The wire-safe version of this result.</li>
+</ul>
 </section>
 
       

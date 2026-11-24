@@ -1,0 +1,15 @@
+{
+  "wire": "1",
+  "kind": "request",
+  "cellId": "home.living.thermostat",
+  "function": "setTarget",
+  "positional": {
+    "0": 21
+  },
+  "named": {
+    "mode": "eco"
+  },
+  "correlationId": "srv-1",
+  "clientCorrelationId": "client-1",
+  "lastSeenSeq": 7
+}

@@ -114,12 +114,15 @@ the audit trail.</p>
     <dl>
       <dt id="WireRequest">
   <span class="name "><a href="../cell_skin/WireRequest-class.html">WireRequest</a></span> 
-    <span class="category howto-·-wire-messages cp-4 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
-    <span class="category howto-·-idempotency cp-7 linked" title="This is part of the HowTo · Idempotency topic."><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></span>
+    <span class="category howto-·-wire-messages cp-3 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
+    <span class="category howto-·-idempotency cp-6 linked" title="This is part of the HowTo · Idempotency topic."><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></span>
 
 </dt>
 <dd>
-  An inbound call: invoke <a href="../cell_skin/WireRequest/function.html">function</a> on the cell named <a href="../cell_skin/WireRequest/cellId.html">cellId</a>.
+  An envelope for an incoming command sent from the outside world into the system.///
+In the framework's biological metaphor, <a href="../cell_skin/WireRequest-class.html">WireRequest</a> is a <strong>Nervous Signal</strong>
+that has just touched the <strong>Skin Membrane</strong>. It carries the instructions
+needed to start a <code>Command Journey</code> inside the reactive graph.
 </dd>
 
     </dl>
@@ -152,15 +155,12 @@ the audit trail.</p>
         <li><a href="../topics/Features-topic.html">Features</a></li>
         <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
         <li><a href="../topics/Test Verification-topic.html">Test&nbsp;Verification</a></li>
-        <li><a href="../topics/Membrane-topic.html">HowTo&nbsp;·&nbsp;Membrane</a></li>
         <li><a href="../topics/Bindings-topic.html">HowTo&nbsp;·&nbsp;Bindings</a></li>
         <li><a href="../topics/Whitelist-topic.html">HowTo&nbsp;·&nbsp;Whitelist</a></li>
         <li><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></li>
         <li><a href="../topics/Egress-topic.html">HowTo&nbsp;·&nbsp;Egress</a></li>
         <li><a href="../topics/Cursors-topic.html">HowTo&nbsp;·&nbsp;Cursors</a></li>
         <li><a href="../topics/Idempotency-topic.html">HowTo&nbsp;·&nbsp;Idempotency</a></li>
-        <li><a href="../topics/REST Adapter-topic.html">HowTo&nbsp;·&nbsp;REST&nbsp;Adapter</a></li>
-        <li><a href="../topics/MCP Seam-topic.html">HowTo&nbsp;·&nbsp;MCP&nbsp;Seam</a></li>
         <li><a href="../topics/Auth & Provenance-topic.html">HowTo&nbsp;·&nbsp;Auth</a></li>
         <li><a href="../topics/Testing-topic.html">HowTo&nbsp;·&nbsp;Testing</a></li>
         <li><a href="../topics/Demo-topic.html">Demo:&nbsp;Echo&nbsp;Home</a></li>
@@ -179,6 +179,8 @@ the audit trail.</p>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
       <li class="section-subtitle">Test Verification</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+      <li class="section-subtitle">Networking</li>
+        <li class="section-subitem"><a href="../cell_skin_rest/">cell_skin_rest</a></li>
 </ol>
 
 </div>

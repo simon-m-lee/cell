@@ -30,77 +30,138 @@ import '../binding/skin_whitelist.dart';
 import '../client/skin_error.dart';
 import '../manifest/skin_manifest.dart';
 import '../security/skin_auth.dart';
+import '../security/skin_call.dart';
+import '../security/skin_policy.dart';
+import '../wire/correlation_id.dart';
+import '../wire/idempotency_store.dart';
 import '../wire/wire_message.dart';
 import 'egress_cell.dart';
 import 'inbound_cell.dart';
 import 'mux_cell.dart';
 import 'router_cell.dart';
 
-/// The four-Cell membrane between a [CellGraph] and the wire.
+/// The master orchestrator of the boundary layer, managing the flow between the somatic graph and the environment.
 ///
-/// ### When to use
-/// * Every transport: REST, MCP, and Dart clients share this one
-///   assembled pipeline — never build a second dispatch path.
+/// In the framework's biological metaphor, [SkinMembrane] is the **Somatic Membrane** organ.
+/// It acts as the singular, authoritative pipeline that governs how **Nervous Signals**
+/// ([WireMessage]) enter the system and how **Forensic Receipts** and state observations
+/// are expelled to the outside world.
 ///
-/// ### How it works
-/// [SkinMembrane.open] composes `Cell.ingress` → `Cell.asyncMap`
-/// (`concurrency: 1`) → `target.apply` → egress → mux → outbound over
-/// the graph, an optional ledger, and a transport writer. [request]
-/// awaits the correlated [WireResponse]/[WireError]; [responses]
-/// broadcasts everything that survives the mux.
+/// ### The Four-Cell Pipeline
+/// The membrane is composed of four specialized functional units:
+/// 1.  **Inbound ([inbound])**: The entry pore where raw **Skin Payloads** arrive.
+/// 2.  **Router ([router])**: The **Synaptic Junction** that performs binding lookups,
+///     cursor validation, and triggers the `target.apply` logic.
+/// 3.  **Mux ([mux])**: The **Egress Funnel** that aggregates responses, ledger entries,
+///     and volatile state changes.
+/// 4.  **Outbound ([outbound])**: The terminal pore that writes the finalized
+///     **Nervous Signals** to the transport layer.
 ///
-/// ### Non-obvious
-/// The binding table seals at [SkinMembrane.open]: the egress set and
-/// the manifest can never diverge afterwards. Egress is
-/// [WireStateChange], never a reply; a pending `request()` is only ever
-/// completed by its own correlated response/error.
+/// ### Forensic Integrity
+/// The membrane ensures that every successfully processed command results in an
+/// authoritative **Somatic State Transition** recorded in the **Forensic Ledger**.
+/// By centralizing all transport (REST, MCP, SSE) through this single pipeline,
+/// it prevents "Forensic Ambiguity" and ensures that provenance is always preserved.
+///
+/// ### Lifecycle and Sealing
+/// When a membrane is initialized via [open], it seals the [SkinBindingTable]. This
+/// ensures the system's "DNA" (its exposed surface) remains immutable throughout
+/// the connection, providing a stable **Somatic Index** for discovery.
 ///
 /// ### See also
-/// [SkinRouter] (the dispatch brain), [SkinBindingTable], [SkinClient],
-/// and `ARCHITECTURE-Skin.md` §2.
-/// {@category Membrane}
+/// - [SkinRouter]: The dispatch brain governing the journey.
+/// - [SkinBindingTable]: The registry of physically exposed pores.
+/// - [WireMessage]: The base envelope for all signals crossing this membrane.
+///
+/// ### AI Agent Guide
+/// **Layer:** Skin — this is the top-level orchestrator of the boundary.
+/// **Live signature:** `final class SkinMembrane { Future<WireMessage> request(WireMessage message, {String type = SkinPulseTypes.restApplyRequest, Duration? timeout, DateTime? deadline, PulseContext? context, SkinPrincipal? principal}); Stream<Pulse<WireMessage>> get responses; int get routerQueueDepth; int get routerInFlight; bool get isClosed; IdempotencyStore? get idempotency; Future<bool> mayRead(SkinPrincipal principal, String cellId); Future<void> close(); }` — pinned at `cell_skin: 1.0.0`
+/// **Stability:** stable
+/// **Governance:** All external interaction must pass through this membrane.
+/// **Traceability:** Use [responses] to observe the audit trail of the somatic body.
 final class SkinMembrane {
-  /// The graph being skinned.
+  /// The reactive organ representing the entire somatic body.
+  ///
+  /// In the framework's biological metaphor, this is the **Somatic Graph**.
+  /// It contains the cells that the membrane is responsible for "skinning."
   final CellGraph graph;
 
-  /// The exposure registry. Sealed at [SkinMembrane.open] — the egress
-  /// cells and the manifest can never diverge.
+  /// The authoritative registry of physically exposed pores.
+  ///
+  /// In the framework's biological metaphor, this is the **Somatic Registry**.
+  /// It is sealed at [open] to ensure the membrane's surface remains stable.
   final SkinBindingTable bindings;
 
-  /// The declarative exposure policy, when configured.
+  /// The optional declarative filter for the membrane.
+  ///
+  /// Acts as a **Membrane Filter** to restrict which cells or functions
+  /// can physically communicate with the environment.
   final SkinWhitelist? whitelist;
 
-  /// The graph's ledger, when one is bound.
+  /// The system's permanent history, if one is bound.
+  ///
+  /// In the framework's biological metaphor, this is the **Forensic Ledger**.
+  /// It allows the membrane to provide authoritative audit streams and
+  /// enforce causal consistency via cursor checks.
   final Ledger? ledger;
 
-  /// Cell 1 — inbound: transport pulses enter here.
+  /// The entry pore for incoming wire signals.
+  ///
+  /// In the framework's biological metaphor, this is the **Ingress Pore**.
+  /// It receives **Nervous Signals** from transport adapters and injects
+  /// them into the pipeline.
   final IngressHandle<Pulse<WireMessage>> inbound;
 
-  /// Cell 2 — router: binding lookup, cursor check, `target.apply`.
+  /// The cell responsible for dispatching signals to the graph.
+  ///
+  /// In the framework's biological metaphor, this is the **Synaptic Junction**.
+  /// It executes the **Command Journey** by mapping wire requests to
+  /// specific cell applications.
   final Cell router;
 
-  /// The dispatch brain behind [router].
+  /// The dispatch brain behind the [router] cell.
   final SkinRouter dispatcher;
 
-  /// Cell 3 — egress: one `Cell.observe` per exposed target.
+  /// The collection of observation points for exposed cells.
+  ///
+  /// In the framework's biological metaphor, these are the **Egress Pores**.
+  /// Each pore monitors a specific cell for state transitions to be
+  /// broadcast to the environment.
   final Map<String, EgressHandle<Pulse>> egress;
 
-  /// The fan-in primitive.
+  /// The convergence point for all outbound signals.
+  ///
+  /// In the framework's biological metaphor, this is the **Egress Funnel**.
+  /// It collects results from the router and the ledger tail into a
+  /// single stream.
   final Cell mux;
 
-  /// Cell 4 — outbound: the terminal cell writing to the transport.
+  /// The terminal cell writing to the transport layer.
+  ///
+  /// In the framework's biological metaphor, this is the **Terminal Egress Pore**.
+  /// It expels the finalized **Nervous Signals** from the somatic body.
   final EgressHandle<Pulse<WireMessage>> outbound;
 
-  /// The receipt join for egress pulses.
-
-  /// Every pulse that survives the mux, as a broadcast stream (router
-  /// responses, egress observations, ledger entries, errors).
+  /// The unified stream of every signal that survives the egress funnel.
+  ///
+  /// Provides an observational view of all **Forensic Ledger Rows**,
+  /// **External Echoes** (responses), and **Transient Impulses**
+  /// (notifications) leaving the system.
   final Stream<Pulse<WireMessage>> responses;
 
   final StreamController<Pulse<WireMessage>> _events;
   StreamSubscription<LedgerEntry>? _ledgerSubscription;
   final Set<Completer<WireMessage>> _pendingRequests = {};
   bool _closed = false;
+
+  final Duration _maxQueueWait;
+  final DateTime Function() _clock;
+  final int? _maxQueued;
+
+  /// Accepted `request()` calls whose router dispatch has not finished:
+  /// the one inside `apply` occupies a slot. Incremented synchronously
+  /// before the emit, decremented from `route()`'s finally.
+  int _outstanding = 0;
 
   SkinMembrane._({
     required this.graph,
@@ -116,8 +177,14 @@ final class SkinMembrane {
     required this.responses,
     required StreamController<Pulse<WireMessage>> events,
     StreamSubscription<LedgerEntry>? ledgerSubscription,
+    required Duration maxQueueWait,
+    required DateTime Function() clock,
+    required int? maxQueued,
   })  : _events = events,
-        _ledgerSubscription = ledgerSubscription;
+        _ledgerSubscription = ledgerSubscription,
+        _maxQueueWait = maxQueueWait,
+        _clock = clock,
+        _maxQueued = maxQueued;
 
   /// Assembles the four cells over [graph].
   ///
@@ -161,7 +228,8 @@ final class SkinMembrane {
   /// **Layer:** Skin — this assembles the membrane; it does not build graph nodes.
   /// **When to use:** a requirement says "expose the graph over REST/MCP", "let remote callers apply commands", or "stream ledger entries to clients".
   /// **When NOT to use:** pure graph work (use `package:cell`), decisions (use `cell_flow`), books (use `cell_tissue`).
-  /// **Live signature:** `static Future<SkinMembrane> open({required CellGraph graph, required SkinBindingTable bindings, SkinWhitelist? whitelist, Ledger? ledger, required EffectJournal journal, required void Function(Pulse<WireMessage>) send, Context inboundContext, Map<String, String>? descriptions, void Function(String)? onPolicyWarning})` — pinned at `cell_skin: 0.1.0`
+  /// **Live signature:** `static Future<SkinMembrane> open({required CellGraph graph, required SkinBindingTable bindings, SkinWhitelist? whitelist, Ledger? ledger, required EffectJournal journal, required void Function(Pulse<WireMessage>) send, Context inboundContext, Map<String, String>? descriptions, void Function(String)? onPolicyWarning, bool strictReceipts = true, IdempotencyStore? idempotency, DateTime Function() clock = DateTime.now, Duration maxQueueWait = Duration(seconds: 30), SkinAuthorizer? authorizer, int? maxQueued})` — pinned at `cell_skin: 1.0.0`
+/// **Stability:** stable
   /// **Do NOT confuse with:** `SkinBindingTable.register` (declares exposure) or `RestAdapter.bind` (opens a socket on top of the membrane).
   /// **Guide:** `ARCHITECTURE-Skin.md` §2 (the four cells).
   /// **Example:** `example/lib/mock/mock_home.dart` (builds the Echo Home membrane).
@@ -173,11 +241,11 @@ final class SkinMembrane {
   ///       ..register('thermostat', thermostat.cell))
   ///     .build();
   /// final bindings = SkinBindingTable()
-  ///   ..register(SkinBinding(
+  ///   ..register(SkinBinding.state(
   ///     cellId: 'thermostat',
   ///     functionName: 'setTarget',
   ///     target: thermostat.cell,
-  ///     function: (int target) => thermostat.update(target),
+  ///     nextValue: (int target) => target,
   ///   ));
   /// final membrane = await SkinMembrane.open(
   ///   graph: graph,
@@ -196,7 +264,21 @@ final class SkinMembrane {
     Context inboundContext = _defaultInboundContext,
     Map<String, String>? descriptions,
     void Function(String message)? onPolicyWarning,
+    bool strictReceipts = true,
+    IdempotencyStore? idempotency,
+    DateTime Function() clock = DateTime.now,
+    Duration maxQueueWait = const Duration(seconds: 30),
+    SkinAuthorizer? authorizer,
+    int? maxQueued,
   }) async {
+    if (maxQueueWait.isNegative) {
+      throw ArgumentError.value(
+          maxQueueWait, 'maxQueueWait', 'must be zero or positive');
+    }
+    if (maxQueued != null && maxQueued < 1) {
+      throw ArgumentError.value(
+          maxQueued, 'maxQueued', 'must be at least 1');
+    }
     if (whitelist != null) {
       _warnUnmatchedWhitelist(bindings, whitelist, onPolicyWarning);
     }
@@ -214,6 +296,10 @@ final class SkinMembrane {
       whitelist: whitelist,
       ledger: ledger,
       descriptions: descriptions,
+      strictReceipts: strictReceipts,
+      idempotency: idempotency ?? MemoryIdempotencyStore(),
+      clock: clock,
+      authorizer: authorizer,
     );
     final routerCell = dispatcher.cell(inbound.cell, journal: journal);
 
@@ -232,6 +318,40 @@ final class SkinMembrane {
         throw StateError('SkinMembrane.open: binding "${binding.cellId}.'
             '${binding.functionName}" target is not the graph\'s '
             'registered cell');
+      }
+    }
+
+    // A bound ledger records every membrane apply, even when the caller
+    // did not enter `graph.run` itself: the router opens the graph's
+    // ledger scope around each target apply. Egress and `/skin/ledger`
+    // follow the membrane's ledger, so the two must be the same object
+    // (the one returned by `bindLedger`) or the HTTP tail would never
+    // see the rows just appended.
+    if (ledger != null && !identical(ledger, graph.ledger)) {
+      throw StateError(
+        'SkinMembrane.open: ledger must be the graph\'s bound ledger '
+        '(the one returned by bindLedger)',
+      );
+    }
+
+    // positionalNames is a validation zipper: on a closed schema with
+    // properties, every name must be a property key — a wrong name can
+    // never validate and would fail every positional call at runtime.
+    for (final binding in bindings.all) {
+      final names = binding.positionalNames;
+      final schema = binding.argumentSchema;
+      if (names == null || schema == null || schema.properties == null) {
+        continue;
+      }
+      if (schema.additionalProperties == true) continue;
+      for (final name in names) {
+        if (!schema.properties!.containsKey(name)) {
+          throw StateError(
+            'SkinMembrane.open: binding "${binding.cellId}.'
+            '${binding.functionName}" positionalNames includes "$name", '
+            'which is not a property of its argument schema',
+          );
+        }
       }
     }
 
@@ -265,8 +385,14 @@ final class SkinMembrane {
       ledgerSubscription = ledger.tail.listen((entry) {
         ledgerIngress.emit(WireLedgerEntry(entry: entry));
         if (exposedCellIds.contains(entry.receiptCellId)) {
+          // The dispatcher labels rows it applied with the binding's
+          // wire name; a miss (replayed history, an inner txApply
+          // closure) keeps the stored function text.
           muxInput.emit(Pulse<WireStateChange>(
-            wireStateChangeForEntry(entry),
+            wireStateChangeForEntry(
+              entry,
+              functionLabel: dispatcher.functionLabelFor(entry.receipt.id),
+            ),
             type: '${SkinPulseTypes.egressPrefix}${entry.receiptCellId}',
           ));
         }
@@ -284,7 +410,7 @@ final class SkinMembrane {
           send(normalized);
         });
 
-    return SkinMembrane._(
+    final membrane = SkinMembrane._(
       graph: graph,
       bindings: bindings,
       whitelist: whitelist,
@@ -298,7 +424,14 @@ final class SkinMembrane {
       responses: events.stream,
       events: events,
       ledgerSubscription: ledgerSubscription,
+      maxQueueWait: maxQueueWait,
+      clock: clock,
+      maxQueued: maxQueued,
     );
+    dispatcher.onRouted = () {
+      membrane._outstanding--;
+    };
+    return membrane;
   }
 
   static const Context _defaultInboundContext =
@@ -316,6 +449,18 @@ final class SkinMembrane {
           onPolicyWarning(
               'whitelist entry "$cellId.$function" has no registered '
               'binding (likely a typo)');
+        }
+      }
+    }
+    if (whitelist.unlisted == SkinUnlisted.expose) {
+      // Only expose mode makes unmentioned bindings reachable; hide is
+      // quiet because the binding is not exposed there.
+      for (final cellId in bindings.exposedCellIds) {
+        if (whitelist.mentionsCell(cellId)) continue;
+        for (final binding in bindings.bindingsFor(cellId)) {
+          onPolicyWarning(
+              'binding "$cellId.${binding.functionName}" is not listed '
+              'and will be exposed');
         }
       }
     }
@@ -339,6 +484,13 @@ final class SkinMembrane {
   bool isExposed(String cellId) =>
       _exposedCellIds(bindings, whitelist).contains(cellId);
 
+  /// Whether [principal] may read [cellId] through the read routes
+  /// (manifest, observe, ledger). A `null` authorizer reads everything
+  /// exposure allows; a non-null one must allow every binding of the
+  /// cell. Not cached.
+  Future<bool> mayRead(SkinPrincipal principal, String cellId) =>
+      dispatcher.mayRead(principal, cellId);
+
   /// The current tool catalogue.
   SkinManifest get manifest => SkinManifest.describe(
         graph: graph,
@@ -356,11 +508,25 @@ final class SkinMembrane {
   /// never complete a pending request. [context] stamps this request's
   /// provenance on the emitted pulse ([PulseContext.userAction] is the
   /// canonical shape — the [SkinPrincipal]'s bridge output).
+  ///
+  /// [deadline] is the caller's instant after which a still-queued
+  /// request must not start. The earlier of it and `now + maxQueueWait`
+  /// wins; with a zero `maxQueueWait` and no [deadline], there is no
+  /// queue limit. The existing [timeout] only fails the waiter — it is
+  /// never the queue deadline.
+  ///
+  /// [principal] is the in-process caller: its JSON snapshot is merged
+  /// into the emitted context's `others` under `skin.principal` (so the
+  /// router can hand it to the authorizer). A caller-supplied [context]
+  /// keeps its actor and its other metadata; only `others` gains the
+  /// snapshot.
   Future<WireMessage> request(
     WireMessage message, {
     required String type,
     PulseContext? context,
     Duration timeout = const Duration(seconds: 30),
+    DateTime? deadline,
+    SkinPrincipal? principal,
   }) {
     if (_closed) {
       return Future<WireMessage>.error(
@@ -373,33 +539,72 @@ final class SkinMembrane {
           'SkinMembrane.request: WireNotification has no response; '
           'emit it through inbound.emit instead');
     }
-    final correlationId = switch (message) {
+    // The queue deadline and a possibly-empty correlation id are stamped
+    // on a copy of the request; the original object the caller holds is
+    // untouched. An empty id is replaced with a fresh one — an empty id
+    // cannot identify a retry, and two empty-id requests must never
+    // claim the same idempotency key.
+    final stamped = message is WireRequest
+        ? WireRequest(
+            cellId: message.cellId,
+            function: message.function,
+            positional: message.positional,
+            named: message.named,
+            correlationId: message.correlationId.isEmpty
+                ? nextCorrelationId('skin')
+                : message.correlationId,
+            clientCorrelationId: message.clientCorrelationId,
+            lastSeenSeq: message.lastSeenSeq,
+            deadline: _deadlineFor(deadline),
+          )
+        : message;
+    final correlationId = switch (stamped) {
       WireRequest request => request.correlationId,
       WireError error => error.correlationId,
       _ => null,
     };
+    final clientId =
+        stamped is WireRequest ? stamped.clientCorrelationId : null;
+    // The cap counts accepted requests whose dispatch has not finished
+    // — the one inside apply occupies a slot. The refused call never
+    // claims, never applies, and the in-flight apply still finishes.
+    if (_maxQueued != null && _outstanding >= _maxQueued) {
+      return Future<WireMessage>.value(WireError(
+        correlationId: correlationId ?? '',
+        clientCorrelationId: clientId,
+        code: 'queue_full',
+        message: 'the router queue is full',
+      ));
+    }
+    _outstanding++;
+    final matchId =
+        (correlationId == null || correlationId.isEmpty) ? null : correlationId;
     final completer = Completer<WireMessage>();
     _pendingRequests.add(completer);
     late final StreamSubscription<Pulse<WireMessage>> subscription;
     subscription = responses.listen((pulse) {
       final payload = pulse.payload;
-      if (correlationId != null) {
-        if (payload is WireResponse && payload.correlationId == correlationId ||
-            payload is WireError && payload.correlationId == correlationId) {
+      if (matchId != null) {
+        if (payload is WireResponse && payload.correlationId == matchId ||
+            payload is WireError && payload.correlationId == matchId) {
           if (!completer.isCompleted) completer.complete(payload);
           _pendingRequests.remove(completer);
           subscription.cancel();
         }
       } else if (payload is WireManifestResponse) {
+        // Manifest responses carry no correlation id: today every
+        // in-flight manifest request() completes on the first one. Safe
+        // while the manifest is sealed and global; revisit when
+        // manifests become principal-specific.
         if (!completer.isCompleted) completer.complete(payload);
         _pendingRequests.remove(completer);
         subscription.cancel();
       }
     });
     inbound.emit(Pulse<WireMessage>.governed(
-      payload: message,
+      payload: stamped,
       type: type,
-      context: context,
+      context: _withPrincipalSnapshot(context, principal),
     ));
     return completer.future.timeout(timeout, onTimeout: () {
       _pendingRequests.remove(completer);
@@ -408,13 +613,64 @@ final class SkinMembrane {
     });
   }
 
+  static PulseContext? _withPrincipalSnapshot(
+    PulseContext? context,
+    SkinPrincipal? principal,
+  ) {
+    if (principal == null) return context;
+    final others = <String, Object?>{
+      ...?context?.others,
+      'skin.principal': skinPrincipalSnapshot(principal),
+    };
+    if (context == null) {
+      return PulseContext(
+        actor: 'skin:${principal.id}',
+        others: others,
+      );
+    }
+    // The caller's actor and lineage stay; only `others` gains the
+    // snapshot.
+    return PulseContext(baseContext: context, others: others);
+  }
+
+  DateTime? _deadlineFor(DateTime? caller) {
+    final fromQueue = _maxQueueWait == Duration.zero
+        ? null
+        : _clock().add(_maxQueueWait);
+    if (caller == null) return fromQueue;
+    if (fromQueue == null) return caller;
+    return caller.isBefore(fromQueue) ? caller : fromQueue;
+  }
+
+  /// How many requests the router has received but not yet finished
+  /// (queued plus the one in flight). For developer panes and tests.
+  int get routerQueueDepth => dispatcher.queueDepth;
+
+  /// Whether a dispatch is currently inside the router (0 or 1 under
+  /// `concurrency: 1`). For developer panes and tests.
+  int get routerInFlight => dispatcher.inFlight;
+
+  /// Whether [close] ran. `/ready` uses this: a closed membrane is not
+  /// ready, no matter how healthy the ledger looks.
+  bool get isClosed => _closed;
+
+  /// The idempotency store this membrane consults — the memory default,
+  /// or the file store the application passed. `/ready` checks a file
+  /// store's directory here.
+  IdempotencyStore get idempotency => dispatcher.idempotency;
+
   /// Closes the terminal cell, every egress observer, the receipt
   /// join, the ledger-tail subscription and the response stream, and
   /// fails every pending `request()` with a `closed` [SkinError]. The
-  /// graph and ledger stay open — they belong to the caller.
+  /// router is gated first, so a request that was queued but not yet
+  /// dispatching is answered `closed` instead of applying after the
+  /// close; an apply already in flight runs to completion (it cannot be
+  /// cancelled). The graph and ledger stay open — they belong to the
+  /// caller.
   Future<void> close() async {
     if (_closed) return;
     _closed = true;
+    dispatcher.closing = true;
     outbound.stop();
     for (final handle in egress.values) {
       handle.stop();

@@ -51,33 +51,52 @@
 <h1><span class="kind-class">WireError</span> class 
     <a href="https://dart.dev/language/class-modifiers#final" class="feature feature-final" title="This class can neither be extended, implemented, nor mixed in.">final</a>
  
-    <span class="category howto-·-wire-messages cp-4 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
+    <span class="category howto-·-wire-messages cp-3 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
 </h1></div>
 
     
 <section class="desc markdown">
-  <p>An error that has no receipt: exposure-gate misses, transport
-failures, and cursor conflicts.</p>
-<p>This variant exists because a <a href="../cell_skin/WireResponse-class.html">WireResponse</a> always carries the
-target's real <code>ApplyOutcome</code> — an error produced <em>before</em> the target's
-<code>apply</code> ran has no receipt, and must not pretend otherwise.</p>
+  <p>A failure signal indicating that a request was rejected before reaching the core graph.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/WireError-class.html">WireError</a> is a <strong>Membrane Rejection</strong>.
+It represents a <strong>Nervous Signal</strong> that was stopped at the <strong>Skin Membrane</strong> or
+blocked by an <strong>Integrity Gate</strong> before a <strong>Command Journey</strong> could begin.</p>
+<p>Because the signal never reached a cell's <code>apply</code> logic, no <strong>Forensic Receipt</strong>
+is generated, and no <strong>Somatic State Transition</strong> occurs. If this error is not
+reported to the caller, it creates a <strong>Forensic Hole</strong> in the system's external
+observability, as there is no entry in the <strong>Forensic Ledger</strong> to explain the
+missing state change.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
-<li>Exposure rejections (<code>unknown_tool</code>, <code>bad_arguments</code>,
-<code>cursor_required</code>, <code>conflict</code>) and transport failures
-(<code>transport_error</code>) — never domain denials (those are
-<code>ApplyRejected</code> inside a <a href="../cell_skin/WireResponse-class.html">WireResponse</a>).</li>
+<li><strong>Transport Failures</strong>: Use this for network errors or protocol violations
+(<code>transport_error</code>).</li>
+<li><strong>Exposure Rejections</strong>: Use this when a tool is unknown (<code>unknown_tool</code>) or
+arguments fail basic schema validation at the membrane (<code>bad_arguments</code>).</li>
+<li><strong>Conflict/Cursor Errors</strong>: Use this when a request is rejected due to
+concurrency or missing prerequisites (<code>conflict</code>, <code>cursor_required</code>).</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
-<p>The router and adapters produce it before <code>target.apply</code> runs; the
-stable <a href="../cell_skin/WireError/code.html">code</a> maps to an HTTP status (404/409/422/428/500/504) and
-the <a href="../cell_skin/WireError/message.html">message</a> never echoes raw internal exception text.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<p>Domain denials <em>do</em> produce receipts and are responses; an error
-without a receipt must not masquerade as one — that is the entire
-reason this variant exists.</p>
+<ol>
+<li><strong>Signal Ingress</strong>: A request hits the <strong>Skin Membrane</strong>.</li>
+<li><strong>Validation Failure</strong>: The router or adapter identifies a problem
+before the command can be dispatched to a cell.</li>
+<li><strong>Rejection</strong>: Instead of a <a href="../cell_skin/WireResponse-class.html">WireResponse</a>, this envelope is returned
+to explain why the ledger remains unchanged.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Omission</strong>: This error is not written to the <strong>Forensic Ledger</strong>.
+It is a transient signal about a failed attempt to change state.</li>
+<li><strong>Receipt Absence</strong>: Unlike domain-level rejections (which produce an
+<code>ApplyRejected</code> outcome in a <a href="../cell_skin/WireResponse-class.html">WireResponse</a>), this variant exists
+specifically to signal that no receipt was ever created.</li>
+<li><strong>Security</strong>: The <a href="../cell_skin/WireError/message.html">message</a> field is sanitized to avoid echoing raw
+internal exception details, preventing information leaks about the system "DNA."</li>
+</ul>
 <h3 id="see-also">See also</h3>
-<p><a href="../cell_skin/WireResponse-class.html">WireResponse</a>, <a href="../cell_skin/SkinRouter-class.html">SkinRouter</a>.</p>
+<ul>
+<li><a href="../cell_skin/WireResponse-class.html">WireResponse</a>: For rejections that happen <em>inside</em> the cell's logic.</li>
+<li><a href="../cell_skin/SkinRouter-class.html">SkinRouter</a>: The component usually responsible for generating these errors.</li>
+</ul>
 </section>
 
 
@@ -112,14 +131,14 @@ reason this variant exists.</p>
           <span class="name"><a href="../cell_skin/WireError/WireError.html">WireError</a></span><span class="signature">({<span class="parameter" id="-param-correlationId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">correlationId</span>, </span><span class="parameter" id="-param-clientCorrelationId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">clientCorrelationId</span>, </span><span class="parameter" id="-param-code"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">code</span>, </span><span class="parameter" id="-param-message"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">message</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates a new <a href="../cell_skin/WireError-class.html">WireError</a> envelope.
             <div class="constructor-modifier features">const</div>
         </dd>
         <dt id="WireError.fromJson" class="callable">
           <span class="name"><a href="../cell_skin/WireError/WireError.fromJson.html">WireError.fromJson</a></span><span class="signature">(<span class="parameter" id="fromJson-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">json</span></span>)</span>
         </dt>
         <dd>
-          Decodes a <a href="../cell_skin/WireError-class.html">WireError</a> encoded by <a href="../cell_skin/WireError/toJson.html">toJson</a>.
+          Decodes a raw JSON map into a <a href="../cell_skin/WireError-class.html">WireError</a>.
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
@@ -137,8 +156,7 @@ reason this variant exists.</p>
 
 </dt>
 <dd>
-  The client-chosen correlation id, echoed verbatim when the
-request carried one.
+  The optional ID provided by the caller, echoed verbatim.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -150,7 +168,7 @@ request carried one.
 
 </dt>
 <dd>
-  
+  A stable identifier for the type of failure.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -162,7 +180,7 @@ request carried one.
 
 </dt>
 <dd>
-  
+  The authoritative identifier for the failed impulse.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -186,7 +204,7 @@ request carried one.
 
 </dt>
 <dd>
-  The stable discriminator used by <a href="../cell_skin/WireMessage/WireMessage.fromJson.html">WireMessage.fromJson</a>.
+  The stable identifier used to distinguish this message type on the wire.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -198,7 +216,7 @@ request carried one.
 
 </dt>
 <dd>
-  
+  A human and AI-readable description of why the signal was rejected.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -245,8 +263,7 @@ request carried one.
 
 </dt>
 <dd>
-  JSON-serialisable wire form. Payloads stay JSON-safe; the pulse's
-metadata travels on the pulse, not inside this map.
+  Converts the error into a JSON-safe map for transport.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

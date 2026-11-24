@@ -62,7 +62,43 @@
       </section>
       
 <section class="desc markdown">
-  <p>Whether the ledger entry for this change has not landed yet.</p>
+  <p>Whether the permanent record for this change is still being written to the ledger.</p>
+<p>In the framework’s biological metaphor, this indicates a <strong>Signal in Transit</strong>.
+It means the <strong>Somatic State Transition</strong> has occurred in the living cell, but
+the event has not yet landed in the <strong>Forensic Ledger</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Optimistic UI</strong>: Use this to show a "pending" or "live" state in your
+application while waiting for the authoritative proof.</li>
+<li><strong>Forensic Integrity</strong>: Check this to determine if the current observation
+is a finalized part of the system's "DNA" or a volatile impulse.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Immediate Broadcast</strong>: If a cell is not backed by a ledger, or if the
+ledger write is asynchronous, this signal is sent immediately with
+<code>pendingReceipt = true</code>.</li>
+<li><strong>Finalization</strong>: Once the <strong>Forensic Ledger</strong> confirms the write, a
+subsequent signal (or a <a href="../../cell_skin/WireLedgerEntry-class.html">WireLedgerEntry</a>) is typically sent with
+<code>pendingReceipt = false</code>.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Holes</strong>: If this is <code>true</code>, the state change is "unconfirmed."
+If the system crashes before the ledger write completes, this change
+may be lost, creating a gap in the forensic history.</li>
+<li><strong>Receipt Stale-ness</strong>: When this is <code>true</code>, the <a href="../../cell_skin/WireStateChange/receipt.html">receipt</a> field often
+contains the <em>previous</em> authoritative receipt, providing the last
+known stable context for the cell before this new transition.</li>
+<li><strong>Authoritative Default</strong>: In a system with a synchronous ledger, this
+field will almost always be <code>false</code> by the time the signal reaches the
+<strong>Skin Membrane</strong>.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireStateChange/receipt.html">WireStateChange.receipt</a>: The forensic proof that eventually clears the pending status.</li>
+<li><a href="../../cell_skin/WireLedgerEntry-class.html">WireLedgerEntry</a>: The complete, non-pending audit record.</li>
+</ul>
 </section>
 
       

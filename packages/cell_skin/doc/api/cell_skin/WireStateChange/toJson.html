@@ -67,8 +67,45 @@
     </section>
     
 <section class="desc markdown">
-  <p>JSON-serialisable wire form. Payloads stay JSON-safe; the pulse's
-metadata travels on the pulse, not inside this map.</p>
+  <p>Converts the observation into a JSON-safe map for transport.</p>
+<p>In the framework's biological metaphor, this method creates the
+<strong>Skin Form</strong> of the state change. It prepares the <strong>Somatic Observation</strong>
+to cross the <strong>Skin Membrane</strong> so it can be broadcast to the environment.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Egress</strong>: Use this when a server, MCP host, or SSE bridge needs to
+serialize a live state transition for external subscribers.</li>
+<li><strong>Persistence</strong>: Used to store a snapshot of an observation in
+transport-level logs or message queues.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Labeling</strong>: It includes the <a href="../../cell_skin/WireStateChange/kind.html">kind</a> ('stateChange') so the
+receiver knows this is an environmental broadcast, not a response.</li>
+<li><strong>Somatic Addressing</strong>: It embeds the <a href="../../cell_skin/WireStateChange/cellId.html">cellId</a> so observers know
+exactly where in the body the transition occurred.</li>
+<li><strong>Phenotype Encoding</strong>: It includes the <a href="../../cell_skin/WireStateChange/payload.html">payload</a> (the value) if it
+is serializable.</li>
+<li><strong>Forensic Evidence</strong>: It attaches the <a href="../../cell_skin/WireStateChange/receipt.html">receipt</a> to provide the
+authoritative proof from the <strong>Forensic Ledger</strong>.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>No Causal Link</strong>: Unlike <code>WireResponse.toJson</code>, this map does not
+contain a <code>correlationId</code>. It is a broadcast of a physical fact, not
+a direct reply to an impulse.</li>
+<li><strong>Pending Status</strong>: The <code>pendingReceipt</code> flag is included to tell the
+receiver if the change is already part of the permanent "DNA" or if
+it is a volatile, in-flight signal.</li>
+<li><strong>Omission Safety</strong>: Fields that are <code>null</code> (like a non-serializable
+payload or a missing receipt) are omitted from the map to keep the
+<strong>Skin Form</strong> lean.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireStateChange/WireStateChange.fromJson.html">WireStateChange.fromJson</a>: The reverse process for decoding signals.</li>
+<li><a href="../../cell_skin/WireReceipt/toJson.html">WireReceipt.toJson</a>: How the forensic evidence is serialized.</li>
+</ul>
 </section>
 
 

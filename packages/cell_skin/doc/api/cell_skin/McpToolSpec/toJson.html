@@ -61,16 +61,21 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Converts the spec into its <strong>Skin Form</strong> (JSON) for transport.</p>
+<p>This produces the wire-safe representation of the tool, ensuring
+compatibility with MCP-compliant AI agents and debuggers.</p>
+</section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Map&lt;String, Object?&gt; toJson() =&gt; {
-      &#39;name&#39;: name,
-      if (description != null) &#39;description&#39;: description,
-      &#39;inputSchema&#39;: inputSchema.toJson(),
-    };</code></pre>
+  &#39;name&#39;: name,
+  if (description != null) &#39;description&#39;: description,
+  &#39;inputSchema&#39;: inputSchema.toJson(),
+};</code></pre>
 </section>
 
 

@@ -66,9 +66,25 @@
     </section>
     
 <section class="desc markdown">
-  <p>Invokes <code>function</code> on the remote target and returns the target's
-real outcome. Throws <a href="../../cell_skin/SkinError-class.html">SkinError</a> for exposure/cursor/argument
-rejections; returns <code>null</code> for a <code>pendingReceipt</code> response.</p>
+  <p>Stimulates the remote cell to perform a <strong>Somatic State Transition</strong>.</p>
+<p>This method initiates a <strong>Command Journey</strong>. It packages the
+<code>positional</code> and <code>named</code> nutrients into a <a href="../../cell_skin/WireRequest-class.html">WireRequest</a> and
+awaits the remote <strong>Forensic Receipt</strong>.</p>
+<h3 id="outcomes">Outcomes</h3>
+<ul>
+<li><strong>Accepted</strong>: Returns an <code>ApplyOutcome</code> if the remote
+<strong>Integrity Gate</strong> anchored the change.</li>
+<li><strong>Membrane Rejection</strong>: Throws a <a href="../../cell_skin/SkinError-class.html">SkinError</a> if the remote membrane
+discarded the signal (e.g., bad arguments, cursor conflict).</li>
+<li><strong>Pending</strong>: Returns <code>null</code> if the remote system generated a
+<code>pendingReceipt</code>, indicating the journey is not yet anchored.</li>
+</ul>
+<h3 id="parameters">Parameters</h3>
+<ul>
+<li><code>function</code>: The <strong>Signal Label</strong> of the remote pore to stimulate.</li>
+<li><code>lastSeenSeq</code>: The last known sequence from the remote
+<strong>Forensic Ledger</strong> to ensure <strong>Causal Linkage</strong>.</li>
+</ul>
 </section>
 
 

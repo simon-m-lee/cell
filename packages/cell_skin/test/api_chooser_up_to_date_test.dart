@@ -33,4 +33,23 @@ void main() {
     expect(file.readAsStringSync(), expected,
         reason: 'Run: dart run tool/generate_api_chooser.dart');
   });
+
+  test('package skill has the install line and the elevator matrix', () {
+    final skill = File('skills/cell-skin/SKILL.md').readAsStringSync();
+    expect(skill, contains('dart run skills@ get cell_skin'));
+    expect(skill, contains('## BRD sentence'));
+    expect(skill, contains('references/api_chooser.md'));
+    expect(skill, isNot(contains('userAgent')));
+  });
+
+  test('every parsed block is pinned at cell_skin: 1.0.0', () {
+    final blocks = parseAllBlocks('lib');
+    expect(blocks, isNotEmpty);
+    for (final block in blocks) {
+      expect(block.pinPackage, 'cell_skin',
+          reason: '${block.file}:${block.line} ${block.key}');
+      expect(block.pinVersion, '1.0.0',
+          reason: '${block.file}:${block.line} ${block.key}');
+    }
+  });
 }

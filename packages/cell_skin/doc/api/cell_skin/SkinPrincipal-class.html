@@ -55,7 +55,50 @@
 
     
 <section class="desc markdown">
-  <p>The authenticated identity behind a request.</p>
+  <p>The resolved identity DNA of an external actor at the membrane.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a> is the <strong>Resolved
+Identity DNA</strong>. It represents the stable chemical signature of an actor
+after their <strong>Environmental Markers</strong> (<a href="../cell_skin/SkinCredentials-class.html">SkinCredentials</a>) have been
+verified by the <strong>Identity Gatekeeper</strong> (<a href="../cell_skin/SkinAuth-class.html">SkinAuth</a>).</p>
+<p>This identity is the source of all <strong>Provenance</strong>. Before a <strong>Nervous Signal</strong>
+can begin a <strong>Command Journey</strong> into the somatic graph, the <a href="../cell_skin/ContextBridge-class.html">ContextBridge</a>
+translates this principal into an internal framework <code>Context</code>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Auth Result</strong>: The primary return type for <a href="../cell_skin/SkinAuth/authenticate.html">SkinAuth.authenticate</a>.</li>
+<li><strong>Identity Mapping</strong>: Used by the <a href="../cell_skin/ContextBridge-class.html">ContextBridge</a> to determine what level
+of authority to grant to the resulting pulse.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Verification</strong>: <a href="../cell_skin/SkinAuth-class.html">SkinAuth</a> validates the incoming credentials.</li>
+<li><strong>Identification</strong>: This class is instantiated with the actor's
+unique <a href="../cell_skin/SkinPrincipal/id.html">id</a> and <a href="../cell_skin/SkinPrincipal/roles.html">roles</a>.</li>
+<li><strong>Translation</strong>: The membrane passes this principal to the bridge,
+which stamps the pulse with somatic authority.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Persistence</strong>: The <a href="../cell_skin/SkinPrincipal/id.html">id</a> provided here is what ultimately
+appears in the <strong>Forensic Ledger</strong>. Choosing a stable, unique ID is
+critical for long-term audit integrity.</li>
+<li><strong>Skin-Only Boundary</strong>: Somatic cells (the core graph) never interact
+with <a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a> directly. They only see the <code>Context</code> produced
+by the <strong>Membrane Translator</strong>.</li>
+<li><strong>Anonymity</strong>: If no identity is provided, the system defaults to
+the <strong>Neutral Signature</strong> (<a href="../cell_skin/SkinPrincipal/SkinPrincipal.anonymous.html">SkinPrincipal.anonymous</a>).</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/SkinAuth-class.html">SkinAuth</a>: The gatekeeper that produces this identity.</li>
+<li><a href="../cell_skin/ContextBridge-class.html">ContextBridge</a>: The translator that turns this principal into somatic authority.</li>
+<li><a href="../cell_skin/WireLedgerEntry-class.html">WireLedgerEntry</a>: Where this identity eventually leaves a forensic mark.</li>
+</ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — this is the "Who" at the boundary.
+<strong>Traceability:</strong> The <code>id</code> is the key for all forensic lookups.
+<strong>Constraint:</strong> Roles here do not grant power; they are data points for
+the <code>ContextBridge</code> to use when assigning authority.</p>
 </section>
 
 
@@ -68,15 +111,14 @@
           <span class="name"><a href="../cell_skin/SkinPrincipal/SkinPrincipal.html">SkinPrincipal</a></span><span class="signature">({<span class="parameter" id="-param-id"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">id</span>, </span><span class="parameter" id="-param-roles"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">roles</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="-param-claims"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">claims</span> = <span class="default-value">const {}</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates a new <a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a> with an authoritative identity.
             <div class="constructor-modifier features">const</div>
         </dd>
         <dt id="SkinPrincipal.anonymous" class="callable">
           <span class="name"><a href="../cell_skin/SkinPrincipal/SkinPrincipal.anonymous.html">SkinPrincipal.anonymous</a></span><span class="signature">()</span>
         </dt>
         <dd>
-          The unauthenticated principal used when no <a href="../cell_skin/SkinAuth-class.html">SkinAuth</a> is
-configured.
+          The unauthenticated identity used when no specific credentials are provided.
             <div class="constructor-modifier features">const</div>
         </dd>
     </dl>
@@ -94,7 +136,7 @@ configured.
 
 </dt>
 <dd>
-  Free-form claims.
+  Additional metadata and claims associated with the identity.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -118,7 +160,7 @@ configured.
 
 </dt>
 <dd>
-  Stable principal id.
+  The stable identifier for the actor.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -130,7 +172,7 @@ configured.
 
 </dt>
 <dd>
-  Roles carried by the principal.
+  The list of somatic permissions or categories assigned to the actor.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>

@@ -51,33 +51,53 @@
 <h1><span class="kind-class">WireMessage</span> class 
     <a href="https://dart.dev/language/class-modifiers#sealed" class="feature feature-sealed" title="The direct subtypes of this class will be checked for exhaustiveness in switches.">sealed</a>
  
-    <span class="category howto-·-wire-messages cp-4 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
-    <span class="category features cp-12 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category howto-·-wire-messages cp-3 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
+    <span class="category features cp-9 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
 </h1></div>
 
     
 <section class="desc markdown">
-  <p>One wire event. Every transport — MCP, REST, SSE, stdio — is a
-<code>Pulse&lt;WireMessage&gt;</code> whose <code>type</code> discriminates the variant.</p>
+  <p>The universal envelope for every signal crossing the system's membrane.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/WireMessage-class.html">WireMessage</a> is the <strong>Skin Payload</strong>.
+Every <strong>Nervous Signal</strong> (<code>Pulse</code>) that enters or leaves the system must be
+wrapped in this envelope so it can safely travel over the network (the "Wire")
+via MCP, REST, or SSE.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
-<li>Emitting or receiving commands, outcomes, state observations, and
-audit entries across the membrane.</li>
-<li>Writing a transport adapter: the sealed hierarchy is the whole
-wire vocabulary — there is no other envelope.</li>
+<li><strong>Transport Adapters</strong>: Use this when writing code that talks to the
+outside world (like a web server or a command-line tool).</li>
+<li><strong>Membrane Crossing</strong>: Use this whenever a signal needs to move from
+the internal reactive graph to an external client.</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
-<p>Each variant carries exactly one intent; <a href="../cell_skin/WireMessage/toJson.html">toJson</a> produces the
-sanitised wire form and <a href="../cell_skin/WireMessage/WireMessage.fromJson.html">WireMessage.fromJson</a> restores it.
-<code>correlationId</code> is server-assigned on requests; egress
-(<code>WireStateChange</code>) deliberately carries no correlation id.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<p><code>WireResponse</code> and <code>WireError</code> look alike at a glance, but an error
-has <strong>no receipt</strong> — it must never masquerade as a response. Egress
-is <code>WireStateChange</code>, never a <code>WireResponse</code>.</p>
+<ul>
+<li><strong>Sealed Vocabulary</strong>: This is a closed (sealed) hierarchy. Every
+message has a specific <code>kind</code> (like <code>request</code>, <code>response</code>, or <code>error</code>).</li>
+<li><strong>Clean Serialization</strong>: The <a href="../cell_skin/WireMessage/toJson.html">toJson</a> method converts the message into
+a clean format for sending over the network.</li>
+<li><strong>Self-Identifying</strong>: The <a href="../cell_skin/WireMessage/WireMessage.fromJson.html">WireMessage.fromJson</a> factory uses the <code>kind</code>
+field to automatically turn raw JSON back into the correct message type.</li>
+</ul>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Causal Matching</strong>: For requests and responses, the framework uses a
+<code>correlationId</code> to ensure the <strong>Forensic Receipt</strong> is matched to the
+correct original request.</li>
+<li><strong>Forensic Separation</strong>: A <code>WireError</code> represents a failure in the
+<strong>Skin</strong> (like a bad network connection) and never carries a
+<strong>Forensic Receipt</strong>, while a <code>WireResponse</code> carries the official
+result from the ledger.</li>
+<li><strong>Stateless Metadata</strong>: Metadata about the signal (like its timestamp)
+travels on the <code>Pulse</code> itself, not inside the <a href="../cell_skin/WireMessage-class.html">WireMessage</a> data.</li>
+</ul>
 <h3 id="see-also">See also</h3>
-<p><a href="../cell_skin/WireOutcome-class.html">WireOutcome</a>, <a href="../cell_skin/WireReceipt-class.html">WireReceipt</a>, and <a href="../cell_skin/SkinPulseTypes-class.html">SkinPulseTypes</a> for the <code>type</code>
-taxonomy.</p>
+<ul>
+<li><a href="../cell_skin/SkinPulseTypes-class.html">SkinPulseTypes</a>: The taxonomy of labels used for these messages.</li>
+<li><a href="../cell_skin/WireRequest-class.html">WireRequest</a>: The envelope for incoming commands.</li>
+<li><a href="../cell_skin/WireResponse-class.html">WireResponse</a>: The envelope for outgoing forensic results.</li>
+<li><a href="guide/HowTo-Cell.apply.md">guide/HowTo-Cell.apply.md</a>: For the
+complete "Command Journey" context.</li>
+</ul>
 </section>
 
 
@@ -115,7 +135,7 @@ taxonomy.</p>
           <span class="name"><a href="../cell_skin/WireMessage/WireMessage.fromJson.html">WireMessage.fromJson</a></span><span class="signature">(<span class="parameter" id="fromJson-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">json</span></span>)</span>
         </dt>
         <dd>
-          Decodes a <a href="../cell_skin/WireMessage-class.html">WireMessage</a> produced by <a href="../cell_skin/WireMessage/toJson.html">toJson</a>.
+          Decodes a raw JSON map into the correct <a href="../cell_skin/WireMessage-class.html">WireMessage</a> type.
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
@@ -145,7 +165,7 @@ taxonomy.</p>
 
 </dt>
 <dd>
-  The stable discriminator used by <a href="../cell_skin/WireMessage/WireMessage.fromJson.html">WireMessage.fromJson</a>.
+  The stable name of the message type used for decoding.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -192,8 +212,7 @@ taxonomy.</p>
 
 </dt>
 <dd>
-  JSON-serialisable wire form. Payloads stay JSON-safe; the pulse's
-metadata travels on the pulse, not inside this map.
+  Converts the message into a JSON-safe map.
   
 
 </dd>

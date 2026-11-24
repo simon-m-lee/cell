@@ -62,7 +62,40 @@
       </section>
       
 <section class="desc markdown">
-  <p>The correlation id echoed from the originating <a href="../../cell_skin/WireRequest-class.html">WireRequest</a>.</p>
+  <p>The unique ID that links this response to the request that started it.</p>
+<p>In the framework’s biological metaphor, this is the <strong>Causal Link</strong>. It
+acts as a unique tag that pairs a <strong>Forensic Receipt</strong> (this response)
+with the <strong>Nervous Signal</strong> (the request) that triggered the action.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Response Matching</strong>: Use this to find out which specific command
+just finished, especially when many actions are happening at once.</li>
+<li><strong>Auditing</strong>: Use this to trace a result back to the original network
+signal in the logs.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Tagging</strong>: Every request enters the system with a unique ID.</li>
+<li><strong>Journey Tracking</strong>: That ID follows the signal through the entire
+<strong>Command Journey</strong>.</li>
+<li><strong>Receipt Echo</strong>: When the cell finishes its work, it copies the ID
+into this field so the caller knows the "Nervous Signal" has returned.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Source of Truth</strong>: This ID is the official identifier used by the
+<strong>Forensic Ledger</strong>. Even if a client provides their own private ID,
+this <code>correlationId</code> is what the system uses to prove a <strong>Somatic
+State Transition</strong> happened.</li>
+<li><strong>Reliability</strong>: Because it is echoed directly from the request, it
+guarantees that the response is legally tied to the correct impulse.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireRequest/correlationId.html">WireRequest.correlationId</a>: The ID as it first enters the system.</li>
+<li><a href="../../cell_skin/WireResponse/clientCorrelationId.html">WireResponse.clientCorrelationId</a>: The optional private label from
+the caller.</li>
+</ul>
 </section>
 
       

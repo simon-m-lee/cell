@@ -61,6 +61,43 @@
 
       </section>
       
+<section class="desc markdown">
+  <p>The data payload associated with the notification.</p>
+<p>In the framework's biological metaphor, these are the <strong>Transient Nutrients</strong>
+carried by the impulse. Since notifications are not recorded in the
+<strong>Forensic Ledger</strong>, this data is volatile and exists only for the duration
+of the signal's presence at the <strong>Skin Membrane</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Lightweight Payloads</strong>: Use this to send supplemental information for
+heartbeats, progress alerts, or metadata (e.g., <code>{'progress': 0.5}</code>).</li>
+<li><strong>Non-Critical Data</strong>: Use this only for information that does not
+require causal traceability or permanent auditing.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Carrying</strong>: The client or server bundles arbitrary JSON-safe
+data into this map.</li>
+<li><strong>Immediate Consumption</strong>: The receiver reads these parameters
+immediately upon arrival.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Forensic Omission</strong>: Data stored in <code>params</code> is <strong>never</strong> written to the
+<strong>Forensic Ledger</strong>. It will not appear in audit trails or somatic history.</li>
+<li><strong>No Integrity Gates</strong>: Unlike <a href="../../cell_skin/WireRequest-class.html">WireRequest</a> arguments, these parameters
+are not vetted by a cell's DNA/rules. They are strictly for
+transport-layer communication.</li>
+<li><strong>Memory Longevity</strong>: Once the notification is handled by the
+membrane listeners, these nutrients are "consumed" (garbage collected)
+and cannot be recovered.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireNotification/method.html">WireNotification.method</a>: The identifier for this transient impulse.</li>
+<li><a href="../../cell_skin/WireRequest/positional.html">WireRequest.positional</a>: For arguments that require forensic integrity.</li>
+</ul>
+</section>
 
       
 <section class="summary source-code" id="source">

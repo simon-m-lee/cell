@@ -62,7 +62,38 @@
       </section>
       
 <section class="desc markdown">
-  <p>The registered graph name of the cell that changed.</p>
+  <p>The unique name of the cell that has changed.</p>
+<p>In the framework's biological metaphor, this is the <strong>Somatic Address</strong>.
+It identifies the physical location in the reactive graph where the
+<strong>Somatic State Transition</strong> occurred.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Event Routing</strong>: Used by external observers (like UI dashboards or
+AI agents) to filter for updates from specific parts of the system.</li>
+<li><strong>State Synchronization</strong>: Used to determine which local "Phenotype"
+needs to be updated when an observation arrives.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Emission</strong>: When a cell's value changes, the system broadcasts this
+address as part of the observation signal.</li>
+<li><strong>Observation</strong>: Subscribers to the <strong>Skin Membrane</strong> use this ID to
+route the new <a href="../../cell_skin/WireStateChange/payload.html">payload</a> to the correct listener.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Stateless Signals</strong>: Unlike a <a href="../../cell_skin/WireResponse-class.html">WireResponse</a>, this field is not
+correlated to a specific request. It is a broadcast of a physical
+event that has already happened at this address.</li>
+<li><strong>Forensic Identity</strong>: This address matches the entry recorded in the
+<strong>Forensic Ledger</strong>, allowing auditors to link live updates to
+permanent audit rows.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireStateChange/payload.html">WireStateChange.payload</a>: The new value associated with this address.</li>
+<li><a href="../../cell_skin/WireStateChange/receipt.html">WireStateChange.receipt</a>: The forensic proof of the change at this address.</li>
+</ul>
 </section>
 
       

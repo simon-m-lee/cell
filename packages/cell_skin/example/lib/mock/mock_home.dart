@@ -120,7 +120,7 @@ final class MockHome {
         // "Successful Transmission" contract: the apply routes the
         // pulse through the target's receptor and the ledger records
         // the entry with the real apply receipt.
-        function: (double target) => Pulse<double>(target),
+        function: (double target) => SkinPulses.payload(target),
         argumentSchema: const JsonSchema(
           type: 'object',
           properties: {
@@ -128,6 +128,7 @@ final class MockHome {
           },
           required: ['target'],
         ),
+        positionalNames: ['target'],
       ))
       ..register(SkinBinding(
         cellId: 'home.front.door',
@@ -139,13 +140,13 @@ final class MockHome {
         cellId: 'home.front.door',
         functionName: 'unlock',
         target: door.cell,
-        function: () => Pulse<bool>(false),
+        function: () => SkinPulses.payload(false),
       ))
       ..register(SkinBinding(
         cellId: 'home.living.light',
         functionName: 'dim',
         target: light.cell,
-        function: (double brightness) => Pulse<double>(brightness),
+        function: (double brightness) => SkinPulses.payload(brightness),
         argumentSchema: const JsonSchema(
           type: 'object',
           properties: {
@@ -153,14 +154,23 @@ final class MockHome {
           },
           required: ['brightness'],
         ),
+        positionalNames: ['brightness'],
       ))
       ..register(SkinBinding(
-        cellId: 'home.living.light',
+        cellId: 'home.living.light.color',
         functionName: 'setColor',
-        target: light.cell,
-        function: (String hex) => Pulse<String>(hex),
+        target: lightColor.cell,
+        function: (String hex) => SkinPulses.payload(hex),
+        argumentSchema: const JsonSchema(
+          type: 'object',
+          properties: {
+            'hex': JsonSchema(type: 'string'),
+          },
+          required: ['hex'],
+        ),
+        positionalNames: ['hex'],
       ))
-      ..register(SkinBinding(
+      ..register(SkinBinding.command(
         cellId: 'home.living.light',
         functionName: 'optimize',
         target: light.cell,
@@ -170,7 +180,8 @@ final class MockHome {
     whitelist = SkinWhitelist({
       'home.living.thermostat': {'setTarget'},
       'home.front.door': {'lock', 'unlock'},
-      'home.living.light': {'dim', 'setColor', 'optimize'},
+      'home.living.light': {'dim', 'optimize'},
+      'home.living.light.color': {'setColor'},
     });
 
     membrane = await SkinMembrane.open(
@@ -210,7 +221,7 @@ final class MockHome {
     // The one function the door gate identity-checks: the binding and
     // the gate share this exact closure, and it returns the pulse so
     // the ledger records the apply receipt.
-    lockDoor = () => Pulse<bool>(true);
+    lockDoor = () => SkinPulses.payload(true);
     doorGate = DoorGate(lockDoor);
     door = Cell.state<bool>(initial: false, testRule: doorGate);
 
@@ -248,7 +259,7 @@ final class MockHome {
       body: (tx) {
         light.cell.apply<Object?>(
           (
-            function: () => Pulse<double>(0.5),
+            function: () => SkinPulses.payload(0.5),
             arguments: (positionalArguments: null, namedArguments: null),
             compensation: null,
           ),
@@ -256,7 +267,7 @@ final class MockHome {
         );
         lightColor.cell.apply<Object?>(
           (
-            function: () => Pulse<String>('#FDB813'),
+            function: () => SkinPulses.payload('#FDB813'),
             arguments: (positionalArguments: null, namedArguments: null),
             compensation: null,
           ),

@@ -20,13 +20,33 @@ A `SkinBinding` is one exposed function on one target cell: the
 
 ```dart
 final bindings = SkinBindingTable()
-  ..register(SkinBinding(
+  ..register(SkinBinding.state(
     cellId: 'home.living.thermostat',
     functionName: 'setTarget',
     target: thermostat.cell,
-    function: (int target) => thermostat.update(target),
+    nextValue: (int target) => target,
   ));
 ```
+
+## The three binding kinds
+
+| Constructor | The user function returns | Ledger rows |
+| :--- | :--- | :--- |
+| `SkinBinding.state` | the next value (`int`, `String`, …) — or a `Future` of it, or a `Pulse` | One row. The binding wraps the value in a `Pulse` and routes it through the target receptor; the wire receipt id is the row's receipt id. |
+| `SkinBinding.command` | a JSON-safe result (`true`, a report) | Whatever the body applies itself (`Cell.txApply`, inner `apply`). The outer result is not a row; the response lists `ledgerSeqs`. |
+| `SkinBinding(...)` | whatever it returns | Unchanged. A ledgered raw binding should return a `Pulse`; a binding that still calls `update()` writes a synthetic `_emit` row whose receipt id does not match the response, and strict receipts (`SkinMembrane.open(strictReceipts: true)`, the default) reports that contract break as `transport_error`. |
+
+**For a ledgered state change, use `SkinBinding.state`.** The only write
+is the pulse `apply` routes through the target receptor — the response
+receipt and the ledger row share one id, and the wire receipt carries the
+row's `ledgerSeq`/`pulseDigest`. `update()` inside the function would
+write a second, synthetic receipt; do not call it there.
+
+A state binding with **named** wire arguments is refused with
+`bad_arguments` — there is no generic named wrapper (Dart has no
+variadic closures), and letting it through would silently drop the
+return-value wrapping. An empty `named: {}` is treated as absent.
+Positional wire calls are wrapped for up to 12 arguments.
 
 ## Target identity
 
@@ -44,12 +64,12 @@ final graph = (CellGraph.builder(graphId: 'home')
 ## Descriptions
 
 ```dart
-SkinBinding(
+SkinBinding.state(
   cellId: 'home.living.thermostat',
   functionName: 'setTarget',
   description: 'Sets the target temperature in degrees Celsius.',
   target: thermostat.cell,
-  function: (int target) => thermostat.update(target),
+  nextValue: (int target) => target,
 )
 ```
 
@@ -60,24 +80,57 @@ description — so two tools on one cell stay distinguishable in
 ## Argument schemas
 
 An explicit hint wins; observation of the live cell value fills in the
-rest; the permissive `{}` schema is the last resort:
+rest; the permissive `{}` schema is the last resort. An **explicit**
+schema is enforced before `apply`: `required`, `enum`,
+`additionalProperties` (a schema with `properties` is closed by default
+— `additionalProperties: true` opens it), nested objects, `items`, and
+typed `null` (a typed property never accepts `null`). Observed schemas
+are hints and are never enforced.
+
+The `"0"` index style needs no zipper:
 
 ```dart
-SkinBinding(
+SkinBinding.state(
   cellId: 'home.living.thermostat',
   functionName: 'setTarget',
   argumentSchema: const JsonSchema(type: 'object', properties: {
     '0': JsonSchema(type: 'integer'),
   }, required: ['0']),
   target: thermostat.cell,
-  function: (int target) => thermostat.update(target),
+  nextValue: (int target) => target,
 )
 ```
 
+A schema that names real properties (`target`) is matched against named
+arguments directly; a **positional** call against it needs
+`positionalNames` — the zipper maps position `i` to that property:
+
+```dart
+SkinBinding.state(
+  cellId: 'home.living.thermostat',
+  functionName: 'setTarget',
+  argumentSchema: const JsonSchema(
+    type: 'object',
+    properties: {'target': JsonSchema(type: 'integer')},
+    required: ['target'],
+  ),
+  positionalNames: ['target'], // validates positional [19] as target: 19
+  target: thermostat.cell,
+  nextValue: (int target) => target,
+)
+```
+
+`positionalNames` is validation only: the Dart call still receives the
+positional list. A positional call against a non-index schema without
+the list is `bad_arguments`; a missing name that is `required` fails
+`required`; more values than names is `bad_arguments`.
+
 Malformed envelopes and schema violations are rejected **before**
 `target.apply` runs, as `WireError{code: 'bad_arguments'}` — no receipt,
-no ledger entry. See `HowTo-WireMessages.md` for the argument envelope
-rules.
+no ledger entry, and the domain gate is not reached. A wrong arity
+(no schema) is `bad_arguments` too; a throw from inside the function
+stays `transport_error`. See `HowTo-WireMessages.md` for the argument
+envelope rules.
 
 ## Compensation
 
@@ -85,15 +138,18 @@ The compensation closure receives the **same wire arguments** as the
 command, so it knows what to undo:
 
 ```dart
-SkinBinding(
+SkinBinding.state(
   cellId: 'home.living.thermostat',
   functionName: 'setTarget',
   target: thermostat.cell,
-  function: (int target) => thermostat.update(target),
-  compensation: (int target) =>
-      thermostat.update((thermostat.cell.value ?? 20) - 1),
+  nextValue: (int target) => target,
+  compensation: (int target) => thermostat.cell.value ?? 20,
 )
 ```
+
+A state binding's compensation is wrapped the same way: an undo that
+returns the restored value becomes one pulse on `compensationCell` (or
+the target).
 
 ## Sealing and duplicates
 

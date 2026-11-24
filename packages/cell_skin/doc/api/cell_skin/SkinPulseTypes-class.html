@@ -56,9 +56,43 @@
 
     
 <section class="desc markdown">
-  <p>Pulse-type naming convention for the wire. Values follow the plan's
-taxonomy; no new type system is introduced — these are <code>Pulse.type</code>
-strings.</p>
+  <p>A static taxonomy of names for signals crossing the system membrane.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/SkinPulseTypes-class.html">SkinPulseTypes</a> defines the
+<strong>Signal Vocabulary</strong>. Every "Nervous Signal" (<code>Pulse</code>) that travels
+across the skin must be labeled with one of these types so the receiver
+knows how to process it and how to record it in the <strong>Forensic Ledger</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Transport Adapters</strong>: Use these strings when building MCP, REST, or
+SSE adapters to identify the intent of an incoming or outgoing pulse.</li>
+<li><strong>Signal Routing</strong>: Use these types to filter signals in the
+governance layer.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>These are not a new type system; they are standard <code>Pulse.type</code> strings.
+They act as the "Common Language" between the internal reactive graph
+and the external wire.</p>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Outcome Mapping</strong>: The <a href="../cell_skin/SkinPulseTypes/resultType.html">resultType</a> and <a href="../cell_skin/SkinPulseTypes/restResponseType.html">restResponseType</a> methods
+use Dart pattern matching to ensure that every <code>ApplyOutcome</code> (the
+Forensic Receipt) is mapped to a specific sub-type (e.g., <code>.accepted</code>).</li>
+<li><strong>Namespace Logic</strong>: Types are grouped by protocol (like <code>mcp.</code> or <code>rest.</code>)
+to prevent signal collisions when multiple transports are active at once.</li>
+</ul>
+<h3 id="example-labeling-a-signal">Example: Labeling a Signal</h3>
+<pre class="language-dart"><code class="language-dart">final pulse = Pulse(
+  payload: myData,
+  type: SkinPulseTypes.restApplyRequest,
+);
+</code></pre>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/WireMessage-class.html">WireMessage</a>: The container that carries these signals.</li>
+<li><code>ApplyOutcome</code>: The results that these types help categorize.</li>
+<li><a href="guide/HowTo-Cell.apply.md">guide/HowTo-Cell.apply.md</a>: For the
+complete "Command Journey" context.</li>
+</ul>
 </section>
 
 
@@ -165,7 +199,7 @@ strings.</p>
 
 </dt>
 <dd>
-  <code>rest.apply.response.{accepted,rejected,staged}</code> for <code>outcome</code>.
+  Translates an internal <code>ApplyOutcome</code> into a specific <strong>Signal Label</strong> for REST responses.
   
 
 </dd>
@@ -178,7 +212,7 @@ strings.</p>
 
 </dt>
 <dd>
-  <code>mcp.tools.result.{accepted,rejected,staged}</code> for <code>outcome</code>.
+  Translates an internal <code>ApplyOutcome</code> into a specific <strong>Signal Label</strong> for MCP tools.
   
 
 </dd>

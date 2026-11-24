@@ -62,16 +62,17 @@
       </section>
       
 <section class="desc markdown">
-  <p>The transport: submits a wire message and awaits the correlated
-reply. <code>SkinClient</code> implements this in-process; a future
-<code>DartMcpAdapter</code>-backed client implements it over JSON-RPC.</p>
+  <p>The physical seam used to transmit signals across the membrane.</p>
+<p>In the framework's biological metaphor, this is the <strong>Axonal Transport</strong>.
+It takes a <strong>Nervous Signal</strong> (<a href="../../cell_skin/WireRequest-class.html">WireRequest</a>) and returns the
+remote system's response.</p>
 </section>
 
       
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">final Future&lt;WireMessage&gt; Function(WireMessage message, String type)
-    transport;</code></pre>
+transport;</code></pre>
 </section>
 
 

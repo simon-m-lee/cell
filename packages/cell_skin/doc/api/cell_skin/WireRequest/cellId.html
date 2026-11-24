@@ -62,7 +62,36 @@
       </section>
       
 <section class="desc markdown">
-  <p>The registered graph name of the target cell.</p>
+  <p>The unique name of the cell that this request is trying to reach.</p>
+<p>In the framework's biological metaphor, this is the <strong>Somatic Address</strong>.
+It tells the system exactly where on the <strong>Skin Membrane</strong> the
+<strong>Nervous Signal</strong> should enter to find its physical state.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Signal Routing</strong>: Always include this in a <a href="../../cell_skin/WireRequest-class.html">WireRequest</a> so the
+system knows which cell should handle the command.</li>
+<li><strong>Discovery</strong>: Used by the transport layer to find the correct
+<strong>Integrity Gate</strong> for the action.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Address Lookup</strong>: The system takes this ID and looks for a matching
+cell in its internal registry.</li>
+<li><strong>Signal Delivery</strong>: Once found, the envelope is opened, and the
+instructions inside begin their <strong>Command Journey</strong> within that cell.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Strict Mapping</strong>: If this ID does not match any known cell, the
+request is blocked at the membrane and returns a "not found" error.</li>
+<li><strong>Forensic Identity</strong>: This address is recorded in the
+<strong>Forensic Ledger</strong>. This allows you to look at the history later
+and see exactly which "body part" (cell) was affected by the signal.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireRequest/function.html">WireRequest.function</a>: The specific action to perform at this address.</li>
+</ul>
 </section>
 
       

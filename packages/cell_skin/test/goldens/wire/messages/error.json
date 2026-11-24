@@ -1,0 +1,8 @@
+{
+  "wire": "1",
+  "kind": "error",
+  "correlationId": "srv-1",
+  "clientCorrelationId": "client-1",
+  "code": "conflict",
+  "message": "conflict: ledger advanced to 9"
+}

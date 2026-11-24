@@ -52,12 +52,51 @@
     <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
     <a href="https://dart.dev/language/class-modifiers#interface" class="feature feature-interface" title="This class can only be implemented (not extended or mixed in).">interface</a>
  
-    <span class="category howto-·-mcp-seam cp-9 linked" title="This is part of the HowTo · MCP Seam topic."><a href="../topics/MCP Seam-topic.html">HowTo&nbsp;·&nbsp;MCP&nbsp;Seam</a></span>
 </h1></div>
 
     
 <section class="desc markdown">
-  <p>The adapter lifecycle contract every MCP SDK adapter implements.</p>
+  <p>The lifecycle contract for bridging the somatic graph to an AI agent via the Model Context Protocol.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/McpAdapter-class.html">McpAdapter</a> is the <strong>AI Synaptic Bridge</strong>.
+It acts as a specialized <strong>Membrane Pore</strong> designed specifically for high-bandwidth
+communication with external AI "nervous systems."</p>
+<p>While <a href="../cell_skin/SkinMembrane-class.html">SkinMembrane</a> handles the general boundary logic, this adapter provides the
+physical transport seam. It allows an AI agent to perform a <strong>Discovery Impulse</strong>
+to read the <strong>Somatic Index</strong> (manifest) and subsequently trigger <strong>Command Journeys</strong>
+via MCP tool calls.</p>
+<h3 id="why-this-exists">Why this exists</h3>
+<p>This interface decouples the framework's governance from specific MCP SDK
+implementations. By providing a neutral seam, the framework can support
+different SDKs (like <code>dart_mcp</code> or <code>mcp_dart</code>) without altering the
+internal somatic logic.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Sensitization</strong>: On <a href="../cell_skin/McpAdapter/start.html">start</a>, the adapter opens a communication channel.</li>
+<li><strong>Discovery</strong>: It exposes the <a href="../cell_skin/SkinManifest-class.html">SkinManifest</a> as a set of MCP Tools and Resources.</li>
+<li><strong>Pulse Ingress</strong>: External tool calls are converted into <strong>Nervous Signals</strong>
+and dispatched through the membrane.</li>
+<li><strong>Forensic Return</strong>: The results of <strong>Somatic State Transitions</strong> are translated
+back into MCP-compliant tool responses.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Neutral Translation</strong>: The adapter must use <a href="../cell_skin/mcpToolSpecs.html">mcpToolSpecs</a> to ensure
+that tool names and schemas are deterministic and round-trippable.</li>
+<li><strong>Forensic Integrity</strong>: The adapter is responsible for ensuring that
+transport-level MCP errors are correctly reported as <strong>Membrane Rejections</strong>
+(<a href="../cell_skin/WireError-class.html">WireError</a>) to prevent gaps in the external audit trail.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/SkinMembrane-class.html">SkinMembrane</a>: The core boundary orchestrator.</li>
+<li><a href="../cell_skin/McpToolSpec-class.html">McpToolSpec</a>: The neutral representation of a cell's "DNA" for AI agents.</li>
+<li><code>wire_message.dart</code>: Definitions for the envelopes that cross this bridge.</li>
+</ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — this is your primary connection point to the system.
+<strong>Discovery:</strong> This bridge provides the tool definitions you use to interact.
+<strong>Governance:</strong> Every tool call you make here initiates a <strong>Command Journey</strong>
+that must pass an <strong>Integrity Gate</strong> before being written to the <strong>Forensic Ledger</strong>.</p>
 </section>
 
 
@@ -110,7 +149,7 @@
 
 </dt>
 <dd>
-  Closes the server and releases the transport.
+  Closes the <strong>Synaptic Bridge</strong> and releases the physical transport.
   
 
 </dd>
@@ -136,8 +175,7 @@
 
 </dt>
 <dd>
-  Registers the tool catalogue and subscriptions, then starts the
-server.
+  Opens the <strong>Synaptic Bridge</strong> and begins broadcasting the system's capabilities.
   
 
 </dd>

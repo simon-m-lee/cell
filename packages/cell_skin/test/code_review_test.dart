@@ -4,8 +4,6 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-/// Regression tests for the findings of
-/// `research/_Pending Plans/Skin/code-review(Claude).md`.
 library;
 
 import 'dart:convert';

@@ -61,6 +61,48 @@
 </ol>})
     </section>
     
+<section class="desc markdown">
+  <p>Creates a new <a href="../../cell_skin/WireStateChange-class.html">WireStateChange</a> observation envelope.</p>
+<p>In the framework's biological metaphor, this constructor assembles a
+<strong>Somatic Observation</strong>. It represents a <strong>Nervous Impulse</strong> generated
+when a cell changes its physical state, ready to be broadcast across
+the <strong>Skin Membrane</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Observation Streaming</strong>: Use this when a cell's state changes and
+you need to notify external subscribers (via SSE, MCP, etc.).</li>
+<li><strong>Testing</strong>: Use this to simulate state transitions in integration
+tests or to verify observer behavior.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>The constructor bundles the cell's address (<code>cellId</code>), its new observable
+traits (<code>payload</code>), and its forensic evidence (<code>receipt</code>) into a stable
+record. By default, new observations are marked as <code>pendingReceipt</code>
+until the <strong>Forensic Ledger</strong> confirms the write.</p>
+<h3 id="parameters">Parameters</h3>
+<ul>
+<li><strong>cellId</strong>: The <strong>Somatic Address</strong> of the cell that changed.</li>
+<li><strong>payload</strong>: The <strong>Phenotype</strong> (value) of the cell after the transition.</li>
+<li><strong>receipt</strong>: The <strong>Forensic Receipt</strong> providing proof of the change.</li>
+<li><strong>pendingReceipt</strong>: Whether the transition is still "in-flight" and
+waiting to land in the permanent ledger.</li>
+</ul>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Volatile by Default</strong>: If not specified, <code>pendingReceipt</code> defaults
+to <code>true</code>. This assumes the impulse is live and unconfirmed until
+the ledger tail specifically emits an authoritative entry.</li>
+<li><strong>Stateless Construction</strong>: This constructor does not require a
+<code>correlationId</code> because observations are environmental broadcasts,
+not direct replies to a specific <strong>Command Journey</strong>.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireStateChange/cellId.html">WireStateChange.cellId</a>: The unique address of the target cell.</li>
+<li><a href="../../cell_skin/WireStateChange/pendingReceipt.html">WireStateChange.pendingReceipt</a>: The flag governing the authoritative
+status of this signal.</li>
+</ul>
+</section>
 
 
     

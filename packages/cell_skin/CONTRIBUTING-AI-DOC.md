@@ -31,7 +31,8 @@ comment:
 /// **Layer:** Skin — the membrane between a Cell graph and remote consumers.
 /// **When to use:** A BRD says "expose the graph over REST".
 /// **When NOT to use:** pure graph work — use `package:cell` directly.
-/// **Live signature:** `SkinMembrane.open({...})` — pinned at `cell_skin: 0.1.0`
+/// **Live signature:** `SkinMembrane.open({...})` — pinned at `cell_skin: 1.0.0`
+/// **Stability:** stable
 /// **Do NOT confuse with:** `RestAdapter.bind` (opens a socket on top of the membrane).
 /// **Guide:** `ARCHITECTURE-Skin.md` §2 (the four cells)
 /// **Example:** `example/lib/mock/mock_home.dart`
@@ -87,3 +88,7 @@ comment:
 
 `test/api_chooser_up_to_date_test.dart` fails CI if either file is
 stale.
+
+The rc rule: a commit that changes `test/goldens/wire/` also changes
+`guide/HowTo-Migrate-0.2.md`. After the rc tag, such a commit means the
+release is not 1.0.

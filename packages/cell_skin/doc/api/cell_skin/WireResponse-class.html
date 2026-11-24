@@ -51,30 +51,50 @@
 <h1><span class="kind-class">WireResponse</span> class 
     <a href="https://dart.dev/language/class-modifiers#final" class="feature feature-final" title="This class can neither be extended, implemented, nor mixed in.">final</a>
  
-    <span class="category howto-·-wire-messages cp-4 linked" title="This is part of the HowTo · Wire Messages topic."><a href="../topics/Wire Messages-topic.html">HowTo&nbsp;·&nbsp;Wire&nbsp;Messages</a></span>
 </h1></div>
 
     
 <section class="desc markdown">
-  <p>An outbound result: the target's real <code>ApplyOutcome</code>, or — when the
-ledger entry has not landed yet — a pending marker with the last
-known receipt JSON.</p>
+  <p>An envelope for an outbound result: the official response to a request.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/WireResponse-class.html">WireResponse</a> is the
+<strong>Forensic Receipt</strong> delivered to the <strong>Skin Membrane</strong>. It proves
+that a <strong>Nervous Signal</strong> completed its <strong>Command Journey</strong> and
+reports whether it was accepted or rejected by the system's DNA.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
-<li>The router's reply to a <a href="../cell_skin/WireRequest-class.html">WireRequest</a>: accepted, rejected, or
-staged — never an exposure or cursor failure (those are
-<a href="../cell_skin/WireError-class.html">WireError</a>).</li>
+<li><strong>Request Completion</strong>: Use this as the standard reply to a <a href="../cell_skin/WireRequest-class.html">WireRequest</a>.</li>
+<li><strong>Transport Mapping</strong>: Use this to send the results of a command
+back to a web client (REST) or an AI agent (MCP).</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
-<p>The router packages the outcome of <code>binding.target.apply</code> verbatim;
-a decoded response carries the wire form under <a href="../cell_skin/WireResponse/outcomeJson.html">outcomeJson</a> because
-a live <code>ApplyOutcome</code> cannot be reconstructed without the live cell.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<p>A response with <a href="../cell_skin/WireResponse/pendingReceipt.html">pendingReceipt</a> <code>true</code> is an <strong>accepted pulse whose
-ledger entry has not landed</strong> — the definitive receipt arrives via
-the ledger stream (<code>skin.ledger.entry</code>), not by guessing.</p>
+<ol>
+<li><strong>Signal Outcome</strong>: The system takes the <code>ApplyOutcome</code> from the
+internal cell and packages it into this envelope.</li>
+<li><strong>Correlation</strong>: It attaches the <a href="../cell_skin/WireResponse/correlationId.html">correlationId</a> so the caller
+can match this receipt to their original request.</li>
+<li><strong>Ledger Synchronization</strong>: If the framework is still writing the
+result to the permanent log, the response is marked as <a href="../cell_skin/WireResponse/pendingReceipt.html">pendingReceipt</a>.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Serialization Guard</strong>: A live <code>ApplyOutcome</code> contains functions
+and complex logic that cannot be sent over the wire. Therefore,
+decoded responses store the result as <a href="../cell_skin/WireResponse/outcomeJson.html">outcomeJson</a> instead.</li>
+<li><strong>Definitive Receipts</strong>: If <a href="../cell_skin/WireResponse/pendingReceipt.html">pendingReceipt</a> is <code>true</code>, the outcome
+provided is a "best guess." The final, authoritative proof only
+arrives later via the <strong>Forensic Ledger</strong> stream.</li>
+<li><strong>Authoritative Outcome</strong>: A <a href="../cell_skin/WireResponse-class.html">WireResponse</a> never reports transport
+failures (like a lost connection); those are handled by <a href="../cell_skin/WireError-class.html">WireError</a>.
+This class only reports the cell's actual logic results.</li>
+</ul>
 <h3 id="see-also">See also</h3>
-<p><a href="../cell_skin/WireOutcome-class.html">WireOutcome</a>, <a href="../cell_skin/WireReceipt-class.html">WireReceipt</a>, <a href="../cell_skin/SkinMembrane/request.html">SkinMembrane.request</a>.</p>
+<ul>
+<li><a href="../cell_skin/WireRequest-class.html">WireRequest</a>: The signal that triggered this response.</li>
+<li><a href="../cell_skin/WireOutcome-class.html">WireOutcome</a>: The specific JSON format of the result.</li>
+<li><code>ApplyOutcome</code>: The internal framework result being wrapped.</li>
+<li><a href="guide/HowTo-Cell.apply.md">guide/HowTo-Cell.apply.md</a>: For the
+complete "Command Journey" context.</li>
+</ul>
 </section>
 
 
@@ -109,15 +129,14 @@ the ledger stream (<code>skin.ledger.entry</code>), not by guessing.</p>
           <span class="name"><a href="../cell_skin/WireResponse/WireResponse.html">WireResponse</a></span><span class="signature">({<span class="parameter" id="-param-correlationId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">correlationId</span>, </span><span class="parameter" id="-param-clientCorrelationId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">clientCorrelationId</span>, </span><span class="parameter" id="-param-outcome"><span class="type-annotation">ApplyOutcome<span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">outcome</span>, </span><span class="parameter" id="-param-outcomeJson"><span class="type-annotation"><a href="../cell_skin/WireOutcome-class.html">WireOutcome</a>?</span> <span class="parameter-name">outcomeJson</span>, </span><span class="parameter" id="-param-pendingReceipt"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">pendingReceipt</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-receiptJson"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">receiptJson</span></span>})</span>
         </dt>
         <dd>
-          Invariant: a response is either pending, carries a live outcome,
-or carries a decoded outcome JSON.
+          Creates a new <a href="../cell_skin/WireResponse-class.html">WireResponse</a> envelope to carry a result back through the membrane.
             <div class="constructor-modifier features">const</div>
         </dd>
         <dt id="WireResponse.fromJson" class="callable">
           <span class="name"><a href="../cell_skin/WireResponse/WireResponse.fromJson.html">WireResponse.fromJson</a></span><span class="signature">(<span class="parameter" id="fromJson-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">json</span></span>)</span>
         </dt>
         <dd>
-          Decodes a <a href="../cell_skin/WireResponse-class.html">WireResponse</a> encoded by <a href="../cell_skin/WireResponse/toJson.html">toJson</a>.
+          Decodes a raw JSON map into a <a href="../cell_skin/WireResponse-class.html">WireResponse</a> envelope.
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
@@ -135,8 +154,8 @@ or carries a decoded outcome JSON.
 
 </dt>
 <dd>
-  The client-chosen correlation id, echoed verbatim when the
-request carried one.
+  An optional ID provided by the caller to help them identify the response
+on their end.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -148,7 +167,7 @@ request carried one.
 
 </dt>
 <dd>
-  The correlation id echoed from the originating <a href="../cell_skin/WireRequest-class.html">WireRequest</a>.
+  The unique ID that links this response to the request that started it.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -172,7 +191,7 @@ request carried one.
 
 </dt>
 <dd>
-  The stable discriminator used by <a href="../cell_skin/WireMessage/WireMessage.fromJson.html">WireMessage.fromJson</a>.
+  The stable identifier used to distinguish this message type on the wire.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -184,10 +203,7 @@ request carried one.
 
 </dt>
 <dd>
-  The target's own outcome. <code>null</code> only when <a href="../cell_skin/WireResponse/pendingReceipt.html">pendingReceipt</a> is
-<code>true</code> (live) or when the response was decoded from JSON (a live
-<code>ApplyOutcome</code> cannot be reconstructed without the live target
-cell — <a href="../cell_skin/WireResponse/outcomeJson.html">outcomeJson</a> carries the wire form instead).
+  The live internal result produced by the target cell.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -199,8 +215,7 @@ cell — <a href="../cell_skin/WireResponse/outcomeJson.html">outcomeJson</a> ca
 
 </dt>
 <dd>
-  The wire outcome JSON for a decoded response; <code>null</code> for live
-responses and for pending ones.
+  The wire-safe JSON version of the cell's result.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -212,9 +227,7 @@ responses and for pending ones.
 
 </dt>
 <dd>
-  When <code>true</code>, <a href="../cell_skin/WireResponse/outcome.html">outcome</a> is <code>null</code> and <a href="../cell_skin/WireResponse/receiptJson.html">receiptJson</a> carries the last
-known receipt (or is absent). The definitive receipt arrives via
-the ledger stream (<code>skin.ledger.entry</code>).
+  Whether the permanent record for this change is still being written to the ledger.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -226,8 +239,7 @@ the ledger stream (<code>skin.ledger.entry</code>).
 
 </dt>
 <dd>
-  Best-effort last-known receipt JSON while <a href="../cell_skin/WireResponse/pendingReceipt.html">pendingReceipt</a> is
-<code>true</code>; <code>null</code> when no receipt has been seen for this cell at all.
+  A snapshot of the last known state of the ledger receipt for this cell.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -274,8 +286,7 @@ the ledger stream (<code>skin.ledger.entry</code>).
 
 </dt>
 <dd>
-  JSON-serialisable wire form. Payloads stay JSON-safe; the pulse's
-metadata travels on the pulse, not inside this map.
+  Converts the response into a JSON-safe map for transport.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

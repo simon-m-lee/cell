@@ -67,8 +67,10 @@
     </section>
     
 <section class="desc markdown">
-  <p>JSON-serialisable wire form. Payloads stay JSON-safe; the pulse's
-metadata travels on the pulse, not inside this map.</p>
+  <p>Converts the error into a JSON-safe map for transport.</p>
+<p>In the framework's biological metaphor, this method creates the
+<strong>Skin Form</strong> of the rejection. It stamps the envelope with the
+necessary causal links so the caller can identify which impulse failed.</p>
 </section>
 
 
@@ -77,13 +79,13 @@ metadata travels on the pulse, not inside this map.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Map&lt;String, Object?&gt; toJson() =&gt; {
-      &#39;kind&#39;: kind,
-      &#39;correlationId&#39;: correlationId,
-      if (clientCorrelationId != null)
-        &#39;clientCorrelationId&#39;: clientCorrelationId,
-      &#39;code&#39;: code,
-      &#39;message&#39;: message,
-    };</code></pre>
+  &#39;kind&#39;: kind,
+  &#39;correlationId&#39;: correlationId,
+  if (clientCorrelationId != null)
+    &#39;clientCorrelationId&#39;: clientCorrelationId,
+  &#39;code&#39;: code,
+  &#39;message&#39;: message,
+};</code></pre>
 </section>
 
 

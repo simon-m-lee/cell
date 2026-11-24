@@ -1,0 +1,19 @@
+{
+  "wire": "1",
+  "kind": "stateChange",
+  "cellId": "home.living.thermostat",
+  "payload": 21,
+  "receipt": {
+    "id": "r-1",
+    "cell": "home.living.thermostat",
+    "function": "setTarget",
+    "arguments": {
+      "positional": null,
+      "named": null
+    },
+    "timestamp": "2026-01-01T00:00:00.000Z",
+    "vetted": true,
+    "ledgerSeq": 1
+  },
+  "pendingReceipt": true
+}

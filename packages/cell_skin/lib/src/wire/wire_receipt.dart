@@ -54,8 +54,48 @@ Map<String, Object?> wireReceiptJson(
   };
 }
 
-/// The read model of [wireReceiptJson]: what the remote side can know
-/// without the live graph.
+/// The read model of a cell's physical state transition, stripped of live
+/// references for transport.
+///
+/// In the framework's biological metaphor, [WireReceipt] is the **Skin Form**
+/// of the **Forensic Receipt**. While the internal `ApplyReceipt` carries live
+/// cell objects and Dart functions, this class represents the sanitized,
+/// JSON-safe proof that a **Somatic State Transition** has been recorded.
+///
+/// ### When to use
+/// - **Audit Inspection**: Use this on the client side to verify the exact
+///   sequence, timing, and authority of a past change.
+/// - **State Reconstruction**: Essential for "Time Travel" or replaying
+///   the **Forensic Ledger** in a remote environment.
+///
+/// ### How it works
+/// 1. **Signal Sanitization**: During encoding, live `Function` objects are
+///    replaced with [functionLabel] to prevent closure internal leakage.
+/// 2. **Integrity Guarding**: Arguments are checked for JSON safety. If an
+///    argument cannot be encoded, it is replaced with a `<unencodable: type>`
+///    marker to prevent a "Forensic Hole" (a transport failure).
+/// 3. **Causal Mapping**: It bundles the [pulseDigest] and [ledgerSeq] to
+///    provide a verifiable link back to the **Command Journey**.
+///
+/// ### Non‑obvious behavior
+/// - **Honest Labeling**: The [functionLabel] prefers the name provided by the
+///   wire binding. If missing, it falls back to a string representation of
+///   the closure, which is useful for debugging but not for execution.
+/// - **Historical Snapshot**: This receipt is a static record. It does not
+///   change if the cell's "DNA" (receptor or rule version) is updated later.
+///
+/// ### See also
+/// - [ApplyReceipt]: The live, internal record being modeled here.
+/// - [WireOutcome]: The structure that carries this receipt as proof of result.
+/// - [wireReceiptJson]: The encoder that produces this structure.
+///
+/// ### AI Agent Guide
+/// **Layer:** Skin — the framework receipt in wire form.
+/// **When to use:** decoding the receipt inside a [WireOutcome]; the
+/// encoder is [wireReceiptJson], never a hand-built map.
+/// **When NOT to use:** inventing receipts the graph never produced.
+/// **Live signature:** `const WireReceipt({required String id, required String cellId, required String functionLabel, List<Object?>? positional, Map<String, Object?>? named, required DateTime timestamp, int? txSequence, required bool vetted, int? ledgerSeq, String? pulseDigest, String? receptorVersion, String? ruleVersion, String? contextVersion})` — pinned at `cell_skin: 1.0.0`
+/// **Stability:** stable
 final class WireReceipt {
   final String id;
   final String cellId;

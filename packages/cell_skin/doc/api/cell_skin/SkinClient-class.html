@@ -55,23 +55,43 @@
 
     
 <section class="desc markdown">
-  <p>The in-process client over a <a href="../cell_skin/SkinMembrane-class.html">SkinMembrane</a>.</p>
+  <p>The authoritative in-process coordinator for stimulating the somatic graph.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/SkinClient-class.html">SkinClient</a> is the <strong>Internal
+Axonal Conduit</strong>. It allows local logic (such as scripts, tests, or
+orchestrators) to initiate a <strong>Command Journey</strong> that passes through
+the <strong>Skin Membrane</strong> without the overhead of physical transport pores
+like REST or MCP.</p>
+<p>Despite being in-process, it speaks the same <strong>Nervous Signal</strong> vocabulary
+(<a href="../cell_skin/WireRequest-class.html">WireRequest</a>, <a href="../cell_skin/WireResponse-class.html">WireResponse</a>, <a href="../cell_skin/WireError-class.html">WireError</a>) as external adapters. This
+ensures that the <strong>Forensic Ledger</strong> treats internal impulses with the
+same rigor and traceability as those arriving from the environment.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
-<li>Dart code inside the same process — the demo's scripted agent uses
-exactly this client, not a mock transport.</li>
+<li><strong>Scripted Agents</strong>: The primary way to drive a membrane from within
+the same Dart process (e.g., in-process AI agents or CLI tools).</li>
+<li><strong>Integration Testing</strong>: Use this to verify <strong>Integrity Gates</strong> and
+<strong>Somatic State Transitions</strong> without spinning up network sockets.</li>
+<li><strong>Orchestration</strong>: Ideal for <code>cell_flow</code> components that need to
+act as trusted participants in the somatic graph.</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
-<p><a href="../cell_skin/SkinClient/apply.html">SkinClient.apply</a> emits a <a href="../cell_skin/WireRequest-class.html">WireRequest</a> through
-<a href="../cell_skin/SkinMembrane/request.html">SkinMembrane.request</a> and returns the outcome (<code>null</code> means the
-response was <code>pendingReceipt</code>); <a href="../cell_skin/SkinClient/observe.html">SkinClient.observe</a> filters the
-membrane's stream down to <a href="../cell_skin/WireStateChange-class.html">WireStateChange</a>.</p>
-<h3 id="non-obvious">Non-obvious</h3>
-<p>The client never fabricates receipts: a <code>null</code> outcome means the
-authoritative receipt arrives with the ledger entry.</p>
-<h3 id="see-also">See also</h3>
-<p><a href="../cell_skin/RemoteCellClient-class.html">RemoteCellClient</a> (the cell-shaped facade), <a href="../cell_skin_rest/RestAdapter-class.html">RestAdapter</a> (the
-socket transport).</p>
+<ol>
+<li><strong>Signal Ingress</strong>: <a href="../cell_skin/SkinClient/apply.html">apply</a> wraps local arguments into a <a href="../cell_skin/WireRequest-class.html">WireRequest</a>.</li>
+<li><strong>Membrane Crossing</strong>: The signal is injected into <a href="../cell_skin/SkinMembrane/request.html">SkinMembrane.request</a>.</li>
+<li><strong>Forensic Resolution</strong>: The client awaits a <strong>Forensic Receipt</strong>.
+Successful transitions return an <code>ApplyOutcome</code>; rejections at the
+membrane throw a <a href="../cell_skin/SkinError-class.html">SkinError</a>.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Authoritative Outcome</strong>: The client never fabricates receipts. If
+the membrane returns a <code>pendingReceipt</code>, this client returns <code>null</code>,
+indicating that the <strong>Forensic Ledger Row</strong> will arrive later via
+the <a href="../cell_skin/SkinClient/ledger.html">ledger</a> stream.</li>
+<li><strong>Integrity Enforcement</strong>: Even though the caller is in-process, the
+<a href="../cell_skin/SkinRouter-class.html">SkinRouter</a> still enforces cursor checks and schema validation,
+preventing "Forensic Ambiguity."</li>
+</ul>
 <h3 id="ai-agent-guide">AI Agent Guide</h3>
 <p><strong>Layer:</strong> Skin — the trusted in-process caller, not a transport.
 <strong>When to use:</strong> a script, test, or agent drives the membrane from Dart; the demo pattern is this client, never a fake.

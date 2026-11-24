@@ -55,7 +55,47 @@
 
     
 <section class="desc markdown">
-  <p>Accumulates observed argument shapes per named argument into schemas.</p>
+  <p>The collector responsible for learning the system's DNA by watching signals.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/SchemaObserver-class.html">SchemaObserver</a> is the
+<strong>Somatic Watcher</strong>. It sits at the <strong>Skin Membrane</strong> and records every
+<strong>Nervous Signal</strong> (impulse) that successfully triggers a
+<strong>Somatic State Transition</strong>, using them to build a cumulative
+<strong>Somatic Blueprint</strong> of what the system accepts.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Automatic Discovery</strong>: Use this to dynamically populate the
+<strong>Somatic Index</strong> (manifest) without requiring manual schema definitions.</li>
+<li><strong>AI Adaptation</strong>: Allows the system to "learn" the shape of valid
+tool calls by observing real-world usage in the <strong>Forensic Ledger</strong>.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Capture</strong>: Every time a cell's <code>apply</code> logic is triggered,
+the observer is notified of the <strong>Somatic Nutrients</strong> (arguments).</li>
+<li><strong>Trait Induction</strong>: It uses <a href="../cell_skin/schemaForValue.html">schemaForValue</a> to derive the
+immediate DNA shape of those nutrients.</li>
+<li><strong>DNA Synthesis</strong>: It uses <a href="../cell_skin/mergeSchemas.html">mergeSchemas</a> to widen its internal
+blueprints, ensuring the resulting schema represents the union of all
+valid signals seen so far.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Cumulative Memory</strong>: The observer never "forgets" a valid shape.
+Once a trait is induced and merged, the schema remains wide enough
+to accept that shape forever, preventing "Forensic Holes" where
+previously valid signals suddenly fail.</li>
+<li><strong>Stability</strong>: The resulting <a href="../cell_skin/SchemaObserver/namedSchemas.html">namedSchemas</a> and <a href="../cell_skin/SchemaObserver/positionalSchemas.html">positionalSchemas</a>
+are sorted and unmodifiable, ensuring the <strong>Skin Form</strong> of the manifest
+remains deterministic for external AI agents.</li>
+<li><strong>Thread Safety</strong>: Designed to be used within a single somatic
+governance loop; external access is provided via read-only views.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/JsonSchema-class.html">JsonSchema</a>: The blueprint being accumulated.</li>
+<li><a href="../cell_skin/schemaForValue.html">schemaForValue</a>: The induction logic used for each observation.</li>
+<li><a href="../cell_skin/mergeSchemas.html">mergeSchemas</a>: The synthesis logic used to grow the DNA.</li>
+</ul>
 </section>
 
 
@@ -97,7 +137,7 @@
 
 </dt>
 <dd>
-  The merged schema for observed named arguments.
+  The cumulative <strong>Somatic Blueprint</strong> for all observed named signals.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -109,7 +149,7 @@
 
 </dt>
 <dd>
-  The merged schema for observed positional arguments, in order.
+  The cumulative <strong>Somatic Blueprint</strong> for observed positional sequences.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -156,7 +196,7 @@
 
 </dt>
 <dd>
-  Records one observed call.
+  Records the traits of a single <strong>Command Journey</strong> to update the DNA.
   
 
 </dd>

@@ -62,8 +62,42 @@
       </section>
       
 <section class="desc markdown">
-  <p>The client-chosen correlation id, echoed back verbatim — matching
-is <strong>never</strong> performed on this field.</p>
+  <p>An optional ID provided by the caller to identify the response on their end.</p>
+<p>In the framework's biological metaphor, this is an <strong>External Echo</strong>.
+It acts as a private label placed on the <strong>Nervous Signal</strong> by the
+caller. The system carries this label throughout the <strong>Command Journey</strong>
+and returns it untouched.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Client-Side Tracking</strong>: Use this if your client application needs
+to match an incoming response to a specific local action or UI update.</li>
+<li><strong>Async Coordination</strong>: Helpful when a client sends many requests
+simultaneously and needs to know which one just finished.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Signal Tagging</strong>: The client provides this string when the
+<a href="../../cell_skin/WireRequest-class.html">WireRequest</a> is sent.</li>
+<li><strong>Passthrough</strong>: The system ignores this field for its internal
+logic but keeps it attached to the signal.</li>
+<li><strong>Reflection</strong>: When the final <strong>Forensic Receipt</strong> (<a href="../../cell_skin/WireResponse-class.html">WireResponse</a>)
+is generated, this ID is copied back into the response envelope.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>No Authority</strong>: The system <strong>never</strong> uses this field for internal
+matching, security, or state logic. The <a href="../../cell_skin/WireRequest/correlationId.html">correlationId</a> remains
+the only "Source of Truth" for the <strong>Forensic Ledger</strong>.</li>
+<li><strong>Optional</strong>: If this field is left empty, the system will still
+process the request normally.</li>
+<li><strong>Verbatim Echo</strong>: The framework returns this string exactly as it
+was received, even if the request is rejected by an <strong>Integrity Gate</strong>.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../../cell_skin/WireRequest/correlationId.html">WireRequest.correlationId</a>: The authoritative ID used by the server.</li>
+<li><a href="../../cell_skin/WireResponse/clientCorrelationId.html">WireResponse.clientCorrelationId</a>: Where this ID appears in the result.</li>
+</ul>
 </section>
 
       
