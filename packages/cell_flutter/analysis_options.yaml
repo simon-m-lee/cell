@@ -4,6 +4,9 @@ analyzer:
     # The Kiosk Twins live demo mirrors packages/cell_memory_live_demo;
     # it is its own Flutter app with its own pubspec and dependency set.
     - example/kiosk_twins/**
+    - example/migration/bloc_reference/**
+    - example/migration/cell_reference/**
+    - example/migration/riverpod_reference/**
   language:
     strict-casts: true
     strict-inference: true
