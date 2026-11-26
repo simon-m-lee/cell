@@ -12,8 +12,8 @@ import 'support/harness.dart';
 
 void main() {
   group('deputy', () {
-    test('the deputy is a Cell, not a MemoryCell: durability operations '
-        'do not exist on it', () async {
+    test('the deputy is a MemoryCell sharing the principal runtime; the '
+        'read-only rule rejects every durability tear-off', () async {
       final memory = await MemoryCell.open<int>(
         id: 'counter',
         store: InMemoryMemoryStore(),
@@ -22,8 +22,15 @@ void main() {
       );
       final deputy = await memory.deputy(testRule: TestCell.readOnly);
       expect(deputy, isA<Cell>());
-      expect(deputy, isNot(isA<MemoryCell<int>>()));
-      // load/unload/remove are principal-only by construction.
+      expect(deputy, isA<MemoryCell<int>>());
+      expect(identical(deputy.runtimeForTest, memory.runtimeForTest), isTrue);
+      // Durability operations exist, but TestCell.readOnly rejects every
+      // function action, so the tear-off never reaches the instruction.
+      await expectLater(
+        deputy.save(),
+        throwsA(isA<StateError>()),
+        reason: 'save rejected by the read-only rule',
+      );
     });
 
     test('a read-only deputy rejects apply; the principal still accepts',

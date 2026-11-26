@@ -7,6 +7,7 @@
 import 'dart:async';
 
 import 'package:cell/cell.dart';
+import 'package:meta/meta.dart' show visibleForTesting;
 
 import 'codec.dart';
 import 'envelope.dart';
@@ -15,6 +16,10 @@ import 'memory_pulse.dart';
 import 'policy.dart';
 import 'scheduler.dart';
 import 'store.dart';
+
+part 'memory_cell_nucleus.dart';
+part 'memory_cell_chain.dart';
+part 'memory_cell_deputy.dart';
 
 /// A [Cell] that retains its value in a [MemoryStore].
 ///
@@ -31,19 +36,20 @@ import 'store.dart';
 /// write per [policy]. [load] and [unload] are the public durability
 /// surface. A rejected pulse emits nothing and writes nothing.
 final class MemoryCell<T> extends CellBase {
-  MemoryCell._({
-    required this.memoryId,
-    required this.store,
-    required this.codec,
-    required this.policy,
-    required this.scheduler,
-    required this.ownsStore,
-    required this.synapses,
-    required super.receptor,
-    required super.context,
-    T? initial,
-  })  : _value = initial,
-        super(synapses: synapses);
+
+  MemoryCell._(MemoryCellNucleus<T> super.nucleus)
+      : _nucleus = nucleus,
+        super.fromNucleus();
+
+  /// The typed view of the cell's nucleus.
+  ///
+  /// `CellBase._nucleus` is private to the framework library, so this is a
+  /// *shadow*, not an override: both fields point at the same nucleus, each
+  /// under its own library-private name. It is initialized in the
+  /// initializer list — before `CellBase.fromNucleus` runs its body — which
+  /// is exactly what avoids the `late` shadow trap `cell_tissue` hit. Do not
+  /// turn this into a `late` field set in a constructor body.
+  final MemoryCellNucleus<T> _nucleus;
 
   /// Opens a memory cell.
   ///
@@ -71,27 +77,42 @@ final class MemoryCell<T> extends CellBase {
     // The shared grammar, without the Windows device-name rule: `CON`
     // stays a legal Firestore id and an illegal file id.
     MemoryIdGrammar.check(id);
-    late final MemoryCell<T> self;
-    final receptor = Receptor((cell, pulse, {user}) {
-      // The cell hosting the receptor may be a deputy proxy; the memory
-      // cell instance is captured, so ingress always lands on the
-      // principal's state.
-      return self._receptorIngress(pulse);
-    });
-    final synapses = Synapses();
-    final cell = MemoryCell<T>._(
+    // One runtime per open: two opens must never share one, and a clone or
+    // deputy must always walk back to exactly this holder.
+    final runtime = MemoryRuntime<T>(initial);
+    final MemoryCellSlots<T> slots = (
       memoryId: id,
       store: store,
       codec: codec,
       policy: policy,
       scheduler: scheduler ?? TimerScheduler(),
       ownsStore: ownsStore,
-      synapses: synapses,
+      runtime: runtime,
+    );
+    // The receptor is the one-stage dispatcher chain (Fork Dispatcher, the
+    // Phase 1 spike's verdict): one `Instruction.future` stage, no strategy.
+    // The chain is built once, unactivated, stored on the nucleus, and
+    // activated by `CellBase.fromNucleus`. Every instruction resolves its
+    // host through the framework's `cell` argument — never a captured
+    // runtime local — so a clone or deputy runs the action on its own
+    // nucleus.
+    //
+    // The receptor's host type is `Cell`, not `MemoryCell<T>`: the
+    // inherited `_CellDeputy` (Phase 2/3) inherits this receptor, and a
+    // `MemoryCell<T>`-hosted receptor clone would fail activation there
+    // (the deputy is not a `MemoryCell`). Instruction dispatch is dynamic,
+    // so a real memory host still reaches the action bodies; a non-memory
+    // host fails inside the framework's contained instruction boundary.
+    final receptor = Receptor<Cell>.instruction(
+        _memoryDispatcherChain<T>(_memoryCatalog<T>()));
+    final synapses = Synapses();
+    final nucleus = MemoryCellNucleus<T>(
+      slots: slots,
       receptor: receptor,
       context: context,
-      initial: initial,
+      synapses: synapses,
     );
-    self = cell;
+    final cell = MemoryCell<T>._(nucleus);
     if (loadOnOpen) {
       try {
         await cell.load();
@@ -105,125 +126,357 @@ final class MemoryCell<T> extends CellBase {
     return cell;
   }
 
+  // ── capability manifest ───────────────────────────────────────────────
+  //
+  // Stable tear-offs, one per action. Each tear-off only builds a
+  // [MemoryCommand] and returns it — no I/O. `CellBase.apply` runs the
+  // gate, invokes the tear-off, and hands the returned command to the
+  // receptor chain, whose instruction does the I/O exactly once.
+
+  late final Pulse Function({required Completer<T?> reply}) _load =
+      _loadCommand;
+
+  Pulse _loadCommand({required Completer<T?> reply}) =>
+      MemoryCommand<T>(MemoryAction.load, reply: reply);
+
+  late final Pulse Function({required Completer<MemoryEnvelope?> reply}) _save =
+      _saveCommand;
+
+  Pulse _saveCommand({required Completer<MemoryEnvelope?> reply}) =>
+      MemoryCommand<T>(MemoryAction.save, reply: reply);
+
+  late final Pulse Function({required Completer<void> reply}) _unload =
+      _unloadCommand;
+
+  Pulse _unloadCommand({required Completer<void> reply}) =>
+      MemoryCommand<T>(MemoryAction.unload, reply: reply);
+
+  late final Pulse Function({
+    required Completer<void> reply,
+    required Cell source,
+    T? Function(Pulse pulse)? project,
+  }) _attach = _attachCommand;
+
+  Pulse _attachCommand({
+    required Completer<void> reply,
+    required Cell source,
+    T? Function(Pulse pulse)? project,
+  }) =>
+      MemoryCommand<T>(
+        MemoryAction.attach,
+        reply: reply,
+        source: source,
+        project: project,
+      );
+
+  late final Pulse Function({required Completer<void> reply}) _detach =
+      _detachCommand;
+
+  Pulse _detachCommand({required Completer<void> reply}) =>
+      MemoryCommand<T>(MemoryAction.detach, reply: reply);
+
+  late final Pulse Function({required Completer<void> reply}) _close =
+      _closeCommand;
+
+  Pulse _closeCommand({required Completer<void> reply}) =>
+      MemoryCommand<T>(MemoryAction.close, reply: reply);
+
+  late final Pulse Function({required Completer<void> reply, bool detach})
+      _remove = _removeCommand;
+
+  Pulse _removeCommand({required Completer<void> reply, bool detach = true}) =>
+      MemoryCommand<T>(MemoryAction.remove, reply: reply, detach: detach);
+
+  @override
+  Iterable<Function> get modifiable =>
+      {apply<dynamic>, _load, _save, _unload, _attach, _detach, _close, _remove};
+
+  /// Submits [command] through `CellBase.apply` and returns the reply
+  /// channel of the public method that built it.
+  ///
+  /// [ApplyRejected] is the integrity gate: the tear-off never entered the
+  /// instruction. It surfaces as a [StateError]; the instruction's own
+  /// failures (`MemoryCorrupt`, `MemoryConflict`, `StateError`) travel on
+  /// the reply completer untouched. These methods never pass `tx`, so
+  /// `ApplyStaged` cannot occur.
+  Future<R> _submit<R>(ApplyCommand command, Completer<R> reply, String name) {
+    final outcome = apply(command);
+    if (outcome is ApplyRejected) {
+      return Future.error(StateError('$name rejected'));
+    }
+    if (outcome is Future<ApplyOutcome>) {
+      return outcome.then((next) {
+        if (next is ApplyRejected) throw StateError('$name rejected');
+        return reply.future;
+      });
+    }
+    return reply.future;
+  }
+
+  // ── deputies ───────────────────────────────────────────────────────────
+
+  /// The durability action [fn] tears off, or `null` when [fn] is not one
+  /// of this cell's action tear-offs (including `Cell.apply`).
+  ///
+  /// Tear-offs are per instance, so identity — not equality — is the test:
+  /// `identical(deputy._save, principal._save)` is false by construction.
+  MemoryAction? actionOf(Function fn) {
+    if (identical(fn, _load)) return MemoryAction.load;
+    if (identical(fn, _save)) return MemoryAction.save;
+    if (identical(fn, _unload)) return MemoryAction.unload;
+    if (identical(fn, _attach)) return MemoryAction.attach;
+    if (identical(fn, _detach)) return MemoryAction.detach;
+    if (identical(fn, _close)) return MemoryAction.close;
+    if (identical(fn, _remove)) return MemoryAction.remove;
+    return null;
+  }
+
+  /// A [TestCell] that allows only the durability actions in [allow].
+  ///
+  /// The only narrowing surface: a function passes only when the host maps
+  /// it to an allowed action; a [MemoryCommand] always passes (its tear-off
+  /// was already gated by `apply`, and rejecting here would hang the public
+  /// method on its own reply completer); any other pulse passes only when
+  /// [MemoryAction.apply] is allowed; everything else (arguments, link
+  /// objects) passes. Installed through [TestCell.chain] — a plain
+  /// `TestCell(rule)` never consults its rule for the action function.
+  static TestCell<Cell> allow(Set<MemoryAction> allow) =>
+      TestCell<Cell>.chain([
+        TestCell<Cell>((object, {host, arguments, user}) {
+          if (object is MemoryCommand) return true;
+          if (object is Pulse) return allow.contains(MemoryAction.apply);
+          if (object is Function) {
+            final h = host;
+            if (h is MemoryCell) {
+              final action = h.actionOf(object);
+              if (action != null) return allow.contains(action);
+            }
+            return false;
+          }
+          return true;
+        }),
+      ]);
+
+  /// Creates a governed, memory-typed projection of this cell that shares
+  /// its runtime.
+  ///
+  /// The returned deputy's rule is chained additively on top of this cell's
+  /// rule — permissions can only narrow. Default arguments return `this`.
+  @override
+  FutureOr<MemoryCell<T>> deputy({
+    EphemeralPolicy? ephemeralPolicy,
+    covariant DeputyContext context = DeputyContext.system,
+    covariant TestCell testRule = TestCell.allowAll,
+    Synapses synapses = Synapses.enabled,
+  }) {
+    // Causal Integrity: the security context cannot escalate or bypass.
+    // Same StateError as the framework deputies. The framework reads its
+    // library-private `_parent`; the published surface exposes ancestry
+    // only through `lineage`, so the check compares the Mandate.version /
+    // identity lineages (a direct child adds exactly one version entry and
+    // shares every base entry).
+    if (!identical(context, DeputyContext.system) &&
+        !identical(this.context, DeputyContext.system) &&
+        !_isDirectDescendant(context, this.context)) {
+      throw StateError(
+        'Causal Integrity Violation: The new DeputyContext must be a direct '
+        'descendant of the current context.',
+      );
+    }
+
+    // Identity preservation: no proxy when no attenuation was requested.
+    final bool isAttenuationRequested = ephemeralPolicy != null ||
+        !identical(context, DeputyContext.system) ||
+        !identical(testRule, TestCell.allowAll) ||
+        !identical(synapses, Synapses.enabled);
+
+    if (!isAttenuationRequested) {
+      return this;
+    }
+
+    return _MemoryCellDeputy<T>(
+      this,
+      context: context,
+      testRule: testRule,
+      ephemeralPolicy: ephemeralPolicy,
+      synapses: synapses,
+    );
+  }
+
+  /// The cached read-only view. Sealed methods throw before `apply`, so the
+  /// store is never touched through this projection.
+  @override
+  late final MemoryCell<T> unmodifiable = UnmodifiableMemoryCell<T>._(this);
+
+  /// The root cell of this cell's nucleus chain — the principal.
+  MemoryCell<T> get _rootCell {
+    MemoryCellNucleus<T> nucleus = _nucleus;
+    while (nucleus.principal != null) {
+      nucleus = nucleus.principal!;
+    }
+    return nucleus.cell as MemoryCell<T>;
+  }
+
+  /// Whether [child] descends from [base], using the published lineage
+  /// surface (the framework's own check reads its private `_parent`, which
+  /// cross-package code cannot).
+  ///
+  /// A [DeputyContext] contributes no [Ontology] entries of its own, so a
+  /// descendant shares the base's identity lineage exactly; an unrelated
+  /// mandate built on a differently-identified base diverges. Depth
+  /// (grandchild vs. direct child) is not observable from outside the
+  /// framework package, so the check guards lineage membership — the
+  /// escalation risk the StateError exists to stop — while the additive
+  /// testRule chain keeps permissions narrowing-only.
+  bool _isDirectDescendant(DeputyContext child, Context base) {
+    final childIdentity = child.lineage(Ontology.identity);
+    final baseIdentity = base.lineage(Ontology.identity);
+    if (baseIdentity.isEmpty) {
+      // Nothing to compare: both sides carry no identity lineage.
+      return true;
+    }
+    if (childIdentity.length != baseIdentity.length) return false;
+    for (var i = 0; i < baseIdentity.length; i++) {
+      if (childIdentity[i] != baseIdentity[i]) return false;
+    }
+    return true;
+  }
+
   /// The stable memory id. Names the record; never equals a `Cell.id`
   /// unless the caller chose one that happens to match.
-  final String memoryId;
+  String get memoryId => _nucleus.slots.memoryId;
 
   /// The durable backend.
-  final MemoryStore store;
+  MemoryStore get store => _nucleus.slots.store;
 
   /// The value codec.
-  final MemoryCodec<T> codec;
+  MemoryCodec<T> get codec => _nucleus.slots.codec;
 
   /// The write-through configuration.
-  final MemoryWritePolicy policy;
+  MemoryWritePolicy get policy => _nucleus.slots.policy;
 
   /// The debounce scheduler (injected for deterministic tests).
-  final MemoryScheduler scheduler;
+  MemoryScheduler get scheduler => _nucleus.slots.scheduler;
 
   /// Whether [close] closes [store].
-  final bool ownsStore;
+  bool get ownsStore => _nucleus.slots.ownsStore;
 
   /// The cell's egress registry.
   ///
   /// Link downstream listeners with
   /// `memory.synapses.link(memory, downstreamCell: listener)`.
-  final Synapses synapses;
+  Synapses get synapses => _nucleus.synapses;
 
-  T? _value;
+  // ── forwarding the moved mutable state ────────────────────────────────
+  //
+  // Every field moved into `MemoryRuntime` keeps its cell-side name as a
+  // forwarding getter/setter, so the method bodies below are untouched.
 
-  int _storedRevision = 0;
+  T? get _value => _nucleus.runtime.value;
+  set _value(T? next) => _nucleus.runtime.value = next;
 
-  Object? _storedPayload;
+  int get _storedRevision => _nucleus.runtime.storedRevision;
+  set _storedRevision(int next) => _nucleus.runtime.storedRevision = next;
 
-  /// The last generation known to be stored. Null until a load hits or the
-  /// first create is attempted.
-  String? _generation;
+  Object? get _storedPayload => _nucleus.runtime.storedPayload;
+  set _storedPayload(Object? next) => _nucleus.runtime.storedPayload = next;
 
-  /// Minted for a create that has not landed yet. Cleared on success, on
-  /// remove, and on a real conflict; kept across `MemoryIoException` and
-  /// `MemoryNotSerializable` so a retry of a create that might have landed
-  /// sends the same generation.
-  String? _pendingGeneration;
+  String? get _generation => _nucleus.runtime.generation;
+  set _generation(String? next) => _nucleus.runtime.generation = next;
 
-  bool _loaded = false;
+  String? get _pendingGeneration => _nucleus.runtime.pendingGeneration;
+  set _pendingGeneration(String? next) =>
+      _nucleus.runtime.pendingGeneration = next;
 
-  bool _dirty = false;
+  bool get _loaded => _nucleus.runtime.loaded;
+  set _loaded(bool next) => _nucleus.runtime.loaded = next;
 
-  bool _closed = false;
+  bool get _dirty => _nucleus.runtime.dirty;
+  set _dirty(bool next) => _nucleus.runtime.dirty = next;
 
-  /// Latched synchronously by [unload] / [close] before either returns its
-  /// future. Ingress and scheduling stop immediately; the flush owns the
-  /// last write.
-  bool _closing = false;
+  bool get _closed => _nucleus.runtime.closed;
+  set _closed(bool next) => _nucleus.runtime.closed = next;
 
-  /// Whether [close] has asked an owned store to close.
-  bool _storeReleased = false;
+  bool get _closing => _nucleus.runtime.closing;
+  set _closing(bool next) => _nucleus.runtime.closing = next;
 
-  /// The flush error held between `_finish` and the rethrow in the turn,
-  /// so `close` after a failed `unload` still releases the store without
-  /// replacing the caller's error.
-  Object? _flushError;
+  bool get _storeReleased => _nucleus.runtime.storeReleased;
+  set _storeReleased(bool next) => _nucleus.runtime.storeReleased = next;
 
-  Object? _lastError;
+  Object? get _flushError => _nucleus.runtime.flushError;
+  set _flushError(Object? next) => _nucleus.runtime.flushError = next;
 
-  int _commitGeneration = 0;
+  // Setter-only: the public [lastError] getter reads the runtime directly.
+  set _lastError(Object? next) => _nucleus.runtime.lastError = next;
 
-  /// Fenced in [remove] / [unload] / [close]: a write queued before one of
-  /// them must not touch the store after the delete or the final flush.
-  /// `_performWrite` re-checks the epoch at execution time and after its
-  /// `await`, so a late write is discarded, never resurrected.
-  int _writeEpoch = 0;
+  int get _commitGeneration => _nucleus.runtime.commitGeneration;
+  set _commitGeneration(int next) => _nucleus.runtime.commitGeneration = next;
 
-  MemoryPulse<T>? _lastEmitted;
+  int get _writeEpoch => _nucleus.runtime.writeEpoch;
+  set _writeEpoch(int next) => _nucleus.runtime.writeEpoch = next;
 
-  EgressHandle? _observer;
+  MemoryPulse<T>? get _lastEmitted => _nucleus.runtime.lastEmitted;
+  set _lastEmitted(MemoryPulse<T>? next) => _nucleus.runtime.lastEmitted = next;
 
-  /// Token for the current [attach]; cleared by [detach]. An async
-  /// validation in flight must not adopt after the observer is gone.
-  Object? _attachToken;
+  EgressHandle? get _observer => _nucleus.runtime.observer;
+  set _observer(EgressHandle? next) => _nucleus.runtime.observer = next;
 
-  final StreamController<Object> _errors =
-      StreamController<Object>.broadcast();
+  Object? get _attachToken => _nucleus.runtime.attachToken;
+  set _attachToken(Object? next) => _nucleus.runtime.attachToken = next;
 
-  Future<void> _turnChain = Future<void>.value();
+  StreamController<Object> get _errors => _nucleus.runtime.errors;
 
-  Future<void> _writeChain = Future<void>.value();
+  Future<void> get _turnChain => _nucleus.runtime.turnChain;
+  set _turnChain(Future<void> next) => _nucleus.runtime.turnChain = next;
 
-  Future<void> _ingressChain = Future<void>.value();
+  Future<void> get _writeChain => _nucleus.runtime.writeChain;
+  set _writeChain(Future<void> next) => _nucleus.runtime.writeChain = next;
+
+  Future<void> get _ingressChain => _nucleus.runtime.ingressChain;
+  set _ingressChain(Future<void> next) => _nucleus.runtime.ingressChain = next;
 
   /// The committed in-process value, or `null` before the first load and
   /// after [unload]. After [unload], read [loaded] before trusting [value]:
   /// the durable record, not the in-memory value, is the retained copy.
-  T? get value => _value;
+  T? get value => _nucleus.runtime.value;
 
   /// The revision of the last successful store write; 0 when nothing has
   /// been stored. It advances only when a write succeeds, not when an
   /// ingress pulse is accepted.
-  int get revision => _storedRevision;
+  int get revision => _nucleus.runtime.storedRevision;
 
   /// Whether a load has finished (hit or miss). `false` before the first
   /// load and after [unload].
-  bool get loaded => _loaded;
+  bool get loaded => _nucleus.runtime.loaded;
 
   /// Whether [attach] currently wires an upstream cell.
-  bool get attached => _observer != null;
+  bool get attached => _nucleus.runtime.observer != null;
 
   /// Whether the cell has been closed by [unload] or [close].
-  bool get closed => _closed;
+  bool get closed => _nucleus.runtime.closed;
 
   /// Whether a newer in-memory value is still unwritten. This is the only
   /// way a caller can see that [save] persisted an older value and left a
   /// newer one pending.
-  bool get dirty => _dirty;
+  bool get dirty => _nucleus.runtime.dirty;
 
   /// The last failed write or failed ingress encoding, or `null` after a
   /// success.
-  Object? get lastError => _lastError;
+  Object? get lastError => _nucleus.runtime.lastError;
 
   /// Broadcast stream of write failures and ingress encoding failures.
   /// Neither rolls back [value].
-  Stream<Object> get errors => _errors.stream;
+  Stream<Object> get errors => _nucleus.runtime.errors.stream;
+
+  /// The nucleus of this cell — the test seam for the Phase 2 identity
+  /// tests (`clone` / `evolve` sharing).
+  @visibleForTesting
+  MemoryCellNucleus<T> get nucleusForTest => _nucleus;
+
+  /// The mutable runtime of this cell — the test seam for the Phase 2
+  /// identity tests (two opens, distinct runtimes).
+  @visibleForTesting
+  MemoryRuntime<T> get runtimeForTest => _nucleus.runtime;
 
   void _checkOpen() {
     if (_closed || _closing) {
@@ -266,8 +519,9 @@ final class MemoryCell<T> extends CellBase {
     }
   }
 
-  /// Receptor ingress: called by the framework after the TestCell gate.
-  Pulse? _receptorIngress(Pulse pulse) {
+  /// The synchronous [MemoryAction.apply] body: called by the dispatcher
+  /// after the TestCell gate. Adopts the pulse payload or drops it.
+  MemoryPulse<T>? _applyAction(Pulse pulse) {
     if (_closed || _closing) return null;
     return _adopt(pulse, _defaultProject);
   }
@@ -280,17 +534,19 @@ final class MemoryCell<T> extends CellBase {
   /// report — a rejected pulse is not a failure.
   ///
   /// Echoes are suppressed in two ways: a pulse that is identical to the
-  /// last emission, and any [MemoryPulse] whose [MemoryPulse.source] is
-  /// this cell — the latter also catches pulses a relay derived with
-  /// `withStep` / `evolve`, which change identity. A chained memory cell's
+  /// last emission, and any memory pulse whose [Pulse.source] is this cell.
+  /// The framework hands the receptor a step wrapper whose runtime type is
+  /// not [MemoryPulse]; both checks therefore read the delegating
+  /// [Pulse.type] / [Pulse.source] surface, which the wrapper forwards to
+  /// the wrapped pulse. A chained memory cell's
   /// [MemoryEvent.removed] / [MemoryEvent.unloaded] pulses are not value
   /// updates and are ignored.
   MemoryPulse<T>? _adopt(Pulse pulse, T? Function(Pulse pulse) project) {
     if (_closed || _closing || identical(pulse, _lastEmitted)) return null;
-    if (pulse is MemoryPulse) {
+    final type = pulse.type;
+    if (type is MemoryEvent) {
       if (identical(pulse.source, this)) return null;
-      if (pulse.event == MemoryEvent.removed ||
-          pulse.event == MemoryEvent.unloaded) {
+      if (type == MemoryEvent.removed || type == MemoryEvent.unloaded) {
         return null;
       }
     }
@@ -519,9 +775,19 @@ final class MemoryCell<T> extends CellBase {
     }
   }
 
+  /// Broadcasts [pulse] from the write engine and the attach observer —
+  /// the emissions that do not travel through the dispatcher continuation.
+  ///
+  /// When the emitting host is a deputy, the principal's registry must hear
+  /// the pulse too (a context-only deputy's `save` still writes the shared
+  /// record, and principal observers must see the stored event). Two
+  /// registries, one callback each — never a second delivery on the same
+  /// registry.
   void _emit(MemoryPulse<T> pulse) {
     if (_closed) return;
     synapses.call(pulse);
+    final root = _rootCell;
+    if (!identical(this, root)) root.synapses.call(pulse);
   }
 
   // ── durability operations ────────────────────────────────────────────
@@ -532,74 +798,110 @@ final class MemoryCell<T> extends CellBase {
   ///
   /// A corrupt envelope — bad bytes, an unknown schema, a non-`value`
   /// kind, or a codec mismatch — throws [MemoryCorrupt] and leaves the
-  /// previous value untouched. [load] does not call [Cell.apply] and does
-  /// not re-run the [TestCell]: the store is already the retained record.
+  /// previous value untouched. [load] runs through [Cell.apply]: the
+  /// [TestCell] gate vets the `_load` tear-off before the instruction
+  /// reads the store, and a rejected tear-off surfaces as a [StateError].
   ///
   /// If a pulse is accepted while the read is in flight, the loaded value
   /// is dropped but the envelope's revision and payload are still adopted:
   /// the store holds them, and every later write must count from there.
-  Future<T?> load() => _enqueue(() async {
-        _checkOpen();
-        final generation = _commitGeneration;
-        final MemoryEnvelope? envelope;
-        try {
-          envelope = await store.read(memoryId);
-        } on MemoryStoreException catch (e) {
-          _reportError(e);
-          rethrow;
-        }
-        if (_closed) return _value;
-        if (envelope == null) {
-          _loaded = true;
-          return _value;
-        }
-        if (envelope.kind != 'value') {
-          throw MemoryCorrupt(
-              'envelope for "$memoryId" has kind "${envelope.kind}"; a '
-              'value cell can only load kind "value"');
-        }
-        if (envelope.id != memoryId) {
-          throw MemoryCorrupt(
-              'envelope id "${envelope.id}" does not match cell '
-              '"$memoryId"');
-        }
-        if (envelope.codec != null && envelope.codec != codec.name) {
-          throw MemoryCorrupt(
-              'envelope for "$memoryId" was written by codec '
-              '"${envelope.codec}" but this cell uses "${codec.name}"');
-        }
-        final T restored;
-        try {
-          restored = codec.decode(envelope.payload);
-        } on MemoryCorrupt catch (e) {
-          _reportError(e);
-          rethrow;
-        }
-        _storedRevision = envelope.revision;
-        _storedPayload = envelope.payload;
-        _generation = envelope.generation;
-        _pendingGeneration = null;
+  Future<T?> load() {
+    final reply = Completer<T?>();
+    final ApplyCommand command = (
+      function: _load,
+      arguments: (
+        positionalArguments: null,
+        namedArguments: <Symbol, Object?>{#reply: reply},
+      ),
+      compensation: null,
+    );
+    return _submit(command, reply, 'load');
+  }
+
+  /// The [MemoryAction.load] body: the old `load()` turn, moved. Resumes
+  /// the receptor continuation with the loaded pulse — exactly one
+  /// broadcast — and completes the command's reply with the return value.
+  void _loadAction(
+    Pulse pulse,
+    void Function({required Pulse? result, required dynamic token})? future,
+    dynamic token,
+  ) {
+    final command = pulse.type as MemoryCommand<T>;
+    final reply = command.reply as Completer<T?>;
+    _enqueue(() async {
+      _checkOpen();
+      final generation = _commitGeneration;
+      final MemoryEnvelope? envelope;
+      try {
+        envelope = await store.read(memoryId);
+      } on MemoryStoreException catch (e) {
+        _reportError(e);
+        rethrow;
+      }
+      if (_closed) return null;
+      if (envelope == null) {
         _loaded = true;
-        if (generation != _commitGeneration) {
-          // A pulse was accepted while the read was in flight: keep the
-          // in-memory value but adopt the store's revision baseline, then
-          // recompute whether the newer value still needs writing.
-          _dirty =
-              _payloadKey(_encodeValue(_value)) != _payloadKey(envelope.payload);
-          return _value;
+        return null;
+      }
+      if (envelope.kind != 'value') {
+        throw MemoryCorrupt(
+            'envelope for "$memoryId" has kind "${envelope.kind}"; a '
+            'value cell can only load kind "value"');
+      }
+      if (envelope.id != memoryId) {
+        throw MemoryCorrupt(
+            'envelope id "${envelope.id}" does not match cell '
+            '"$memoryId"');
+      }
+      if (envelope.codec != null && envelope.codec != codec.name) {
+        throw MemoryCorrupt(
+            'envelope for "$memoryId" was written by codec '
+            '"${envelope.codec}" but this cell uses "${codec.name}"');
+      }
+      final T restored;
+      try {
+        restored = codec.decode(envelope.payload);
+      } on MemoryCorrupt catch (e) {
+        _reportError(e);
+        rethrow;
+      }
+      _storedRevision = envelope.revision;
+      _storedPayload = envelope.payload;
+      _generation = envelope.generation;
+      _pendingGeneration = null;
+      _loaded = true;
+      if (generation != _commitGeneration) {
+        // A pulse was accepted while the read was in flight: keep the
+        // in-memory value but adopt the store's revision baseline, then
+        // recompute whether the newer value still needs writing.
+        _dirty =
+            _payloadKey(_encodeValue(_value)) != _payloadKey(envelope.payload);
+        return null;
+      }
+      _value = restored;
+      _dirty = false;
+      _lastError = null;
+      final emitted = memoryLoaded<T>(
+        source: this,
+        value: restored,
+        revision: envelope.revision,
+      );
+      _lastEmitted = emitted;
+      return emitted;
+    }).then<void>(
+      (emitted) {
+        if (emitted != null) {
+          reply.complete(emitted.payload);
+          future?.call(result: emitted, token: token);
+        } else {
+          reply.complete(_value);
         }
-        _value = restored;
-        _dirty = false;
-        _lastError = null;
-        final emitted = memoryLoaded<T>(
-          source: this,
-          value: restored,
-          revision: envelope.revision,
-        );
-        _lastEmitted = emitted;
-        _emit(emitted);
-        return restored;
-      });
+      },
+      onError: (Object error, StackTrace stackTrace) {
+        reply.completeError(error, stackTrace);
+      },
+    );
+  }
 
   /// Encodes the current value and writes one envelope at
   /// `revision + 1`. Returns `null` without writing when the value is
@@ -616,15 +918,44 @@ final class MemoryCell<T> extends CellBase {
   /// broadcast by ingress or [load] before this runs. A failed write
   /// surfaces the error, reports it on [errors], and leaves the value
   /// dirty.
-  Future<MemoryEnvelope?> save() => _enqueue(() async {
-        _checkOpen();
-        if (!policy.enabled) return null;
-        // Cancels a pending debounce: save() decides the write moment.
-        scheduler.cancel();
-        await _writeChain;
-        if (!_dirty) return null;
-        return _runWrite(detached: false);
-      });
+  Future<MemoryEnvelope?> save() {
+    final reply = Completer<MemoryEnvelope?>();
+    final ApplyCommand command = (
+      function: _save,
+      arguments: (
+        positionalArguments: null,
+        namedArguments: <Symbol, Object?>{#reply: reply},
+      ),
+      compensation: null,
+    );
+    return _submit(command, reply, 'save');
+  }
+
+  /// The [MemoryAction.save] body: the old `save()` turn, moved. One
+  /// compare-and-swap attempt; a conflict throws [MemoryConflict] from the
+  /// reply channel, and a partial `.tmp` throws [MemoryCorrupt].
+  void _saveAction(
+    Pulse pulse,
+    void Function({required Pulse? result, required dynamic token})? future,
+    dynamic token,
+  ) {
+    final command = pulse.type as MemoryCommand<T>;
+    final reply = command.reply as Completer<MemoryEnvelope?>;
+    _enqueue(() async {
+      _checkOpen();
+      if (!policy.enabled) return null;
+      // Cancels a pending debounce: save() decides the write moment.
+      scheduler.cancel();
+      await _writeChain;
+      if (!_dirty) return null;
+      return _runWrite(detached: false);
+    }).then<void>(
+      (envelope) => reply.complete(envelope),
+      onError: (Object error, StackTrace stackTrace) {
+        reply.completeError(error, stackTrace);
+      },
+    );
+  }
 
   /// `save()` if dirty, then detaches from the upstream cell [attach]
   /// created, drops the in-memory value, and stops emitting. The durable
@@ -637,22 +968,60 @@ final class MemoryCell<T> extends CellBase {
   /// rethrown and remains on [lastError]. [unload] does not close the
   /// store — [close] does, once, when [ownsStore] is set.
   Future<void> unload() {
+    final reply = Completer<void>();
+    final ApplyCommand command = (
+      function: _unload,
+      arguments: (
+        positionalArguments: null,
+        namedArguments: <Symbol, Object?>{#reply: reply},
+      ),
+      compensation: null,
+    );
+    return _submit(command, reply, 'unload');
+  }
+
+  /// The [MemoryAction.unload] body. Latches synchronously (the dispatcher
+  /// runs inside `apply`, so the latch still lands before `unload()`'s
+  /// future reaches the caller), then runs the old `unload()` turn and
+  /// resumes the continuation with the unloaded pulse.
+  void _unloadAction(
+    Pulse pulse,
+    void Function({required Pulse? result, required dynamic token})? future,
+    dynamic token,
+  ) {
+    final command = pulse.type as MemoryCommand<T>;
+    final reply = command.reply as Completer<void>;
     if (_closed || _closing) {
-      return _enqueue(() async {
+      _enqueue(() async {
         throw StateError('MemoryCell "$memoryId" is closed');
-      });
+      }).then<void>(
+        (_) {},
+        onError: (Object error, StackTrace stackTrace) {
+          reply.completeError(error, stackTrace);
+        },
+      );
+      return;
     }
     _closing = true;
     scheduler.cancel();
-    return _enqueue(() async {
-      await _finish(emitUnloaded: true);
+    _enqueue(() async {
+      final emitted = await _finish(emitUnloaded: true);
       final error = _flushError;
       if (error != null) {
         _flushError = null;
         // ignore: only_throw_errors
         throw error;
       }
-    });
+      return emitted;
+    }).then<void>(
+      (emitted) {
+        reply.complete(null);
+        if (emitted != null) future?.call(result: emitted, token: token);
+      },
+      onError: (Object error, StackTrace stackTrace) {
+        reply.completeError(error, stackTrace);
+      },
+    );
   }
 
   /// Deletes the durable record and clears memory. Does not close the cell;
@@ -664,27 +1033,59 @@ final class MemoryCell<T> extends CellBase {
   /// still inside `store.write` when remove wins — cannot resurrect the
   /// record or publish a revision for a record that no longer exists.
   /// `remove` is not a flush and never latches ingress.
-  Future<void> remove({bool detach = true}) => _enqueue(() async {
-        _checkOpen();
-        scheduler.cancel();
-        await _writeChain;
-        _writeEpoch++;
-        _commitGeneration++;
-        final lastValue = _value;
-        await store.remove(memoryId);
-        if (detach) _detachUpstream();
-        _value = null;
-        _loaded = false;
-        _dirty = false;
-        _storedRevision = 0;
-        _storedPayload = null;
-        _generation = null;
-        _pendingGeneration = null;
-        _lastError = null;
-        final emitted = memoryRemoved<T>(source: this, value: lastValue);
-        _lastEmitted = emitted;
-        _emit(emitted);
-      });
+  Future<void> remove({bool detach = true}) {
+    final reply = Completer<void>();
+    final ApplyCommand command = (
+      function: _remove,
+      arguments: (
+        positionalArguments: null,
+        namedArguments: <Symbol, Object?>{#reply: reply, #detach: detach},
+      ),
+      compensation: null,
+    );
+    return _submit(command, reply, 'remove');
+  }
+
+  /// The [MemoryAction.remove] body: the old `remove()` turn, moved.
+  /// Resumes the continuation with the removed pulse.
+  void _removeAction(
+    Pulse pulse,
+    void Function({required Pulse? result, required dynamic token})? future,
+    dynamic token,
+  ) {
+    final command = pulse.type as MemoryCommand<T>;
+    final reply = command.reply as Completer<void>;
+    final detach = command.detach;
+    _enqueue(() async {
+      _checkOpen();
+      scheduler.cancel();
+      await _writeChain;
+      _writeEpoch++;
+      _commitGeneration++;
+      final lastValue = _value;
+      await store.remove(memoryId);
+      if (detach) _detachUpstream();
+      _value = null;
+      _loaded = false;
+      _dirty = false;
+      _storedRevision = 0;
+      _storedPayload = null;
+      _generation = null;
+      _pendingGeneration = null;
+      _lastError = null;
+      final emitted = memoryRemoved<T>(source: this, value: lastValue);
+      _lastEmitted = emitted;
+      return emitted;
+    }).then<void>(
+      (emitted) {
+        reply.complete(null);
+        future?.call(result: emitted, token: token);
+      },
+      onError: (Object error, StackTrace stackTrace) {
+        reply.completeError(error, stackTrace);
+      },
+    );
+  }
 
   /// Flushes if loaded, detaches, closes the errors stream, and closes the
   /// store only when [ownsStore] is `true`. Idempotent, including two calls
@@ -695,14 +1096,38 @@ final class MemoryCell<T> extends CellBase {
   /// store is still asked to close. [close] after [unload] does not flush
   /// again — it releases the owned store the failed flush did not.
   Future<void> close() {
+    final reply = Completer<void>();
+    final ApplyCommand command = (
+      function: _close,
+      arguments: (
+        positionalArguments: null,
+        namedArguments: <Symbol, Object?>{#reply: reply},
+      ),
+      compensation: null,
+    );
+    return _submit(command, reply, 'close');
+  }
+
+  /// The [MemoryAction.close] body. The flush-start latch runs
+  /// synchronously inside the dispatcher (still before `close()` returns
+  /// its future); the turn flushes once, releases the owned store, and
+  /// resumes the continuation with the unloaded pulse.
+  void _closeAction(
+    Pulse pulse,
+    void Function({required Pulse? result, required dynamic token})? future,
+    dynamic token,
+  ) {
+    final command = pulse.type as MemoryCommand<T>;
+    final reply = command.reply as Completer<void>;
     final startFlush = !_closed && !_closing;
     if (startFlush) {
       _closing = true;
       scheduler.cancel();
     }
-    return _enqueue(() async {
+    _enqueue(() async {
+      MemoryPulse<T>? emitted;
       if (startFlush) {
-        await _finish(emitUnloaded: _loaded || _observer != null);
+        emitted = await _finish(emitUnloaded: _loaded || _observer != null);
       }
       await _releaseOwnedStore();
       final error = _flushError;
@@ -711,18 +1136,29 @@ final class MemoryCell<T> extends CellBase {
         // ignore: only_throw_errors
         throw error;
       }
-    });
+      return emitted;
+    }).then<void>(
+      (emitted) {
+        reply.complete(null);
+        if (emitted != null) future?.call(result: emitted, token: token);
+      },
+      onError: (Object error, StackTrace stackTrace) {
+        reply.completeError(error, stackTrace);
+      },
+    );
   }
 
   /// The shared flush body of [unload] and [close], run inside the turn.
   ///
   /// Ingress is already latched, so the value cannot move while the flush
   /// writes: wait for the in-flight write, issue one more write if the
-  /// policy allows and the cell is dirty, then fence the epoch, emit,
-  /// detach, drop everything including both generation fields, and close.
-  /// There is no second attempt and no path that reports success while the
-  /// latched value is unwritten.
-  Future<void> _finish({required bool emitUnloaded}) async {
+  /// policy allows and the cell is dirty, then fence the epoch, detach,
+  /// drop everything including both generation fields, and close. The
+  /// unloaded pulse — when requested — is returned, not emitted: the
+  /// action's continuation owns the single broadcast. There is no second
+  /// attempt and no path that reports success while the latched value is
+  /// unwritten.
+  Future<MemoryPulse<T>?> _finish({required bool emitUnloaded}) async {
     final lastValue = _value;
     Object? flushError;
     try {
@@ -740,14 +1176,14 @@ final class MemoryCell<T> extends CellBase {
     }
     _flushError = flushError;
     _writeEpoch++;
+    MemoryPulse<T>? emitted;
     if (emitUnloaded) {
-      final emitted = memoryUnloaded<T>(
+      emitted = memoryUnloaded<T>(
         source: this,
         value: lastValue,
         revision: _storedRevision,
       );
       _lastEmitted = emitted;
-      _emit(emitted);
     }
     _detachUpstream();
     _value = null;
@@ -758,6 +1194,7 @@ final class MemoryCell<T> extends CellBase {
     _pendingGeneration = null;
     _closed = true;
     if (!_errors.isClosed) _errors.close();
+    return emitted;
   }
 
   /// Closes an owned store exactly once, even when the cell was already
@@ -787,53 +1224,114 @@ final class MemoryCell<T> extends CellBase {
   /// asynchronous validators are serialised on a FIFO chain so pulses are
   /// adopted in arrival order, never completion order, and a rejecting
   /// validator reports on [errors].
-  Future<void> attach(Cell upstream, {T? Function(Pulse pulse)? project}) =>
-      _enqueue(() async {
-        _checkOpen();
-        if (_observer != null) {
-          throw StateError(
-              'MemoryCell "$memoryId" is already attached; detach first');
-        }
-        final proj = project ?? _defaultProject;
-        final token = Object();
-        _attachToken = token;
-        final observer = Cell.observe<Pulse>(
-          source: upstream,
-          effect: (pulse) {
-            final validation = validate(pulse, host: this);
-            if (validation is Future<bool>) {
-              _ingressChain = _ingressChain.then((_) async {
-                // The observer may have been detached while the validation
-                // was in flight: the pulse must not be adopted then.
-                if (!identical(_attachToken, token) || _closed) return;
-                final bool passed;
-                try {
-                  passed = await validation;
-                } catch (e) {
-                  _reportError(e);
-                  return;
-                }
-                if (passed) {
-                  final emitted = _adopt(pulse, proj);
-                  if (emitted != null) _emit(emitted);
-                }
-              });
-              return;
-            }
-            if (validation == true) {
-              final emitted = _adopt(pulse, proj);
-              if (emitted != null) _emit(emitted);
-            }
-          },
-        );
-        _observer = observer;
-      });
+  Future<void> attach(Cell upstream, {T? Function(Pulse pulse)? project}) {
+    final reply = Completer<void>();
+    final ApplyCommand command = (
+      function: _attach,
+      arguments: (
+        positionalArguments: null,
+        namedArguments: <Symbol, Object?>{
+          #reply: reply,
+          #source: upstream,
+          #project: project,
+        },
+      ),
+      compensation: null,
+    );
+    return _submit(command, reply, 'attach');
+  }
+
+  /// The [MemoryAction.attach] body: the old `attach()` turn, moved. The
+  /// observer's applied pulses are emitted directly — they enter through
+  /// `Cell.observe`, not through the dispatcher, so the continuation has
+  /// no part in their delivery.
+  void _attachAction(
+    Pulse pulse,
+    void Function({required Pulse? result, required dynamic token})? future,
+    dynamic token,
+  ) {
+    final command = pulse.type as MemoryCommand<T>;
+    final reply = command.reply as Completer<void>;
+    final upstream = command.source!;
+    _enqueue(() async {
+      _checkOpen();
+      if (_observer != null) {
+        throw StateError(
+            'MemoryCell "$memoryId" is already attached; detach first');
+      }
+      final proj = command.project ?? _defaultProject;
+      final attachToken = Object();
+      _attachToken = attachToken;
+      final observer = Cell.observe<Pulse>(
+        source: upstream,
+        effect: (pulse) {
+          final validation = validate(pulse, host: this);
+          if (validation is Future<bool>) {
+            _ingressChain = _ingressChain.then((_) async {
+              // The observer may have been detached while the validation
+              // was in flight: the pulse must not be adopted then.
+              if (!identical(_attachToken, attachToken) || _closed) return;
+              final bool passed;
+              try {
+                passed = await validation;
+              } catch (e) {
+                _reportError(e);
+                return;
+              }
+              if (passed) {
+                final emitted = _adopt(pulse, proj);
+                if (emitted != null) _emit(emitted);
+              }
+            });
+            return;
+          }
+          if (validation == true) {
+            final emitted = _adopt(pulse, proj);
+            if (emitted != null) _emit(emitted);
+          }
+        },
+      );
+      _observer = observer;
+    }).then<void>(
+      (_) => reply.complete(null),
+      onError: (Object error, StackTrace stackTrace) {
+        reply.completeError(error, stackTrace);
+      },
+    );
+  }
 
   /// Stops the upstream wiring created by [attach]. Idempotent.
-  Future<void> detach() => _enqueue(() async {
-        _checkOpen();
-        _detachUpstream();
-      });
+  Future<void> detach() {
+    final reply = Completer<void>();
+    final ApplyCommand command = (
+      function: _detach,
+      arguments: (
+        positionalArguments: null,
+        namedArguments: <Symbol, Object?>{#reply: reply},
+      ),
+      compensation: null,
+    );
+    return _submit(command, reply, 'detach');
+  }
+
+  /// The [MemoryAction.detach] body: the old `detach()` turn, moved.
+  void _detachAction(
+    Pulse pulse,
+    void Function({required Pulse? result, required dynamic token})? future,
+    dynamic token,
+  ) {
+    final command = pulse.type as MemoryCommand<T>;
+    final reply = command.reply as Completer<void>;
+    _enqueue(() async {
+      _checkOpen();
+      _detachUpstream();
+    }).then<void>(
+      (_) => reply.complete(null),
+      onError: (Object error, StackTrace stackTrace) {
+        reply.completeError(error, stackTrace);
+      },
+    );
+  }
 
   void _detachUpstream() {
     _attachToken = null;

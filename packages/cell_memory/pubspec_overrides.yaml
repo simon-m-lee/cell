@@ -1,6 +1,3 @@
-# Path overrides so the monorepo builds against the local framework
-# sources. `dart pub publish` does not pack this file, so the published
-# spec resolves `cell` from pub.dev.
-dependency_overrides:
-  cell:
-    path: ../cell
+# `dart pub publish` does not pack this file. The local workspace resolves
+# the published `cell` package from the pub cache instead of the monorepo
+# sources; `dependency_overrides` is intentionally empty.

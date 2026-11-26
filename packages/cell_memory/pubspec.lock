@@ -44,9 +44,10 @@ packages:
   cell:
     dependency: "direct main"
     description:
-      path: "../cell"
-      relative: true
-    source: path
+      name: cell
+      sha256: "7c6eaf837201db86b64715309d980a91170add27640aa14e895b122cc91aa148"
+      url: "https://pub.dev"
+    source: hosted
     version: "2.1.0"
   cli_config:
     dependency: transitive
@@ -185,7 +186,7 @@ packages:
     source: hosted
     version: "0.12.20"
   meta:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: meta
       sha256: "307249ce4ff29d58a18e97f6345f539382eb9c9c29ecda628900f31de0443dd9"
