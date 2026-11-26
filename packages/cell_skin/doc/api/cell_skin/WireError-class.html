@@ -97,6 +97,17 @@ internal exception details, preventing information leaks about the system "DNA."
 <li><a href="../cell_skin/WireResponse-class.html">WireResponse</a>: For rejections that happen <em>inside</em> the cell's logic.</li>
 <li><a href="../cell_skin/SkinRouter-class.html">SkinRouter</a>: The component usually responsible for generating these errors.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — a pre-apply rejection with a stable code.
+<strong>When to use:</strong> the frozen codes in
+<a href="../cell_skin/skinErrorStatus-constant.html">skinErrorStatus</a> — <code>unknown_tool</code>, <code>bad_arguments</code>,
+<code>cursor_required</code>, <code>conflict</code>, <code>idempotency_conflict</code>, <code>forbidden</code>,
+<code>queue_timeout</code>, <code>outcome_unknown</code>, <code>queue_full</code>, <code>verify_failed</code>,
+<code>host_not_allowed</code>, <code>origin_not_allowed</code>, <code>transport_error</code>.
+<strong>When NOT to use:</strong> domain rejections — those are <code>ApplyRejected</code>
+outcomes in a <a href="../cell_skin/WireResponse-class.html">WireResponse</a>.
+<strong>Live signature:</strong> <code>const WireError({required String correlationId, String? clientCorrelationId, required String code, required String message})</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable</p>
 </section>
 
 
@@ -331,7 +342,7 @@ internal exception details, preventing information leaks about the system "DNA."
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

@@ -83,11 +83,11 @@ final ledger = await graph.bindLedger(
   store: InMemoryLedgerStore(genesisHash: Ledger.genesisHashOf(graph.id)),
 );
 final bindings = SkinBindingTable()
-  ..register(SkinBinding(
+  ..register(SkinBinding.state(
     cellId: 'thermostat',
     functionName: 'setTarget',
     target: thermostatCell,
-    function: (int target) =&gt; thermostatHandle.update(target),
+    nextValue: (int target) =&gt; target,
   ));
 final membrane = await SkinMembrane.open(
   graph: graph,
@@ -167,6 +167,58 @@ framework provenance.
   The default translator that stamps signals with a descriptive identity.
 </dd>
 
+          <dt id="IdempotencyClaim">
+  <span class="name "><a href="../cell_skin/IdempotencyClaim-class.html">IdempotencyClaim</a></span> 
+
+</dt>
+<dd>
+  What a <code>claim</code> means for one key.
+</dd>
+
+          <dt id="IdempotencyOwned">
+  <span class="name "><a href="../cell_skin/IdempotencyOwned-class.html">IdempotencyOwned</a></span> 
+
+</dt>
+<dd>
+  This caller owns the attempt: nothing is stored for the key yet.
+</dd>
+
+          <dt id="IdempotencyRecord">
+  <span class="name "><a href="../cell_skin/IdempotencyRecord-class.html">IdempotencyRecord</a></span> 
+
+</dt>
+<dd>
+  One stored attempt.
+</dd>
+
+          <dt id="IdempotencyReplay">
+  <span class="name "><a href="../cell_skin/IdempotencyReplay-class.html">IdempotencyReplay</a></span> 
+
+</dt>
+<dd>
+  A completed attempt exists for the key. The caller must replay
+<a href="../cell_skin/IdempotencyReplay/record.html">record</a> (or refuse it, when the fingerprint differs) — never apply
+again.
+</dd>
+
+          <dt id="IdempotencyStore">
+  <span class="name "><a href="../cell_skin/IdempotencyStore-class.html">IdempotencyStore</a></span> 
+
+</dt>
+<dd>
+  The idempotency seam the router consults once per apply.
+</dd>
+
+          <dt id="IdempotencyWait">
+  <span class="name "><a href="../cell_skin/IdempotencyWait-class.html">IdempotencyWait</a></span> 
+
+</dt>
+<dd>
+  Another attempt with the same key is still in flight. Await <a href="../cell_skin/IdempotencyWait/settled.html">settled</a>
+and replay the record — or, when it completes with <code>null</code> (the owner
+aborted), claim once more and become the owner.
+</dd>
+
           <dt id="JsonSchema">
   <span class="name "><a href="../cell_skin/JsonSchema-class.html">JsonSchema</a></span> 
 
@@ -191,12 +243,28 @@ framework provenance.
   A transport-neutral definition of an observational somatic resource.
 </dd>
 
+          <dt id="McpToolCall">
+  <span class="name "><a href="../cell_skin/McpToolCall-class.html">McpToolCall</a></span> 
+
+</dt>
+<dd>
+  A tool call decoded from an MCP tool name.
+</dd>
+
           <dt id="McpToolSpec">
   <span class="name "><a href="../cell_skin/McpToolSpec-class.html">McpToolSpec</a></span> 
 
 </dt>
 <dd>
   A transport-neutral definition of an interactable somatic function, formatted for AI consumption.
+</dd>
+
+          <dt id="MemoryIdempotencyStore">
+  <span class="name "><a href="../cell_skin/MemoryIdempotencyStore-class.html">MemoryIdempotencyStore</a></span> 
+
+</dt>
+<dd>
+  The default in-memory store.
 </dd>
 
           <dt id="RemoteCellClient">
@@ -231,7 +299,7 @@ framework provenance.
 
 </dt>
 <dd>
-  An exception thrown when a <strong>Nervous Signal</strong> contains a malformed <strong>Skin Payload</strong>.
+  AI Agent Guide
 </dd>
 
           <dt id="SkinBindingTable">
@@ -243,12 +311,20 @@ framework provenance.
   The authoritative registry for every exposed function on the membrane surface.
 </dd>
 
+          <dt id="SkinCall">
+  <span class="name "><a href="../cell_skin/SkinCall-class.html">SkinCall</a></span> 
+
+</dt>
+<dd>
+  The ambient context of one membrane apply.
+</dd>
+
           <dt id="SkinCellDescriptor">
   <span class="name "><a href="../cell_skin/SkinCellDescriptor-class.html">SkinCellDescriptor</a></span> 
 
 </dt>
 <dd>
-  One exposed cell in the catalogue.
+  A description of a single cell's physical surface at the membrane.
 </dd>
 
           <dt id="SkinClient">
@@ -272,7 +348,7 @@ framework provenance.
 
 </dt>
 <dd>
-  One exposed function in the catalogue.
+  A technical description of a single interactable point on the membrane.
 </dd>
 
           <dt id="SkinManifest">
@@ -280,7 +356,7 @@ framework provenance.
 
 </dt>
 <dd>
-  The skin's discovery document: every exposed cell and function.
+  The system's discovery document, representing the complete external "DNA."
 </dd>
 
           <dt id="SkinMembrane">
@@ -297,6 +373,15 @@ framework provenance.
 </dt>
 <dd>
   The resolved identity DNA of an external actor at the membrane.
+</dd>
+
+          <dt id="SkinPulses">
+  <span class="name "><a href="../cell_skin/SkinPulses-class.html">SkinPulses</a></span> 
+
+</dt>
+<dd>
+  Builds a <code>Pulse</code> for a state change, stamped with the current
+<a href="../cell_skin/SkinCall-class.html">SkinCall</a>'s context when one is active.
 </dd>
 
           <dt id="SkinPulseTypes">
@@ -329,7 +414,8 @@ framework provenance.
 
 </dt>
 <dd>
-  A bridge that elevates every incoming signal to full system authority.
+  A bridge that resolves every incoming signal's <strong>base</strong> context to
+<code>Context.system</code>.
 </dd>
 
           <dt id="WireError">
@@ -441,10 +527,56 @@ needed to start a <code>Command Journey</code> inside the reactive graph.
       </dl>
     </section>
 
+    <section class="summary offset-anchor" id="enums">
+      <h2>Enums</h2>
+      <dl>
+          <dt id="SkinUnlisted">
+  <span class="name "><a href="../cell_skin/SkinUnlisted.html">SkinUnlisted</a></span> 
+
+</dt>
+<dd>
+  What <code>cellId → {functionName}</code> exposure policy does with a binding
+the map does not name.
+</dd>
+
+      </dl>
+    </section>
 
 
 
 
+    <section class="summary offset-anchor" id="constants">
+      <h2>Constants</h2>
+      <dl class="properties">
+          <dt id="skinErrorStatus" class="constant">
+    <span class="name "><a href="../cell_skin/skinErrorStatus-constant.html">skinErrorStatus</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Code → HTTP status. The contract twin of
+<code>test/goldens/wire/errors/</code>: the same codes, the same statuses. A
+row in this table means "no receipt exists" — these are pre-apply or
+adapter-local codes, never <code>WireResponse</code>s.
+  
+
+</dd>
+
+          <dt id="skinWireVersion" class="constant">
+    <span class="name "><a href="../cell_skin/skinWireVersion-constant.html">skinWireVersion</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  The wire version every encoded body carries.
+  
+
+</dd>
+
+      </dl>
+    </section>
 
 
     <section class="summary offset-anchor" id="functions">
@@ -504,6 +636,50 @@ use a forensic ledger.
 
 </dd>
 
+          <dt id="idempotencyFingerprint" class="callable">
+  <span class="name"><a href="../cell_skin/idempotencyFingerprint.html">idempotencyFingerprint</a></span><span class="signature">(<wbr><span class="parameter" id="idempotencyFingerprint-param-request"><span class="type-annotation"><a href="../cell_skin/WireRequest-class.html">WireRequest</a></span> <span class="parameter-name">request</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  The SHA-256 fingerprint of the exact request. Canonical JSON sorts
+keys, so argument order does not matter; <code>null</code> and an omitted
+argument map hash the same (both become <code>{}</code>), and <code>lastSeenSeq</code> is
+part of the object so a missing cursor and an explicit null match
+while a different cursor does not.
+  
+
+</dd>
+
+          <dt id="idempotencyStoreKey" class="callable">
+  <span class="name"><a href="../cell_skin/idempotencyStoreKey.html">idempotencyStoreKey</a></span><span class="signature">(<wbr>{<span class="parameter" id="idempotencyStoreKey-param-actor"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">actor</span>, </span><span class="parameter" id="idempotencyStoreKey-param-id"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">id</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  The store key for a caller id: actor-scoped, so <code>alice</code> and <code>bob</code> do
+not share keys even when they reuse the same client id.
+  
+
+</dd>
+
+          <dt id="mcpEscapedToolName" class="callable">
+  <span class="name"><a href="../cell_skin/mcpEscapedToolName.html">mcpEscapedToolName</a></span><span class="signature">(<wbr><span class="parameter" id="mcpEscapedToolName-param-cellId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">cellId</span>, </span><span class="parameter" id="mcpEscapedToolName-param-functionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">functionName</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  The escaped MCP wire name for a binding.
+  
+
+</dd>
+
           <dt id="mcpResourceSpecs" class="callable">
   <span class="name"><a href="../cell_skin/mcpResourceSpecs.html">mcpResourceSpecs</a></span><span class="signature">(<wbr><span class="parameter" id="mcpResourceSpecs-param-manifest"><span class="type-annotation"><a href="../cell_skin/SkinManifest-class.html">SkinManifest</a></span> <span class="parameter-name">manifest</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_skin/McpResourceSpec-class.html">McpResourceSpec</a></span>&gt;</span></span>
@@ -530,6 +706,19 @@ use a forensic ledger.
 
 </dd>
 
+          <dt id="mcpUnknownToolResult" class="callable">
+  <span class="name"><a href="../cell_skin/mcpUnknownToolResult.html">mcpUnknownToolResult</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  The tool result an SDK adapter returns for an unknown tool call.
+  
+
+</dd>
+
           <dt id="mergeSchemas" class="callable">
   <span class="name"><a href="../cell_skin/mergeSchemas.html">mergeSchemas</a></span><span class="signature">(<wbr><span class="parameter" id="mergeSchemas-param-a"><span class="type-annotation"><a href="../cell_skin/JsonSchema-class.html">JsonSchema</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="mergeSchemas-param-b"><span class="type-annotation"><a href="../cell_skin/JsonSchema-class.html">JsonSchema</a></span> <span class="parameter-name">b</span></span>)
     <span class="returntype parameter">&#8594; <a href="../cell_skin/JsonSchema-class.html">JsonSchema</a></span>
@@ -539,6 +728,74 @@ use a forensic ledger.
 </dt>
 <dd>
   Merges two somatic blueprints into a single, wider DNA structure.
+  
+
+</dd>
+
+          <dt id="nextCorrelationId" class="callable">
+  <span class="name"><a href="../cell_skin/nextCorrelationId.html">nextCorrelationId</a></span><span class="signature">(<wbr><span class="parameter" id="nextCorrelationId-param-prefix"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">prefix</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Mints the next correlation id with <code>prefix</code> (<code>skin</code>, <code>rest</code>,
+<code>remote</code>). Opaque to everyone except the membrane's waiter matching.
+  
+
+</dd>
+
+          <dt id="principalFrom" class="callable">
+  <span class="name"><a href="../cell_skin/principalFrom.html">principalFrom</a></span><span class="signature">(<wbr><span class="parameter" id="principalFrom-param-context"><span class="type-annotation">PulseContext</span> <span class="parameter-name">context</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Rebuilds a <a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a> from the snapshot stored in a
+<code>PulseContext</code>'s <code>others</code> (<code>skin.principal</code>). A missing or malformed
+snapshot yields <code>null</code> — it never throws.
+  
+
+</dd>
+
+          <dt id="requiredForMissingObject" class="callable">
+  <span class="name"><a href="../cell_skin/requiredForMissingObject.html">requiredForMissingObject</a></span><span class="signature">(<wbr><span class="parameter" id="requiredForMissingObject-param-schema"><span class="type-annotation"><a href="../cell_skin/JsonSchema-class.html">JsonSchema</a></span> <span class="parameter-name">schema</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  
+  
+
+</dd>
+
+          <dt id="requireSkinWireVersion" class="callable">
+  <span class="name"><a href="../cell_skin/requireSkinWireVersion.html">requireSkinWireVersion</a></span><span class="signature">(<wbr><span class="parameter" id="requireSkinWireVersion-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">json</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  The version gate for a decoded body.
+  
+
+</dd>
+
+          <dt id="resolveMcpToolCall" class="callable">
+  <span class="name"><a href="../cell_skin/resolveMcpToolCall.html">resolveMcpToolCall</a></span><span class="signature">(<wbr><span class="parameter" id="resolveMcpToolCall-param-manifest"><span class="type-annotation"><a href="../cell_skin/SkinManifest-class.html">SkinManifest</a></span> <span class="parameter-name">manifest</span>, </span><span class="parameter" id="resolveMcpToolCall-param-toolName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">toolName</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_skin/McpToolCall-class.html">McpToolCall</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Resolves an MCP tool name to a binding.
   
 
 </dd>
@@ -556,6 +813,63 @@ use a forensic ledger.
 takes a specific <strong>Somatic Nutrient</strong> (a value) that has successfully
 crossed an <strong>Integrity Gate</strong> and derives the <strong>Somatic Blueprint</strong> (DNA)
 required to represent it.
+  
+
+</dd>
+
+          <dt id="skinPrincipalSnapshot" class="callable">
+  <span class="name"><a href="../cell_skin/skinPrincipalSnapshot.html">skinPrincipalSnapshot</a></span><span class="signature">(<wbr><span class="parameter" id="skinPrincipalSnapshot-param-principal"><span class="type-annotation"><a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a></span> <span class="parameter-name">principal</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  The JSON snapshot of a <a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a> for a request context's
+<code>others</code> under <code>skin.principal</code>: id, roles, and the claims
+<code>jsonEncode</code> accepts. The bearer token is never part of it.
+  
+
+</dd>
+
+          <dt id="skinPulseContext" class="callable">
+  <span class="name"><a href="../cell_skin/skinPulseContext.html">skinPulseContext</a></span><span class="signature">(<wbr>{<span class="parameter" id="skinPulseContext-param-principal"><span>required</span> <span class="type-annotation"><a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a></span> <span class="parameter-name">principal</span>, </span><span class="parameter" id="skinPulseContext-param-baseContext"><span>required</span> <span class="type-annotation">Context</span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="skinPulseContext-param-reason"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">reason</span></span>})
+    <span class="returntype parameter">&#8594; PulseContext</span>
+  </span>
+  
+
+</dt>
+<dd>
+  The request <code>PulseContext</code> a transport builds for an authenticated
+caller.
+  
+
+</dd>
+
+          <dt id="validateBindingArguments" class="callable">
+  <span class="name"><a href="../cell_skin/validateBindingArguments.html">validateBindingArguments</a></span><span class="signature">(<wbr><span class="parameter" id="validateBindingArguments-param-binding"><span class="type-annotation"><a href="../cell_skin/SkinBinding-class.html">SkinBinding</a></span> <span class="parameter-name">binding</span>, </span><span class="parameter" id="validateBindingArguments-param-request"><span class="type-annotation"><a href="../cell_skin/WireRequest-class.html">WireRequest</a></span> <span class="parameter-name">request</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Validates a wire request's arguments against a binding's explicit
+<a href="../cell_skin/SkinBinding/argumentSchema.html">SkinBinding.argumentSchema</a>, or returns <code>null</code> when nothing is
+enforced.
+  
+
+</dd>
+
+          <dt id="validateJsonSchema" class="callable">
+  <span class="name"><a href="../cell_skin/validateJsonSchema.html">validateJsonSchema</a></span><span class="signature">(<wbr><span class="parameter" id="validateJsonSchema-param-schema"><span class="type-annotation"><a href="../cell_skin/JsonSchema-class.html">JsonSchema</a></span> <span class="parameter-name">schema</span>, </span><span class="parameter" id="validateJsonSchema-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">value</span>, {</span><span class="parameter" id="validateJsonSchema-param-path"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">path</span> = <span class="default-value">r&#39;$&#39;</span>, </span><span class="parameter" id="validateJsonSchema-param-depth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">depth</span> = <span class="default-value">0</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Validates <code>value</code> against an explicit <a href="../cell_skin/JsonSchema-class.html">JsonSchema</a> subset.
   
 
 </dd>
@@ -653,7 +967,7 @@ value JSON cannot encode (see <a href="../cell_skin/WireOutcome/resultOmitted.ht
 </dd>
 
           <dt id="wireStateChangeForEntry" class="callable">
-  <span class="name"><a href="../cell_skin/wireStateChangeForEntry.html">wireStateChangeForEntry</a></span><span class="signature">(<wbr><span class="parameter" id="wireStateChangeForEntry-param-entry"><span class="type-annotation">LedgerEntry</span> <span class="parameter-name">entry</span></span>)
+  <span class="name"><a href="../cell_skin/wireStateChangeForEntry.html">wireStateChangeForEntry</a></span><span class="signature">(<wbr><span class="parameter" id="wireStateChangeForEntry-param-entry"><span class="type-annotation">LedgerEntry</span> <span class="parameter-name">entry</span>, {</span><span class="parameter" id="wireStateChangeForEntry-param-functionLabel"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">functionLabel</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell_skin/WireStateChange-class.html">WireStateChange</a></span>
   </span>
   
@@ -665,9 +979,42 @@ value JSON cannot encode (see <a href="../cell_skin/WireOutcome/resultOmitted.ht
 
 </dd>
 
+          <dt id="withWire" class="callable">
+  <span class="name"><a href="../cell_skin/withWire.html">withWire</a></span><span class="signature">(<wbr><span class="parameter" id="withWire-param-fields"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">fields</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Stamps <code>fields</code> with <code>wire: "1"</code>. Encode-time only: no
+<a href="../cell_skin/WireMessage-class.html">WireMessage</a> subclass keeps the field, so no constructor changed.
+  
+
+</dd>
+
       </dl>
     </section>
 
+    <section class="summary offset-anchor" id="typedefs">
+      <h2>Typedefs</h2>
+      <dl>
+          
+  <dt id="SkinAuthorizer" class="callable">
+    <span class="name"><a href="../cell_skin/SkinAuthorizer.html">SkinAuthorizer</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-principal"><span class="type-annotation"><a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a></span> <span class="parameter-name">principal</span>, </span><span class="parameter" id="param-binding"><span class="type-annotation"><a href="../cell_skin/SkinBinding-class.html">SkinBinding</a></span> <span class="parameter-name">binding</span></span>)</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Decides whether <code>principal</code> may apply <code>binding</code>.
+    
+
+  </dd>
+
+      </dl>
+    </section>
 
     <section class="summary offset-anchor" id="exceptions">
       <h2>Exceptions / Errors</h2>
@@ -685,7 +1032,7 @@ value JSON cannot encode (see <a href="../cell_skin/WireOutcome/resultOmitted.ht
 
 </dt>
 <dd>
-  A wire-level failure surfaced to a skin client.
+  A failure encountered at the boundary when a nervous signal is rejected.
 </dd>
 
       </dl>
@@ -727,6 +1074,7 @@ value JSON cannot encode (see <a href="../cell_skin/WireOutcome/resultOmitted.ht
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
       <li class="section-subtitle">Features</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+        <li class="section-subitem"><a href="../cell_skin_io/">cell_skin_io</a></li>
         <li class="section-subitem"><a href="../cell_skin_rest/">cell_skin_rest</a></li>
       <li class="section-subtitle">Architecture</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
@@ -746,7 +1094,7 @@ value JSON cannot encode (see <a href="../cell_skin/WireOutcome/resultOmitted.ht
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

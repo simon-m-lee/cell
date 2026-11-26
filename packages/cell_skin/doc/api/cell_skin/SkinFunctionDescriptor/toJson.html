@@ -61,17 +61,21 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Converts the descriptor into its <strong>Skin Form</strong> (JSON) for transport.</p>
+</section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Map&lt;String, Object?&gt; toJson() =&gt; {
-      &#39;name&#39;: name,
-      if (description != null) &#39;description&#39;: description,
-      &#39;argumentSchema&#39;: argumentSchema.toJson(),
-      &#39;strictCursor&#39;: strictCursor,
-    };</code></pre>
+  &#39;name&#39;: name,
+  if (description != null) &#39;description&#39;: description,
+  &#39;argumentSchema&#39;: argumentSchema.toJson(),
+  &#39;strictCursor&#39;: strictCursor,
+  if (positionalNames != null) &#39;positionalNames&#39;: positionalNames,
+};</code></pre>
 </section>
 
 
@@ -99,7 +103,7 @@
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

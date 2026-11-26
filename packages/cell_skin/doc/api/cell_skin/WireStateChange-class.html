@@ -96,7 +96,8 @@ guaranteed to be written in the <strong>Forensic Ledger</strong>. If <code>true<
 <p><strong>Layer:</strong> Skin — this is an observation, not a command reply.
 <strong>When to use:</strong> streaming target state changes to observers (SSE, MCP notifications, Dart clients).
 <strong>When NOT to use:</strong> completing a request — it has no correlation id; replies are <a href="../cell_skin/WireResponse-class.html">WireResponse</a> or <a href="../cell_skin/WireError-class.html">WireError</a>.
-<strong>Live signature:</strong> <code>const WireStateChange({required String cellId, Object? payload, WireReceipt? receipt, bool pendingReceipt = false})</code> — pinned at <code>cell_skin: 0.1.0</code>
+<strong>Live signature:</strong> <code>const WireStateChange({required String cellId, Object? payload, WireReceipt? receipt, bool pendingReceipt = false})</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable
 <strong>Do NOT confuse with:</strong> <code>WireResponse.pendingReceipt</code> (an accepted pulse whose entry is pending), or <code>WireLedgerEntry</code> (the audit row itself).
 <strong>Guide:</strong> <code>ARCHITECTURE-Skin.md</code> §4 (receipt provenance).
 <strong>Example:</strong> <code>example/lib/widgets/home_pane.dart</code> (the thermostat readout observes this variant).
@@ -345,7 +346,7 @@ represents the observable traits of the cell immediately following a
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

@@ -63,13 +63,50 @@ the binding only routes the command.</li>
 </ul>
 <h2 id="basic-usage">Basic usage</h2>
 <pre class="language-dart"><code class="language-dart">final bindings = SkinBindingTable()
-  ..register(SkinBinding(
+  ..register(SkinBinding.state(
     cellId: 'home.living.thermostat',
     functionName: 'setTarget',
     target: thermostat.cell,
-    function: (int target) =&gt; thermostat.update(target),
+    nextValue: (int target) =&gt; target,
   ));
 </code></pre>
+<h2 id="the-three-binding-kinds">The three binding kinds</h2>
+<table>
+<thead>
+<tr>
+<th align="left">Constructor</th>
+<th align="left">The user function returns</th>
+<th align="left">Ledger rows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><code>SkinBinding.state</code></td>
+<td align="left">the next value (<code>int</code>, <code>String</code>, …) — or a <code>Future</code> of it, or a <code>Pulse</code></td>
+<td align="left">One row. The binding wraps the value in a <code>Pulse</code> and routes it through the target receptor; the wire receipt id is the row's receipt id.</td>
+</tr>
+<tr>
+<td align="left"><code>SkinBinding.command</code></td>
+<td align="left">a JSON-safe result (<code>true</code>, a report)</td>
+<td align="left">Whatever the body applies itself (<code>Cell.txApply</code>, inner <code>apply</code>). The outer result is not a row; the response lists <code>ledgerSeqs</code>.</td>
+</tr>
+<tr>
+<td align="left"><code>SkinBinding(...)</code></td>
+<td align="left">whatever it returns</td>
+<td align="left">Unchanged. A ledgered raw binding should return a <code>Pulse</code>; a binding that still calls <code>update()</code> writes a synthetic <code>_emit</code> row whose receipt id does not match the response, and strict receipts (<code>SkinMembrane.open(strictReceipts: true)</code>, the default) reports that contract break as <code>transport_error</code>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>For a ledgered state change, use <code>SkinBinding.state</code>.</strong> The only write
+is the pulse <code>apply</code> routes through the target receptor — the response
+receipt and the ledger row share one id, and the wire receipt carries the
+row's <code>ledgerSeq</code>/<code>pulseDigest</code>. <code>update()</code> inside the function would
+write a second, synthetic receipt; do not call it there.</p>
+<p>A state binding with <strong>named</strong> wire arguments is refused with
+<code>bad_arguments</code> — there is no generic named wrapper (Dart has no
+variadic closures), and letting it through would silently drop the
+return-value wrapping. An empty <code>named: {}</code> is treated as absent.
+Positional wire calls are wrapped for up to 12 arguments.</p>
 <h2 id="target-identity">Target identity</h2>
 <p>At <code>SkinMembrane.open</code>, every binding's <code>target</code> must be <code>identical</code> to
 the graph's registered cell:</p>
@@ -80,12 +117,12 @@ the graph's registered cell:</p>
 // ✗ a different StateHandle's cell throws StateError at open()
 </code></pre>
 <h2 id="descriptions">Descriptions</h2>
-<pre class="language-dart"><code class="language-dart">SkinBinding(
+<pre class="language-dart"><code class="language-dart">SkinBinding.state(
   cellId: 'home.living.thermostat',
   functionName: 'setTarget',
   description: 'Sets the target temperature in degrees Celsius.',
   target: thermostat.cell,
-  function: (int target) =&gt; thermostat.update(target),
+  nextValue: (int target) =&gt; target,
 )
 </code></pre>
 <p>The manifest uses <code>function.description</code>, falling back to the cell's
@@ -93,33 +130,63 @@ description — so two tools on one cell stay distinguishable in
 <code>tools/list</code>.</p>
 <h2 id="argument-schemas">Argument schemas</h2>
 <p>An explicit hint wins; observation of the live cell value fills in the
-rest; the permissive <code>{}</code> schema is the last resort:</p>
-<pre class="language-dart"><code class="language-dart">SkinBinding(
+rest; the permissive <code>{}</code> schema is the last resort. An <strong>explicit</strong>
+schema is enforced before <code>apply</code>: <code>required</code>, <code>enum</code>,
+<code>additionalProperties</code> (a schema with <code>properties</code> is closed by default
+— <code>additionalProperties: true</code> opens it), nested objects, <code>items</code>, and
+typed <code>null</code> (a typed property never accepts <code>null</code>). Observed schemas
+are hints and are never enforced.</p>
+<p>The <code>"0"</code> index style needs no zipper:</p>
+<pre class="language-dart"><code class="language-dart">SkinBinding.state(
   cellId: 'home.living.thermostat',
   functionName: 'setTarget',
   argumentSchema: const JsonSchema(type: 'object', properties: {
     '0': JsonSchema(type: 'integer'),
   }, required: ['0']),
   target: thermostat.cell,
-  function: (int target) =&gt; thermostat.update(target),
+  nextValue: (int target) =&gt; target,
 )
 </code></pre>
+<p>A schema that names real properties (<code>target</code>) is matched against named
+arguments directly; a <strong>positional</strong> call against it needs
+<code>positionalNames</code> — the zipper maps position <code>i</code> to that property:</p>
+<pre class="language-dart"><code class="language-dart">SkinBinding.state(
+  cellId: 'home.living.thermostat',
+  functionName: 'setTarget',
+  argumentSchema: const JsonSchema(
+    type: 'object',
+    properties: {'target': JsonSchema(type: 'integer')},
+    required: ['target'],
+  ),
+  positionalNames: ['target'], // validates positional [19] as target: 19
+  target: thermostat.cell,
+  nextValue: (int target) =&gt; target,
+)
+</code></pre>
+<p><code>positionalNames</code> is validation only: the Dart call still receives the
+positional list. A positional call against a non-index schema without
+the list is <code>bad_arguments</code>; a missing name that is <code>required</code> fails
+<code>required</code>; more values than names is <code>bad_arguments</code>.</p>
 <p>Malformed envelopes and schema violations are rejected <strong>before</strong>
 <code>target.apply</code> runs, as <code>WireError{code: 'bad_arguments'}</code> — no receipt,
-no ledger entry. See <code>HowTo-WireMessages.md</code> for the argument envelope
-rules.</p>
+no ledger entry, and the domain gate is not reached. A wrong arity
+(no schema) is <code>bad_arguments</code> too; a throw from inside the function
+stays <code>transport_error</code>. See <code>HowTo-WireMessages.md</code> for the argument
+envelope rules.</p>
 <h2 id="compensation">Compensation</h2>
 <p>The compensation closure receives the <strong>same wire arguments</strong> as the
 command, so it knows what to undo:</p>
-<pre class="language-dart"><code class="language-dart">SkinBinding(
+<pre class="language-dart"><code class="language-dart">SkinBinding.state(
   cellId: 'home.living.thermostat',
   functionName: 'setTarget',
   target: thermostat.cell,
-  function: (int target) =&gt; thermostat.update(target),
-  compensation: (int target) =&gt;
-      thermostat.update((thermostat.cell.value ?? 20) - 1),
+  nextValue: (int target) =&gt; target,
+  compensation: (int target) =&gt; thermostat.cell.value ?? 20,
 )
 </code></pre>
+<p>A state binding's compensation is wrapped the same way: an undo that
+returns the restored value becomes one pulse on <code>compensationCell</code> (or
+the target).</p>
 <h2 id="sealing-and-duplicates">Sealing and duplicates</h2>
 <ul>
 <li>Duplicate <code>(cellId, functionName)</code> registrations throw <code>StateError</code>.</li>
@@ -160,7 +227,7 @@ bindings.register(...); // throws StateError — the table is sealed
 
 </dt>
 <dd>
-  An exception thrown when a <strong>Nervous Signal</strong> contains a malformed <strong>Skin Payload</strong>.
+  AI Agent Guide
 </dd>
 
       <dt id="SkinBindingTable">
@@ -219,6 +286,7 @@ bindings.register(...); // throws StateError — the table is sealed
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
       <li class="section-subtitle">Features</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+        <li class="section-subitem"><a href="../cell_skin_io/">cell_skin_io</a></li>
         <li class="section-subitem"><a href="../cell_skin_rest/">cell_skin_rest</a></li>
       <li class="section-subtitle">Architecture</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
@@ -255,7 +323,7 @@ bindings.register(...); // throws StateError — the table is sealed
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

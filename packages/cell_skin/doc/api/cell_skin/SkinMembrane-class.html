@@ -88,6 +88,8 @@ the connection, providing a stable <strong>Somatic Index</strong> for discovery.
 </ul>
 <h3 id="ai-agent-guide">AI Agent Guide</h3>
 <p><strong>Layer:</strong> Skin — this is the top-level orchestrator of the boundary.
+<strong>Live signature:</strong> <code>final class SkinMembrane { Future&lt;WireMessage&gt; request(WireMessage message, {String type = SkinPulseTypes.restApplyRequest, Duration? timeout, DateTime? deadline, PulseContext? context, SkinPrincipal? principal}); Stream&lt;Pulse&lt;WireMessage&gt;&gt; get responses; int get routerQueueDepth; int get routerInFlight; bool get isClosed; IdempotencyStore? get idempotency; Future&lt;bool&gt; mayRead(SkinPrincipal principal, String cellId); Future&lt;void&gt; close(); }</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable
 <strong>Governance:</strong> All external interaction must pass through this membrane.
 <strong>Traceability:</strong> Use <a href="../cell_skin/SkinMembrane/responses.html">responses</a> to observe the audit trail of the somatic body.</p>
 </section>
@@ -161,6 +163,20 @@ the connection, providing a stable <strong>Somatic Index</strong> for discovery.
 
 </dd>
 
+        <dt id="idempotency" class="property">
+  <span class="name"><a href="../cell_skin/SkinMembrane/idempotency.html">idempotency</a></span>
+  <span class="signature">&#8594; <a href="../cell_skin/IdempotencyStore-class.html">IdempotencyStore</a></span>
+  
+
+</dt>
+<dd>
+  The idempotency store this membrane consults — the memory default,
+or the file store the application passed. <code>/ready</code> checks a file
+store's directory here.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
         <dt id="inbound" class="property">
   <span class="name"><a href="../cell_skin/SkinMembrane/inbound.html">inbound</a></span>
   <span class="signature">&#8594; IngressHandle<span class="signature">&lt;<wbr><span class="type-parameter">Pulse<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_skin/WireMessage-class.html">WireMessage</a></span>&gt;</span></span>&gt;</span></span>
@@ -170,6 +186,19 @@ the connection, providing a stable <strong>Somatic Index</strong> for discovery.
 <dd>
   The entry pore for incoming wire signals.
   <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="isClosed" class="property">
+  <span class="name"><a href="../cell_skin/SkinMembrane/isClosed.html">isClosed</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Whether <a href="../cell_skin/SkinMembrane/close.html">close</a> ran. <code>/ready</code> uses this: a closed membrane is not
+ready, no matter how healthy the ledger looks.
+  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
@@ -245,6 +274,32 @@ the connection, providing a stable <strong>Somatic Index</strong> for discovery.
 
 </dd>
 
+        <dt id="routerInFlight" class="property">
+  <span class="name"><a href="../cell_skin/SkinMembrane/routerInFlight.html">routerInFlight</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Whether a dispatch is currently inside the router (0 or 1 under
+<code>concurrency: 1</code>). For developer panes and tests.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="routerQueueDepth" class="property">
+  <span class="name"><a href="../cell_skin/SkinMembrane/routerQueueDepth.html">routerQueueDepth</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  How many requests the router has received but not yet finished
+(queued plus the one in flight). For developer panes and tests.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
         <dt id="runtimeType" class="property inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
@@ -289,7 +344,11 @@ the connection, providing a stable <strong>Somatic Index</strong> for discovery.
   Closes the terminal cell, every egress observer, the receipt
 join, the ledger-tail subscription and the response stream, and
 fails every pending <code>request()</code> with a <code>closed</code> <a href="../cell_skin/SkinError-class.html">SkinError</a>. The
-graph and ledger stay open — they belong to the caller.
+router is gated first, so a request that was queued but not yet
+dispatching is answered <code>closed</code> instead of applying after the
+close; an apply already in flight runs to completion (it cannot be
+cancelled). The graph and ledger stay open — they belong to the
+caller.
   
 
 </dd>
@@ -308,6 +367,22 @@ whitelist policy combined).
 
 </dd>
 
+        <dt id="mayRead" class="callable">
+  <span class="name"><a href="../cell_skin/SkinMembrane/mayRead.html">mayRead</a></span><span class="signature">(<wbr><span class="parameter" id="mayRead-param-principal"><span class="type-annotation"><a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a></span> <span class="parameter-name">principal</span>, </span><span class="parameter" id="mayRead-param-cellId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">cellId</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Whether <code>principal</code> may read <code>cellId</code> through the read routes
+(manifest, observe, ledger). A <code>null</code> authorizer reads everything
+exposure allows; a non-null one must allow every binding of the
+cell. Not cached.
+  
+
+</dd>
+
         <dt id="noSuchMethod" class="callable inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
     <span class="returntype parameter">&#8594; dynamic</span>
@@ -322,7 +397,7 @@ whitelist policy combined).
 </dd>
 
         <dt id="request" class="callable">
-  <span class="name"><a href="../cell_skin/SkinMembrane/request.html">request</a></span><span class="signature">(<wbr><span class="parameter" id="request-param-message"><span class="type-annotation"><a href="../cell_skin/WireMessage-class.html">WireMessage</a></span> <span class="parameter-name">message</span>, {</span><span class="parameter" id="request-param-type"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">type</span>, </span><span class="parameter" id="request-param-context"><span class="type-annotation">PulseContext?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="request-param-timeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">timeout</span> = <span class="default-value">const Duration(seconds: 30)</span></span>})
+  <span class="name"><a href="../cell_skin/SkinMembrane/request.html">request</a></span><span class="signature">(<wbr><span class="parameter" id="request-param-message"><span class="type-annotation"><a href="../cell_skin/WireMessage-class.html">WireMessage</a></span> <span class="parameter-name">message</span>, {</span><span class="parameter" id="request-param-type"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">type</span>, </span><span class="parameter" id="request-param-context"><span class="type-annotation">PulseContext?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="request-param-timeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">timeout</span> = <span class="default-value">const Duration(seconds: 30)</span>, </span><span class="parameter" id="request-param-deadline"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a>?</span> <span class="parameter-name">deadline</span>, </span><span class="parameter" id="request-param-principal"><span class="type-annotation"><a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a>?</span> <span class="parameter-name">principal</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_skin/WireMessage-class.html">WireMessage</a></span>&gt;</span></span>
   </span>
   
@@ -378,7 +453,7 @@ manifest requests — a <a href="../cell_skin/WireManifestResponse-class.html">W
     <h2>Static Methods</h2>
     <dl class="callables">
         <dt id="open" class="callable">
-  <span class="name"><a href="../cell_skin/SkinMembrane/open.html">open</a></span><span class="signature">(<wbr>{<span class="parameter" id="open-param-graph"><span>required</span> <span class="type-annotation">CellGraph</span> <span class="parameter-name">graph</span>, </span><span class="parameter" id="open-param-bindings"><span>required</span> <span class="type-annotation"><a href="../cell_skin/SkinBindingTable-class.html">SkinBindingTable</a></span> <span class="parameter-name">bindings</span>, </span><span class="parameter" id="open-param-whitelist"><span class="type-annotation"><a href="../cell_skin/SkinWhitelist-class.html">SkinWhitelist</a>?</span> <span class="parameter-name">whitelist</span>, </span><span class="parameter" id="open-param-ledger"><span class="type-annotation">Ledger?</span> <span class="parameter-name">ledger</span>, </span><span class="parameter" id="open-param-journal"><span>required</span> <span class="type-annotation">EffectJournal</span> <span class="parameter-name">journal</span>, </span><span class="parameter" id="open-param-send"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">send</span>(<span class="parameter" id="param-pulse"><span class="type-annotation">Pulse<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_skin/WireMessage-class.html">WireMessage</a></span>&gt;</span></span> <span class="parameter-name">pulse</span></span>), </span><span class="parameter" id="open-param-inboundContext"><span class="type-annotation">Context</span> <span class="parameter-name">inboundContext</span> = <span class="default-value">_defaultInboundContext</span>, </span><span class="parameter" id="open-param-descriptions"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">descriptions</span>, </span><span class="parameter" id="open-param-onPolicyWarning"><span class="type-annotation">void</span> <span class="parameter-name">onPolicyWarning</span>(<span class="parameter" id="param-message"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">message</span></span>)?</span>})
+  <span class="name"><a href="../cell_skin/SkinMembrane/open.html">open</a></span><span class="signature">(<wbr>{<span class="parameter" id="open-param-graph"><span>required</span> <span class="type-annotation">CellGraph</span> <span class="parameter-name">graph</span>, </span><span class="parameter" id="open-param-bindings"><span>required</span> <span class="type-annotation"><a href="../cell_skin/SkinBindingTable-class.html">SkinBindingTable</a></span> <span class="parameter-name">bindings</span>, </span><span class="parameter" id="open-param-whitelist"><span class="type-annotation"><a href="../cell_skin/SkinWhitelist-class.html">SkinWhitelist</a>?</span> <span class="parameter-name">whitelist</span>, </span><span class="parameter" id="open-param-ledger"><span class="type-annotation">Ledger?</span> <span class="parameter-name">ledger</span>, </span><span class="parameter" id="open-param-journal"><span>required</span> <span class="type-annotation">EffectJournal</span> <span class="parameter-name">journal</span>, </span><span class="parameter" id="open-param-send"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">send</span>(<span class="parameter" id="param-pulse"><span class="type-annotation">Pulse<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_skin/WireMessage-class.html">WireMessage</a></span>&gt;</span></span> <span class="parameter-name">pulse</span></span>), </span><span class="parameter" id="open-param-inboundContext"><span class="type-annotation">Context</span> <span class="parameter-name">inboundContext</span> = <span class="default-value">_defaultInboundContext</span>, </span><span class="parameter" id="open-param-descriptions"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">descriptions</span>, </span><span class="parameter" id="open-param-onPolicyWarning"><span class="type-annotation">void</span> <span class="parameter-name">onPolicyWarning</span>(<span class="parameter" id="param-message"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">message</span></span>)?, </span><span class="parameter" id="open-param-strictReceipts"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">strictReceipts</span> = <span class="default-value">true</span>, </span><span class="parameter" id="open-param-idempotency"><span class="type-annotation"><a href="../cell_skin/IdempotencyStore-class.html">IdempotencyStore</a>?</span> <span class="parameter-name">idempotency</span>, </span><span class="parameter" id="open-param-clock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a></span> <span class="parameter-name">clock</span>() = <span class="default-value">DateTime.now</span>, </span><span class="parameter" id="open-param-maxQueueWait"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">maxQueueWait</span> = <span class="default-value">const Duration(seconds: 30)</span>, </span><span class="parameter" id="open-param-authorizer"><span class="type-annotation"><a href="../cell_skin/SkinAuthorizer.html">SkinAuthorizer</a>?</span> <span class="parameter-name">authorizer</span>, </span><span class="parameter" id="open-param-maxQueued"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">maxQueued</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_skin/SkinMembrane-class.html">SkinMembrane</a></span>&gt;</span></span>
   </span>
   
@@ -417,7 +492,7 @@ manifest requests — a <a href="../cell_skin/WireManifestResponse-class.html">W
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

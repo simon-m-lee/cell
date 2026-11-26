@@ -96,6 +96,8 @@ internal <strong>Integrity Gate</strong>.</li>
 </ul>
 <h3 id="ai-agent-guide">AI Agent Guide</h3>
 <p><strong>Layer:</strong> Skin — this is a "pass-through" identity check.
+<strong>Live signature:</strong> <code>final class AllowAllSkinAuth implements SkinAuth { const AllowAllSkinAuth(); Future&lt;SkinPrincipal?&gt; authenticate(SkinCredentials credentials); }</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable
 <strong>Status:</strong> All signals are marked anonymous.
 <strong>Security:</strong> Use only in non-production or intentionally public environments.</p>
 </section>
@@ -263,7 +265,7 @@ internal <strong>Integrity Gate</strong>.</li>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

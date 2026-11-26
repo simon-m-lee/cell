@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the validateJsonSchema function from the cell_skin library, for the Dart programming language.">
+  <title>validateJsonSchema function - cell_skin library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li><a href="../cell_skin/">cell_skin.dart</a></li>
+    <li class="self-crumb">validateJsonSchema function</li>
+  </ol>
+  <div class="self-name">validateJsonSchema</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_skin&#47;cell_skin-library-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-function">validateJsonSchema</span> function 
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+<span class="name ">validateJsonSchema</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="validateJsonSchema-param-schema"><span class="type-annotation"><a href="../cell_skin/JsonSchema-class.html">JsonSchema</a></span> <span class="parameter-name">schema</span>, </span></li>
+<li><span class="parameter" id="validateJsonSchema-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">value</span>, {</span></li>
+<li><span class="parameter" id="validateJsonSchema-param-path"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">path</span> = <span class="default-value">r&#39;$&#39;</span>, </span></li>
+<li><span class="parameter" id="validateJsonSchema-param-depth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">depth</span> = <span class="default-value">0</span>, </span></li>
+</ol>})
+
+        
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Validates <code>value</code> against an explicit <a href="../cell_skin/JsonSchema-class.html">JsonSchema</a> subset.</p>
+<p>Returns <code>null</code> when the value fits, or a path-prefixed message when
+it does not. Never throws. The path form is <code>$.target</code>,
+<code>$.address.city</code>, <code>$.items[0]</code>.</p>
+<p>The enforced subset: <code>type</code> (<code>integer</code> is <code>value is int</code> — <code>bool</code> is
+not an <code>integer</code>, <code>1.0</code> is not an <code>integer</code>), <code>enum</code>, <code>minimum</code> /
+<code>maximum</code> (inclusive), <code>required</code>, <code>properties</code>, <code>additionalProperties</code>
+(<code>null</code> means closed when <code>properties</code> is set — <code>schemaForValue</code>
+objects are open because it sets <code>true</code>), and <code>items</code>. <code>extra</code> is
+ignored; <code>pattern</code>, <code>minLength</code>, and <code>format</code> are not part of this
+subset.</p>
+<p><code>null</code> does not satisfy a typed schema (there is no union type), and
+an unknown type string fails closed. The recursion depth is capped at
+32 so a hostile body cannot recurse forever; past that the message is
+<code>schema validation exceeded depth</code>.</p>
+<p><code>properties</code>/<code>required</code>/<code>additionalProperties</code> are only enforced
+when the value is a <code>Map</code>. A schema that declares <code>properties</code> but
+no <code>type: 'object'</code> is spec-legal and leaves non-object values
+unchecked by those keywords — set <code>type: 'object'</code> when the object
+is meant to be closed.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">String? validateJsonSchema(
+  JsonSchema schema,
+  Object? value, {
+  String path = r&#39;$&#39;,
+  int depth = 0,
+}) {
+  if (depth &gt; 32) return &#39;schema validation exceeded depth&#39;;
+
+  final type = schema.type;
+  if (type != null) {
+    final bool ok;
+    switch (type) {
+      case &#39;integer&#39;:
+        ok = value is int;
+      case &#39;number&#39;:
+        ok = value is num;
+      case &#39;string&#39;:
+        ok = value is String;
+      case &#39;boolean&#39;:
+        ok = value is bool;
+      case &#39;array&#39;:
+        ok = value is List;
+      case &#39;object&#39;:
+        ok = value is Map;
+      default:
+        return &#39;$path: unsupported type &quot;$type&quot;&#39;;
+    }
+    if (!ok) return &#39;$path: expected $type, got ${_schemaDescribe(value)}&#39;;
+  }
+
+  final enumValues = schema.enumValues;
+  if (enumValues != null) {
+    final matches = enumValues.any((allowed) =&gt; _schemaEquals(value, allowed));
+    if (!matches) {
+      return &#39;$path: must be one of &#39;
+          &#39;${enumValues.map(_schemaDescribe).join(&#39;, &#39;)}&#39;;
+    }
+  }
+
+  if (value is num) {
+    if (schema.minimum != null &amp;&amp; value &lt; schema.minimum!) {
+      return &#39;$path: below minimum ${schema.minimum}&#39;;
+    }
+    if (schema.maximum != null &amp;&amp; value &gt; schema.maximum!) {
+      return &#39;$path: above maximum ${schema.maximum}&#39;;
+    }
+  }
+
+  final properties = schema.properties;
+  if (value is Map) {
+    for (final entry in properties?.entries ?? const &lt;MapEntry&lt;String, JsonSchema&gt;&gt;[]) {
+      if (value.containsKey(entry.key)) {
+        final error = validateJsonSchema(
+          entry.value,
+          value[entry.key],
+          path: &#39;$path.${entry.key}&#39;,
+          depth: depth + 1,
+        );
+        if (error != null) return error;
+      }
+    }
+    &#47;&#47; A required key must be present; a present null is a type failure
+    &#47;&#47; on that property, not a second required failure.
+    final required = schema.required;
+    if (required != null) {
+      for (final name in required) {
+        if (!value.containsKey(name)) return &#39;$path.$name: required&#39;;
+      }
+    }
+    &#47;&#47; additionalProperties: true allows unknown keys; false rejects
+    &#47;&#47; them; null means false when properties is non-null (an explicit
+    &#47;&#47; schema that models an object is closed by default).
+    final additional = schema.additionalProperties;
+    final closed = properties != null &amp;&amp;
+        (additional == false || additional == null);
+    if (closed) {
+      for (final key in value.keys) {
+        if (key is! String || !properties.containsKey(key)) {
+          return &#39;$path.$key: additional property not allowed&#39;;
+        }
+      }
+    }
+  } else if (requiredForMissingObject(schema)) {
+    &#47;&#47; `required` names a property of an object; a non-object value that
+    &#47;&#47; passed an (absent) type check still fails the requirement.
+    final required = schema.required!;
+    if (required.isNotEmpty) return &#39;$path.${required.first}: required&#39;;
+  }
+
+  final items = schema.items;
+  if (items != null &amp;&amp; value is List) {
+    for (var i = 0; i &lt; value.length; i++) {
+      final error = validateJsonSchema(
+        items,
+        value[i],
+        path: &#39;$path[$i]&#39;,
+        depth: depth + 1,
+      );
+      if (error != null) return error;
+    }
+  }
+  return null;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_skin</a></li>
+    <li><a href="../cell_skin/">cell_skin</a></li>
+    <li class="self-crumb">validateJsonSchema function</li>
+</ol>
+
+    <h5>cell_skin library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_skin
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

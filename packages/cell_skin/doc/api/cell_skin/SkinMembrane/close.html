@@ -65,7 +65,11 @@
   <p>Closes the terminal cell, every egress observer, the receipt
 join, the ledger-tail subscription and the response stream, and
 fails every pending <code>request()</code> with a <code>closed</code> <a href="../../cell_skin/SkinError-class.html">SkinError</a>. The
-graph and ledger stay open — they belong to the caller.</p>
+router is gated first, so a request that was queued but not yet
+dispatching is answered <code>closed</code> instead of applying after the
+close; an apply already in flight runs to completion (it cannot be
+cancelled). The graph and ledger stay open — they belong to the
+caller.</p>
 </section>
 
 
@@ -75,6 +79,7 @@ graph and ledger stay open — they belong to the caller.</p>
   <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; close() async {
   if (_closed) return;
   _closed = true;
+  dispatcher.closing = true;
   outbound.stop();
   for (final handle in egress.values) {
     handle.stop();
@@ -119,7 +124,7 @@ graph and ledger stay open — they belong to the caller.</p>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

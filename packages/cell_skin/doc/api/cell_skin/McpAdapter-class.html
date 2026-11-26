@@ -94,6 +94,8 @@ transport-level MCP errors are correctly reported as <strong>Membrane Rejections
 </ul>
 <h3 id="ai-agent-guide">AI Agent Guide</h3>
 <p><strong>Layer:</strong> Skin — this is your primary connection point to the system.
+<strong>Live signature:</strong> <code>abstract interface class McpAdapter { Future&lt;void&gt; start(); Future&lt;void&gt; close(); }</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> experimental
 <strong>Discovery:</strong> This bridge provides the tool definitions you use to interact.
 <strong>Governance:</strong> Every tool call you make here initiates a <strong>Command Journey</strong>
 that must pass an <strong>Integrity Gate</strong> before being written to the <strong>Forensic Ledger</strong>.</p>
@@ -243,7 +245,7 @@ that must pass an <strong>Integrity Gate</strong> before being written to the <s
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

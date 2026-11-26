@@ -55,8 +55,9 @@
     <section class="multi-line-signature">
         
 <span class="returntype"><a href="../cell_skin/WireStateChange-class.html">WireStateChange</a></span>
-<span class="name ">wireStateChangeForEntry</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="wireStateChangeForEntry-param-entry"><span class="type-annotation">LedgerEntry</span> <span class="parameter-name">entry</span></span></li>
-</ol>)
+<span class="name ">wireStateChangeForEntry</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="wireStateChangeForEntry-param-entry"><span class="type-annotation">LedgerEntry</span> <span class="parameter-name">entry</span>, {</span></li>
+<li><span class="parameter" id="wireStateChangeForEntry-param-functionLabel"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">functionLabel</span>, </span></li>
+</ol>})
 
         
 
@@ -124,14 +125,35 @@ myLedger.stream.listen((entry) {
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">WireStateChange wireStateChangeForEntry(LedgerEntry entry) {
+  <pre class="language-dart"><code class="language-dart">WireStateChange wireStateChangeForEntry(
+  LedgerEntry entry, {
+  String? functionLabel,
+}) {
   final storedReceipt = entry.toJson()[&#39;receipt&#39;];
+  final receipt = storedReceipt is Map
+      ? WireReceipt.fromJson(storedReceipt.cast&lt;String, Object?&gt;())
+      : WireReceipt.fromJson(wireReceiptJson(entry.receipt));
+  final labeled = functionLabel == null
+      ? receipt
+      : WireReceipt(
+          id: receipt.id,
+          cellId: receipt.cellId,
+          functionLabel: functionLabel,
+          positional: receipt.positional,
+          named: receipt.named,
+          timestamp: receipt.timestamp,
+          txSequence: receipt.txSequence,
+          vetted: receipt.vetted,
+          ledgerSeq: receipt.ledgerSeq,
+          pulseDigest: receipt.pulseDigest,
+          receptorVersion: receipt.receptorVersion,
+          ruleVersion: receipt.ruleVersion,
+          contextVersion: receipt.contextVersion,
+        );
   return WireStateChange(
     cellId: entry.receiptCellId,
     payload: entry.pulseJson?[&#39;payload&#39;],
-    receipt: storedReceipt is Map
-        ? WireReceipt.fromJson(storedReceipt.cast&lt;String, Object?&gt;())
-        : WireReceipt.fromJson(wireReceiptJson(entry.receipt)),
+    receipt: labeled,
     pendingReceipt: false,
   );
 }</code></pre>
@@ -161,7 +183,7 @@ myLedger.stream.listen((entry) {
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

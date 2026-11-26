@@ -78,6 +78,7 @@ properly identified before it begins its <strong>Command Journey</strong>.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">factory WireMessage.fromJson(Map&lt;String, Object?&gt; json) {
+  requireSkinWireVersion(json);
   final kind = json[&#39;kind&#39;];
   try {
     return switch (kind) {
@@ -85,7 +86,7 @@ properly identified before it begins its <strong>Command Journey</strong>.</p>
       &#39;response&#39; =&gt; WireResponse.fromJson(json),
       &#39;stateChange&#39; =&gt; WireStateChange.fromJson(json),
       &#39;notification&#39; =&gt; WireNotification.fromJson(json),
-      &#39;manifestRequest&#39; =&gt; const WireManifestRequest(),
+      &#39;manifestRequest&#39; =&gt; WireManifestRequest.fromJson(json),
       &#39;manifestResponse&#39; =&gt; WireManifestResponse.fromJson(json),
       &#39;ledgerEntry&#39; =&gt; WireLedgerEntry.fromJson(json),
       &#39;error&#39; =&gt; WireError.fromJson(json),
@@ -125,7 +126,7 @@ properly identified before it begins its <strong>Command Journey</strong>.</p>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

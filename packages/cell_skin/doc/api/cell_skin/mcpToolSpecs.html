@@ -78,18 +78,17 @@ agent which cells and functions are physically exposed at the
 <ol>
 <li><strong>Index Iteration</strong>: It walks through every cell and function recorded
 in the manifest's "DNA."</li>
-<li><strong>Label Construction</strong>: It generates a unique <strong>Synaptic Label</strong>
-for each pair using the <code>&lt;cellId&gt;.&lt;functionName&gt;</code> format.</li>
-<li><strong>Integrity Check</strong>: It enforces that IDs are dot-free and unique,
-ensuring that any incoming <strong>Nervous Signal</strong> can be deterministically
-routed back to the correct somatic address.</li>
+<li><strong>Label Construction</strong>: It generates the escaped wire <a href="../cell_skin/McpToolSpec/name.html">McpToolSpec.name</a>
+for each pair, keeping the raw pair on <a href="../cell_skin/McpToolSpec/dottedName.html">McpToolSpec.dottedName</a>.</li>
+<li><strong>Integrity Check</strong>: Every accepted alias (<code>name</code> and <code>dottedName</code>)
+must map to exactly one binding, and a name must fit 64 characters.
+A collision throws <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a> before a list is returned.</li>
 </ol>
 <h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
 <ul>
-<li><strong>Forensic Integrity</strong>: If a collision is detected or if an ID contains
-a dot, this function throws a <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a>. This prevents "Forensic
-Ambiguity," where a tool call might be routed to the wrong cell,
-corrupting the <strong>Forensic Ledger</strong>.</li>
+<li><strong>Forensic Integrity</strong>: A collision is a <code>StateError</code> that names both
+bindings; the lookup is a map, never a split of the dotted string
+(that split is ambiguous by construction).</li>
 <li><strong>Description Inheritance</strong>: If a specific function lacks a description,
 it inherits the description of its parent cell to provide the AI agent
 with maximum <strong>Somatic Context</strong>.</li>
@@ -106,22 +105,47 @@ with maximum <strong>Somatic Context</strong>.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">List&lt;McpToolSpec&gt; mcpToolSpecs(SkinManifest manifest) {
-  final specs = &lt;McpToolSpec&gt;[
-    for (final cell in manifest.cells)
-      for (final function in cell.functions)
-        McpToolSpec(
-          name: _toolName(cell.cellId, function.name),
-          description: function.description ?? cell.description,
-          inputSchema: function.argumentSchema,
-        ),
-  ];
-  final seen = &lt;String&gt;{};
-  for (final spec in specs) {
-    if (!seen.add(spec.name)) {
+  final specs = &lt;McpToolSpec&gt;[];
+  final owners = &lt;String, (String, String)&gt;{};
+
+  void claim(String alias, String cellId, String functionName) {
+    final previous = owners[alias];
+    if (previous != null &amp;&amp;
+        (previous.$1 != cellId || previous.$2 != functionName)) {
       throw StateError(
-          &#39;mcpToolSpecs: ambiguous tool name &quot;${spec.name}&quot; — cell ids &#39;
-              &#39;and function names must be dot-free and their combinations &#39;
-              &#39;unique&#39;);
+        &#39;mcpToolSpecs: &quot;$alias&quot; is both &#39;
+        &#39;${previous.$1}.${previous.$2} and $cellId.$functionName&#39;,
+      );
+    }
+    owners[alias] = (cellId, functionName);
+  }
+
+  for (final cell in manifest.cells) {
+    for (final function in cell.functions) {
+      if (cell.cellId.isEmpty || function.name.isEmpty) {
+        throw StateError(
+          &#39;mcpToolSpecs: empty cellId or functionName produces no valid &#39;
+          &#39;tool name&#39;,
+        );
+      }
+      final dottedName = &#39;${cell.cellId}.${function.name}&#39;;
+      final name = mcpEscapedToolName(cell.cellId, function.name);
+      if (name.length &gt; 64) {
+        throw StateError(
+          &#39;mcpToolSpecs: tool name &quot;$name&quot; for $dottedName is &#39;
+          &#39;${name.length} characters; MCP hosts allow at most 64&#39;,
+        );
+      }
+      claim(name, cell.cellId, function.name);
+      claim(dottedName, cell.cellId, function.name);
+      specs.add(McpToolSpec(
+        name: name,
+        dottedName: dottedName,
+        cellId: cell.cellId,
+        functionName: function.name,
+        description: function.description ?? cell.description,
+        inputSchema: function.argumentSchema,
+      ));
     }
   }
   return specs;
@@ -152,7 +176,7 @@ with maximum <strong>Somatic Context</strong>.</li>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

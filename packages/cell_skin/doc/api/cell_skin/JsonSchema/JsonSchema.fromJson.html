@@ -62,7 +62,9 @@
   <p>Decodes a <a href="../../cell_skin/JsonSchema-class.html">JsonSchema</a> from its JSON form. Lenient where the spec
 is richer than this subset: <code>type</code> may be an array (the first
 entry wins) and <code>additionalProperties</code> may be a schema object
-(treated as <code>true</code>).</p>
+(treated as <code>true</code> — the subset accepts it as open; a client that
+re-validates a decoded schema does not get the object form
+enforced).</p>
 </section>
 
 
@@ -133,7 +135,7 @@ entry wins) and <code>additionalProperties</code> may be a schema object
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

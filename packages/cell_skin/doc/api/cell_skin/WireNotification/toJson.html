@@ -111,7 +111,7 @@ string-keyed map, ensuring compatibility with MCP and REST bridges.</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Map&lt;String, Object?&gt; toJson() =&gt;
-    {&#39;kind&#39;: kind, &#39;method&#39;: method, &#39;params&#39;: params};</code></pre>
+    withWire({&#39;kind&#39;: kind, &#39;method&#39;: method, &#39;params&#39;: params});</code></pre>
 </section>
 
 
@@ -139,7 +139,7 @@ Map&lt;String, Object?&gt; toJson() =&gt;
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

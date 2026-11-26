@@ -78,14 +78,14 @@ necessary causal links so the caller can identify which impulse failed.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Map&lt;String, Object?&gt; toJson() =&gt; {
+Map&lt;String, Object?&gt; toJson() =&gt; withWire({
   &#39;kind&#39;: kind,
   &#39;correlationId&#39;: correlationId,
   if (clientCorrelationId != null)
     &#39;clientCorrelationId&#39;: clientCorrelationId,
   &#39;code&#39;: code,
   &#39;message&#39;: message,
-};</code></pre>
+});</code></pre>
 </section>
 
 
@@ -113,7 +113,7 @@ Map&lt;String, Object?&gt; toJson() =&gt; {
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

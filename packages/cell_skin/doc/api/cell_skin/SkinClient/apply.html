@@ -62,6 +62,7 @@
 <li><span class="parameter" id="apply-param-lastSeenSeq"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">lastSeenSeq</span>, </span></li>
 <li><span class="parameter" id="apply-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">type</span> = <span class="default-value">SkinPulseTypes.restApplyRequest</span>, </span></li>
 <li><span class="parameter" id="apply-param-context"><span class="type-annotation">PulseContext?</span> <span class="parameter-name">context</span>, </span></li>
+<li><span class="parameter" id="apply-param-principal"><span class="type-annotation"><a href="../../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a>?</span> <span class="parameter-name">principal</span>, </span></li>
 </ol>})
 
       
@@ -76,7 +77,13 @@ change was observed but its ledger entry had not landed — the
 authoritative receipt arrives on the ledger stream).</p>
 <p>Throws <a href="../../cell_skin/SkinError-class.html">SkinError</a> for exposure-gate misses, cursor conflicts, and
 bad arguments; those rejections produced no receipt.</p>
-<p><code>context</code> stamps this request's provenance on the emitted pulse.</p>
+<p><code>context</code> stamps this request's provenance on the emitted pulse.
+<code>principal</code> is the in-process caller: without a <code>context</code> the
+request context is built through <code>skinPulseContext</code> (a
+<code>DescribeContextBridge</code> base plus <code>skin:&lt;id&gt;</code> actor and a JSON
+snapshot the router reads back into <code>SkinCall.principal</code>); with a
+<code>context</code> that context is used as-is and the snapshot inside its
+<code>others</code> (when present) wins.</p>
 </section>
 
 
@@ -91,6 +98,7 @@ bad arguments; those rejections produced no receipt.</p>
   int? lastSeenSeq,
   String type = SkinPulseTypes.restApplyRequest,
   PulseContext? context,
+  SkinPrincipal? principal,
 }) async {
   final request = WireRequest(
     cellId: cellId,
@@ -102,10 +110,22 @@ bad arguments; those rejections produced no receipt.</p>
     correlationId: _nextCorrelationId(),
     lastSeenSeq: lastSeenSeq,
   );
-  final message =
-      await membrane.request(request, type: type, context: context);
+  final requestContext = context ??
+      (principal == null
+          ? null
+          : skinPulseContext(
+              principal: principal,
+              baseContext: const DescribeContextBridge().resolve(principal),
+              reason: &#39;skin apply $cellId.$function&#39;,
+            ));
+  final message = await membrane.request(
+    request,
+    type: type,
+    context: requestContext,
+    principal: principal,
+  );
   return switch (message) {
-    WireResponse response =&gt; response.outcome,
+    WireResponse response =&gt; outcomeOf(response),
     WireError error =&gt; throw SkinError(error.code, error.message),
     _ =&gt; throw SkinError(&#39;unexpected_response&#39;, &#39;$message&#39;),
   };
@@ -137,7 +157,7 @@ bad arguments; those rejections produced no receipt.</p>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

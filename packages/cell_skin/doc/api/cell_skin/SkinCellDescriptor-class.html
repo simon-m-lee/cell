@@ -55,7 +55,40 @@
 
     
 <section class="desc markdown">
-  <p>One exposed cell in the catalogue.</p>
+  <p>A description of a single cell's physical surface at the membrane.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/SkinCellDescriptor-class.html">SkinCellDescriptor</a> is a
+<strong>Somatic Address Record</strong>. It groups all <strong>Synaptic Points</strong> (functions)
+belonging to a specific cell, representing that cell's total "DNA"
+exposure to the external environment.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Discovery</strong>: Part of the <a href="../cell_skin/SkinManifest-class.html">SkinManifest</a> used by AI agents to
+understand the structure of a cell before stimulating it.</li>
+<li><strong>Routing</strong>: Used by the membrane to identify which cell a specific
+<strong>Nervous Signal</strong> is intended to reach.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Index Assembly</strong>: The system identifies an exposed cell in the graph.</li>
+<li><strong>Capability Mapping</strong>: It gathers all <a href="../cell_skin/SkinFunctionDescriptor-class.html">SkinFunctionDescriptor</a>s
+associated with that cell.</li>
+<li><strong>Descriptor Bundling</strong>: These descriptors are packaged into this
+structure for transport across the <strong>Skin Membrane</strong>.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Authoritative Address</strong>: The <a href="../cell_skin/SkinCellDescriptor/cellId.html">cellId</a> is the permanent <strong>Somatic Address</strong>.
+If a cell is renamed or moved within the graph without updating the
+binding, the descriptor will fail to route signals.</li>
+<li><strong>Filtering</strong>: Only functions that are whitelisted and correctly
+bound appear in the <a href="../cell_skin/SkinCellDescriptor/functions.html">functions</a> list.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/SkinManifest-class.html">SkinManifest</a>: The full index containing these records.</li>
+<li><a href="../cell_skin/SkinFunctionDescriptor-class.html">SkinFunctionDescriptor</a>: The descriptors for individual functions.</li>
+<li><code>Cell.id</code>: The core framework's internal address for this cell.</li>
+</ul>
 </section>
 
 
@@ -68,14 +101,14 @@
           <span class="name"><a href="../cell_skin/SkinCellDescriptor/SkinCellDescriptor.html">SkinCellDescriptor</a></span><span class="signature">({<span class="parameter" id="-param-cellId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">cellId</span>, </span><span class="parameter" id="-param-description"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">description</span>, </span><span class="parameter" id="-param-functions"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_skin/SkinFunctionDescriptor-class.html">SkinFunctionDescriptor</a></span>&gt;</span></span> <span class="parameter-name">functions</span> = <span class="default-value">const []</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates a new <a href="../cell_skin/SkinCellDescriptor-class.html">SkinCellDescriptor</a> for a somatic address.
             <div class="constructor-modifier features">const</div>
         </dd>
         <dt id="SkinCellDescriptor.fromJson" class="callable">
           <span class="name"><a href="../cell_skin/SkinCellDescriptor/SkinCellDescriptor.fromJson.html">SkinCellDescriptor.fromJson</a></span><span class="signature">(<span class="parameter" id="fromJson-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">json</span></span>)</span>
         </dt>
         <dd>
-          
+          Decodes a <strong>Skin Form</strong> JSON map back into a <a href="../cell_skin/SkinCellDescriptor-class.html">SkinCellDescriptor</a>.
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
@@ -93,7 +126,7 @@
 
 </dt>
 <dd>
-  The registered graph name.
+  The unique identifier for the cell in the reactive graph.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -105,7 +138,7 @@
 
 </dt>
 <dd>
-  Human-readable description, when supplied.
+  A human and AI-readable description of the cell's somatic role.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -117,7 +150,7 @@
 
 </dt>
 <dd>
-  The exposed functions, in binding-registration order.
+  The list of functions physically exposed for this cell.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -176,7 +209,7 @@
 
 </dt>
 <dd>
-  
+  Converts the descriptor into its <strong>Skin Form</strong> (JSON) for transport.
   
 
 </dd>
@@ -244,7 +277,7 @@
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

@@ -68,12 +68,16 @@
     </section>
     
 <section class="desc markdown">
-  <p>Builds the manifest from <code>graph</code> and <code>bindings</code>.</p>
-<p><code>whitelist</code> restricts the catalogue to whitelisted entries; when
-<code>null</code>, every registered binding is advertised. Only cells that
-are registered in <code>graph</code> appear — a binding to an unregistered
-cell is a programming error and is reported (via <code>onUnregistered</code>)
-rather than silently advertised.</p>
+  <p>Assembles the <strong>Somatic Index</strong> from the current graph and binding state.</p>
+<p>This process performs <strong>Index Assembly</strong>:</p>
+<ol>
+<li>It walks the <code>graph</code> roots to establish the primary hierarchy.</li>
+<li>It consults the <code>bindings</code> to determine which cells have open pores.</li>
+<li>It applies the <code>whitelist</code> to filter the final advertised surface.</li>
+</ol>
+<p>If a binding exists for a cell not present in the <code>graph</code>, it is
+considered a "Forensic Orphan" and is reported via <code>onUnregistered</code>
+rather than being indexed.</p>
 </section>
 
 
@@ -147,7 +151,7 @@ rather than silently advertised.</p>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

@@ -82,15 +82,21 @@ no somatic feedback.</p>
   Pulse&lt;WireMessage&gt; pulse, {
   required EffectJournal journal,
 }) async {
-  final payload = pulse.payload;
-  if (payload is WireRequest) {
-    return _dispatch(pulse, payload);
+  _queued++;
+  try {
+    final payload = pulse.payload;
+    if (payload is WireRequest) {
+      return await _dispatch(pulse, payload);
+    }
+    if (payload is WireManifestRequest) {
+      return await _manifest(pulse);
+    }
+    &#47;&#47; Notifications and unknown pulse types pass through silently.
+    return null;
+  } finally {
+    _queued--;
+    onRouted?.call();
   }
-  if (payload is WireManifestRequest) {
-    return _manifest(pulse);
-  }
-  &#47;&#47; Notifications and unknown pulse types pass through silently.
-  return null;
 }</code></pre>
 </section>
 
@@ -119,7 +125,7 @@ no somatic feedback.</p>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

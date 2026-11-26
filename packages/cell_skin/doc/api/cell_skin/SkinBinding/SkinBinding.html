@@ -63,6 +63,7 @@
 <li><span class="parameter" id="-param-strictCursor"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">strictCursor</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-compensation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensation</span>, </span></li>
 <li><span class="parameter" id="-param-compensationCell"><span class="type-annotation">Cell?</span> <span class="parameter-name">compensationCell</span>, </span></li>
+<li><span class="parameter" id="-param-positionalNames"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">positionalNames</span>, </span></li>
 </ol>})
     </section>
     
@@ -81,7 +82,8 @@
   this.strictCursor = false,
   this.compensation,
   this.compensationCell,
-});</code></pre>
+  this.positionalNames,
+}) : _write = _SkinWrite.raw;</code></pre>
 </section>
 
 
@@ -109,7 +111,7 @@
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

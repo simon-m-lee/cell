@@ -73,7 +73,7 @@ tool calls are validated against the correct <strong>Somatic Blueprint</strong>.
 <li><strong>Extraction</strong>: The system reads a <a href="../cell_skin/SkinFunctionDescriptor-class.html">SkinFunctionDescriptor</a> from the
 <strong>Somatic Index</strong> (manifest).</li>
 <li><strong>Translation</strong>: The descriptor is converted into this neutral spec,
-mapping the cell and function names into a single <strong>Synaptic Label</strong>.</li>
+mapping the cell and function names into a stable <strong>Synaptic Label</strong>.</li>
 <li><strong>Broadcasting</strong>: The <a href="../cell_skin/McpAdapter-class.html">McpAdapter</a> serializes this spec into the
 specific format required by the AI agent's transport (e.g., JSON-RPC).</li>
 </ol>
@@ -82,9 +82,11 @@ specific format required by the AI agent's transport (e.g., JSON-RPC).</li>
 <li><strong>Atomicity</strong>: A tool spec represents exactly one <code>apply</code> target. It
 cannot bridge multiple cells; each cell/function pair is a distinct
 synaptic point.</li>
-<li><strong>Determinism</strong>: The <a href="../cell_skin/McpToolSpec/name.html">name</a> is strictly formatted as <code>&lt;cellId&gt;.&lt;functionName&gt;</code>
-to ensure the resulting <strong>Command Journey</strong> can be accurately routed
-back to the correct somatic address.</li>
+<li><strong>Two names, one tool</strong>: <a href="../cell_skin/McpToolSpec/name.html">name</a> is the escaped MCP wire name —
+characters outside <code>[A-Za-z0-9_-]</code> become <code>_</code> — and is the <strong>only</strong>
+name registered; <a href="../cell_skin/McpToolSpec/dottedName.html">dottedName</a> is the raw <code>&lt;cellId&gt;.&lt;functionName&gt;</code>.
+An adapter that maps <code>toJson()</code> onto an SDK tool must not also
+register <code>dottedName</code>, or the model sees two tools for one binding.</li>
 </ul>
 <h3 id="see-also">See also</h3>
 <ul>
@@ -94,6 +96,15 @@ back to the correct somatic address.</li>
 </ul>
 <h3 id="ai-agent-guide">AI Agent Guide</h3>
 <p><strong>Layer:</strong> Skin — this is your primary tool definition.
+<strong>When to use:</strong> a BRD says "register the tool with an MCP host" —
+register <a href="../cell_skin/McpToolSpec/name.html">name</a> once and pass <code>toJson()</code> to the SDK's tool.
+<strong>When NOT to use:</strong> dispatching a call — use <code>resolveMcpToolCall</code>,
+which accepts <a href="../cell_skin/McpToolSpec/name.html">name</a> and <a href="../cell_skin/McpToolSpec/dottedName.html">dottedName</a>.
+<strong>Live signature:</strong> <code>final class McpToolSpec { final String name; final String dottedName; final String cellId; final String functionName; final String? description; final JsonSchema inputSchema; const McpToolSpec({required String name, required String dottedName, required String cellId, required String functionName, String? description, JsonSchema inputSchema = JsonSchema.permissive}); Map&lt;String, Object?&gt; toJson(); }</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> experimental
+<strong>Do NOT confuse with:</strong> <code>McpResourceSpec</code> (observational URI) or a
+registered SDK tool object.
+<strong>Guide:</strong> <code>HowTo-McpSeam.md</code> (naming and dispatch).
 <strong>Causality:</strong> Invoking a tool defined by this spec initiates a
 <strong>Command Journey</strong> that will be recorded in the <strong>Forensic Ledger</strong>.
 <strong>Constraint:</strong> The <code>inputSchema</code> is authoritative; pulses that do not
@@ -107,7 +118,7 @@ match this DNA will be rejected at the membrane.</p>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="McpToolSpec.new" class="callable">
-          <span class="name"><a href="../cell_skin/McpToolSpec/McpToolSpec.html">McpToolSpec</a></span><span class="signature">({<span class="parameter" id="-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="-param-description"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">description</span>, </span><span class="parameter" id="-param-inputSchema"><span class="type-annotation"><a href="../cell_skin/JsonSchema-class.html">JsonSchema</a></span> <span class="parameter-name">inputSchema</span> = <span class="default-value">JsonSchema.permissive</span></span>})</span>
+          <span class="name"><a href="../cell_skin/McpToolSpec/McpToolSpec.html">McpToolSpec</a></span><span class="signature">({<span class="parameter" id="-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="-param-dottedName"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">dottedName</span>, </span><span class="parameter" id="-param-cellId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">cellId</span>, </span><span class="parameter" id="-param-functionName"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">functionName</span>, </span><span class="parameter" id="-param-description"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">description</span>, </span><span class="parameter" id="-param-inputSchema"><span class="type-annotation"><a href="../cell_skin/JsonSchema-class.html">JsonSchema</a></span> <span class="parameter-name">inputSchema</span> = <span class="default-value">JsonSchema.permissive</span></span>})</span>
         </dt>
         <dd>
           Creates a new <a href="../cell_skin/McpToolSpec-class.html">McpToolSpec</a> to describe an exposed somatic function.
@@ -121,6 +132,18 @@ match this DNA will be rejected at the membrane.</p>
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
+        <dt id="cellId" class="property">
+  <span class="name"><a href="../cell_skin/McpToolSpec/cellId.html">cellId</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  The binding's cell id, as the manifest exposed it.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
         <dt id="description" class="property">
   <span class="name"><a href="../cell_skin/McpToolSpec/description.html">description</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
@@ -129,6 +152,30 @@ match this DNA will be rejected at the membrane.</p>
 </dt>
 <dd>
   A human and AI-readable description of the tool's somatic purpose.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="dottedName" class="property">
+  <span class="name"><a href="../cell_skin/McpToolSpec/dottedName.html">dottedName</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  The raw binding name: <code>&lt;cellId&gt;.&lt;functionName&gt;</code>, dots included.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="functionName" class="property">
+  <span class="name"><a href="../cell_skin/McpToolSpec/functionName.html">functionName</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  The binding's function name, as the manifest exposed it.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -164,7 +211,7 @@ match this DNA will be rejected at the membrane.</p>
 
 </dt>
 <dd>
-  The unique identifier for the tool, formatted as <code>&lt;cellId&gt;.&lt;functionName&gt;</code>.
+  The escaped MCP tool name — the only name a host registers.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -279,7 +326,7 @@ match this DNA will be rejected at the membrane.</p>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

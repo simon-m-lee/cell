@@ -98,6 +98,8 @@ to distant state changes.</li>
 </ul>
 <h3 id="ai-agent-guide">AI Agent Guide</h3>
 <p><strong>Layer:</strong> Skin Client — this is your axon to a remote tool.
+<strong>Live signature:</strong> <code>final class RemoteCellClient { factory RemoteCellClient.inProcess(SkinClient client, String cellId); Future&lt;WireMessage&gt; request(WireMessage message, String type); Stream&lt;Pulse&lt;WireMessage&gt;&gt; observe(String cellId); }</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable
 <strong>Traceability:</strong> Always provide <code>lastSeenSeq</code> to maintain causal integrity.
 <strong>Constraint:</strong> A <a href="../cell_skin/RemoteCellClient-class.html">RemoteCellClient</a> is fixed to a single <a href="../cell_skin/RemoteCellClient/cellId.html">cellId</a>.</p>
 </section>
@@ -294,7 +296,7 @@ to distant state changes.</li>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

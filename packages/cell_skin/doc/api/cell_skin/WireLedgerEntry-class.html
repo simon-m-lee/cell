@@ -93,6 +93,14 @@ all cells in the body.</li>
 <li><a href="../cell_skin/WireStateChange-class.html">WireStateChange</a>: For live observations that may still be pending.</li>
 <li><a href="../cell_skin/WireResponse-class.html">WireResponse</a>: For the immediate result of a specific command.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — one audit entry, encoded by <code>LedgerEntry.toJson</code>.
+<strong>When to use:</strong> the ledger SSE and the audit tail — the sequence
+numbers here are the only global order across all cells.
+<strong>When NOT to use:</strong> hand-built receipts — the framework's own codec,
+never a fork.
+<strong>Live signature:</strong> <code>const WireLedgerEntry({required LedgerEntry entry})</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable</p>
 </section>
 
 
@@ -291,7 +299,7 @@ all cells in the body.</li>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

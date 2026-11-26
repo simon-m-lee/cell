@@ -61,16 +61,21 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Converts the descriptor into its <strong>Skin Form</strong> (JSON) for transport.</p>
+<p>Stays true to the forensic standard by preserving the <a href="../../cell_skin/SkinCellDescriptor/cellId.html">cellId</a> and
+all associated capability metadata.</p>
+</section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Map&lt;String, Object?&gt; toJson() =&gt; {
-      &#39;cellId&#39;: cellId,
-      if (description != null) &#39;description&#39;: description,
-      &#39;functions&#39;: functions.map((f) =&gt; f.toJson()).toList(growable: false),
-    };</code></pre>
+  &#39;cellId&#39;: cellId,
+  if (description != null) &#39;description&#39;: description,
+  &#39;functions&#39;: functions.map((f) =&gt; f.toJson()).toList(growable: false),
+};</code></pre>
 </section>
 
 
@@ -98,7 +103,7 @@
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

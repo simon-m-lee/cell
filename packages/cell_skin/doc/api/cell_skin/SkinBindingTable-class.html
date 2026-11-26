@@ -95,6 +95,8 @@ remains stable across discovery impulses.</li>
 </ul>
 <h3 id="ai-agent-guide">AI Agent Guide</h3>
 <p><strong>Layer:</strong> Skin — this is the master list of what is exposed.
+<strong>Live signature:</strong> <code>final class SkinBindingTable { void register(SkinBinding binding); void seal(); bool get isSealed; SkinBinding? lookup(String cellId, String functionName); }</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable
 <strong>Traceability:</strong> Once sealed, the system's "DNA" cannot be mutated.
 <strong>Constraint:</strong> Register all tools <em>before</em> opening the membrane.</p>
 </section>
@@ -341,7 +343,7 @@ remains stable across discovery impulses.</li>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

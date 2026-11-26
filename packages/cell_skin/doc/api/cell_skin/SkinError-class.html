@@ -55,7 +55,47 @@
 
     
 <section class="desc markdown">
-  <p>A wire-level failure surfaced to a skin client.</p>
+  <p>A failure encountered at the boundary when a nervous signal is rejected.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/SkinError-class.html">SkinError</a> represents a
+<strong>Membrane Rejection</strong>. It is the "pain signal" returned to the
+environment when an impulse fails to pass through an <strong>Integrity Gate</strong>
+or when a <strong>Command Journey</strong> is terminated before it can result in a
+<strong>Somatic State Transition</strong>.</p>
+<p>Unlike internal framework exceptions, a <a href="../cell_skin/SkinError-class.html">SkinError</a> is designed to cross
+the <strong>Skin Membrane</strong>. It translates technical somatic failures into
+a stable vocabulary for external AI agents and remote axons.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Transport Failures</strong>: Thrown by a <a href="../cell_skin/SkinClient-class.html">SkinClient</a> or <a href="../cell_skin/RemoteCellClient-class.html">RemoteCellClient</a>
+when the underlying connection is severed (code: <code>closed</code>).</li>
+<li><strong>Gate Rejections</strong>: Thrown when the <a href="../cell_skin/SkinRouter-class.html">SkinRouter</a> blocks a signal
+due to structural issues (code: <code>bad_arguments</code>) or security
+violations (code: <code>unauthorized</code>).</li>
+<li><strong>Causal Conflicts</strong>: Thrown when a pulse violates <strong>Causal Linkage</strong>
+rules (code: <code>conflict</code> or <code>cursor_required</code>).</li>
+</ul>
+<h3 id="forensic-integrity">Forensic Integrity</h3>
+<p>Because a <a href="../cell_skin/SkinError-class.html">SkinError</a> typically represents a rejection <em>before</em> the
+pulse is anchored, it often corresponds to a <strong>Forensic Hole</strong> in the
+target cell's ledger. The environment receives this error, but the
+cell's internal state remains unchanged.</p>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/WireError-class.html">WireError</a>: The wire-format envelope that carries this failure.</li>
+<li><a href="../cell_skin/SkinRouter-class.html">SkinRouter</a>: The junction that typically generates these rejections.</li>
+<li><a href="../cell_skin/BadArgumentsException-class.html">BadArgumentsException</a>: A common internal cause for this error.</li>
+</ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin Client — this is your feedback loop for failed tool calls.
+<strong>Live signature:</strong> <code>final class SkinError implements Exception { final String code; final String message; const SkinError(String code, String message); }</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable
+<strong>Recovery:</strong></p>
+<ul>
+<li>If <code>code == 'conflict'</code>, refresh your <strong>Somatic Index</strong> and check
+the <code>lastSeenSeq</code>.</li>
+<li>If <code>code == 'bad_arguments'</code>, verify your payload against the
+<strong>Somatic Blueprint</strong> (JSON Schema).</li>
+</ul>
 </section>
 
 
@@ -106,8 +146,7 @@
 
 </dt>
 <dd>
-  The stable error code (<code>unknown_tool</code>, <code>conflict</code>,
-<code>cursor_required</code>, <code>bad_arguments</code>, <code>closed</code>, …).
+  The stable somatic failure code.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -131,7 +170,7 @@
 
 </dt>
 <dd>
-  A human-readable description (never raw remote internals).
+  A human-readable description of the rejection.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -233,7 +272,7 @@
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

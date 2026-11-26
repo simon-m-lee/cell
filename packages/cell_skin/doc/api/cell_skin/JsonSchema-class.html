@@ -97,6 +97,8 @@ accepts the pulse during the <strong>Command Journey</strong>.</li>
 </ul>
 <h3 id="ai-agent-guide">AI Agent Guide</h3>
 <p><strong>Layer:</strong> Skin — this is your guide for tool calls.
+<strong>Live signature:</strong> <code>final class JsonSchema { static const JsonSchema permissive; const JsonSchema({String? type, String? description, Map&lt;String, JsonSchema&gt;? properties, List&lt;String&gt;? required, JsonSchema? items, num? minimum, num? maximum, List&lt;Object?&gt;? enumValues}); }</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable
 <strong>Constraint:</strong> Always match your arguments to the <code>properties</code> defined here.
 <strong>Validation:</strong> Rejection by the system usually means your signal violated
 the somatic structure defined in this blueprint.</p>
@@ -122,7 +124,9 @@ the somatic structure defined in this blueprint.</p>
           Decodes a <a href="../cell_skin/JsonSchema-class.html">JsonSchema</a> from its JSON form. Lenient where the spec
 is richer than this subset: <code>type</code> may be an array (the first
 entry wins) and <code>additionalProperties</code> may be a schema object
-(treated as <code>true</code>).
+(treated as <code>true</code> — the subset accepts it as open; a client that
+re-validates a decoded schema does not get the object form
+enforced).
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
@@ -393,7 +397,7 @@ present for the signal to be valid.
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

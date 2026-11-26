@@ -98,7 +98,7 @@ their supporting fan-in:</p>
 <tr>
 <td align="left">2 — router</td>
 <td align="left"><code>Cell.asyncMap</code>, <code>concurrency: 1</code></td>
-<td align="left">Look up the binding, validate the argument schema, check the stateless cursor, call <code>target.apply</code>, package the <strong>target's real receipt</strong>.</td>
+<td align="left">Look up the binding, validate the argument schema, check the stateless cursor, call <code>target.apply</code> inside the graph's ledger scope, package the <strong>target's real receipt</strong>.</td>
 </tr>
 <tr>
 <td align="left">3 — egress</td>
@@ -119,7 +119,9 @@ their supporting fan-in:</p>
 </table>
 <p>The only non-Cell logic between graph and wire is the binding table — a
 closure map that cannot serialise and therefore stays where the closures
-live.</p>
+live. An explicit <code>argumentSchema</code> is enforced before apply
+(<code>bad_arguments</code>, HTTP 422); observed schemas are hints for <code>tools/list</code>
+and are never enforced.</p>
 <h2 id="3-wire-taxonomy">3. Wire taxonomy</h2>
 <p><code>WireMessage</code> is a sealed hierarchy with exactly one variant per intent:</p>
 <table>
@@ -160,6 +162,8 @@ live.</p>
 </tr>
 </tbody>
 </table>
+<p>Every encoded message carries <code>wire: "1"</code> (see
+<code>HowTo-WireStability.md</code>); a missing field decodes as version 1.</p>
 <p>The pulse codec is the framework's own <code>PulseCodec</code>; <code>WireOutcome</code>,
 <code>wireReceiptJson</code>, and the <code>JsonSchema</code> subset are sanitising translators:
 unencodable values become labelled placeholders (<code>resultOmitted</code>,
@@ -168,20 +172,90 @@ unencodable values become labelled placeholders (<code>resultOmitted</code>,
 <p>The invariant that shaped the egress design: <strong>every receipt on the wire
 belongs to the change it accompanies.</strong></p>
 <ul>
-<li><strong>Apply path</strong> — the router hands a <code>WireRequest</code> to
+<li>
+<p><strong>Apply path</strong> — the router hands a <code>WireRequest</code> to
 <code>binding.target.apply</code> and packages <em>that call's</em> <code>ApplyOutcome</code>.
 The router never performs its own apply, so receipts stay attributable
-to the domain cell.</li>
-<li><strong>Egress path (ledgered)</strong> — driven by <code>Ledger.tail</code> itself. Each
+to the domain cell.</p>
+</li>
+<li>
+<p><strong>One receipt (ledgered state changes)</strong> — the ledgered contract is
+<code>SkinBinding.state</code>: the binding wraps the user function's next value
+in a <code>Pulse</code> and routes it through the target receptor, so the only
+row is the one <code>Cell.apply</code> records from that pulse. The response
+receipt id and the row's receipt id are the same object id, and the
+wire receipt carries the row's <code>ledgerSeq</code>/<code>pulseDigest</code> (copied from
+the store's receipt, whose <code>function</code> label is then restored to the
+binding name — <code>Function.toString()</code> never reaches the wire). A
+<code>SkinBinding.command</code> reports its inner rows as <code>ledgerSeqs</code> and never
+pretends its outer receipt is a row. The live <code>ApplyReceipt</code> keeps
+<code>ledgerSeq == null</code>; the framework back-fills the store's copy.</p>
+</li>
+<li>
+<p><strong>Strict receipts</strong> — <code>SkinMembrane.open(strictReceipts: true)</code> is the
+default (ignored without a ledger). A <code>state</code> binding must write
+exactly one row carrying the apply receipt; a <code>raw</code> binding may write
+zero rows but every row must carry it. A binding that still calls
+<code>update()</code> writes a synthetic <code>_emit</code> row and the router answers
+<code>transport_error</code> — it never swaps the synthetic receipt in to hide
+the bug.</p>
+</li>
+<li>
+<p><strong>Ledger scope</strong> — with a bound ledger, the router enters the graph's
+<code>LedgerScope</code> around the target apply (<code>graph.run</code>) <strong>only when no
+scope is already active</strong>. That is what makes <code>POST /skin/apply</code>
+ledgered even though the HTTP zone never entered the scope. The
+four-row rule:</p>
+<table>
+<thead>
+<tr>
+<th align="left">Membrane ledger</th>
+<th align="left"><code>LedgerScope.current</code></th>
+<th align="left">Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">null</td>
+<td align="left">anything</td>
+<td align="left"><code>target.apply</code> only — unledgered membranes stay unledgered.</td>
+</tr>
+<tr>
+<td align="left">non-null</td>
+<td align="left">null</td>
+<td align="left"><code>graph.run(() =&gt; target.apply)</code> — REST, bare <code>SkinClient.apply</code>.</td>
+</tr>
+<tr>
+<td align="left">non-null</td>
+<td align="left">same ledger</td>
+<td align="left"><code>target.apply</code> only — the caller already did <code>graph.run</code>.</td>
+</tr>
+<tr>
+<td align="left">non-null</td>
+<td align="left">different ledger</td>
+<td align="left"><code>StateError</code> → <code>transport_error</code>; no second append.</td>
+</tr>
+</tbody>
+</table>
+<p><code>graph.run</code> drains queued appends before it returns, so the row is
+committed before the response is encoded. <code>graph.run</code> around several
+in-process applies is still the right way to put them in one scope;
+the router will not open a second one.</p>
+</li>
+<li>
+<p><strong>Egress path (ledgered)</strong> — driven by <code>Ledger.tail</code> itself. Each
 entry carries its own receipt and its own pulse payload, so
 <code>WireStateChange</code> pairs the entry's receipt with the entry's payload.
 The receipt is taken from the entry's canonical stored JSON — the same
-encoding the audit trail uses.</li>
-<li><strong>Egress path (unledgered)</strong> — every observation is
+encoding the audit trail uses.</p>
+</li>
+<li>
+<p><strong>Egress path (unledgered)</strong> — every observation is
 <code>pendingReceipt: true</code>. Without a ledger there is no receipt to attach;
-nothing is fabricated and nothing is borrowed from an earlier change.</li>
+nothing is fabricated and nothing is borrowed from an earlier change.</p>
+</li>
 </ul>
-<h2 id="5-the-two-gates-plus-provenance">5. The two gates, plus provenance</h2>
+<h2 id="5-the-two-gates-plus-authorization-and-provenance">5. The two gates, plus authorization and provenance</h2>
 <table>
 <thead>
 <tr>
@@ -197,32 +271,111 @@ nothing is fabricated and nothing is borrowed from an earlier change.</li>
 <td align="left"><code>WireError{code: 'unknown_tool'}</code> — no receipt produced. The whitelist also covers egress, <code>/skin/observe/:cellId</code>, and <code>/skin/ledger</code>.</td>
 </tr>
 <tr>
+<td align="left">Authorization</td>
+<td align="left">The application's <code>SkinAuthorizer</code> hook, after exposure and before <code>apply</code></td>
+<td align="left"><code>WireError{code: 'forbidden'}</code> (HTTP 403) — the binding does not run, no receipt, not cached. <code>null</code> means allow. The same hook also filters the read routes: manifest omits a cell whose bindings are all denied, observe answers 403, and ledger skips the cell's rows (<code>SkinMembrane.mayRead</code>; not cached either).</td>
+</tr>
+<tr>
 <td align="left">Domain</td>
 <td align="left">The target's <code>TestCell.action</code>, inside <code>target.apply</code></td>
-<td align="left"><code>ApplyRejected</code> — the framework's real denial.</td>
+<td align="left"><code>ApplyRejected</code> — the framework's real denial. It still runs after the hook says <code>true</code>.</td>
 </tr>
 </tbody>
 </table>
-<p>Provenance rides on every pulse. <code>SkinMembrane.request</code> accepts a
-<code>PulseContext</code> and emits through <code>Pulse.governed</code>; the REST adapter builds
-it per request from <code>ContextBridge.resolve(principal)</code> with an
-<code>actor: skin:&lt;id&gt;</code> stamp. The membrane's default inbound context is
-<code>Context.describe('skin:untrusted')</code> — system authority is an explicit
-opt-in (<code>SystemContextBridge</code>).</p>
+<p>Provenance has two real paths:</p>
+<ul>
+<li><strong>The live gate</strong> — the router installs a <code>SkinCall</code> zone around the
+target apply (inside the ledger scope when it opens one).
+<code>TestCell.action</code> reads <code>SkinCall.current</code> — the principal and the
+request <code>PulseContext</code> (<code>actor: skin:&lt;id&gt;</code>). The request context on
+the wire pulse is <strong>not</strong> visible inside <code>TestCell.action</code> by itself;
+gates that do not look at the zone do not become actor-aware by magic.</li>
+<li><strong>The stored pulse</strong> — <code>recordPulse</code> stores the pulse the binding
+returns. <code>SkinBinding.state</code> and <code>SkinPulses.payload</code> stamp it with
+the call's context, so the row's lineage carries <code>actor: skin:&lt;id&gt;</code>
+and a JSON principal snapshot; replay restores the value and does not
+restore the zone. <code>update()</code> rows carry no remote actor.</li>
+</ul>
+<p><code>SkinMembrane.request</code> accepts a <code>PulseContext</code> and emits through
+<code>Pulse.governed</code>; the REST adapter builds it per request from
+<code>ContextBridge.resolve(principal)</code>. The membrane's default inbound
+context is <code>Context.describe('skin:untrusted')</code> — system authority is
+an explicit opt-in (<code>SystemContextBridge</code>), and it still does not skip
+the domain gate.</p>
 <h2 id="6-correlation-and-idempotency">6. Correlation and idempotency</h2>
 <ul>
-<li>REST assigns <code>correlationId</code> server-side; the caller's id is carried as
+<li>
+<p>REST assigns <code>correlationId</code> server-side; the caller's id is carried as
 <code>clientCorrelationId</code> and echoed on the response/error — matched by
-nobody except the caller.</li>
-<li>The router keeps a bounded idempotency store keyed by
-<code>clientCorrelationId ?? correlationId</code>. A duplicate key returns the
-<strong>stored outcome re-wrapped with the current request's ids</strong> — so a
-retry after a 504 never double-applies, and the replay always matches
-the retry's waiter.</li>
-<li><code>SkinMembrane.request</code> completes only on a <code>WireResponse</code>/<code>WireError</code>
+nobody except the caller.</p>
+</li>
+<li>
+<p>The router consults an <code>IdempotencyStore</code> (default: <code>MemoryIdempotencyStore</code>,
+1024 completed records, 24 hour TTL). The key is <strong>the request actor plus</strong>
+<code>clientCorrelationId ?? correlationId</code>; the fingerprint covers <code>cellId</code>,
+function, positional/named arguments, and <code>lastSeenSeq</code>. A duplicate
+key with the same fingerprint returns the <strong>stored outcome re-wrapped
+with the current request's ids</strong> — a retry after a 504 never
+double-applies, and the replay always matches the retry's waiter. A
+duplicate key with a different fingerprint is
+<code>WireError{code: 'idempotency_conflict'}</code> (HTTP 409, distinct from the
+cursor <code>conflict</code>) and never calls apply. An in-flight key makes later
+claimers wait for that attempt.</p>
+<table>
+<thead>
+<tr>
+<th align="left">Exit</th>
+<th align="left">Store</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><code>ApplyAccepted</code>, <code>ApplyStaged</code></td>
+<td align="left"><code>complete</code></td>
+</tr>
+<tr>
+<td align="left"><code>ApplyRejected</code>, <code>unknown_tool</code>, <code>bad_arguments</code>, <code>cursor_required</code>, <code>conflict</code>, thrown</td>
+<td align="left"><code>abort</code> — never cached, so a retry after the situation changes runs.</td>
+</tr>
+<tr>
+<td align="left"><code>transport_error</code> after rows were appended (a strict-receipt violation)</td>
+<td align="left"><code>complete</code> with <code>errorCode</code>/<code>errorMessage</code> — the row is committed, so a retry replays the same error and never applies again.</td>
+</tr>
+</tbody>
+</table>
+<p>The HTTP timeout path never aborts: the mapper keeps running and
+completes. Records are process-local unless the membrane was given a
+durable <code>IdempotencyStore</code> — a replay never survives a restart without
+one, and never moves <code>lastSeq</code>. <code>FileIdempotencyStore</code>
+(<code>package:cell_skin/cell_skin_io.dart</code>) is the restart implementation
+of the same interface: one canonical-JSON line per record in
+<code>directory/log</code>, rewritten under an exclusive lock on
+<code>directory/lock</code>, with a two-minute in-flight lease. A crash after the
+domain commit and before <code>complete</code> can still double-apply; <code>complete</code>
+is what makes the retry safe.</p>
+</li>
+<li>
+<p><code>SkinMembrane.request</code> completes only on a <code>WireResponse</code>/<code>WireError</code>
 with the request's id (or a <code>WireManifestResponse</code>); a
 <code>WireStateChange</code> can never complete it. <code>WireNotification</code> requests
-throw <code>ArgumentError</code> immediately.</li>
+throw <code>ArgumentError</code> immediately.</p>
+</li>
+<li>
+<p>The router is still serial (<code>concurrency: 1</code>). <code>maxQueueWait</code> (default
+30 seconds; <code>Duration.zero</code> disables it) stamps a deadline on every
+request; a request that is still queued when its deadline passes is
+<code>queue_timeout</code> (HTTP 504) and does not apply. A handler timeout while
+<code>apply</code> is running is still <code>outcome_unknown</code> (HTTP 504) — the command
+keeps running and is never cancelled.</p>
+</li>
+<li>
+<p><code>maxQueued</code> (default <code>null</code>, unlimited) caps how many accepted
+requests have not finished their dispatch — the apply in progress
+occupies a slot. Over the cap <code>request()</code> returns
+<code>WireError('queue_full')</code> immediately (HTTP 429): the function is not
+called, nothing is cached, <code>lastSeq</code> does not move, and the in-flight
+apply still finishes.</p>
+</li>
 </ul>
 <h2 id="7-adapters">7. Adapters</h2>
 <h3 id="rest-cell_skin_restdart">REST (<code>cell_skin_rest.dart</code>)</h3>
@@ -231,8 +384,14 @@ parameter and anonymous access is the explicit <code>AllowAllSkinAuth</code>
 opt-in. Per request it enforces:</p>
 <ol>
 <li><code>/health</code> before authentication; everything else after.</li>
-<li><code>Host</code> must be a loopback name (browser DNS-rebinding defence); any
-<code>Origin</code> header is rejected unless explicitly listed.</li>
+<li>A non-loopback <code>bind</code> without <code>allowedHosts</code> throws <code>ArgumentError</code>
+(the socket is closed). Every route except <code>/health</code> requires an
+allowed <code>Host</code> (403 <code>host_not_allowed</code> otherwise) — comparison is
+case-insensitive, no port stripping, and the header is never treated
+as proof of the peer address. An <code>Origin</code> header that is not an exact
+<code>allowedOrigins</code> member is 403 <code>origin_not_allowed</code> with no CORS
+headers; a listed origin is echoed (never <code>*</code>) with <code>Vary: Origin</code>,
+and <code>OPTIONS</code> preflights are answered before auth.</li>
 <li>Method checks per route; JSON-only POST bodies capped at 1 MiB.</li>
 <li>Input validation returns stable 400 codes (<code>missing_cellId</code>,
 <code>bad_correlation_id</code>, <code>invalid_lastSeenSeq</code>, …) with no raw error
@@ -248,7 +407,7 @@ text.</li>
 <tbody>
 <tr>
 <td align="left"><code>POST /skin/apply</code></td>
-<td align="left">Command → 200 with the sanitised outcome, 404/409/422/428/504 <code>WireError</code> map. Timeouts surface <code>outcome_unknown</code> (504) — retry with the same <code>correlationId</code>.</td>
+<td align="left">Command → 200 with the sanitised outcome, 404/409/422/428/504 <code>WireError</code> map. Cursor misses are <code>conflict</code>; a reused client id with a different body is <code>idempotency_conflict</code> — both 409. Timeouts surface <code>outcome_unknown</code> (504) — retry with the same <code>correlationId</code>, which replays only in this process until the idempotency record expires, unless the membrane was given a durable <code>IdempotencyStore</code>.</td>
 </tr>
 <tr>
 <td align="left"><code>GET /skin/manifest</code></td>
@@ -256,27 +415,41 @@ text.</li>
 </tr>
 <tr>
 <td align="left"><code>GET /skin/observe/:cellId</code></td>
-<td align="left">SSE of <code>skin.egress.&lt;cellId&gt;</code> state changes; 404 for unexposed cells.</td>
+<td align="left">SSE of <code>skin.egress.&lt;cellId&gt;</code> state changes (ids may contain <code>/</code>, clients percent-encode); 404 for unexposed cells. <code>Last-Event-ID</code> skips changes whose <code>ledgerSeq</code> is at or below it.</td>
 </tr>
 <tr>
 <td align="left"><code>GET /skin/ledger[?since=N]</code></td>
-<td align="left">SSE of audit entries: backlog replay from the store, then the live tail, with <code>id:</code> events and exposure filtering.</td>
+<td align="left">SSE of audit entries: the live listener is attached first, then the backlog replays from the store, then buffered live rows are flushed once. <code>?since=N</code> is inclusive; <code>Last-Event-ID: N</code> is exclusive and only used without the query; omitted means live-only. <code>id:</code> events and exposure filtering everywhere.</td>
 </tr>
 <tr>
 <td align="left"><code>POST /skin/verify</code></td>
-<td align="left">Structural verification; tamper-detected failure returns a structured <code>{ok: false, message}</code>.</td>
+<td align="left">Structural verification; tamper-detected failure returns <code>{ok: false, code: "verify_failed"}</code> — the exception goes to <code>onServerError</code>, never into the body.</td>
+</tr>
+<tr>
+<td align="left"><code>GET /ready</code></td>
+<td align="left">Authenticated readiness: 200 <code>{ok: true}</code> when the membrane is open, the ledger (when bound) verifies, and a configured file idempotency store still has its directory; otherwise 503 <code>{ok: false, code: "not_ready"}</code>. <code>/health</code> stays liveness: unauthenticated and host-exempt.</td>
+</tr>
+<tr>
+<td align="left"><code>onRequestLog</code></td>
+<td align="left">One <code>SkinRequestSample</code> per finished request, from a <code>finally</code>: the bare route (no query), the server correlation id, the status, the stable error code, the duration, and the apply's <code>ledgerSeq</code>. No headers, no body, no token.</td>
 </tr>
 </tbody>
 </table>
 <p>SSE runs over a detached raw socket: <code>chunkedTransferEncoding</code> is
-disabled before <code>detachSocket()</code>, frames are written with <code>flush</code>,
-<code>Socket.done</code> releases the subscription on silent disconnects, a
-configurable keep-alive ping bounds the detection window, and a bounded
-queue drops slow clients.</p>
+enabled before <code>detachSocket()</code> and every event is one real HTTP chunk
+(size in hex, bytes, CRLF), <code>Socket.done</code> releases the subscription on
+silent disconnects, a configurable keep-alive ping bounds the detection
+window, and a bounded queue drops slow clients. A frame that fails to
+encode is logged through <code>onServerError</code> and replaced with
+<code>skin.error.transport</code> — the subscription stays up.</p>
 <h3 id="mcp-mcpadapter">MCP (<code>McpAdapter</code>)</h3>
 <p>An honest seam, not a transport: <code>mcpToolSpecs(manifest)</code> produces
-neutral <code>McpToolSpec</code>/<code>McpResourceSpec</code> values with dot-free, collision-
-checked tool names and per-function descriptions, ready for any MCP SDK.</p>
+neutral <code>McpToolSpec</code>/<code>McpResourceSpec</code> values. <code>McpToolSpec.name</code> is
+the escaped wire name (unsafe characters become <code>_</code>, at most 64
+characters) — the only name a host registers; <code>dottedName</code> is the raw
+<code>&lt;cellId&gt;.&lt;functionName&gt;</code>. <code>resolveMcpToolCall</code> accepts both, a
+collision throws at catalogue build, and an unknown name is the
+<code>unknown_tool</code> tool result — not a JSON-RPC error.</p>
 <h2 id="8-consistency-rules">8. Consistency rules</h2>
 <ul>
 <li>The binding table <strong>seals at <code>open()</code></strong> — the egress set, the
@@ -385,6 +558,7 @@ MCP-native, audit-ready, replay-verifiable.
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
       <li class="section-subtitle">Features</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+        <li class="section-subitem"><a href="../cell_skin_io/">cell_skin_io</a></li>
         <li class="section-subitem"><a href="../cell_skin_rest/">cell_skin_rest</a></li>
       <li class="section-subtitle">Architecture</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
@@ -420,7 +594,7 @@ MCP-native, audit-ready, replay-verifiable.
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

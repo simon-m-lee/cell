@@ -66,6 +66,12 @@
 <li><span class="parameter" id="open-param-descriptions"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">descriptions</span>, </span></li>
 <li><span class="parameter" id="open-param-onPolicyWarning"><span class="type-annotation">void</span> <span class="parameter-name">onPolicyWarning</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-message"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">message</span></span></li>
 </ol>)?, </span></li>
+<li><span class="parameter" id="open-param-strictReceipts"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">strictReceipts</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="open-param-idempotency"><span class="type-annotation"><a href="../../cell_skin/IdempotencyStore-class.html">IdempotencyStore</a>?</span> <span class="parameter-name">idempotency</span>, </span></li>
+<li><span class="parameter" id="open-param-clock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a></span> <span class="parameter-name">clock</span>() = <span class="default-value">DateTime.now</span>, </span></li>
+<li><span class="parameter" id="open-param-maxQueueWait"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">maxQueueWait</span> = <span class="default-value">const Duration(seconds: 30)</span>, </span></li>
+<li><span class="parameter" id="open-param-authorizer"><span class="type-annotation"><a href="../../cell_skin/SkinAuthorizer.html">SkinAuthorizer</a>?</span> <span class="parameter-name">authorizer</span>, </span></li>
+<li><span class="parameter" id="open-param-maxQueued"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">maxQueued</span>, </span></li>
 </ol>})
 
       
@@ -114,7 +120,8 @@ closes them.</p>
 <p><strong>Layer:</strong> Skin — this assembles the membrane; it does not build graph nodes.
 <strong>When to use:</strong> a requirement says "expose the graph over REST/MCP", "let remote callers apply commands", or "stream ledger entries to clients".
 <strong>When NOT to use:</strong> pure graph work (use <code>package:cell</code>), decisions (use <code>cell_flow</code>), books (use <code>cell_tissue</code>).
-<strong>Live signature:</strong> <code>static Future&lt;SkinMembrane&gt; open({required CellGraph graph, required SkinBindingTable bindings, SkinWhitelist? whitelist, Ledger? ledger, required EffectJournal journal, required void Function(Pulse&lt;WireMessage&gt;) send, Context inboundContext, Map&lt;String, String&gt;? descriptions, void Function(String)? onPolicyWarning})</code> — pinned at <code>cell_skin: 0.1.0</code>
+<strong>Live signature:</strong> <code>static Future&lt;SkinMembrane&gt; open({required CellGraph graph, required SkinBindingTable bindings, SkinWhitelist? whitelist, Ledger? ledger, required EffectJournal journal, required void Function(Pulse&lt;WireMessage&gt;) send, Context inboundContext, Map&lt;String, String&gt;? descriptions, void Function(String)? onPolicyWarning, bool strictReceipts = true, IdempotencyStore? idempotency, DateTime Function() clock = DateTime.now, Duration maxQueueWait = Duration(seconds: 30), SkinAuthorizer? authorizer, int? maxQueued})</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable
 <strong>Do NOT confuse with:</strong> <code>SkinBindingTable.register</code> (declares exposure) or <code>RestAdapter.bind</code> (opens a socket on top of the membrane).
 <strong>Guide:</strong> <code>ARCHITECTURE-Skin.md</code> §2 (the four cells).
 <strong>Example:</strong> <code>example/lib/mock/mock_home.dart</code> (builds the Echo Home membrane).
@@ -125,11 +132,11 @@ final graph = (CellGraph.builder(graphId: 'home')
       ..register('thermostat', thermostat.cell))
     .build();
 final bindings = SkinBindingTable()
-  ..register(SkinBinding(
+  ..register(SkinBinding.state(
     cellId: 'thermostat',
     functionName: 'setTarget',
     target: thermostat.cell,
-    function: (int target) =&gt; thermostat.update(target),
+    nextValue: (int target) =&gt; target,
   ));
 final membrane = await SkinMembrane.open(
   graph: graph,
@@ -154,7 +161,21 @@ final membrane = await SkinMembrane.open(
   Context inboundContext = _defaultInboundContext,
   Map&lt;String, String&gt;? descriptions,
   void Function(String message)? onPolicyWarning,
+  bool strictReceipts = true,
+  IdempotencyStore? idempotency,
+  DateTime Function() clock = DateTime.now,
+  Duration maxQueueWait = const Duration(seconds: 30),
+  SkinAuthorizer? authorizer,
+  int? maxQueued,
 }) async {
+  if (maxQueueWait.isNegative) {
+    throw ArgumentError.value(
+        maxQueueWait, &#39;maxQueueWait&#39;, &#39;must be zero or positive&#39;);
+  }
+  if (maxQueued != null &amp;&amp; maxQueued &lt; 1) {
+    throw ArgumentError.value(
+        maxQueued, &#39;maxQueued&#39;, &#39;must be at least 1&#39;);
+  }
   if (whitelist != null) {
     _warnUnmatchedWhitelist(bindings, whitelist, onPolicyWarning);
   }
@@ -172,6 +193,10 @@ final membrane = await SkinMembrane.open(
     whitelist: whitelist,
     ledger: ledger,
     descriptions: descriptions,
+    strictReceipts: strictReceipts,
+    idempotency: idempotency ?? MemoryIdempotencyStore(),
+    clock: clock,
+    authorizer: authorizer,
   );
   final routerCell = dispatcher.cell(inbound.cell, journal: journal);
 
@@ -190,6 +215,40 @@ final membrane = await SkinMembrane.open(
       throw StateError(&#39;SkinMembrane.open: binding &quot;${binding.cellId}.&#39;
           &#39;${binding.functionName}&quot; target is not the graph\&#39;s &#39;
           &#39;registered cell&#39;);
+    }
+  }
+
+  &#47;&#47; A bound ledger records every membrane apply, even when the caller
+  &#47;&#47; did not enter `graph.run` itself: the router opens the graph&#39;s
+  &#47;&#47; ledger scope around each target apply. Egress and `&#47;skin&#47;ledger`
+  &#47;&#47; follow the membrane&#39;s ledger, so the two must be the same object
+  &#47;&#47; (the one returned by `bindLedger`) or the HTTP tail would never
+  &#47;&#47; see the rows just appended.
+  if (ledger != null &amp;&amp; !identical(ledger, graph.ledger)) {
+    throw StateError(
+      &#39;SkinMembrane.open: ledger must be the graph\&#39;s bound ledger &#39;
+      &#39;(the one returned by bindLedger)&#39;,
+    );
+  }
+
+  &#47;&#47; positionalNames is a validation zipper: on a closed schema with
+  &#47;&#47; properties, every name must be a property key — a wrong name can
+  &#47;&#47; never validate and would fail every positional call at runtime.
+  for (final binding in bindings.all) {
+    final names = binding.positionalNames;
+    final schema = binding.argumentSchema;
+    if (names == null || schema == null || schema.properties == null) {
+      continue;
+    }
+    if (schema.additionalProperties == true) continue;
+    for (final name in names) {
+      if (!schema.properties!.containsKey(name)) {
+        throw StateError(
+          &#39;SkinMembrane.open: binding &quot;${binding.cellId}.&#39;
+          &#39;${binding.functionName}&quot; positionalNames includes &quot;$name&quot;, &#39;
+          &#39;which is not a property of its argument schema&#39;,
+        );
+      }
     }
   }
 
@@ -223,8 +282,14 @@ final membrane = await SkinMembrane.open(
     ledgerSubscription = ledger.tail.listen((entry) {
       ledgerIngress.emit(WireLedgerEntry(entry: entry));
       if (exposedCellIds.contains(entry.receiptCellId)) {
+        &#47;&#47; The dispatcher labels rows it applied with the binding&#39;s
+        &#47;&#47; wire name; a miss (replayed history, an inner txApply
+        &#47;&#47; closure) keeps the stored function text.
         muxInput.emit(Pulse&lt;WireStateChange&gt;(
-          wireStateChangeForEntry(entry),
+          wireStateChangeForEntry(
+            entry,
+            functionLabel: dispatcher.functionLabelFor(entry.receipt.id),
+          ),
           type: &#39;${SkinPulseTypes.egressPrefix}${entry.receiptCellId}&#39;,
         ));
       }
@@ -242,7 +307,7 @@ final membrane = await SkinMembrane.open(
         send(normalized);
       });
 
-  return SkinMembrane._(
+  final membrane = SkinMembrane._(
     graph: graph,
     bindings: bindings,
     whitelist: whitelist,
@@ -256,7 +321,14 @@ final membrane = await SkinMembrane.open(
     responses: events.stream,
     events: events,
     ledgerSubscription: ledgerSubscription,
+    maxQueueWait: maxQueueWait,
+    clock: clock,
+    maxQueued: maxQueued,
   );
+  dispatcher.onRouted = () {
+    membrane._outstanding--;
+  };
+  return membrane;
 }</code></pre>
 </section>
 
@@ -285,7 +357,7 @@ final membrane = await SkinMembrane.open(
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

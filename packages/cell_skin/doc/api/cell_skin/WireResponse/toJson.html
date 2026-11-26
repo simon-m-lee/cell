@@ -115,7 +115,7 @@ for the wire.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Map&lt;String, Object?&gt; toJson() =&gt; {
+Map&lt;String, Object?&gt; toJson() =&gt; withWire({
       &#39;kind&#39;: kind,
       &#39;correlationId&#39;: correlationId,
       if (clientCorrelationId != null)
@@ -124,7 +124,9 @@ Map&lt;String, Object?&gt; toJson() =&gt; {
       if (outcomeJson != null) &#39;outcome&#39;: outcomeJson!.toJson(),
       &#39;pendingReceipt&#39;: pendingReceipt,
       if (receiptJson != null) &#39;receipt&#39;: receiptJson,
-    };</code></pre>
+      if (ledgerSeqs != null &amp;&amp; ledgerSeqs!.isNotEmpty)
+        &#39;ledgerSeqs&#39;: ledgerSeqs,
+    });</code></pre>
 </section>
 
 
@@ -152,7 +154,7 @@ Map&lt;String, Object?&gt; toJson() =&gt; {
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

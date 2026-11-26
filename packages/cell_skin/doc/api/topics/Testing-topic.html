@@ -72,6 +72,12 @@ binding table, membrane, client — in one call:</p>
 final outcome = await f.run(() =&gt; f.client.apply(...));
 await f.settle(); // let the router and ledger tail drain
 </code></pre>
+<p><code>f.run</code> (the graph's <code>graph.run</code>) is the right wrapper for <strong>in-process
+multi-apply tests</strong>: several applies share one ledger scope, and the
+router will not open a second one. <strong>REST ledger tests must not wrap the
+HTTP handler in <code>f.run</code></strong> — that would pass for the wrong reason. With a
+bound ledger the router opens the scope around each target apply itself,
+which is exactly what those tests assert (<code>test/ledger_scope_test.dart</code>).</p>
 <p>Remember: the binding table <strong>seals at open</strong> — custom bindings must
 be registered through <code>extraBindings</code>, never after <code>build()</code> returns.</p>
 <h2 id="what-each-suite-locks-in">What each suite locks in</h2>
@@ -239,6 +245,7 @@ MCP-native, audit-ready, replay-verifiable.
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
       <li class="section-subtitle">Features</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+        <li class="section-subitem"><a href="../cell_skin_io/">cell_skin_io</a></li>
         <li class="section-subitem"><a href="../cell_skin_rest/">cell_skin_rest</a></li>
       <li class="section-subtitle">Architecture</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
@@ -274,7 +281,7 @@ MCP-native, audit-ready, replay-verifiable.
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

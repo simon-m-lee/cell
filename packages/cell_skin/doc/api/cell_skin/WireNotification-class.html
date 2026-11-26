@@ -91,6 +91,8 @@ never reach the core reactive graph or trigger internal cell updates.</li>
 </ul>
 <h3 id="ai-agent-guide">AI Agent Guide</h3>
 <p><strong>Layer:</strong> Skin — this is a volatile signal.
+<strong>Live signature:</strong> <code>final class WireNotification extends WireMessage { final String method; final Map&lt;String, Object?&gt; params; const WireNotification({required String method, Map&lt;String, Object?&gt; params = const {}}); }</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable
 <strong>Constraint:</strong> Do not use for important data; notifications are not ledgered.
 <strong>Comparison:</strong> Use <a href="../cell_skin/WireResponse-class.html">WireResponse</a> for results and <a href="../cell_skin/WireStateChange-class.html">WireStateChange</a> for values.</p>
 </section>
@@ -306,7 +308,7 @@ how to interpret the temporary signal crossing the <strong>Skin Membrane</strong
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

@@ -105,6 +105,7 @@ the index for the wire.</li>
     WireManifestResponse(
       manifest: SkinManifest.fromJson(
           (json[&#39;manifest&#39;] as Map).cast&lt;String, Object?&gt;()),
+      correlationId: json[&#39;correlationId&#39;] as String?,
     );</code></pre>
 </section>
 
@@ -133,7 +134,7 @@ the index for the wire.</li>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

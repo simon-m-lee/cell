@@ -92,6 +92,13 @@ change if the cell's "DNA" (receptor or rule version) is updated later.</li>
 <li><a href="../cell_skin/WireOutcome-class.html">WireOutcome</a>: The structure that carries this receipt as proof of result.</li>
 <li><a href="../cell_skin/wireReceiptJson.html">wireReceiptJson</a>: The encoder that produces this structure.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — the framework receipt in wire form.
+<strong>When to use:</strong> decoding the receipt inside a <a href="../cell_skin/WireOutcome-class.html">WireOutcome</a>; the
+encoder is <a href="../cell_skin/wireReceiptJson.html">wireReceiptJson</a>, never a hand-built map.
+<strong>When NOT to use:</strong> inventing receipts the graph never produced.
+<strong>Live signature:</strong> <code>const WireReceipt({required String id, required String cellId, required String functionLabel, List&lt;Object?&gt;? positional, Map&lt;String, Object?&gt;? named, required DateTime timestamp, int? txSequence, required bool vetted, int? ledgerSeq, String? pulseDigest, String? receptorVersion, String? ruleVersion, String? contextVersion})</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable</p>
 </section>
 
 
@@ -400,7 +407,7 @@ change if the cell's "DNA" (receptor or rule version) is updated later.</li>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

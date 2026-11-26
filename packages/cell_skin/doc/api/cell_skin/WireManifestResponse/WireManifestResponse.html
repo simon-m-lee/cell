@@ -55,6 +55,7 @@
     <section class="multi-line-signature">
       const
       <span class="name ">WireManifestResponse</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-manifest"><span>required</span> <span class="type-annotation"><a href="../../cell_skin/SkinManifest-class.html">SkinManifest</a></span> <span class="parameter-name">manifest</span>, </span></li>
+<li><span class="parameter" id="-param-correlationId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">correlationId</span>, </span></li>
 </ol>})
     </section>
     
@@ -97,7 +98,7 @@ entirety of the physically exposed surface at the moment the
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const WireManifestResponse({required this.manifest});</code></pre>
+  <pre class="language-dart"><code class="language-dart">const WireManifestResponse({required this.manifest, this.correlationId});</code></pre>
 </section>
 
 
@@ -125,7 +126,7 @@ entirety of the physically exposed surface at the moment the
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

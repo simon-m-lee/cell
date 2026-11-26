@@ -95,6 +95,8 @@ telling the receiver if the transition was <code>accepted</code>, <code>rejected
 </ul>
 <h3 id="ai-agent-guide">AI Agent Guide</h3>
 <p><strong>Layer:</strong> Skin — this is the result of your tool call.
+<strong>Live signature:</strong> <code>final class WireOutcome { final String kind; final Object? result; final Object? reason; final Map&lt;String, Object?&gt; receipt; const WireOutcome({required String kind, Object? result, Object? reason, required Map&lt;String, Object?&gt; receipt}); factory WireOutcome.fromJson(Map&lt;String, Object?&gt; json); }</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable
 <strong>Integrity:</strong> Check <code>resultOmitted</code> or <code>reasonOmitted</code> if a value looks
 like a placeholder string.
 <strong>Validation:</strong> If <code>kind</code> is <code>rejected</code>, the transition did not occur in
@@ -335,7 +337,7 @@ the <strong>Forensic Ledger</strong>.</p>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

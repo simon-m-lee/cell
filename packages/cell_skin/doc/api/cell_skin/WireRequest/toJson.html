@@ -78,7 +78,7 @@ metadata on the pulse.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Map&lt;String, Object?&gt; toJson() =&gt; {
+Map&lt;String, Object?&gt; toJson() =&gt; withWire({
       &#39;kind&#39;: kind,
       &#39;cellId&#39;: cellId,
       &#39;function&#39;: function,
@@ -88,7 +88,7 @@ Map&lt;String, Object?&gt; toJson() =&gt; {
       if (clientCorrelationId != null)
         &#39;clientCorrelationId&#39;: clientCorrelationId,
       if (lastSeenSeq != null) &#39;lastSeenSeq&#39;: lastSeenSeq,
-    };</code></pre>
+    });</code></pre>
 </section>
 
 
@@ -116,7 +116,7 @@ Map&lt;String, Object?&gt; toJson() =&gt; {
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

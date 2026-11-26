@@ -111,6 +111,7 @@ maps to ensure the <strong>Command Journey</strong> data remains stable.</li>
               (json[&#39;outcome&#39;] as Map).cast&lt;String, Object?&gt;()),
       pendingReceipt: json[&#39;pendingReceipt&#39;] as bool? ?? false,
       receiptJson: (json[&#39;receipt&#39;] as Map?)?.cast&lt;String, Object?&gt;(),
+      ledgerSeqs: (json[&#39;ledgerSeqs&#39;] as List?)?.cast&lt;int&gt;(),
     );</code></pre>
 </section>
 
@@ -139,7 +140,7 @@ maps to ensure the <strong>Command Journey</strong> data remains stable.</li>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

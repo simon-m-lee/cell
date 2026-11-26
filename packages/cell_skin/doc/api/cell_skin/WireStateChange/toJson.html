@@ -113,13 +113,13 @@ payload or a missing receipt) are omitted from the map to keep the
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Map&lt;String, Object?&gt; toJson() =&gt; {
+Map&lt;String, Object?&gt; toJson() =&gt; withWire({
       &#39;kind&#39;: kind,
       &#39;cellId&#39;: cellId,
       if (payload != null) &#39;payload&#39;: payload,
       if (receipt != null) &#39;receipt&#39;: receipt!.toJson(),
       &#39;pendingReceipt&#39;: pendingReceipt,
-    };</code></pre>
+    });</code></pre>
 </section>
 
 
@@ -147,7 +147,7 @@ Map&lt;String, Object?&gt; toJson() =&gt; {
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

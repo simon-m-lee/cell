@@ -103,7 +103,8 @@ a database or OIDC provider), so the process is asynchronous.</li>
 <p><strong>Layer:</strong> Skin — the credential check, not the authorisation policy (the domain's <code>TestCell</code> decides).
 <strong>When to use:</strong> a requirement says "authenticate REST callers", "per-principal context", or "bearer tokens".
 <strong>When NOT to use:</strong> authorisation decisions — return the principal and let the graph's gates decide.
-<strong>Live signature:</strong> <code>abstract interface class SkinAuth { Future&lt;SkinPrincipal?&gt; authenticate(SkinCredentials credentials); }</code> — pinned at <code>cell_skin: 0.1.0</code>
+<strong>Live signature:</strong> <code>abstract interface class SkinAuth { Future&lt;SkinPrincipal?&gt; authenticate(SkinCredentials credentials); }</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable
 <strong>Do NOT confuse with:</strong> <code>ContextBridge</code> (principal → framework <code>Context</code>) or <code>SkinWhitelist</code> (exposure policy, not identity).
 <strong>Guide:</strong> <code>FEATURES-Skin.md</code> §13 (security SPI).
 <strong>Example:</strong> <code>example/lib/mock/rest_io.dart</code> (the demo opts into <code>AllowAllSkinAuth</code>).
@@ -268,7 +269,7 @@ a database or OIDC provider), so the process is asynchronous.</li>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

@@ -55,6 +55,9 @@
     <section class="multi-line-signature">
       const
       <span class="name ">McpToolSpec</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span></li>
+<li><span class="parameter" id="-param-dottedName"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">dottedName</span>, </span></li>
+<li><span class="parameter" id="-param-cellId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">cellId</span>, </span></li>
+<li><span class="parameter" id="-param-functionName"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">functionName</span>, </span></li>
 <li><span class="parameter" id="-param-description"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">description</span>, </span></li>
 <li><span class="parameter" id="-param-inputSchema"><span class="type-annotation"><a href="../../cell_skin/JsonSchema-class.html">JsonSchema</a></span> <span class="parameter-name">inputSchema</span> = <span class="default-value">JsonSchema.permissive</span>, </span></li>
 </ol>})
@@ -73,6 +76,9 @@ constraints are provided.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">const McpToolSpec({
   required this.name,
+  required this.dottedName,
+  required this.cellId,
+  required this.functionName,
   this.description,
   this.inputSchema = JsonSchema.permissive,
 });</code></pre>
@@ -103,7 +109,7 @@ constraints are provided.</p>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

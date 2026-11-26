@@ -96,6 +96,8 @@ the <strong>Neutral Signature</strong> (<a href="../cell_skin/SkinPrincipal/Skin
 </ul>
 <h3 id="ai-agent-guide">AI Agent Guide</h3>
 <p><strong>Layer:</strong> Skin — this is the "Who" at the boundary.
+<strong>Live signature:</strong> <code>final class SkinPrincipal { final String id; final List&lt;String&gt; roles; final Map&lt;String, Object?&gt; claims; const SkinPrincipal({required String id, List&lt;String&gt; roles = const [], Map&lt;String, Object?&gt; claims = const {}}); }</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable
 <strong>Traceability:</strong> The <code>id</code> is the key for all forensic lookups.
 <strong>Constraint:</strong> Roles here do not grant power; they are data points for
 the <code>ContextBridge</code> to use when assigning authority.</p>
@@ -274,7 +276,7 @@ the <code>ContextBridge</code> to use when assigning authority.</p>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

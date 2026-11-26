@@ -58,6 +58,11 @@
 </ol>)
     </section>
     
+<section class="desc markdown">
+  <p>Decodes a <strong>Skin Form</strong> JSON map back into a <a href="../../cell_skin/SkinFunctionDescriptor-class.html">SkinFunctionDescriptor</a>.</p>
+<p>This acts as a <strong>Signal Decoder</strong> at the membrane, reconstructing the
+capability metadata from the wire.</p>
+</section>
 
 
     
@@ -70,8 +75,9 @@
       argumentSchema: json[&#39;argumentSchema&#39;] == null
           ? JsonSchema.permissive
           : JsonSchema.fromJson(
-              (json[&#39;argumentSchema&#39;] as Map).cast&lt;String, Object?&gt;()),
+          (json[&#39;argumentSchema&#39;] as Map).cast&lt;String, Object?&gt;()),
       strictCursor: json[&#39;strictCursor&#39;] as bool? ?? false,
+      positionalNames: (json[&#39;positionalNames&#39;] as List?)?.cast&lt;String&gt;(),
     );</code></pre>
 </section>
 
@@ -100,7 +106,7 @@
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

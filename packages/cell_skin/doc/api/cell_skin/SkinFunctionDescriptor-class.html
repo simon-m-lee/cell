@@ -55,7 +55,51 @@
 
     
 <section class="desc markdown">
-  <p>One exposed function in the catalogue.</p>
+  <p>A technical description of a single interactable point on the membrane.</p>
+<p>In the framework's biological metaphor, <a href="../cell_skin/SkinFunctionDescriptor-class.html">SkinFunctionDescriptor</a> is a
+<strong>Synaptic Descriptor</strong>. It defines the metadata for a specific
+<strong>Signal Label</strong>, detailing how the environment can stimulate a cell
+to undergo a <strong>Somatic State Transition</strong>.</p>
+<p>These descriptors are the building blocks of the <a href="../cell_skin/SkinManifest-class.html">SkinManifest</a> (the
+<strong>Somatic Index</strong>), allowing external agents to understand the system's
+"DNA" before initiating a <strong>Command Journey</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Discovery</strong>: Provided to AI agents or dashboards so they know which
+functions are physically exposed at the <strong>Skin Membrane</strong>.</li>
+<li><strong>Validation</strong>: Used by clients to pre-screen payloads against the
+advertised <strong>Somatic Blueprint</strong>.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Binding Extraction</strong>: The descriptor is generated from a <a href="../cell_skin/SkinBinding-class.html">SkinBinding</a>.</li>
+<li><strong>Schema Resolution</strong>: The <a href="../cell_skin/SkinFunctionDescriptor/argumentSchema.html">argumentSchema</a> is determined by prioritizing
+explicit binding hints, then observed cell values, and finally falling
+back to a permissive state.</li>
+<li><strong>Manifest Integration</strong>: Multiple descriptors are grouped into a
+<a href="../cell_skin/SkinCellDescriptor-class.html">SkinCellDescriptor</a> to represent the full surface of a cell.</li>
+</ol>
+<h3 id="nonobvious-behavior">Non‑obvious behavior</h3>
+<ul>
+<li><strong>Statelessness</strong>: The descriptor is a static snapshot of a capability.
+It does not represent a specific pulse or a historical ledger entry.</li>
+<li><strong>Immutability</strong>: Once the membrane is open and the binding table is
+sealed, these descriptors remain constant for the life of the connection.</li>
+</ul>
+<h3 id="see-also">See also</h3>
+<ul>
+<li><a href="../cell_skin/SkinCellDescriptor-class.html">SkinCellDescriptor</a>: The container for these descriptors.</li>
+<li><a href="../cell_skin/JsonSchema-class.html">JsonSchema</a>: The structure used to define the <a href="../cell_skin/SkinFunctionDescriptor/argumentSchema.html">argumentSchema</a>.</li>
+<li><a href="../cell_skin/SkinBinding-class.html">SkinBinding</a>: The source of truth for this descriptor.</li>
+</ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — this is your tool definition.
+<strong>Live signature:</strong> <code>final class SkinFunctionDescriptor { final String name; final String? description; final JsonSchema argumentSchema; final bool strictCursor; final List&lt;String&gt;? positionalNames; }</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable
+<strong>Causality:</strong> Invoking the function named here initiates a command that
+will be recorded in the <strong>Forensic Ledger</strong>.
+<strong>Constraint:</strong> If <a href="../cell_skin/SkinFunctionDescriptor/strictCursor.html">strictCursor</a> is true, you must provide a valid
+<code>lastSeenSeq</code> to maintain <strong>Causal Linkage</strong>.</p>
 </section>
 
 
@@ -65,7 +109,7 @@
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="SkinFunctionDescriptor.new" class="callable">
-          <span class="name"><a href="../cell_skin/SkinFunctionDescriptor/SkinFunctionDescriptor.html">SkinFunctionDescriptor</a></span><span class="signature">({<span class="parameter" id="-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="-param-description"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">description</span>, </span><span class="parameter" id="-param-argumentSchema"><span class="type-annotation"><a href="../cell_skin/JsonSchema-class.html">JsonSchema</a></span> <span class="parameter-name">argumentSchema</span> = <span class="default-value">JsonSchema.permissive</span>, </span><span class="parameter" id="-param-strictCursor"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">strictCursor</span> = <span class="default-value">false</span></span>})</span>
+          <span class="name"><a href="../cell_skin/SkinFunctionDescriptor/SkinFunctionDescriptor.html">SkinFunctionDescriptor</a></span><span class="signature">({<span class="parameter" id="-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="-param-description"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">description</span>, </span><span class="parameter" id="-param-argumentSchema"><span class="type-annotation"><a href="../cell_skin/JsonSchema-class.html">JsonSchema</a></span> <span class="parameter-name">argumentSchema</span> = <span class="default-value">JsonSchema.permissive</span>, </span><span class="parameter" id="-param-strictCursor"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">strictCursor</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-positionalNames"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">positionalNames</span></span>})</span>
         </dt>
         <dd>
           
@@ -75,7 +119,7 @@
           <span class="name"><a href="../cell_skin/SkinFunctionDescriptor/SkinFunctionDescriptor.fromJson.html">SkinFunctionDescriptor.fromJson</a></span><span class="signature">(<span class="parameter" id="fromJson-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">json</span></span>)</span>
         </dt>
         <dd>
-          
+          Decodes a <strong>Skin Form</strong> JSON map back into a <a href="../cell_skin/SkinFunctionDescriptor-class.html">SkinFunctionDescriptor</a>.
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
@@ -93,8 +137,7 @@
 
 </dt>
 <dd>
-  The advertised JSON Schema (binding hint, observed shape, or
-permissive).
+  The technical blueprint defining the valid arguments for this function.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -106,7 +149,7 @@ permissive).
 
 </dt>
 <dd>
-  Human-readable description, when the binding supplied one.
+  A human and AI-readable description of the function's somatic purpose.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -130,7 +173,22 @@ permissive).
 
 </dt>
 <dd>
-  The wire-facing function name.
+  The external <strong>Signal Label</strong> used to identify this function on the wire.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="positionalNames" class="property">
+  <span class="name"><a href="../cell_skin/SkinFunctionDescriptor/positionalNames.html">positionalNames</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span>
+  
+
+</dt>
+<dd>
+  The schema property name for each positional wire argument (the
+binding's validation zipper), when the schema names properties
+rather than index keys. Shown to clients so <code>tools/list</code> can teach
+them the zipper; old manifests without the field still decode.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -154,7 +212,8 @@ permissive).
 
 </dt>
 <dd>
-  Whether callers must send a <code>lastSeenSeq</code> cursor.
+  Whether callers must provide a <code>lastSeenSeq</code> cursor to ensure
+<strong>Causal Linkage</strong>.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -189,7 +248,7 @@ permissive).
 
 </dt>
 <dd>
-  
+  Converts the descriptor into its <strong>Skin Form</strong> (JSON) for transport.
   
 
 </dd>
@@ -257,7 +316,7 @@ permissive).
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

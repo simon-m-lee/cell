@@ -62,7 +62,11 @@
       </section>
       
 <section class="desc markdown">
-  <p>Whether callers must send a <code>lastSeenSeq</code> cursor.</p>
+  <p>Whether callers must provide a <code>lastSeenSeq</code> cursor to ensure
+<strong>Causal Linkage</strong>.</p>
+<p>When <code>true</code>, the <strong>Skin Membrane</strong> will reject any impulse that does
+not provide the correct sequence marker, preventing "Forensic
+Ambiguity" caused by out-of-order signals.</p>
 </section>
 
       
@@ -97,7 +101,7 @@
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

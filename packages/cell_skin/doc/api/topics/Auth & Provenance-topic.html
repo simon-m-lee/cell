@@ -48,8 +48,10 @@
   <h1 id="howto-auth">HowTo-Auth</h1>
 <p>Remote identity travels as provenance. <code>SkinAuth</code> checks credentials;
 <code>ContextBridge</code> turns the principal into a framework <code>Context</code>;
-<code>RestAdapter</code> stamps every request with it — so the domain's own
-<code>TestCell</code> gates can see <em>who</em> called.</p>
+<code>RestAdapter</code> stamps every request with the principal's actor and a
+JSON snapshot. The domain gate reads the caller through the <code>SkinCall</code>
+zone during <code>apply</code>, and the recorded pulse carries the actor into the
+ledger.</p>
 <h2 id="when-to-use">When to use</h2>
 <ul>
 <li>A requirement says "authenticate REST callers", "per-principal
@@ -69,10 +71,12 @@ final class TokenAuth implements SkinAuth {
   @override
   Future&lt;SkinPrincipal?&gt; authenticate(SkinCredentials credentials) async {
     if (credentials.token != 'secret') return null; // → 401 + WWW-Authenticate
-    return SkinPrincipal(
-      id: credentials.metadata['userAgent'] ?? 'unknown',
-      roles: const ['operator'],
-      claims: const {'region': 'eu'},
+    // The principal id comes from the token lookup — never from a
+    // client-controlled header like User-Agent.
+    return const SkinPrincipal(
+      id: 'tester',
+      roles: ['operator'],
+      claims: {'region': 'eu'},
     );
   }
 }
@@ -84,25 +88,55 @@ final adapter = await RestAdapter.bind(
 </code></pre>
 <p><code>SkinCredentials</code> carries the token <strong>plus transport metadata</strong> —
 peer address, host, user agent — so identity checks can use more than
-the bearer string.</p>
+the bearer string. Do not use that metadata as the principal id.</p>
 <h2 id="anonymous-is-an-explicit-opt-in">Anonymous is an explicit opt-in</h2>
 <pre class="language-dart"><code class="language-dart">RestAdapter.bind(
   membrane: membrane,
   auth: const AllowAllSkinAuth(), // loopback demo / tests only
 );
 </code></pre>
-<p>There is no unauthenticated default: <code>auth</code> is a required parameter.</p>
-<h2 id="provenance-end-to-end">Provenance end to end</h2>
-<p>The adapter stamps every request:</p>
-<pre class="language-dart"><code class="language-dart">PulseContext(
-  baseContext: bridge.resolve(principal), // DescribeContextBridge by default
-  actor: 'skin:${principal.id}',
-  reason: 'rest apply home.living.thermostat.setTarget',
-)
+<p>There is no unauthenticated default: <code>auth</code> is a required parameter.
+Anonymous callers are stamped <code>actor: skin:anonymous</code>.</p>
+<h2 id="the-two-real-provenance-paths">The two real provenance paths</h2>
+<p>The request context on the wire pulse is <strong>not</strong> what a domain gate sees.
+There are two separate paths:</p>
+<h3 id="1-the-live-gate--the-skincall-zone">1. The live gate — the <code>SkinCall</code> zone</h3>
+<p>The router installs a <code>SkinCall</code> zone around the target apply (inside
+the ledger scope when it opens one). <code>TestCell.action</code> runs on the same
+call stack as <code>apply</code>, so the gate reads the caller there — including
+after an <code>await</code> inside the function body:</p>
+<pre class="language-dart"><code class="language-dart">final class OwnerGate extends TestCell&lt;Cell&gt; {
+  OwnerGate() : super((object, {host, arguments, user}) =&gt; true);
+
+  @override
+  FutureOr&lt;bool&gt; action(
+    Function action, {
+    required Cell host,
+    Arguments? arguments,
+    ApplyCommand? command,
+  }) {
+    final call = SkinCall.current;
+    return call?.principal?.id == 'tester';
+  }
+}
 </code></pre>
-<p>and the membrane emits through <code>Pulse.governed</code> — the context rides
-the pulse into <code>target.apply</code>, where the domain's <code>TestCell</code> can
-inspect it.</p>
+<p><code>SkinCall.current?.principal</code> is the authenticated
+<code>SkinPrincipal</code> (<code>id</code>, <code>roles</code>, <code>claims</code>); <code>SkinCall.current?.pulseContext</code>
+is the request's <code>PulseContext</code> (<code>actor: skin:&lt;id&gt;</code>). Gates that do not
+look at the zone do not become actor-aware by magic.</p>
+<h3 id="2-the-stored-pulse--the-ledger-row">2. The stored pulse — the ledger row</h3>
+<p><code>recordPulse</code> stores the pulse the binding returns. <code>SkinBinding.state</code>
+and <code>SkinPulses.payload</code> stamp that pulse with the call's context, so the
+row's <code>pulseJson['context']['lineage']</code> contains <code>actor: skin:&lt;id&gt;</code> and a
+JSON snapshot of the principal (<code>others['skin.principal']</code> — id, roles,
+and the claims JSON can encode; the bearer token is never copied).
+Replay restores the thermostat value <strong>and does not restore the zone</strong>:
+a gate that decides only by reading <code>SkinCall.current</code> sees <code>null</code> on
+replay. Gates that must keep refusing on replay keep checking the value
+(a <code>ValueGate</code>, a door gate on the pulse payload). The stored actor is
+the audit record.</p>
+<p><code>update()</code> inside a raw binding still writes a row with no remote actor
+— provenance for <code>update()</code> rows is not supported.</p>
 <h2 id="choose-your-bridge">Choose your bridge</h2>
 <table>
 <thead>
@@ -128,6 +162,48 @@ inspect it.</p>
   contextBridge: const SystemContextBridge(), // opt-in, deliberate
 );
 </code></pre>
+<p><code>SystemContextBridge</code> does not skip the domain gate: a refusing
+<code>TestCell</code> still rejects the apply.</p>
+<h2 id="authorize-with-one-hook">Authorize with one hook</h2>
+<p>Authentication answered <em>who is calling</em>. <code>SkinAuthorizer</code> is the
+application's one hook for <em>may this principal apply this binding</em> — it
+is optional and default-allow:</p>
+<pre class="language-dart"><code class="language-dart">Future&lt;bool&gt; operatorOnly(SkinPrincipal principal, SkinBinding binding) async {
+  // Your rule. The skin never reads roles itself.
+  return principal.roles.contains('operator');
+}
+
+await SkinMembrane.open(
+  graph: graph,
+  bindings: bindings,
+  journal: RecordingJournal(),
+  send: (_) {},
+  authorizer: operatorOnly,
+);
+</code></pre>
+<p>The hook runs after the binding was found and the whitelist allows it
+(a hidden tool stays <code>unknown_tool</code> and never reaches the hook), and
+before the domain gate. <code>false</code> is <code>forbidden</code> — HTTP 403 — the binding
+does not run, the ledger does not move, and the denial is not cached,
+so a later call by an allowed principal is a new apply. <code>true</code> does
+<strong>not</strong> skip the domain gate: a refusing <code>TestCell</code> still rejects the
+apply. A throw is <code>transport_error</code> with the runtime type only.</p>
+<p>The hook receives the <code>SkinPrincipal</code> the transport authenticated — on
+REST, the adapter stamps the token's principal onto the request
+context; in-process, <code>SkinMembrane.request</code> and <code>SkinClient.apply</code> take
+a <code>principal</code> and stamp the same snapshot. With no snapshot, the hook
+still runs and may refuse <code>SkinPrincipal.anonymous()</code>.</p>
+<p>A non-null hook also filters the read routes through
+<code>SkinMembrane.mayRead</code>: <code>/skin/manifest</code> omits a cell whose bindings
+are all denied, <code>/skin/observe/&lt;cellId&gt;</code> answers 403 <code>forbidden</code> for an
+exposed but denied cell (a hidden cell stays 404 <code>unknown_tool</code>), and
+<code>/skin/ledger</code> skips that cell's rows. A <code>null</code> hook reads everything
+exposure allows. Read checks are not cached, so a role change takes
+effect on the next read.</p>
+<p><code>/skin/verify</code> is gated by authentication and the whitelist's exposure
+alone — the hook is not consulted for verify. An idempotency hit (same
+actor, same body, within the store's TTL) replays the stored outcome
+without running the hook again.</p>
 <h2 id="in-process-provenance">In-process provenance</h2>
 <p><code>SkinMembrane.request</code> takes a <code>PulseContext</code> directly:</p>
 <pre class="language-dart"><code class="language-dart">await membrane.request(
@@ -136,8 +212,8 @@ inspect it.</p>
   context: PulseContext(actor: 'alice', reason: 'evening setback'),
 );
 </code></pre>
-<p>The response pulse carries the same context — testable with the public
-<code>PulseContext.actor</code> / <code>reason</code> accessors.</p>
+<p><code>SkinClient.apply</code> takes an optional <code>principal</code> and builds the same
+request context through <code>skinPulseContext</code> when no context is supplied.</p>
 <h2 id="see-also">See also</h2>
 <ul>
 <li><code>HowTo-RestAdapter.md</code> — the 401/<code>WWW-Authenticate</code> contract.</li>
@@ -207,6 +283,7 @@ inspect it.</p>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
       <li class="section-subtitle">Features</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+        <li class="section-subitem"><a href="../cell_skin_io/">cell_skin_io</a></li>
         <li class="section-subitem"><a href="../cell_skin_rest/">cell_skin_rest</a></li>
       <li class="section-subtitle">Architecture</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
@@ -242,7 +319,7 @@ inspect it.</p>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

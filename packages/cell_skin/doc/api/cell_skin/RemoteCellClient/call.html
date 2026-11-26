@@ -104,15 +104,14 @@ discarded the signal (e.g., bad arguments, cursor conflict).</li>
         ? null
         : {for (var i = 0; i &lt; positional.length; i++) &#39;$i&#39;: positional[i]},
     named: named,
-    &#47;&#47; A counter, not a timestamp: concurrent identical calls must
-    &#47;&#47; never share a correlation id.
-    correlationId:
-        &#39;remote-${DateTime.now().microsecondsSinceEpoch}-${_correlationCounter++}&#39;,
+    &#47;&#47; The shared isolate-wide sequence: concurrent identical calls
+    &#47;&#47; from several clients must never share a correlation id.
+    correlationId: nextCorrelationId(&#39;remote&#39;),
     lastSeenSeq: lastSeenSeq,
   );
   return transport(request, SkinPulseTypes.restApplyRequest).then((message) {
     return switch (message) {
-      WireResponse response =&gt; response.outcome,
+      WireResponse response =&gt; SkinClient.outcomeOf(response),
       WireError error =&gt; throw SkinError(error.code, error.message),
       _ =&gt; throw SkinError(&#39;unexpected_response&#39;, &#39;$message&#39;),
     };
@@ -145,7 +144,7 @@ discarded the signal (e.g., bad arguments, cursor conflict).</li>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

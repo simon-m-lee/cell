@@ -82,34 +82,210 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 </thead>
 <tbody>
 <tr>
+<td><code>AllowAllSkinAuth</code></td>
+<td></td>
+<td></td>
+<td>** <code>final class AllowAllSkinAuth implements SkinAuth { const AllowAllSkinAuth(); Future&lt;SkinPrincipal?&gt; authenticate(SkinCredentials credentials); }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Cell.buildMuxCell</code></td>
+<td></td>
+<td></td>
+<td>** <code>Cell buildMuxCell({required Iterable&lt;Cell&gt; sources})</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>JsonSchema</code></td>
+<td></td>
+<td></td>
+<td>** <code>final class JsonSchema { static const JsonSchema permissive; const JsonSchema({String? type, String? description, Map&lt;String, JsonSchema&gt;? properties, List&lt;String&gt;? required, JsonSchema? items, num? minimum, num? maximum, List&lt;Object?&gt;? enumValues}); }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>McpResourceSpec</code></td>
+<td></td>
+<td></td>
+<td>** <code>final class McpResourceSpec { final String name; final String uri; const McpResourceSpec({required String name, required String uri}); }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>McpToolSpec</code></td>
+<td>** a BRD says "register the tool with an MCP host" —</td>
+<td>** dispatching a call — use <code>resolveMcpToolCall</code>, which accepts <code>name</code> and <code>dottedName</code>.</td>
+<td>** <code>final class McpToolSpec { final String name; final String dottedName; final String cellId; final String functionName; final String? description; final JsonSchema inputSchema; const McpToolSpec({required String name, required String dottedName, required String cellId, required String functionName, String? description, JsonSchema inputSchema = JsonSchema.permissive}); Map&lt;String, Object?&gt; toJson(); }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td>** <code>HowTo-McpSeam.md</code> (naming and dispatch).</td>
+<td></td>
+</tr>
+<tr>
+<td><code>RemoteCellClient.inProcess</code></td>
+<td></td>
+<td></td>
+<td>** <code>final class RemoteCellClient { factory RemoteCellClient.inProcess(SkinClient client, String cellId); Future&lt;WireMessage&gt; request(WireMessage message, String type); Stream&lt;Pulse&lt;WireMessage&gt;&gt; observe(String cellId); }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>SkinAuthorizer</code></td>
+<td>** a BRD says "forbid this principal", "only operators</td>
+<td>** authentication (the transport's <code>SkinAuth</code> already answered <em>who</em>), or a role table inside <code>cell_skin</code>.</td>
+<td>** <code>typedef SkinAuthorizer = Future&lt;bool&gt; Function(SkinPrincipal principal, SkinBinding binding);</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td>** <code>HowTo-Auth.md</code> (authorize with one hook),</td>
+<td></td>
+</tr>
+<tr>
 <td><code>SkinBinding</code></td>
-<td>** a requirement says "expose X on cell Y", "tools/list should show Z", or "this command must be serialisable".</td>
+<td>** a requirement says "expose X on cell Y", "tools/list should show Z", "this command must be serialisable", or "positional calls must map to schema property names" (pass <code>positionalNames</code>).</td>
 <td>** declaring graph behaviour — gates belong to the cell's <code>TestCell</code>, not the binding.</td>
-<td>** <code>const SkinBinding({required String cellId, required String functionName, required Cell target, required Function function, String? description, JsonSchema? argumentSchema, bool strictCursor = false, Function? compensation})</code> — pinned at <code>cell_skin: 0.1.0</code></td>
+<td>** <code>const SkinBinding({required String cellId, required String functionName, required Cell target, required Function function, String? description, JsonSchema? argumentSchema, bool strictCursor = false, Function? compensation, List&lt;String&gt;? positionalNames})</code> — plus <code>SkinBinding.state(...)</code> and <code>SkinBinding.command(...)</code> with the same extra parameters — pinned at <code>cell_skin: 1.0.0</code></td>
 <td>** <code>FEATURES-Skin.md</code> §4 (binding table and whitelist).</td>
 <td>** <code>example/lib/mock/mock_home.dart</code> (every Echo Home tool is one binding).</td>
+</tr>
+<tr>
+<td><code>SkinCall?.current;</code></td>
+<td>** a domain gate must know the caller during <code>apply</code>;</td>
+<td>** replay-time authorization — replay does not enter this zone; stored actors are the audit record.</td>
+<td>** <code>final class SkinCall { final SkinPrincipal? principal; final PulseContext pulseContext; final DateTime? deadline; static SkinCall? get current; static FutureOr&lt;T&gt; run&lt;T&gt;(SkinCall call, FutureOr&lt;T&gt; Function() body); }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
 </tr>
 <tr>
 <td><code>SkinClient</code></td>
 <td>** a script, test, or agent drives the membrane from Dart; the demo pattern is this client, never a fake.</td>
 <td>** cross-process calls — use <code>RestAdapter</code>; cell-shaped remote views — use <a href="../cell_skin/RemoteCellClient-class.html">RemoteCellClient</a>.</td>
-<td>** <code>SkinClient({required SkinMembrane membrane})</code> with <code>Future&lt;ApplyOutcome&lt;Object?&gt;?&gt; apply(String cellId, String function, {List&lt;Object?&gt;? positional, Map&lt;String, Object?&gt;? named, int? lastSeenSeq, PulseContext? context})</code> — pinned at <code>cell_skin: 0.1.0</code></td>
+<td>** <code>SkinClient({required SkinMembrane membrane})</code> with <code>Future&lt;ApplyOutcome&lt;Object?&gt;?&gt; apply(String cellId, String function, {List&lt;Object?&gt;? positional, Map&lt;String, Object?&gt;? named, int? lastSeenSeq, String type = SkinPulseTypes.restApplyRequest, PulseContext? context, SkinPrincipal? principal})</code> — pinned at <code>cell_skin: 1.0.0</code></td>
 <td>** <code>FEATURES-Skin.md</code> §12 (clients).</td>
 <td>** <code>example/lib/mock/mock_agent.dart</code> (every scripted beat).</td>
+</tr>
+<tr>
+<td><code>SkinCredentials</code></td>
+<td></td>
+<td></td>
+<td>** <code>final class SkinCredentials { final String? token; final Map&lt;String, Object?&gt; metadata; const SkinCredentials({String? token, Map&lt;String, Object?&gt; metadata = const {}}); }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>SkinError</code></td>
+<td></td>
+<td></td>
+<td>** <code>final class SkinError implements Exception { final String code; final String message; const SkinError(String code, String message); }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>SkinManifest</code></td>
+<td></td>
+<td></td>
+<td>** <code>final class SkinManifest { final List&lt;SkinCellDescriptor&gt; cells; const SkinManifest({required List&lt;SkinCellDescriptor&gt; cells}); static SkinManifest describe({required CellGraph graph, required SkinBindingTable bindings, SkinWhitelist? whitelist, Map&lt;String, String&gt;? descriptions, void Function(String cellId)? onUnregistered}); }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>SkinPrincipal</code></td>
+<td></td>
+<td></td>
+<td>** <code>final class SkinPrincipal { final String id; final List&lt;String&gt; roles; final Map&lt;String, Object?&gt; claims; const SkinPrincipal({required String id, List&lt;String&gt; roles = const [], Map&lt;String, Object?&gt; claims = const {}}); }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>SkinRequestLog</code></td>
+<td>** <code>RestAdapter.bind(onRequestLog:)</code> for counters,</td>
+<td>** authentication data — the sample has no headers, no body, and no token.</td>
+<td>** <code>typedef SkinRequestLog = void Function(SkinRequestSample sample)</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>SkinRequestSample</code></td>
+<td>** the sample fields for counters and tracing.</td>
+<td>** the request body or the bearer token — they are deliberately absent.</td>
+<td>** <code>final class SkinRequestSample { final String correlationId; final String route; final int status; final String? code; final Duration duration; final int? ledgerSeq; const SkinRequestSample({required String correlationId, required String route, required int status, required String? code, required Duration duration, required int? ledgerSeq}); }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>WireError</code></td>
+<td>** the frozen codes in</td>
+<td>** domain rejections — those are <code>ApplyRejected</code> outcomes in a <a href="../cell_skin/WireResponse-class.html">WireResponse</a>.</td>
+<td>** <code>const WireError({required String correlationId, String? clientCorrelationId, required String code, required String message})</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>WireLedgerEntry</code></td>
+<td>** the ledger SSE and the audit tail — the sequence</td>
+<td>** hand-built receipts — the framework's own codec, never a fork.</td>
+<td>** <code>const WireLedgerEntry({required LedgerEntry entry})</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>WireManifestRequest</code></td>
+<td>** asking the membrane for its tool catalogue; the</td>
+<td>** commands — <a href="../cell_skin/WireRequest-class.html">WireRequest</a>.</td>
+<td>** <code>const WireManifestRequest({String? correlationId})</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>WireManifestResponse</code></td>
+<td>** replying to a <a href="../cell_skin/WireManifestRequest-class.html">WireManifestRequest</a>; the optional</td>
+<td>** commands or state — <a href="../cell_skin/WireResponse-class.html">WireResponse</a> and <a href="../cell_skin/WireStateChange-class.html">WireStateChange</a> own those.</td>
+<td>** <code>const WireManifestResponse({required SkinManifest manifest, String? correlationId})</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>WireMessage</code></td>
+<td></td>
+<td></td>
+<td>** <code>final class WireNotification extends WireMessage { final String method; final Map&lt;String, Object?&gt; params; const WireNotification({required String method, Map&lt;String, Object?&gt; params = const {}}); }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>WireOutcome</code></td>
+<td></td>
+<td></td>
+<td>** <code>final class WireOutcome { final String kind; final Object? result; final Object? reason; final Map&lt;String, Object?&gt; receipt; const WireOutcome({required String kind, Object? result, Object? reason, required Map&lt;String, Object?&gt; receipt}); factory WireOutcome.fromJson(Map&lt;String, Object?&gt; json); }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>WireReceipt</code></td>
+<td>** decoding the receipt inside a <a href="../cell_skin/WireOutcome-class.html">WireOutcome</a>; the</td>
+<td>** inventing receipts the graph never produced.</td>
+<td>** <code>const WireReceipt({required String id, required String cellId, required String functionLabel, List&lt;Object?&gt;? positional, Map&lt;String, Object?&gt;? named, required DateTime timestamp, int? txSequence, required bool vetted, int? ledgerSeq, String? pulseDigest, String? receptorVersion, String? ruleVersion, String? contextVersion})</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
 </tr>
 <tr>
 <td><code>WireRequest</code></td>
 <td>** sending a command at a bound <code>(cellId, function)</code> over any transport.</td>
 <td>** fire-and-forget signals — use <a href="../cell_skin/WireNotification-class.html">WireNotification</a>; state observations — use <a href="../cell_skin/WireStateChange-class.html">WireStateChange</a>.</td>
-<td>** <code>const WireRequest({required String cellId, required String function, Map&lt;String, Object?&gt;? positional, Map&lt;String, Object?&gt;? named, required String correlationId, String? clientCorrelationId, int? lastSeenSeq})</code> — pinned at <code>cell_skin: 0.1.0</code></td>
+<td>** <code>const WireRequest({required String cellId, required String function, Map&lt;String, Object?&gt;? positional, Map&lt;String, Object?&gt;? named, required String correlationId, String? clientCorrelationId, int? lastSeenSeq, DateTime? deadline})</code> — pinned at <code>cell_skin: 1.0.0</code></td>
 <td>** <code>ARCHITECTURE-Skin.md</code> §3 (wire taxonomy) and §6 (correlation).</td>
 <td>** <code>example/lib/mock/mock_agent.dart</code> (every scripted beat is one request).</td>
+</tr>
+<tr>
+<td><code>WireResponse</code></td>
+<td>** answering a <code>request()</code> — <code>outcome</code> (live),</td>
+<td>** streaming state — <a href="../cell_skin/WireStateChange-class.html">WireStateChange</a>; failures — <a href="../cell_skin/WireError-class.html">WireError</a>.</td>
+<td>** <code>const WireResponse({required String correlationId, String? clientCorrelationId, ApplyOutcome&lt;Object?&gt;? outcome, WireOutcome? outcomeJson, bool pendingReceipt = false, Map&lt;String, Object?&gt;? receiptJson, List&lt;int&gt;? ledgerSeqs})</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
 </tr>
 <tr>
 <td><code>WireStateChange</code></td>
 <td>** streaming target state changes to observers (SSE, MCP notifications, Dart clients).</td>
 <td>** completing a request — it has no correlation id; replies are <a href="../cell_skin/WireResponse-class.html">WireResponse</a> or <a href="../cell_skin/WireError-class.html">WireError</a>.</td>
-<td>** <code>const WireStateChange({required String cellId, Object? payload, WireReceipt? receipt, bool pendingReceipt = false})</code> — pinned at <code>cell_skin: 0.1.0</code></td>
+<td>** <code>const WireStateChange({required String cellId, Object? payload, WireReceipt? receipt, bool pendingReceipt = false})</code> — pinned at <code>cell_skin: 1.0.0</code></td>
 <td>** <code>ARCHITECTURE-Skin.md</code> §4 (receipt provenance).</td>
 <td>** <code>example/lib/widgets/home_pane.dart</code> (the thermostat readout observes this variant).</td>
 </tr>
@@ -117,7 +293,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>authenticate</code></td>
 <td>** a requirement says "authenticate REST callers", "per-principal context", or "bearer tokens".</td>
 <td>** authorisation decisions — return the principal and let the graph's gates decide.</td>
-<td>** <code>abstract interface class SkinAuth { Future&lt;SkinPrincipal?&gt; authenticate(SkinCredentials credentials); }</code> — pinned at <code>cell_skin: 0.1.0</code></td>
+<td>** <code>abstract interface class SkinAuth { Future&lt;SkinPrincipal?&gt; authenticate(SkinCredentials credentials); }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
 <td>** <code>FEATURES-Skin.md</code> §13 (security SPI).</td>
 <td>** <code>example/lib/mock/rest_io.dart</code> (the demo opts into <code>AllowAllSkinAuth</code>).</td>
 </tr>
@@ -125,17 +301,105 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <td><code>bind</code></td>
 <td>** a requirement says "REST endpoint for the graph", "SSE stream of changes", "audit log over HTTP", or "curl-able manifest".</td>
 <td>** in-process calls (use <code>SkinClient</code>); speaking MCP (use the <code>McpAdapter</code> seam with an MCP SDK).</td>
-<td>** <code>static Future&lt;RestAdapter&gt; bind({required SkinMembrane membrane, required SkinAuth auth, ContextBridge contextBridge = const DescribeContextBridge(), Object? address, int port = 0, Set&lt;String&gt;? allowedHosts, Set&lt;String&gt;? allowedOrigins, int maxBodyBytes = 1048576, Duration requestTimeout = Duration(seconds: 30), Duration keepAliveInterval = Duration(seconds: 15)})</code> — pinned at <code>cell_skin: 0.1.0</code></td>
+<td>** <code>static Future&lt;RestAdapter&gt; bind({required SkinMembrane membrane, required SkinAuth auth, ContextBridge contextBridge = const DescribeContextBridge(), Object? address, int port = 0, Set&lt;String&gt;? allowedHosts, Set&lt;String&gt;? allowedOrigins, int maxBodyBytes = 1048576, Duration requestTimeout = Duration(seconds: 30), Duration keepAliveInterval = Duration(seconds: 15), void Function(Object, StackTrace)? onServerError, DateTime Function() clock = DateTime.now, SkinRequestLog? onRequestLog})</code> — pinned at <code>cell_skin: 1.0.0</code></td>
 <td>** <code>FEATURES-Skin.md</code> §10 (REST adapter).</td>
 <td>** <code>example/lib/mock/rest_io.dart</code> (the demo's real adapter binding).</td>
+</tr>
+<tr>
+<td><code>bool</code></td>
+<td></td>
+<td></td>
+<td>** <code>final class SkinFunctionDescriptor { final String name; final String? description; final JsonSchema argumentSchema; final bool strictCursor; final List&lt;String&gt;? positionalNames; }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>buildOutboundCell</code></td>
+<td></td>
+<td></td>
+<td>** <code>EgressHandle&lt;Pulse&lt;WireMessage&gt;&gt; buildOutboundCell({required Cell mux, required void Function(Pulse&lt;WireMessage&gt; pulse) send})</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>claim</code></td>
+<td>** a requirement says "retry the same attempt" across</td>
+<td>** storing domain history — records belong to the domain ledger, never here.</td>
+<td>** <code>abstract interface class IdempotencyStore { Future&lt;IdempotencyClaim&gt; claim(String key); Future&lt;void&gt; complete(String key, IdempotencyRecord record); Future&lt;void&gt; abort(String key); }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>expose</code></td>
+<td>** a BRD says "deny the cells I name, allow the rest"</td>
+<td>** per-request authorization (use <code>SkinAuthorizer</code>), or creating exposure for unbound functions.</td>
+<td>** <code>enum SkinUnlisted { hide, expose }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td>** <code>HowTo-Whitelist.md</code> (inverting the policy).</td>
+<td></td>
+</tr>
+<tr>
+<td><code>int.port;</code></td>
+<td></td>
+<td></td>
+<td>** <code>final class RestAdapter { final SkinMembrane membrane; int get port; Future&lt;void&gt; close(); }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>int.queued;</code></td>
+<td></td>
+<td></td>
+<td>** <code>final class SkinRouter { int get queued; int get inFlight; bool closing; void Function()? onRouted; }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
 </tr>
 <tr>
 <td><code>open</code></td>
 <td>** a requirement says "expose the graph over REST/MCP", "let remote callers apply commands", or "stream ledger entries to clients".</td>
 <td>** pure graph work (use <code>package:cell</code>), decisions (use <code>cell_flow</code>), books (use <code>cell_tissue</code>).</td>
-<td>** <code>static Future&lt;SkinMembrane&gt; open({required CellGraph graph, required SkinBindingTable bindings, SkinWhitelist? whitelist, Ledger? ledger, required EffectJournal journal, required void Function(Pulse&lt;WireMessage&gt;) send, Context inboundContext, Map&lt;String, String&gt;? descriptions, void Function(String)? onPolicyWarning})</code> — pinned at <code>cell_skin: 0.1.0</code></td>
+<td>** <code>static Future&lt;SkinMembrane&gt; open({required CellGraph graph, required SkinBindingTable bindings, SkinWhitelist? whitelist, Ledger? ledger, required EffectJournal journal, required void Function(Pulse&lt;WireMessage&gt;) send, Context inboundContext, Map&lt;String, String&gt;? descriptions, void Function(String)? onPolicyWarning, bool strictReceipts = true, IdempotencyStore? idempotency, DateTime Function() clock = DateTime.now, Duration maxQueueWait = Duration(seconds: 30), SkinAuthorizer? authorizer, int? maxQueued})</code> — pinned at <code>cell_skin: 1.0.0</code></td>
 <td>** <code>ARCHITECTURE-Skin.md</code> §2 (the four cells).</td>
 <td>** <code>example/lib/mock/mock_home.dart</code> (builds the Echo Home membrane).</td>
+</tr>
+<tr>
+<td><code>open</code></td>
+<td>** retries that must survive a restart; <code>/ready</code> checks</td>
+<td>** in a browser — <code>dart:io</code>; import it from <code>package:cell_skin/cell_skin_io.dart</code>, never the main barrel.</td>
+<td>** <code>static Future&lt;FileIdempotencyStore&gt; open({required String directory, int maxEntries = 1024, Duration ttl = Duration(hours: 24), Duration lease = Duration(minutes: 2), DateTime Function() clock = DateTime.now})</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>register</code></td>
+<td></td>
+<td></td>
+<td>** <code>final class SkinBindingTable { void register(SkinBinding binding); void seal(); bool get isSealed; SkinBinding? lookup(String cellId, String functionName); }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>request</code></td>
+<td></td>
+<td></td>
+<td>** <code>final class SkinMembrane { Future&lt;WireMessage&gt; request(WireMessage message, {String type = SkinPulseTypes.restApplyRequest, Duration? timeout, DateTime? deadline, PulseContext? context, SkinPrincipal? principal}); Stream&lt;Pulse&lt;WireMessage&gt;&gt; get responses; int get routerQueueDepth; int get routerInFlight; bool get isClosed; IdempotencyStore? get idempotency; Future&lt;bool&gt; mayRead(SkinPrincipal principal, String cellId); Future&lt;void&gt; close(); }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>skinWireVersion</code></td>
+<td>** checking <code>wire</code> at decode time through</td>
+<td>** inventing a second version — the freeze table lives in <code>HowTo-WireStability.md</code>.</td>
+<td>** <code>const String skinWireVersion = '1'</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>start</code></td>
+<td></td>
+<td></td>
+<td>** <code>abstract interface class McpAdapter { Future&lt;void&gt; start(); Future&lt;void&gt; close(); }</code> — pinned at <code>cell_skin: 1.0.0</code></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -193,6 +457,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
       <li class="section-subtitle">Features</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+        <li class="section-subitem"><a href="../cell_skin_io/">cell_skin_io</a></li>
         <li class="section-subitem"><a href="../cell_skin_rest/">cell_skin_rest</a></li>
       <li class="section-subtitle">Architecture</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
@@ -212,7 +477,7 @@ is generated from the <code>### AI Agent Guide</code> blocks and cannot drift.</
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

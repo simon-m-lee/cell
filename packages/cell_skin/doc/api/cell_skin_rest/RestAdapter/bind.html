@@ -65,6 +65,11 @@
 <li><span class="parameter" id="bind-param-maxBodyBytes"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">maxBodyBytes</span> = <span class="default-value">kDefaultMaxBodyBytes</span>, </span></li>
 <li><span class="parameter" id="bind-param-requestTimeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">requestTimeout</span> = <span class="default-value">const Duration(seconds: 30)</span>, </span></li>
 <li><span class="parameter" id="bind-param-keepAliveInterval"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">keepAliveInterval</span> = <span class="default-value">const Duration(seconds: 15)</span>, </span></li>
+<li><span class="parameter" id="bind-param-onServerError"><span class="type-annotation">void</span> <span class="parameter-name">onServerError</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-error"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">error</span>, </span></li>
+<li><span class="parameter" id="param-stackTrace"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/StackTrace-class.html">StackTrace</a></span> <span class="parameter-name">stackTrace</span></span></li>
+</ol>)?, </span></li>
+<li><span class="parameter" id="bind-param-clock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a></span> <span class="parameter-name">clock</span>() = <span class="default-value">DateTime.now</span>, </span></li>
+<li><span class="parameter" id="bind-param-onRequestLog"><span class="type-annotation"><a href="../../cell_skin_rest/SkinRequestLog.html">SkinRequestLog</a>?</span> <span class="parameter-name">onRequestLog</span>, </span></li>
 </ol>})
 
       
@@ -157,11 +162,12 @@ releases the subscription.</p>
 <p><strong>Layer:</strong> Skin — the HTTP transport on top of the membrane, not a second dispatch path.
 <strong>When to use:</strong> a requirement says "REST endpoint for the graph", "SSE stream of changes", "audit log over HTTP", or "curl-able manifest".
 <strong>When NOT to use:</strong> in-process calls (use <code>SkinClient</code>); speaking MCP (use the <code>McpAdapter</code> seam with an MCP SDK).
-<strong>Live signature:</strong> <code>static Future&lt;RestAdapter&gt; bind({required SkinMembrane membrane, required SkinAuth auth, ContextBridge contextBridge = const DescribeContextBridge(), Object? address, int port = 0, Set&lt;String&gt;? allowedHosts, Set&lt;String&gt;? allowedOrigins, int maxBodyBytes = 1048576, Duration requestTimeout = Duration(seconds: 30), Duration keepAliveInterval = Duration(seconds: 15)})</code> — pinned at <code>cell_skin: 0.1.0</code>
+<strong>Live signature:</strong> <code>static Future&lt;RestAdapter&gt; bind({required SkinMembrane membrane, required SkinAuth auth, ContextBridge contextBridge = const DescribeContextBridge(), Object? address, int port = 0, Set&lt;String&gt;? allowedHosts, Set&lt;String&gt;? allowedOrigins, int maxBodyBytes = 1048576, Duration requestTimeout = Duration(seconds: 30), Duration keepAliveInterval = Duration(seconds: 15), void Function(Object, StackTrace)? onServerError, DateTime Function() clock = DateTime.now, SkinRequestLog? onRequestLog})</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable
 <strong>Do NOT confuse with:</strong> <code>SkinMembrane.open</code> (the membrane) or <code>SkinAuth</code> (the credential check the adapter calls).
 <strong>Guide:</strong> <code>FEATURES-Skin.md</code> §10 (REST adapter).
 <strong>Example:</strong> <code>example/lib/mock/rest_io.dart</code> (the demo's real adapter binding).
-<strong>Cross-layer:</strong> every request is stamped with <code>PulseContext(baseContext: bridge.resolve(principal), actor: 'skin:&lt;id&gt;')</code> — the domain's gates see the remote actor.
+<strong>Cross-layer:</strong> every request is stamped with <code>skinPulseContext(baseContext: bridge.resolve(principal), actor: 'skin:&lt;id&gt;')</code> plus a JSON principal snapshot — the domain's gates read the caller through <code>SkinCall.current</code> during the apply, and stamped pulses store the actor on the ledger row.
 <strong>Minimal compilable example</strong></p>
 <pre class="language-dart"><code class="language-dart">final adapter = await RestAdapter.bind(
   membrane: membrane,
@@ -193,11 +199,12 @@ releases the subscription.</p>
 &#47;&#47;&#47; **Layer:** Skin — the HTTP transport on top of the membrane, not a second dispatch path.
 &#47;&#47;&#47; **When to use:** a requirement says &quot;REST endpoint for the graph&quot;, &quot;SSE stream of changes&quot;, &quot;audit log over HTTP&quot;, or &quot;curl-able manifest&quot;.
 &#47;&#47;&#47; **When NOT to use:** in-process calls (use `SkinClient`); speaking MCP (use the `McpAdapter` seam with an MCP SDK).
-&#47;&#47;&#47; **Live signature:** `static Future&lt;RestAdapter&gt; bind({required SkinMembrane membrane, required SkinAuth auth, ContextBridge contextBridge = const DescribeContextBridge(), Object? address, int port = 0, Set&lt;String&gt;? allowedHosts, Set&lt;String&gt;? allowedOrigins, int maxBodyBytes = 1048576, Duration requestTimeout = Duration(seconds: 30), Duration keepAliveInterval = Duration(seconds: 15)})` — pinned at `cell_skin: 0.1.0`
+&#47;&#47;&#47; **Live signature:** `static Future&lt;RestAdapter&gt; bind({required SkinMembrane membrane, required SkinAuth auth, ContextBridge contextBridge = const DescribeContextBridge(), Object? address, int port = 0, Set&lt;String&gt;? allowedHosts, Set&lt;String&gt;? allowedOrigins, int maxBodyBytes = 1048576, Duration requestTimeout = Duration(seconds: 30), Duration keepAliveInterval = Duration(seconds: 15), void Function(Object, StackTrace)? onServerError, DateTime Function() clock = DateTime.now, SkinRequestLog? onRequestLog})` — pinned at `cell_skin: 1.0.0`
+&#47;&#47;&#47; **Stability:** stable
 &#47;&#47;&#47; **Do NOT confuse with:** `SkinMembrane.open` (the membrane) or `SkinAuth` (the credential check the adapter calls).
 &#47;&#47;&#47; **Guide:** `FEATURES-Skin.md` §10 (REST adapter).
 &#47;&#47;&#47; **Example:** `example&#47;lib&#47;mock&#47;rest_io.dart` (the demo&#39;s real adapter binding).
-&#47;&#47;&#47; **Cross-layer:** every request is stamped with `PulseContext(baseContext: bridge.resolve(principal), actor: &#39;skin:&lt;id&gt;&#39;)` — the domain&#39;s gates see the remote actor.
+&#47;&#47;&#47; **Cross-layer:** every request is stamped with `skinPulseContext(baseContext: bridge.resolve(principal), actor: &#39;skin:&lt;id&gt;&#39;)` plus a JSON principal snapshot — the domain&#39;s gates read the caller through `SkinCall.current` during the apply, and stamped pulses store the actor on the ledger row.
 &#47;&#47;&#47; **Minimal compilable example**
 &#47;&#47;&#47; ```dart
 &#47;&#47;&#47; final adapter = await RestAdapter.bind(
@@ -216,28 +223,41 @@ static Future&lt;RestAdapter&gt; bind({
   int maxBodyBytes = kDefaultMaxBodyBytes,
   Duration requestTimeout = const Duration(seconds: 30),
   Duration keepAliveInterval = const Duration(seconds: 15),
+  void Function(Object error, StackTrace stackTrace)? onServerError,
+  DateTime Function() clock = DateTime.now,
+  SkinRequestLog? onRequestLog,
 }) async {
   final server =
       await HttpServer.bind(address ?? InternetAddress.loopbackIPv4, port);
-  return RestAdapter._(
-    membrane,
-    server,
-    auth,
-    contextBridge: contextBridge,
-    allowedHosts: allowedHosts ??
-        {
-          &#39;localhost&#39;,
-          &#39;127.0.0.1&#39;,
-          &#39;::1&#39;,
-          &#39;localhost:${server.port}&#39;,
-          &#39;127.0.0.1:${server.port}&#39;,
-          &#39;[::1]:${server.port}&#39;,
-        },
-    allowedOrigins: allowedOrigins ?? const {},
-    maxBodyBytes: maxBodyBytes,
-    requestTimeout: requestTimeout,
-    keepAliveInterval: keepAliveInterval,
-  );
+  try {
+    &#47;&#47; The decision uses what actually bound (`server.address`), not
+    &#47;&#47; the object the caller passed: a `String` address is judged by
+    &#47;&#47; the real socket. `0.0.0.0` and `::` are not loopback.
+    if (allowedHosts == null &amp;&amp; !server.address.isLoopback) {
+      throw ArgumentError(
+        &#39;RestAdapter.bind: ${server.address.address} is not loopback; &#39;
+        &#39;pass allowedHosts explicitly&#39;,
+      );
+    }
+    return RestAdapter._(
+      membrane,
+      server,
+      auth,
+      contextBridge: contextBridge,
+      allowedHosts: allowedHosts ?? _loopbackHosts(server.port),
+      allowedOrigins: allowedOrigins ?? const {},
+      maxBodyBytes: maxBodyBytes,
+      requestTimeout: requestTimeout,
+      keepAliveInterval: keepAliveInterval,
+      clock: clock,
+      onServerError: onServerError,
+      onRequestLog: onRequestLog,
+    );
+  } catch (_) {
+    &#47;&#47; A refused bind must not leak a listening socket.
+    await server.close(force: true);
+    rethrow;
+  }
 }</code></pre>
 </section>
 
@@ -266,7 +286,7 @@ static Future&lt;RestAdapter&gt; bind({
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

@@ -62,11 +62,11 @@
       </section>
       
 <section class="desc markdown">
-  <p>The unique identifier for the tool, formatted as <code>&lt;cellId&gt;.&lt;functionName&gt;</code>.</p>
-<p>In the framework's biological metaphor, this is the <strong>Synaptic Label</strong>.
-It provides the precise address needed for an AI to send a <strong>Nervous Signal</strong>
-to a specific cell. Both the cell ID and function name must be dot-free
-to ensure this label can be correctly decoded during ingress.</p>
+  <p>The escaped MCP tool name — the only name a host registers.</p>
+<p>Characters outside <code>[A-Za-z0-9_-]</code> are replaced with <code>_</code> (a dot
+becomes <code>_</code>, and so does <code>/</code>, a space, and anything else).
+Repeated underscores are not collapsed, no prefix is added, and
+the name is never truncated.</p>
 </section>
 
       
@@ -101,7 +101,7 @@ to ensure this label can be correctly decoded during ingress.</p>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

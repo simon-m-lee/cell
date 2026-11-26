@@ -58,9 +58,11 @@ instead of scattered checks.</li>
 </ul>
 <h2 id="when-not-to-use">When not to use</h2>
 <ul>
-<li>Creating exposure. The whitelist can only narrow; a function that is
-not bound does not exist on the wire no matter what the whitelist
-says.</li>
+<li>Creating exposure by listing names. The whitelist never creates
+exposure by itself; a function that is not bound does not exist on
+the wire no matter what the whitelist says. (The one exception is
+<a href="#inverting-the-policy">SkinUnlisted.expose</a>, and it exposes only
+<em>bound</em> bindings.)</li>
 </ul>
 <h2 id="basic-usage">Basic usage</h2>
 <pre class="language-dart"><code class="language-dart">final whitelist = SkinWhitelist({
@@ -106,9 +108,28 @@ membrane.isExposed('home.front.door');       // false — bound but not whitelis
 </tr>
 </tbody>
 </table>
+<h2 id="inverting-the-policy">Inverting the policy</h2>
+<p><code>SkinUnlisted.hide</code> (the default) exposes only listed functions. For a
+"deny the cells I name, allow the rest" policy, opt in:</p>
+<pre class="language-dart"><code class="language-dart">final whitelist = SkinWhitelist(
+  {
+    'home.living.thermostat': {'setTarget'},
+    'home.living.light': {}, // mentioned: its other functions stay hidden
+  },
+  unlisted: SkinUnlisted.expose,
+);
+</code></pre>
+<p>In <code>expose</code> mode a bound binding whose cell the map does not mention is
+reachable — applies, egress, observe, and ledger — and the membrane
+warns about each one at open time so the widening is visible:</p>
+<pre class="language-dart"><code class="language-dart">// binding "home.front.door.lock" is not listed and will be exposed
+</code></pre>
+<p>A function omitted from a cell the map <em>does</em> mention stays hidden in
+both modes — and, in <code>hide</code> mode, silently so: the binding is not
+reachable, so there is nothing to warn about.</p>
 <h2 id="policy-warnings">Policy warnings</h2>
 <p>Entries with no matching binding are likely typos. The membrane reports
-them at open time:</p>
+them at open time, identically in both modes:</p>
 <pre class="language-dart"><code class="language-dart">final membrane = await SkinMembrane.open(
   graph: graph,
   bindings: bindings,
@@ -119,6 +140,7 @@ them at open time:</p>
 );
 // whitelist entry "home.front.door.explodeTypo" has no registered binding
 </code></pre>
+<p>Without <code>onPolicyWarning</code>, nothing is printed — warnings are opt-in.</p>
 <h2 id="in-process-vs-transport">In-process vs transport</h2>
 <p>The in-process <code>membrane.responses</code> stream keeps the <strong>full</strong> stream —
 callers in the same process are in the same trust domain. The REST
@@ -194,6 +216,7 @@ remote caller.</p>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
       <li class="section-subtitle">Features</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+        <li class="section-subitem"><a href="../cell_skin_io/">cell_skin_io</a></li>
         <li class="section-subitem"><a href="../cell_skin_rest/">cell_skin_rest</a></li>
       <li class="section-subtitle">Architecture</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
@@ -229,7 +252,7 @@ remote caller.</p>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

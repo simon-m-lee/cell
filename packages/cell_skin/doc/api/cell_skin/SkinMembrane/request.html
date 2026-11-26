@@ -59,6 +59,8 @@
 <li><span class="parameter" id="request-param-type"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">type</span>, </span></li>
 <li><span class="parameter" id="request-param-context"><span class="type-annotation">PulseContext?</span> <span class="parameter-name">context</span>, </span></li>
 <li><span class="parameter" id="request-param-timeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">timeout</span> = <span class="default-value">const Duration(seconds: 30)</span>, </span></li>
+<li><span class="parameter" id="request-param-deadline"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a>?</span> <span class="parameter-name">deadline</span>, </span></li>
+<li><span class="parameter" id="request-param-principal"><span class="type-annotation"><a href="../../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a>?</span> <span class="parameter-name">principal</span>, </span></li>
 </ol>})
 
       
@@ -74,6 +76,16 @@ manifest requests — a <a href="../../cell_skin/WireManifestResponse-class.html
 never complete a pending request. <code>context</code> stamps this request's
 provenance on the emitted pulse (<code>PulseContext.userAction</code> is the
 canonical shape — the <a href="../../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a>'s bridge output).</p>
+<p><code>deadline</code> is the caller's instant after which a still-queued
+request must not start. The earlier of it and <code>now + maxQueueWait</code>
+wins; with a zero <code>maxQueueWait</code> and no <code>deadline</code>, there is no
+queue limit. The existing <code>timeout</code> only fails the waiter — it is
+never the queue deadline.</p>
+<p><code>principal</code> is the in-process caller: its JSON snapshot is merged
+into the emitted context's <code>others</code> under <code>skin.principal</code> (so the
+router can hand it to the authorizer). A caller-supplied <code>context</code>
+keeps its actor and its other metadata; only <code>others</code> gains the
+snapshot.</p>
 </section>
 
 
@@ -85,6 +97,8 @@ canonical shape — the <a href="../../cell_skin/SkinPrincipal-class.html">SkinP
   required String type,
   PulseContext? context,
   Duration timeout = const Duration(seconds: 30),
+  DateTime? deadline,
+  SkinPrincipal? principal,
 }) {
   if (_closed) {
     return Future&lt;WireMessage&gt;.error(
@@ -97,33 +111,72 @@ canonical shape — the <a href="../../cell_skin/SkinPrincipal-class.html">SkinP
         &#39;SkinMembrane.request: WireNotification has no response; &#39;
         &#39;emit it through inbound.emit instead&#39;);
   }
-  final correlationId = switch (message) {
+  &#47;&#47; The queue deadline and a possibly-empty correlation id are stamped
+  &#47;&#47; on a copy of the request; the original object the caller holds is
+  &#47;&#47; untouched. An empty id is replaced with a fresh one — an empty id
+  &#47;&#47; cannot identify a retry, and two empty-id requests must never
+  &#47;&#47; claim the same idempotency key.
+  final stamped = message is WireRequest
+      ? WireRequest(
+          cellId: message.cellId,
+          function: message.function,
+          positional: message.positional,
+          named: message.named,
+          correlationId: message.correlationId.isEmpty
+              ? nextCorrelationId(&#39;skin&#39;)
+              : message.correlationId,
+          clientCorrelationId: message.clientCorrelationId,
+          lastSeenSeq: message.lastSeenSeq,
+          deadline: _deadlineFor(deadline),
+        )
+      : message;
+  final correlationId = switch (stamped) {
     WireRequest request =&gt; request.correlationId,
     WireError error =&gt; error.correlationId,
     _ =&gt; null,
   };
+  final clientId =
+      stamped is WireRequest ? stamped.clientCorrelationId : null;
+  &#47;&#47; The cap counts accepted requests whose dispatch has not finished
+  &#47;&#47; — the one inside apply occupies a slot. The refused call never
+  &#47;&#47; claims, never applies, and the in-flight apply still finishes.
+  if (_maxQueued != null &amp;&amp; _outstanding &gt;= _maxQueued) {
+    return Future&lt;WireMessage&gt;.value(WireError(
+      correlationId: correlationId ?? &#39;&#39;,
+      clientCorrelationId: clientId,
+      code: &#39;queue_full&#39;,
+      message: &#39;the router queue is full&#39;,
+    ));
+  }
+  _outstanding++;
+  final matchId =
+      (correlationId == null || correlationId.isEmpty) ? null : correlationId;
   final completer = Completer&lt;WireMessage&gt;();
   _pendingRequests.add(completer);
   late final StreamSubscription&lt;Pulse&lt;WireMessage&gt;&gt; subscription;
   subscription = responses.listen((pulse) {
     final payload = pulse.payload;
-    if (correlationId != null) {
-      if (payload is WireResponse &amp;&amp; payload.correlationId == correlationId ||
-          payload is WireError &amp;&amp; payload.correlationId == correlationId) {
+    if (matchId != null) {
+      if (payload is WireResponse &amp;&amp; payload.correlationId == matchId ||
+          payload is WireError &amp;&amp; payload.correlationId == matchId) {
         if (!completer.isCompleted) completer.complete(payload);
         _pendingRequests.remove(completer);
         subscription.cancel();
       }
     } else if (payload is WireManifestResponse) {
+      &#47;&#47; Manifest responses carry no correlation id: today every
+      &#47;&#47; in-flight manifest request() completes on the first one. Safe
+      &#47;&#47; while the manifest is sealed and global; revisit when
+      &#47;&#47; manifests become principal-specific.
       if (!completer.isCompleted) completer.complete(payload);
       _pendingRequests.remove(completer);
       subscription.cancel();
     }
   });
   inbound.emit(Pulse&lt;WireMessage&gt;.governed(
-    payload: message,
+    payload: stamped,
     type: type,
-    context: context,
+    context: _withPrincipalSnapshot(context, principal),
   ));
   return completer.future.timeout(timeout, onTimeout: () {
     _pendingRequests.remove(completer);
@@ -158,7 +211,7 @@ canonical shape — the <a href="../../cell_skin/SkinPrincipal-class.html">SkinP
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

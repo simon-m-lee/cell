@@ -71,8 +71,11 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">bool allows(String cellId, String functionName) =&gt;
-    _byCell[cellId]?.contains(functionName) ?? false;</code></pre>
+  <pre class="language-dart"><code class="language-dart">bool allows(String cellId, String functionName) {
+  final functions = _byCell[cellId];
+  if (functions == null) return unlisted == SkinUnlisted.expose;
+  return functions.contains(functionName);
+}</code></pre>
 </section>
 
 
@@ -100,7 +103,7 @@
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

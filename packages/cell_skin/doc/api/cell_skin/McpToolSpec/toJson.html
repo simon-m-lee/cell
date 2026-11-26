@@ -64,7 +64,9 @@
 <section class="desc markdown">
   <p>Converts the spec into its <strong>Skin Form</strong> (JSON) for transport.</p>
 <p>This produces the wire-safe representation of the tool, ensuring
-compatibility with MCP-compliant AI agents and debuggers.</p>
+compatibility with MCP-compliant AI agents and debuggers. <code>name</code> is
+the registered tool; <code>dottedName</code> travels as metadata, not as a
+second registration.</p>
 </section>
 
 
@@ -73,6 +75,7 @@ compatibility with MCP-compliant AI agents and debuggers.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Map&lt;String, Object?&gt; toJson() =&gt; {
   &#39;name&#39;: name,
+  &#39;dottedName&#39;: dottedName,
   if (description != null) &#39;description&#39;: description,
   &#39;inputSchema&#39;: inputSchema.toJson(),
 };</code></pre>
@@ -103,7 +106,7 @@ compatibility with MCP-compliant AI agents and debuggers.</p>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

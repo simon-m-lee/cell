@@ -101,7 +101,8 @@ want to run this if my view of the data is up to date."</li>
 <p><strong>Layer:</strong> Skin — this is a command envelope, not a graph node.
 <strong>When to use:</strong> sending a command at a bound <code>(cellId, function)</code> over any transport.
 <strong>When NOT to use:</strong> fire-and-forget signals — use <a href="../cell_skin/WireNotification-class.html">WireNotification</a>; state observations — use <a href="../cell_skin/WireStateChange-class.html">WireStateChange</a>.
-<strong>Live signature:</strong> <code>const WireRequest({required String cellId, required String function, Map&lt;String, Object?&gt;? positional, Map&lt;String, Object?&gt;? named, required String correlationId, String? clientCorrelationId, int? lastSeenSeq})</code> — pinned at <code>cell_skin: 0.1.0</code>
+<strong>Live signature:</strong> <code>const WireRequest({required String cellId, required String function, Map&lt;String, Object?&gt;? positional, Map&lt;String, Object?&gt;? named, required String correlationId, String? clientCorrelationId, int? lastSeenSeq, DateTime? deadline})</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable
 <strong>Do NOT confuse with:</strong> <code>ApplyCommand</code> (the framework's own command record, built from this by the binding).
 <strong>Guide:</strong> <code>ARCHITECTURE-Skin.md</code> §3 (wire taxonomy) and §6 (correlation).
 <strong>Example:</strong> <code>example/lib/mock/mock_agent.dart</code> (every scripted beat is one request).
@@ -153,7 +154,7 @@ complete "Command Journey" context.</li>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="WireRequest.new" class="callable">
-          <span class="name"><a href="../cell_skin/WireRequest/WireRequest.html">WireRequest</a></span><span class="signature">({<span class="parameter" id="-param-cellId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">cellId</span>, </span><span class="parameter" id="-param-function"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">function</span>, </span><span class="parameter" id="-param-positional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">positional</span>, </span><span class="parameter" id="-param-named"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">named</span>, </span><span class="parameter" id="-param-correlationId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">correlationId</span>, </span><span class="parameter" id="-param-clientCorrelationId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">clientCorrelationId</span>, </span><span class="parameter" id="-param-lastSeenSeq"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">lastSeenSeq</span></span>})</span>
+          <span class="name"><a href="../cell_skin/WireRequest/WireRequest.html">WireRequest</a></span><span class="signature">({<span class="parameter" id="-param-cellId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">cellId</span>, </span><span class="parameter" id="-param-function"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">function</span>, </span><span class="parameter" id="-param-positional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">positional</span>, </span><span class="parameter" id="-param-named"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">named</span>, </span><span class="parameter" id="-param-correlationId"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">correlationId</span>, </span><span class="parameter" id="-param-clientCorrelationId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">clientCorrelationId</span>, </span><span class="parameter" id="-param-lastSeenSeq"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">lastSeenSeq</span>, </span><span class="parameter" id="-param-deadline"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a>?</span> <span class="parameter-name">deadline</span></span>})</span>
         </dt>
         <dd>
           Creates a new <a href="../cell_skin/WireRequest-class.html">WireRequest</a> envelope to carry a signal into the system.
@@ -206,6 +207,19 @@ complete "Command Journey" context.</li>
 </dt>
 <dd>
   The unique ID used to track a specific request through the system.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="deadline" class="property">
+  <span class="name"><a href="../cell_skin/WireRequest/deadline.html">deadline</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a>?</span>
+  
+
+</dt>
+<dd>
+  The instant after which a request that is still queued must not
+start.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -392,7 +406,7 @@ complete "Command Journey" context.</li>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

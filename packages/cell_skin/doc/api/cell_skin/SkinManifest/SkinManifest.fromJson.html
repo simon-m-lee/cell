@@ -58,17 +58,21 @@
 </ol>)
     </section>
     
+<section class="desc markdown">
+  <p>Decodes a <strong>Skin Form</strong> JSON map back into a <a href="../../cell_skin/SkinManifest-class.html">SkinManifest</a>.</p>
+<p>Acts as a <strong>Signal Decoder</strong> for discovery responses.</p>
+</section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">factory SkinManifest.fromJson(Map&lt;String, Object?&gt; json) =&gt; SkinManifest(
-      cells: (json[&#39;cells&#39;] as List? ?? const [])
-          .map((c) =&gt;
-              SkinCellDescriptor.fromJson((c as Map).cast&lt;String, Object?&gt;()))
-          .toList(growable: false),
-    );</code></pre>
+  cells: (json[&#39;cells&#39;] as List? ?? const [])
+      .map((c) =&gt;
+      SkinCellDescriptor.fromJson((c as Map).cast&lt;String, Object?&gt;()))
+      .toList(growable: false),
+);</code></pre>
 </section>
 
 
@@ -96,7 +100,7 @@
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

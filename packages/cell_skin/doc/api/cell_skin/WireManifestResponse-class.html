@@ -90,6 +90,14 @@ the membrane's current capabilities.</li>
 <li><a href="../cell_skin/WireManifestRequest-class.html">WireManifestRequest</a>: The impulse that triggers this response.</li>
 <li><a href="../cell_skin/SkinManifest-class.html">SkinManifest</a>: The actual catalog data being carried.</li>
 </ul>
+<h3 id="ai-agent-guide">AI Agent Guide</h3>
+<p><strong>Layer:</strong> Skin — the catalogue answer.
+<strong>When to use:</strong> replying to a <a href="../cell_skin/WireManifestRequest-class.html">WireManifestRequest</a>; the optional
+<code>correlationId</code> echoes the query when present.
+<strong>When NOT to use:</strong> commands or state — <a href="../cell_skin/WireResponse-class.html">WireResponse</a> and
+<a href="../cell_skin/WireStateChange-class.html">WireStateChange</a> own those.
+<strong>Live signature:</strong> <code>const WireManifestResponse({required SkinManifest manifest, String? correlationId})</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable</p>
 </section>
 
 
@@ -121,7 +129,7 @@ the membrane's current capabilities.</li>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="WireManifestResponse.new" class="callable">
-          <span class="name"><a href="../cell_skin/WireManifestResponse/WireManifestResponse.html">WireManifestResponse</a></span><span class="signature">({<span class="parameter" id="-param-manifest"><span>required</span> <span class="type-annotation"><a href="../cell_skin/SkinManifest-class.html">SkinManifest</a></span> <span class="parameter-name">manifest</span></span>})</span>
+          <span class="name"><a href="../cell_skin/WireManifestResponse/WireManifestResponse.html">WireManifestResponse</a></span><span class="signature">({<span class="parameter" id="-param-manifest"><span>required</span> <span class="type-annotation"><a href="../cell_skin/SkinManifest-class.html">SkinManifest</a></span> <span class="parameter-name">manifest</span>, </span><span class="parameter" id="-param-correlationId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">correlationId</span></span>})</span>
         </dt>
         <dd>
           Creates a new <a href="../cell_skin/WireManifestResponse-class.html">WireManifestResponse</a> envelope.
@@ -142,6 +150,19 @@ the membrane's current capabilities.</li>
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
+        <dt id="correlationId" class="property">
+  <span class="name"><a href="../cell_skin/WireManifestResponse/correlationId.html">correlationId</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd>
+  The optional correlation id echoed from the requesting impulse.
+Omitted on the wire when <code>null</code>.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
         <dt id="hashCode" class="property inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
@@ -288,7 +309,7 @@ the membrane's current capabilities.</li>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

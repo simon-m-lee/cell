@@ -169,12 +169,21 @@ framework provenance.
   The resolved identity DNA of an external actor at the membrane.
 </dd>
 
+          <dt id="SkinRequestSample">
+  <span class="name "><a href="../cell_skin_rest/SkinRequestSample-class.html">SkinRequestSample</a></span> 
+
+</dt>
+<dd>
+  One finished HTTP request as seen by <a href="../cell_skin_rest/SkinRequestLog.html">SkinRequestLog</a>.
+</dd>
+
           <dt id="SystemContextBridge">
   <span class="name "><a href="../cell_skin/SystemContextBridge-class.html">SystemContextBridge</a></span> 
 
 </dt>
 <dd>
-  A bridge that elevates every incoming signal to full system authority.
+  A bridge that resolves every incoming signal's <strong>base</strong> context to
+<code>Context.system</code>.
 </dd>
 
       </dl>
@@ -204,6 +213,25 @@ framework provenance.
 
 
 
+    <section class="summary offset-anchor" id="typedefs">
+      <h2>Typedefs</h2>
+      <dl>
+          
+  <dt id="SkinRequestLog" class="callable">
+    <span class="name"><a href="../cell_skin_rest/SkinRequestLog.html">SkinRequestLog</a></span><span class="signature">
+      <span class="returntype parameter">= void Function<span class="signature">(<span class="parameter" id="param-sample"><span class="type-annotation"><a href="../cell_skin_rest/SkinRequestSample-class.html">SkinRequestSample</a></span> <span class="parameter-name">sample</span></span>)</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    One finished HTTP request: a record for the metrics hook.
+    
+
+  </dd>
+
+      </dl>
+    </section>
 
   </div> <!-- /.main-content -->
   <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
@@ -242,6 +270,7 @@ framework provenance.
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
       <li class="section-subtitle">Features</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+        <li class="section-subitem"><a href="../cell_skin_io/">cell_skin_io</a></li>
         <li class="section-subitem"><a href="../cell_skin_rest/">cell_skin_rest</a></li>
       <li class="section-subtitle">Architecture</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
@@ -261,7 +290,7 @@ framework provenance.
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

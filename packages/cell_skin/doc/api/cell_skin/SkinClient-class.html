@@ -96,7 +96,8 @@ preventing "Forensic Ambiguity."</li>
 <p><strong>Layer:</strong> Skin — the trusted in-process caller, not a transport.
 <strong>When to use:</strong> a script, test, or agent drives the membrane from Dart; the demo pattern is this client, never a fake.
 <strong>When NOT to use:</strong> cross-process calls — use <code>RestAdapter</code>; cell-shaped remote views — use <a href="../cell_skin/RemoteCellClient-class.html">RemoteCellClient</a>.
-<strong>Live signature:</strong> <code>SkinClient({required SkinMembrane membrane})</code> with <code>Future&lt;ApplyOutcome&lt;Object?&gt;?&gt; apply(String cellId, String function, {List&lt;Object?&gt;? positional, Map&lt;String, Object?&gt;? named, int? lastSeenSeq, PulseContext? context})</code> — pinned at <code>cell_skin: 0.1.0</code>
+<strong>Live signature:</strong> <code>SkinClient({required SkinMembrane membrane})</code> with <code>Future&lt;ApplyOutcome&lt;Object?&gt;?&gt; apply(String cellId, String function, {List&lt;Object?&gt;? positional, Map&lt;String, Object?&gt;? named, int? lastSeenSeq, String type = SkinPulseTypes.restApplyRequest, PulseContext? context, SkinPrincipal? principal})</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable
 <strong>Do NOT confuse with:</strong> <code>RemoteCellClient</code> (remote facade) or <code>RestAdapter</code> (HTTP server).
 <strong>Guide:</strong> <code>FEATURES-Skin.md</code> §12 (clients).
 <strong>Example:</strong> <code>example/lib/mock/mock_agent.dart</code> (every scripted beat).
@@ -186,7 +187,7 @@ final outcome = await client.apply(
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="apply" class="callable">
-  <span class="name"><a href="../cell_skin/SkinClient/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-cellId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">cellId</span>, </span><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">positional</span>, </span><span class="parameter" id="apply-param-named"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">named</span>, </span><span class="parameter" id="apply-param-lastSeenSeq"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">lastSeenSeq</span>, </span><span class="parameter" id="apply-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">type</span> = <span class="default-value">SkinPulseTypes.restApplyRequest</span>, </span><span class="parameter" id="apply-param-context"><span class="type-annotation">PulseContext?</span> <span class="parameter-name">context</span></span>})
+  <span class="name"><a href="../cell_skin/SkinClient/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-cellId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">cellId</span>, </span><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">positional</span>, </span><span class="parameter" id="apply-param-named"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span> <span class="parameter-name">named</span>, </span><span class="parameter" id="apply-param-lastSeenSeq"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">lastSeenSeq</span>, </span><span class="parameter" id="apply-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">type</span> = <span class="default-value">SkinPulseTypes.restApplyRequest</span>, </span><span class="parameter" id="apply-param-context"><span class="type-annotation">PulseContext?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="apply-param-principal"><span class="type-annotation"><a href="../cell_skin/SkinPrincipal-class.html">SkinPrincipal</a>?</span> <span class="parameter-name">principal</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">ApplyOutcome<span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span>&gt;</span></span>
   </span>
   
@@ -303,6 +304,25 @@ target's real <code>ApplyOutcome</code>.
   </section>
     
     
+  <section class="summary offset-anchor" id="static-methods">
+    <h2>Static Methods</h2>
+    <dl class="callables">
+        <dt id="outcomeOf" class="callable">
+  <span class="name"><a href="../cell_skin/SkinClient/outcomeOf.html">outcomeOf</a></span><span class="signature">(<wbr><span class="parameter" id="outcomeOf-param-response"><span class="type-annotation"><a href="../cell_skin/WireResponse-class.html">WireResponse</a></span> <span class="parameter-name">response</span></span>)
+    <span class="returntype parameter">&#8594; ApplyOutcome<span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  The live outcome a <a href="../cell_skin/WireResponse-class.html">WireResponse</a> carries, with honest <code>null</code> and
+error handling.
+  
+
+</dd>
+
+    </dl>
+  </section>
     
 
   </div> <!-- /.main-content -->
@@ -328,7 +348,7 @@ target's real <code>ApplyOutcome</code>.
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

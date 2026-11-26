@@ -88,10 +88,142 @@ and enforces exposure.</p>
 </tr>
 <tr>
 <td align="left"><strong>Version</strong></td>
-<td align="left">0.1.0 — pre-1.0; the wire vocabulary may evolve before 1.0.</td>
+<td align="left">1.0.0-rc.1 — the wire is frozen, and the Dart surface below is frozen for the rc.</td>
 </tr>
 </tbody>
 </table>
+<table>
+<thead>
+<tr>
+<th align="left">Surface</th>
+<th align="left">Stability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">Wire messages, error table, SSE cursors, MCP escape, fingerprint</td>
+<td align="left"><code>stable</code></td>
+</tr>
+<tr>
+<td align="left"><code>SkinMembrane</code>, <code>SkinBinding</code>, <code>SkinClient</code>, <code>RestAdapter</code>, <code>SkinAuthorizer</code>, <code>SkinWhitelist</code></td>
+<td align="left"><code>stable</code></td>
+</tr>
+<tr>
+<td align="left"><code>IdempotencyStore</code>, <code>MemoryIdempotencyStore</code></td>
+<td align="left"><code>stable</code></td>
+</tr>
+<tr>
+<td align="left"><code>FileIdempotencyStore</code></td>
+<td align="left"><code>stable</code> — it is an <code>IdempotencyStore</code></td>
+</tr>
+<tr>
+<td align="left"><code>FileIdempotencyStore</code> line format</td>
+<td align="left"><code>experimental</code> — lines may gain fields</td>
+</tr>
+<tr>
+<td align="left"><code>McpAdapter</code> and the rest of that library</td>
+<td align="left"><code>experimental</code> — a seam, not a transport</td>
+</tr>
+<tr>
+<td align="left"><code>/ready</code>, <code>maxQueued</code>, <code>onRequestLog</code>, <code>SkinRequestSample</code></td>
+<td align="left"><code>stable</code></td>
+</tr>
+</tbody>
+</table>
+<p>The line format is not a symbol. The class goes in the stable list. The
+experimental list is every public symbol whose declaring library is
+<code>mcp_adapter.dart</code>. One name per line, sorted; every exported name from
+the three barrels is in exactly one list.</p>
+<!-- public-api:stable -->
+<pre class="language-text"><code class="language-text">AllowAllSkinAuth
+BadArgumentsException
+ContextBridge
+DescribeContextBridge
+FileIdempotencyStore
+IdempotencyClaim
+IdempotencyOwned
+IdempotencyRecord
+IdempotencyReplay
+IdempotencyStore
+IdempotencyWait
+JsonSchema
+MemoryIdempotencyStore
+RemoteCellClient
+RestAdapter
+SchemaObserver
+SkinAuth
+SkinAuthorizer
+SkinBinding
+SkinBindingTable
+SkinCall
+SkinCellDescriptor
+SkinClient
+SkinCredentials
+SkinError
+SkinFunctionDescriptor
+SkinManifest
+SkinMembrane
+SkinPrincipal
+SkinPulseTypes
+SkinPulses
+SkinRequestLog
+SkinRequestSample
+SkinRouter
+SkinUnlisted
+SkinWhitelist
+SystemContextBridge
+WireError
+WireLedgerEntry
+WireManifestRequest
+WireManifestResponse
+WireMessage
+WireNotification
+WireOutcome
+WirePulseGate
+WireReceipt
+WireRequest
+WireResponse
+WireStateChange
+buildEgressCells
+buildInboundCell
+buildMuxCell
+buildOutboundCell
+idempotencyFingerprint
+idempotencyStoreKey
+kDefaultMaxBodyBytes
+mergeSchemas
+nextCorrelationId
+principalFrom
+requireSkinWireVersion
+requiredForMissingObject
+schemaForValue
+skinErrorStatus
+skinPrincipalSnapshot
+skinPulseContext
+skinWireVersion
+validateBindingArguments
+validateJsonSchema
+wireLedgerEntryCellId
+wireLedgerEntryFromJson
+wireLedgerEntryJson
+wireOutcomeFromJson
+wireOutcomeJson
+wireOutcomeKind
+wireReceiptJson
+wireStateChangeForEntry
+withWire
+</code></pre>
+<!-- public-api:experimental -->
+<pre class="language-text"><code class="language-text">McpAdapter
+McpResourceSpec
+McpToolCall
+McpToolSpec
+mcpEscapedToolName
+mcpResourceSpecs
+mcpToolSpecs
+mcpUnknownToolResult
+resolveMcpToolCall
+</code></pre>
 <h2 id="3-wire-vocabulary">3. Wire Vocabulary</h2>
 <p>One sealed hierarchy, one intent per variant:</p>
 <ul>
@@ -107,7 +239,9 @@ survives JSON.</li>
 No correlation id: egress is not a reply.</li>
 <li><strong><code>WireError</code></strong> — pre-apply rejections with stable codes:
 <code>unknown_tool</code>, <code>bad_arguments</code>, <code>cursor_required</code>, <code>conflict</code>,
-<code>transport_error</code>, plus transport-level codes.</li>
+<code>idempotency_conflict</code>, <code>forbidden</code>, <code>queue_timeout</code>,
+<code>outcome_unknown</code>, <code>queue_full</code>, <code>verify_failed</code>,
+<code>host_not_allowed</code>, <code>origin_not_allowed</code>, <code>transport_error</code>.</li>
 <li><strong><code>WireNotification</code></strong> — fire-and-forget; <code>request()</code> on one throws
 <code>ArgumentError</code>.</li>
 <li><strong><code>WireManifestRequest</code>/<code>WireManifestResponse</code></strong> — tool catalogue.</li>
@@ -218,7 +352,9 @@ value (<code>schemaForValue</code>) → permissive. Observation widens correctly
 type-only inference (no single-value <code>enum</code>/<code>minimum == maximum</code>),
 <code>required</code> is the intersection across objects, absent bounds mean
 unconstrained, <code>int</code> ∪ <code>double</code> → <code>number</code>, and array items merge
-every element's schema.</li>
+every element's schema. An <strong>explicit</strong> schema is a gate (<code>required</code>,
+<code>enum</code>, closed objects, typed <code>null</code>, <code>positionalNames</code>); an observed
+schema is a hint for <code>tools/list</code>, never enforced.</li>
 <li><code>JsonSchema</code> JSON round-trips are lenient on the way in (array
 <code>type</code>, schema-object <code>additionalProperties</code>) and never let stored
 extras re-spread over modelled keys.</li>
@@ -257,7 +393,7 @@ required; anonymous access is the explicit <code>AllowAllSkinAuth</code>.</p>
 </tr>
 <tr>
 <td align="left"><code>POST /skin/verify</code></td>
-<td align="left">Structured verification; tamper failure → <code>{ok: false, message}</code>.</td>
+<td align="left">Structured verification; tamper failure → <code>{ok: false, code: "verify_failed"}</code> — the exception goes to <code>onServerError</code>, never into the body.</td>
 </tr>
 </tbody>
 </table>
@@ -268,11 +404,13 @@ from the <code>ContextBridge</code>. SSE runs over a detached raw socket with
 flush, keep-alive pings, silent-disconnect detection
 (<code>activeSubscriptions</code> returns to zero), and slow-client drop.</p>
 <h2 id="11-mcp-seam">11. MCP Seam</h2>
-<p><code>McpAdapter.mcpToolSpecs(manifest)</code> → neutral <code>McpToolSpec</code> /
-<code>McpResourceSpec</code> values: tool names <code>&lt;cellId&gt;.&lt;functionName&gt;</code> with
-dot-free, collision-checked parts, per-function descriptions, and
-schemas ready for any MCP SDK. <code>cell_skin</code> deliberately does not speak
-the MCP transport itself.</p>
+<p><code>mcpToolSpecs(manifest)</code> → neutral <code>McpToolSpec</code> /
+<code>McpResourceSpec</code> values: <code>name</code> is the escaped MCP wire name (unsafe
+characters become <code>_</code>, at most 64 characters, registered once),
+<code>dottedName</code> is the raw <code>&lt;cellId&gt;.&lt;functionName&gt;</code>,
+<code>resolveMcpToolCall</code> accepts both forms, collisions throw at catalogue
+build, and an unknown name returns the <code>unknown_tool</code> tool result.
+<code>cell_skin</code> deliberately does not speak the MCP transport itself.</p>
 <h2 id="12-clients">12. Clients</h2>
 <ul>
 <li><strong><code>SkinClient</code></strong> — in-process: <code>apply(...)</code> (returns the outcome or
@@ -291,8 +429,11 @@ metadata (peer, host, user agent).</li>
 <li><strong><code>ContextBridge</code></strong> — remote identity → framework <code>Context</code>;
 <code>DescribeContextBridge</code> (default), <code>SystemContextBridge</code> (the loud
 opt-in to system authority).</li>
-<li>Per-request <code>PulseContext(baseContext: bridge.resolve(principal), actor: 'skin:&lt;id&gt;', reason: ...)</code> — the domain's <code>TestCell</code> gates see
-the remote actor.</li>
+<li>Per-request <code>PulseContext(baseContext: bridge.resolve(principal), actor: 'skin:&lt;id&gt;', reason: ..., others: {'skin.principal': {...}})</code>.
+The router installs a <code>SkinCall</code> zone around the apply — the domain's
+<code>TestCell</code> gates read <code>SkinCall.current</code>, not the wire pulse — and
+stamped pulse-returning applies (<code>SkinBinding.state</code>,
+<code>SkinPulses.payload</code>) store the actor on the ledger row.</li>
 </ul>
 <h2 id="14-consistency-and-lifecycle">14. Consistency and Lifecycle</h2>
 <ul>
@@ -323,6 +464,14 @@ report, and <a href="DEMO_GUIDE.md">DEMO_GUIDE.md</a> for the Echo Home demo.</p
 </dt>
 <dd>The physical boundary layer between the internal somatic graph and the external environment.
 MCP-native, audit-ready, replay-verifiable.
+</dd>
+
+      <dt id="cell_skin_io">
+  <span class="name"><a href="../cell_skin_io/">cell_skin_io</a></span> 
+    <span class="category features cp-9 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+
+</dt>
+<dd>The <code>dart:io</code> barrel of the skin.
 </dd>
 
       <dt id="cell_skin_rest">
@@ -396,6 +545,7 @@ MCP-native, audit-ready, replay-verifiable.
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
       <li class="section-subtitle">Features</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
+        <li class="section-subitem"><a href="../cell_skin_io/">cell_skin_io</a></li>
         <li class="section-subitem"><a href="../cell_skin_rest/">cell_skin_rest</a></li>
       <li class="section-subtitle">Architecture</li>
         <li class="section-subitem"><a href="../cell_skin/">cell_skin</a></li>
@@ -413,6 +563,7 @@ MCP-native, audit-ready, replay-verifiable.
   <ol>
     <li class="section-title"><a href="../topics/Features-topic.html#libraries">Libraries</a></li>
       <li><a href="../cell_skin/">cell_skin</a></li>
+      <li><a href="../cell_skin_io/">cell_skin_io</a></li>
       <li><a href="../cell_skin_rest/">cell_skin_rest</a></li>
 
     <li class="section-title"><a href="../topics/Features-topic.html#classes">Classes</a></li>
@@ -434,7 +585,7 @@ MCP-native, audit-ready, replay-verifiable.
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

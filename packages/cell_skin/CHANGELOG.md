@@ -1,6 +1,6 @@
 # Changelog
 
-## Cell Skin (1.0.0) - Stable wire
+## Skin (1.0.0) - Stable wire
 
 The wire is version `"1"` — every encoded message and SSE `data` line
 carries `wire: "1"`, and the frozen error table lives in
@@ -17,7 +17,7 @@ the threat page.
   `body_too_large` is answered, so the status always reaches the
   client.
 
-## 1.0.0-rc.1 - Frozen surface
+## Skin (1.0.0-rc.1) - Frozen surface
 
 The freeze release: no behavior changes.
 
@@ -40,7 +40,7 @@ The freeze release: no behavior changes.
   `guide/HowTo-Migrate-0.2.md`; after the rc tag, such a commit means
   the release is not 1.0.
 
-## 0.5.0 - Operable
+## Skin (0.5.0) - Operable
 
 - **Added:** `SkinMembrane.open(maxQueued:)` — `null` is the v0.2
   unlimited default; over the cap `request()` returns `queue_full` (HTTP
@@ -55,7 +55,7 @@ The freeze release: no behavior changes.
   first run records the ceilings, later runs fail past
   ceiling * allowance (1.0).
 
-## 0.4.0 - Restart survivable
+## Skin (0.4.0) - Restart survivable
 
 - **Added:** `FileIdempotencyStore` in a new
   `package:cell_skin/cell_skin_io.dart` barrel (the main barrel stays
@@ -74,7 +74,7 @@ The freeze release: no behavior changes.
 - **Added:** `SkinMembrane.isClosed` and `SkinMembrane.idempotency`
   getters for the readiness probe.
 
-## 0.3.0 - Wire version 1
+## Skin (0.3.0) - Wire version 1
 
 - **Added:** every encoded `WireMessage` body and every SSE `data` line
   carries `wire: "1"`. A missing field decodes as version 1; any other
@@ -88,7 +88,7 @@ The freeze release: no behavior changes.
 - **Added:** optional `correlationId` on
   `WireManifestRequest`/`WireManifestResponse`, omitted when null.
 
-## 0.2.0 - The Hardened Membrane
+## Skin (0.2.0) - The Hardened Membrane
 
 - **Fixed:** correlation ids are minted by one isolate-wide sequence
   with a random suffix; two clients or adapters on one membrane can no
@@ -179,7 +179,7 @@ The freeze release: no behavior changes.
   no longer throws on the router; the keys are filtered.
 - **Changed:** REST 405 responses carry the `Allow` header.
 
-## 0.1.0 - The Four-Cell Membrane
+## Skin (0.1.0) - The Four-Cell Membrane
 
 First release of **cell_skin**:
 the membrane between a Cell graph and remote consumers, where the wire is a

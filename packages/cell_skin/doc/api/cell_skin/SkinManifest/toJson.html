@@ -61,14 +61,18 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Converts the manifest into its <strong>Skin Form</strong> (JSON) for transport.</p>
+<p>Encodes the complete <strong>Somatic Index</strong> for delivery across the membrane.</p>
+</section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Map&lt;String, Object?&gt; toJson() =&gt; {
-      &#39;cells&#39;: cells.map((c) =&gt; c.toJson()).toList(growable: false),
-    };</code></pre>
+  &#39;cells&#39;: cells.map((c) =&gt; c.toJson()).toList(growable: false),
+};</code></pre>
 </section>
 
 
@@ -96,7 +100,7 @@
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

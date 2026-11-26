@@ -44,6 +44,13 @@
       
 <section class="desc markdown">
   <h1 id="cell_skin">cell_skin</h1>
+<pre class="language-bash"><code class="language-bash">dart run skills@ get cell_skin
+</code></pre>
+<p>The skill carries the workflow, the hard rules, the BRD elevator
+matrix, and the generated decision matrix — the same matrix in two
+formats: <code>lib/doc/api_chooser.dart</code> and
+<code>skills/cell-skin/references/api_chooser.md</code>. The pin is
+<code>cell_skin 1.0.0</code>.</p>
 <p>The membrane between a Cell graph and the outside world — MCP-native,
 audit-ready, replay-verifiable.</p>
 <p>The core thesis: <strong>the wire is a <code>Pulse&lt;WireMessage&gt;</code> stream, and the
@@ -53,6 +60,12 @@ each doing one thing.</p>
 <pre class="language-text"><code class="language-text">Cell.ingress → Cell.asyncMap → target.apply → Cell.observe → Cell.observe
 (inbound)      (router)          (the plug)     (egress)        (outbound)
 </code></pre>
+<p><img src="doc/demo/echo_home.gif" alt="Echo Home — the live demo"></p>
+<p><strong>Echo Home — the live demo.</strong> A scripted agent drives the real
+four-cell membrane, the real <code>TestCell</code> gates (the door lock is
+genuinely refused), the real hash-chained ledger, and a real
+zero-divergence replay. Walkthrough: <a href="DEMO_GUIDE.md">DEMO_GUIDE.md</a>;
+source: <a href="example/">example/</a>.</p>
 <p>Every remote call lands in <code>Cell.apply</code> on the real target cell. Every
 receipt that crosses the wire is the target's own receipt — the router
 calls <code>target.apply</code>, never its own. Every rejection is a real
@@ -80,7 +93,7 @@ the same four Cells serve MCP and REST without a second wire format.</p>
 <td align="left">Reflection over Dart functions</td>
 </tr>
 <tr>
-<td align="left">Two gates: exposure (router Cell) + domain (target's <code>TestCell.action</code>)</td>
+<td align="left">Three gates: exposure (router Cell), the optional <code>SkinAuthorizer</code> hook, + domain (target's <code>TestCell.action</code>)</td>
 <td align="left">A unified authorization language</td>
 </tr>
 <tr>
@@ -112,11 +125,11 @@ Future&lt;void&gt; main() async {
   );
 
   final bindings = SkinBindingTable()
-    ..register(SkinBinding(
+    ..register(SkinBinding.state(
       cellId: 'home.living.thermostat',
       functionName: 'setTarget',
       target: thermostat.cell,
-      function: (int target) =&gt; thermostat.update(target),
+      nextValue: (int target) =&gt; target,
       argumentSchema: const JsonSchema(
         type: 'object',
         properties: {
@@ -135,9 +148,13 @@ Future&lt;void&gt; main() async {
   );
 
   final client = SkinClient(membrane: membrane);
-  final outcome = await graph.run(
-      () =&gt; client.apply('home.living.thermostat', 'setTarget', positional: [19]));
-  // outcome is the target's real ApplyOutcome&lt;Object?&gt;.
+  final outcome =
+      await client.apply('home.living.thermostat', 'setTarget', positional: [19]);
+  // outcome is the target's real ApplyOutcome&lt;Object?&gt;. With a bound
+  // ledger the router opened the graph's ledger scope around this apply —
+  // `graph.run` is not required for remote applies. Wrap several
+  // in-process applies in `graph.run(...)` when they must share one
+  // scope; the router will not open a second one.
 }
 </code></pre>
 <p>For MCP or REST over a real socket, wrap the same membrane:</p>
@@ -351,6 +368,14 @@ MCP-native, audit-ready, replay-verifiable.
 MCP-native, audit-ready, replay-verifiable.
 </dd>
 
+            <dt id="cell_skin_io">
+  <span class="name"><a href="cell_skin_io/">cell_skin_io</a></span> 
+    <span class="category features cp-9 linked" title="This is part of the Features topic."><a href="topics/Features-topic.html">Features</a></span>
+
+</dt>
+<dd>The <code>dart:io</code> barrel of the skin.
+</dd>
+
             <dt id="cell_skin_rest">
   <span class="name"><a href="cell_skin_rest/">cell_skin_rest</a></span> 
     <span class="category features cp-9 linked" title="This is part of the Features topic."><a href="topics/Features-topic.html">Features</a></span>
@@ -454,6 +479,7 @@ MCP-native, audit-ready, replay-verifiable.
         <li class="section-subitem"><a href="cell_skin/">cell_skin</a></li>
       <li class="section-subtitle">Features</li>
         <li class="section-subitem"><a href="cell_skin/">cell_skin</a></li>
+        <li class="section-subitem"><a href="cell_skin_io/">cell_skin_io</a></li>
         <li class="section-subitem"><a href="cell_skin_rest/">cell_skin_rest</a></li>
       <li class="section-subtitle">Architecture</li>
         <li class="section-subitem"><a href="cell_skin/">cell_skin</a></li>
@@ -472,7 +498,7 @@ MCP-native, audit-ready, replay-verifiable.
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

@@ -107,6 +107,8 @@ in the <strong>Forensic Ledger</strong>.</li>
 </ul>
 <h3 id="ai-agent-guide">AI Agent Guide</h3>
 <p><strong>Layer:</strong> Skin — this is the physical exit point.
+<strong>Live signature:</strong> <code>EgressHandle&lt;Pulse&lt;WireMessage&gt;&gt; buildOutboundCell({required Cell mux, required void Function(Pulse&lt;WireMessage&gt; pulse) send})</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable
 <strong>Status:</strong> Terminal observation.
 <strong>Constraint:</strong> The <code>send</code> effect must be exception-free; errors here
 can crash the egress pipeline of the entire membrane.</p>
@@ -147,7 +149,7 @@ can crash the egress pipeline of the entire membrane.</p>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

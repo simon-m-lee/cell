@@ -83,6 +83,8 @@ there are no "Forensic Holes" in the system's external audit trail.</p>
 </ul>
 <h3 id="ai-agent-guide">AI Agent Guide</h3>
 <p><strong>Layer:</strong> Skin — this is the HTTP transport pore.
+<strong>Live signature:</strong> <code>final class RestAdapter { final SkinMembrane membrane; int get port; Future&lt;void&gt; close(); }</code> — pinned at <code>cell_skin: 1.0.0</code>
+<strong>Stability:</strong> stable
 <strong>Discovery:</strong> Use the <code>/skin/manifest</code> endpoint to fetch the <strong>Somatic Index</strong>.
 <strong>Interaction:</strong> Use <code>/skin/apply</code> to initiate a <strong>Command Journey</strong>.</p>
 </section>
@@ -129,6 +131,33 @@ operations).
 </dt>
 <dd>
   The reactive organ orchestrating the somatic graph.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="onRequestLog" class="property">
+  <span class="name"><a href="../cell_skin_rest/RestAdapter/onRequestLog.html">onRequestLog</a></span>
+  <span class="signature">&#8594; <a href="../cell_skin_rest/SkinRequestLog.html">SkinRequestLog</a>?</span>
+  
+
+</dt>
+<dd>
+  The metrics hook, called once per finished request from a
+<code>finally</code>. <code>null</code> means no logging.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="onServerError" class="property">
+  <span class="name"><a href="../cell_skin_rest/RestAdapter/onServerError.html">onServerError</a></span>
+  <span class="signature">&#8594; void Function<span class="signature">(<span class="parameter" id="param-error"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">error</span>, </span><span class="parameter" id="param-stackTrace"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/StackTrace-class.html">StackTrace</a></span> <span class="parameter-name">stackTrace</span></span>)</span>?</span>
+  
+
+</dt>
+<dd>
+  Receives server-side exceptions (a frame that failed to encode, a
+verify that threw). <code>null</code> means the failure is not logged. The
+exception never reaches the response body.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -234,7 +263,7 @@ operations).
     <h2>Static Methods</h2>
     <dl class="callables">
         <dt id="bind" class="callable">
-  <span class="name"><a href="../cell_skin_rest/RestAdapter/bind.html">bind</a></span><span class="signature">(<wbr>{<span class="parameter" id="bind-param-membrane"><span>required</span> <span class="type-annotation"><a href="../cell_skin/SkinMembrane-class.html">SkinMembrane</a></span> <span class="parameter-name">membrane</span>, </span><span class="parameter" id="bind-param-auth"><span>required</span> <span class="type-annotation"><a href="../cell_skin/SkinAuth-class.html">SkinAuth</a></span> <span class="parameter-name">auth</span>, </span><span class="parameter" id="bind-param-contextBridge"><span class="type-annotation"><a href="../cell_skin/ContextBridge-class.html">ContextBridge</a></span> <span class="parameter-name">contextBridge</span> = <span class="default-value">const DescribeContextBridge()</span>, </span><span class="parameter" id="bind-param-address"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">address</span>, </span><span class="parameter" id="bind-param-port"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">port</span> = <span class="default-value">0</span>, </span><span class="parameter" id="bind-param-allowedHosts"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">allowedHosts</span>, </span><span class="parameter" id="bind-param-allowedOrigins"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">allowedOrigins</span>, </span><span class="parameter" id="bind-param-maxBodyBytes"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">maxBodyBytes</span> = <span class="default-value">kDefaultMaxBodyBytes</span>, </span><span class="parameter" id="bind-param-requestTimeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">requestTimeout</span> = <span class="default-value">const Duration(seconds: 30)</span>, </span><span class="parameter" id="bind-param-keepAliveInterval"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">keepAliveInterval</span> = <span class="default-value">const Duration(seconds: 15)</span></span>})
+  <span class="name"><a href="../cell_skin_rest/RestAdapter/bind.html">bind</a></span><span class="signature">(<wbr>{<span class="parameter" id="bind-param-membrane"><span>required</span> <span class="type-annotation"><a href="../cell_skin/SkinMembrane-class.html">SkinMembrane</a></span> <span class="parameter-name">membrane</span>, </span><span class="parameter" id="bind-param-auth"><span>required</span> <span class="type-annotation"><a href="../cell_skin/SkinAuth-class.html">SkinAuth</a></span> <span class="parameter-name">auth</span>, </span><span class="parameter" id="bind-param-contextBridge"><span class="type-annotation"><a href="../cell_skin/ContextBridge-class.html">ContextBridge</a></span> <span class="parameter-name">contextBridge</span> = <span class="default-value">const DescribeContextBridge()</span>, </span><span class="parameter" id="bind-param-address"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">address</span>, </span><span class="parameter" id="bind-param-port"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">port</span> = <span class="default-value">0</span>, </span><span class="parameter" id="bind-param-allowedHosts"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">allowedHosts</span>, </span><span class="parameter" id="bind-param-allowedOrigins"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span> <span class="parameter-name">allowedOrigins</span>, </span><span class="parameter" id="bind-param-maxBodyBytes"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">maxBodyBytes</span> = <span class="default-value">kDefaultMaxBodyBytes</span>, </span><span class="parameter" id="bind-param-requestTimeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">requestTimeout</span> = <span class="default-value">const Duration(seconds: 30)</span>, </span><span class="parameter" id="bind-param-keepAliveInterval"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">keepAliveInterval</span> = <span class="default-value">const Duration(seconds: 15)</span>, </span><span class="parameter" id="bind-param-onServerError"><span class="type-annotation">void</span> <span class="parameter-name">onServerError</span>(<span class="parameter" id="param-error"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">error</span>, </span><span class="parameter" id="param-stackTrace"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/StackTrace-class.html">StackTrace</a></span> <span class="parameter-name">stackTrace</span></span>)?, </span><span class="parameter" id="bind-param-clock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a></span> <span class="parameter-name">clock</span>() = <span class="default-value">DateTime.now</span>, </span><span class="parameter" id="bind-param-onRequestLog"><span class="type-annotation"><a href="../cell_skin_rest/SkinRequestLog.html">SkinRequestLog</a>?</span> <span class="parameter-name">onRequestLog</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_skin_rest/RestAdapter-class.html">RestAdapter</a></span>&gt;</span></span>
   </span>
   
@@ -277,7 +306,7 @@ audit streams via HTTP and SSE.
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>

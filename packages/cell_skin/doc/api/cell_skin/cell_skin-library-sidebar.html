@@ -3,15 +3,24 @@
         <li><a href="cell_skin/AllowAllSkinAuth-class.html">AllowAllSkinAuth</a></li>
         <li><a href="cell_skin/ContextBridge-class.html">ContextBridge</a></li>
         <li><a href="cell_skin/DescribeContextBridge-class.html">DescribeContextBridge</a></li>
+        <li><a href="cell_skin/IdempotencyClaim-class.html">IdempotencyClaim</a></li>
+        <li><a href="cell_skin/IdempotencyOwned-class.html">IdempotencyOwned</a></li>
+        <li><a href="cell_skin/IdempotencyRecord-class.html">IdempotencyRecord</a></li>
+        <li><a href="cell_skin/IdempotencyReplay-class.html">IdempotencyReplay</a></li>
+        <li><a href="cell_skin/IdempotencyStore-class.html">IdempotencyStore</a></li>
+        <li><a href="cell_skin/IdempotencyWait-class.html">IdempotencyWait</a></li>
         <li><a href="cell_skin/JsonSchema-class.html">JsonSchema</a></li>
         <li><a href="cell_skin/McpAdapter-class.html">McpAdapter</a></li>
         <li><a href="cell_skin/McpResourceSpec-class.html">McpResourceSpec</a></li>
+        <li><a href="cell_skin/McpToolCall-class.html">McpToolCall</a></li>
         <li><a href="cell_skin/McpToolSpec-class.html">McpToolSpec</a></li>
+        <li><a href="cell_skin/MemoryIdempotencyStore-class.html">MemoryIdempotencyStore</a></li>
         <li><a href="cell_skin/RemoteCellClient-class.html">RemoteCellClient</a></li>
         <li><a href="cell_skin/SchemaObserver-class.html">SchemaObserver</a></li>
         <li><a href="cell_skin/SkinAuth-class.html">SkinAuth</a></li>
         <li><a href="cell_skin/SkinBinding-class.html">SkinBinding</a></li>
         <li><a href="cell_skin/SkinBindingTable-class.html">SkinBindingTable</a></li>
+        <li><a href="cell_skin/SkinCall-class.html">SkinCall</a></li>
         <li><a href="cell_skin/SkinCellDescriptor-class.html">SkinCellDescriptor</a></li>
         <li><a href="cell_skin/SkinClient-class.html">SkinClient</a></li>
         <li><a href="cell_skin/SkinCredentials-class.html">SkinCredentials</a></li>
@@ -19,6 +28,7 @@
         <li><a href="cell_skin/SkinManifest-class.html">SkinManifest</a></li>
         <li><a href="cell_skin/SkinMembrane-class.html">SkinMembrane</a></li>
         <li><a href="cell_skin/SkinPrincipal-class.html">SkinPrincipal</a></li>
+        <li><a href="cell_skin/SkinPulses-class.html">SkinPulses</a></li>
         <li><a href="cell_skin/SkinPulseTypes-class.html">SkinPulseTypes</a></li>
         <li><a href="cell_skin/SkinRouter-class.html">SkinRouter</a></li>
         <li><a href="cell_skin/SkinWhitelist-class.html">SkinWhitelist</a></li>
@@ -36,9 +46,14 @@
         <li><a href="cell_skin/WireResponse-class.html">WireResponse</a></li>
         <li><a href="cell_skin/WireStateChange-class.html">WireStateChange</a></li>
 
+      <li class="section-title"><a href="cell_skin/#enums">Enums</a></li>
+        <li><a href="cell_skin/SkinUnlisted.html">SkinUnlisted</a></li>
 
 
 
+      <li class="section-title"><a href="cell_skin/#constants">Constants</a></li>
+        <li><a href="cell_skin/skinErrorStatus-constant.html">skinErrorStatus</a></li>
+        <li><a href="cell_skin/skinWireVersion-constant.html">skinWireVersion</a></li>
 
 
       <li class="section-title"><a href="cell_skin/#functions">Functions</a></li>
@@ -46,10 +61,23 @@
         <li><a href="cell_skin/buildInboundCell.html">buildInboundCell</a></li>
         <li><a href="cell_skin/buildMuxCell.html">buildMuxCell</a></li>
         <li><a href="cell_skin/buildOutboundCell.html">buildOutboundCell</a></li>
+        <li><a href="cell_skin/idempotencyFingerprint.html">idempotencyFingerprint</a></li>
+        <li><a href="cell_skin/idempotencyStoreKey.html">idempotencyStoreKey</a></li>
+        <li><a href="cell_skin/mcpEscapedToolName.html">mcpEscapedToolName</a></li>
         <li><a href="cell_skin/mcpResourceSpecs.html">mcpResourceSpecs</a></li>
         <li><a href="cell_skin/mcpToolSpecs.html">mcpToolSpecs</a></li>
+        <li><a href="cell_skin/mcpUnknownToolResult.html">mcpUnknownToolResult</a></li>
         <li><a href="cell_skin/mergeSchemas.html">mergeSchemas</a></li>
+        <li><a href="cell_skin/nextCorrelationId.html">nextCorrelationId</a></li>
+        <li><a href="cell_skin/principalFrom.html">principalFrom</a></li>
+        <li><a href="cell_skin/requiredForMissingObject.html">requiredForMissingObject</a></li>
+        <li><a href="cell_skin/requireSkinWireVersion.html">requireSkinWireVersion</a></li>
+        <li><a href="cell_skin/resolveMcpToolCall.html">resolveMcpToolCall</a></li>
         <li><a href="cell_skin/schemaForValue.html">schemaForValue</a></li>
+        <li><a href="cell_skin/skinPrincipalSnapshot.html">skinPrincipalSnapshot</a></li>
+        <li><a href="cell_skin/skinPulseContext.html">skinPulseContext</a></li>
+        <li><a href="cell_skin/validateBindingArguments.html">validateBindingArguments</a></li>
+        <li><a href="cell_skin/validateJsonSchema.html">validateJsonSchema</a></li>
         <li><a href="cell_skin/wireLedgerEntryCellId.html">wireLedgerEntryCellId</a></li>
         <li><a href="cell_skin/wireLedgerEntryFromJson.html">wireLedgerEntryFromJson</a></li>
         <li><a href="cell_skin/wireLedgerEntryJson.html">wireLedgerEntryJson</a></li>
@@ -58,7 +86,10 @@
         <li><a href="cell_skin/wireOutcomeKind.html">wireOutcomeKind</a></li>
         <li><a href="cell_skin/wireReceiptJson.html">wireReceiptJson</a></li>
         <li><a href="cell_skin/wireStateChangeForEntry.html">wireStateChangeForEntry</a></li>
+        <li><a href="cell_skin/withWire.html">withWire</a></li>
 
+      <li class="section-title"><a href="cell_skin/#typedefs">Typedefs</a></li>
+        <li><a href="cell_skin/SkinAuthorizer.html">SkinAuthorizer</a></li>
 
       <li class="section-title"><a href="cell_skin/#exceptions">Exceptions</a></li>
         <li><a href="cell_skin/BadArgumentsException-class.html">BadArgumentsException</a></li>

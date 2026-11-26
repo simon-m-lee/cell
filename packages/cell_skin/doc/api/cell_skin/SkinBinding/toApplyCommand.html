@@ -69,6 +69,24 @@ be a contiguous <code>0..n-1</code> integer range — order is taken from the
 keys, never from JSON object insertion order (JSON objects are
 unordered by spec). Named wire arguments are decoded into the
 framework's <code>Map&lt;Symbol, Object?&gt;</code> convention.</p>
+<p>For a <a href="../../cell_skin/SkinBinding/SkinBinding.state.html">SkinBinding.state</a> binding the command function is a wrapper
+that <code>Function.apply</code>s the stored user function and returns the
+result as a <code>Pulse</code> stamped with the ambient <a href="../../cell_skin/SkinCall-class.html">SkinCall</a>'s context
+(an existing <code>Pulse</code> passes through — re-stamped only when it
+carries no actor; a <code>Future</code> is unwrapped first). A <code>command</code>
+binding's positional calls get a return-value wrapper that stamps a
+returned pulse the same way; anything else (the <code>true</code> from a
+<code>txApply</code> batch) is unchanged. Raw bindings keep the user function
+itself on the command — authors who want the actor on the row
+return <code>SkinPulses.payload(...)</code>.</p>
+<p>Dart has no variadic closures, so the wrappers accept positional
+wire arguments through optional positional parameters (up to 12)
+and forward the collected prefix. A <code>state</code> or <code>command</code> binding
+called with <strong>named</strong> wire arguments is refused with
+<code>bad_arguments</code> — there is no generic named wrapper, so letting it
+through would silently drop the return-value wrapping (and, on a
+ledgered membrane, fail the strict-receipt check after the row was
+written). An empty <code>named: {}</code> is treated as absent.</p>
 </section>
 
 
@@ -78,8 +96,21 @@ framework's <code>Map&lt;Symbol, Object?&gt;</code> convention.</p>
   <pre class="language-dart"><code class="language-dart">ApplyCommand toApplyCommand(WireRequest request) {
   final positional = _orderedPositional(request.positional);
   final named = _namedSymbols(request.named);
+  final positionalOnly = named == null;
+  if (!positionalOnly &amp;&amp;
+      (_write == _SkinWrite.state || _write == _SkinWrite.command)) {
+    throw BadArgumentsException(
+        &#39;named arguments are not supported for this binding; &#39;
+        &#39;pass positional arguments&#39;);
+  }
+  final wrapsState = _write == _SkinWrite.state &amp;&amp; positionalOnly;
+  final wrapsCommand = _write == _SkinWrite.command &amp;&amp; positionalOnly;
   return (
-    function: function,
+    function: wrapsState
+        ? _stateWrapper(function, null)
+        : wrapsCommand
+            ? _commandWrapper(function, null)
+            : function,
     arguments: (
       positionalArguments: positional,
       namedArguments: named,
@@ -87,7 +118,9 @@ framework's <code>Map&lt;Symbol, Object?&gt;</code> convention.</p>
     compensation: compensation == null
         ? null
         : (
-            function: compensation!,
+            function: wrapsState
+                ? _stateWrapper(compensation!, null)
+                : compensation!,
             arguments: (
               positionalArguments: positional,
               namedArguments: named,
@@ -123,7 +156,7 @@ framework's <code>Map&lt;Symbol, Object?&gt;</code> convention.</p>
 <footer>
   <span class="no-break">
     cell_skin
-      0.1.0
+      1.0.0
   </span>
   
 </footer>
